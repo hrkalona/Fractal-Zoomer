@@ -67,7 +67,7 @@ public abstract class ThreadPaint extends Thread {
         action = NORMAL;
         julia = false;
 
-        boolean mandelbrot_optimization = false;
+        //boolean mandelbrot_optimization = false;
 
         /*if((function == 0 || function == MainWindow.MANDELBROTNTH && z_exponent == 2) && !burning_ship && !inverse_plane && out_coloring_algorithm != MainWindow.CROSS_ORBIT_TRAPS) {
             int image_size = ptr.getImageSize();
@@ -613,6 +613,8 @@ public abstract class ThreadPaint extends Thread {
     private void paintFractalNormalDrawing(Graphics brush, int image_size) {
 
          Graphics2D full_image_g = image.createGraphics();
+         
+         
 
          double size = fractal.getSize();
 
@@ -819,13 +821,19 @@ public abstract class ThreadPaint extends Thread {
                      }
              
                      if(whole_area) {
-                         for(int k = y; k < slice_TOy - step - 1; k++) {
-                             for(int l = x + 1 ; l < slice_TOx - step - 1; l++) {
+                         int temp1 = slice_TOx - step - 1;
+                         int temp2 = slice_TOy - step - 1;
+                         int temp3 = x + 1;
+                         int temp4 = temp1 - x;
+                         int temp5 = temp2 - y;
+                                                  
+                         full_image_g.setColor(temp_starting_pixel_color);
+                         full_image_g.fillRect(temp3, y, temp4, temp5);
+                         brush.setColor(temp_starting_pixel_color);
+                         brush.fillRect(temp3, y, temp4, temp5);
+                         for(int k = y; k < temp2; k++) {
+                             for(int l = x + 1 ; l < temp1; l++) {
                                  image_iterations[l][k] = temp_starting_pixel_cicle;
-                                 full_image_g.setColor(temp_starting_pixel_color);
-                                 full_image_g.drawLine(l, k, l, k);
-                                 brush.setColor(temp_starting_pixel_color);
-                                 brush.drawLine(l, k, l, k);
                              }
                          }
                          
@@ -873,8 +881,8 @@ public abstract class ThreadPaint extends Thread {
          int slice_FROMy;
          int slice_TOx;
          int slice_TOy;
-                 
          
+                  
          for(int i = 0; i < thread_slices; i++) {
              for(int j = 0; j < thread_slices; j++) {
                
@@ -1012,11 +1020,14 @@ public abstract class ThreadPaint extends Thread {
                      }
              
                      if(whole_area) {
-                         for(int k = y; k < slice_TOy - step - 1; k++) {
-                             for(int l = x + 1 ; l < slice_TOx - step - 1; l++) {
+                         int temp1 = slice_TOx - step - 1;
+                         int temp2 = slice_TOy - step - 1;
+                                                  
+                         full_image_g.setColor(temp_starting_pixel_color);
+                         full_image_g.fillRect(x + 1, y, temp1 - x, temp2 - y);
+                         for(int k = y; k < temp2; k++) {
+                             for(int l = x + 1 ; l < temp1; l++) {
                                  image_iterations[l][k] = temp_starting_pixel_cicle;
-                                 full_image_g.setColor(temp_starting_pixel_color);
-                                 full_image_g.drawLine(l, k, l, k);
                              }
                          }
                          
@@ -1217,15 +1228,23 @@ public abstract class ThreadPaint extends Thread {
                      }
              
                      if(whole_area) {
+                         int temp1 = slice_TOx - step - 1;
+                         int temp2 = slice_TOy - step - 1;
+                         int temp3 = x + 1;
+                         int temp4 = temp1 - x;
+                         int temp5 = temp2 - y;
+                                                  
+                         full_image_g.setColor(fractal_color);
+                         full_image_g.fillRect(temp3, y, temp4, temp5);
+                         brush.setColor(fractal_color);
+                         brush.fillRect(temp3, y, temp4, temp5);
+                         
                          for(int k = y; k < slice_TOy - step - 1; k++) {
                              for(int l = x + 1 ; l < slice_TOx - step - 1; l++) {
                                  image_iterations[l][k] = max_iterations;
-                                 full_image_g.setColor(fractal_color);
-                                 full_image_g.drawLine(l, k, l, k);
-                                 brush.setColor(fractal_color);
-                                 brush.drawLine(l, k, l, k);
                              }
                          }
+                         
                          progress.update((slice_TOx - slice_FROMx) * (slice_TOy - slice_FROMy) - total_drawing);
                          break;
                      }
@@ -1375,11 +1394,15 @@ public abstract class ThreadPaint extends Thread {
                      }
              
                      if(whole_area) {
+                         int temp1 = slice_TOx - step - 1;
+                         int temp2 = slice_TOy - step - 1;
+                                                  
+                         full_image_g.setColor(fractal_color);
+                         full_image_g.fillRect(x + 1, y, temp1 - x, temp2 - y);
+                         
                          for(int k = y; k < slice_TOy - step - 1; k++) {
                              for(int l = x + 1 ; l < slice_TOx - step - 1; l++) {
                                  image_iterations[l][k] = max_iterations;
-                                 full_image_g.setColor(fractal_color);
-                                 full_image_g.drawLine(l, k, l, k);
                              }
                          }
                          progress.update((slice_TOx - slice_FROMx) * (slice_TOy - slice_FROMy) - total_drawing);
@@ -1573,13 +1596,19 @@ public abstract class ThreadPaint extends Thread {
                      }
              
                      if(whole_area) {
-                         for(int k = y; k < slice_TOy - step - 1; k++) {
-                             for(int l = x + 1 ; l < slice_TOx - step - 1; l++) {
+                         int temp1 = slice_TOx - step - 1;
+                         int temp2 = slice_TOy - step - 1;
+                         int temp3 = x + 1;
+                         int temp4 = temp1 - x;
+                         int temp5 = temp2 - y;
+                                                  
+                         full_image_g.setColor(temp_starting_pixel_color);
+                         full_image_g.fillRect(temp3, y, temp4, temp5);
+                         brush.setColor(temp_starting_pixel_color);
+                         brush.fillRect(temp3, y, temp4, temp5);
+                         for(int k = y; k < temp2; k++) {
+                             for(int l = x + 1 ; l < temp1; l++) {
                                  image_iterations[l][k] = temp_starting_pixel_cicle;
-                                 full_image_g.setColor(temp_starting_pixel_color);
-                                 full_image_g.drawLine(l, k, l, k);
-                                 brush.setColor(temp_starting_pixel_color);
-                                 brush.drawLine(l, k, l, k);
                              }
                          }
                          
@@ -1766,11 +1795,14 @@ public abstract class ThreadPaint extends Thread {
                      }
              
                      if(whole_area) {
-                         for(int k = y; k < slice_TOy - step - 1; k++) {
-                             for(int l = x + 1 ; l < slice_TOx - step - 1; l++) {
+                         int temp1 = slice_TOx - step - 1;
+                         int temp2 = slice_TOy - step - 1;
+                                                  
+                         full_image_g.setColor(temp_starting_pixel_color);
+                         full_image_g.fillRect(x + 1, y, temp1 - x, temp2 - y);
+                         for(int k = y; k < temp2; k++) {
+                             for(int l = x + 1 ; l < temp1; l++) {
                                  image_iterations[l][k] = temp_starting_pixel_cicle;
-                                 full_image_g.setColor(temp_starting_pixel_color);
-                                 full_image_g.drawLine(l, k, l, k);
                              }
                          }
                          
@@ -1931,15 +1963,23 @@ public abstract class ThreadPaint extends Thread {
                      }
              
                      if(whole_area) {
+                         int temp1 = slice_TOx - step - 1;
+                         int temp2 = slice_TOy - step - 1;
+                         int temp3 = x + 1;
+                         int temp4 = temp1 - x;
+                         int temp5 = temp2 - y;
+                                                  
+                         full_image_g.setColor(fractal_color);
+                         full_image_g.fillRect(temp3, y, temp4, temp5);
+                         brush.setColor(fractal_color);
+                         brush.fillRect(temp3, y, temp4, temp5);
+                         
                          for(int k = y; k < slice_TOy - step - 1; k++) {
                              for(int l = x + 1 ; l < slice_TOx - step - 1; l++) {
                                  image_iterations[l][k] = max_iterations;
-                                 full_image_g.setColor(fractal_color);
-                                 full_image_g.drawLine(l, k, l, k);
-                                 brush.setColor(fractal_color);
-                                 brush.drawLine(l, k, l, k);
                              }
                          }
+                         
                          progress.update((slice_TOx - slice_FROMx) * (slice_TOy - slice_FROMy) - total_drawing);
                          break;
                      }
@@ -2089,13 +2129,18 @@ public abstract class ThreadPaint extends Thread {
                      }
              
                      if(whole_area) {
+                         int temp1 = slice_TOx - step - 1;
+                         int temp2 = slice_TOy - step - 1;
+                                                  
+                         full_image_g.setColor(fractal_color);
+                         full_image_g.fillRect(x + 1, y, temp1 - x, temp2 - y);
+                         
                          for(int k = y; k < slice_TOy - step - 1; k++) {
                              for(int l = x + 1 ; l < slice_TOx - step - 1; l++) {
                                  image_iterations[l][k] = max_iterations;
-                                 full_image_g.setColor(fractal_color);
-                                 full_image_g.drawLine(l, k, l, k);
                              }
                          }
+                         
                          progress.update((slice_TOx - slice_FROMx) * (slice_TOy - slice_FROMy) - total_drawing);
                          break;
                      }
@@ -2313,12 +2358,12 @@ public abstract class ThreadPaint extends Thread {
              
              
                      if(whole_area) {
-                         for(int k = y; k < slice_TOy - step - 1; k++) {
-                             for(int l = x + 1 ; l < slice_TOx - step - 1; l++) {
-                                 full_image_g.setColor(temp_starting_pixel_color);
-                                 full_image_g.drawLine(l, k, l, k);
-                             }
-                         }
+                         int temp1 = slice_TOx - step - 1;
+                         int temp2 = slice_TOy - step - 1;
+                                                  
+                         full_image_g.setColor(temp_starting_pixel_color);
+                         full_image_g.fillRect(x + 1, y, temp1 - x, temp2 - y);
+                         
                          break;
                      }
                  }
@@ -2451,12 +2496,12 @@ public abstract class ThreadPaint extends Thread {
                      y++;
              
                      if(whole_area) {
-                         for(int k = y; k < slice_TOy - step - 1; k++) {
-                             for(int l = x + 1 ; l < slice_TOx - step - 1; l++) {
-                                 full_image_g.setColor(fractal_color);
-                                 full_image_g.drawLine(l, k, l, k);
-                             }
-                         }
+                         int temp1 = slice_TOx - step - 1;
+                         int temp2 = slice_TOy - step - 1;
+                                                  
+                         full_image_g.setColor(fractal_color);
+                         full_image_g.fillRect(x + 1, y, temp1 - x, temp2 - y);
+
                          break;
                      }
                  }
