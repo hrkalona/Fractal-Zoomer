@@ -18,7 +18,7 @@ public class InversedPlane extends Plane {
     @Override
     public Complex getPixel(Complex pixel) {
 
-        return new Complex(1, 0).divide(pixel);
+        return pixel.divideNormalInv(1);
 
     }
 

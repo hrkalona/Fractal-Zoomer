@@ -80,7 +80,7 @@ public class Complex {
         double  temp = z.getRe();
         double  temp2 = z.getIm();
         double  temp3 = temp * temp + temp2 * temp2;
-        
+           
         return new Complex((re * temp + im * temp2) / temp3, (im * temp - re * temp2) / temp3);
 
     }
@@ -88,6 +88,14 @@ public class Complex {
     public Complex divideNormal(double number) {
         
         return new Complex(re / number, im / number);
+        
+    }
+    
+    public Complex divideNormalInv(double number) {
+              
+        double temp = number / (re * re + im * im);
+        
+        return new Complex(re * temp, (-im) * temp);
         
     }
 
