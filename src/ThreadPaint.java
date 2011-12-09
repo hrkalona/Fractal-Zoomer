@@ -485,6 +485,7 @@ public abstract class ThreadPaint extends Thread {
         this.anti_aliasing = anti_aliasing;
         this.edges = edges;
         this.emboss = emboss;
+        thread_slices = 7;
         action = APPLY_PALETTE_AND_FILTER;
         first_part_done = false;
 
@@ -821,8 +822,9 @@ public abstract class ThreadPaint extends Thread {
                      }
              
                      if(whole_area) {
-                         int temp1 = slice_TOx - step - 1;
-                         int temp2 = slice_TOy - step - 1;
+                         int temp6 = step + 1;
+                         int temp1 = slice_TOx - temp6;
+                         int temp2 = slice_TOy - temp6;
                          int temp3 = x + 1;
                          int temp4 = temp1 - x;
                          int temp5 = temp2 - y;
@@ -1020,8 +1022,9 @@ public abstract class ThreadPaint extends Thread {
                      }
              
                      if(whole_area) {
-                         int temp1 = slice_TOx - step - 1;
-                         int temp2 = slice_TOy - step - 1;
+                         int temp3 = step + 1;
+                         int temp1 = slice_TOx - temp3;
+                         int temp2 = slice_TOy - temp3;
                                                   
                          full_image_g.setColor(temp_starting_pixel_color);
                          full_image_g.fillRect(x + 1, y, temp1 - x, temp2 - y);
@@ -1228,8 +1231,9 @@ public abstract class ThreadPaint extends Thread {
                      }
              
                      if(whole_area) {
-                         int temp1 = slice_TOx - step - 1;
-                         int temp2 = slice_TOy - step - 1;
+                         int temp6 = step + 1;
+                         int temp1 = slice_TOx - temp6;
+                         int temp2 = slice_TOy - temp6;
                          int temp3 = x + 1;
                          int temp4 = temp1 - x;
                          int temp5 = temp2 - y;
@@ -1394,8 +1398,9 @@ public abstract class ThreadPaint extends Thread {
                      }
              
                      if(whole_area) {
-                         int temp1 = slice_TOx - step - 1;
-                         int temp2 = slice_TOy - step - 1;
+                         int temp3 = step + 1;
+                         int temp1 = slice_TOx - temp3;
+                         int temp2 = slice_TOy - temp3;
                                                   
                          full_image_g.setColor(fractal_color);
                          full_image_g.fillRect(x + 1, y, temp1 - x, temp2 - y);
@@ -1596,8 +1601,9 @@ public abstract class ThreadPaint extends Thread {
                      }
              
                      if(whole_area) {
-                         int temp1 = slice_TOx - step - 1;
-                         int temp2 = slice_TOy - step - 1;
+                         int temp6 = step + 1;
+                         int temp1 = slice_TOx - temp6;
+                         int temp2 = slice_TOy - temp6;
                          int temp3 = x + 1;
                          int temp4 = temp1 - x;
                          int temp5 = temp2 - y;
@@ -1795,8 +1801,9 @@ public abstract class ThreadPaint extends Thread {
                      }
              
                      if(whole_area) {
-                         int temp1 = slice_TOx - step - 1;
-                         int temp2 = slice_TOy - step - 1;
+                         int temp3 = step + 1;
+                         int temp1 = slice_TOx - temp3;
+                         int temp2 = slice_TOy - temp3;
                                                   
                          full_image_g.setColor(temp_starting_pixel_color);
                          full_image_g.fillRect(x + 1, y, temp1 - x, temp2 - y);
@@ -1963,8 +1970,9 @@ public abstract class ThreadPaint extends Thread {
                      }
              
                      if(whole_area) {
-                         int temp1 = slice_TOx - step - 1;
-                         int temp2 = slice_TOy - step - 1;
+                         int temp6 = step + 1;
+                         int temp1 = slice_TOx - temp6;
+                         int temp2 = slice_TOy - temp6;
                          int temp3 = x + 1;
                          int temp4 = temp1 - x;
                          int temp5 = temp2 - y;
@@ -2129,8 +2137,9 @@ public abstract class ThreadPaint extends Thread {
                      }
              
                      if(whole_area) {
-                         int temp1 = slice_TOx - step - 1;
-                         int temp2 = slice_TOy - step - 1;
+                         int temp3 = step + 1;
+                         int temp1 = slice_TOx - temp3;
+                         int temp2 = slice_TOy - temp3;
                                                   
                          full_image_g.setColor(fractal_color);
                          full_image_g.fillRect(x + 1, y, temp1 - x, temp2 - y);
@@ -2358,8 +2367,9 @@ public abstract class ThreadPaint extends Thread {
              
              
                      if(whole_area) {
-                         int temp1 = slice_TOx - step - 1;
-                         int temp2 = slice_TOy - step - 1;
+                         int temp3 = step + 1;
+                         int temp1 = slice_TOx - temp3;
+                         int temp2 = slice_TOy - temp3;
                                                   
                          full_image_g.setColor(temp_starting_pixel_color);
                          full_image_g.fillRect(x + 1, y, temp1 - x, temp2 - y);
@@ -2496,8 +2506,9 @@ public abstract class ThreadPaint extends Thread {
                      y++;
              
                      if(whole_area) {
-                         int temp1 = slice_TOx - step - 1;
-                         int temp2 = slice_TOy - step - 1;
+                         int temp3 = step + 1;
+                         int temp1 = slice_TOx - temp3;
+                         int temp2 = slice_TOy - temp3;
                                                   
                          full_image_g.setColor(fractal_color);
                          full_image_g.fillRect(x + 1, y, temp1 - x, temp2 - y);
@@ -2675,26 +2686,169 @@ public abstract class ThreadPaint extends Thread {
          int pixel_percent = image_size *  image_size / 100;
 
          Color color;
+                 
+         int x = 0;
+         int y = 0;
+         boolean whole_area;
+         int step;
+         int total_drawing;
+         
+         double temp_starting_pixel_cicle;
+         Color temp_starting_pixel_color;
+         
+         int tread_size_width = TOx - FROMx;
+         int tread_size_height = TOy - FROMy;              
+                        
+         int slice_FROMx;
+         int slice_FROMy;
+         int slice_TOx;
+         int slice_TOy;
+                 
+         
+         for(int i = 0; i < thread_slices; i++) {
+             for(int j = 0; j < thread_slices; j++) {
+               
+                 slice_FROMx =  FROMx + j * (tread_size_width) / thread_slices;
+                 slice_TOx = FROMx + (j + 1) * (tread_size_width) / thread_slices;
+                 slice_FROMy = FROMy + i * (tread_size_height) / thread_slices;
+                 slice_TOy = FROMy + (i + 1) * (tread_size_height) / thread_slices;
+                 
+                 double temp = (slice_TOy - slice_FROMy + 1) / 2;
+         
+                 for(y = slice_FROMy, whole_area = true, step = 0, total_drawing = 0; step < temp; step++, whole_area = true) {           
+             
+                     x = slice_FROMx + step;                        
+                     
+                     temp_starting_pixel_cicle = image_iterations[x][y];
+                     if(image_iterations[x][y] == max_iterations) {
+                         temp_starting_pixel_color = fractal_color;
+                     }
+                     else {
+                         temp_starting_pixel_color = getDrawingColor(image_iterations[x][y] + color_cycling_location);
+                     }
+                     
+                             
+                     for(; x < slice_TOx - step; x++) {
+                 
+                         if(image_iterations[x][y] == temp_starting_pixel_cicle) {
+                             color = temp_starting_pixel_color;
+                         }
+                         else {
+                             if(image_iterations[x][y] == max_iterations) {
+                                 color = fractal_color;
+                             }
+                             else {
+                                 color = getDrawingColor(image_iterations[x][y] + color_cycling_location);
+                             }
+                             whole_area = false;
+                         }
+                 
 
-         for(int y = FROMy; y < TOy; y++) {
-             for(int x = FROMx; x < TOx; x++) {
+                         full_image_g.setColor(color);
+                         full_image_g.drawLine(x, y, x, y);
+                         brush.setColor(color);
+                         brush.drawLine(x, y, x, y);
 
-                 color = image_iterations[x][y] == max_iterations ? fractal_color : getDrawingColor(image_iterations[x][y] + color_cycling_location);
+                         drawing_done++;
+                         total_drawing++;
+                
+                     }
+             
+                     for(x--, y++; y < slice_TOy - step; y++) {
 
-                 full_image_g.setColor(color);
-                 full_image_g.drawLine(x, y, x, y);
-                 brush.setColor(color);
-                 brush.drawLine(x, y, x, y);
+                         if(image_iterations[x][y] == temp_starting_pixel_cicle) {
+                             color = temp_starting_pixel_color;
+                         }
+                         else {
+                             if(image_iterations[x][y] == max_iterations) {
+                                 color = fractal_color;
+                             }
+                             else {
+                                 color = getDrawingColor(image_iterations[x][y] + color_cycling_location);
+                             }
+                             whole_area = false;
+                         }
+                 
+                         full_image_g.setColor(color);
+                         full_image_g.drawLine(x, y, x, y);
+                         brush.setColor(color);
+                         brush.drawLine(x, y, x, y);
 
-                 drawing_done++;
+                         drawing_done++;
+                         total_drawing++;
+                     }
+             
+                     for(y--, x--; x >= slice_FROMx + step; x--) {
 
+                         if(image_iterations[x][y] == temp_starting_pixel_cicle) {
+                             color = temp_starting_pixel_color;
+                         }
+                         else {
+                             if(image_iterations[x][y] == max_iterations) {
+                                 color = fractal_color;
+                             }
+                             else {
+                                 color = getDrawingColor(image_iterations[x][y] + color_cycling_location);
+                             }
+                             whole_area = false;
+                         }
+                 
+                         full_image_g.setColor(color);
+                         full_image_g.drawLine(x, y, x, y);
+                         brush.setColor(color);
+                         brush.drawLine(x, y, x, y);
+
+                         drawing_done++;
+                         total_drawing++;
+                     }
+             
+                     for(x++, y--; y > slice_FROMy + step; y--) {
+
+                         if(image_iterations[x][y] == temp_starting_pixel_cicle) {
+                             color = temp_starting_pixel_color;
+                         }
+                         else {
+                             if(image_iterations[x][y] == max_iterations) {
+                                 color = fractal_color;
+                             }
+                             else {
+                                 color = getDrawingColor(image_iterations[x][y] + color_cycling_location);
+                             }
+                             whole_area = false;
+                         }
+                 
+                         full_image_g.setColor(color);
+                         full_image_g.drawLine(x, y, x, y);
+                         brush.setColor(color);
+                         brush.drawLine(x, y, x, y);
+
+                         drawing_done++;
+                         total_drawing++;
+                     }
+                     y++;
+             
+
+                     if(drawing_done / pixel_percent >= 1) {
+                         progress.update(drawing_done);
+                         drawing_done = 0;
+                     }
+             
+                     if(whole_area) {
+                         int temp1 = step + 1;
+                         int temp3 = x + 1;
+                         int temp4 = slice_TOx - temp1 - x;
+                         int temp5 = slice_TOy - temp1 - y;
+                                                  
+                         full_image_g.setColor(temp_starting_pixel_color);
+                         full_image_g.fillRect(temp3, y, temp4, temp5);
+                         brush.setColor(temp_starting_pixel_color);
+                         brush.fillRect(temp3, y, temp4, temp5);
+                         
+                         progress.update((slice_TOx - slice_FROMx) * (slice_TOy - slice_FROMy) - total_drawing);
+                         break;
+                     }
+                 }
              }
-
-             if(drawing_done / pixel_percent >= 1) {
-                 progress.update(drawing_done);
-                 drawing_done = 0;
-             }
-
          }
 
          full_image_g.dispose();
@@ -2707,24 +2861,160 @@ public abstract class ThreadPaint extends Thread {
          Graphics2D full_image_g = image.createGraphics();
 
          int pixel_percent = image_size *  image_size / 100;
+         
+         Color color;
+                 
+         int x = 0;
+         int y = 0;
+         boolean whole_area;
+         int step;
+         int total_drawing;
+         
+         double temp_starting_pixel_cicle;
+         Color temp_starting_pixel_color;
+         
+         int tread_size_width = TOx - FROMx;
+         int tread_size_height = TOy - FROMy;              
+                        
+         int slice_FROMx;
+         int slice_FROMy;
+         int slice_TOx;
+         int slice_TOy;
+                 
+         
+         for(int i = 0; i < thread_slices; i++) {
+             for(int j = 0; j < thread_slices; j++) {
+               
+                 slice_FROMx =  FROMx + j * (tread_size_width) / thread_slices;
+                 slice_TOx = FROMx + (j + 1) * (tread_size_width) / thread_slices;
+                 slice_FROMy = FROMy + i * (tread_size_height) / thread_slices;
+                 slice_TOy = FROMy + (i + 1) * (tread_size_height) / thread_slices;
+                 
+                 double temp = (slice_TOy - slice_FROMy + 1) / 2;
+         
+                 for(y = slice_FROMy, whole_area = true, step = 0, total_drawing = 0; step < temp; step++, whole_area = true) {           
+             
+                     x = slice_FROMx + step;                        
+                     
+                     temp_starting_pixel_cicle = image_iterations[x][y];
+                     if(image_iterations[x][y] == max_iterations) {
+                         temp_starting_pixel_color = fractal_color;
+                     }
+                     else {
+                         temp_starting_pixel_color = getDrawingColor(image_iterations[x][y] + color_cycling_location);
+                     }
+                     
+                             
+                     for(; x < slice_TOx - step; x++) {
+                 
+                         if(image_iterations[x][y] == temp_starting_pixel_cicle) {
+                             color = temp_starting_pixel_color;
+                         }
+                         else {
+                             if(image_iterations[x][y] == max_iterations) {
+                                 color = fractal_color;
+                             }
+                             else {
+                                 color = getDrawingColor(image_iterations[x][y] + color_cycling_location);
+                             }
+                             whole_area = false;
+                         }
+                 
 
+                         full_image_g.setColor(color);
+                         full_image_g.drawLine(x, y, x, y);
 
-         for(int y = FROMy; y < TOy; y++) {
-             for(int x = FROMx; x < TOx; x++) {
+                         drawing_done++;
+                         total_drawing++;
+                
+                     }
+             
+                     for(x--, y++; y < slice_TOy - step; y++) {
 
-                 full_image_g.setColor(image_iterations[x][y] == max_iterations ? fractal_color : getDrawingColor(image_iterations[x][y] + color_cycling_location));
-                 full_image_g.drawLine(x, y, x, y);
+                         if(image_iterations[x][y] == temp_starting_pixel_cicle) {
+                             color = temp_starting_pixel_color;
+                         }
+                         else {
+                             if(image_iterations[x][y] == max_iterations) {
+                                 color = fractal_color;
+                             }
+                             else {
+                                 color = getDrawingColor(image_iterations[x][y] + color_cycling_location);
+                             }
+                             whole_area = false;
+                         }
+                 
+                         full_image_g.setColor(color);
+                         full_image_g.drawLine(x, y, x, y);
 
-                 drawing_done++;
+                         drawing_done++;
+                         total_drawing++;
+                     }
+             
+                     for(y--, x--; x >= slice_FROMx + step; x--) {
 
+                         if(image_iterations[x][y] == temp_starting_pixel_cicle) {
+                             color = temp_starting_pixel_color;
+                         }
+                         else {
+                             if(image_iterations[x][y] == max_iterations) {
+                                 color = fractal_color;
+                             }
+                             else {
+                                 color = getDrawingColor(image_iterations[x][y] + color_cycling_location);
+                             }
+                             whole_area = false;
+                         }
+                 
+                         full_image_g.setColor(color);
+                         full_image_g.drawLine(x, y, x, y);
+
+                         drawing_done++;
+                         total_drawing++;
+                     }
+             
+                     for(x++, y--; y > slice_FROMy + step; y--) {
+
+                         if(image_iterations[x][y] == temp_starting_pixel_cicle) {
+                             color = temp_starting_pixel_color;
+                         }
+                         else {
+                             if(image_iterations[x][y] == max_iterations) {
+                                 color = fractal_color;
+                             }
+                             else {
+                                 color = getDrawingColor(image_iterations[x][y] + color_cycling_location);
+                             }
+                             whole_area = false;
+                         }
+                 
+                         full_image_g.setColor(color);
+                         full_image_g.drawLine(x, y, x, y);
+
+                         drawing_done++;
+                         total_drawing++;
+                     }
+                     y++;
+             
+
+                     if(drawing_done / pixel_percent >= 1) {
+                         progress.update(drawing_done);
+                         drawing_done = 0;
+                     }
+             
+                     if(whole_area) {
+                         int temp1 = step + 1;
+                                                  
+                         full_image_g.setColor(temp_starting_pixel_color);
+                         full_image_g.fillRect(x + 1, y, slice_TOx - temp1 - x, slice_TOy - temp1 - y);
+ 
+                         progress.update((slice_TOx - slice_FROMx) * (slice_TOy - slice_FROMy) - total_drawing);
+                         break;
+                     }
+                 }
              }
-
-             if(drawing_done / pixel_percent >= 1) {
-                 progress.update(drawing_done);
-                 drawing_done = 0;
-             }
-
          }
+  
 
          full_image_g.dispose();
          full_image_g = null;
@@ -2737,28 +3027,141 @@ public abstract class ThreadPaint extends Thread {
 
          int pixel_percent = image_size *  image_size / 100;
 
-         Color color;
+         Color color = null;
+                 
+         int x = 0;
+         int y = 0;
+         boolean whole_area;
+         int step;
+         int total_drawing;
+         
+         int tread_size_width = TOx - FROMx;
+         int tread_size_height = TOy - FROMy;
+         
+         
+         int slice_FROMx;
+         int slice_FROMy;
+         int slice_TOx;
+         int slice_TOy;
+         
+         
+         
+         for(int i = 0; i < thread_slices; i++) {
+             for(int j = 0; j < thread_slices; j++) {
+               
+                 slice_FROMx =  FROMx + j * (tread_size_width) / thread_slices;
+                 slice_TOx = FROMx + (j + 1) * (tread_size_width) / thread_slices;
+                 slice_FROMy = FROMy + i * (tread_size_height) / thread_slices;
+                 slice_TOy = FROMy + (i + 1) * (tread_size_height) / thread_slices;
+                 
+                 double temp = (slice_TOy - slice_FROMy + 1) / 2;
+         
+                 for(y = slice_FROMy, whole_area = true, step = 0, total_drawing = 0; step < temp; step++, whole_area = true) {    
+             
+                     for(x = slice_FROMx + step; x < slice_TOx - step; x++) {
+                 
+                         if(image_iterations[x][y] == max_iterations) {
+                             color = fractal_color;
+                         }
+                         else {
+                             color = getDrawingColorSmooth(image_iterations[x][y] + color_cycling_location);
+                             whole_area = false;
+                         }
+                 
 
-         for(int y = FROMy; y < TOy; y++) {
-             for(int x = FROMx; x < TOx; x++) {
+                         full_image_g.setColor(color);
+                         full_image_g.drawLine(x, y, x, y);
+                         brush.setColor(color);
+                         brush.drawLine(x, y, x, y);
 
-                 color = image_iterations[x][y] == max_iterations ? fractal_color : getDrawingColorSmooth(image_iterations[x][y] + color_cycling_location);
+                         drawing_done++;
+                         total_drawing++;
+                
+                     }
+             
+                     for(x--, y++; y < slice_TOy - step; y++) {
+                        
+                         if(image_iterations[x][y] == max_iterations) {
+                             color = fractal_color;
+                         }
+                         else {
+                             color = getDrawingColorSmooth(image_iterations[x][y] + color_cycling_location);
+                             whole_area = false;
+                         }
+                 
+                         full_image_g.setColor(color);
+                         full_image_g.drawLine(x, y, x, y);
+                         brush.setColor(color);
+                         brush.drawLine(x, y, x, y);
 
-                 full_image_g.setColor(color);
-                 full_image_g.drawLine(x, y, x, y);
-                 brush.setColor(color);
-                 brush.drawLine(x, y, x, y);
+                         drawing_done++;
+                         total_drawing++;
+                     }
+             
+                     for(y--, x--; x >= slice_FROMx + step; x--) {
 
-                 drawing_done++;
+                         if(image_iterations[x][y] == max_iterations) {
+                             color = fractal_color;
+                         }
+                         else {
+                             color = getDrawingColorSmooth(image_iterations[x][y] + color_cycling_location);
+                             whole_area = false;
+                         }
+                 
+                         full_image_g.setColor(color);
+                         full_image_g.drawLine(x, y, x, y);
+                         brush.setColor(color);
+                         brush.drawLine(x, y, x, y);
 
+                         drawing_done++;
+                         total_drawing++;
+                     }
+             
+                     for(x++, y--; y > slice_FROMy + step; y--) {
+                         
+                         if(image_iterations[x][y] == max_iterations) {
+                             color = fractal_color;
+                         }
+                         else {
+                             color = getDrawingColorSmooth(image_iterations[x][y] + color_cycling_location);
+                             whole_area = false;
+                         }
+                 
+                         full_image_g.setColor(color);
+                         full_image_g.drawLine(x, y, x, y);
+                         brush.setColor(color);
+                         brush.drawLine(x, y, x, y);
+
+                         drawing_done++;
+                         total_drawing++;
+                     }
+                     y++;
+             
+
+                     if(drawing_done / pixel_percent >= 1) {
+                         progress.update(drawing_done);
+                         drawing_done = 0;
+                     }
+             
+                     if(whole_area) {
+                         int temp6 = step + 1;
+                         int temp1 = slice_TOx - temp6;
+                         int temp2 = slice_TOy - temp6;
+                         int temp3 = x + 1;
+                         int temp4 = temp1 - x;
+                         int temp5 = temp2 - y;
+                                                  
+                         full_image_g.setColor(fractal_color);
+                         full_image_g.fillRect(temp3, y, temp4, temp5);
+                         brush.setColor(fractal_color);
+                         brush.fillRect(temp3, y, temp4, temp5);
+
+                         progress.update((slice_TOx - slice_FROMx) * (slice_TOy - slice_FROMy) - total_drawing);
+                         break;
+                     }
+                 }
              }
-
-             if(drawing_done / pixel_percent >= 1) {
-                 progress.update(drawing_done);
-                 drawing_done = 0;
-             }
-
-         }
+         }    
 
          full_image_g.dispose();
          full_image_g = null;
@@ -2770,22 +3173,126 @@ public abstract class ThreadPaint extends Thread {
          Graphics2D full_image_g = image.createGraphics();
 
          int pixel_percent = image_size *  image_size / 100;
+         
+         Color color = null;
+                 
+         int x = 0;
+         int y = 0;
+         boolean whole_area;
+         int step;
+         int total_drawing;
+         
+         int tread_size_width = TOx - FROMx;
+         int tread_size_height = TOy - FROMy;
+         
+         
+         int slice_FROMx;
+         int slice_FROMy;
+         int slice_TOx;
+         int slice_TOy;
+         
+         
+         
+         for(int i = 0; i < thread_slices; i++) {
+             for(int j = 0; j < thread_slices; j++) {
+               
+                 slice_FROMx =  FROMx + j * (tread_size_width) / thread_slices;
+                 slice_TOx = FROMx + (j + 1) * (tread_size_width) / thread_slices;
+                 slice_FROMy = FROMy + i * (tread_size_height) / thread_slices;
+                 slice_TOy = FROMy + (i + 1) * (tread_size_height) / thread_slices;
+                 
+                 double temp = (slice_TOy - slice_FROMy + 1) / 2;
+         
+                 for(y = slice_FROMy, whole_area = true, step = 0, total_drawing = 0; step < temp; step++, whole_area = true) {    
+             
+                     for(x = slice_FROMx + step; x < slice_TOx - step; x++) {
+                 
+                         if(image_iterations[x][y] == max_iterations) {
+                             color = fractal_color;
+                         }
+                         else {
+                             color = getDrawingColorSmooth(image_iterations[x][y] + color_cycling_location);
+                             whole_area = false;
+                         }
+                 
 
-         for(int y = FROMy; y < TOy; y++) {
-             for(int x = FROMx; x < TOx; x++) {
+                         full_image_g.setColor(color);
+                         full_image_g.drawLine(x, y, x, y);
 
-                 full_image_g.setColor(image_iterations[x][y] == max_iterations ? fractal_color : getDrawingColorSmooth(image_iterations[x][y] + color_cycling_location));
-                 full_image_g.drawLine(x, y, x, y);
+                         drawing_done++;
+                         total_drawing++;
+                
+                     }
+             
+                     for(x--, y++; y < slice_TOy - step; y++) {
+                        
+                         if(image_iterations[x][y] == max_iterations) {
+                             color = fractal_color;
+                         }
+                         else {
+                             color = getDrawingColorSmooth(image_iterations[x][y] + color_cycling_location);
+                             whole_area = false;
+                         }
+                 
+                         full_image_g.setColor(color);
+                         full_image_g.drawLine(x, y, x, y);
+                         
+                         drawing_done++;
+                         total_drawing++;
+                     }
+             
+                     for(y--, x--; x >= slice_FROMx + step; x--) {
 
-                 drawing_done++;
+                         if(image_iterations[x][y] == max_iterations) {
+                             color = fractal_color;
+                         }
+                         else {
+                             color = getDrawingColorSmooth(image_iterations[x][y] + color_cycling_location);
+                             whole_area = false;
+                         }
+                 
+                         full_image_g.setColor(color);
+                         full_image_g.drawLine(x, y, x, y);  
 
+                         drawing_done++;
+                         total_drawing++;
+                     }
+             
+                     for(x++, y--; y > slice_FROMy + step; y--) {
+                         
+                         if(image_iterations[x][y] == max_iterations) {
+                             color = fractal_color;
+                         }
+                         else {
+                             color = getDrawingColorSmooth(image_iterations[x][y] + color_cycling_location);
+                             whole_area = false;
+                         }
+                 
+                         full_image_g.setColor(color);
+                         full_image_g.drawLine(x, y, x, y);
+
+                         drawing_done++;
+                         total_drawing++;
+                     }
+                     y++;
+             
+
+                     if(drawing_done / pixel_percent >= 1) {
+                         progress.update(drawing_done);
+                         drawing_done = 0;
+                     }
+             
+                     if(whole_area) {
+                         int temp1 = step + 1;                   
+                                                  
+                         full_image_g.setColor(fractal_color);
+                         full_image_g.fillRect(x + 1, y, slice_TOx - temp1 - x, slice_TOy - temp1 - y);
+
+                         progress.update((slice_TOx - slice_FROMx) * (slice_TOy - slice_FROMy) - total_drawing);
+                         break;
+                     }
+                 }
              }
-
-             if(drawing_done / pixel_percent >= 1) {
-                 progress.update(drawing_done);
-                 drawing_done = 0;
-             }
-
          }
 
          full_image_g.dispose();
