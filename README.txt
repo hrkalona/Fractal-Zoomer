@@ -12,6 +12,7 @@ Over 40 different fractal generating functions
 Includes:
 Plane transformations
 Rotation
+Perturbation
 Palette editor
 Julia sets
 Julia map
