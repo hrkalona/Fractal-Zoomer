@@ -1,3 +1,5 @@
+
+
 /*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
@@ -7,18 +9,16 @@
  *
  * @author hrkalona
  */
-public class InversedPlane extends Plane {
+public class EscapeTime extends ColorAlgorithm {
 
-    public InversedPlane() {
-
+    public EscapeTime() {
         super();
-
     }
 
     @Override
-    public Complex getPixel(Complex pixel) {
+    public double getResult(Object[] object) {
 
-        return pixel.divideNormalInv(1);
+        return (Double)object[0];
 
     }
 

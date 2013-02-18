@@ -1,3 +1,5 @@
+
+
 import java.awt.Color;
 import java.io.Serializable;
 
@@ -17,16 +19,21 @@ public class SettingsFractals implements Serializable {
   private double yCenter;
   private double size;
   private double z_exponent;
-  private int bailout;
+  private double bailout;
   private int max_iterations;
   private int color_choice;
+  private int[][] custom_palette;
   private Color fractal_color;
   private int out_coloring_algorithm;
   private double color_intensity;
   private int color_cycling_location;
-  private boolean inverse_plane;
+  private int plane_type;
+  private double[] coefficients;
+  private int rotation;
+  private boolean perturbation;
+  private double[] perturbation_vals;
 
-    public SettingsFractals(double xCenter, double yCenter, double size, int max_iterations, int color_choice, Color fractal_color, int out_coloring_algorithm, double color_intensity, int function, int bailout, boolean inverse_plane, boolean burning_ship, double z_exponent, int color_cycling_location) {
+    public SettingsFractals(double xCenter, double yCenter, double size, int max_iterations, int color_choice, Color fractal_color, int out_coloring_algorithm, double color_intensity, int function, double bailout, int plane_type, boolean burning_ship, double z_exponent, int color_cycling_location, double[] coefficients, int[][] custom_palette, int rotation, boolean perturbation, double[] perturbation_vals) {
 
         this.xCenter = xCenter;
         this.yCenter = yCenter;
@@ -39,9 +46,14 @@ public class SettingsFractals implements Serializable {
         this.function = function;
         this.burning_ship = burning_ship;
         this.bailout = bailout;
-        this.inverse_plane = inverse_plane;
+        this.plane_type = plane_type;
         this.z_exponent = z_exponent;
         this.color_cycling_location = color_cycling_location;
+        this.coefficients = coefficients;
+        this.custom_palette = custom_palette;
+        this.rotation = rotation;
+        this.perturbation = perturbation;
+        this.perturbation_vals = perturbation_vals;
         
     }
   
@@ -111,7 +123,7 @@ public class SettingsFractals implements Serializable {
         
     }
 
-    public int getBailout() {
+    public double getBailout() {
 
         return bailout;
         
@@ -122,11 +134,41 @@ public class SettingsFractals implements Serializable {
         return color_cycling_location;
 
     }
+    
+    public int[][] getCustomPalette() {
+        
+        return custom_palette;
+        
+    }
 
-    public boolean getInversePlane() {
+    public int getPlaneType() {
 
-        return inverse_plane;
+        return plane_type;
 
+    }
+    
+    public double[] getCoefficients() {
+        
+        return coefficients;
+        
+    }
+    
+    public int getRotation() {
+        
+        return rotation;
+        
+    }
+    
+    public boolean getPerturbation() {
+        
+        return perturbation;
+        
+    }
+    
+    public double[] getPerturbationVals() {
+        
+        return perturbation_vals;
+        
     }
 
 }

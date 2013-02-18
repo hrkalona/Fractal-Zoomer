@@ -1,4 +1,6 @@
 
+
+
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 
@@ -11,155 +13,59 @@ import java.awt.image.BufferedImage;
  *
  * @author hrkalona
  */
-public class GreenWhite extends ThreadPaint {
-  private Color[] palette;
+public class GreenWhite extends ThreadDraw {
+  private static Color[] palette = {new Color(40, 70, 10),new Color(40, 84, 10),new Color(40, 98, 10),new Color(40, 112, 10),new Color(40, 127, 10),new Color(40, 141, 10),new Color(40, 155, 10),new Color(40, 170, 10),new Color(40, 170, 10),new Color(47, 180, 17),new Color(55, 191, 25),new Color(62, 201, 32),new Color(70, 212, 40),new Color(77, 223, 47),new Color(85, 233, 55),new Color(92, 244, 62),new Color(100, 255, 70),new Color(100, 255, 70),new Color(131, 255, 107),new Color(162, 255, 144),new Color(193, 255, 181),new Color(224, 255, 218),new Color(255, 255, 255),new Color(255, 255, 255),new Color(224, 228, 220),new Color(193, 202, 185),new Color(162, 175, 150),new Color(132, 149, 115),new Color(101, 122, 80),new Color(70, 96, 45),new Color(40, 70, 10),};
   private double color_intensity;
   
-     public GreenWhite(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, double[][] image_iterations, int bailout, MainWindow ptr, Color fractal_color, BufferedImage image, boolean anti_aliasing, int out_coloring_algorithm, double color_intensity, boolean image_buffering, boolean periodicity_checking, boolean inverse_plane, boolean edges, boolean emboss, boolean burning_ship, int function, double z_exponent, int color_cycling_location) {
+     public GreenWhite(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations,  double bailout, MainWindow ptr, Color fractal_color, BufferedImage image, boolean[] filters, int out_coloring_algorithm, double color_intensity, boolean boundary_tracing, boolean periodicity_checking, int plane_type,  boolean burning_ship, int function, double z_exponent, int color_cycling_location, double[] rotation_vals, boolean perturbation, double[] perturbation_vals, double[] coefficients) {
 
-        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, image_iterations, bailout, ptr, fractal_color, image, anti_aliasing, out_coloring_algorithm, image_buffering, periodicity_checking, inverse_plane, edges, emboss, burning_ship, function, z_exponent, color_cycling_location);
+        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations,  bailout, ptr, fractal_color, image, filters, out_coloring_algorithm, boundary_tracing, periodicity_checking, plane_type,  burning_ship, function, z_exponent, color_cycling_location, rotation_vals, perturbation, perturbation_vals, coefficients);
 
-        int[][] colors = {
+        /*int[][] colors = {
             {8,  40,  70,  10},
             {9,  40, 170,  10},
             {6, 100, 255,  70},
-            {8, 255, 255, 255},};
-
-        int n = 0;
-        for (int i = 0; i < colors.length; i++) { // get the number of all colors
-            n += colors[i][0];
-        }
-        palette = new Color[n]; // allocate pallete
-
-        n = 0;
-        for (int i = 0; i < colors.length; i++) { // interpolate all colors
-            int[] c1 = colors[i]; // first referential color
-            int[] c2 = colors[(i + 1) % colors.length]; // second ref. color
-            for (int j = 0; j < c1[0]; j++)  {// linear interpolation of RGB values
-                palette[n + j] = new Color((c1[1] * (c1[0] - 1 - j) + c2[1] * j) / (c1[0] - 1),(c1[2] * (c1[0] - 1 - j) + c2[2] * j) / (c1[0] - 1),(c1[3] * (c1[0] - 1 - j) + c2[3] * j) / (c1[0] - 1));
-            }
-            n += c1[0];
-        }
+            {8, 255, 255, 255},};*/
 
         this.color_intensity = color_intensity;
 
     }
 
-    public GreenWhite(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, double[][] image_iterations, int bailout, MainWindow ptr, Color fractal_color, BufferedImage image, boolean anti_aliasing, int out_coloring_algorithm, double color_intensity, boolean image_buffering, boolean periodicity_checking, boolean inverse_plane, boolean edges, boolean emboss, boolean burning_ship, int function, double z_exponent, int color_cycling_location, double xJuliaCenter, double yJuliaCenter) {
+    public GreenWhite(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations,  double bailout, MainWindow ptr, Color fractal_color, BufferedImage image, boolean[] filters, int out_coloring_algorithm, double color_intensity, boolean boundary_tracing, boolean periodicity_checking, int plane_type,  boolean burning_ship, int function, double z_exponent, int color_cycling_location, double[] rotation_vals, double[] coefficients, double xJuliaCenter, double yJuliaCenter) {
 
-        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, image_iterations, bailout, ptr, fractal_color, image, anti_aliasing, out_coloring_algorithm, image_buffering, periodicity_checking, inverse_plane, edges, emboss, burning_ship, function, z_exponent, color_cycling_location, xJuliaCenter, yJuliaCenter);
+        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations,  bailout, ptr, fractal_color, image, filters, out_coloring_algorithm, boundary_tracing, periodicity_checking, plane_type,  burning_ship, function, z_exponent, color_cycling_location, rotation_vals, coefficients, xJuliaCenter, yJuliaCenter);
 
-         int[][] colors = {
-            {8,  40,  70,  10},
-            {9,  40, 170,  10},
-            {6, 100, 255,  70},
-            {8, 255, 255, 255},};
+        this.color_intensity = color_intensity;
 
-        int n = 0;
-        for (int i = 0; i < colors.length; i++) { // get the number of all colors
-            n += colors[i][0];
-        }
-        palette = new Color[n]; // allocate pallete
+    }
+    
+    public GreenWhite(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, double bailout,  MainWindow ptr, Color fractal_color, BufferedImage image, boolean[] filters, int out_coloring_algorithm, double color_intensity, boolean periodicity_checking, int plane_type,  boolean burning_ship, int function, double z_exponent, int color_cycling_location, double[] rotation_vals, double[] coefficients) {
 
-        n = 0;
-        for (int i = 0; i < colors.length; i++) { // interpolate all colors
-            int[] c1 = colors[i]; // first referential color
-            int[] c2 = colors[(i + 1) % colors.length]; // second ref. color
-            for (int j = 0; j < c1[0]; j++)  {// linear interpolation of RGB values
-                palette[n + j] = new Color((c1[1] * (c1[0] - 1 - j) + c2[1] * j) / (c1[0] - 1),(c1[2] * (c1[0] - 1 - j) + c2[2] * j) / (c1[0] - 1),(c1[3] * (c1[0] - 1 - j) + c2[3] * j) / (c1[0] - 1));
-            }
-            n += c1[0];
-        }
+        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, bailout,  ptr, fractal_color, image, filters, out_coloring_algorithm, periodicity_checking, plane_type,  burning_ship, function, z_exponent, color_cycling_location, rotation_vals, coefficients);
+        
+        this.color_intensity = color_intensity;
+
+    }
+
+    public GreenWhite(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, double bailout, MainWindow ptr, Color fractal_color, boolean fast_julia_filters, BufferedImage image, boolean boundary_tracing, boolean periodicity_checking, int plane_type, boolean[] filters,  int out_coloring_algorithm, double color_intensity, boolean burning_ship, int function, double z_exponent, int color_cycling_location, double[] rotation_vals, double[] coefficients, double xJuliaCenter, double yJuliaCenter) {
+
+        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, bailout, ptr, fractal_color, fast_julia_filters, image, boundary_tracing, periodicity_checking, plane_type, out_coloring_algorithm, filters,   burning_ship, function, z_exponent, color_cycling_location, rotation_vals, coefficients, xJuliaCenter, yJuliaCenter);
 
         this.color_intensity = color_intensity;
 
     }
 
-    public GreenWhite(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout, MainWindow ptr, Color fractal_color, boolean fast_julia_filters, BufferedImage image, boolean periodicity_checking, boolean inverse_plane, boolean anti_aliasing, boolean edges, boolean emboss, int out_coloring_algorithm, double color_intensity, boolean burning_ship, int function, double z_exponent, int color_cycling_location, double xJuliaCenter, double yJuliaCenter) {
+    public GreenWhite(int FROMx, int TOx, int FROMy, int TOy, int max_iterations,  MainWindow ptr, Color fractal_color, int out_coloring_algorithm, double color_intensity, BufferedImage image, int color_cycling_location) {
 
-        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, bailout, ptr, fractal_color, fast_julia_filters, image, periodicity_checking, inverse_plane, out_coloring_algorithm, anti_aliasing, edges, emboss,  burning_ship, function, z_exponent, color_cycling_location, xJuliaCenter, yJuliaCenter);
-
-         int[][] colors = {
-            {8,  40,  70,  10},
-            {9,  40, 170,  10},
-            {6, 100, 255,  70},
-            {8, 255, 255, 255},};
-
-        int n = 0;
-        for (int i = 0; i < colors.length; i++) { // get the number of all colors
-            n += colors[i][0];
-        }
-        palette = new Color[n]; // allocate pallete
-
-        n = 0;
-        for (int i = 0; i < colors.length; i++) { // interpolate all colors
-            int[] c1 = colors[i]; // first referential color
-            int[] c2 = colors[(i + 1) % colors.length]; // second ref. color
-            for (int j = 0; j < c1[0]; j++)  {// linear interpolation of RGB values
-                palette[n + j] = new Color((c1[1] * (c1[0] - 1 - j) + c2[1] * j) / (c1[0] - 1),(c1[2] * (c1[0] - 1 - j) + c2[2] * j) / (c1[0] - 1),(c1[3] * (c1[0] - 1 - j) + c2[3] * j) / (c1[0] - 1));
-            }
-            n += c1[0];
-        }
+        super(FROMx, TOx, FROMy, TOy, max_iterations,  ptr, fractal_color, image, out_coloring_algorithm, color_cycling_location);
 
         this.color_intensity = color_intensity;
 
     }
 
-    public GreenWhite(int FROMx, int TOx, int FROMy, int TOy, int max_iterations, double[][] image_iterations, MainWindow ptr, Color fractal_color, int out_coloring_algorithm, double color_intensity, BufferedImage image, int color_cycling_location) {
+    public GreenWhite(int FROMx, int TOx, int FROMy, int TOy, int max_iterations,  MainWindow ptr, BufferedImage image, Color fractal_color, int color_cycling_location, int out_coloring_algorithm, double color_intensity, boolean[] filters) {
 
-        super(FROMx, TOx, FROMy, TOy, max_iterations, image_iterations, ptr, fractal_color, image, out_coloring_algorithm, color_cycling_location);
-
-        int[][] colors = {
-            {8,  40,  70,  10},
-            {9,  40, 170,  10},
-            {6, 100, 255,  70},
-            {8, 255, 255, 255},};
-
-        int n = 0;
-        for (int i = 0; i < colors.length; i++) { // get the number of all colors
-            n += colors[i][0];
-        }
-        palette = new Color[n]; // allocate pallete
-
-        n = 0;
-        for (int i = 0; i < colors.length; i++) { // interpolate all colors
-            int[] c1 = colors[i]; // first referential color
-            int[] c2 = colors[(i + 1) % colors.length]; // second ref. color
-            for (int j = 0; j < c1[0]; j++)  {// linear interpolation of RGB values
-                palette[n + j] = new Color((c1[1] * (c1[0] - 1 - j) + c2[1] * j) / (c1[0] - 1),(c1[2] * (c1[0] - 1 - j) + c2[2] * j) / (c1[0] - 1),(c1[3] * (c1[0] - 1 - j) + c2[3] * j) / (c1[0] - 1));
-            }
-            n += c1[0];
-        }
-
-        this.color_intensity = color_intensity;
-
-    }
-
-    public GreenWhite(int FROMx, int TOx, int FROMy, int TOy, int max_iterations, double[][] image_iterations, MainWindow ptr, BufferedImage image, Color fractal_color, int color_cycling_location, boolean image_buffering, int out_coloring_algorithm, double color_intensity, boolean anti_aliasing, boolean edges, boolean emboss) {
-
-        super(FROMx, TOx, FROMy, TOy, max_iterations, image_iterations, ptr, image, fractal_color, out_coloring_algorithm, color_cycling_location, image_buffering, anti_aliasing, edges, emboss);
-
-        int[][] colors = {
-            {8,  40,  70,  10},
-            {9,  40, 170,  10},
-            {6, 100, 255,  70},
-            {8, 255, 255, 255},};
-
-        int n = 0;
-        for (int i = 0; i < colors.length; i++) { // get the number of all colors
-            n += colors[i][0];
-        }
-        palette = new Color[n]; // allocate pallete
-
-        n = 0;
-        for (int i = 0; i < colors.length; i++) { // interpolate all colors
-            int[] c1 = colors[i]; // first referential color
-            int[] c2 = colors[(i + 1) % colors.length]; // second ref. color
-            for (int j = 0; j < c1[0]; j++)  {// linear interpolation of RGB values
-                palette[n + j] = new Color((c1[1] * (c1[0] - 1 - j) + c2[1] * j) / (c1[0] - 1),(c1[2] * (c1[0] - 1 - j) + c2[2] * j) / (c1[0] - 1),(c1[3] * (c1[0] - 1 - j) + c2[3] * j) / (c1[0] - 1));
-            }
-            n += c1[0];
-        }
+        super(FROMx, TOx, FROMy, TOy, max_iterations,  ptr, image, fractal_color, out_coloring_algorithm, color_cycling_location, filters);
 
         this.color_intensity = color_intensity;
 
@@ -184,7 +90,12 @@ public class GreenWhite extends ThreadPaint {
         int green = (k1 * color.getGreen() + k2 * color2.getGreen()) / 255;
         int blue = (k1 * color.getBlue() + k2 * color2.getBlue()) / 255;
 
-        return new Color(red, green, blue);
+        try {
+            return new Color(red, green, blue);
+        }
+        catch(Exception ex) {
+            return new Color(red > 255 ? red % 256 : 0, green > 255 ? green % 256 : 0, blue > 255 ? blue % 256 : 0);
+        }
 
     }
 

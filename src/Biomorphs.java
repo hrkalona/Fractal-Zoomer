@@ -1,3 +1,7 @@
+
+
+
+
 /*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
@@ -8,9 +12,9 @@
  * @author hrkalona
  */
 public class Biomorphs extends ColorAlgorithm {
-  protected int bailout;
+  protected double bailout;
 
-    public Biomorphs(int bailout) {
+    public Biomorphs(double bailout) {
 
         super();
         this.bailout = bailout;
@@ -22,7 +26,7 @@ public class Biomorphs extends ColorAlgorithm {
 
         double temp = ((Complex)object[1]).getRe();
         double temp2 = ((Complex)object[1]).getIm();
-        return temp > -bailout && temp < bailout || temp2 > -bailout && temp2 < bailout ?  (Double)object[0] : (Double)object[0] + 50;
+        return temp > -bailout && temp < bailout || temp2 > -bailout && temp2 < bailout ?  (Double)object[0] : (Double)object[0] + 100850;
 
     }
 

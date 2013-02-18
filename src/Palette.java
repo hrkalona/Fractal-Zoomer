@@ -1,3 +1,5 @@
+
+
 //package edu.hws.eck.umb.palette;
 
 import java.awt.Color;

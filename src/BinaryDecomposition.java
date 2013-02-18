@@ -1,3 +1,7 @@
+
+
+
+
 /*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
@@ -18,7 +22,7 @@ public class BinaryDecomposition extends ColorAlgorithm {
     @Override
     public double getResult(Object[] object) {
 
-        return ((Complex)object[1]).getIm() < 0 ? (Double)object[0] + 50 : (Double)object[0];
+        return ((Complex)object[1]).getIm() < 0 ? (Double)object[0] + 100850 : (Double)object[0];
 
     }
 

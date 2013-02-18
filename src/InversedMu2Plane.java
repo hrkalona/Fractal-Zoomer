@@ -5,11 +5,11 @@
 
 /**
  *
- * @author hrkalona
+ * @author hrkalona2
  */
-public class NormalPlane extends Plane {
+public class InversedMu2Plane extends Plane {
 
-    public NormalPlane() {
+    public InversedMu2Plane() {
 
         super();
 
@@ -18,8 +18,7 @@ public class NormalPlane extends Plane {
     @Override
     public Complex getPixel(Complex pixel) {
 
-        return pixel;
+        return pixel.divide(1, pixel).plus(0.25);
 
     }
-
 }

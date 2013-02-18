@@ -5,19 +5,19 @@
 
 /**
  *
- * @author hrkalona
+ * @author hrkalona2
  */
-public class Iterations extends ColorAlgorithm {
-
-    public Iterations() {
+public class EscapeTimeMagnet extends EscapeTime {
+    
+    public EscapeTimeMagnet() {
         super();
     }
 
     @Override
     public double getResult(Object[] object) {
 
-        return (Double)object[0];
+        return  (Boolean)object[3] ? (Double)object[0] + 100234  : (Double)object[0];
 
     }
-
+    
 }

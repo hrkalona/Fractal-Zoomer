@@ -13,40 +13,95 @@ import java.util.ArrayList;
 public abstract class Julia extends Fractal {
   protected Complex seed;
 
-    public Julia(double xCenter, double yCenter, double size, int max_iterations, int bailout, int out_coloring_algorithm, boolean periodicity_checking, boolean inverse_plane) {
+    public Julia(double xCenter, double yCenter, double size, int max_iterations, double bailout, int out_coloring_algorithm, boolean periodicity_checking, int plane_type, double[] rotation_vals) {
 
-        super(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, inverse_plane);
+        super(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals);
 
     }
     
-    public Julia(double xCenter, double yCenter, double size, int max_iterations, int bailout, int out_coloring_algorithm, boolean periodicity_checking, boolean inverse_plane, double xJuliaCenter, double yJuliaCenter) {
+    public Julia(double xCenter, double yCenter, double size, int max_iterations, double bailout, int out_coloring_algorithm, boolean periodicity_checking, int plane_type, double[] rotation_vals, double xJuliaCenter, double yJuliaCenter) {
 
-        super(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, inverse_plane);
-        seed = new Complex(xJuliaCenter, yJuliaCenter);
-        seed = inverse_plane ? new Complex(1, 0).divide(seed) : seed;
+        super(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals);
+        
+        rotation = new Rotation(rotation_vals[0], rotation_vals[1]);
+        
+        switch (plane_type) {
+            case MainWindow.MU_PLANE:
+                plane = new MuPlane();
+                break;
+            case MainWindow.INVERSED_MU_PLANE:
+                plane = new InversedMuPlane();
+                break;
+            case MainWindow.INVERSED_MU2_PLANE:
+                plane = new InversedMu2Plane();
+                break;
+            case MainWindow.INVERSED_MU3_PLANE:
+                plane = new InversedMu3Plane();
+                break;
+            case MainWindow.INVERSED_MU4_PLANE:
+                plane = new InversedMu4Plane();
+                break;
+            case MainWindow.LAMBDA_PLANE:
+                plane = new LambdaPlane();
+                break;
+            case MainWindow.INVERSED_LAMBDA_PLANE:
+                plane = new InversedLambdaPlane();
+                break;
+        }
+        
+        seed = plane.getPixel(new Complex(xJuliaCenter, yJuliaCenter));
 
     }
 
     //orbit
-    public Julia(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, boolean inverse_plane) {
+    public Julia(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals) {
 
-        super(xCenter, yCenter, size, max_iterations, complex_orbit, inverse_plane);
+        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals);
 
     }
 
-    public Julia(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, boolean inverse_plane, double xJuliaCenter, double yJuliaCenter) {
+    public Julia(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double xJuliaCenter, double yJuliaCenter) {
 
-        super(xCenter, yCenter, size, max_iterations, complex_orbit, inverse_plane);
-        seed = new Complex(xJuliaCenter, yJuliaCenter);
-        seed = inverse_plane ? new Complex(1, 0).divide(seed) : seed;
+        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals);
+        
+        rotation = new Rotation(rotation_vals[0], rotation_vals[1]);
+        
+        switch (plane_type) {
+            case MainWindow.MU_PLANE:
+                plane = new MuPlane();
+                break;
+            case MainWindow.INVERSED_MU_PLANE:
+                plane = new InversedMuPlane();
+                break;
+            case MainWindow.INVERSED_MU2_PLANE:
+                plane = new InversedMu2Plane();
+                break;
+            case MainWindow.INVERSED_MU3_PLANE:
+                plane = new InversedMu3Plane();
+                break;
+            case MainWindow.INVERSED_MU4_PLANE:
+                plane = new InversedMu4Plane();
+                break;
+            case MainWindow.LAMBDA_PLANE:
+                plane = new LambdaPlane();
+                break;
+            case MainWindow.INVERSED_LAMBDA_PLANE:
+                plane = new InversedLambdaPlane();
+                break;
+        }
+        
+        seed = plane.getPixel(new Complex(xJuliaCenter, yJuliaCenter));
+        
         pixel_orbit = this.complex_orbit.get(0);
+        
+        pixel_orbit = rotation.getPixel(pixel_orbit, false);
 
     }
 
     @Override
     public double calculateJulia(Complex pixel) {
 
-        return periodicity_checking ? calculateJuliaWithPeriodicity(pixel) : calculateJuliaWithoutPeriodicity(pixel);
+        return periodicity_checking ? calculateJuliaWithPeriodicity(rotation.getPixel(pixel, false)) : calculateJuliaWithoutPeriodicity(rotation.getPixel(pixel, false));
 
     }
 
@@ -70,19 +125,19 @@ public abstract class Julia extends Fractal {
 
         double temp;
         for (; iterations < max_iterations; iterations++) {
-            if((temp = complex[0].magnitude()) > bailout_squared) {
-                Object[] object = {(double)iterations, complex[0], temp, distance, zold};
+            if((temp = complex[0].norm_squared()) >= bailout_squared) {
+                Object[] object = {(double)iterations, complex[0], temp, zold};
                 return color_algorithm.getResult(object);
             }
             zold = complex[0];
-            complex[0] = function(complex);
+            function(complex);
 
             if(periodicityCheck(complex[0])) {
                 return max_iterations;
             }
         }
         
-        return iterations;
+        return max_iterations;
     }
 
     protected double calculateJuliaWithoutPeriodicity(Complex pixel) {
@@ -93,37 +148,19 @@ public abstract class Julia extends Fractal {
         complex[1] = seed;//c
 
         Complex zold = new Complex(0, 0);
-        
-        if(out_coloring_algorithm == MainWindow.CROSS_ORBIT_TRAPS) {
-            distance = 1e20;
-            trapped = false;      
-        }
 
         double temp;
         for (; iterations < max_iterations; iterations++) {
-            if((temp = complex[0].magnitude()) > bailout_squared || trapped) {
-                Object[] object = {(double)iterations, complex[0], temp, distance, zold};
+            if((temp = complex[0].norm_squared()) >= bailout_squared) {
+                Object[] object = {(double)iterations, complex[0], temp, zold};
                 return color_algorithm.getResult(object);
             }
             zold = complex[0];
-            complex[0] = function(complex);
-            
-            if(out_coloring_algorithm == MainWindow.CROSS_ORBIT_TRAPS) {
-                if(complex[0].absRe() < trap_size) {
-                    distance = complex[0].absRe();
-                    trapped = true;
-                }
-                else {
-                    if(complex[0].absIm() < trap_size) {
-                        distance = complex[0].absIm();
-                        trapped = true;
-                    }    
-                } 
-            }
-
+            function(complex);
+  
         }
 
-        return iterations;
+        return max_iterations;
     }
 
     @Override
@@ -135,8 +172,8 @@ public abstract class Julia extends Fractal {
         complex[1] = seed;//c
 
         for (; iterations < max_iterations; iterations++) {
-           complex[0] = function(complex);
-           complex_orbit.add(complex[0]);
+           function(complex);
+           complex_orbit.add(rotation.getPixel(complex[0], true));
            //if(z.getRe() >= (xCenter + size) / 2 || z.getRe() <= (xCenter - size) / 2 || z.getIm() >= (yCenter + size) / 2 || z.getIm() <= (yCenter - size) / 2) {
                //return; //keep only the visible ones
            //}

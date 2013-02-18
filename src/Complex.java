@@ -1,3 +1,7 @@
+
+
+
+
 /*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
@@ -32,11 +36,11 @@ public class Complex {
 
     public Complex plus(Complex z) {
 
-        return new Complex(re + z.getRe(), im + z.getIm());
+        return new Complex(re + z.re, im + z.im);
 
     }
     
-    public Complex plusNormal(double number) {
+    public Complex plus(double number) {
         
         return new Complex(re + number, im);
         
@@ -44,17 +48,17 @@ public class Complex {
 
     public Complex sub(Complex z) {
 
-        return new Complex(re - z.getRe(), im - z.getIm());
+        return new Complex(re - z.re, im - z.im);
 
     }
     
-    public Complex subNormal(double number) {
+    public Complex sub(double number) {
         
         return new Complex(re - number, im);
         
     }
     
-    public Complex subNormalInv(double number) {
+    public Complex sub(double number, Complex z) {
         
         return new Complex(number - re, -im);
         
@@ -62,14 +66,14 @@ public class Complex {
 
     public Complex times(Complex z) {
 
-        double  temp = z.getRe();
-        double  temp2 = z.getIm();
+        double  temp = z.re;
+        double  temp2 = z.im;
 
         return new Complex(re * temp - im * temp2, re * temp2 + im * temp);
        
     }
     
-    public Complex timesNormal(double number) {
+    public Complex times(double number) {
         
         return new Complex(re * number, im * number);
         
@@ -77,21 +81,21 @@ public class Complex {
    
     public Complex divide(Complex z) {
 
-        double  temp = z.getRe();
-        double  temp2 = z.getIm();
+        double  temp = z.re;
+        double  temp2 = z.im;
         double  temp3 = temp * temp + temp2 * temp2;
            
         return new Complex((re * temp + im * temp2) / temp3, (im * temp - re * temp2) / temp3);
 
     }
     
-    public Complex divideNormal(double number) {
+    public Complex divide(double number) {
         
         return new Complex(re / number, im / number);
         
     }
     
-    public Complex divideNormalInv(double number) {
+    public Complex divide(double number, Complex z) {
               
         double temp = number / (re * re + im * im);
         
@@ -187,9 +191,15 @@ public class Complex {
 
     }
    
-    public double magnitude() {
+    public double norm_squared() {
 
-        return re * re + im * im; //Math.sqrt(Math.pow(re, 2) + Math.pow(im, 2)); //for faster calculation. So for mandelbrot we checking if magnitude > 4 which is 2 squared, since we are not using the root in this function
+        return re * re + im * im;
+       
+    }
+    
+    public double norm() {
+
+        return Math.sqrt(re * re + im * im);
        
     }
 
@@ -212,15 +222,14 @@ public class Complex {
     }
 
     public Complex pow(double exponent) {
-        
-        double temp = Math.pow(re * re + im * im, exponent / 2);
-        double temp2 = exponent * Math.atan(im / re);
 
-	//double temp = Math.pow(re * re + im * im, exponent / 2);
-	//double temp2 = exponent * Math.atan2(im, re);// * -1.0;
+	double temp = Math.pow(re * re + im * im, exponent / 2);
+	double temp2 = exponent * Math.atan2(im, re);
 
         return new Complex(temp * Math.cos(temp2), temp * Math.sin(temp2));
 
     }
     
 }
+    
+

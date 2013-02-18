@@ -15,11 +15,13 @@ public abstract class Fractal {
   protected double yCenter;
   protected double size;
   protected int max_iterations;
-  protected int bailout;
-  protected int bailout_squared;
+  protected double bailout;
+  protected double bailout_squared;
   protected int out_coloring_algorithm;
   protected ColorAlgorithm color_algorithm;
   protected Plane plane;
+  protected Rotation rotation;
+  protected InitialValue init_val;
   protected boolean periodicity_checking;
   protected ArrayList<Complex> complex_orbit;
   protected Complex pixel_orbit;
@@ -28,12 +30,9 @@ public abstract class Fractal {
   protected int update;
   protected int update_counter;
   protected Complex period;
-  protected boolean trapped;
-  protected double trap_size;
-  protected double distance;
 
 
-    public Fractal(double xCenter, double yCenter, double size, int max_iterations, int bailout, int out_coloring_algorithm, boolean periodicity_checking, boolean inverse_plane) {
+    public Fractal(double xCenter, double yCenter, double size, int max_iterations, double bailout, int out_coloring_algorithm, boolean periodicity_checking, int plane_type, double[] rotation_vals) {
 
         this.xCenter = xCenter;
         this.yCenter = yCenter;
@@ -43,21 +42,38 @@ public abstract class Fractal {
         bailout_squared = bailout * bailout;
         this.out_coloring_algorithm = out_coloring_algorithm;
         this.periodicity_checking = periodicity_checking;
-        trapped = false;
-        trap_size = 0.05;
-        distance = 1E20;
+   
+        rotation = new Rotation(rotation_vals[0], rotation_vals[1]);
 
-        if(inverse_plane) {
-            plane = new InversedPlane();
+        switch (plane_type) {
+            case MainWindow.MU_PLANE:
+                plane = new MuPlane();
+                break;
+            case MainWindow.INVERSED_MU_PLANE:
+                plane = new InversedMuPlane();
+                break;
+            case MainWindow.INVERSED_MU2_PLANE:
+                plane = new InversedMu2Plane();
+                break;
+            case MainWindow.INVERSED_MU3_PLANE:
+                plane = new InversedMu3Plane();
+                break;
+            case MainWindow.INVERSED_MU4_PLANE:
+                plane = new InversedMu4Plane();
+                break;
+            case MainWindow.LAMBDA_PLANE:
+                plane = new LambdaPlane();
+                break;
+            case MainWindow.INVERSED_LAMBDA_PLANE:
+                plane = new InversedLambdaPlane();
+                break;
         }
-        else {
-            plane = new NormalPlane();
-        }
+        
 
     }
 
     //orbit
-    public Fractal(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, boolean inverse_plane) {
+    public Fractal(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals) {
 
         this.xCenter = xCenter;
         this.yCenter = yCenter;
@@ -65,11 +81,38 @@ public abstract class Fractal {
         this.max_iterations = max_iterations;
         this.complex_orbit = complex_orbit;
         pixel_orbit = this.complex_orbit.get(0);
-        pixel_orbit = inverse_plane ? new Complex(1, 0).divide(pixel_orbit) : pixel_orbit;
+        
+        rotation = new Rotation(rotation_vals[0], rotation_vals[1]);
+        
+        switch (plane_type) {
+            case MainWindow.MU_PLANE:
+                plane = new MuPlane();
+                break;
+            case MainWindow.INVERSED_MU_PLANE:
+                plane = new InversedMuPlane();
+                break;
+            case MainWindow.INVERSED_MU2_PLANE:
+                plane = new InversedMu2Plane();
+                break;
+            case MainWindow.INVERSED_MU3_PLANE:
+                plane = new InversedMu3Plane();
+                break;
+            case MainWindow.INVERSED_MU4_PLANE:
+                plane = new InversedMu4Plane();
+                break;
+            case MainWindow.LAMBDA_PLANE:
+                plane = new LambdaPlane();
+                break;
+            case MainWindow.INVERSED_LAMBDA_PLANE:
+                plane = new InversedLambdaPlane();
+                break;
+        }
+        
+        pixel_orbit = plane.getPixel(rotation.getPixel(pixel_orbit, false));
 
     }
 
-    protected abstract Complex function(Complex[] complex);
+    protected abstract void function(Complex[] complex);
 
     protected double getPeriodSize() {
 
@@ -81,7 +124,7 @@ public abstract class Fractal {
 
         
         //Check for period
-        if(z.sub(period).magnitude() < getPeriodSize()) {
+        if(z.sub(period).norm_squared() < getPeriodSize()) {
             return true;
         }
 
@@ -92,7 +135,7 @@ public abstract class Fractal {
             //Double the value of check
             if(update == update_counter) {
                 update_counter = 0;
-                check *= 2;
+                check <<= 1;
             }
             update_counter++;
 
@@ -107,7 +150,7 @@ public abstract class Fractal {
 
     public double calculateFractal(Complex pixel) {
         
-        return periodicity_checking ? calculateFractalWithPeriodicity(plane.getPixel(pixel)) : calculateFractalWithoutPeriodicity(plane.getPixel(pixel));
+        return periodicity_checking ? calculateFractalWithPeriodicity(plane.getPixel(rotation.getPixel(pixel, false))) : calculateFractalWithoutPeriodicity(plane.getPixel(rotation.getPixel(pixel, false)));
 
     }
 
@@ -123,20 +166,22 @@ public abstract class Fractal {
 
         period = new Complex(0, 0);
 
+        Complex tempz = init_val.getPixel(pixel);
+        
         Complex[] complex = new Complex[2];
-        complex[0] = pixel;//z
+        complex[0] = tempz;//z
         complex[1] = pixel;//c
 
         Complex zold = new Complex(0, 0);
 
         double temp;
         for (; iterations < max_iterations; iterations++) {
-            if((temp = complex[0].magnitude()) > bailout_squared) {
-                Object[] object = {(double)iterations, complex[0], temp, distance, zold};
+            if((temp = complex[0].norm_squared()) >= bailout_squared) {
+                Object[] object = {(double)iterations, complex[0], temp, zold};
                 return color_algorithm.getResult(object);
             }
             zold = complex[0];
-            complex[0] = function(complex);
+            function(complex);
 
             if(periodicityCheck(complex[0])) {
                 return max_iterations;
@@ -144,7 +189,7 @@ public abstract class Fractal {
 
         }
 
-        return iterations;
+        return max_iterations;
 
     }
 
@@ -152,123 +197,42 @@ public abstract class Fractal {
 
         int iterations = 0;
 
-        Complex[] complex = new Complex[2];
-        complex[0] = pixel;//z
-        complex[1] = pixel;//c
+        Complex tempz = init_val.getPixel(pixel);
         
-        if(out_coloring_algorithm == MainWindow.CROSS_ORBIT_TRAPS) {
-            distance = 1e20;
-            trapped = false;      
-        }
+        Complex[] complex = new Complex[2];
+        complex[0] = tempz;//z
+        complex[1] = pixel;//c
+
 
         Complex zold = new Complex(0, 0);
 
         double temp;
+
         for (; iterations < max_iterations; iterations++) {
-            if((temp = complex[0].magnitude()) > bailout_squared || trapped) {
-                Object[] object = {(double)iterations, complex[0], temp, distance, zold};
-                return color_algorithm.getResult(object);
+            if((temp = complex[0].norm_squared()) >= bailout_squared) {
+                Object[] object = {(double)iterations, complex[0], temp, zold};
+                return color_algorithm.getResult(object);   
             }
             zold = complex[0];
-            complex[0] = function(complex);
+            function(complex);
             
-            if(out_coloring_algorithm == MainWindow.CROSS_ORBIT_TRAPS) {
-                if(complex[0].absRe() < trap_size) {
-                    distance = complex[0].absRe();
-                    trapped = true;
-                }
-                else {
-                    if(complex[0].absIm() < trap_size) {
-                        distance = complex[0].absIm();
-                        trapped = true;
-                    }    
-                } 
-            }
-
         }
 
-        return iterations;
+        return max_iterations;
 
     }
-    
-    /*protected double calculateFractalCrossTraps(Complex pixel) {
-        
-        int iterations = 0;
-        
-        double distance = 0;
-        
-        boolean trapped = false;
-        double trap_size = 0.05;
-        
-        Complex[] complex = new Complex[2];
-        complex[0] = pixel;//z
-        complex[1] = pixel;//c
-
-        for (; iterations < max_iterations; iterations++) {
-            
-            complex[0] = function(complex);
-            
-            if(complex[0].absRe() < trap_size) {
-                distance = complex[0].absRe();
-                trapped = true;
-            }
-            else {
-                if(complex[0].absIm() < trap_size) {
-                    distance = complex[0].absIm();
-                    trapped = true;
-                }    
-            }
-            
-            if(trapped || complex[0].magnitude() > bailout_squared) {
-                break;
-            }
-             
-        }
-        
-        return iterations == max_iterations ? iterations : distance / trap_size * 100;
-        
-    }
-    
-    protected double calculateFractalEpsilonCrossBailout(Complex pixel) {
-        
-        int iterations = 0;
-        
-        double distance = 1e20;
-        
-        Complex[] complex = new Complex[2];
-        complex[0] = new Complex(0, 0);//z
-        complex[1] = pixel;//c
-
-        for (; iterations < max_iterations; iterations++) {
-            
-            complex[0] = function(complex);
-                       
-            double zMinusPointModulus = Math.min(complex[0].absRe(), complex[0].absIm());
-            
-            if(zMinusPointModulus < distance) {
-                distance = zMinusPointModulus;
-            }
-            
-            if(zMinusPointModulus > bailout_squared) {
-                break;
-            }
-  
-        }
-   
-        return distance * 100;
-      
-    }*/
   
     public void calculateFractalOrbit() {
       int iterations = 0;
 
         Complex[] complex = new Complex[2];
-        complex[0] = pixel_orbit;//z
+        complex[0] = init_val.getPixel(pixel_orbit);//z
         complex[1] = pixel_orbit;//c
+        
 
         for (; iterations < max_iterations; iterations++) {
-           complex[0] = function(complex);
-           complex_orbit.add(complex[0]);
+           function(complex);
+           complex_orbit.add(rotation.getPixel(complex[0], true));
            //if(z.getRe() >= (xCenter + size) / 2 || z.getRe() <= (xCenter - size) / 2 || z.getIm() >= (yCenter + size) / 2 || z.getIm() <= (yCenter - size) / 2) {
                //return;  //keep only the visible ones
            //}
@@ -303,5 +267,6 @@ public abstract class Fractal {
         return max_iterations;
 
     }
+ 
 
 }

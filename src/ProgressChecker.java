@@ -1,4 +1,6 @@
 
+
+
 /*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
@@ -19,12 +21,12 @@ public class ProgressChecker extends Thread {
 
     public synchronized void update(int new_percent) {
 
-        try {
+        //try {
             ptr.getProgressBar().setValue(ptr.getProgressBar().getValue() + new_percent);
-        }
-        catch(Exception ex) {
+        //}
+        /*catch(Exception ex) {
             update(new_percent);
-        }
+        }*/
               
     }
 
