@@ -42,14 +42,24 @@ public class CustomPalette extends ThreadDraw {
             int[] c1 = colors[i]; // first referential color
             int[] c2 = colors[(i + 1) % colors.length]; // second ref. color
             
-            if(c1[0] == 1) {
-                palette[n] = new Color(c1[1], c1[2], c1[3]);   
-            } 
-            else {
-                for (int j = 0; j < c1[0]; j++)  {// linear interpolation of RGB values
-                    palette[n + j] = new Color((c1[1] * (c1[0] - 1 - j) + c2[1] * j) / (c1[0] - 1),(c1[2] * (c1[0] - 1 - j) + c2[2] * j) / (c1[0] - 1),(c1[3] * (c1[0] - 1 - j) + c2[3] * j) / (c1[0] - 1));
-                }
-            }
+            //if(c1[0] == 1) {
+              //  palette[n] = new Color(c1[1], c1[2], c1[3]);   
+            //} 
+           // else {
+                int k;
+                double j;
+                for (k = 0, j = 0; j < 1; j += 1.0 / c1[0], k++)  {// linear interpolation of RGB values
+                    //(c1[1] * (c1[0] - 1 - j) + c2[1] * j) / (c1[0] - 1),(c1[2] * (c1[0] - 1 - j) + c2[2] * j) / (c1[0] - 1),(c1[3] * (c1[0] - 1 - j) + c2[3] * j) / (c1[0] - 1));
+                    int red = (int)(c1[1] + (c2[1] - c1[1]) * j);
+                    int green = (int)(c1[2] + (c2[2] - c1[2]) * j);
+                    int blue = (int)(c1[3] + (c2[3] - c1[3]) * j);
+                    //System.out.println(red + " " + green + " " + blue);
+                    try {
+                        palette[n + k] = new Color(red, green, blue);
+                    }
+                    catch(Exception ex) {}
+                    }
+            //}
             n += c1[0];
         }
 
@@ -84,16 +94,21 @@ public class CustomPalette extends ThreadDraw {
             int[] c1 = colors[i]; // first referential color
             int[] c2 = colors[(i + 1) % colors.length]; // second ref. color
             
-            if(c1[0] == 1) {
-                palette[n] = new Color(c1[1], c1[2], c1[3]);   
-            } 
-            else {
-                for (int j = 0; j < c1[0]; j++)  {// linear interpolation of RGB values
-                    palette[n + j] = new Color((c1[1] * (c1[0] - 1 - j) + c2[1] * j) / (c1[0] - 1),(c1[2] * (c1[0] - 1 - j) + c2[2] * j) / (c1[0] - 1),(c1[3] * (c1[0] - 1 - j) + c2[3] * j) / (c1[0] - 1));
+           
+            int k;
+            double j;
+            for (k = 0, j = 0; j < 1; j += 1.0 / c1[0], k++)  {// linear interpolation of RGB values
+                int red = (int)(c1[1] + (c2[1] - c1[1]) * j);
+                int green = (int)(c1[2] + (c2[2] - c1[2]) * j);
+                int blue = (int)(c1[3] + (c2[3] - c1[3]) * j);
+                try {
+                    palette[n + k] = new Color(red, green, blue);
                 }
+                catch(Exception ex) {}
             }
             n += c1[0];
         }
+
 
         this.color_intensity = color_intensity;
 
@@ -126,13 +141,17 @@ public class CustomPalette extends ThreadDraw {
             int[] c1 = colors[i]; // first referential color
             int[] c2 = colors[(i + 1) % colors.length]; // second ref. color
             
-            if(c1[0] == 1) {
-                palette[n] = new Color(c1[1], c1[2], c1[3]);   
-            } 
-            else {
-                for (int j = 0; j < c1[0]; j++)  {// linear interpolation of RGB values
-                    palette[n + j] = new Color((c1[1] * (c1[0] - 1 - j) + c2[1] * j) / (c1[0] - 1),(c1[2] * (c1[0] - 1 - j) + c2[2] * j) / (c1[0] - 1),(c1[3] * (c1[0] - 1 - j) + c2[3] * j) / (c1[0] - 1));
+           
+            int k;
+            double j;
+            for (k = 0, j = 0; j < 1; j += 1.0 / c1[0], k++)  {// linear interpolation of RGB values
+                int red = (int)(c1[1] + (c2[1] - c1[1]) * j);
+                int green = (int)(c1[2] + (c2[2] - c1[2]) * j);
+                int blue = (int)(c1[3] + (c2[3] - c1[3]) * j);
+                try {
+                    palette[n + k] = new Color(red, green, blue);
                 }
+                catch(Exception ex) {}
             }
             n += c1[0];
         }
@@ -168,13 +187,17 @@ public class CustomPalette extends ThreadDraw {
             int[] c1 = colors[i]; // first referential color
             int[] c2 = colors[(i + 1) % colors.length]; // second ref. color
             
-            if(c1[0] == 1) {
-                palette[n] = new Color(c1[1], c1[2], c1[3]);   
-            } 
-            else {
-                for (int j = 0; j < c1[0]; j++)  {// linear interpolation of RGB values
-                    palette[n + j] = new Color((c1[1] * (c1[0] - 1 - j) + c2[1] * j) / (c1[0] - 1),(c1[2] * (c1[0] - 1 - j) + c2[2] * j) / (c1[0] - 1),(c1[3] * (c1[0] - 1 - j) + c2[3] * j) / (c1[0] - 1));
+           
+            int k;
+            double j;
+            for (k = 0, j = 0; j < 1; j += 1.0 / c1[0], k++)  {// linear interpolation of RGB values
+                int red = (int)(c1[1] + (c2[1] - c1[1]) * j);
+                int green = (int)(c1[2] + (c2[2] - c1[2]) * j);
+                int blue = (int)(c1[3] + (c2[3] - c1[3]) * j);
+                try {
+                    palette[n + k] = new Color(red, green, blue);
                 }
+                catch(Exception ex) {}
             }
             n += c1[0];
         }
@@ -210,13 +233,17 @@ public class CustomPalette extends ThreadDraw {
             int[] c1 = colors[i]; // first referential color
             int[] c2 = colors[(i + 1) % colors.length]; // second ref. color
             
-            if(c1[0] == 1) {
-                palette[n] = new Color(c1[1], c1[2], c1[3]);   
-            } 
-            else {
-                for (int j = 0; j < c1[0]; j++)  {// linear interpolation of RGB values
-                    palette[n + j] = new Color((c1[1] * (c1[0] - 1 - j) + c2[1] * j) / (c1[0] - 1),(c1[2] * (c1[0] - 1 - j) + c2[2] * j) / (c1[0] - 1),(c1[3] * (c1[0] - 1 - j) + c2[3] * j) / (c1[0] - 1));
+           
+            int k;
+            double j;
+            for (k = 0, j = 0; j < 1; j += 1.0 / c1[0], k++)  {// linear interpolation of RGB values
+                int red = (int)(c1[1] + (c2[1] - c1[1]) * j);
+                int green = (int)(c1[2] + (c2[2] - c1[2]) * j);
+                int blue = (int)(c1[3] + (c2[3] - c1[3]) * j);
+                try {
+                    palette[n + k] = new Color(red, green, blue);
                 }
+                catch(Exception ex) {}
             }
             n += c1[0];
         }
@@ -253,13 +280,17 @@ public class CustomPalette extends ThreadDraw {
             int[] c1 = colors[i]; // first referential color
             int[] c2 = colors[(i + 1) % colors.length]; // second ref. color
             
-            if(c1[0] == 1) {
-                palette[n] = new Color(c1[1], c1[2], c1[3]);   
-            } 
-            else {
-                for (int j = 0; j < c1[0]; j++)  {// linear interpolation of RGB values
-                    palette[n + j] = new Color((c1[1] * (c1[0] - 1 - j) + c2[1] * j) / (c1[0] - 1),(c1[2] * (c1[0] - 1 - j) + c2[2] * j) / (c1[0] - 1),(c1[3] * (c1[0] - 1 - j) + c2[3] * j) / (c1[0] - 1));
+           
+            int k;
+            double j;
+            for (k = 0, j = 0; j < 1; j += 1.0 / c1[0], k++)  {// linear interpolation of RGB values
+                int red = (int)(c1[1] + (c2[1] - c1[1]) * j);
+                int green = (int)(c1[2] + (c2[2] - c1[2]) * j);
+                int blue = (int)(c1[3] + (c2[3] - c1[3]) * j);
+                try {
+                    palette[n + k] = new Color(red, green, blue);
                 }
+                catch(Exception ex) {}
             }
             n += c1[0];
         }

@@ -14,19 +14,20 @@ import java.awt.image.BufferedImage;
  * @author hrkalona
  */
 public class Blue extends ThreadDraw {
-  private static Color[] palette = {new Color(0, 0, 64),new Color(0, 0, 81),new Color(0, 0, 98),new Color(0, 0, 116),new Color(0, 0, 133),new Color(0, 0, 150),new Color(0, 0, 168),new Color(0, 0, 185),new Color(0, 0, 202),new Color(0, 0, 220),new Color(0, 0, 237),new Color(0, 0, 255),new Color(0, 0, 255),new Color(0, 23, 255),new Color(0, 46, 255),new Color(0, 69, 255),new Color(0, 92, 255),new Color(0, 115, 255),new Color(0, 139, 255),new Color(0, 162, 255),new Color(0, 185, 255),new Color(0, 208, 255),new Color(0, 231, 255),new Color(0, 255, 255),new Color(0, 255, 255),new Color(14, 255, 255),new Color(28, 255, 255),new Color(42, 255, 255),new Color(56, 255, 255),new Color(71, 255, 255),new Color(85, 255, 255),new Color(99, 255, 255),new Color(113, 255, 255),new Color(128, 255, 255),new Color(128, 255, 255),new Color(122, 243, 255),new Color(116, 231, 255),new Color(110, 220, 255),new Color(104, 208, 255),new Color(98, 197, 255),new Color(93, 185, 255),new Color(87, 174, 255),new Color(81, 162, 255),new Color(75, 151, 255),new Color(69, 139, 255),new Color(64, 128, 255),new Color(64, 128, 255),new Color(59, 118, 240),new Color(54, 108, 225),new Color(49, 98, 210),new Color(44, 88, 196),new Color(39, 78, 181),new Color(34, 68, 166),new Color(29, 59, 152),new Color(24, 49, 137),new Color(19, 39, 122),new Color(14, 29, 108),new Color(9, 19, 93),new Color(4, 9, 78),new Color(0, 0, 64),};
+  private static Color[] palette = {new Color(0, 0, 64),new Color(0, 0, 79),new Color(0, 0, 95),new Color(0, 0, 111),new Color(0, 0, 127),new Color(0, 0, 143),new Color(0, 0, 159),new Color(0, 0, 175),new Color(0, 0, 191),new Color(0, 0, 207),new Color(0, 0, 223),new Color(0, 0, 239),new Color(0, 0, 255),new Color(0, 21, 255),new Color(0, 42, 255),new Color(0, 63, 255),new Color(0, 85, 255),new Color(0, 106, 255),new Color(0, 127, 255),new Color(0, 148, 255),new Color(0, 170, 255),new Color(0, 191, 255),new Color(0, 212, 255),new Color(0, 233, 255),new Color(0, 255, 255),new Color(12, 255, 255),new Color(25, 255, 255),new Color(38, 255, 255),new Color(51, 255, 255),new Color(64, 255, 255),new Color(76, 255, 255),new Color(89, 255, 255),new Color(102, 255, 255),new Color(115, 255, 255),new Color(127, 255, 255),new Color(128, 255, 255),new Color(122, 244, 255),new Color(117, 233, 255),new Color(112, 223, 255),new Color(106, 212, 255),new Color(101, 202, 255),new Color(96, 191, 255),new Color(90, 180, 255),new Color(85, 170, 255),new Color(80, 159, 255),new Color(74, 149, 255),new Color(69, 138, 255),new Color(64, 128, 255),new Color(59, 118, 241),new Color(54, 109, 227),new Color(50, 100, 214),new Color(45, 91, 200),new Color(41, 82, 186),new Color(36, 73, 173),new Color(32, 64, 159),new Color(27, 54, 145),new Color(22, 45, 132),new Color(18, 36, 118),new Color(13, 27, 104),new Color(9, 18, 91),new Color(4, 9, 77),new Color(0, 0, 64),};
   private double color_intensity;
 
      public Blue(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations,  double bailout, MainWindow ptr, Color fractal_color, BufferedImage image, boolean[] filters, int out_coloring_algorithm, double color_intensity, boolean boundary_tracing, boolean periodicity_checking, int plane_type,  boolean burning_ship, int function, double z_exponent, int color_cycling_location, double[] rotation_vals, boolean perturbation, double[] perturbation_vals, double[] coefficients) {
 
         super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations,  bailout, ptr, fractal_color, image, filters, out_coloring_algorithm, boundary_tracing, periodicity_checking, plane_type,  burning_ship, function, z_exponent, color_cycling_location, rotation_vals, perturbation, perturbation_vals, coefficients);
 
-       /* int[][] colors = {
+        /*int[][] colors = {
             {12,   0,   0,  64},
             {12,   0,   0, 255},
             {10,   0, 255, 255},
             {12, 128, 255, 255},
             {14,  64, 128, 255},};*/
+        
 
         this.color_intensity = color_intensity;
 

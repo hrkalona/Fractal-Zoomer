@@ -14,7 +14,7 @@ import java.awt.image.BufferedImage;
  * @author hrkalona
  */
 public class GreenWhite extends ThreadDraw {
-  private static Color[] palette = {new Color(40, 70, 10),new Color(40, 84, 10),new Color(40, 98, 10),new Color(40, 112, 10),new Color(40, 127, 10),new Color(40, 141, 10),new Color(40, 155, 10),new Color(40, 170, 10),new Color(40, 170, 10),new Color(47, 180, 17),new Color(55, 191, 25),new Color(62, 201, 32),new Color(70, 212, 40),new Color(77, 223, 47),new Color(85, 233, 55),new Color(92, 244, 62),new Color(100, 255, 70),new Color(100, 255, 70),new Color(131, 255, 107),new Color(162, 255, 144),new Color(193, 255, 181),new Color(224, 255, 218),new Color(255, 255, 255),new Color(255, 255, 255),new Color(224, 228, 220),new Color(193, 202, 185),new Color(162, 175, 150),new Color(132, 149, 115),new Color(101, 122, 80),new Color(70, 96, 45),new Color(40, 70, 10),};
+  private static Color[] palette = {new Color(40, 70, 10),new Color(40, 82, 10),new Color(40, 95, 10),new Color(40, 107, 10),new Color(40, 120, 10),new Color(40, 132, 10),new Color(40, 145, 10),new Color(40, 157, 10),new Color(40, 170, 10),new Color(46, 179, 16),new Color(53, 188, 23),new Color(60, 198, 30),new Color(66, 207, 36),new Color(73, 217, 43),new Color(80, 226, 50),new Color(86, 236, 56),new Color(93, 245, 63),new Color(100, 255, 70),new Color(125, 255, 100),new Color(151, 255, 131),new Color(177, 255, 162),new Color(203, 255, 193),new Color(229, 255, 224),new Color(254, 255, 254),new Color(255, 255, 255),new Color(228, 231, 224),new Color(201, 208, 193),new Color(174, 185, 163),new Color(147, 162, 132),new Color(120, 139, 101),new Color(93, 116, 71),new Color(66, 93, 40),};
   private double color_intensity;
   
      public GreenWhite(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations,  double bailout, MainWindow ptr, Color fractal_color, BufferedImage image, boolean[] filters, int out_coloring_algorithm, double color_intensity, boolean boundary_tracing, boolean periodicity_checking, int plane_type,  boolean burning_ship, int function, double z_exponent, int color_cycling_location, double[] rotation_vals, boolean perturbation, double[] perturbation_vals, double[] coefficients) {
@@ -26,7 +26,8 @@ public class GreenWhite extends ThreadDraw {
             {9,  40, 170,  10},
             {6, 100, 255,  70},
             {8, 255, 255, 255},};*/
-
+        
+  
         this.color_intensity = color_intensity;
 
     }
