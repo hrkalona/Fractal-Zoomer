@@ -38,6 +38,7 @@ public class CustomPalette extends ThreadDraw {
         palette = new Color[n]; // allocate pallete
 
         n = 0;
+        int red, green, blue;
         for (int i = 0; i < colors.length; i++) { // interpolate all colors
             int[] c1 = colors[i]; // first referential color
             int[] c2 = colors[(i + 1) % colors.length]; // second ref. color
@@ -48,17 +49,15 @@ public class CustomPalette extends ThreadDraw {
            // else {
                 int k;
                 double j;
-                for (k = 0, j = 0; j < 1; j += 1.0 / c1[0], k++)  {// linear interpolation of RGB values
+                for (k = 0, j = 0; k < c1[0]; j += 1.0 / c1[0], k++)  {// linear interpolation of RGB values
                     //(c1[1] * (c1[0] - 1 - j) + c2[1] * j) / (c1[0] - 1),(c1[2] * (c1[0] - 1 - j) + c2[2] * j) / (c1[0] - 1),(c1[3] * (c1[0] - 1 - j) + c2[3] * j) / (c1[0] - 1));
-                    int red = (int)(c1[1] + (c2[1] - c1[1]) * j);
-                    int green = (int)(c1[2] + (c2[2] - c1[2]) * j);
-                    int blue = (int)(c1[3] + (c2[3] - c1[3]) * j);
+                    red = (int)(c1[1] + (c2[1] - c1[1]) * j);
+                    green = (int)(c1[2] + (c2[2] - c1[2]) * j);
+                    blue = (int)(c1[3] + (c2[3] - c1[3]) * j);
                     //System.out.println(red + " " + green + " " + blue);
-                    try {
-                        palette[n + k] = new Color(red, green, blue);
-                    }
-                    catch(Exception ex) {}
-                    }
+                   
+                    palette[n + k] = new Color(red, green, blue);        
+               }
             //}
             n += c1[0];
         }
@@ -90,6 +89,7 @@ public class CustomPalette extends ThreadDraw {
         palette = new Color[n]; // allocate pallete
 
         n = 0;
+        int red, green, blue;
         for (int i = 0; i < colors.length; i++) { // interpolate all colors
             int[] c1 = colors[i]; // first referential color
             int[] c2 = colors[(i + 1) % colors.length]; // second ref. color
@@ -97,14 +97,11 @@ public class CustomPalette extends ThreadDraw {
            
             int k;
             double j;
-            for (k = 0, j = 0; j < 1; j += 1.0 / c1[0], k++)  {// linear interpolation of RGB values
-                int red = (int)(c1[1] + (c2[1] - c1[1]) * j);
-                int green = (int)(c1[2] + (c2[2] - c1[2]) * j);
-                int blue = (int)(c1[3] + (c2[3] - c1[3]) * j);
-                try {
-                    palette[n + k] = new Color(red, green, blue);
-                }
-                catch(Exception ex) {}
+            for (k = 0, j = 0; k < c1[0]; j += 1.0 / c1[0], k++)  {// linear interpolation of RGB values
+                red = (int)(c1[1] + (c2[1] - c1[1]) * j);
+                green = (int)(c1[2] + (c2[2] - c1[2]) * j);
+                blue = (int)(c1[3] + (c2[3] - c1[3]) * j);
+                palette[n + k] = new Color(red, green, blue);
             }
             n += c1[0];
         }
@@ -137,6 +134,7 @@ public class CustomPalette extends ThreadDraw {
         palette = new Color[n]; // allocate pallete
 
         n = 0;
+        int red, green, blue;
         for (int i = 0; i < colors.length; i++) { // interpolate all colors
             int[] c1 = colors[i]; // first referential color
             int[] c2 = colors[(i + 1) % colors.length]; // second ref. color
@@ -144,14 +142,11 @@ public class CustomPalette extends ThreadDraw {
            
             int k;
             double j;
-            for (k = 0, j = 0; j < 1; j += 1.0 / c1[0], k++)  {// linear interpolation of RGB values
-                int red = (int)(c1[1] + (c2[1] - c1[1]) * j);
-                int green = (int)(c1[2] + (c2[2] - c1[2]) * j);
-                int blue = (int)(c1[3] + (c2[3] - c1[3]) * j);
-                try {
-                    palette[n + k] = new Color(red, green, blue);
-                }
-                catch(Exception ex) {}
+            for (k = 0, j = 0; k < c1[0]; j += 1.0 / c1[0], k++)  {// linear interpolation of RGB values
+                red = (int)(c1[1] + (c2[1] - c1[1]) * j);
+                green = (int)(c1[2] + (c2[2] - c1[2]) * j);
+                blue = (int)(c1[3] + (c2[3] - c1[3]) * j);
+                palette[n + k] = new Color(red, green, blue);
             }
             n += c1[0];
         }
@@ -183,6 +178,7 @@ public class CustomPalette extends ThreadDraw {
         palette = new Color[n]; // allocate pallete
 
         n = 0;
+        int red, green, blue;
         for (int i = 0; i < colors.length; i++) { // interpolate all colors
             int[] c1 = colors[i]; // first referential color
             int[] c2 = colors[(i + 1) % colors.length]; // second ref. color
@@ -190,14 +186,11 @@ public class CustomPalette extends ThreadDraw {
            
             int k;
             double j;
-            for (k = 0, j = 0; j < 1; j += 1.0 / c1[0], k++)  {// linear interpolation of RGB values
-                int red = (int)(c1[1] + (c2[1] - c1[1]) * j);
-                int green = (int)(c1[2] + (c2[2] - c1[2]) * j);
-                int blue = (int)(c1[3] + (c2[3] - c1[3]) * j);
-                try {
-                    palette[n + k] = new Color(red, green, blue);
-                }
-                catch(Exception ex) {}
+            for (k = 0, j = 0; k < c1[0]; j += 1.0 / c1[0], k++)  {// linear interpolation of RGB values
+                red = (int)(c1[1] + (c2[1] - c1[1]) * j);
+                green = (int)(c1[2] + (c2[2] - c1[2]) * j);
+                blue = (int)(c1[3] + (c2[3] - c1[3]) * j);
+                palette[n + k] = new Color(red, green, blue);
             }
             n += c1[0];
         }
@@ -229,6 +222,7 @@ public class CustomPalette extends ThreadDraw {
         palette = new Color[n]; // allocate pallete
 
         n = 0;
+        int red, green, blue;
         for (int i = 0; i < colors.length; i++) { // interpolate all colors
             int[] c1 = colors[i]; // first referential color
             int[] c2 = colors[(i + 1) % colors.length]; // second ref. color
@@ -236,14 +230,11 @@ public class CustomPalette extends ThreadDraw {
            
             int k;
             double j;
-            for (k = 0, j = 0; j < 1; j += 1.0 / c1[0], k++)  {// linear interpolation of RGB values
-                int red = (int)(c1[1] + (c2[1] - c1[1]) * j);
-                int green = (int)(c1[2] + (c2[2] - c1[2]) * j);
-                int blue = (int)(c1[3] + (c2[3] - c1[3]) * j);
-                try {
-                    palette[n + k] = new Color(red, green, blue);
-                }
-                catch(Exception ex) {}
+            for (k = 0, j = 0; k < c1[0]; j += 1.0 / c1[0], k++)  {// linear interpolation of RGB values
+                red = (int)(c1[1] + (c2[1] - c1[1]) * j);
+                green = (int)(c1[2] + (c2[2] - c1[2]) * j);
+                blue = (int)(c1[3] + (c2[3] - c1[3]) * j);
+                palette[n + k] = new Color(red, green, blue);
             }
             n += c1[0];
         }
@@ -276,6 +267,7 @@ public class CustomPalette extends ThreadDraw {
         palette = new Color[n]; // allocate pallete
 
         n = 0;
+        int red, green, blue;
         for (int i = 0; i < colors.length; i++) { // interpolate all colors
             int[] c1 = colors[i]; // first referential color
             int[] c2 = colors[(i + 1) % colors.length]; // second ref. color
@@ -283,14 +275,11 @@ public class CustomPalette extends ThreadDraw {
            
             int k;
             double j;
-            for (k = 0, j = 0; j < 1; j += 1.0 / c1[0], k++)  {// linear interpolation of RGB values
-                int red = (int)(c1[1] + (c2[1] - c1[1]) * j);
-                int green = (int)(c1[2] + (c2[2] - c1[2]) * j);
-                int blue = (int)(c1[3] + (c2[3] - c1[3]) * j);
-                try {
-                    palette[n + k] = new Color(red, green, blue);
-                }
-                catch(Exception ex) {}
+            for (k = 0, j = 0; k < c1[0]; j += 1.0 / c1[0], k++)  {// linear interpolation of RGB values
+                red = (int)(c1[1] + (c2[1] - c1[1]) * j);
+                green = (int)(c1[2] + (c2[2] - c1[2]) * j);
+                blue = (int)(c1[3] + (c2[3] - c1[3]) * j);
+                palette[n + k] = new Color(red, green, blue);
             }
             n += c1[0];
         }

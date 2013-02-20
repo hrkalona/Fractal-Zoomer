@@ -21,7 +21,7 @@ public class Alternative3 extends ThreadDraw {
 
         super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations,  bailout, ptr, fractal_color, image, filters, out_coloring_algorithm, boundary_tracing, periodicity_checking, plane_type,  burning_ship, function, z_exponent, color_cycling_location, rotation_vals, perturbation, perturbation_vals, coefficients);
 
-       /* int[][] colors = {
+       /*int[][] colors = {
             {12, 161, 36, 32},
             {12, 32, 15, 8},
             {12, 214, 207, 191},
