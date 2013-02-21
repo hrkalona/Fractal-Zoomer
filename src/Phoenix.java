@@ -29,7 +29,7 @@ public class Phoenix extends Julia {
                 color_algorithm = new EscapeTime();
                 break;
             case MainWindow.SMOOTH_COLOR:
-                color_algorithm = new Smooth(Math.log(bailout_squared), Math.log(2));
+                color_algorithm = new Smooth(Math.log(bailout_squared));
                 break;
             case MainWindow.BINARY_DECOMPOSITION:
                 color_algorithm = new BinaryDecomposition();
@@ -70,7 +70,7 @@ public class Phoenix extends Julia {
                 color_algorithm = new EscapeTime();
                 break;
             case MainWindow.SMOOTH_COLOR:
-                color_algorithm = new Smooth(Math.log(bailout_squared), Math.log(2));
+                color_algorithm = new Smooth(Math.log(bailout_squared));
                 break;
             case MainWindow.BINARY_DECOMPOSITION:
                 color_algorithm = new BinaryDecomposition();
@@ -150,13 +150,16 @@ public class Phoenix extends Julia {
         complex[0] = temp_z;//z
         complex[1] = pixel;//c
         complex[2] = new Complex(0, 0);//s
+        
+        Complex zold = new Complex(0, 0);
 
         double temp;
         for (; iterations < max_iterations; iterations++) {
             if((temp = complex[0].norm_squared()) >= bailout_squared) {
-                Object[] object = {(double)iterations, complex[0], temp};
+                Object[] object = {(double)iterations, complex[0], temp, zold};
                 return color_algorithm.getResult(object);
             }
+            zold = complex[0];
             function(complex);
 
             if(periodicityCheck(complex[0])) {
@@ -178,13 +181,16 @@ public class Phoenix extends Julia {
         complex[0] = temp_z;//z
         complex[1] = pixel;//c
         complex[2] = new Complex(0, 0);//s
+        
+        Complex zold = new Complex(0, 0);
 
         double temp;
         for (; iterations < max_iterations; iterations++) {
             if((temp = complex[0].norm_squared()) >= bailout_squared) {
-                Object[] object = {(double)iterations, complex[0], temp};
+                Object[] object = {(double)iterations, complex[0], temp, zold};
                 return color_algorithm.getResult(object);
             }
+            zold = complex[0];
             function(complex);
 
         }
@@ -208,13 +214,16 @@ public class Phoenix extends Julia {
         complex[0] = pixel;//z
         complex[1] = seed;//c
         complex[2] = new Complex(0, 0);//s
+        
+        Complex zold = new Complex(0, 0);
  
         double temp;
         for (; iterations < max_iterations; iterations++) {
             if((temp = complex[0].norm_squared()) >= bailout_squared) {
-                Object[] object = {(double)iterations, complex[0], temp};
+                Object[] object = {(double)iterations, complex[0], temp, zold};
                 return color_algorithm.getResult(object);
             }
+            zold = complex[0];
             function(complex);
 
             if(periodicityCheck(complex[0])) {
@@ -234,13 +243,16 @@ public class Phoenix extends Julia {
         complex[0] = pixel;//z
         complex[1] = seed;//c
         complex[2] = new Complex(0, 0);//s
+        
+        Complex zold = new Complex(0, 0);
 
         double temp;
         for (; iterations < max_iterations; iterations++) {
             if((temp = complex[0].norm_squared()) >= bailout_squared) {
-                Object[] object = {(double)iterations, complex[0], temp};
+                Object[] object = {(double)iterations, complex[0], temp, zold};
                 return color_algorithm.getResult(object);
             }
+            zold = complex[0];
             function(complex);
    
         }

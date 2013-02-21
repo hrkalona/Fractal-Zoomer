@@ -29,7 +29,7 @@ public class Manowar extends Julia {
                 color_algorithm = new EscapeTime();
                 break;
             case MainWindow.SMOOTH_COLOR:
-                color_algorithm = new Smooth(Math.log(bailout_squared), Math.log(2));
+                color_algorithm = new Smooth(Math.log(bailout_squared));
                 break;
             case MainWindow.BINARY_DECOMPOSITION:
                 color_algorithm = new BinaryDecomposition();
@@ -70,7 +70,7 @@ public class Manowar extends Julia {
                 color_algorithm = new EscapeTime();
                 break;
             case MainWindow.SMOOTH_COLOR:
-                color_algorithm = new Smooth(Math.log(bailout_squared), Math.log(2));
+                color_algorithm = new Smooth(Math.log(bailout_squared));
                 break;
             case MainWindow.BINARY_DECOMPOSITION:
                 color_algorithm = new BinaryDecomposition();
@@ -149,13 +149,16 @@ public class Manowar extends Julia {
         complex[0] = tempz;//z
         complex[1] = tempz;//z1
         complex[2] = pixel;//c
+        
+        Complex zold = new Complex(0, 0);
 
         double temp;
         for (; iterations < max_iterations; iterations++) {
             if((temp = complex[0].norm_squared()) >= bailout_squared) {
-                Object[] object = {(double)iterations, complex[0], temp};
+                Object[] object = {(double)iterations, complex[0], temp, zold};
                 return color_algorithm.getResult(object);
             }
+            zold = complex[0];
             function(complex);
 
             if(periodicityCheck(complex[0])) {
@@ -178,12 +181,15 @@ public class Manowar extends Julia {
         complex[1] = tempz;//z1
         complex[2] = pixel;//c
         
+        Complex zold = new Complex(0, 0);
+        
         double temp;
         for (; iterations < max_iterations; iterations++) {
             if((temp = complex[0].norm_squared()) >= bailout_squared) {
-                Object[] object = {(double)iterations, complex[0], temp};
+                Object[] object = {(double)iterations, complex[0], temp, zold};
                 return color_algorithm.getResult(object);
             }
+            zold = complex[0];
             function(complex);
 
         }
@@ -208,13 +214,16 @@ public class Manowar extends Julia {
         complex[0] = pixel;//z
         complex[1] = pixel;//z1
         complex[2] = seed;//c
+        
+        Complex zold = new Complex(0, 0);
 
         double temp;
         for (; iterations < max_iterations; iterations++) {
             if((temp = complex[0].norm_squared()) >= bailout_squared) {
-                Object[] object = {(double)iterations, complex[0], temp};
+                Object[] object = {(double)iterations, complex[0], temp, zold};
                 return color_algorithm.getResult(object);
             }
+            zold = complex[0];
             function(complex);
 
             if(periodicityCheck(complex[0])) {
@@ -236,13 +245,16 @@ public class Manowar extends Julia {
         complex[0] = pixel;//z
         complex[1] = pixel;//z1
         complex[2] = seed;//c
+        
+        Complex zold = new Complex(0, 0);
 
         double temp;
         for (; iterations < max_iterations; iterations++) {
             if((temp = complex[0].norm_squared()) >= bailout_squared) {
-                Object[] object = {(double)iterations, complex[0], temp};
+                Object[] object = {(double)iterations, complex[0], temp, zold};
                 return color_algorithm.getResult(object);
             }
+            zold = complex[0];
             function(complex);
 
         }

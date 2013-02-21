@@ -16,7 +16,7 @@ public class SmoothMagnet1 extends Smooth {
     
     public SmoothMagnet1(double log_bailout_squared, double log_convergent_bailout) {
         
-        super(log_bailout_squared, 0);
+        super(log_bailout_squared);
         this.log_convergent_bailout = log_convergent_bailout;
         
     }

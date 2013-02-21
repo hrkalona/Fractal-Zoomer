@@ -22,7 +22,7 @@ public class HouseholderGeneralized8 extends RootFindingMethods {
                 color_algorithm = new EscapeTime();
                 break;
             case MainWindow.SMOOTH_COLOR:
-                color_algorithm = new SmoothHouseholder(Math.log(convergent_bailout));
+                color_algorithm = new SmoothRootFindingMethod(Math.log(convergent_bailout));
                 break;
             case MainWindow.BINARY_DECOMPOSITION:
                 convergent_bailout = 1E-4;

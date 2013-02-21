@@ -40,7 +40,7 @@ public class MandelbrotPoly extends Julia {
                 color_algorithm = new EscapeTime();
                 break;
             case MainWindow.SMOOTH_COLOR:
-                color_algorithm = new SmoothMandelPoly(Math.log(bailout_squared));
+                color_algorithm = new Smooth(Math.log(bailout_squared));
                 break;
             case MainWindow.BINARY_DECOMPOSITION:
                 color_algorithm = new BinaryDecomposition();
@@ -90,7 +90,7 @@ public class MandelbrotPoly extends Julia {
                 color_algorithm = new EscapeTime();
                 break;
             case MainWindow.SMOOTH_COLOR:
-                color_algorithm = new SmoothMandelPoly(Math.log(bailout_squared));
+                color_algorithm = new Smooth(Math.log(bailout_squared));
                 break;
             case MainWindow.BINARY_DECOMPOSITION:
                 color_algorithm = new BinaryDecomposition();

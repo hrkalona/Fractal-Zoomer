@@ -29,7 +29,7 @@ public class Spider extends Julia {
                 color_algorithm = new EscapeTime();
                 break;
             case MainWindow.SMOOTH_COLOR:
-                color_algorithm = new Smooth(Math.log(bailout_squared), Math.log(2));
+                color_algorithm = new Smooth(Math.log(bailout_squared));
                 break;
             case MainWindow.BINARY_DECOMPOSITION:
                 color_algorithm = new BinaryDecomposition();
@@ -70,7 +70,7 @@ public class Spider extends Julia {
                 color_algorithm = new EscapeTime();
                 break;
             case MainWindow.SMOOTH_COLOR:
-                color_algorithm = new Smooth(Math.log(bailout_squared), Math.log(2));
+                color_algorithm = new Smooth(Math.log(bailout_squared));
                 break;
             case MainWindow.BINARY_DECOMPOSITION:
                 color_algorithm = new BinaryDecomposition();
