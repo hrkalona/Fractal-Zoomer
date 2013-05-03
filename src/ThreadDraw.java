@@ -15,10 +15,11 @@ import java.util.Arrays;
  *
  * @author hrkalona
  */
-public abstract class ThreadDraw extends Thread {
+public class ThreadDraw extends Thread {
   protected static double[] image_iterations;
   protected int [] rgbs;
   protected Fractal fractal;
+  protected PaletteColor palette_color;
   protected int FROMx;
   protected int TOx;
   protected int FROMy;
@@ -64,7 +65,7 @@ public abstract class ThreadDraw extends Thread {
     }
 
     //Fractal
-    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter,  double size, int max_iterations, double bailout,  MainWindow ptr, Color fractal_color, BufferedImage image, boolean[] filters, int out_coloring_algorithm, boolean boundary_tracing, boolean periodicity_checking, int plane_type, boolean burning_ship, int function, double z_exponent, int color_cycling_location, double[] rotation_vals, boolean perturbation, double[] perturbation_vals, double[] coefficients) {
+    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter,  double size, int max_iterations, int bailout_test_algorithm, double bailout,  MainWindow ptr, Color fractal_color, BufferedImage image, boolean[] filters, int out_coloring_algorithm, int in_coloring_algorithm, boolean boundary_tracing, boolean periodicity_checking, int plane_type, boolean burning_ship, int function, double z_exponent, int color_cycling_location, double[] rotation_vals, boolean perturbation, double[] perturbation_vals, double[] coefficients) {
 
         this.FROMx = FROMx;
         this.TOx = TOx;
@@ -106,131 +107,186 @@ public abstract class ThreadDraw extends Thread {
         
         switch (function) {
             case 0:
-                fractal = new Mandelbrot(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals, burning_ship);
+                fractal = new Mandelbrot(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals, burning_ship);
                 break;
             case 1:
-                fractal = new MandelbrotCubed(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals, burning_ship);
+                fractal = new MandelbrotCubed(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals, burning_ship);
                 break;
             case 2:
-                fractal = new MandelbrotFourth(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals, burning_ship);
+                fractal = new MandelbrotFourth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals, burning_ship);
                 break;
             case 3:
-                fractal = new MandelbrotFifth(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals, burning_ship);
+                fractal = new MandelbrotFifth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals, burning_ship);
                 break;
             case 4:
-                fractal = new MandelbrotSixth(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals, burning_ship);
+                fractal = new MandelbrotSixth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals, burning_ship);
                 break;
             case 5:
-                fractal = new MandelbrotSeventh(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals, burning_ship);
+                fractal = new MandelbrotSeventh(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals, burning_ship);
                 break;
             case 6:
-                fractal = new MandelbrotEighth(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals, burning_ship);
+                fractal = new MandelbrotEighth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals, burning_ship);
                 break;
             case 7:
-                fractal = new MandelbrotNinth(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals, burning_ship);
+                fractal = new MandelbrotNinth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals, burning_ship);
                 break;
             case 8:
-                fractal = new MandelbrotTenth(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals, burning_ship);
+                fractal = new MandelbrotTenth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals, burning_ship);
                 break;
             case MainWindow.MANDELBROTNTH:
-                fractal = new MandelbrotNth(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals, burning_ship, z_exponent);
+                fractal = new MandelbrotNth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals, burning_ship, z_exponent);
                 break;
             case MainWindow.MANDELPOLY:
-                fractal = new MandelbrotPoly(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals, burning_ship, coefficients);
+                fractal = new MandelbrotPoly(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals, burning_ship, coefficients);
                 break;
             case MainWindow.LAMBDA:
-                fractal = new Lambda(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals);
+                fractal = new Lambda(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals);
                 break;
             case MainWindow.MAGNET1:
-                fractal = new Magnet1(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals);
+                fractal = new Magnet1(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals);
                 break;
             case MainWindow.MAGNET2:
-                fractal = new Magnet2(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals);
+                fractal = new Magnet2(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals);
                 break;
             case MainWindow.NEWTON3:
-                fractal = new Newton3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, plane_type, rotation_vals);
+                fractal = new Newton3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, plane_type, rotation_vals);
                 break;
             case MainWindow.NEWTON4:
-                fractal = new Newton4(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, plane_type, rotation_vals);
+                fractal = new Newton4(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, plane_type, rotation_vals);
                 break;
             case MainWindow.NEWTONGENERALIZED3:
-                fractal = new NewtonGeneralized3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, plane_type, rotation_vals);
+                fractal = new NewtonGeneralized3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, plane_type, rotation_vals);
                 break;
             case MainWindow.NEWTONGENERALIZED8:
-                fractal = new NewtonGeneralized8(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, plane_type, rotation_vals);
+                fractal = new NewtonGeneralized8(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, plane_type, rotation_vals);
                 break;
-             case MainWindow.NEWTONPOLY:
-                fractal = new NewtonPoly(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, plane_type, rotation_vals, coefficients);
+            case MainWindow.NEWTONSIN:
+                fractal = new NewtonSin(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, plane_type, rotation_vals);
+                break;
+            case MainWindow.NEWTONCOS:
+                fractal = new NewtonCos(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, plane_type, rotation_vals);
+                break;
+            case MainWindow.NEWTONPOLY:
+                fractal = new NewtonPoly(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, plane_type, rotation_vals, coefficients);
                 break;
             case MainWindow.BARNSLEY1:
-                fractal = new Barnsley1(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals);
+                fractal = new Barnsley1(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals);
                 break;
             case MainWindow.BARNSLEY2:
-                fractal = new Barnsley2(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals);
+                fractal = new Barnsley2(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals);
                 break;
             case MainWindow.BARNSLEY3:
-                fractal = new Barnsley3(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals);
+                fractal = new Barnsley3(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals);
                 break;
             case MainWindow.MANDELBAR:
-                fractal = new Mandelbar(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals);
+                fractal = new Mandelbar(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals);
                 break;
             case MainWindow.SPIDER:
-                fractal = new Spider(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals);
+                fractal = new Spider(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals);
                 break;
             case MainWindow.MANOWAR:
-                fractal = new Manowar(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals);
+                fractal = new Manowar(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals);
                 break;
             case MainWindow.PHOENIX:
-                fractal = new Phoenix(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals);
+                fractal = new Phoenix(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals);
                 break;
             case MainWindow.SIERPINSKI_GASKET:
-                fractal = new SierpinskiGasket(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, plane_type, rotation_vals);
+                fractal = new SierpinskiGasket(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, plane_type, rotation_vals);
                 break;
             case MainWindow.HALLEY3:
-                fractal = new Halley3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, plane_type, rotation_vals);
+                fractal = new Halley3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, plane_type, rotation_vals);
                 break;
             case MainWindow.HALLEY4:
-                fractal = new Halley4(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, plane_type, rotation_vals);
+                fractal = new Halley4(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, plane_type, rotation_vals);
                 break;
             case MainWindow.HALLEYGENERALIZED3:
-                fractal = new HalleyGeneralized3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, plane_type, rotation_vals);
+                fractal = new HalleyGeneralized3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, plane_type, rotation_vals);
                 break;
             case MainWindow.HALLEYGENERALIZED8:
-                fractal = new HalleyGeneralized8(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, plane_type, rotation_vals);
+                fractal = new HalleyGeneralized8(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, plane_type, rotation_vals);
+                break;
+            case MainWindow.HALLEYSIN:
+                fractal = new HalleySin(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, plane_type, rotation_vals);
+                break;
+            case MainWindow.HALLEYCOS:
+                fractal = new HalleyCos(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, plane_type, rotation_vals);
                 break;
             case MainWindow.HALLEYPOLY:
-                fractal = new HalleyPoly(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, plane_type, rotation_vals, coefficients);
+                fractal = new HalleyPoly(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, plane_type, rotation_vals, coefficients);
                 break;
             case MainWindow.SCHRODER3:
-                fractal = new Schroder3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, plane_type, rotation_vals);
+                fractal = new Schroder3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, plane_type, rotation_vals);
                 break;
             case MainWindow.SCHRODER4:
-                fractal = new Schroder4(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, plane_type, rotation_vals);
+                fractal = new Schroder4(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, plane_type, rotation_vals);
                 break;
             case MainWindow.SCHRODERGENERALIZED3:
-                fractal = new SchroderGeneralized3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, plane_type, rotation_vals);
+                fractal = new SchroderGeneralized3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, plane_type, rotation_vals);
                 break;
             case MainWindow.SCHRODERGENERALIZED8:
-                fractal = new SchroderGeneralized8(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, plane_type, rotation_vals);
+                fractal = new SchroderGeneralized8(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, plane_type, rotation_vals);
+                break;
+            case MainWindow.SCHRODERSIN:
+                fractal = new SchroderSin(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, plane_type, rotation_vals);
+                break;
+            case MainWindow.SCHRODERCOS:
+                fractal = new SchroderCos(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, plane_type, rotation_vals);
                 break;
             case MainWindow.SCHRODERPOLY:
-                fractal = new SchroderPoly(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, plane_type, rotation_vals, coefficients);
+                fractal = new SchroderPoly(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, plane_type, rotation_vals, coefficients);
                 break;
             case MainWindow.HOUSEHOLDER3:
-                fractal = new Householder3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, plane_type, rotation_vals);
+                fractal = new Householder3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, plane_type, rotation_vals);
                 break;
             case MainWindow.HOUSEHOLDER4:
-                fractal = new Householder4(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, plane_type, rotation_vals);
+                fractal = new Householder4(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, plane_type, rotation_vals);
                 break;
             case MainWindow.HOUSEHOLDERGENERALIZED3:
-                fractal = new HouseholderGeneralized3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, plane_type, rotation_vals);
+                fractal = new HouseholderGeneralized3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, plane_type, rotation_vals);
                 break;
             case MainWindow.HOUSEHOLDERGENERALIZED8:
-                fractal = new HouseholderGeneralized8(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, plane_type, rotation_vals);
+                fractal = new HouseholderGeneralized8(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, plane_type, rotation_vals);
+                break;
+            case MainWindow.HOUSEHOLDERSIN:
+                fractal = new HouseholderSin(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, plane_type, rotation_vals);
+                break;
+            case MainWindow.HOUSEHOLDERCOS:
+                fractal = new HouseholderCos(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, plane_type, rotation_vals);
                 break;
             case MainWindow.HOUSEHOLDERPOLY:
-                fractal = new HouseholderPoly(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, plane_type, rotation_vals, coefficients);
+                fractal = new HouseholderPoly(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, plane_type, rotation_vals, coefficients);
                 break;
+            case MainWindow.EXP:
+                fractal = new Exp(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals);
+                break;
+            case MainWindow.LOG:
+                fractal = new Log(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals);
+                break;
+            case MainWindow.SIN:
+                fractal = new Sin(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals);
+                break;
+            case MainWindow.COS:
+                fractal = new Cos(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals);
+                break;
+            case MainWindow.TAN:
+                fractal = new Tan(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals);
+                break;
+            case MainWindow.COT:
+                fractal = new Cot(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals);
+                break;
+            case MainWindow.SINH:
+                fractal = new Sinh(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals);
+                break;
+            case MainWindow.COSH:
+                fractal = new Cosh(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals);
+                break;
+            case MainWindow.TANH:
+                fractal = new Tanh(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals);
+                break;
+            case MainWindow.COTH:
+                fractal = new Coth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals);
+                break;
+       
         }
         
         first_part_done = false;
@@ -242,7 +298,7 @@ public abstract class ThreadDraw extends Thread {
     }
 
     //Julia
-    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter,  double size, int max_iterations, double bailout, MainWindow ptr, Color fractal_color, BufferedImage image, boolean[] filters, int out_coloring_algorithm, boolean boundary_tracing, boolean periodicity_checking, int plane_type, boolean burning_ship, int function, double z_exponent, int color_cycling_location, double[] rotation_vals, double[] coefficients, double xJuliaCenter, double yJuliaCenter) {
+    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter,  double size, int max_iterations, int bailout_test_algorithm, double bailout, MainWindow ptr, Color fractal_color, BufferedImage image, boolean[] filters, int out_coloring_algorithm, int in_coloring_algorithm, boolean boundary_tracing, boolean periodicity_checking, int plane_type, boolean burning_ship, int function, double z_exponent, int color_cycling_location, double[] rotation_vals, double[] coefficients, double xJuliaCenter, double yJuliaCenter) {
 
         this.FROMx = FROMx;
         this.TOx = TOx;
@@ -283,68 +339,99 @@ public abstract class ThreadDraw extends Thread {
 
         switch (function) {
             case 0:
-                fractal = new Mandelbrot(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, burning_ship, xJuliaCenter, yJuliaCenter);
+                fractal = new Mandelbrot(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, burning_ship, xJuliaCenter, yJuliaCenter);
                 break;
             case 1:
-                fractal = new MandelbrotCubed(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, burning_ship, xJuliaCenter, yJuliaCenter);
+                fractal = new MandelbrotCubed(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, burning_ship, xJuliaCenter, yJuliaCenter);
                 break;
             case 2:
-                fractal = new MandelbrotFourth(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, burning_ship, xJuliaCenter, yJuliaCenter);
+                fractal = new MandelbrotFourth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, burning_ship, xJuliaCenter, yJuliaCenter);
                 break;
             case 3:
-                fractal = new MandelbrotFifth(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, burning_ship, xJuliaCenter, yJuliaCenter);
+                fractal = new MandelbrotFifth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, burning_ship, xJuliaCenter, yJuliaCenter);
                 break;
             case 4:
-                fractal = new MandelbrotSixth(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, burning_ship, xJuliaCenter, yJuliaCenter);
+                fractal = new MandelbrotSixth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, burning_ship, xJuliaCenter, yJuliaCenter);
                 break;
             case 5:
-                fractal = new MandelbrotSeventh(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, burning_ship, xJuliaCenter, yJuliaCenter);
+                fractal = new MandelbrotSeventh(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, burning_ship, xJuliaCenter, yJuliaCenter);
                 break;
             case 6:
-                fractal = new MandelbrotEighth(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, burning_ship, xJuliaCenter, yJuliaCenter);
+                fractal = new MandelbrotEighth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, burning_ship, xJuliaCenter, yJuliaCenter);
                 break;
             case 7:
-                fractal = new MandelbrotNinth(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, burning_ship, xJuliaCenter, yJuliaCenter);
+                fractal = new MandelbrotNinth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, burning_ship, xJuliaCenter, yJuliaCenter);
                 break;
             case 8:
-                fractal = new MandelbrotTenth(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, burning_ship, xJuliaCenter, yJuliaCenter);
+                fractal = new MandelbrotTenth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, burning_ship, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.MANDELBROTNTH:
-                fractal = new MandelbrotNth(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, burning_ship, z_exponent, xJuliaCenter, yJuliaCenter);
+                fractal = new MandelbrotNth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, burning_ship, z_exponent, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.MANDELPOLY:
-                fractal = new MandelbrotPoly(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, burning_ship, coefficients, xJuliaCenter, yJuliaCenter);
+                fractal = new MandelbrotPoly(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, burning_ship, coefficients, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.LAMBDA:
-                fractal = new Lambda(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                fractal = new Lambda(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.MAGNET1:
-                fractal = new Magnet1(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                fractal = new Magnet1(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.MAGNET2:
-                fractal = new Magnet2(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                fractal = new Magnet2(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.BARNSLEY1:
-                fractal = new Barnsley1(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                fractal = new Barnsley1(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.BARNSLEY2:
-                fractal = new Barnsley2(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                fractal = new Barnsley2(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.BARNSLEY3:
-                fractal = new Barnsley3(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                fractal = new Barnsley3(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.MANDELBAR:
-                fractal = new Mandelbar(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                fractal = new Mandelbar(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.SPIDER:
-                fractal = new Spider(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                fractal = new Spider(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.MANOWAR:
-                fractal = new Manowar(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                fractal = new Manowar(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.PHOENIX:
-                fractal = new Phoenix(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                fractal = new Phoenix(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
                 break;
+             case MainWindow.EXP:
+                fractal = new Exp(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.LOG:
+                fractal = new Log(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.SIN:
+                fractal = new Sin(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.COS:
+                fractal = new Cos(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.TAN:
+                fractal = new Tan(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.COT:
+                fractal = new Cot(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.SINH:
+                fractal = new Sinh(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.COSH:
+                fractal = new Cosh(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.TANH:
+                fractal = new Tanh(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.COTH:
+                fractal = new Coth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+                
         }
                         
         first_part_done = false;
@@ -356,7 +443,7 @@ public abstract class ThreadDraw extends Thread {
     }
     
     //Julia Map
-    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter,  double size, int max_iterations, double bailout, MainWindow ptr, Color fractal_color, BufferedImage image, boolean[] filters, int out_coloring_algorithm, boolean periodicity_checking, int plane_type, boolean burning_ship, int function, double z_exponent, int color_cycling_location, double[] rotation_vals, double[] coefficients) {
+    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter,  double size, int max_iterations, int bailout_test_algorithm, double bailout, MainWindow ptr, Color fractal_color, BufferedImage image, boolean[] filters, int out_coloring_algorithm, int in_coloring_algorithm, boolean periodicity_checking, int plane_type, boolean burning_ship, int function, double z_exponent, int color_cycling_location, double[] rotation_vals, double[] coefficients) {
         
         this.FROMx = FROMx;
         this.TOx = TOx;
@@ -392,68 +479,99 @@ public abstract class ThreadDraw extends Thread {
         
         switch (function) {
             case 0:
-                fractal = new Mandelbrot(0, 0, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, burning_ship, xJuliaCenter, yJuliaCenter);
+                fractal = new Mandelbrot(0, 0, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, burning_ship, xJuliaCenter, yJuliaCenter);
                 break;
             case 1:
-                fractal = new MandelbrotCubed(0, 0, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, burning_ship, xJuliaCenter, yJuliaCenter);
+                fractal = new MandelbrotCubed(0, 0, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, burning_ship, xJuliaCenter, yJuliaCenter);
                 break;
             case 2:
-                fractal = new MandelbrotFourth(0, 0, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, burning_ship, xJuliaCenter, yJuliaCenter);
+                fractal = new MandelbrotFourth(0, 0, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, burning_ship, xJuliaCenter, yJuliaCenter);
                 break;
             case 3:
-                fractal = new MandelbrotFifth(0, 0, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, burning_ship, xJuliaCenter, yJuliaCenter);
+                fractal = new MandelbrotFifth(0, 0, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, burning_ship, xJuliaCenter, yJuliaCenter);
                 break;
             case 4:
-                fractal = new MandelbrotSixth(0, 0, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, burning_ship, xJuliaCenter, yJuliaCenter);
+                fractal = new MandelbrotSixth(0, 0, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, burning_ship, xJuliaCenter, yJuliaCenter);
                 break;
             case 5:
-                fractal = new MandelbrotSeventh(0, 0, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, burning_ship, xJuliaCenter, yJuliaCenter);
+                fractal = new MandelbrotSeventh(0, 0, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, burning_ship, xJuliaCenter, yJuliaCenter);
                 break;
             case 6:
-                fractal = new MandelbrotEighth(0, 0, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, burning_ship, xJuliaCenter, yJuliaCenter);
+                fractal = new MandelbrotEighth(0, 0, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, burning_ship, xJuliaCenter, yJuliaCenter);
                 break;
             case 7:
-                fractal = new MandelbrotNinth(0, 0, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, burning_ship, xJuliaCenter, yJuliaCenter);
+                fractal = new MandelbrotNinth(0, 0, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, burning_ship, xJuliaCenter, yJuliaCenter);
                 break;
             case 8:
-                fractal = new MandelbrotTenth(0, 0, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, burning_ship, xJuliaCenter, yJuliaCenter);
+                fractal = new MandelbrotTenth(0, 0, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, burning_ship, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.MANDELBROTNTH:
-                fractal = new MandelbrotNth(0, 0, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, burning_ship, z_exponent, xJuliaCenter, yJuliaCenter);
+                fractal = new MandelbrotNth(0, 0, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, burning_ship, z_exponent, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.MANDELPOLY:
-                fractal = new MandelbrotPoly(0, 0, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, burning_ship, coefficients, xJuliaCenter, yJuliaCenter);
+                fractal = new MandelbrotPoly(0, 0, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, burning_ship, coefficients, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.LAMBDA:
-                fractal = new Lambda(0.5, 0, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                fractal = new Lambda(0.5, 0, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.MAGNET1:
-                fractal = new Magnet1(0, 0, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                fractal = new Magnet1(0, 0, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.MAGNET2:
-                fractal = new Magnet2(0, 0, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                fractal = new Magnet2(0, 0, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.BARNSLEY1:
-                fractal = new Barnsley1(0, 0, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                fractal = new Barnsley1(0, 0, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.BARNSLEY2:
-                fractal = new Barnsley2(0, 0, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                fractal = new Barnsley2(0, 0, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.BARNSLEY3:
-                fractal = new Barnsley3(0, 0, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                fractal = new Barnsley3(0, 0, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.MANDELBAR:
-                fractal = new Mandelbar(0, 0, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                fractal = new Mandelbar(0, 0, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.SPIDER:
-                fractal = new Spider(0, 0, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                fractal = new Spider(0, 0, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.MANOWAR:
-                fractal = new Manowar(0, 0, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                fractal = new Manowar(0, 0, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.PHOENIX:
-                fractal = new Phoenix(0, 0, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                fractal = new Phoenix(0, 0, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
                 break;
+            case MainWindow.EXP:
+                fractal = new Exp(0, 0, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.LOG:
+                fractal = new Log(0, 0, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.SIN:
+                fractal = new Sin(0, 0, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.COS:
+                fractal = new Cos(0, 0, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.TAN:
+                fractal = new Tan(0, 0, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.COT:
+                fractal = new Cot(0, 0, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.SINH:
+                fractal = new Sinh(0, 0, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.COSH:
+                fractal = new Cosh(0, 0, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.TANH:
+                fractal = new Tanh(0, 0, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.COTH:
+                fractal = new Coth(0, 0, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+                
         }
         
         first_part_done = false;
@@ -464,7 +582,7 @@ public abstract class ThreadDraw extends Thread {
     }
 
     //Julia Preview
-    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, double bailout, MainWindow ptr, Color fractal_color, boolean fast_julia_filters, BufferedImage image, boolean boundary_tracing, boolean periodicity_checking, int plane_type, int out_coloring_algorithm, boolean[] filters, boolean burning_ship, int function, double z_exponent, int color_cycling_location, double[] rotation_vals, double[] coefficients, double xJuliaCenter, double yJuliaCenter) {
+    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, MainWindow ptr, Color fractal_color, boolean fast_julia_filters, BufferedImage image, boolean boundary_tracing, boolean periodicity_checking, int plane_type, int out_coloring_algorithm, int in_coloring_algorithm, boolean[] filters, boolean burning_ship, int function, double z_exponent, int color_cycling_location, double[] rotation_vals, double[] coefficients, double xJuliaCenter, double yJuliaCenter) {
 
         this.FROMx = FROMx;
         this.TOx = TOx;
@@ -503,68 +621,99 @@ public abstract class ThreadDraw extends Thread {
         
         switch (function) {
             case 0:
-                fractal = new Mandelbrot(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, burning_ship, xJuliaCenter, yJuliaCenter);
+                fractal = new Mandelbrot(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, burning_ship, xJuliaCenter, yJuliaCenter);
                 break;
             case 1:
-                fractal = new MandelbrotCubed(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, burning_ship, xJuliaCenter, yJuliaCenter);
+                fractal = new MandelbrotCubed(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, burning_ship, xJuliaCenter, yJuliaCenter);
                 break;
             case 2:
-                fractal = new MandelbrotFourth(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, burning_ship, xJuliaCenter, yJuliaCenter);
+                fractal = new MandelbrotFourth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, burning_ship, xJuliaCenter, yJuliaCenter);
                 break;
             case 3:
-                fractal = new MandelbrotFifth(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, burning_ship, xJuliaCenter, yJuliaCenter);
+                fractal = new MandelbrotFifth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, burning_ship, xJuliaCenter, yJuliaCenter);
                 break;
             case 4:
-                fractal = new MandelbrotSixth(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, burning_ship, xJuliaCenter, yJuliaCenter);
+                fractal = new MandelbrotSixth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, burning_ship, xJuliaCenter, yJuliaCenter);
                 break;
             case 5:
-                fractal = new MandelbrotSeventh(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, burning_ship, xJuliaCenter, yJuliaCenter);
+                fractal = new MandelbrotSeventh(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, burning_ship, xJuliaCenter, yJuliaCenter);
                 break;
             case 6:
-                fractal = new MandelbrotEighth(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, burning_ship, xJuliaCenter, yJuliaCenter);
+                fractal = new MandelbrotEighth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, burning_ship, xJuliaCenter, yJuliaCenter);
                 break;
             case 7:
-                fractal = new MandelbrotNinth(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, burning_ship, xJuliaCenter, yJuliaCenter);
+                fractal = new MandelbrotNinth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, burning_ship, xJuliaCenter, yJuliaCenter);
                 break;
             case 8:
-                fractal = new MandelbrotTenth(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, burning_ship, xJuliaCenter, yJuliaCenter);
+                fractal = new MandelbrotTenth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, burning_ship, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.MANDELBROTNTH:
-                fractal = new MandelbrotNth(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, burning_ship, z_exponent, xJuliaCenter, yJuliaCenter);
+                fractal = new MandelbrotNth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, burning_ship, z_exponent, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.MANDELPOLY:
-                fractal = new MandelbrotPoly(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, burning_ship, coefficients, xJuliaCenter, yJuliaCenter);
+                fractal = new MandelbrotPoly(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, burning_ship, coefficients, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.LAMBDA:
-                fractal = new Lambda(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                fractal = new Lambda(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.MAGNET1:
-                fractal = new Magnet1(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                fractal = new Magnet1(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.MAGNET2:
-                fractal = new Magnet2(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                fractal = new Magnet2(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.BARNSLEY1:
-                fractal = new Barnsley1(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                fractal = new Barnsley1(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.BARNSLEY2:
-                fractal = new Barnsley2(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                fractal = new Barnsley2(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.BARNSLEY3:
-                fractal = new Barnsley3(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                fractal = new Barnsley3(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.MANDELBAR:
-                fractal = new Mandelbar(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                fractal = new Mandelbar(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.SPIDER:
-                fractal = new Spider(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                fractal = new Spider(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.MANOWAR:
-                fractal = new Manowar(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                fractal = new Manowar(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.PHOENIX:
-                fractal = new Phoenix(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                fractal = new Phoenix(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
                 break;
+            case MainWindow.EXP:
+                fractal = new Exp(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.LOG:
+                fractal = new Log(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.SIN:
+                fractal = new Sin(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.COS:
+                fractal = new Cos(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.TAN:
+                fractal = new Tan(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.COT:
+                fractal = new Cot(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.SINH:
+                fractal = new Sinh(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.COSH:
+                fractal = new Cosh(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.TANH:
+                fractal = new Tanh(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.COTH:
+                fractal = new Coth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+                
         }
 
         first_part_done = false;
@@ -637,56 +786,33 @@ public abstract class ThreadDraw extends Thread {
                 applyPaletteAndFilter();
                 break;
             case JULIA_MAP:
-                juliaMap();
+                drawJuliaMap();
                 break;
                 
         }
                       
     }
-
-    protected abstract Color getDrawingColor(double result);
-
-    protected abstract Color getDrawingColorSmooth(double result);
+  
 
     private void draw() {
 
          int image_size = image.getHeight();
 
          if(julia) {
-             if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                 if(filters[0]) {
-                      drawJuliaSmoothAntialiased(image_size);
-                 }
-                 else {
-                      drawJuliaSmooth(image_size);
-                 }  
+             if(filters[0]) {
+                  drawJuliaAntialiased(image_size);
              }
              else {
-                 if(filters[0]) {
-                      drawJuliaNormalAntialiased(image_size);
-                 }
-                 else {
-                      drawJuliaNormal(image_size);
-                 }  
-             }
+                  drawJulia(image_size);
+             }  
          }
          else {
-             if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                 if(filters[0]) {
-                     drawFractalSmoothAntialiased(image_size);
-                 }
-                 else {
-                     drawFractalSmooth(image_size);
-                 }     
+             if(filters[0]) {
+                 drawFractalAntialiased(image_size);
              }
              else {
-                 if(filters[0]) {
-                     drawFractalNormalAntialiased(image_size);
-                 }
-                 else {
-                     drawFractalNormal(image_size);
-                 }                
-             }
+                 drawFractal(image_size);
+             }                
          }
          
 
@@ -753,12 +879,6 @@ public abstract class ThreadDraw extends Thread {
              ptr.getProgressBar().setValue((image_size * image_size) + (image_size *  image_size / 100));
              ptr.getProgressBar().setToolTipText(System.currentTimeMillis() - ptr.getCalculationTime() + " ms  # " + String.format("%6.2f", (ptr.getCalculated()) / (image_size * image_size) * 100) + "% Calculated.");
          }
-
-         try {
-             finalize();
-         }
-         catch (Throwable ex) {}
-        
     }
     
     private void AddQueue(int p) {
@@ -781,380 +901,237 @@ public abstract class ThreadDraw extends Thread {
     
     }
     
-     private void ScanFractalNormal(int p, int image_size, int width, int height, double temp_size_image_size, double temp_xcenter_size, double temp_ycenter_size) {
+     private void ScanFractal(int p, int image_size, int width, int height, double temp_size_image_size, double temp_xcenter_size, double temp_ycenter_size) {
         
         int x = p % width, y = p / width;
         int x2 = x + FROMx;
         int y2 = y + FROMy;
         
         double xreal;
-        double yreal;
+        double yimag;
         
         int loc = y2 * image_size + x2;
                 
-        double center = LoadFractalNormal(p, xreal = temp_xcenter_size + x2 * temp_size_image_size, yreal = temp_ycenter_size + y2 * temp_size_image_size, loc);
+        double center = LoadFractal(p, xreal = temp_xcenter_size + x2 * temp_size_image_size, yimag = temp_ycenter_size + y2 * temp_size_image_size, loc);
         boolean ll = x >= 1, rr = x < width - 1;
         boolean uu = y >= 1, dd = y < height - 1;
 
- 
-        boolean l = ll && LoadFractalNormal(p-1, xreal - temp_size_image_size, yreal, loc - 1) != center;
-        boolean r = rr && LoadFractalNormal(p+1, xreal + temp_size_image_size, yreal, loc + 1) != center;
-        boolean u = uu && LoadFractalNormal(p-width, xreal, yreal - temp_size_image_size, loc - image_size) != center;
-        boolean d = dd && LoadFractalNormal(p+width, xreal, yreal + temp_size_image_size, loc + image_size) != center;
-        if(l) AddQueue(p-1);
-        if(r) AddQueue(p+1);
-        if(u) AddQueue(p-width);
-        if(d) AddQueue(p+width);
+        int p1 = p - 1;
+        int p2 = p + 1;
+        int p3 = p - width;
+        int p4 = p + width;
+        
+        boolean l = ll && LoadFractal(p1, xreal - temp_size_image_size, yimag, loc - 1) != center;
+        boolean r = rr && LoadFractal(p2, xreal + temp_size_image_size, yimag, loc + 1) != center;
+        boolean u = uu && LoadFractal(p3, xreal, yimag - temp_size_image_size, loc - image_size) != center;
+        boolean d = dd && LoadFractal(p4, xreal, yimag + temp_size_image_size, loc + image_size) != center;
+        
+        if(l) AddQueue(p1);
+        if(r) AddQueue(p2);
+        if(u) AddQueue(p3);
+        if(d) AddQueue(p4);
+        
         /* The corner pixels (nw,ne,sw,se) are also neighbors */
-        if((uu&&ll)&&(l||u)) AddQueue(p-width-1);
-        if((uu&&rr)&&(r||u)) AddQueue(p-width+1);
-        if((dd&&ll)&&(l||d)) AddQueue(p+width-1);
-        if((dd&&rr)&&(r||d)) AddQueue(p+width+1);
+        if((uu&&ll)&&(l||u)) AddQueue(p3 - 1);
+        if((uu&&rr)&&(r||u)) AddQueue(p3 + 1);
+        if((dd&&ll)&&(l||d)) AddQueue(p4 - 1);
+        if((dd&&rr)&&(r||d)) AddQueue(p4 + 1);
         
     }
     
-    private void ScanFractalNormalAntialiased(int p, int image_size, int width, int height, double temp_size_image_size, double temp_xcenter_size, double temp_ycenter_size) {
+    private void ScanFractalAntialiased(int p, int image_size, int width, int height, double temp_size_image_size, double temp_xcenter_size, double temp_ycenter_size) {
         
         int x = p % width, y = p / width;
         int x2 = x + FROMx;
         int y2 = y + FROMy;
         
         double xreal;
-        double yreal;
+        double yimag;
         
         int loc = y2 * image_size + x2;
         
-        double center = LoadFractalNormalAntialiased(p, xreal = temp_xcenter_size + x2 * temp_size_image_size, yreal = temp_ycenter_size + y2 * temp_size_image_size, loc);
+        double center = LoadFractalAntialiased(p, xreal = temp_xcenter_size + x2 * temp_size_image_size, yimag = temp_ycenter_size + y2 * temp_size_image_size, loc);
         boolean ll = x >= 1, rr = x < width - 1;
         boolean uu = y >= 1, dd = y < height - 1;
  
-        boolean l = ll && LoadFractalNormalAntialiased(p-1, xreal - temp_size_image_size, yreal, loc - 1) != center;
-        boolean r = rr && LoadFractalNormalAntialiased(p+1, xreal + temp_size_image_size, yreal, loc + 1) != center;
-        boolean u = uu && LoadFractalNormalAntialiased(p-width, xreal, yreal - temp_size_image_size, loc - image_size) != center;
-        boolean d = dd && LoadFractalNormalAntialiased(p+width, xreal, yreal + temp_size_image_size, loc + image_size) != center;
-        if(l) AddQueue(p-1);
-        if(r) AddQueue(p+1);
-        if(u) AddQueue(p-width);
-        if(d) AddQueue(p+width);
+        int p1 = p - 1;
+        int p2 = p + 1;
+        int p3 = p - width;
+        int p4 = p + width;
+        
+        boolean l = ll && LoadFractalAntialiased(p1, xreal - temp_size_image_size, yimag, loc - 1) != center;
+        boolean r = rr && LoadFractalAntialiased(p2, xreal + temp_size_image_size, yimag, loc + 1) != center;
+        boolean u = uu && LoadFractalAntialiased(p3, xreal, yimag - temp_size_image_size, loc - image_size) != center;
+        boolean d = dd && LoadFractalAntialiased(p4, xreal, yimag + temp_size_image_size, loc + image_size) != center;
+        
+        if(l) AddQueue(p1);
+        if(r) AddQueue(p2);
+        if(u) AddQueue(p3);
+        if(d) AddQueue(p4);
+        
         /* The corner pixels (nw,ne,sw,se) are also neighbors */
-        if((uu&&ll)&&(l||u)) AddQueue(p-width-1);
-        if((uu&&rr)&&(r||u)) AddQueue(p-width+1);
-        if((dd&&ll)&&(l||d)) AddQueue(p+width-1);
-        if((dd&&rr)&&(r||d)) AddQueue(p+width+1);
+        if((uu&&ll)&&(l||u)) AddQueue(p3 - 1);
+        if((uu&&rr)&&(r||u)) AddQueue(p3 + 1);
+        if((dd&&ll)&&(l||d)) AddQueue(p4 - 1);
+        if((dd&&rr)&&(r||d)) AddQueue(p4 + 1);
         
     }
     
-    private void ScanFractalSmooth(int p, int image_size, int width, int height, double temp_size_image_size, double temp_xcenter_size, double temp_ycenter_size) {
+   
+    private void ScanJulia(int p, int image_size, int width, int height, double temp_size_image_size, double temp_xcenter_size, double temp_ycenter_size) {
         
         int x = p % width, y = p / width;
         int x2 = x + FROMx;
         int y2 = y + FROMy;
         
         double xreal;
-        double yreal;
+        double yimag;
         
         int loc = y2 * image_size + x2;
         
-        double center = LoadFractalSmooth(p, xreal = temp_xcenter_size + x2 * temp_size_image_size, yreal = temp_ycenter_size + y2 * temp_size_image_size, loc);
+        double center = LoadJulia(p, xreal = temp_xcenter_size + x2 * temp_size_image_size, yimag = temp_ycenter_size + y2 * temp_size_image_size, loc);
         boolean ll = x >= 1, rr = x < width - 1;
         boolean uu = y >= 1, dd = y < height - 1;
  
-        boolean l = ll && LoadFractalSmooth(p-1, xreal - temp_size_image_size, yreal, loc - 1) != center;
-        boolean r = rr && LoadFractalSmooth(p+1, xreal + temp_size_image_size, yreal, loc + 1) != center;
-        boolean u = uu && LoadFractalSmooth(p-width, xreal, yreal - temp_size_image_size, loc - image_size) != center;
-        boolean d = dd && LoadFractalSmooth(p+width, xreal, yreal + temp_size_image_size, loc + image_size) != center;
-        if(l) AddQueue(p-1);
-        if(r) AddQueue(p+1);
-        if(u) AddQueue(p-width);
-        if(d) AddQueue(p+width);
+        int p1 = p - 1;
+        int p2 = p + 1;
+        int p3 = p - width;
+        int p4 = p + width;
+        
+        boolean l = ll && LoadJulia(p1, xreal - temp_size_image_size, yimag, loc - 1) != center;
+        boolean r = rr && LoadJulia(p2, xreal + temp_size_image_size, yimag, loc + 1) != center;
+        boolean u = uu && LoadJulia(p3, xreal, yimag - temp_size_image_size, loc - image_size) != center;
+        boolean d = dd && LoadJulia(p4, xreal, yimag + temp_size_image_size, loc + image_size) != center;
+        
+        if(l) AddQueue(p1);
+        if(r) AddQueue(p2);
+        if(u) AddQueue(p3);
+        if(d) AddQueue(p4);
+        
         /* The corner pixels (nw,ne,sw,se) are also neighbors */
-        if((uu&&ll)&&(l||u)) AddQueue(p-width-1);
-        if((uu&&rr)&&(r||u)) AddQueue(p-width+1);
-        if((dd&&ll)&&(l||d)) AddQueue(p+width-1);
-        if((dd&&rr)&&(r||d)) AddQueue(p+width+1);
-        
-    }
-    
-    private void ScanFractalSmoothAntialiased(int p, int image_size, int width, int height, double temp_size_image_size, double temp_xcenter_size, double temp_ycenter_size) {
-        
-        int x = p % width, y = p / width;
-        int x2 = x + FROMx;
-        int y2 = y + FROMy;
-        
-        double xreal;
-        double yreal;
-        
-        int loc = y2 * image_size + x2;
-        
-        double center = LoadFractalSmoothAntialiased(p, xreal = temp_xcenter_size + x2 * temp_size_image_size, yreal = temp_ycenter_size + y2 * temp_size_image_size, loc);
-        boolean ll = x >= 1, rr = x < width - 1;
-        boolean uu = y >= 1, dd = y < height - 1;
- 
-        boolean l = ll && LoadFractalSmoothAntialiased(p-1, xreal - temp_size_image_size, yreal, loc - 1) != center;
-        boolean r = rr && LoadFractalSmoothAntialiased(p+1, xreal + temp_size_image_size, yreal, loc + 1) != center;
-        boolean u = uu && LoadFractalSmoothAntialiased(p-width, xreal, yreal - temp_size_image_size, loc - image_size) != center;
-        boolean d = dd && LoadFractalSmoothAntialiased(p+width, xreal, yreal + temp_size_image_size, loc + image_size) != center;
-        if(l) AddQueue(p-1);
-        if(r) AddQueue(p+1);
-        if(u) AddQueue(p-width);
-        if(d) AddQueue(p+width);
-        /* The corner pixels (nw,ne,sw,se) are also neighbors */
-        if((uu&&ll)&&(l||u)) AddQueue(p-width-1);
-        if((uu&&rr)&&(r||u)) AddQueue(p-width+1);
-        if((dd&&ll)&&(l||d)) AddQueue(p+width-1);
-        if((dd&&rr)&&(r||d)) AddQueue(p+width+1);
-        
-    }
-    
-    private void ScanJuliaNormal(int p, int image_size, int width, int height, double temp_size_image_size, double temp_xcenter_size, double temp_ycenter_size) {
-        
-        int x = p % width, y = p / width;
-        int x2 = x + FROMx;
-        int y2 = y + FROMy;
-        
-        double xreal;
-        double yreal;
-        
-        int loc = y2 * image_size + x2;
-        
-        double center = LoadJuliaNormal(p, xreal = temp_xcenter_size + x2 * temp_size_image_size, yreal = temp_ycenter_size + y2 * temp_size_image_size, loc);
-        boolean ll = x >= 1, rr = x < width - 1;
-        boolean uu = y >= 1, dd = y < height - 1;
- 
-        boolean l = ll && LoadJuliaNormal(p-1, xreal - temp_size_image_size, yreal, loc - 1) != center;
-        boolean r = rr && LoadJuliaNormal(p+1, xreal + temp_size_image_size, yreal, loc + 1) != center;
-        boolean u = uu && LoadJuliaNormal(p-width, xreal, yreal - temp_size_image_size, loc - image_size) != center;
-        boolean d = dd && LoadJuliaNormal(p+width, xreal, yreal + temp_size_image_size, loc + image_size) != center;
-        if(l) AddQueue(p-1);
-        if(r) AddQueue(p+1);
-        if(u) AddQueue(p-width);
-        if(d) AddQueue(p+width);
-        /* The corner pixels (nw,ne,sw,se) are also neighbors */
-        if((uu&&ll)&&(l||u)) AddQueue(p-width-1);
-        if((uu&&rr)&&(r||u)) AddQueue(p-width+1);
-        if((dd&&ll)&&(l||d)) AddQueue(p+width-1);
-        if((dd&&rr)&&(r||d)) AddQueue(p+width+1);
+        if((uu&&ll)&&(l||u)) AddQueue(p3 - 1);
+        if((uu&&rr)&&(r||u)) AddQueue(p3 + 1);
+        if((dd&&ll)&&(l||d)) AddQueue(p4 - 1);
+        if((dd&&rr)&&(r||d)) AddQueue(p4 + 1);
         
      }
     
-     private void ScanJuliaNormalAntialiased(int p, int image_size, int width, int height, double temp_size_image_size, double temp_xcenter_size, double temp_ycenter_size) {
+     private void ScanJuliaAntialiased(int p, int image_size, int width, int height, double temp_size_image_size, double temp_xcenter_size, double temp_ycenter_size) {
         
         int x = p % width, y = p / width;
         int x2 = x + FROMx;
         int y2 = y + FROMy;
         
         double xreal;
-        double yreal;
+        double yimag;
         
         int loc = y2 * image_size + x2;
         
-        double center = LoadJuliaNormalAntialiased(p, xreal = temp_xcenter_size + x2 * temp_size_image_size, yreal = temp_ycenter_size + y2 * temp_size_image_size, loc);
+        double center = LoadJuliaAntialiased(p, xreal = temp_xcenter_size + x2 * temp_size_image_size, yimag = temp_ycenter_size + y2 * temp_size_image_size, loc);
         boolean ll = x >= 1, rr = x < width - 1;
         boolean uu = y >= 1, dd = y < height - 1;
  
-        boolean l = ll && LoadJuliaNormalAntialiased(p-1, xreal - temp_size_image_size, yreal, loc - 1) != center;
-        boolean r = rr && LoadJuliaNormalAntialiased(p+1, xreal + temp_size_image_size, yreal, loc + 1) != center;
-        boolean u = uu && LoadJuliaNormalAntialiased(p-width, xreal, yreal - temp_size_image_size, loc - image_size) != center;
-        boolean d = dd && LoadJuliaNormalAntialiased(p+width, xreal, yreal + temp_size_image_size, loc + image_size) != center;
-        if(l) AddQueue(p-1);
-        if(r) AddQueue(p+1);
-        if(u) AddQueue(p-width);
-        if(d) AddQueue(p+width);
+        int p1 = p - 1;
+        int p2 = p + 1;
+        int p3 = p - width;
+        int p4 = p + width;
+        
+        boolean l = ll && LoadJuliaAntialiased(p1, xreal - temp_size_image_size, yimag, loc - 1) != center;
+        boolean r = rr && LoadJuliaAntialiased(p2, xreal + temp_size_image_size, yimag, loc + 1) != center;
+        boolean u = uu && LoadJuliaAntialiased(p3, xreal, yimag - temp_size_image_size, loc - image_size) != center;
+        boolean d = dd && LoadJuliaAntialiased(p4, xreal, yimag + temp_size_image_size, loc + image_size) != center;
+        
+        if(l) AddQueue(p1);
+        if(r) AddQueue(p2);
+        if(u) AddQueue(p3);
+        if(d) AddQueue(p4);
+        
         /* The corner pixels (nw,ne,sw,se) are also neighbors */
-        if((uu&&ll)&&(l||u)) AddQueue(p-width-1);
-        if((uu&&rr)&&(r||u)) AddQueue(p-width+1);
-        if((dd&&ll)&&(l||d)) AddQueue(p+width-1);
-        if((dd&&rr)&&(r||d)) AddQueue(p+width+1);
+        if((uu&&ll)&&(l||u)) AddQueue(p3 - 1);
+        if((uu&&rr)&&(r||u)) AddQueue(p3 + 1);
+        if((dd&&ll)&&(l||d)) AddQueue(p4 - 1);
+        if((dd&&rr)&&(r||d)) AddQueue(p4 + 1);
         
      }
     
-     private void ScanFastJuliaNormal(int p, int image_size, int width, int height, double temp_size_image_size, double temp_xcenter_size, double temp_ycenter_size) {
+     private void ScanFastJulia(int p, int image_size, int width, int height, double temp_size_image_size, double temp_xcenter_size, double temp_ycenter_size) {
         
         int x = p % width, y = p / width;
         int x2 = x + FROMx;
         int y2 = y + FROMy;
         
         double xreal;
-        double yreal;
+        double yimag;
         
         int loc = y2 * image_size + x2;
         
-        double center = LoadFastJuliaNormal(p, xreal = temp_xcenter_size + x2 * temp_size_image_size, yreal = temp_ycenter_size + y2 * temp_size_image_size, loc);
+        double center = LoadFastJulia(p, xreal = temp_xcenter_size + x2 * temp_size_image_size, yimag = temp_ycenter_size + y2 * temp_size_image_size, loc);
         boolean ll = x >= 1, rr = x < width - 1;
         boolean uu = y >= 1, dd = y < height - 1;
  
-        boolean l = ll && LoadFastJuliaNormal(p-1, xreal - temp_size_image_size, yreal, loc - 1) != center;
-        boolean r = rr && LoadFastJuliaNormal(p+1, xreal + temp_size_image_size, yreal, loc + 1) != center;
-        boolean u = uu && LoadFastJuliaNormal(p-width, xreal, yreal - temp_size_image_size, loc - image_size) != center;
-        boolean d = dd && LoadFastJuliaNormal(p+width, xreal, yreal + temp_size_image_size, loc + image_size) != center;
-        if(l) AddQueue(p-1);
-        if(r) AddQueue(p+1);
-        if(u) AddQueue(p-width);
-        if(d) AddQueue(p+width);
+        int p1 = p - 1;
+        int p2 = p + 1;
+        int p3 = p - width;
+        int p4 = p + width;
+        
+        boolean l = ll && LoadFastJulia(p1, xreal - temp_size_image_size, yimag, loc - 1) != center;
+        boolean r = rr && LoadFastJulia(p2, xreal + temp_size_image_size, yimag, loc + 1) != center;
+        boolean u = uu && LoadFastJulia(p3, xreal, yimag - temp_size_image_size, loc - image_size) != center;
+        boolean d = dd && LoadFastJulia(p4, xreal, yimag + temp_size_image_size, loc + image_size) != center;
+        
+        if(l) AddQueue(p1);
+        if(r) AddQueue(p2);
+        if(u) AddQueue(p3);
+        if(d) AddQueue(p4);
+        
         /* The corner pixels (nw,ne,sw,se) are also neighbors */
-        if((uu&&ll)&&(l||u)) AddQueue(p-width-1);
-        if((uu&&rr)&&(r||u)) AddQueue(p-width+1);
-        if((dd&&ll)&&(l||d)) AddQueue(p+width-1);
-        if((dd&&rr)&&(r||d)) AddQueue(p+width+1);
+        if((uu&&ll)&&(l||u)) AddQueue(p3 - 1);
+        if((uu&&rr)&&(r||u)) AddQueue(p3 + 1);
+        if((dd&&ll)&&(l||d)) AddQueue(p4 - 1);
+        if((dd&&rr)&&(r||d)) AddQueue(p4 + 1);
         
      }
      
-     private void ScanFastJuliaNormalAntialiased(int p, int image_size, int width, int height, double temp_size_image_size, double temp_xcenter_size, double temp_ycenter_size) {
+     private void ScanFastJuliaAntialiased(int p, int image_size, int width, int height, double temp_size_image_size, double temp_xcenter_size, double temp_ycenter_size) {
         
         int x = p % width, y = p / width;
         int x2 = x + FROMx;
         int y2 = y + FROMy;
         
         double xreal;
-        double yreal;
+        double yimag;
         
         int loc = y2 * image_size + x2;
         
-        double center = LoadFastJuliaNormalAntialiased(p, xreal = temp_xcenter_size + x2 * temp_size_image_size, yreal = temp_ycenter_size + y2 * temp_size_image_size, loc);
+        double center = LoadFastJuliaAntialiased(p, xreal = temp_xcenter_size + x2 * temp_size_image_size, yimag = temp_ycenter_size + y2 * temp_size_image_size, loc);
         boolean ll = x >= 1, rr = x < width - 1;
         boolean uu = y >= 1, dd = y < height - 1;
  
-        boolean l = ll && LoadFastJuliaNormalAntialiased(p-1, xreal - temp_size_image_size, yreal, loc - 1) != center;
-        boolean r = rr && LoadFastJuliaNormalAntialiased(p+1, xreal + temp_size_image_size, yreal, loc + 1) != center;
-        boolean u = uu && LoadFastJuliaNormalAntialiased(p-width, xreal, yreal - temp_size_image_size, loc - image_size) != center;
-        boolean d = dd && LoadFastJuliaNormalAntialiased(p+width, xreal, yreal + temp_size_image_size, loc + image_size) != center;
-        if(l) AddQueue(p-1);
-        if(r) AddQueue(p+1);
-        if(u) AddQueue(p-width);
-        if(d) AddQueue(p+width);
-        /* The corner pixels (nw,ne,sw,se) are also neighbors */
-        if((uu&&ll)&&(l||u)) AddQueue(p-width-1);
-        if((uu&&rr)&&(r||u)) AddQueue(p-width+1);
-        if((dd&&ll)&&(l||d)) AddQueue(p+width-1);
-        if((dd&&rr)&&(r||d)) AddQueue(p+width+1);
+        int p1 = p - 1;
+        int p2 = p + 1;
+        int p3 = p - width;
+        int p4 = p + width;
         
+        boolean l = ll && LoadFastJuliaAntialiased(p1, xreal - temp_size_image_size, yimag, loc - 1) != center;
+        boolean r = rr && LoadFastJuliaAntialiased(p2, xreal + temp_size_image_size, yimag, loc + 1) != center;
+        boolean u = uu && LoadFastJuliaAntialiased(p3, xreal, yimag - temp_size_image_size, loc - image_size) != center;
+        boolean d = dd && LoadFastJuliaAntialiased(p4, xreal, yimag + temp_size_image_size, loc + image_size) != center;
+        
+        if(l) AddQueue(p1);
+        if(r) AddQueue(p2);
+        if(u) AddQueue(p3);
+        if(d) AddQueue(p4);
+        
+        /* The corner pixels (nw,ne,sw,se) are also neighbors */
+        if((uu&&ll)&&(l||u)) AddQueue(p3 - 1);
+        if((uu&&rr)&&(r||u)) AddQueue(p3 + 1);
+        if((dd&&ll)&&(l||d)) AddQueue(p4 - 1);
+        if((dd&&rr)&&(r||d)) AddQueue(p4 + 1);
+     
      }
     
-     private void ScanJuliaSmooth(int p, int image_size, int width, int height, double temp_size_image_size, double temp_xcenter_size, double temp_ycenter_size) {
-        
-        int x = p % width, y = p / width;
-        int x2 = x + FROMx;
-        int y2 = y + FROMy;
-        
-        double xreal;
-        double yreal;
-        
-        int loc = y2 * image_size + x2;
-        
-        double center = LoadJuliaSmooth(p, xreal = temp_xcenter_size + x2 * temp_size_image_size, yreal = temp_ycenter_size + y2 * temp_size_image_size, loc);
-        boolean ll = x >= 1, rr = x < width - 1;
-        boolean uu = y >= 1, dd = y < height - 1;
- 
-        boolean l = ll && LoadJuliaSmooth(p-1, xreal - temp_size_image_size, yreal, loc - 1) != center;
-        boolean r = rr && LoadJuliaSmooth(p+1, xreal + temp_size_image_size, yreal, loc + 1) != center;
-        boolean u = uu && LoadJuliaSmooth(p-width, xreal, yreal - temp_size_image_size, loc - image_size) != center;
-        boolean d = dd && LoadJuliaSmooth(p+width, xreal, yreal + temp_size_image_size, loc + image_size) != center;
-        if(l) AddQueue(p-1);
-        if(r) AddQueue(p+1);
-        if(u) AddQueue(p-width);
-        if(d) AddQueue(p+width);
-        /* The corner pixels (nw,ne,sw,se) are also neighbors */
-        if((uu&&ll)&&(l||u)) AddQueue(p-width-1);
-        if((uu&&rr)&&(r||u)) AddQueue(p-width+1);
-        if((dd&&ll)&&(l||d)) AddQueue(p+width-1);
-        if((dd&&rr)&&(r||d)) AddQueue(p+width+1);
-        
-     }
-     
-     private void ScanJuliaSmoothAntialiased(int p, int image_size, int width, int height, double temp_size_image_size, double temp_xcenter_size, double temp_ycenter_size) {
-        
-        int x = p % width, y = p / width;
-        int x2 = x + FROMx;
-        int y2 = y + FROMy;
-        
-        double xreal;
-        double yreal;
-        
-        int loc = y2 * image_size + x2;
-        
-        double center = LoadJuliaSmoothAntialiased(p, xreal = temp_xcenter_size + x2 * temp_size_image_size, yreal = temp_ycenter_size + y2 * temp_size_image_size, loc);
-        boolean ll = x >= 1, rr = x < width - 1;
-        boolean uu = y >= 1, dd = y < height - 1;
- 
-        boolean l = ll && LoadJuliaSmoothAntialiased(p-1, xreal - temp_size_image_size, yreal, loc - 1) != center;
-        boolean r = rr && LoadJuliaSmoothAntialiased(p+1, xreal + temp_size_image_size, yreal, loc + 1) != center;
-        boolean u = uu && LoadJuliaSmoothAntialiased(p-width, xreal, yreal - temp_size_image_size, loc - image_size) != center;
-        boolean d = dd && LoadJuliaSmoothAntialiased(p+width, xreal, yreal + temp_size_image_size, loc + image_size) != center;
-        if(l) AddQueue(p-1);
-        if(r) AddQueue(p+1);
-        if(u) AddQueue(p-width);
-        if(d) AddQueue(p+width);
-        /* The corner pixels (nw,ne,sw,se) are also neighbors */
-        if((uu&&ll)&&(l||u)) AddQueue(p-width-1);
-        if((uu&&rr)&&(r||u)) AddQueue(p-width+1);
-        if((dd&&ll)&&(l||d)) AddQueue(p+width-1);
-        if((dd&&rr)&&(r||d)) AddQueue(p+width+1);
-        
-     }
-     
-     private void ScanFastJuliaSmooth(int p, int image_size, int width, int height, double temp_size_image_size, double temp_xcenter_size, double temp_ycenter_size) {
-        
-        int x = p % width, y = p / width;
-        int x2 = x + FROMx;
-        int y2 = y + FROMy;
-        
-        double xreal;
-        double yreal;
-        
-        int loc = y2 * image_size + x2;
-        
-        double center = LoadFastJuliaSmooth(p, xreal = temp_xcenter_size + x2 * temp_size_image_size, yreal = temp_ycenter_size + y2 * temp_size_image_size, loc);
-        boolean ll = x >= 1, rr = x < width - 1;
-        boolean uu = y >= 1, dd = y < height - 1;
- 
-        boolean l = ll && LoadFastJuliaSmooth(p-1, xreal - temp_size_image_size, yreal, loc - 1) != center;
-        boolean r = rr && LoadFastJuliaSmooth(p+1, xreal + temp_size_image_size, yreal, loc + 1) != center;
-        boolean u = uu && LoadFastJuliaSmooth(p-width, xreal, yreal - temp_size_image_size, loc - image_size) != center;
-        boolean d = dd && LoadFastJuliaSmooth(p+width, xreal, yreal + temp_size_image_size, loc + image_size) != center;
-        if(l) AddQueue(p-1);
-        if(r) AddQueue(p+1);
-        if(u) AddQueue(p-width);
-        if(d) AddQueue(p+width);
-        /* The corner pixels (nw,ne,sw,se) are also neighbors */
-        if((uu&&ll)&&(l||u)) AddQueue(p-width-1);
-        if((uu&&rr)&&(r||u)) AddQueue(p-width+1);
-        if((dd&&ll)&&(l||d)) AddQueue(p+width-1);
-        if((dd&&rr)&&(r||d)) AddQueue(p+width+1);
-        
-     }
-     
-     private void ScanFastJuliaSmoothAntialiased(int p, int image_size, int width, int height, double temp_size_image_size, double temp_xcenter_size, double temp_ycenter_size) {
-        
-        int x = p % width, y = p / width;
-        int x2 = x + FROMx;
-        int y2 = y + FROMy;
-        
-        double xreal;
-        double yreal;
-        
-        int loc = y2 * image_size + x2;
-        
-        double center = LoadFastJuliaSmoothAntialiased(p, xreal = temp_xcenter_size + x2 * temp_size_image_size, yreal = temp_ycenter_size + y2 * temp_size_image_size, loc);
-        boolean ll = x >= 1, rr = x < width - 1;
-        boolean uu = y >= 1, dd = y < height - 1;
- 
-        boolean l = ll && LoadFastJuliaSmoothAntialiased(p-1, xreal - temp_size_image_size, yreal, loc - 1) != center;
-        boolean r = rr && LoadFastJuliaSmoothAntialiased(p+1, xreal + temp_size_image_size, yreal, loc + 1) != center;
-        boolean u = uu && LoadFastJuliaSmoothAntialiased(p-width, xreal, yreal - temp_size_image_size, loc - image_size) != center;
-        boolean d = dd && LoadFastJuliaSmoothAntialiased(p+width, xreal, yreal + temp_size_image_size, loc + image_size) != center;
-        if(l) AddQueue(p-1);
-        if(r) AddQueue(p+1);
-        if(u) AddQueue(p-width);
-        if(d) AddQueue(p+width);
-        /* The corner pixels (nw,ne,sw,se) are also neighbors */
-        if((uu&&ll)&&(l||u)) AddQueue(p-width-1);
-        if((uu&&rr)&&(r||u)) AddQueue(p-width+1);
-        if((dd&&ll)&&(l||d)) AddQueue(p+width-1);
-        if((dd&&rr)&&(r||d)) AddQueue(p+width+1);
-        
-     }
-
-     private double LoadFractalNormal(int p, double xreal, double yreal, int loc) {  
+    
+     private double LoadFractal(int p, double xreal, double yimag, int loc) {  
      
         //int x = p % width + FROMx, y = p / width + FROMy;
         
@@ -1164,12 +1141,12 @@ public abstract class ThreadDraw extends Thread {
             return image_iterations[loc];
         }
         
-        double result = image_iterations[loc] = fractal.calculateFractal(new Complex(xreal, yreal));
+        double result = image_iterations[loc] = fractal.calculateFractal(new Complex(xreal, yimag));
 
-        //image.setRGB(loc % image.getHeight(), loc / image.getHeight(), result == max_iterations ? fractal_color.getRGB() : getDrawingColor(result + color_cycling_location).getRGB());//demo
+        //image.setRGB(loc % image.getHeight(), loc / image.getHeight(), result == max_iterations ? fractal_color.getRGB() : getPaletteColor(result + color_cycling_location).getRGB());//demo
         //ptr.getMainPanel().repaint();//demo
 
-        rgbs[loc] = result == max_iterations ? fractal_color.getRGB() : getDrawingColor(result + color_cycling_location).getRGB();
+        rgbs[loc] = result == max_iterations ? fractal_color.getRGB() : palette_color.getPaletteColor(result + color_cycling_location).getRGB();
         
         drawing_done++;
         
@@ -1179,36 +1156,37 @@ public abstract class ThreadDraw extends Thread {
         
     }
      
-    private double LoadFractalNormalAntialiased(int p, double xreal, double yreal, int loc) { 
+    private double LoadFractalAntialiased(int p, double xreal, double yimag, int loc) { 
         
         if((Done[p] & Loaded) > 0) {
             return AntialiasingData[p];
         }
         
    
-        double result = image_iterations[loc] = fractal.calculateFractal(new Complex(xreal, yreal));
+        double result = image_iterations[loc] = fractal.calculateFractal(new Complex(xreal, yimag));
         
         double x_anti1, x_anti2, y_anti1, y_anti2;
         
-        Color c0 = result == max_iterations ? fractal_color : getDrawingColor(result + color_cycling_location);
+        Color c0 = result == max_iterations ? fractal_color : palette_color.getPaletteColor(result + color_cycling_location);
  
-        double result1 = fractal.calculateFractal(new Complex(x_anti1 = (xreal - antialiasing_size), y_anti1 = (yreal - antialiasing_size)));
+        double result1 = fractal.calculateFractal(new Complex(x_anti1 = (xreal - antialiasing_size), y_anti1 = (yimag - antialiasing_size)));
         double result2 = fractal.calculateFractal(new Complex(x_anti2 = (xreal + antialiasing_size), y_anti1));
-        double result3 = fractal.calculateFractal(new Complex(x_anti2, y_anti2 = (yreal + antialiasing_size)));
+        double result3 = fractal.calculateFractal(new Complex(x_anti2, y_anti2 = (yimag + antialiasing_size)));
         double result4 = fractal.calculateFractal(new Complex(x_anti1, y_anti2));
 
-        Color c1 = result1 == max_iterations ? fractal_color : getDrawingColor(result1 + color_cycling_location);
-        Color c2 = result2 == max_iterations ? fractal_color : getDrawingColor(result2 + color_cycling_location);
-        Color c3 = result3 == max_iterations ? fractal_color : getDrawingColor(result3 + color_cycling_location);
-        Color c4 = result4 == max_iterations ? fractal_color : getDrawingColor(result4 + color_cycling_location);
+        Color c1 = result1 == max_iterations ? fractal_color : palette_color.getPaletteColor(result1 + color_cycling_location);
+        Color c2 = result2 == max_iterations ? fractal_color : palette_color.getPaletteColor(result2 + color_cycling_location);
+        Color c3 = result3 == max_iterations ? fractal_color : palette_color.getPaletteColor(result3 + color_cycling_location);
+        Color c4 = result4 == max_iterations ? fractal_color : palette_color.getPaletteColor(result4 + color_cycling_location);
         
        
-        // resulting color; each component of color is an avarage of 5 values ( central point and 4 corners )
-        int red = (c0.getRed() + c1.getRed() + c2.getRed() + c3.getRed() + c4.getRed()) / 5;
-        int green = (c0.getGreen() + c1.getGreen() + c2.getGreen() + c3.getGreen() + c4.getGreen()) / 5;
-        int blue = (c0.getBlue() + c1.getBlue() + c2.getBlue() + c3.getBlue() + c4.getBlue()) / 5;
 
-        
+        // resulting color; each component of color is an avarage of 5 values ( central point and 4 corners )
+        //expected value + rounding
+        int red = (int)((c0.getRed() + c1.getRed() + c2.getRed() + c3.getRed() + c4.getRed() + 2.5) / 5);
+        int green = (int)((c0.getGreen() + c1.getGreen() + c2.getGreen() + c3.getGreen() + c4.getGreen() + 2.5) / 5);
+        int blue = (int)((c0.getBlue() + c1.getBlue() + c2.getBlue() + c3.getBlue() + c4.getBlue() + 2.5) / 5);
+    
         rgbs[loc] = new Color(red, green, blue).getRGB();
         
         //image.setRGB(x, y, rgbs[loc]);//demo
@@ -1223,19 +1201,16 @@ public abstract class ThreadDraw extends Thread {
         return AntialiasingData[p];
         
     }
-      
-    private double LoadFractalSmooth(int p, double xreal, double yreal, int loc) {  
+        
+    private double LoadJulia(int p, double xreal, double yimag, int loc) {  
         
         if((Done[p] & Loaded) > 0) {
             return image_iterations[loc];
         }
         
-        double result = image_iterations[loc] = fractal.calculateFractal(new Complex(xreal, yreal));
+        double result = image_iterations[loc] = fractal.calculateJulia(new Complex(xreal, yimag));
 
-        //image.setRGB(x, y, result == max_iterations ? fractal_color.getRGB() : getDrawingColorSmooth(result + color_cycling_location).getRGB());//demo
-        //ptr.getMainPanel().repaint();//demo
-        
-        rgbs[loc] = result == max_iterations ? fractal_color.getRGB() : getDrawingColorSmooth(result + color_cycling_location).getRGB();
+        rgbs[loc] = result == max_iterations ? fractal_color.getRGB() : palette_color.getPaletteColor(result + color_cycling_location).getRGB();
         
         drawing_done++;
         
@@ -1245,88 +1220,31 @@ public abstract class ThreadDraw extends Thread {
         
     }
     
-    private double LoadFractalSmoothAntialiased(int p, double xreal, double yreal, int loc) {  
+    private double LoadJuliaAntialiased(int p, double xreal, double yimag, int loc) {  
         
         if((Done[p] & Loaded) > 0) {
             return AntialiasingData[p];
         }
    
-        double result = image_iterations[loc] = fractal.calculateFractal(new Complex(xreal, yreal));
+        double result = image_iterations[loc] = fractal.calculateJulia(new Complex(xreal, yimag));
         
         double x_anti1, x_anti2, y_anti1, y_anti2;
         
-        Color c0 = result == max_iterations ? fractal_color : getDrawingColorSmooth(result + color_cycling_location);
+        Color c0 = result == max_iterations ? fractal_color : palette_color.getPaletteColor(result + color_cycling_location);
 
-        double result1 = fractal.calculateFractal(new Complex(x_anti1 = (xreal - antialiasing_size), y_anti1 = (yreal - antialiasing_size)));
-        double result2 = fractal.calculateFractal(new Complex(x_anti2 = (xreal + antialiasing_size), y_anti1));
-        double result3 = fractal.calculateFractal(new Complex(x_anti2, y_anti2 = (yreal + antialiasing_size)));
-        double result4 = fractal.calculateFractal(new Complex(x_anti1, y_anti2));
-
-        Color c1 = result1 == max_iterations ? fractal_color : getDrawingColorSmooth(result1 + color_cycling_location);
-        Color c2 = result2 == max_iterations ? fractal_color : getDrawingColorSmooth(result2 + color_cycling_location);
-        Color c3 = result3 == max_iterations ? fractal_color : getDrawingColorSmooth(result3 + color_cycling_location);
-        Color c4 = result4 == max_iterations ? fractal_color : getDrawingColorSmooth(result4 + color_cycling_location);
- 
-        // resulting color; each component of color is an avarage of 5 values ( central point and 4 corners )
-        int red = (c0.getRed() + c1.getRed() + c2.getRed() + c3.getRed() + c4.getRed()) / 5;
-        int green = (c0.getGreen() + c1.getGreen() + c2.getGreen() + c3.getGreen() + c4.getGreen()) / 5;
-        int blue = (c0.getBlue() + c1.getBlue() + c2.getBlue() + c3.getBlue() + c4.getBlue()) / 5;
-
-        rgbs[loc] = new Color(red, green, blue).getRGB();
-
-        AntialiasingData[p] = result == max_iterations ? (rgbs[loc] != fractal_color.getRGB() ? result + 101000 : result) : (rgbs[loc] != c0.getRGB() ? result + 101000 : result);
-        
-        drawing_done++;
-        
-        Done[p] |= Loaded;
-        
-        return AntialiasingData[p];
-        
-    }
-    
-    private double LoadJuliaNormal(int p, double xreal, double yreal, int loc) {  
-        
-        if((Done[p] & Loaded) > 0) {
-            return image_iterations[loc];
-        }
-        
-        double result = image_iterations[loc] = fractal.calculateJulia(new Complex(xreal, yreal));
-
-        rgbs[loc] = result == max_iterations ? fractal_color.getRGB() : getDrawingColor(result + color_cycling_location).getRGB();
-        
-        drawing_done++;
-        
-        Done[p] |= Loaded;
-        
-        return image_iterations[loc];
-        
-    }
-    
-    private double LoadJuliaNormalAntialiased(int p, double xreal, double yreal, int loc) {  
-        
-        if((Done[p] & Loaded) > 0) {
-            return AntialiasingData[p];
-        }
-   
-        double result = image_iterations[loc] = fractal.calculateJulia(new Complex(xreal, yreal));
-        
-        double x_anti1, x_anti2, y_anti1, y_anti2;
-        
-        Color c0 = result == max_iterations ? fractal_color : getDrawingColor(result + color_cycling_location);
-
-        double result1 = fractal.calculateJulia(new Complex(x_anti1 = (xreal - antialiasing_size), y_anti1 = (yreal - antialiasing_size)));
+        double result1 = fractal.calculateJulia(new Complex(x_anti1 = (xreal - antialiasing_size), y_anti1 = (yimag - antialiasing_size)));
         double result2 = fractal.calculateJulia(new Complex(x_anti2 = (xreal + antialiasing_size), y_anti1));
-        double result3 = fractal.calculateJulia(new Complex(x_anti2, y_anti2 = (yreal + antialiasing_size)));
+        double result3 = fractal.calculateJulia(new Complex(x_anti2, y_anti2 = (yimag + antialiasing_size)));
         double result4 = fractal.calculateJulia(new Complex(x_anti1, y_anti2));
 
-        Color c1 = result1 == max_iterations ? fractal_color : getDrawingColor(result1 + color_cycling_location);
-        Color c2 = result2 == max_iterations ? fractal_color : getDrawingColor(result2 + color_cycling_location);
-        Color c3 = result3 == max_iterations ? fractal_color : getDrawingColor(result3 + color_cycling_location);
-        Color c4 = result4 == max_iterations ? fractal_color : getDrawingColor(result4 + color_cycling_location);
+        Color c1 = result1 == max_iterations ? fractal_color : palette_color.getPaletteColor(result1 + color_cycling_location);
+        Color c2 = result2 == max_iterations ? fractal_color : palette_color.getPaletteColor(result2 + color_cycling_location);
+        Color c3 = result3 == max_iterations ? fractal_color : palette_color.getPaletteColor(result3 + color_cycling_location);
+        Color c4 = result4 == max_iterations ? fractal_color : palette_color.getPaletteColor(result4 + color_cycling_location);
 
-        int red = (c0.getRed() + c1.getRed() + c2.getRed() + c3.getRed() + c4.getRed()) / 5;
-        int green = (c0.getGreen() + c1.getGreen() + c2.getGreen() + c3.getGreen() + c4.getGreen()) / 5;
-        int blue = (c0.getBlue() + c1.getBlue() + c2.getBlue() + c3.getBlue() + c4.getBlue()) / 5;
+        int red = (int)((c0.getRed() + c1.getRed() + c2.getRed() + c3.getRed() + c4.getRed() + 2.5) / 5);
+        int green = (int)((c0.getGreen() + c1.getGreen() + c2.getGreen() + c3.getGreen() + c4.getGreen() + 2.5) / 5);
+        int blue = (int)((c0.getBlue() + c1.getBlue() + c2.getBlue() + c3.getBlue() + c4.getBlue() + 2.5) / 5);
 
         rgbs[loc] = new Color(red, green, blue).getRGB();
 
@@ -1340,15 +1258,15 @@ public abstract class ThreadDraw extends Thread {
         
     }
     
-    private double LoadFastJuliaNormal(int p, double xreal, double yreal, int loc) {  
+    private double LoadFastJulia(int p, double xreal, double yimag, int loc) {  
         
         if((Done[p] & Loaded) > 0) {
             return FastJuliaData[p];
         }
 
-        double result = fractal.calculateJulia(new Complex(xreal, yreal));
+        double result = fractal.calculateJulia(new Complex(xreal, yimag));
 
-        rgbs[loc] = result == max_iterations ? fractal_color.getRGB() : getDrawingColor(result + color_cycling_location).getRGB();
+        rgbs[loc] = result == max_iterations ? fractal_color.getRGB() : palette_color.getPaletteColor(result + color_cycling_location).getRGB();
 
         Done[p] |= Loaded;
         
@@ -1356,32 +1274,32 @@ public abstract class ThreadDraw extends Thread {
         
     }
     
-    private double LoadFastJuliaNormalAntialiased(int p, double xreal, double yreal, int loc) {  
+    private double LoadFastJuliaAntialiased(int p, double xreal, double yimag, int loc) {  
         
         if((Done[p] & Loaded) > 0) {
             return FastJuliaData[p];
         }
           
-        double result = fractal.calculateJulia(new Complex(xreal, yreal));
+        double result = fractal.calculateJulia(new Complex(xreal, yimag));
         
         double x_anti1, x_anti2, y_anti1, y_anti2;
         
  
-        Color c0 = result == max_iterations ? fractal_color : getDrawingColor(result + color_cycling_location);
+        Color c0 = result == max_iterations ? fractal_color : palette_color.getPaletteColor(result + color_cycling_location);
 
-        double result1 = fractal.calculateJulia(new Complex(x_anti1 = (xreal - antialiasing_size), y_anti1 = (yreal - antialiasing_size)));
+        double result1 = fractal.calculateJulia(new Complex(x_anti1 = (xreal - antialiasing_size), y_anti1 = (yimag - antialiasing_size)));
         double result2 = fractal.calculateJulia(new Complex(x_anti2 = (xreal + antialiasing_size), y_anti1));
-        double result3 = fractal.calculateJulia(new Complex(x_anti2, y_anti2 = (yreal + antialiasing_size)));
+        double result3 = fractal.calculateJulia(new Complex(x_anti2, y_anti2 = (yimag + antialiasing_size)));
         double result4 = fractal.calculateJulia(new Complex(x_anti1, y_anti2));
 
-        Color c1 = result1 == max_iterations ? fractal_color : getDrawingColor(result1 + color_cycling_location);
-        Color c2 = result2 == max_iterations ? fractal_color : getDrawingColor(result2 + color_cycling_location);
-        Color c3 = result3 == max_iterations ? fractal_color : getDrawingColor(result3 + color_cycling_location);
-        Color c4 = result4 == max_iterations ? fractal_color : getDrawingColor(result4 + color_cycling_location);
+        Color c1 = result1 == max_iterations ? fractal_color : palette_color.getPaletteColor(result1 + color_cycling_location);
+        Color c2 = result2 == max_iterations ? fractal_color : palette_color.getPaletteColor(result2 + color_cycling_location);
+        Color c3 = result3 == max_iterations ? fractal_color : palette_color.getPaletteColor(result3 + color_cycling_location);
+        Color c4 = result4 == max_iterations ? fractal_color : palette_color.getPaletteColor(result4 + color_cycling_location);
 
-        int red = (c0.getRed() + c1.getRed() + c2.getRed() + c3.getRed() + c4.getRed()) / 5;
-        int green = (c0.getGreen() + c1.getGreen() + c2.getGreen() + c3.getGreen() + c4.getGreen()) / 5;
-        int blue = (c0.getBlue() + c1.getBlue() + c2.getBlue() + c3.getBlue() + c4.getBlue()) / 5;
+        int red = (int)((c0.getRed() + c1.getRed() + c2.getRed() + c3.getRed() + c4.getRed() + 2.5) / 5);
+        int green = (int)((c0.getGreen() + c1.getGreen() + c2.getGreen() + c3.getGreen() + c4.getGreen() + 2.5) / 5);
+        int blue = (int)((c0.getBlue() + c1.getBlue() + c2.getBlue() + c3.getBlue() + c4.getBlue() + 2.5) / 5);
 
         rgbs[loc] = new Color(red, green, blue).getRGB();
         
@@ -1394,115 +1312,7 @@ public abstract class ThreadDraw extends Thread {
     }
     
     
-    private double LoadJuliaSmooth(int p, double xreal, double yreal, int loc) {  
-        
-        if((Done[p] & Loaded) > 0) {
-            return image_iterations[loc];
-        }
-        
-        double result = image_iterations[loc] = fractal.calculateJulia(new Complex(xreal, yreal));
-
-        rgbs[loc] = result == max_iterations ? fractal_color.getRGB() : getDrawingColorSmooth(result + color_cycling_location).getRGB();
-        
-        drawing_done++;
-        
-        Done[p] |= Loaded;
-        
-        return image_iterations[loc];
-        
-    }
-    
-    private double LoadJuliaSmoothAntialiased(int p, double xreal, double yreal, int loc) {  
-        
-        if((Done[p] & Loaded) > 0) {
-            return AntialiasingData[p];
-        }
-   
-        double result  = image_iterations[loc] = fractal.calculateJulia(new Complex(xreal, yreal));
-        
-        double x_anti1, x_anti2, y_anti1, y_anti2;
-        
-        Color c0 = result == max_iterations ? fractal_color : getDrawingColorSmooth(result + color_cycling_location);
-
-        double result1 = fractal.calculateJulia(new Complex(x_anti1 = (xreal - antialiasing_size), y_anti1 = (yreal - antialiasing_size)));
-        double result2 = fractal.calculateJulia(new Complex(x_anti2 = (xreal + antialiasing_size), y_anti1));
-        double result3 = fractal.calculateJulia(new Complex(x_anti2, y_anti2 = (yreal + antialiasing_size)));
-        double result4 = fractal.calculateJulia(new Complex(x_anti1, y_anti2));
-
-        Color c1 = result1 == max_iterations ? fractal_color : getDrawingColorSmooth(result1 + color_cycling_location);
-        Color c2 = result2 == max_iterations ? fractal_color : getDrawingColorSmooth(result2 + color_cycling_location);
-        Color c3 = result3 == max_iterations ? fractal_color : getDrawingColorSmooth(result3 + color_cycling_location);
-        Color c4 = result4 == max_iterations ? fractal_color : getDrawingColorSmooth(result4 + color_cycling_location);
-
-        int red = (c0.getRed() + c1.getRed() + c2.getRed() + c3.getRed() + c4.getRed()) / 5;
-        int green = (c0.getGreen() + c1.getGreen() + c2.getGreen() + c3.getGreen() + c4.getGreen()) / 5;
-        int blue = (c0.getBlue() + c1.getBlue() + c2.getBlue() + c3.getBlue() + c4.getBlue()) / 5;
-
-        rgbs[loc] = new Color(red, green, blue).getRGB();
- 
-        AntialiasingData[p] = result == max_iterations ? (rgbs[loc] != fractal_color.getRGB() ? result + 101000 : result) : (rgbs[loc] != c0.getRGB() ? result + 101000 : result);
-        
-        drawing_done++;
-        
-        Done[p] |= Loaded;
-        
-        return AntialiasingData[p];
-        
-    }
-    
-    private double LoadFastJuliaSmooth(int p, double xreal, double yreal, int loc) {  
-        
-        if((Done[p] & Loaded) > 0) {
-            return FastJuliaData[p];
-        }
-        
-        double result = fractal.calculateJulia(new Complex(xreal, yreal));
-
-        rgbs[loc] = result == max_iterations ? fractal_color.getRGB() : getDrawingColorSmooth(result + color_cycling_location).getRGB();
-        
-        Done[p] |= Loaded;
-        
-        return FastJuliaData[p] = result;
-        
-    }
-    
-    private double LoadFastJuliaSmoothAntialiased(int p, double xreal, double yreal, int loc) {  
-        
-        if((Done[p] & Loaded) > 0) {
-            return FastJuliaData[p];
-        }
-   
-        double result = fractal.calculateJulia(new Complex(xreal, yreal));
-        
-        double x_anti1, x_anti2, y_anti1, y_anti2;
-
-        Color c0 = result == max_iterations ? fractal_color : getDrawingColorSmooth(result + color_cycling_location);
-
-        double result1 = fractal.calculateJulia(new Complex(x_anti1 = (xreal - antialiasing_size), y_anti1 = (yreal - antialiasing_size)));
-        double result2 = fractal.calculateJulia(new Complex(x_anti2 = (xreal + antialiasing_size), y_anti1));
-        double result3 = fractal.calculateJulia(new Complex(x_anti2, y_anti2 = (yreal + antialiasing_size)));
-        double result4 = fractal.calculateJulia(new Complex(x_anti1, y_anti2));
-
-        Color c1 = result1 == max_iterations ? fractal_color : getDrawingColorSmooth(result1 + color_cycling_location);
-        Color c2 = result2 == max_iterations ? fractal_color : getDrawingColorSmooth(result2 + color_cycling_location);
-        Color c3 = result3 == max_iterations ? fractal_color : getDrawingColorSmooth(result3 + color_cycling_location);
-        Color c4 = result4 == max_iterations ? fractal_color : getDrawingColorSmooth(result4 + color_cycling_location);
-
-        int red = (c0.getRed() + c1.getRed() + c2.getRed() + c3.getRed() + c4.getRed()) / 5;
-        int green = (c0.getGreen() + c1.getGreen() + c2.getGreen() + c3.getGreen() + c4.getGreen()) / 5;
-        int blue = (c0.getBlue() + c1.getBlue() + c2.getBlue() + c3.getBlue() + c4.getBlue()) / 5;
-
-        rgbs[loc] = new Color(red, green, blue).getRGB();
-        
-        FastJuliaData[p] = result == max_iterations ? (rgbs[loc] != fractal_color.getRGB() ? result + 101000 : result) : (rgbs[loc] != c0.getRGB() ? result + 101000 : result);
-        
-        Done[p] |= Loaded;
-        
-        return FastJuliaData[p];
-        
-    }
-    
-    private void drawFractalNormal(int image_size) {
+    private void drawFractal(int image_size) {
  
          //ptr.setWholeImageDone(true); // demo
            
@@ -1515,7 +1325,7 @@ public abstract class ThreadDraw extends Thread {
 
          int pixel_percent = image_size *  image_size / 100;
          
-                  
+            
          if(!boundary_tracing) {
              double temp = temp_xcenter_size + temp_size_image_size * FROMx;
              double temp_y0 = temp_ycenter_size + temp_size_image_size * FROMy;
@@ -1527,7 +1337,7 @@ public abstract class ThreadDraw extends Thread {
                  for(int x = FROMx, loc = y * image_size + x; x < TOx; x++, temp_x0 += temp_size_image_size, loc++) {
                      
                      temp_result = image_iterations[loc] = fractal.calculateFractal(new Complex(temp_x0, temp_y0));
-                     rgbs[loc] = temp_result == max_iterations ? fractal_color.getRGB() : getDrawingColor(temp_result + color_cycling_location).getRGB();
+                     rgbs[loc] = temp_result == max_iterations ? fractal_color.getRGB() : palette_color.getPaletteColor(temp_result + color_cycling_location).getRGB();
   
 
                      drawing_done++;
@@ -1573,7 +1383,7 @@ public abstract class ThreadDraw extends Thread {
                     p = Queue[--QueueHead];
                 }
 
-                ScanFractalNormal(p, image_size, width, height, temp_size_image_size, temp_xcenter_size, temp_ycenter_size);
+                ScanFractal(p, image_size, width, height, temp_size_image_size, temp_xcenter_size, temp_ycenter_size);
                 
                // try {
                  //   Thread.sleep(1); //demo
@@ -1593,10 +1403,10 @@ public abstract class ThreadDraw extends Thread {
              calculated += drawing_done;
              
 
-             for(int y = 0; y < width - 1; y++) {
-                 for(int x = 0, loc = y * width + x, loc2 = (y + FROMy) * image_size + x + FROMx; x < height - 1; x++, loc++, loc2++) {
+             for(int y = 1; y < width - 1; y++) {
+                 for(int x = 1, loc = y * width + x, loc2 = (y + FROMy) * image_size + x + FROMx; x < height - 1; x++, loc++, loc2++) {
                      //try {
-                         if((Done[loc] & Loaded) > 0 && Done[loc + 1] == 0) {
+                         if(Done[loc + 1] == 0 && (Done[loc] & Loaded) > 0) {
                             rgbs[loc2 + 1] = rgbs[loc2];
                             image_iterations[loc2 + 1] = image_iterations[loc2];
                             Done[loc + 1] |= Loaded; 
@@ -1661,7 +1471,7 @@ public abstract class ThreadDraw extends Thread {
                              
                      temp_starting_pixel_cicle =  temp_result = image_iterations[loc] = fractal.calculateFractal(new Complex(temp_x0, temp_y0));
                      
-                     rgbs[loc] = temp_starting_pixel_color = temp_result == max_iterations ? fractal_color.getRGB() : getDrawingColor(temp_result + color_cycling_location).getRGB();
+                     rgbs[loc] = temp_starting_pixel_color = temp_result == max_iterations ? fractal_color.getRGB() : palette_color.getPaletteColor(temp_result + color_cycling_location).getRGB();
                     
                      image.setRGB(x, y, rgbs[loc]);//demo
                      ptr.getMainPanel().repaint();//demo
@@ -1684,7 +1494,7 @@ public abstract class ThreadDraw extends Thread {
                              ptr.getMainPanel().repaint();//demo
                          }
                          else {
-                             rgbs[loc] = temp_result == max_iterations ? fractal_color.getRGB() : getDrawingColor(temp_result + color_cycling_location).getRGB();
+                             rgbs[loc] = temp_result == max_iterations ? fractal_color.getRGB() : palette_color.getPaletteColor(temp_result + color_cycling_location).getRGB();
                              image.setRGB(x, y, rgbs[loc]);//demo
                              ptr.getMainPanel().repaint();//demo
                              whole_area = false;
@@ -1713,7 +1523,7 @@ public abstract class ThreadDraw extends Thread {
                              ptr.getMainPanel().repaint();//demo
                          }
                          else {
-                             rgbs[loc] = temp_result == max_iterations ? fractal_color.getRGB() : getDrawingColor(temp_result + color_cycling_location).getRGB();
+                             rgbs[loc] = temp_result == max_iterations ? fractal_color.getRGB() : palette_color.getPaletteColor(temp_result + color_cycling_location).getRGB();
                              image.setRGB(x, y, rgbs[loc]);//demo
                              ptr.getMainPanel().repaint();//demo
                              whole_area = false;
@@ -1739,7 +1549,7 @@ public abstract class ThreadDraw extends Thread {
                              ptr.getMainPanel().repaint();//demo
                          }
                          else {
-                             rgbs[loc] = temp_result == max_iterations ? fractal_color.getRGB() : getDrawingColor(temp_result + color_cycling_location).getRGB();
+                             rgbs[loc] = temp_result == max_iterations ? fractal_color.getRGB() : palette_color.getPaletteColor(temp_result + color_cycling_location).getRGB();
                              image.setRGB(x, y, rgbs[loc]);//demo
                              ptr.getMainPanel().repaint();//demo
                              whole_area = false;
@@ -1766,7 +1576,7 @@ public abstract class ThreadDraw extends Thread {
                              ptr.getMainPanel().repaint();//demo
                          }
                          else {
-                             rgbs[loc] = temp_result == max_iterations ? fractal_color.getRGB() : getDrawingColor(temp_result + color_cycling_location).getRGB();
+                             rgbs[loc] = temp_result == max_iterations ? fractal_color.getRGB() : palette_color.getPaletteColor(temp_result + color_cycling_location).getRGB();
                              image.setRGB(x, y, rgbs[loc]);//demo
                              ptr.getMainPanel().repaint();//demo
                              whole_area = false;
@@ -1812,7 +1622,7 @@ public abstract class ThreadDraw extends Thread {
 
     }
     
-     private void drawFractalNormalAntialiased(int image_size) {
+     private void drawFractalAntialiased(int image_size) {
          
          //ptr.setWholeImageDone(true); // demo
          double size = fractal.getSize();
@@ -1842,21 +1652,21 @@ public abstract class ThreadDraw extends Thread {
                  for(int x = FROMx, loc = y * image_size + x; x < TOx; x++, temp_x0 += temp_size_image_size, loc++) {
                      
                      temp_result = image_iterations[loc] = fractal.calculateFractal(new Complex(temp_x0, temp_y0));
-                     c0 = temp_result == max_iterations ? fractal_color : getDrawingColor(temp_result + color_cycling_location);
+                     c0 = temp_result == max_iterations ? fractal_color : palette_color.getPaletteColor(temp_result + color_cycling_location);
         
                      temp_result2 = fractal.calculateFractal(new Complex(x_anti1 = (temp_x0 - antialiasing_size), y_anti1 = (temp_y0 - antialiasing_size)));
                      temp_result3 = fractal.calculateFractal(new Complex(x_anti2 = (temp_x0 + antialiasing_size), y_anti1));
                      temp_result4 = fractal.calculateFractal(new Complex(x_anti2, y_anti2 = (temp_y0 + antialiasing_size)));
                      temp_result5 = fractal.calculateFractal(new Complex(x_anti1, y_anti2));
                      
-                     c1 = temp_result2 == max_iterations ? fractal_color : getDrawingColor(temp_result2 + color_cycling_location);
-                     c2 = temp_result3 == max_iterations ? fractal_color : getDrawingColor(temp_result3 + color_cycling_location);
-                     c3 = temp_result4 == max_iterations ? fractal_color : getDrawingColor(temp_result4 + color_cycling_location);
-                     c4 = temp_result5 == max_iterations ? fractal_color : getDrawingColor(temp_result5 + color_cycling_location);
+                     c1 = temp_result2 == max_iterations ? fractal_color : palette_color.getPaletteColor(temp_result2 + color_cycling_location);
+                     c2 = temp_result3 == max_iterations ? fractal_color : palette_color.getPaletteColor(temp_result3 + color_cycling_location);
+                     c3 = temp_result4 == max_iterations ? fractal_color : palette_color.getPaletteColor(temp_result4 + color_cycling_location);
+                     c4 = temp_result5 == max_iterations ? fractal_color : palette_color.getPaletteColor(temp_result5 + color_cycling_location);
                       // resulting color; each component of color is an avarage of 5 values ( central point and 4 corners )
-                     red = (c0.getRed() + c1.getRed() + c2.getRed() + c3.getRed() + c4.getRed()) / 5;
-                     green = (c0.getGreen() + c1.getGreen() + c2.getGreen() + c3.getGreen() + c4.getGreen()) / 5;
-                     blue = (c0.getBlue() + c1.getBlue() + c2.getBlue() + c3.getBlue() + c4.getBlue()) / 5;
+                     red = (int)((c0.getRed() + c1.getRed() + c2.getRed() + c3.getRed() + c4.getRed() + 2.5) / 5);
+                     green = (int)((c0.getGreen() + c1.getGreen() + c2.getGreen() + c3.getGreen() + c4.getGreen() + 2.5) / 5);
+                     blue = (int)((c0.getBlue() + c1.getBlue() + c2.getBlue() + c3.getBlue() + c4.getBlue() + 2.5) / 5);
     
                      rgbs[loc] = new Color(red, green, blue).getRGB();
 
@@ -1902,7 +1712,7 @@ public abstract class ThreadDraw extends Thread {
                     p = Queue[--QueueHead];
                 }
 
-                ScanFractalNormalAntialiased(p, image_size, width, height, temp_size_image_size, temp_xcenter_size, temp_ycenter_size);
+                ScanFractalAntialiased(p, image_size, width, height, temp_size_image_size, temp_xcenter_size, temp_ycenter_size);
                 
                 //try {
                   //  Thread.sleep(1); //demo
@@ -1922,9 +1732,9 @@ public abstract class ThreadDraw extends Thread {
              calculated += drawing_done;
              
 
-             for(int y = 0; y < width - 1; y++) {
-                 for(int x = 0, loc = y * width + x, loc2 = (y + FROMy) * image_size + x + FROMx; x < height - 1; x++, loc++, loc2++) {
-                     if((Done[loc] & Loaded) > 0 && Done[loc + 1] == 0) {
+             for(int y = 1; y < width - 1; y++) {
+                 for(int x = 1, loc = y * width + x, loc2 = (y + FROMy) * image_size + x + FROMx; x < height - 1; x++, loc++, loc2++) {
+                     if(Done[loc + 1] == 0 && (Done[loc] & Loaded) > 0) {
                         rgbs[loc2 + 1] = rgbs[loc2];
                         image_iterations[loc2 + 1] = image_iterations[loc2];
                         Done[loc + 1] |= Loaded; 
@@ -1945,370 +1755,8 @@ public abstract class ThreadDraw extends Thread {
     }
    
 
-    private void drawFractalSmooth(int image_size) {
-         
-         //ptr.setWholeImageDone(true);
-         
-         double size = fractal.getSize();
-         
-         double size_2 = size * 0.5;
-         double temp_xcenter_size = fractal.getXCenter() - size_2;
-         double temp_ycenter_size = fractal.getYCenter() - size_2;
-         double temp_size_image_size = size / image_size;
-
-         int pixel_percent = image_size *  image_size / 100;
-         
-         if(!boundary_tracing) {
-             double temp = temp_xcenter_size + temp_size_image_size * FROMx;
-             double temp_y0 = temp_ycenter_size + temp_size_image_size * FROMy;
-             double temp_x0 = temp;
-
-             double temp_result;
-             
-             for(int y = FROMy; y < TOy; y++, temp_y0 += temp_size_image_size) {
-                 for(int x = FROMx, loc = y * image_size + x; x < TOx; x++, temp_x0 += temp_size_image_size, loc++) {
-
-                     temp_result = image_iterations[loc] = fractal.calculateFractal(new Complex(temp_x0, temp_y0));
-      
-                     rgbs[loc] = temp_result == max_iterations ? fractal_color.getRGB() : getDrawingColorSmooth(temp_result + color_cycling_location).getRGB();
-
-                     drawing_done++;
-
-                 }
-
-                 if(drawing_done / pixel_percent >= 1) {
-                     progress.update(drawing_done);
-                     calculated += drawing_done;
-                     drawing_done = 0;
-                 }
-
-                 temp_x0 = temp;
-
-             }
-             calculated += drawing_done;
-         }
-         else {
-             int width = TOx - FROMx;
-             int height = TOy - FROMy;
-
-             for(int y = 0; y < width; y++) {
-                AddQueue(y * width);
-                AddQueue(y * width + (width - 1));
-             }
-             for(int x = 1; x < height - 1; x++) {
-                AddQueue(x);
-                AddQueue((height - 1) * width + x);
-             }
-
-             int flag=0;
-             int counter = 0;
-             int p;
-             while(QueueTail != QueueHead) {
-                if(QueueHead <= QueueTail || (++flag & 3) > 0) {
-                    p = Queue[QueueTail++];
-                    if(QueueTail == QueueSize) {
-                        QueueTail = 0;
-                    }
-                } 
-                else {
-                    p = Queue[--QueueHead];
-                }
-
-                ScanFractalSmooth(p, image_size, width, height, temp_size_image_size, temp_xcenter_size, temp_ycenter_size);
                 
-                // try {
-                //     Thread.sleep(1); //demo
-               // }
-               // catch (InterruptedException ex) {}
-
-                counter++;
-
-                if(counter % height == 0 && drawing_done / pixel_percent >= 1) {
-                    progress.update(drawing_done);
-                    calculated += drawing_done;
-                    drawing_done = 0;
-                }
-
-             }
-             
-             calculated += drawing_done;
-
-             for(int y = 0; y < width - 1; y++) {
-                 for(int x = 0, loc = y * width + x, loc2 = (y + FROMy) * image_size + x + FROMx; x < height - 1; x++, loc++, loc2++) {
-                     if((Done[loc] & Loaded) > 0 && Done[loc + 1] == 0) {
-                        rgbs[loc2 + 1] = rgbs[loc2];
-                        image_iterations[loc2 + 1] = image_iterations[loc2];
-                        Done[loc + 1] |= Loaded; 
-                        drawing_done++; 
-                     }
-                     
-                 }
-
-                 if(drawing_done / pixel_percent >= 1) {
-                     progress.update(drawing_done);
-                     drawing_done = 0;
-                 }
-             }
-         }
-                
-         /*int x = 0;
-         int y = 0;
-         boolean whole_area;
-         int step;
-         double temp_x0 = 0;
-         double temp_y0;
-         int total_drawing;
-         
-         int tread_size_width = TOx - FROMx;
-         int tread_size_height = TOy - FROMy;
-         
-         
-         int slice_FROMx;
-         int slice_FROMy;
-         int slice_TOx;
-         int slice_TOy;
-         double temp_result;
-         int loc;
-         
-         
-         for(int i = 0; i < thread_slices; i++) {
-             slice_FROMy = FROMy + i * (tread_size_height) / thread_slices;
-             slice_TOy = FROMy + (i + 1) * (tread_size_height) / thread_slices;
-             for(int j = 0; j < thread_slices; j++) {
-                 slice_FROMx =  FROMx + j * (tread_size_width) / thread_slices;
-                 slice_TOx = FROMx + (j + 1) * (tread_size_width) / thread_slices;
-
-                 
-                 double temp = (slice_TOy - slice_FROMy + 1) / 2;
-         
-                 for(y = slice_FROMy, whole_area = true, step = 0, total_drawing = 0; step < temp; step++, whole_area = true) {
-
-                     temp_y0 = temp_ycenter_size + temp_size_image_size * y;           
-             
-                     double temp_size_image_size2 = 0;
-                     for(x = slice_FROMx + step, temp_x0 = temp_xcenter_size + temp_size_image_size * x, loc = y * image_size + x; x < slice_TOx - step; x++, loc++) {
-
-                         temp_x0 += temp_size_image_size2;
-                         temp_result = image_iterations[loc] = fractal.calculateFractal(new Complex(temp_x0, temp_y0));
-                         
-                         temp_size_image_size2 = temp_size_image_size;
- 
-                         if(temp_result == max_iterations) {
-                             rgbs[loc] = fractal_color.getRGB();
-                         }
-                         else {
-                             rgbs[loc] = getDrawingColorSmooth(temp_result + color_cycling_location).getRGB();
-                             whole_area = false;
-                         }
-                 
-
-                         drawing_done++;
-                         total_drawing++;
-                
-                     }
-             
-                     for(x--, y++; y < slice_TOy - step; y++) {
-                         temp_y0 += temp_size_image_size;
-                         loc = y * image_size + x;
-                         temp_result = image_iterations[loc] = fractal.calculateFractal(new Complex(temp_x0, temp_y0));
-                 
-
-                         if(temp_result == max_iterations) {
-                             rgbs[loc] = fractal_color.getRGB();
-                         }
-                         else {
-                             rgbs[loc] = getDrawingColorSmooth(temp_result + color_cycling_location).getRGB();
-                             whole_area = false;
-                         }
-                 
-                         drawing_done++;
-                         total_drawing++;
-                     }
-             
-                     for(y--, x--, loc = y * image_size + x; x >= slice_FROMx + step; x--, loc--) {
-                         temp_x0 -= temp_size_image_size;
-                         temp_result = image_iterations[loc] = fractal.calculateFractal(new Complex(temp_x0, temp_y0));
-                
-
-                         if(temp_result == max_iterations) {
-                             rgbs[loc] = fractal_color.getRGB();
-                         }
-                         else {
-                             rgbs[loc] = getDrawingColorSmooth(temp_result + color_cycling_location).getRGB();
-                             whole_area = false;
-                         }
-                 
-                         drawing_done++;
-                         total_drawing++;
-                     }
-             
-                     for(x++, y--; y > slice_FROMy + step; y--) {
-                         temp_y0 -= temp_size_image_size;
-                         loc = y * image_size + x;
-                         temp_result = image_iterations[loc] = fractal.calculateFractal(new Complex(temp_x0, temp_y0));
-                 
-
-                         if(temp_result == max_iterations) {
-                             rgbs[loc] = fractal_color.getRGB();
-                         }
-                         else {
-                             rgbs[loc] = getDrawingColorSmooth(temp_result + color_cycling_location).getRGB();
-                             whole_area = false;
-                         }
-                 
-                         drawing_done++;
-                         total_drawing++;
-                     }
-                     y++;
-                     x++;
-             
-
-                     if(drawing_done / pixel_percent >= 1) {
-                         progress.update(drawing_done);
-                         drawing_done = 0;
-                     }
-             
-                     if(whole_area) {  
-                         int temp3;
-                         int temp4;
-                         for(int k = y; k < slice_TOy - step - 1; k++) {
-                             temp3 = k * image_size + x;
-                             temp4 = k * image_size + slice_TOx - step - 1;
-                             Arrays.fill(image_iterations, temp3, temp4, max_iterations);
-                             Arrays.fill(rgbs, temp3, temp4, fractal_color.getRGB());
-                         }
-                         progress.update((slice_TOx - slice_FROMx) * (slice_TOy - slice_FROMy) - total_drawing);
-                         break;
-                     }
-                 }
-             }
-         }*/
-
-    }
-    
-    private void drawFractalSmoothAntialiased(int image_size) {
-
-         double size = fractal.getSize();
-
-         double size_2 = size * 0.5;
-         double temp_xcenter_size = fractal.getXCenter() - size_2;
-         double temp_ycenter_size = fractal.getYCenter() - size_2;
-         double temp_size_image_size = size / image_size;
-
-         int pixel_percent = image_size *  image_size / 100;
-         
-         if(!boundary_tracing) {
-             double temp = temp_xcenter_size + temp_size_image_size * FROMx;
-             double temp_y0 = temp_ycenter_size + temp_size_image_size * FROMy;
-             double temp_x0 = temp;
-
-            double temp_result, temp_result2, temp_result3, temp_result4, temp_result5;
-             double x_anti1, x_anti2;
-             double y_anti1, y_anti2;
-             Color c0, c1, c2, c3, c4;
-             
-             int red, green, blue;
-             
-             for(int y = FROMy; y < TOy; y++, temp_y0 += temp_size_image_size) {
-                 for(int x = FROMx, loc = y * image_size + x; x < TOx; x++, temp_x0 += temp_size_image_size, loc++) {
-                     
-                     temp_result = image_iterations[loc] = fractal.calculateFractal(new Complex(temp_x0, temp_y0));
-                     c0 = temp_result == max_iterations ? fractal_color : getDrawingColorSmooth(temp_result + color_cycling_location);
-        
-                     temp_result2 = fractal.calculateFractal(new Complex(x_anti1 = (temp_x0 - antialiasing_size), y_anti1 = (temp_y0 - antialiasing_size)));
-                     temp_result3 = fractal.calculateFractal(new Complex(x_anti2 = (temp_x0 + antialiasing_size), y_anti1));
-                     temp_result4 = fractal.calculateFractal(new Complex(x_anti2, y_anti2 = (temp_y0 + antialiasing_size)));
-                     temp_result5 = fractal.calculateFractal(new Complex(x_anti1, y_anti2));
-                     
-                     c1 = temp_result2 == max_iterations ? fractal_color : getDrawingColorSmooth(temp_result2 + color_cycling_location);
-                     c2 = temp_result3 == max_iterations ? fractal_color : getDrawingColorSmooth(temp_result3 + color_cycling_location);
-                     c3 = temp_result4 == max_iterations ? fractal_color : getDrawingColorSmooth(temp_result4 + color_cycling_location);
-                     c4 = temp_result5 == max_iterations ? fractal_color : getDrawingColorSmooth(temp_result5 + color_cycling_location);
-                      // resulting color; each component of color is an avarage of 5 values ( central point and 4 corners )
-                     red = (c0.getRed() + c1.getRed() + c2.getRed() + c3.getRed() + c4.getRed()) / 5;
-                     green = (c0.getGreen() + c1.getGreen() + c2.getGreen() + c3.getGreen() + c4.getGreen()) / 5;
-                     blue = (c0.getBlue() + c1.getBlue() + c2.getBlue() + c3.getBlue() + c4.getBlue()) / 5;
-    
-                     rgbs[loc] = new Color(red, green, blue).getRGB();
-
-                     drawing_done++;
-
-                 }
-
-                 if(drawing_done / pixel_percent >= 1) {
-                     progress.update(drawing_done);
-                     calculated += drawing_done;
-                     drawing_done = 0;
-                 }
-
-                 temp_x0 = temp;
-
-             }
-             calculated += drawing_done;
-         }
-         else {
-             int width = TOx - FROMx;
-             int height = TOy - FROMy;
-
-             for(int y = 0; y < width; y++) {
-                AddQueue(y * width);
-                AddQueue(y * width + (width - 1));
-             }
-             for(int x = 1; x < height - 1; x++) {
-                AddQueue(x);
-                AddQueue((height - 1) * width + x);
-             }
-
-             int flag=0;
-             int counter = 0;
-             int p;
-             while(QueueTail != QueueHead) {
-                if(QueueHead <= QueueTail || (++flag & 3) > 0) {
-                    p = Queue[QueueTail++];
-                    if(QueueTail == QueueSize) {
-                        QueueTail = 0;
-                    }
-                } 
-                else {
-                    p = Queue[--QueueHead];
-                }
-
-                ScanFractalSmoothAntialiased(p, image_size, width, height, temp_size_image_size, temp_xcenter_size, temp_ycenter_size);
-
-                counter++;
-
-                if(counter % height == 0 && drawing_done / pixel_percent >= 1) {
-                    progress.update(drawing_done);
-                    calculated += drawing_done;
-                    drawing_done = 0;
-                }
-
-             }
-             
-             calculated += drawing_done;
-
-             for(int y = 0; y < width - 1; y++) {
-                 for(int x = 0, loc = y * width + x, loc2 = (y + FROMy) * image_size + x + FROMx; x < height - 1; x++, loc++, loc2++) {
-                     if((Done[loc] & Loaded) > 0 && Done[loc + 1] == 0) {
-                        rgbs[loc2 + 1] = rgbs[loc2];
-                        image_iterations[loc2 + 1] = image_iterations[loc2];
-                        Done[loc + 1] |= Loaded; 
-                        drawing_done++; 
-                     }
-                     
-                 }
-
-                 if(drawing_done / pixel_percent >= 1) {
-                     progress.update(drawing_done);
-                     drawing_done = 0;
-                 }
-             }
-         }
-
-    }
-
-
-    private void drawJuliaNormal(int image_size) {
+    private void drawJulia(int image_size) {
 
          double size = fractal.getSize();
 
@@ -2330,7 +1778,7 @@ public abstract class ThreadDraw extends Thread {
                  for(int x = FROMx, loc = y * image_size + x; x < TOx; x++, temp_x0 += temp_size_image_size, loc++) {
 
                      temp_result = image_iterations[loc] = fractal.calculateJulia(new Complex(temp_x0, temp_y0));
-                     rgbs[loc] = temp_result == max_iterations ? fractal_color.getRGB() : getDrawingColor(temp_result + color_cycling_location).getRGB();
+                     rgbs[loc] = temp_result == max_iterations ? fractal_color.getRGB() : palette_color.getPaletteColor(temp_result + color_cycling_location).getRGB();
 
                      drawing_done++;
 
@@ -2374,7 +1822,7 @@ public abstract class ThreadDraw extends Thread {
                     p = Queue[--QueueHead];
                 }
 
-                ScanJuliaNormal(p, image_size, width, height, temp_size_image_size, temp_xcenter_size, temp_ycenter_size);
+                ScanJulia(p, image_size, width, height, temp_size_image_size, temp_xcenter_size, temp_ycenter_size);
 
                 counter++;
 
@@ -2388,9 +1836,9 @@ public abstract class ThreadDraw extends Thread {
              
              calculated += drawing_done;
 
-             for(int y = 0; y < width - 1; y++) {
-                 for(int x = 0, loc = y * width + x, loc2 = (y + FROMy) * image_size + x + FROMx; x < height - 1; x++, loc++, loc2++) {
-                     if((Done[loc] & Loaded) > 0 && Done[loc + 1] == 0) {
+             for(int y = 1; y < width - 1; y++) {
+                 for(int x = 1, loc = y * width + x, loc2 = (y + FROMy) * image_size + x + FROMx; x < height - 1; x++, loc++, loc2++) {
+                     if(Done[loc + 1] == 0 && (Done[loc] & Loaded) > 0) {
                         rgbs[loc2 + 1] = rgbs[loc2];
                         image_iterations[loc2 + 1] = image_iterations[loc2];
                         Done[loc + 1] |= Loaded; 
@@ -2408,7 +1856,7 @@ public abstract class ThreadDraw extends Thread {
 
     }
     
-    private void drawJuliaNormalAntialiased(int image_size) {
+    private void drawJuliaAntialiased(int image_size) {
 
          double size = fractal.getSize();
 
@@ -2435,21 +1883,21 @@ public abstract class ThreadDraw extends Thread {
                  for(int x = FROMx, loc = y * image_size + x; x < TOx; x++, temp_x0 += temp_size_image_size, loc++) {
                      
                      temp_result = image_iterations[loc] = fractal.calculateJulia(new Complex(temp_x0, temp_y0));
-                     c0 = temp_result == max_iterations ? fractal_color : getDrawingColor(temp_result + color_cycling_location);
+                     c0 = temp_result == max_iterations ? fractal_color : palette_color.getPaletteColor(temp_result + color_cycling_location);
         
                      temp_result2 = fractal.calculateJulia(new Complex(x_anti1 = (temp_x0 - antialiasing_size), y_anti1 = (temp_y0 - antialiasing_size)));
                      temp_result3 = fractal.calculateJulia(new Complex(x_anti2 = (temp_x0 + antialiasing_size), y_anti1));
                      temp_result4 = fractal.calculateJulia(new Complex(x_anti2, y_anti2 = (temp_y0 + antialiasing_size)));
                      temp_result5 = fractal.calculateJulia(new Complex(x_anti1, y_anti2));
                      
-                     c1 = temp_result2 == max_iterations ? fractal_color : getDrawingColor(temp_result2 + color_cycling_location);
-                     c2 = temp_result3 == max_iterations ? fractal_color : getDrawingColor(temp_result3 + color_cycling_location);
-                     c3 = temp_result4 == max_iterations ? fractal_color : getDrawingColor(temp_result4 + color_cycling_location);
-                     c4 = temp_result5 == max_iterations ? fractal_color : getDrawingColor(temp_result5 + color_cycling_location);
+                     c1 = temp_result2 == max_iterations ? fractal_color : palette_color.getPaletteColor(temp_result2 + color_cycling_location);
+                     c2 = temp_result3 == max_iterations ? fractal_color : palette_color.getPaletteColor(temp_result3 + color_cycling_location);
+                     c3 = temp_result4 == max_iterations ? fractal_color : palette_color.getPaletteColor(temp_result4 + color_cycling_location);
+                     c4 = temp_result5 == max_iterations ? fractal_color : palette_color.getPaletteColor(temp_result5 + color_cycling_location);
                       // resulting color; each component of color is an avarage of 5 values ( central point and 4 corners )
-                     red = (c0.getRed() + c1.getRed() + c2.getRed() + c3.getRed() + c4.getRed()) / 5;
-                     green = (c0.getGreen() + c1.getGreen() + c2.getGreen() + c3.getGreen() + c4.getGreen()) / 5;
-                     blue = (c0.getBlue() + c1.getBlue() + c2.getBlue() + c3.getBlue() + c4.getBlue()) / 5;
+                     red = (int)((c0.getRed() + c1.getRed() + c2.getRed() + c3.getRed() + c4.getRed() + 2.5) / 5);
+                     green = (int)((c0.getGreen() + c1.getGreen() + c2.getGreen() + c3.getGreen() + c4.getGreen() + 2.5) / 5);
+                     blue = (int)((c0.getBlue() + c1.getBlue() + c2.getBlue() + c3.getBlue() + c4.getBlue() + 2.5) / 5);
     
                      rgbs[loc] = new Color(red, green, blue).getRGB();
 
@@ -2495,7 +1943,7 @@ public abstract class ThreadDraw extends Thread {
                     p = Queue[--QueueHead];
                 }
 
-                ScanJuliaNormalAntialiased(p, image_size, width, height, temp_size_image_size, temp_xcenter_size, temp_ycenter_size);
+                ScanJuliaAntialiased(p, image_size, width, height, temp_size_image_size, temp_xcenter_size, temp_ycenter_size);
 
                 counter++;
 
@@ -2509,9 +1957,9 @@ public abstract class ThreadDraw extends Thread {
              
              calculated += drawing_done;
 
-             for(int y = 0; y < width - 1; y++) {
-                 for(int x = 0, loc = y * width + x, loc2 = (y + FROMy) * image_size + x + FROMx; x < height - 1; x++, loc++, loc2++) {
-                     if((Done[loc] & Loaded) > 0 && Done[loc + 1] == 0) {
+             for(int y = 1; y < width - 1; y++) {
+                 for(int x = 1, loc = y * width + x, loc2 = (y + FROMy) * image_size + x + FROMx; x < height - 1; x++, loc++, loc2++) {
+                     if(Done[loc + 1] == 0 && (Done[loc] & Loaded) > 0) {
                         rgbs[loc2 + 1] = rgbs[loc2];
                         image_iterations[loc2 + 1] = image_iterations[loc2];
                         Done[loc + 1] |= Loaded; 
@@ -2529,248 +1977,19 @@ public abstract class ThreadDraw extends Thread {
 
     }
 
-
-    private void drawJuliaSmooth(int image_size) {
-
-         double size = fractal.getSize();
-
-         double size_2 = size * 0.5;
-         double temp_xcenter_size = fractal.getXCenter() - size_2;
-         double temp_ycenter_size = fractal.getYCenter() - size_2;
-         double temp_size_image_size = size / image_size;
-
-         int pixel_percent = image_size *  image_size / 100;
-         
-         if(!boundary_tracing) {
-             double temp = temp_xcenter_size + temp_size_image_size * FROMx;
-             double temp_y0 = temp_ycenter_size + temp_size_image_size * FROMy;
-             double temp_x0 = temp;
-
-             double temp_result;
-             
-             for(int y = FROMy; y < TOy; y++, temp_y0 += temp_size_image_size) {
-                 for(int x = FROMx, loc = y * image_size + x; x < TOx; x++, temp_x0 += temp_size_image_size, loc++) {
-
-                     temp_result = image_iterations[loc] = fractal.calculateJulia(new Complex(temp_x0, temp_y0));
-                     rgbs[loc] = temp_result == max_iterations ? fractal_color.getRGB() : getDrawingColorSmooth(temp_result + color_cycling_location).getRGB();
-
-                     drawing_done++;
-
-                 }
-
-                 if(drawing_done / pixel_percent >= 1) {
-                     progress.update(drawing_done);
-                     calculated += drawing_done;
-                     drawing_done = 0;
-                 }
-
-                 temp_x0 = temp;
-
-             } 
-             calculated += drawing_done;
-         }
-         else {       
-             int width = TOx - FROMx;
-             int height = TOy - FROMy;
-
-             for(int y = 0; y < width; y++) {
-                AddQueue(y * width);
-                AddQueue(y * width + (width - 1));
-             }
-             for(int x = 1; x < height - 1; x++) {
-                AddQueue(x);
-                AddQueue((height - 1) * width + x);
-             }
-
-             int flag=0;
-             int counter = 0;
-             int p;
-             while(QueueTail != QueueHead) {
-                if(QueueHead <= QueueTail || (++flag & 3) > 0) {
-                    p = Queue[QueueTail++];
-                    if(QueueTail == QueueSize) {
-                        QueueTail = 0;
-                    }
-                } 
-                else {
-                    p = Queue[--QueueHead];
-                }
-
-                ScanJuliaSmooth(p, image_size, width, height, temp_size_image_size, temp_xcenter_size, temp_ycenter_size);
-
-                counter++;
-
-                if(counter % height == 0 && drawing_done / pixel_percent >= 1) {
-                    progress.update(drawing_done);
-                    calculated += drawing_done;
-                    drawing_done = 0;
-                }
-
-             }
-             
-             calculated += drawing_done;
-
-             for(int y = 0; y < width - 1; y++) {
-                 for(int x = 0, loc = y * width + x, loc2 = (y + FROMy) * image_size + x + FROMx; x < height - 1; x++, loc++, loc2++) {
-                     if((Done[loc] & Loaded) > 0 && Done[loc + 1] == 0) {
-                        rgbs[loc2 + 1] = rgbs[loc2];
-                        image_iterations[loc2 + 1] = image_iterations[loc2];
-                        Done[loc + 1] |= Loaded; 
-                        drawing_done++; 
-                     }
-                     
-                 }
-
-                 if(drawing_done / pixel_percent >= 1) {
-                     progress.update(drawing_done);
-                     drawing_done = 0;
-                 }
-             }
-         }
-
-    }
     
-    private void drawJuliaSmoothAntialiased(int image_size) {
-
-         double size = fractal.getSize();
-
-         double size_2 = size * 0.5;
-         double temp_xcenter_size = fractal.getXCenter() - size_2;
-         double temp_ycenter_size = fractal.getYCenter() - size_2;
-         double temp_size_image_size = size / image_size;
-
-         int pixel_percent = image_size *  image_size / 100;
-         
-         if(!boundary_tracing) {
-             double temp = temp_xcenter_size + temp_size_image_size * FROMx;
-             double temp_y0 = temp_ycenter_size + temp_size_image_size * FROMy;
-             double temp_x0 = temp;
-
-             double temp_result, temp_result2, temp_result3, temp_result4, temp_result5;
-             double x_anti1, x_anti2;
-             double y_anti1, y_anti2;
-             Color c0, c1, c2, c3, c4;
-             
-             int red, green, blue;
-             
-             for(int y = FROMy; y < TOy; y++, temp_y0 += temp_size_image_size) {
-                 for(int x = FROMx, loc = y * image_size + x; x < TOx; x++, temp_x0 += temp_size_image_size, loc++) {
-                     
-                     temp_result = image_iterations[loc] = fractal.calculateJulia(new Complex(temp_x0, temp_y0));
-                     c0 = temp_result == max_iterations ? fractal_color : getDrawingColorSmooth(temp_result + color_cycling_location);
-        
-                     temp_result2 = fractal.calculateJulia(new Complex(x_anti1 = (temp_x0 - antialiasing_size), y_anti1 = (temp_y0 - antialiasing_size)));
-                     temp_result3 = fractal.calculateJulia(new Complex(x_anti2 = (temp_x0 + antialiasing_size), y_anti1));
-                     temp_result4 = fractal.calculateJulia(new Complex(x_anti2, y_anti2 = (temp_y0 + antialiasing_size)));
-                     temp_result5 = fractal.calculateJulia(new Complex(x_anti1, y_anti2));
-                     
-                     c1 = temp_result2 == max_iterations ? fractal_color : getDrawingColorSmooth(temp_result2 + color_cycling_location);
-                     c2 = temp_result3 == max_iterations ? fractal_color : getDrawingColorSmooth(temp_result3 + color_cycling_location);
-                     c3 = temp_result4 == max_iterations ? fractal_color : getDrawingColorSmooth(temp_result4 + color_cycling_location);
-                     c4 = temp_result5 == max_iterations ? fractal_color : getDrawingColorSmooth(temp_result5 + color_cycling_location);
-                      // resulting color; each component of color is an avarage of 5 values ( central point and 4 corners )
-                     red = (c0.getRed() + c1.getRed() + c2.getRed() + c3.getRed() + c4.getRed()) / 5;
-                     green = (c0.getGreen() + c1.getGreen() + c2.getGreen() + c3.getGreen() + c4.getGreen()) / 5;
-                     blue = (c0.getBlue() + c1.getBlue() + c2.getBlue() + c3.getBlue() + c4.getBlue()) / 5;
-    
-                     rgbs[loc] = new Color(red, green, blue).getRGB();
-
-                     drawing_done++;
-
-                 }
-
-                 if(drawing_done / pixel_percent >= 1) {
-                     progress.update(drawing_done);
-                     calculated += drawing_done;
-                     drawing_done = 0;
-                 }
-
-                 temp_x0 = temp;
-
-             }
-             calculated += drawing_done;
-         }
-         else {       
-             int width = TOx - FROMx;
-             int height = TOy - FROMy;
-
-             for(int y = 0; y < width; y++) {
-                AddQueue(y * width);
-                AddQueue(y * width + (width - 1));
-             }
-             for(int x = 1; x < height - 1; x++) {
-                AddQueue(x);
-                AddQueue((height - 1) * width + x);
-             }
-
-             int flag=0;
-             int counter = 0;
-             int p;
-             while(QueueTail != QueueHead) {
-                if(QueueHead <= QueueTail || (++flag & 3) > 0) {
-                    p = Queue[QueueTail++];
-                    if(QueueTail == QueueSize) {
-                        QueueTail = 0;
-                    }
-                } 
-                else {
-                    p = Queue[--QueueHead];
-                }
-
-                ScanJuliaSmoothAntialiased(p, image_size, width, height, temp_size_image_size, temp_xcenter_size, temp_ycenter_size);
-
-                counter++;
-
-                if(counter % height == 0 && drawing_done / pixel_percent >= 1) {
-                    progress.update(drawing_done);
-                    calculated += drawing_done;
-                    drawing_done = 0;
-                }
-
-             }
-             
-             calculated += drawing_done;
-
-             for(int y = 0; y < width - 1; y++) {
-                 for(int x = 0, loc = y * width + x, loc2 = (y + FROMy) * image_size + x + FROMx; x < height - 1; x++, loc++, loc2++) {
-                     if((Done[loc] & Loaded) > 0 && Done[loc + 1] == 0) {
-                        rgbs[loc2 + 1] = rgbs[loc2];
-                        image_iterations[loc2 + 1] = image_iterations[loc2];
-                        Done[loc + 1] |= Loaded; 
-                        drawing_done++; 
-                     }
-                     
-                 }
-
-                 if(drawing_done / pixel_percent >= 1) {
-                     progress.update(drawing_done);
-                     drawing_done = 0;
-                 }
-             }
-         }
-
-    }
-
     private void fastJuliaDraw() {
 
         int image_size = image.getHeight();
 
-        if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-            if(fast_julia_filters && filters[0]) {
-                drawFastJuliaSmoothAntialiased(image_size);
-            }
-            else {
-                drawFastJuliaSmooth(image_size);
-            } 
+        
+        if(fast_julia_filters && filters[0]) {
+            drawFastJuliaAntialiased(image_size);
         }
         else {
-            if(fast_julia_filters && filters[0]) {
-                drawFastJuliaNormalAntialiased(image_size);
-            }
-            else {
-                drawFastJuliaNormal(image_size);
-            }
+            drawFastJulia(image_size);
         }
+        
 
         boolean whole_done_temp = false;
 
@@ -2823,22 +2042,17 @@ public abstract class ThreadDraw extends Thread {
                  //}
            }
            
+
            Graphics2D graphics = image.createGraphics();
            graphics.setColor(Color.BLACK);
            graphics.drawRect(0, 0, image_size - 2, image_size - 2);
            ptr.getMainPanel().getGraphics().drawImage(image, ptr.getScrollPane().getHorizontalScrollBar().getValue(), ptr.getScrollPane().getVerticalScrollBar().getValue(), null);
            
        }
-
-       try {
-            finalize();
-       }
-       catch (Throwable ex) {}
-
-
+       
     }
 
-    private void drawFastJuliaNormal(int image_size) {
+    private void drawFastJulia(int image_size) {
 
          double size = fractal.getSize();
 
@@ -2857,7 +2071,7 @@ public abstract class ThreadDraw extends Thread {
              for(int y = FROMy; y < TOy; y++, temp_y0 += temp_size_image_size) {
                  for(int x = FROMx, loc = y * image_size + x; x < TOx; x++, temp_x0 += temp_size_image_size, loc++) {
                      temp_result = fractal.calculateJulia(new Complex(temp_x0, temp_y0));
-                     rgbs[loc] = temp_result == max_iterations ? fractal_color.getRGB() : getDrawingColor(temp_result + color_cycling_location).getRGB();
+                     rgbs[loc] = temp_result == max_iterations ? fractal_color.getRGB() : palette_color.getPaletteColor(temp_result + color_cycling_location).getRGB();
                  }
                  temp_x0 = temp;
              } 
@@ -2889,14 +2103,14 @@ public abstract class ThreadDraw extends Thread {
                     p = Queue[--QueueHead];
                 }
 
-                ScanFastJuliaNormal(p, image_size, width, height, temp_size_image_size, temp_xcenter_size, temp_ycenter_size);
+                ScanFastJulia(p, image_size, width, height, temp_size_image_size, temp_xcenter_size, temp_ycenter_size);
 
              }
 
 
-             for(int y = 0; y < width - 1; y++) {
-                 for(int x = 0, loc = y * width + x, loc2 = (y + FROMy) * image_size + x + FROMx; x < height - 1; x++, loc++, loc2++) {
-                     if((Done[loc] & Loaded) > 0 && Done[loc + 1] == 0) {
+             for(int y = 1; y < width - 1; y++) {
+                 for(int x = 1, loc = y * width + x, loc2 = (y + FROMy) * image_size + x + FROMx; x < height - 1; x++, loc++, loc2++) {
+                     if(Done[loc + 1] == 0 && (Done[loc] & Loaded) > 0) {
                          rgbs[loc2 + 1] = rgbs[loc2];
                          Done[loc + 1] |= Loaded;                        
                      }
@@ -2946,7 +2160,7 @@ public abstract class ThreadDraw extends Thread {
                      
                      temp_starting_pixel_cicle = fractal.calculateJulia(new Complex(temp_x0, temp_y0));
                      
-                     rgbs[y * image_size + x] = temp_starting_pixel_color = temp_starting_pixel_cicle == max_iterations ? fractal_color.getRGB() : getDrawingColor(temp_starting_pixel_cicle + color_cycling_location).getRGB();
+                     rgbs[y * image_size + x] = temp_starting_pixel_color = temp_starting_pixel_cicle == max_iterations ? fractal_color.getRGB() : getPaletteColor(temp_starting_pixel_cicle + color_cycling_location).getRGB();
                      
        
                      for(x++; x < slice_TOx - step; x++) {
@@ -2958,7 +2172,7 @@ public abstract class ThreadDraw extends Thread {
                              rgbs[y * image_size + x] = temp_starting_pixel_color;
                          }
                          else {
-                             rgbs[y * image_size + x] = temp_iteration == max_iterations ? fractal_color.getRGB() : getDrawingColor(temp_iteration + color_cycling_location).getRGB();
+                             rgbs[y * image_size + x] = temp_iteration == max_iterations ? fractal_color.getRGB() : getPaletteColor(temp_iteration + color_cycling_location).getRGB();
                              whole_area = false;
                          }               
                 
@@ -2973,7 +2187,7 @@ public abstract class ThreadDraw extends Thread {
                              rgbs[y * image_size + x] = temp_starting_pixel_color;
                          }
                          else {
-                             rgbs[y * image_size + x] = temp_iteration == max_iterations ? fractal_color.getRGB() : getDrawingColor(temp_iteration + color_cycling_location).getRGB();
+                             rgbs[y * image_size + x] = temp_iteration == max_iterations ? fractal_color.getRGB() : getPaletteColor(temp_iteration + color_cycling_location).getRGB();
                              whole_area = false;
                          }
                                           
@@ -2988,7 +2202,7 @@ public abstract class ThreadDraw extends Thread {
                              rgbs[y * image_size + x] = temp_starting_pixel_color;
                          }
                          else {
-                             rgbs[y * image_size + x] = temp_iteration == max_iterations ? fractal_color.getRGB() : getDrawingColor(temp_iteration + color_cycling_location).getRGB();
+                             rgbs[y * image_size + x] = temp_iteration == max_iterations ? fractal_color.getRGB() : getPaletteColor(temp_iteration + color_cycling_location).getRGB();
                              whole_area = false;
                          }                 
   
@@ -3003,7 +2217,7 @@ public abstract class ThreadDraw extends Thread {
                              rgbs[y * image_size + x] = temp_starting_pixel_color;
                          }
                          else {
-                             rgbs[y * image_size + x] = temp_iteration == max_iterations ? fractal_color.getRGB() : getDrawingColor(temp_iteration + color_cycling_location).getRGB();
+                             rgbs[y * image_size + x] = temp_iteration == max_iterations ? fractal_color.getRGB() : getPaletteColor(temp_iteration + color_cycling_location).getRGB();
                              whole_area = false;
                          }                
                          
@@ -3041,7 +2255,7 @@ public abstract class ThreadDraw extends Thread {
 
     }
     
-    private void drawFastJuliaNormalAntialiased(int image_size) {
+    private void drawFastJuliaAntialiased(int image_size) {
 
          double size = fractal.getSize();
 
@@ -3066,21 +2280,21 @@ public abstract class ThreadDraw extends Thread {
                  for(int x = FROMx, loc = y * image_size + x; x < TOx; x++, temp_x0 += temp_size_image_size, loc++) {
                      
                      temp_result = fractal.calculateJulia(new Complex(temp_x0, temp_y0));
-                     c0 = temp_result == max_iterations ? fractal_color : getDrawingColor(temp_result + color_cycling_location);
+                     c0 = temp_result == max_iterations ? fractal_color : palette_color.getPaletteColor(temp_result + color_cycling_location);
         
                      temp_result2 = fractal.calculateJulia(new Complex(x_anti1 = (temp_x0 - antialiasing_size), y_anti1 = (temp_y0 - antialiasing_size)));
                      temp_result3 = fractal.calculateJulia(new Complex(x_anti2 = (temp_x0 + antialiasing_size), y_anti1));
                      temp_result4 = fractal.calculateJulia(new Complex(x_anti2, y_anti2 = (temp_y0 + antialiasing_size)));
                      temp_result5 = fractal.calculateJulia(new Complex(x_anti1, y_anti2));
                      
-                     c1 = temp_result2 == max_iterations ? fractal_color : getDrawingColor(temp_result2 + color_cycling_location);
-                     c2 = temp_result3 == max_iterations ? fractal_color : getDrawingColor(temp_result3 + color_cycling_location);
-                     c3 = temp_result4 == max_iterations ? fractal_color : getDrawingColor(temp_result4 + color_cycling_location);
-                     c4 = temp_result5 == max_iterations ? fractal_color : getDrawingColor(temp_result5 + color_cycling_location);
+                     c1 = temp_result2 == max_iterations ? fractal_color : palette_color.getPaletteColor(temp_result2 + color_cycling_location);
+                     c2 = temp_result3 == max_iterations ? fractal_color : palette_color.getPaletteColor(temp_result3 + color_cycling_location);
+                     c3 = temp_result4 == max_iterations ? fractal_color : palette_color.getPaletteColor(temp_result4 + color_cycling_location);
+                     c4 = temp_result5 == max_iterations ? fractal_color : palette_color.getPaletteColor(temp_result5 + color_cycling_location);
                       // resulting color; each component of color is an avarage of 5 values ( central point and 4 corners )
-                     red = (c0.getRed() + c1.getRed() + c2.getRed() + c3.getRed() + c4.getRed()) / 5;
-                     green = (c0.getGreen() + c1.getGreen() + c2.getGreen() + c3.getGreen() + c4.getGreen()) / 5;
-                     blue = (c0.getBlue() + c1.getBlue() + c2.getBlue() + c3.getBlue() + c4.getBlue()) / 5;
+                     red = (int)((c0.getRed() + c1.getRed() + c2.getRed() + c3.getRed() + c4.getRed() + 2.5) / 5);
+                     green = (int)((c0.getGreen() + c1.getGreen() + c2.getGreen() + c3.getGreen() + c4.getGreen() + 2.5) / 5);
+                     blue = (int)((c0.getBlue() + c1.getBlue() + c2.getBlue() + c3.getBlue() + c4.getBlue() + 2.5) / 5);
     
                      rgbs[loc] = new Color(red, green, blue).getRGB();
                  }
@@ -3114,14 +2328,14 @@ public abstract class ThreadDraw extends Thread {
                     p = Queue[--QueueHead];
                 }
 
-                ScanFastJuliaNormalAntialiased(p, image_size, width, height, temp_size_image_size, temp_xcenter_size, temp_ycenter_size);
+                ScanFastJuliaAntialiased(p, image_size, width, height, temp_size_image_size, temp_xcenter_size, temp_ycenter_size);
 
              }
 
 
-             for(int y = 0; y < width - 1; y++) {
-                 for(int x = 0, loc = y * width + x, loc2 = (y + FROMy) * image_size + x + FROMx; x < height - 1; x++, loc++, loc2++) {
-                     if((Done[loc] & Loaded) > 0 && Done[loc + 1] == 0) {
+             for(int y = 1; y < width - 1; y++) {
+                 for(int x = 1, loc = y * width + x, loc2 = (y + FROMy) * image_size + x + FROMx; x < height - 1; x++, loc++, loc2++) {
+                     if(Done[loc + 1] == 0 && (Done[loc] & Loaded) > 0) {
                          rgbs[loc2 + 1] = rgbs[loc2];
                          Done[loc + 1] |= Loaded;                        
                      }
@@ -3130,174 +2344,8 @@ public abstract class ThreadDraw extends Thread {
          }
     }
 
-    private void drawFastJuliaSmooth(int image_size) {
-
-         double size = fractal.getSize();
-
-         double size_2 = size * 0.5;
-         double temp_xcenter_size = fractal.getXCenter() - size_2;
-         double temp_ycenter_size = fractal.getYCenter() - size_2;
-         double temp_size_image_size = size / image_size;
-         
-         if(!boundary_tracing) {
-             double temp = temp_xcenter_size + temp_size_image_size * FROMx;
-             double temp_y0 = temp_ycenter_size + temp_size_image_size * FROMy;
-             double temp_x0 = temp;
-
-             double temp_result;
-             
-             for(int y = FROMy; y < TOy; y++, temp_y0 += temp_size_image_size) {
-                 for(int x = FROMx, loc = y * image_size + x; x < TOx; x++, temp_x0 += temp_size_image_size, loc++) {
-                     temp_result = fractal.calculateJulia(new Complex(temp_x0, temp_y0));
-                     rgbs[loc] = temp_result == max_iterations ? fractal_color.getRGB() : getDrawingColorSmooth(temp_result + color_cycling_location).getRGB();
-                 }
-                 temp_x0 = temp;
-             } 
-         }
-         else {
-               
-             int width = TOx - FROMx;
-             int height = TOy - FROMy;
-
-             for(int y = 0; y < width; y++) {
-                AddQueue(y * width);
-                AddQueue(y * width + (width - 1));
-             }
-             for(int x = 1; x < height - 1; x++) {
-                AddQueue(x);
-                AddQueue((height - 1) * width + x);
-             }
-
-             int flag=0;
-             int p;
-             while(QueueTail != QueueHead) {
-                if(QueueHead <= QueueTail || (++flag & 3) > 0) {
-                    p = Queue[QueueTail++];
-                    if(QueueTail == QueueSize) {
-                        QueueTail = 0;
-                    }
-                } 
-                else {
-                    p = Queue[--QueueHead];
-                }
-
-                ScanFastJuliaSmooth(p, image_size, width, height, temp_size_image_size, temp_xcenter_size, temp_ycenter_size);
-
-             }
-
-             for(int y = 0; y < width - 1; y++) {
-                 for(int x = 0, loc = y * width + x, loc2 = (y + FROMy) * image_size + x + FROMx; x < height - 1; x++, loc++, loc2++) {
-                     if((Done[loc] & Loaded) > 0 && Done[loc + 1] == 0) {
-                         rgbs[loc2 + 1] = rgbs[loc2];
-                         Done[loc + 1] |= Loaded;                        
-                     }
-                 }
-             } 
-          }
-         
-    }
-    
-    private void drawFastJuliaSmoothAntialiased(int image_size) {
-
-         double size = fractal.getSize();
-
-         double size_2 = size * 0.5;
-         double temp_xcenter_size = fractal.getXCenter() - size_2;
-         double temp_ycenter_size = fractal.getYCenter() - size_2;
-         double temp_size_image_size = size / image_size;
-         
-         if(!boundary_tracing) {
-             double temp = temp_xcenter_size + temp_size_image_size * FROMx;
-             double temp_y0 = temp_ycenter_size + temp_size_image_size * FROMy;
-             double temp_x0 = temp;
-
-             double temp_result, temp_result2, temp_result3, temp_result4, temp_result5;
-             double x_anti1, x_anti2;
-             double y_anti1, y_anti2;
-             Color c0, c1, c2, c3, c4;
-             
-             int red, green, blue;
-             
-             for(int y = FROMy; y < TOy; y++, temp_y0 += temp_size_image_size) {
-                 for(int x = FROMx, loc = y * image_size + x; x < TOx; x++, temp_x0 += temp_size_image_size, loc++) {
-                     
-                     temp_result = fractal.calculateJulia(new Complex(temp_x0, temp_y0));
-                     c0 = temp_result == max_iterations ? fractal_color : getDrawingColorSmooth(temp_result + color_cycling_location);
-        
-                     temp_result2 = fractal.calculateJulia(new Complex(x_anti1 = (temp_x0 - antialiasing_size), y_anti1 = (temp_y0 - antialiasing_size)));
-                     temp_result3 = fractal.calculateJulia(new Complex(x_anti2 = (temp_x0 + antialiasing_size), y_anti1));
-                     temp_result4 = fractal.calculateJulia(new Complex(x_anti2, y_anti2 = (temp_y0 + antialiasing_size)));
-                     temp_result5 = fractal.calculateJulia(new Complex(x_anti1, y_anti2));
-                     
-                     c1 = temp_result2 == max_iterations ? fractal_color : getDrawingColorSmooth(temp_result2 + color_cycling_location);
-                     c2 = temp_result3 == max_iterations ? fractal_color : getDrawingColorSmooth(temp_result3 + color_cycling_location);
-                     c3 = temp_result4 == max_iterations ? fractal_color : getDrawingColorSmooth(temp_result4 + color_cycling_location);
-                     c4 = temp_result5 == max_iterations ? fractal_color : getDrawingColorSmooth(temp_result5 + color_cycling_location);
-                      // resulting color; each component of color is an avarage of 5 values ( central point and 4 corners )
-                     red = (c0.getRed() + c1.getRed() + c2.getRed() + c3.getRed() + c4.getRed()) / 5;
-                     green = (c0.getGreen() + c1.getGreen() + c2.getGreen() + c3.getGreen() + c4.getGreen()) / 5;
-                     blue = (c0.getBlue() + c1.getBlue() + c2.getBlue() + c3.getBlue() + c4.getBlue()) / 5;
-    
-                     rgbs[loc] = new Color(red, green, blue).getRGB();
-                 }
-                 temp_x0 = temp;
-             } 
-         }
-         else {      
-         
-             int width = TOx - FROMx;
-             int height = TOy - FROMy;
-
-             for(int y = 0; y < width; y++) {
-                AddQueue(y * width);
-                AddQueue(y * width + (width - 1));
-             }
-             for(int x = 1; x < height - 1; x++) {
-                AddQueue(x);
-                AddQueue((height - 1) * width + x);
-             }
-
-             int flag=0;
-             int p;
-             while(QueueTail != QueueHead) {
-                if(QueueHead <= QueueTail || (++flag & 3) > 0) {
-                    p = Queue[QueueTail++];
-                    if(QueueTail == QueueSize) {
-                        QueueTail = 0;
-                    }
-                } 
-                else {
-                    p = Queue[--QueueHead];
-                }
-
-                ScanFastJuliaSmoothAntialiased(p, image_size, width, height, temp_size_image_size, temp_xcenter_size, temp_ycenter_size);
-
-             }
-
-
-             for(int y = 0; y < width - 1; y++) {
-                 for(int x = 0, loc = y * width + x, loc2 = (y + FROMy) * image_size + x + FROMx; x < height - 1; x++, loc++, loc2++) {
-                     if((Done[loc] & Loaded) > 0 && Done[loc + 1] == 0) {
-                         rgbs[loc2 + 1] = rgbs[loc2];
-                         Done[loc + 1] |= Loaded;                        
-                     }
-                 }
-             } 
-         }
-    }
    
     private void colorCycling() {
-
-         if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-             ColorCyclingSmooth();
-         }
-         else {
-             ColorCyclingNormal();
-         }
-
-    }
-
-    private void ColorCyclingNormal() {
 
          if(!color_cycling) {
 
@@ -3318,7 +2366,7 @@ public abstract class ThreadDraw extends Thread {
          for(int y = FROMy; y < TOy; y++) {
              for(int x = FROMx, loc = y * image_size + x; x < TOx; x++, loc++) {
                  temp_result = image_iterations[loc];
-                 rgbs[loc] =  temp_result == max_iterations? fractal_color.getRGB() : getDrawingColor(temp_result + color_cycling_location).getRGB();
+                 rgbs[loc] =  temp_result == max_iterations? fractal_color.getRGB() : palette_color.getPaletteColor(temp_result + color_cycling_location).getRGB();
              }
          }
  
@@ -3332,61 +2380,19 @@ public abstract class ThreadDraw extends Thread {
          }
          catch (InterruptedException ex) {}
 
-         ColorCyclingNormal();
+         colorCycling();
 
     }
 
-    private void ColorCyclingSmooth() {
-
-        if(!color_cycling) {
-
-             return;
-
-         }
-
-         first_part_done = false;
-         ptr.setWholeImageDone(false);
-         
-         int image_size = image.getHeight();
-
-         color_cycling_location++;
-
-         color_cycling_location = color_cycling_location > Integer.MAX_VALUE - 1 ? 0 : color_cycling_location;
-
-         double temp_result;
-         for(int y = FROMy; y < TOy; y++) {
-             for(int x = FROMx, loc = y * image_size + x; x < TOx; x++, loc++) {
-                 temp_result = image_iterations[loc];
-                 rgbs[loc] =  temp_result == max_iterations ? fractal_color.getRGB() : getDrawingColorSmooth(temp_result + color_cycling_location).getRGB();
-             }
-         }
-
-
-         first_part_done = true;
-         ptr.setWholeImageDone(true);
-
-         ptr.getMainPanel().repaint();
-
-         try {
-             Thread.sleep(140);
-         }
-         catch (InterruptedException ex) {}
-
-         ColorCyclingSmooth();
-        
-    }
     
     private void applyPaletteAndFilter() {
         
          int image_size = image.getHeight();
 
           
-         if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-             applyPaletteAndFilterSmooth(image_size);
-         }
-         else {
-             applyPaletteAndFilterNormal(image_size);     
-         }
+        
+         changePalette(image_size);     
+         
                   
          if(drawing_done != 0) {
              progress.update(drawing_done);
@@ -3446,17 +2452,11 @@ public abstract class ThreadDraw extends Thread {
              ptr.getProgressBar().setValue((image_size * image_size) + (image_size *  image_size / 100));
              ptr.getProgressBar().setToolTipText(System.currentTimeMillis() - ptr.getCalculationTime() + " ms.");
          }
-
-
-         try {
-             finalize();
-         }
-         catch (Throwable ex) {}
         
     }
 
 
-    private void applyPaletteAndFilterNormal(int image_size) {
+    private void changePalette(int image_size) {
 
          int pixel_percent = image_size *  image_size / 100;
          
@@ -3465,7 +2465,7 @@ public abstract class ThreadDraw extends Thread {
              for(int y = FROMy; y < TOy; y++) {
                  for(int x = FROMx, loc = y * image_size + x; x < TOx; x++, loc++) {
                      temp_result = image_iterations[loc];
-                     rgbs[loc] = temp_result == max_iterations ? fractal_color.getRGB() : getDrawingColor(temp_result + color_cycling_location).getRGB();
+                     rgbs[loc] = temp_result == max_iterations ? fractal_color.getRGB() : palette_color.getPaletteColor(temp_result + color_cycling_location).getRGB();
 
                      drawing_done++;
                  }
@@ -3514,7 +2514,7 @@ public abstract class ThreadDraw extends Thread {
                          loc = y * image_size + x;
                          temp_result = temp_starting_pixel_cicle = image_iterations[loc];
 
-                         rgbs[loc] = temp_starting_pixel_color = temp_result == max_iterations ? fractal_color.getRGB() : getDrawingColor(temp_result + color_cycling_location).getRGB();
+                         rgbs[loc] = temp_starting_pixel_color = temp_result == max_iterations ? fractal_color.getRGB() : palette_color.getPaletteColor(temp_result + color_cycling_location).getRGB();
 
                          drawing_done++;
                          total_drawing++;
@@ -3525,7 +2525,7 @@ public abstract class ThreadDraw extends Thread {
                                  rgbs[loc] = temp_starting_pixel_color;
                              }
                              else {
-                                 rgbs[loc] = temp_result == max_iterations ? fractal_color.getRGB() : getDrawingColor(temp_result + color_cycling_location).getRGB();
+                                 rgbs[loc] = temp_result == max_iterations ? fractal_color.getRGB() : palette_color.getPaletteColor(temp_result + color_cycling_location).getRGB();
                                  whole_area = false;
                              }
 
@@ -3541,7 +2541,7 @@ public abstract class ThreadDraw extends Thread {
                                  rgbs[loc] = temp_starting_pixel_color;
                              }
                              else {
-                                 rgbs[loc] = temp_result == max_iterations ? fractal_color.getRGB() : getDrawingColor(temp_result + color_cycling_location).getRGB();
+                                 rgbs[loc] = temp_result == max_iterations ? fractal_color.getRGB() : palette_color.getPaletteColor(temp_result + color_cycling_location).getRGB();
                                  whole_area = false;
                              }
 
@@ -3555,7 +2555,7 @@ public abstract class ThreadDraw extends Thread {
                                  rgbs[loc] = temp_starting_pixel_color;
                              }
                              else {
-                                 rgbs[loc] = temp_result == max_iterations ? fractal_color.getRGB() : getDrawingColor(temp_result + color_cycling_location).getRGB();
+                                 rgbs[loc] = temp_result == max_iterations ? fractal_color.getRGB() : palette_color.getPaletteColor(temp_result + color_cycling_location).getRGB();
                                  whole_area = false;
                              }
 
@@ -3571,7 +2571,7 @@ public abstract class ThreadDraw extends Thread {
                                  rgbs[loc] = temp_starting_pixel_color;
                              }
                              else {
-                                 rgbs[loc] = temp_result == max_iterations ? fractal_color.getRGB() : getDrawingColor(temp_result + color_cycling_location).getRGB();
+                                 rgbs[loc] = temp_result == max_iterations ? fractal_color.getRGB() : palette_color.getPaletteColor(temp_result + color_cycling_location).getRGB();
                                  whole_area = false;
                              }
 
@@ -3608,165 +2608,19 @@ public abstract class ThreadDraw extends Thread {
     }
 
 
-    private void applyPaletteAndFilterSmooth(int image_size) {
-
-         int pixel_percent = image_size *  image_size / 100;
-         
-
-         double temp_result;                    
-         if(ptr.getJuliaMap()) {
-             for(int y = FROMy; y < TOy; y++) {
-                 for(int x = FROMx, loc = y * image_size + x; x < TOx; x++, loc++) {
-                     temp_result = image_iterations[loc];
-                     rgbs[loc] = temp_result == max_iterations ? fractal_color.getRGB() : getDrawingColorSmooth(temp_result + color_cycling_location).getRGB();
-
-                     drawing_done++;
-
-                 }
-
-                 if(drawing_done / pixel_percent >= 1) {
-                     progress.update(drawing_done);
-                     drawing_done = 0;
-                 }
-
-             }  
-         }
-         else {
-             int x = 0;
-             int y = 0;
-             boolean whole_area;
-             int step;
-             int total_drawing;
-
-             int thread_size_width = TOx - FROMx;
-             int thread_size_height = TOy - FROMy;
-
-
-             int slice_FROMx;
-             int slice_FROMy;
-             int slice_TOx;
-             int slice_TOy;
-
-             int loc;
-
-             for(int i = 0; i < thread_slices; i++) {
-                 slice_FROMy = FROMy + i * (thread_size_height) / thread_slices;
-                 slice_TOy = FROMy + (i + 1) * (thread_size_height) / thread_slices;
-                 for(int j = 0; j < thread_slices; j++) {
-                     slice_FROMx =  FROMx + j * (thread_size_width) / thread_slices;
-                     slice_TOx = FROMx + (j + 1) * (thread_size_width) / thread_slices;
-
-
-                     double temp = (slice_TOy - slice_FROMy + 1) * 0.5;
-
-                     for(y = slice_FROMy, whole_area = true, step = 0, total_drawing = 0; step < temp; step++, whole_area = true) {    
-
-                         for(x = slice_FROMx + step, loc = y * image_size + x; x < slice_TOx - step; x++, loc++) {
-                             temp_result = image_iterations[loc];
-                             if(temp_result == max_iterations) {
-                                 rgbs[loc] = fractal_color.getRGB();
-                             }
-                             else {
-                                 rgbs[loc] = getDrawingColorSmooth(temp_result + color_cycling_location).getRGB();
-                                 whole_area = false;
-                             }
-
-                             drawing_done++;
-                             total_drawing++;
-
-                         }
-
-                         for(x--, y++; y < slice_TOy - step; y++) {
-                             loc = y * image_size + x;
-                             temp_result = image_iterations[loc];
-                             if(temp_result == max_iterations) {
-                                 rgbs[loc] = fractal_color.getRGB();
-                             }
-                             else {
-                                 rgbs[loc] = getDrawingColorSmooth(temp_result + color_cycling_location).getRGB();
-                                 whole_area = false;
-                             }
-
-                             drawing_done++;
-                             total_drawing++;
-                         }
-
-                         for(y--, x--, loc = y * image_size + x; x >= slice_FROMx + step; x--, loc--) {
-                             temp_result = image_iterations[loc];
-                             if(temp_result == max_iterations) {
-                                 rgbs[loc] = fractal_color.getRGB();
-                             }
-                             else {
-                                 rgbs[loc] = getDrawingColorSmooth(temp_result + color_cycling_location).getRGB();
-                                 whole_area = false;
-                             }
-
-                             drawing_done++;
-                             total_drawing++;
-                         }
-
-                         for(x++, y--; y > slice_FROMy + step; y--) {
-                             loc = y * image_size + x;
-                             temp_result = image_iterations[loc];
-                             if(temp_result == max_iterations) {
-                                 rgbs[loc] = fractal_color.getRGB();
-                             }
-                             else {
-                                 rgbs[loc] = getDrawingColorSmooth(temp_result + color_cycling_location).getRGB();
-                                 whole_area = false;
-                             }
-
-                             drawing_done++;
-                             total_drawing++;
-                         }
-                         y++;
-                         x++;
-
-
-                         if(drawing_done / pixel_percent >= 1) {
-                             progress.update(drawing_done);
-                             drawing_done = 0;
-                         }
-
-                         if(whole_area) {
-                             int temp6 = step + 1;
-                             int temp1 = slice_TOx - temp6;
-                             int temp2 = slice_TOy - temp6;
-                      
-                             for(int k = y; k < temp2; k++) {
-                                 Arrays.fill(rgbs, k * image_size + x, k * image_size + temp1, fractal_color.getRGB());
-                             }
-
-                             progress.update((slice_TOx - slice_FROMx) * (slice_TOy - slice_FROMy) - total_drawing);
-                             break;
-                         }
-                     }
-                 }
-             }  
-         }
-
-    }
     
-    private void juliaMap() {
+    private void drawJuliaMap() {
 
         int image_size = image.getHeight();
          
-        if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-            if(filters[0]) {
-                juliaMapSmoothAntialiased(image_size);
-            }
-            else {
-                juliaMapSmooth(image_size);
-            } 
+        
+        if(filters[0]) {
+            juliaMapAntialiased(image_size);
         }
         else {
-            if(filters[0]) {
-                juliaMapNormalAntialiased(image_size);
-            }
-            else {
-                juliaMapNormal(image_size);
-            }  
-        }
+            juliaMap(image_size);
+        }  
+        
         
         if(drawing_done != 0) {
              progress.update(drawing_done);
@@ -3827,16 +2681,11 @@ public abstract class ThreadDraw extends Thread {
              ptr.getProgressBar().setValue((image_size * image_size) + (image_size *  image_size / 100));
              ptr.getProgressBar().setToolTipText(System.currentTimeMillis() - ptr.getCalculationTime() + " ms.");
          }
-
-         try {
-             finalize();
-         }
-         catch (Throwable ex) {}
         
     }
     
  
-    private void juliaMapNormal(int image_size) {
+    private void juliaMap(int image_size) {
 
          double size = fractal.getSize();
          
@@ -3856,7 +2705,7 @@ public abstract class ThreadDraw extends Thread {
              for(int x = FROMx, loc = y * image_size + x; x < TOx; x++, temp_x0 += temp_size_image_size, loc++) {
 
                  temp_result = image_iterations[loc] = fractal.calculateJulia(new Complex(temp_x0, temp_y0));
-                 rgbs[loc] = temp_result == max_iterations ? fractal_color.getRGB() : getDrawingColor(temp_result + color_cycling_location).getRGB();
+                 rgbs[loc] = temp_result == max_iterations ? fractal_color.getRGB() : palette_color.getPaletteColor(temp_result + color_cycling_location).getRGB();
 
                  drawing_done++;
 
@@ -3873,7 +2722,7 @@ public abstract class ThreadDraw extends Thread {
         
     }
     
-    private void juliaMapNormalAntialiased(int image_size) {
+    private void juliaMapAntialiased(int image_size) {
 
          double size = fractal.getSize();
          
@@ -3898,21 +2747,21 @@ public abstract class ThreadDraw extends Thread {
              for(int x = FROMx, loc = y * image_size + x; x < TOx; x++, temp_x0 += temp_size_image_size, loc++) {
                      
                  temp_result = image_iterations[loc] = fractal.calculateJulia(new Complex(temp_x0, temp_y0));
-                 c0 = temp_result == max_iterations ? fractal_color : getDrawingColor(temp_result + color_cycling_location);
+                 c0 = temp_result == max_iterations ? fractal_color : palette_color.getPaletteColor(temp_result + color_cycling_location);
         
                  temp_result2 = fractal.calculateJulia(new Complex(x_anti1 = (temp_x0 - antialiasing_size), y_anti1 = (temp_y0 - antialiasing_size)));
                  temp_result3 = fractal.calculateJulia(new Complex(x_anti2 = (temp_x0 + antialiasing_size), y_anti1));
                  temp_result4 = fractal.calculateJulia(new Complex(x_anti2, y_anti2 = (temp_y0 + antialiasing_size)));
                  temp_result5 = fractal.calculateJulia(new Complex(x_anti1, y_anti2));
                      
-                 c1 = temp_result2 == max_iterations ? fractal_color : getDrawingColor(temp_result2 + color_cycling_location);
-                 c2 = temp_result3 == max_iterations ? fractal_color : getDrawingColor(temp_result3 + color_cycling_location);
-                 c3 = temp_result4 == max_iterations ? fractal_color : getDrawingColor(temp_result4 + color_cycling_location);
-                 c4 = temp_result5 == max_iterations ? fractal_color : getDrawingColor(temp_result5 + color_cycling_location);
+                 c1 = temp_result2 == max_iterations ? fractal_color : palette_color.getPaletteColor(temp_result2 + color_cycling_location);
+                 c2 = temp_result3 == max_iterations ? fractal_color : palette_color.getPaletteColor(temp_result3 + color_cycling_location);
+                 c3 = temp_result4 == max_iterations ? fractal_color : palette_color.getPaletteColor(temp_result4 + color_cycling_location);
+                 c4 = temp_result5 == max_iterations ? fractal_color : palette_color.getPaletteColor(temp_result5 + color_cycling_location);
                       // resulting color; each component of color is an avarage of 5 values ( central point and 4 corners )
-                 red = (c0.getRed() + c1.getRed() + c2.getRed() + c3.getRed() + c4.getRed()) / 5;
-                 green = (c0.getGreen() + c1.getGreen() + c2.getGreen() + c3.getGreen() + c4.getGreen()) / 5;
-                 blue = (c0.getBlue() + c1.getBlue() + c2.getBlue() + c3.getBlue() + c4.getBlue()) / 5;
+                 red = (int)((c0.getRed() + c1.getRed() + c2.getRed() + c3.getRed() + c4.getRed() + 2.5) / 5);
+                 green = (int)((c0.getGreen() + c1.getGreen() + c2.getGreen() + c3.getGreen() + c4.getGreen() + 2.5) / 5);
+                 blue = (int)((c0.getBlue() + c1.getBlue() + c2.getBlue() + c3.getBlue() + c4.getBlue() + 2.5) / 5);
     
                  rgbs[loc] = new Color(red, green, blue).getRGB();
 
@@ -3929,102 +2778,7 @@ public abstract class ThreadDraw extends Thread {
          }
         
     }
-    
-
-    private void juliaMapSmooth(int image_size) {
-        
-         double size = fractal.getSize();
-         
-         double size_2 = size * 0.5;
-         double temp_xcenter_size = fractal.getXCenter() - size_2;
-         double temp_ycenter_size = fractal.getYCenter() - size_2;
-         double temp_size_image_size = size / (TOx - FROMx);
-
-         int pixel_percent = image_size *  image_size / 100;
-
-         double temp_y0 = temp_ycenter_size;
-         double temp_x0 = temp_xcenter_size;
-         
-         double temp_result;
-         
-         for(int y = FROMy; y < TOy; y++, temp_y0 += temp_size_image_size) {
-             for(int x = FROMx, loc = y * image_size + x; x < TOx; x++, temp_x0 += temp_size_image_size, loc++) {
-
-                 temp_result = image_iterations[loc] = fractal.calculateJulia(new Complex(temp_x0, temp_y0));
-                 rgbs[loc] = temp_result == max_iterations ? fractal_color.getRGB() : getDrawingColorSmooth(temp_result + color_cycling_location).getRGB();
-
-                 drawing_done++;
-
-             }
-
-             if(drawing_done / pixel_percent >= 1) {
-                 progress.update(drawing_done);
-                 drawing_done = 0;
-             }
-             
-             temp_x0 = temp_xcenter_size;
-
-         }
-        
-    }
-    
-    private void juliaMapSmoothAntialiased(int image_size) {
-
-         double size = fractal.getSize();
-         
-         double size_2 = size * 0.5;
-         double temp_xcenter_size = fractal.getXCenter() - size_2;
-         double temp_ycenter_size = fractal.getYCenter() - size_2;
-         double temp_size_image_size = size / (TOx - FROMx);
-
-         int pixel_percent = image_size *  image_size / 100;
-
-         double temp_y0 = temp_ycenter_size;
-         double temp_x0 = temp_xcenter_size;
-         
-         double temp_result, temp_result2, temp_result3, temp_result4, temp_result5;
-         double x_anti1, x_anti2;
-         double y_anti1, y_anti2;
-         Color c0, c1, c2, c3, c4;
-             
-         int red, green, blue;
-             
-         for(int y = FROMy; y < TOy; y++, temp_y0 += temp_size_image_size) {
-             for(int x = FROMx, loc = y * image_size + x; x < TOx; x++, temp_x0 += temp_size_image_size, loc++) {
-                     
-                 temp_result = image_iterations[loc] = fractal.calculateJulia(new Complex(temp_x0, temp_y0));
-                 c0 = temp_result == max_iterations ? fractal_color : getDrawingColorSmooth(temp_result + color_cycling_location);
-        
-                 temp_result2 = fractal.calculateJulia(new Complex(x_anti1 = (temp_x0 - antialiasing_size), y_anti1 = (temp_y0 - antialiasing_size)));
-                 temp_result3 = fractal.calculateJulia(new Complex(x_anti2 = (temp_x0 + antialiasing_size), y_anti1));
-                 temp_result4 = fractal.calculateJulia(new Complex(x_anti2, y_anti2 = (temp_y0 + antialiasing_size)));
-                 temp_result5 = fractal.calculateJulia(new Complex(x_anti1, y_anti2));
-                     
-                 c1 = temp_result2 == max_iterations ? fractal_color : getDrawingColorSmooth(temp_result2 + color_cycling_location);
-                 c2 = temp_result3 == max_iterations ? fractal_color : getDrawingColorSmooth(temp_result3 + color_cycling_location);
-                 c3 = temp_result4 == max_iterations ? fractal_color : getDrawingColorSmooth(temp_result4 + color_cycling_location);
-                 c4 = temp_result5 == max_iterations ? fractal_color : getDrawingColorSmooth(temp_result5 + color_cycling_location);
-                      // resulting color; each component of color is an avarage of 5 values ( central point and 4 corners )
-                 red = (c0.getRed() + c1.getRed() + c2.getRed() + c3.getRed() + c4.getRed()) / 5;
-                 green = (c0.getGreen() + c1.getGreen() + c2.getGreen() + c3.getGreen() + c4.getGreen()) / 5;
-                 blue = (c0.getBlue() + c1.getBlue() + c2.getBlue() + c3.getBlue() + c4.getBlue()) / 5;
-    
-                 rgbs[loc] = new Color(red, green, blue).getRGB();
-
-                 drawing_done++;
-             }
-
-             if(drawing_done / pixel_percent >= 1) {
-                 progress.update(drawing_done);
-                 drawing_done = 0;
-             }
-             
-             temp_x0 = temp_xcenter_size;
-
-         }
-        
-    }
-
+   
     private void filterEmboss() {
 
        int image_size = image.getHeight();

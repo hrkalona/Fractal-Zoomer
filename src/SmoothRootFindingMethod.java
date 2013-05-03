@@ -25,7 +25,7 @@ public class SmoothRootFindingMethod extends Smooth {
     public double getResult(Object[] object) {
 
         double temp4 = Math.log(((Complex)object[3]).sub((Complex)object[4]).norm_squared());
-        return (Double)object[0] - (log_convergent_bailout - temp4) / ((Double)object[2] - temp4);
+        return (Integer)object[0] - (log_convergent_bailout - temp4) / ((Double)object[2] - temp4);
 
     }
 

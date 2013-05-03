@@ -18,7 +18,7 @@ public class InversedMu4Plane extends Plane {
     @Override
     public Complex getPixel(Complex pixel) {
 
-        return pixel.divide(1, pixel).sub(2);
+        return pixel.divide(1, 0).sub(2);
 
     }
 }

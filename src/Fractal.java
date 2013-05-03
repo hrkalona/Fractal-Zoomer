@@ -17,8 +17,9 @@ public abstract class Fractal {
   protected int max_iterations;
   protected double bailout;
   protected double bailout_squared;
-  protected int out_coloring_algorithm;
-  protected ColorAlgorithm color_algorithm;
+  protected OutColorAlgorithm out_color_algorithm;
+  protected InColorAlgorithm in_color_algorithm;
+  protected BailoutTest bailout_algorithm;
   protected Plane plane;
   protected Rotation rotation;
   protected InitialValue init_val;
@@ -32,7 +33,7 @@ public abstract class Fractal {
   protected Complex period;
 
 
-    public Fractal(double xCenter, double yCenter, double size, int max_iterations, double bailout, int out_coloring_algorithm, boolean periodicity_checking, int plane_type, double[] rotation_vals) {
+    public Fractal(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, boolean periodicity_checking, int plane_type, double[] rotation_vals) {
 
         this.xCenter = xCenter;
         this.yCenter = yCenter;
@@ -40,7 +41,6 @@ public abstract class Fractal {
         this.max_iterations = max_iterations;
         this.bailout = bailout;
         bailout_squared = bailout * bailout;
-        this.out_coloring_algorithm = out_coloring_algorithm;
         this.periodicity_checking = periodicity_checking;
    
         rotation = new Rotation(rotation_vals[0], rotation_vals[1]);
@@ -48,6 +48,9 @@ public abstract class Fractal {
         switch (plane_type) {
             case MainWindow.MU_PLANE:
                 plane = new MuPlane();
+                break;
+            case MainWindow.MU_SQUARED_PLANE:
+                plane = new MuSquaredPlane();
                 break;
             case MainWindow.INVERSED_MU_PLANE:
                 plane = new InversedMuPlane();
@@ -67,7 +70,63 @@ public abstract class Fractal {
             case MainWindow.INVERSED_LAMBDA_PLANE:
                 plane = new InversedLambdaPlane();
                 break;
+            case MainWindow.EXP_PLANE:
+                plane = new ExpPlane();
+                break;
+            case MainWindow.LOG_PLANE:
+                plane = new LogPlane();
+                break;
+            case MainWindow.SIN_PLANE:
+                plane = new SinPlane();
+                break;
+            case MainWindow.COS_PLANE:
+                plane = new CosPlane();
+                break;
+            case MainWindow.TAN_PLANE:
+                plane = new TanPlane();
+                break;
+            case MainWindow.COT_PLANE:
+                plane = new CotPlane();
+                break;
+            case MainWindow.SINH_PLANE:
+                plane = new SinhPlane();
+                break;
+            case MainWindow.COSH_PLANE:
+                plane = new CoshPlane();
+                break;
+            case MainWindow.TANH_PLANE:
+                plane = new TanhPlane();
+                break;
+            case MainWindow.COTH_PLANE:
+                plane = new CothPlane();
+                break;
+            case MainWindow.SQRT_PLANE:
+                plane = new SqrtPlane();
+                break;
+            case MainWindow.ABS_PLANE:
+                plane = new AbsPlane();
+                break;
+                
         }
+        
+   
+        switch (bailout_test_algorithm) {
+            
+            case MainWindow.BAILOUT_TEST_CIRCLE:
+                bailout_algorithm = new CircleBailoutTest(bailout_squared);
+                break;
+            case MainWindow.BAILOUT_TEST_SQUARE:
+                bailout_algorithm = new SquareBailoutTest(bailout);
+                break;
+            case MainWindow.BAILOUT_TEST_STRIP:
+                bailout_algorithm = new StripBailoutTest(bailout);
+                break;
+            case MainWindow.BAILOUT_TEST_HALFPLANE:
+                bailout_algorithm = new HalfplaneBailoutTest(bailout);
+                break;
+                
+        }
+        
         
 
     }
@@ -88,6 +147,9 @@ public abstract class Fractal {
             case MainWindow.MU_PLANE:
                 plane = new MuPlane();
                 break;
+            case MainWindow.MU_SQUARED_PLANE:
+                plane = new MuSquaredPlane();
+                break;
             case MainWindow.INVERSED_MU_PLANE:
                 plane = new InversedMuPlane();
                 break;
@@ -106,6 +168,43 @@ public abstract class Fractal {
             case MainWindow.INVERSED_LAMBDA_PLANE:
                 plane = new InversedLambdaPlane();
                 break;
+            case MainWindow.EXP_PLANE:
+                plane = new ExpPlane();
+                break;
+            case MainWindow.LOG_PLANE:
+                plane = new LogPlane();
+                break;
+            case MainWindow.SIN_PLANE:
+                plane = new SinPlane();
+                break;
+            case MainWindow.COS_PLANE:
+                plane = new CosPlane();
+                break;
+            case MainWindow.TAN_PLANE:
+                plane = new TanPlane();
+                break;
+            case MainWindow.COT_PLANE:
+                plane = new CotPlane();
+                break;
+            case MainWindow.SINH_PLANE:
+                plane = new SinhPlane();
+                break;
+            case MainWindow.COSH_PLANE:
+                plane = new CoshPlane();
+                break;
+            case MainWindow.TANH_PLANE:
+                plane = new TanhPlane();
+                break;
+            case MainWindow.COTH_PLANE:
+                plane = new CothPlane();
+                break;
+            case MainWindow.SQRT_PLANE:
+                plane = new SqrtPlane();
+                break;
+            case MainWindow.ABS_PLANE:
+                plane = new AbsPlane();
+                break;
+                
         }
         
         pixel_orbit = plane.getPixel(rotation.getPixel(pixel_orbit, false));
@@ -174,11 +273,10 @@ public abstract class Fractal {
 
         Complex zold = new Complex(0, 0);
 
-        double temp;
         for (; iterations < max_iterations; iterations++) {
-            if((temp = complex[0].norm_squared()) >= bailout_squared) {
-                Object[] object = {(double)iterations, complex[0], temp, zold};
-                return color_algorithm.getResult(object);
+            if(bailout_algorithm.escaped(complex[0])) {
+                Object[] object = {iterations, complex[0], zold};
+                return out_color_algorithm.getResult(object);
             }
             zold = complex[0];
             function(complex);
@@ -192,9 +290,10 @@ public abstract class Fractal {
         return max_iterations;
 
     }
-
+    
+  
     protected double calculateFractalWithoutPeriodicity(Complex pixel) {
-
+        
         int iterations = 0;
 
         Complex tempz = init_val.getPixel(pixel);
@@ -206,21 +305,106 @@ public abstract class Fractal {
 
         Complex zold = new Complex(0, 0);
 
-        double temp;
 
         for (; iterations < max_iterations; iterations++) {
-            if((temp = complex[0].norm_squared()) >= bailout_squared) {
-                Object[] object = {(double)iterations, complex[0], temp, zold};
-                return color_algorithm.getResult(object);   
+            if(bailout_algorithm.escaped(complex[0])) {
+                Object[] object = {iterations, complex[0], zold};
+                return out_color_algorithm.getResult(object);   
             }
             zold = complex[0];
             function(complex);
             
         }
 
-        return max_iterations;
+        
+        Object[] object = {max_iterations, complex[0]};
+        return in_color_algorithm.getResult(object);
+        
+       /* int iterations = 0; 
+        
+        int exp = 28;
+        long  dx = (long)Math.pow(2, exp);//(long)(Math.pow(2, 16) / (size) + 0.5);
+        
+          
+        
+        long real = (long)(pixel.getRe() * dx + 0.5);
+        long imag = (long)(pixel.getIm() * dx + 0.5);
+
+        long z_real = real;
+        long z_imag = imag;
+        long temp;
+        
+        long re_sqr;
+        long im_sqr;
+        
+        long bail = dx << 2;
+        
+        int exp_1 = exp - 1;
+
+        for(;iterations < max_iterations; iterations++) {
+            
+            re_sqr = (z_real * z_real) >> exp;
+            im_sqr = (z_imag * z_imag) >> exp;
+            
+            
+            if((re_sqr + im_sqr) >= bail) {
+                return iterations;
+            }
+            
+           
+            temp = re_sqr - im_sqr + real;
+            z_imag = ((z_real * z_imag) >> exp_1)  + imag;
+            z_real = temp;
+            
+          
+                
+            
+        }
+        
+        return max_iterations;*/
 
     }
+    
+    /*
+     int iterations = 0; 
+        
+        int exp = 60;
+        long  dx = (long)Math.pow(2, exp);//(long)(Math.pow(2, 16) / (size) + 0.5);
+        
+          
+        BigInteger real = new BigInteger("" + (long)(pixel.getRe() * dx + 0.5));
+        BigInteger imag = new BigInteger("" + (long)(pixel.getIm() * dx + 0.5));
+
+        BigInteger z_real = real;
+        BigInteger z_imag = imag;
+        BigInteger temp;
+        
+        BigInteger re_sqr;
+        BigInteger im_sqr;
+        
+        BigInteger bail = new BigInteger("" + (dx << 2));
+
+        for(;iterations < max_iterations; iterations++) {
+            
+            re_sqr = z_real.multiply(z_real).shiftRight(exp);
+            im_sqr = z_imag.multiply(z_imag).shiftRight(exp);
+            
+            
+            if(re_sqr.add(im_sqr).compareTo(bail) >= 0) {
+                return iterations;
+            }
+            
+            temp = re_sqr.subtract(im_sqr).add(real);
+            z_imag = z_real.multiply(z_imag).shiftRight(exp - 1).add(imag);
+            z_real = temp;
+            
+          
+                
+            
+        }
+        
+        return max_iterations;
+     */
   
     public void calculateFractalOrbit() {
       int iterations = 0;

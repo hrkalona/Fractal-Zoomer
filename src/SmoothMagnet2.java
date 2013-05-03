@@ -22,15 +22,16 @@ public class SmoothMagnet2 extends Smooth {
     @Override
     public double getResult(Object[] object) {
 
-        if((Boolean)object[3]) {
-            double temp = ((Complex)object[5]).norm_squared();
+        if((Boolean)object[2]) {
+            double temp = ((Complex)object[4]).norm_squared();
+            double temp2 = ((Complex)object[1]).norm_squared();
             temp += 0.000000001;
             temp = Math.log(temp);
-            return (Double)object[0] + 100234 + (log_bailout_squared - temp) / (Math.log((Double)object[2]) - temp);
+            return (Integer)object[0] + 100234 + (log_bailout_squared - temp) / (Math.log(temp2) - temp);
         }
         else {
-            double temp = Math.log(((Complex)object[5]).sub((Complex)object[6]).norm_squared());
-            return (Double)object[0] + (log_convergent_bailout - temp) / (Math.log((Double)object[4]) - temp);  
+            double temp = Math.log(((Complex)object[4]).sub((Complex)object[5]).norm_squared());
+            return (Integer)object[0] + (log_convergent_bailout - temp) / (Math.log((Double)object[3]) - temp);  
         }
 
     }

@@ -15,7 +15,7 @@ public abstract class RootFindingMethods extends Fractal {
 
     public RootFindingMethods(double xCenter, double yCenter, double size, int max_iterations, int out_coloring_algorithm, int plane_type, double[] rotation_vals) {
 
-        super(xCenter, yCenter, size, max_iterations, 0, out_coloring_algorithm, false, plane_type, rotation_vals);
+        super(xCenter, yCenter, size, max_iterations, 0, 0, false, plane_type, rotation_vals);
 
         convergent_bailout = 1E-10;
 
@@ -43,18 +43,20 @@ public abstract class RootFindingMethods extends Fractal {
         Complex zold2 = null;
 
         for (; iterations < max_iterations; iterations++) {
-            if((zold != null && zold2 != null && ((temp = (complex[0].sub(zold)).norm_squared()) <= convergent_bailout))) {
-                Object[] object = {(double)iterations, complex[0], temp, zold, zold2};
-                return color_algorithm.getResult(object);
+            if((iterations > 1 && ((temp = (complex[0].sub(zold)).norm_squared()) <= convergent_bailout))) {
+                Object[] object = {iterations, complex[0], temp, zold, zold2};
+                return out_color_algorithm.getResult(object);
                 //return iterations - (Math.log(convergent_bailout) - temp) / (temp - Math.log(temp));
             }
             zold2 = zold;
             zold = complex[0];
             function(complex);
-
+ 
         }
 
-        return max_iterations;
+        Object[] object = {max_iterations, complex[0]};
+        return in_color_algorithm.getResult(object);
+        
     }
     
  

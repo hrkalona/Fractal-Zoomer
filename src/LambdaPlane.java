@@ -20,7 +20,7 @@ public class LambdaPlane extends Plane {
     @Override
     public Complex getPixel(Complex pixel) {
       
-        return  pixel.times(pixel.sub(1, pixel));
+        return  pixel.times(pixel.sub(1, 0));
         
     }
     

@@ -20,8 +20,8 @@ public class InversedLambdaPlane extends Plane {
     @Override
     public Complex getPixel(Complex pixel) {
         
-        Complex temp = pixel.divide(1, pixel);
-        return temp.times(temp.sub(1, temp));
+        Complex temp = pixel.divide(1, 0);
+        return temp.times(temp.sub(1, 0));
         
     }
     

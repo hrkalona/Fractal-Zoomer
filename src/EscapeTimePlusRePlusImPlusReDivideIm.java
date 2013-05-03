@@ -11,7 +11,7 @@
  *
  * @author hrkalona
  */
-public class EscapeTimePlusRePlusImPlusReDivideIm extends ColorAlgorithm {
+public class EscapeTimePlusRePlusImPlusReDivideIm extends OutColorAlgorithm {
 
     public EscapeTimePlusRePlusImPlusReDivideIm() {
 
@@ -24,8 +24,8 @@ public class EscapeTimePlusRePlusImPlusReDivideIm extends ColorAlgorithm {
 
         double temp = ((Complex)object[1]).getRe();
         double temp2 = ((Complex)object[1]).getIm();
-        double temp3 = ((Double)object[0]) + temp + temp2 + temp / temp2 + 100800;
-        return (int)(temp3 >= 0 ? temp3 : -temp3);
+        double temp3 = ((Integer)object[0]) + temp + temp2 + temp / temp2 + 100800;
+        return (int)(Math.abs(temp3));
 
     }
 

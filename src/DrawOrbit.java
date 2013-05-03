@@ -91,6 +91,12 @@ public class DrawOrbit extends Thread {
             case MainWindow.NEWTONGENERALIZED8:
                 pixel_orbit = new NewtonGeneralized8(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals);
                 break;
+            case MainWindow.NEWTONSIN:
+                pixel_orbit = new NewtonSin(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals);
+                break;
+            case MainWindow.NEWTONCOS:
+                pixel_orbit = new NewtonCos(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals);
+                break;
             case MainWindow.NEWTONPOLY:
                 pixel_orbit = new NewtonPoly(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, coefficients);
                 break;
@@ -130,6 +136,12 @@ public class DrawOrbit extends Thread {
             case MainWindow.HALLEYGENERALIZED8:
                 pixel_orbit = new HalleyGeneralized8(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals);
                 break;
+            case MainWindow.HALLEYSIN:
+                pixel_orbit = new HalleySin(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals);
+                break;
+            case MainWindow.HALLEYCOS:
+                pixel_orbit = new HalleyCos(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals);
+                break;
             case MainWindow.HALLEYPOLY:
                 pixel_orbit = new HalleyPoly(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, coefficients);
                 break;
@@ -144,6 +156,12 @@ public class DrawOrbit extends Thread {
                 break;
             case MainWindow.SCHRODERGENERALIZED8:
                 pixel_orbit = new SchroderGeneralized8(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals);
+                break;
+            case MainWindow.SCHRODERSIN:
+                pixel_orbit = new SchroderSin(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals);
+                break;
+            case MainWindow.SCHRODERCOS:
+                pixel_orbit = new SchroderCos(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals);
                 break;
             case MainWindow.SCHRODERPOLY:
                 pixel_orbit = new SchroderPoly(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, coefficients);
@@ -160,8 +178,44 @@ public class DrawOrbit extends Thread {
             case MainWindow.HOUSEHOLDERGENERALIZED8:
                 pixel_orbit = new HouseholderGeneralized8(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals);
                 break;
+            case MainWindow.HOUSEHOLDERSIN:
+                pixel_orbit = new HouseholderSin(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals);
+                break;
+            case MainWindow.HOUSEHOLDERCOS:
+                pixel_orbit = new HouseholderCos(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals);
+                break;
             case MainWindow.HOUSEHOLDERPOLY:
                 pixel_orbit = new HouseholderPoly(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, coefficients);
+                break;
+            case MainWindow.EXP:
+                pixel_orbit = new Exp(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals);
+                break;
+            case MainWindow.LOG:
+                pixel_orbit = new Log(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals);
+                break;
+            case MainWindow.SIN:
+                pixel_orbit = new Sin(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals);
+                break;
+            case MainWindow.COS:
+                pixel_orbit = new Cos(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals);
+                break;
+            case MainWindow.TAN:
+                pixel_orbit = new Tan(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals);
+                break;
+            case MainWindow.COT:
+                pixel_orbit = new Cot(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals);
+                break;
+            case MainWindow.SINH:
+                pixel_orbit = new Sinh(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals);
+                break;
+            case MainWindow.COSH:
+                pixel_orbit = new Cosh(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals);
+                break;
+            case MainWindow.TANH:
+                pixel_orbit = new Tanh(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals);
+                break;
+            case MainWindow.COTH:
+                pixel_orbit = new Coth(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals);
                 break;
                         
         }
@@ -250,6 +304,37 @@ public class DrawOrbit extends Thread {
             case MainWindow.PHOENIX:
                 pixel_orbit = new Phoenix(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
                 break;
+            case MainWindow.EXP:
+                pixel_orbit = new Exp(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.LOG:
+                pixel_orbit = new Log(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.SIN:
+                pixel_orbit = new Sin(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.COS:
+                pixel_orbit = new Cos(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.TAN:
+                pixel_orbit = new Tan(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.COT:
+                pixel_orbit = new Cot(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.SINH:
+                pixel_orbit = new Sinh(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.COSH:
+                pixel_orbit = new Cosh(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.TANH:
+                pixel_orbit = new Tanh(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.COTH:
+                pixel_orbit = new Coth(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+                
         }
 
 

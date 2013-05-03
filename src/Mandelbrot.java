@@ -13,9 +13,9 @@ import java.util.ArrayList;
 public class Mandelbrot extends Julia {
   private MandelVariation type;
 
-    public Mandelbrot(double xCenter, double yCenter, double size, int max_iterations, double bailout, int out_coloring_algorithm, boolean periodicity_checking, int plane_type, double[] rotation_vals, boolean perturbation, double[] perturbation_vals, boolean burning_ship) {
+    public Mandelbrot(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, int out_coloring_algorithm, int in_coloring_algorithm, boolean periodicity_checking, int plane_type, double[] rotation_vals, boolean perturbation, double[] perturbation_vals, boolean burning_ship) {
 
-        super(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals);
+        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, periodicity_checking, plane_type, rotation_vals);
         
         if(burning_ship) {
             type = new BurningShip();   
@@ -33,45 +33,79 @@ public class Mandelbrot extends Julia {
 
         switch (out_coloring_algorithm) {
 
-            case MainWindow.NORMAL_COLOR:
-                color_algorithm = new EscapeTime();
+            case MainWindow.ESCAPE_TIME:
+                out_color_algorithm = new EscapeTime();
                 break;
             case MainWindow.SMOOTH_COLOR:
-                color_algorithm = new Smooth(Math.log(bailout_squared));
+                out_color_algorithm = new Smooth(Math.log(bailout_squared));
                 break;
             case MainWindow.BINARY_DECOMPOSITION:
-                color_algorithm = new BinaryDecomposition();
+                out_color_algorithm = new BinaryDecomposition();
                 break;
             case MainWindow.BINARY_DECOMPOSITION2:
-                color_algorithm = new BinaryDecomposition2();
+                out_color_algorithm = new BinaryDecomposition2();
                 break;
             case MainWindow.ITERATIONS_PLUS_RE:
-                color_algorithm = new EscapeTimePlusRe();
+                out_color_algorithm = new EscapeTimePlusRe();
                 break;
             case MainWindow.ITERATIONS_PLUS_IM:
-                color_algorithm = new EscapeTimePlusIm();
+                out_color_algorithm = new EscapeTimePlusIm();
                 break;
             case MainWindow.ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM:
-                color_algorithm = new EscapeTimePlusRePlusImPlusReDivideIm();
+                out_color_algorithm = new EscapeTimePlusRePlusImPlusReDivideIm();
                 break;
             case MainWindow.BIOMORPH:
-                color_algorithm = new Biomorphs(bailout);
+                out_color_algorithm = new Biomorphs(bailout);
                 break;
             case MainWindow.COLOR_DECOMPOSITION:
-                color_algorithm = new ColorDecomposition();
+                out_color_algorithm = new ColorDecomposition();
                 break;
-            case MainWindow. ESCAPE_TIME_COLOR_DECOMPOSITION:
-                color_algorithm = new EscapeTimeColorDecomposition();
+            case MainWindow.ESCAPE_TIME_COLOR_DECOMPOSITION:
+                out_color_algorithm = new EscapeTimeColorDecomposition();
                 break;
                 
                 
         }
+
+
+        switch (in_coloring_algorithm) {
+            
+            case MainWindow.MAXIMUM_ITERATIONS:
+                in_color_algorithm = new MaximumIterations();
+                break;
+            case MainWindow.Z_MAG:
+                in_color_algorithm = new ZMag(out_coloring_algorithm);
+                break;
+            case MainWindow.DECOMPOSITION_LIKE:
+                in_color_algorithm = new DecompositionLike(out_coloring_algorithm);       
+                break;
+            case MainWindow.RE_DIVIDE_IM:
+                in_color_algorithm = new ReDivideIm(out_coloring_algorithm);       
+                break;
+            case MainWindow.COS_MAG:
+                in_color_algorithm = new CosMag(out_coloring_algorithm);       
+                break;
+            case MainWindow.MAG_TIMES_COS_RE_SQUARED:
+                in_color_algorithm = new MagTimesCosReSquared(out_coloring_algorithm);       
+                break;
+            case MainWindow.SIN_RE_SQUARED_MINUS_IM_SQUARED:
+                in_color_algorithm = new SinReSquaredMinusImSquared(out_coloring_algorithm);       
+                break;
+            case MainWindow.ATAN_RE_TIMES_IM_TIMES_ABS_RE_TIMES_ABS_IM:
+                in_color_algorithm = new AtanReTimesImTimesAbsReTimesAbsIm(out_coloring_algorithm);       
+                break;
+            case MainWindow.SQUARES:
+                in_color_algorithm = new Squares(out_coloring_algorithm);       
+                break;
+                
+        }
+        
        
     }
 
-    public Mandelbrot(double xCenter, double yCenter, double size, int max_iterations, double bailout, int out_coloring_algorithm, boolean periodicity_checking, int plane_type, double[] rotation_vals, boolean burning_ship, double xJuliaCenter, double yJuliaCenter) {
+    public Mandelbrot(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, int out_coloring_algorithm, int in_coloring_algorithm, boolean periodicity_checking, int plane_type, double[] rotation_vals, boolean burning_ship, double xJuliaCenter, double yJuliaCenter) {
 
-        super(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
         
         if(burning_ship) {
             type = new BurningShip();   
@@ -82,37 +116,69 @@ public class Mandelbrot extends Julia {
       
         switch (out_coloring_algorithm) {
 
-            case MainWindow.NORMAL_COLOR:
-                color_algorithm = new EscapeTime();
+            case MainWindow.ESCAPE_TIME:
+                out_color_algorithm = new EscapeTime();
                 break;
             case MainWindow.SMOOTH_COLOR:
-                color_algorithm = new Smooth(Math.log(bailout_squared));
+                out_color_algorithm = new Smooth(Math.log(bailout_squared));
                 break;
             case MainWindow.BINARY_DECOMPOSITION:
-                color_algorithm = new BinaryDecomposition();
+                out_color_algorithm = new BinaryDecomposition();
                 break;
             case MainWindow.BINARY_DECOMPOSITION2:
-                color_algorithm = new BinaryDecomposition2();
+                out_color_algorithm = new BinaryDecomposition2();
                 break;
             case MainWindow.ITERATIONS_PLUS_RE:
-                color_algorithm = new EscapeTimePlusRe();
+                out_color_algorithm = new EscapeTimePlusRe();
                 break;
             case MainWindow.ITERATIONS_PLUS_IM:
-                color_algorithm = new EscapeTimePlusIm();
+                out_color_algorithm = new EscapeTimePlusIm();
                 break;
             case MainWindow.ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM:
-                color_algorithm = new EscapeTimePlusRePlusImPlusReDivideIm();
+                out_color_algorithm = new EscapeTimePlusRePlusImPlusReDivideIm();
                 break;
             case MainWindow.BIOMORPH:
-                color_algorithm = new Biomorphs(bailout);
+                out_color_algorithm = new Biomorphs(bailout);
                 break;
             case MainWindow.COLOR_DECOMPOSITION:
-                color_algorithm = new ColorDecomposition();
+                out_color_algorithm = new ColorDecomposition();
                 break;
             case MainWindow. ESCAPE_TIME_COLOR_DECOMPOSITION:
-                color_algorithm = new EscapeTimeColorDecomposition();
+                out_color_algorithm = new EscapeTimeColorDecomposition();
                 break;
 
+        }
+        
+        switch (in_coloring_algorithm) {
+            
+            case MainWindow.MAXIMUM_ITERATIONS:
+                in_color_algorithm = new MaximumIterations();
+                break;
+            case MainWindow.Z_MAG:
+                in_color_algorithm = new ZMag(out_coloring_algorithm);
+                break;
+            case MainWindow.DECOMPOSITION_LIKE:
+                in_color_algorithm = new DecompositionLike(out_coloring_algorithm);       
+                break;
+            case MainWindow.RE_DIVIDE_IM:
+                in_color_algorithm = new ReDivideIm(out_coloring_algorithm);       
+                break;
+            case MainWindow.COS_MAG:
+                in_color_algorithm = new CosMag(out_coloring_algorithm);       
+                break;
+            case MainWindow.MAG_TIMES_COS_RE_SQUARED:
+                in_color_algorithm = new MagTimesCosReSquared(out_coloring_algorithm);       
+                break;
+            case MainWindow.SIN_RE_SQUARED_MINUS_IM_SQUARED:
+                in_color_algorithm = new SinReSquaredMinusImSquared(out_coloring_algorithm);       
+                break;
+            case MainWindow.ATAN_RE_TIMES_IM_TIMES_ABS_RE_TIMES_ABS_IM:
+                in_color_algorithm = new AtanReTimesImTimesAbsReTimesAbsIm(out_coloring_algorithm);       
+                break;
+            case MainWindow.SQUARES:
+                in_color_algorithm = new Squares(out_coloring_algorithm);       
+                break;
+                
         }
 
     }
@@ -153,7 +219,7 @@ public class Mandelbrot extends Julia {
 
     @Override
     protected void function(Complex[] complex) {
-
+    
         complex[0] = type.getPixel(complex[0]).square().plus(complex[1]);
 
     }
@@ -199,98 +265,10 @@ public class Mandelbrot extends Julia {
                     return true;
                 }
          
-        //}
+        
 
         return false;
 
     }
-
-    /*@Override
-    protected double calculateFractalWithoutPeriodicity(Complex pixel) {
-
-        int iterations = 0;
-
-        Complex tempz = init_val.getPixel(pixel);
-        
-        Complex[] complex = new Complex[2];
-        complex[0] = tempz;//z
-        complex[1] = pixel;//c
-       
-        double zre = complex[0].getRe(), zim = complex[0].getIm(), cre = complex[1].getRe(), cim = complex[1].getIm(), zre_square, zim_square;
-
-        zre_square = zre * zre;
-        zim_square = zim * zim;
-        double temp;
-        double counter = 0;
-        
-        for (; iterations < max_iterations; iterations += 8) {
-
-            counter += (zre_square + zim_square < bailout_squared) ? 1 : 0;
-            temp = zre + zim;
-            zim = temp * temp - zre_square - zim_square + cim;
-            zre = zre_square - zim_square + cre;
-            zre_square = zre * zre;
-            zim_square = zim * zim;
-            
-            counter += (zre_square + zim_square < bailout_squared) ? 1 : 0;
-            temp = zre + zim;
-            zim = temp * temp - zre_square - zim_square + cim;
-            zre = zre_square - zim_square + cre;
-            zre_square = zre * zre;
-            zim_square = zim * zim;
-            
-            counter += (zre_square + zim_square < bailout_squared) ? 1 : 0;
-            temp = zre + zim;
-            zim = temp * temp - zre_square - zim_square + cim;
-            zre = zre_square - zim_square + cre;
-            zre_square = zre * zre;
-            zim_square = zim * zim;
-            
-            counter += (zre_square + zim_square < bailout_squared) ? 1 : 0;
-            temp = zre + zim;
-            zim = temp * temp - zre_square - zim_square + cim;
-            zre = zre_square - zim_square + cre;
-            zre_square = zre * zre;
-            zim_square = zim * zim;
-
-            counter += (zre_square + zim_square < bailout_squared) ? 1 : 0;
-            temp = zre + zim;
-            zim = temp * temp - zre_square - zim_square + cim;
-            zre = zre_square - zim_square + cre;
-            zre_square = zre * zre;
-            zim_square = zim * zim;
-            
-            counter += (zre_square + zim_square < bailout_squared) ? 1 : 0;
-            temp = zre + zim;
-            zim = temp * temp - zre_square - zim_square + cim;
-            zre = zre_square - zim_square + cre;
-            zre_square = zre * zre;
-            zim_square = zim * zim;
-            
-            counter += (zre_square + zim_square < bailout_squared) ? 1 : 0;
-            temp = zre + zim;
-            zim = temp * temp - zre_square - zim_square + cim;
-            zre = zre_square - zim_square + cre;
-            zre_square = zre * zre;
-            zim_square = zim * zim;
-
-            counter += (zre_square + zim_square < bailout_squared) ? 1 : 0;            
-            temp = zre + zim;
-            zim = temp * temp - zre_square - zim_square + cim;
-            zre = zre_square - zim_square + cre;
-            zre_square = zre * zre;
-            zim_square = zim * zim;
-            
-            if(zre_square + zim_square >= bailout_squared) {
-                //Object[] object = {(double)iterations, complex[0], temp, distance, zold};
-                //return color_algorithm.getResult(object);
-                return counter;
-            }
-
-        }
-
-        return max_iterations;
-
-    }*/
-    
+ 
 }

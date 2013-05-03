@@ -13,42 +13,16 @@ import java.util.ArrayList;
 public abstract class Julia extends Fractal {
   protected Complex seed;
 
-    public Julia(double xCenter, double yCenter, double size, int max_iterations, double bailout, int out_coloring_algorithm, boolean periodicity_checking, int plane_type, double[] rotation_vals) {
+    public Julia(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, boolean periodicity_checking, int plane_type, double[] rotation_vals) {
 
-        super(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals);
+        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, periodicity_checking, plane_type, rotation_vals);
 
     }
     
-    public Julia(double xCenter, double yCenter, double size, int max_iterations, double bailout, int out_coloring_algorithm, boolean periodicity_checking, int plane_type, double[] rotation_vals, double xJuliaCenter, double yJuliaCenter) {
+    public Julia(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, boolean periodicity_checking, int plane_type, double[] rotation_vals, double xJuliaCenter, double yJuliaCenter) {
 
-        super(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals);
-        
-        rotation = new Rotation(rotation_vals[0], rotation_vals[1]);
-        
-        switch (plane_type) {
-            case MainWindow.MU_PLANE:
-                plane = new MuPlane();
-                break;
-            case MainWindow.INVERSED_MU_PLANE:
-                plane = new InversedMuPlane();
-                break;
-            case MainWindow.INVERSED_MU2_PLANE:
-                plane = new InversedMu2Plane();
-                break;
-            case MainWindow.INVERSED_MU3_PLANE:
-                plane = new InversedMu3Plane();
-                break;
-            case MainWindow.INVERSED_MU4_PLANE:
-                plane = new InversedMu4Plane();
-                break;
-            case MainWindow.LAMBDA_PLANE:
-                plane = new LambdaPlane();
-                break;
-            case MainWindow.INVERSED_LAMBDA_PLANE:
-                plane = new InversedLambdaPlane();
-                break;
-        }
-        
+        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, periodicity_checking, plane_type, rotation_vals);
+ 
         seed = plane.getPixel(new Complex(xJuliaCenter, yJuliaCenter));
 
     }
@@ -63,32 +37,6 @@ public abstract class Julia extends Fractal {
     public Julia(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double xJuliaCenter, double yJuliaCenter) {
 
         super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals);
-        
-        rotation = new Rotation(rotation_vals[0], rotation_vals[1]);
-        
-        switch (plane_type) {
-            case MainWindow.MU_PLANE:
-                plane = new MuPlane();
-                break;
-            case MainWindow.INVERSED_MU_PLANE:
-                plane = new InversedMuPlane();
-                break;
-            case MainWindow.INVERSED_MU2_PLANE:
-                plane = new InversedMu2Plane();
-                break;
-            case MainWindow.INVERSED_MU3_PLANE:
-                plane = new InversedMu3Plane();
-                break;
-            case MainWindow.INVERSED_MU4_PLANE:
-                plane = new InversedMu4Plane();
-                break;
-            case MainWindow.LAMBDA_PLANE:
-                plane = new LambdaPlane();
-                break;
-            case MainWindow.INVERSED_LAMBDA_PLANE:
-                plane = new InversedLambdaPlane();
-                break;
-        }
         
         seed = plane.getPixel(new Complex(xJuliaCenter, yJuliaCenter));
         
@@ -123,11 +71,10 @@ public abstract class Julia extends Fractal {
 
         Complex zold = new Complex(0, 0);
 
-        double temp;
         for (; iterations < max_iterations; iterations++) {
-            if((temp = complex[0].norm_squared()) >= bailout_squared) {
-                Object[] object = {(double)iterations, complex[0], temp, zold};
-                return color_algorithm.getResult(object);
+            if(bailout_algorithm.escaped(complex[0])) {
+                Object[] object = {iterations, complex[0], zold};
+                return out_color_algorithm.getResult(object);
             }
             zold = complex[0];
             function(complex);
@@ -149,18 +96,19 @@ public abstract class Julia extends Fractal {
 
         Complex zold = new Complex(0, 0);
 
-        double temp;
         for (; iterations < max_iterations; iterations++) {
-            if((temp = complex[0].norm_squared()) >= bailout_squared) {
-                Object[] object = {(double)iterations, complex[0], temp, zold};
-                return color_algorithm.getResult(object);
+            if(bailout_algorithm.escaped(complex[0])) {
+                Object[] object = {iterations, complex[0], zold};
+                return out_color_algorithm.getResult(object);
             }
             zold = complex[0];
             function(complex);
   
         }
 
-        return max_iterations;
+        Object[] object = {max_iterations, complex[0]};
+        return in_color_algorithm.getResult(object);
+        
     }
 
     @Override

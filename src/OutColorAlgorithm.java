@@ -9,7 +9,7 @@
  *
  * @author hrkalona
  */
-public abstract class ColorAlgorithm {
+public abstract class OutColorAlgorithm {
 
     public abstract double getResult(Object[] object);
 

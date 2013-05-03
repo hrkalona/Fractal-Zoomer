@@ -34,51 +34,123 @@ public class Complex {
 
     }
 
+    /*
+     * z1 + z2
+     */
     public Complex plus(Complex z) {
 
         return new Complex(re + z.re, im + z.im);
 
     }
     
+    /*
+     *  z + Real
+     */
     public Complex plus(double number) {
         
         return new Complex(re + number, im);
         
     }
+    
+    /*
+     *  z + Imaginary
+     */
+    public Complex plus(double number, int unused) {
+        
+        return new Complex(re, im + number);
+        
+    }
 
+    /*
+     *  z1 - z2
+     */
     public Complex sub(Complex z) {
 
         return new Complex(re - z.re, im - z.im);
 
     }
     
+    /*
+     *  z - Real
+     */
     public Complex sub(double number) {
         
         return new Complex(re - number, im);
         
     }
     
-    public Complex sub(double number, Complex z) {
+     /*
+     *  Real - z1
+     */
+    public Complex sub(double number, int unused) {
         
         return new Complex(number - re, -im);
         
     }
+    
+    /*
+     *  z - Imaginary
+     */
+    public Complex sub(double number, int unused, int unused2) {
+        
+        return new Complex(re, im - number);
+        
+    }
+    
+    /*
+     *  Imaginary - z 
+     */
+    public Complex sub(double number, int unused, int unused2, int unused3) {
+        
+        return new Complex(-re, number - im);
+        
+    }
+    
+  
 
+    /*
+     *  z1 * z2
+     */
     public Complex times(Complex z) {
 
-        double  temp = z.re;
-        double  temp2 = z.im;
+       double  temp = z.re;
+       double  temp2 = z.im;
 
-        return new Complex(re * temp - im * temp2, re * temp2 + im * temp);
+       return new Complex(re * temp - im * temp2, re * temp2 + im * temp);
+        
+        //Gauss
+        /*double temp1 = z.re;
+        double temp2 = z.im;
+        
+        double k1 = temp1 * (re + im);
+        double k2 = re * (temp2 - temp1);
+        double k3 = im * (temp1 + temp2);
+        
+        return new Complex(k1 - k3, k1 + k2); */
        
     }
     
+    /*
+     *  z1 * Real
+     */
     public Complex times(double number) {
         
         return new Complex(re * number, im * number);
         
     }
+    
+    /*
+     *  z * Imaginary
+     */
+    public Complex times(double number, int unused) {
+        
+        return new Complex(-im * number, re * number);
+                
+    }
    
+    /*
+     *  z1 / z2
+     */
     public Complex divide(Complex z) {
 
         double  temp = z.re;
@@ -89,13 +161,19 @@ public class Complex {
 
     }
     
+    /*
+     *  z1 / Real
+     */
     public Complex divide(double number) {
         
         return new Complex(re / number, im / number);
         
     }
     
-    public Complex divide(double number, Complex z) {
+    /*
+     *  Real / z1
+     */
+    public Complex divide(double number, int unused) {
               
         double temp = number / (re * re + im * im);
         
@@ -103,12 +181,20 @@ public class Complex {
         
     }
 
+    /*
+     *  z^2
+     */
     public Complex square() {
 
-        return new Complex(re * re - im * im, 2 * re * im);
+        double temp = re * im;
+        
+        return new Complex(re * re - im * im, temp + temp);
         
     }
 
+     /*
+     *  z^3
+     */
     public Complex cube() {
 
         double temp = re * re;
@@ -118,6 +204,9 @@ public class Complex {
         
     }
 
+     /*
+     *  z^4
+     */
     public Complex fourth() {
 
         double temp = re * re;
@@ -127,6 +216,9 @@ public class Complex {
 
     }
 
+     /*
+     *  z^5
+     */
     public Complex fifth() {
 
         double temp = re * re;
@@ -136,6 +228,9 @@ public class Complex {
 
     }
 
+     /*
+     *  z^6
+     */
     public Complex sixth() {
 
         double temp = re * re;
@@ -146,6 +241,9 @@ public class Complex {
 
     }
 
+     /*
+     *  z^7
+     */
     public Complex seventh() {
 
         double temp = re * re;
@@ -156,6 +254,9 @@ public class Complex {
 
     }
 
+     /*
+     *  z^8
+     */
     public Complex eighth() {
 
         double temp = re * re;
@@ -167,6 +268,9 @@ public class Complex {
 
     }
 
+     /*
+     *  z^9
+     */
     public Complex ninth() {
 
         double temp = re * re;
@@ -178,6 +282,9 @@ public class Complex {
 
     }
 
+     /*
+     *  z^10
+     */
     public Complex tenth() {
 
         double temp = re * re;
@@ -191,36 +298,72 @@ public class Complex {
 
     }
    
+     /*
+     *  |z|^2
+     */
     public double norm_squared() {
 
         return re * re + im * im;
        
     }
     
+     /*
+     *  |z|
+     */
     public double norm() {
 
         return Math.sqrt(re * re + im * im);
        
     }
 
+     /*
+     *  |Real|
+     */
     public double absRe() {
 
         return re >= 0 ? re : -re;
 
     }
 
+     /*
+     *  |Imaginary|
+     */
     public double absIm() {
 
         return im >= 0 ? im : -im;
 
     }
+    
+    /*
+     *  abs(z)
+     */
+    public Complex abs() {
+        
+        return new Complex(re >= 0 ? re : -re, im >= 0 ? im : -im);
+        
+    }
 
+     /*
+     *  z = Real -Imaginary i
+     */
     public Complex conjugate() {
 
         return new Complex(re, -im);
         
     }
+    
+    /*
+     *  -z
+     */
+     public Complex negative() {
+         
+         return new Complex(-re, -im);
+         
+     }
 
+     /*
+     *  z^n
+     */
     public Complex pow(double exponent) {
 
 	double temp = Math.pow(re * re + im * im, exponent / 2);
@@ -230,6 +373,288 @@ public class Complex {
 
     }
     
+    /*
+     *  log(z) = ln|z| + arctan(Im/Re)i
+     */
+    public Complex log() {
+        
+        return new Complex(Math.log(this.norm()), Math.atan2(im, re));
+        
+    }
+    
+    /*
+     *  cos(z) = (exp(iz) + exp(-iz)) / 2
+     */
+    public Complex cos() {
+        
+        double temp = Math.exp(-im);
+        
+        double cos_re = Math.cos(re);
+        double sin_re = Math.sin(re);
+        
+        Complex temp2 = new Complex(temp * cos_re, temp * sin_re);
+
+        double temp3 = Math.exp(im);
+        Complex temp4 = new Complex(temp3 * cos_re, temp3 * -sin_re);
+        
+        return (temp2.plus(temp4)).divide(2);
+        
+    }
+    
+    /*
+     *  cosh(z) = (exp(z) + exp(-z)) / 2
+     */
+     public Complex cosh() {
+        
+        double temp = Math.exp(re);
+        
+        double cos_im = Math.cos(im);
+        double sin_im = Math.sin(im);
+        
+        Complex temp2 = new Complex(temp * cos_im, temp * sin_im);
+
+        double temp3 = Math.exp(-re);
+        Complex temp4 = new Complex(temp3 * cos_im, temp3 * -sin_im);
+        
+        return (temp2.plus(temp4)).divide(2);
+        
+    }
+    
+    /*
+     *  sin(z) = (exp(iz) - exp(-iz)) / 2i
+     */
+    public Complex sin() {
+        
+        double temp = Math.exp(-im);
+        
+        double cos_re = Math.cos(re);
+        double sin_re = Math.sin(re);
+        
+        Complex temp2 = new Complex(temp * cos_re, temp * sin_re);
+
+        double temp3 = Math.exp(im);
+        Complex temp4 = new Complex(temp3 * cos_re, temp3 * -sin_re);
+        
+        return (temp2.sub(temp4)).divide(new Complex(0, 2));
+        
+    }
+    
+    /*
+     *  sin, (sin)'
+     */
+     public Complex[] der01_sin() {
+        
+        double temp = Math.exp(-im);
+        
+        double cos_re = Math.cos(re);
+        double sin_re = Math.sin(re);
+        
+        Complex temp2 = new Complex(temp * cos_re, temp * sin_re);
+
+        double temp3 = Math.exp(im);
+        Complex temp4 = new Complex(temp3 * cos_re, temp3 * -sin_re);
+        
+        Complex[] sin_and_der = new Complex[2];
+        
+        sin_and_der[0] = (temp2.sub(temp4)).divide(new Complex(0, 2));
+        sin_and_der[1] = (temp2.plus(temp4)).divide(2);
+                
+        return sin_and_der;
+        
+    }
+    
+    /*
+     *  sin, (sin)', (sin)''
+     */
+     public Complex[] der012_sin() {
+        
+        double temp = Math.exp(-im);
+        
+        double cos_re = Math.cos(re);
+        double sin_re = Math.sin(re);
+        
+        Complex temp2 = new Complex(temp * cos_re, temp * sin_re);
+
+        double temp3 = Math.exp(im);
+        Complex temp4 = new Complex(temp3 * cos_re, temp3 * -sin_re);
+        
+        Complex[] sin_and_der = new Complex[3];
+        
+        sin_and_der[0] = (temp2.sub(temp4)).divide(new Complex(0, 2));
+        sin_and_der[1] = (temp2.plus(temp4)).divide(2);
+        sin_and_der[2] = sin_and_der[0].negative();
+                
+        return sin_and_der;
+        
+    }
+     
+     
+     /*
+     *  cos, (cos)', (cos)''
+     */
+     public Complex[] der01_cos() {
+        
+        double temp = Math.exp(-im);
+        
+        double cos_re = Math.cos(re);
+        double sin_re = Math.sin(re);
+        
+        Complex temp2 = new Complex(temp * cos_re, temp * sin_re);
+
+        double temp3 = Math.exp(im);
+        Complex temp4 = new Complex(temp3 * cos_re, temp3 * -sin_re);
+        
+        Complex[] sin_and_der = new Complex[2];
+        
+        sin_and_der[0] = (temp2.plus(temp4)).divide(2);
+        sin_and_der[1] = (temp4.sub(temp2)).divide(new Complex(0, 2));
+
+        
+        return sin_and_der;
+        
+    }
+     
+     /*
+     *  cos, (cos)', (cos)''
+     */
+     public Complex[] der012_cos() {
+        
+        double temp = Math.exp(-im);
+        
+        double cos_re = Math.cos(re);
+        double sin_re = Math.sin(re);
+        
+        Complex temp2 = new Complex(temp * cos_re, temp * sin_re);
+
+        double temp3 = Math.exp(im);
+        Complex temp4 = new Complex(temp3 * cos_re, temp3 * -sin_re);
+        
+        Complex[] sin_and_der = new Complex[3];
+        
+        sin_and_der[0] = (temp2.plus(temp4)).divide(2);
+        sin_and_der[1] = (temp4.sub(temp2)).divide(new Complex(0, 2));
+        sin_and_der[2] = sin_and_der[0].negative();
+        
+        return sin_and_der;
+        
+    }
+    
+    /*
+     *  sinh(z) = (exp(z) - exp(-z)) / 2
+     */
+    public Complex sinh() {
+        
+        double temp = Math.exp(re);
+        
+        double cos_im = Math.cos(im);
+        double sin_im = Math.sin(im);
+        
+        Complex temp2 = new Complex(temp * cos_im, temp * sin_im);
+
+        double temp3 = Math.exp(-re);
+        Complex temp4 = new Complex(temp3 * cos_im, temp3 * -sin_im);
+        
+        return (temp2.sub(temp4)).divide(2);
+        
+    }
+        
+     /*
+     *  tan(z) = (1 - exp(-2zi)) / i(1 + exp(-2zi))
+     */
+    public Complex tan() {
+        
+        double temp = Math.exp(2 * im);
+        
+        double temp3 = 2 * re;
+        
+        double cos_re = Math.cos(temp3);
+        double sin_re = Math.sin(temp3);
+        
+        Complex temp2 = new Complex(temp * cos_re, temp * -sin_re);
+        
+        return (temp2.sub(1, 0)).divide((temp2.plus(1)).times(1, 0));
+        
+    }
+    
+    /*
+     *  tahn(z) = (1 - exp(-2z)) / (1 + exp(-2z))
+     */
+    public Complex tanh() {
+    
+        double temp = Math.exp(-2 * re);
+        
+        double temp3 = 2 * im;
+        
+        double cos_im = Math.cos(temp3);
+        double sin_im = Math.sin(temp3);
+        
+        Complex temp2 = new Complex(temp * cos_im, temp * -sin_im);
+        
+        return (temp2.sub(1, 0)).divide(temp2.plus(1));
+      
+    }
+    
+    /*
+     *  cot(z) = i(1 + exp(-2zi)) / (1 - exp(-2zi))
+     */
+    public Complex cot() {
+
+        double temp = Math.exp(2 * im);
+        
+        double temp3 = 2 * re;
+        
+        double cos_re = Math.cos(temp3);
+        double sin_re = Math.sin(temp3);
+        
+        Complex temp2 = new Complex(temp * cos_re, temp * -sin_re);
+        
+        return (temp2.times(1, 0).plus(1, 0)).divide(temp2.sub(1, 0));
+        
+    }
+    
+    /*
+     *  coth(z) =  (1 + exp(-2z)) / (1 - exp(-2z))
+     */
+    public Complex coth() {
+        
+        double temp = Math.exp(-2 * re);
+        
+        double temp3 = 2 * im;
+        
+        double cos_im = Math.cos(temp3);
+        double sin_im = Math.sin(temp3);
+        
+        Complex temp2 = new Complex(temp * cos_im, temp * -sin_im);
+        
+        return (temp2.plus(1)).divide(temp2.sub(1, 0));
+  
+    }
+
+    
+     /*
+      *  exp(z) = exp(Re(z)) * (cos(Im(z)) + sin(Im(z))i)
+      */
+     public Complex exp() {
+         
+        double temp = Math.exp(re);
+
+        return new Complex(temp * Math.cos(im), temp * Math.sin(im)); 
+
+     }
+     
+     
+     /*
+      * sqrt(z) = z^0.5
+      */
+     public Complex sqrt() {
+         
+        double temp = Math.pow(re * re + im * im, 0.25);
+	double temp2 = 0.5 * Math.atan2(im, re);
+
+        return new Complex(temp * Math.cos(temp2), temp * Math.sin(temp2));
+        
+     }
+ 
 }
     
 

@@ -9,7 +9,7 @@
  *
  * @author hrkalona
  */
-public class EscapeTime extends ColorAlgorithm {
+public class EscapeTime extends OutColorAlgorithm {
 
     public EscapeTime() {
         super();
@@ -18,7 +18,7 @@ public class EscapeTime extends ColorAlgorithm {
     @Override
     public double getResult(Object[] object) {
 
-        return (Double)object[0];
+        return (Integer)object[0];
 
     }
 

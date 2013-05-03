@@ -9,7 +9,7 @@
  *
  * @author hrkalona
  */
-public class Smooth extends ColorAlgorithm {
+public class Smooth extends OutColorAlgorithm {
   protected double log_bailout_squared;
 
     public Smooth(double log_bailout_squared) {
@@ -22,11 +22,13 @@ public class Smooth extends ColorAlgorithm {
     @Override
     public double getResult(Object[] object) {
 
-        //return (Double)object[0] - Math.log(Math.log((Double)object[2]) / log_bailout_squared) / log_base;
-        double temp = ((Complex)object[3]).norm_squared();
+        //return (Integer)object[0] - Math.log(Math.log((Double)object[2]) / log_bailout_squared) / log_base;
+        double temp = ((Complex)object[2]).norm_squared();
+        double temp2 = ((Complex)object[1]).norm_squared();
+        
         temp += 0.000000001;
         temp = Math.log(temp);
-        return (Double)object[0] + (log_bailout_squared - temp) / (Math.log((Double)object[2]) - temp);
+        return (Integer)object[0] + (log_bailout_squared - temp) / (Math.log(temp2) - temp);
 
     }
 

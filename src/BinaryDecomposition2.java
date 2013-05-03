@@ -7,7 +7,7 @@
  *
  * @author hrkalona2
  */
-public class BinaryDecomposition2 extends ColorAlgorithm {
+public class BinaryDecomposition2 extends OutColorAlgorithm {
 
     public BinaryDecomposition2() {
 
@@ -18,7 +18,7 @@ public class BinaryDecomposition2 extends ColorAlgorithm {
     @Override
     public double getResult(Object[] object) {
 
-        return ((Complex)object[1]).getRe() < 0 ? (Double)object[0] + 100850 : (Double)object[0];
+        return ((Complex)object[1]).getRe() < 0 ? (Integer)object[0] + 100850 : (Integer)object[0];
 
     }
 }

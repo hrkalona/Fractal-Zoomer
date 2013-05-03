@@ -12,9 +12,9 @@ import java.util.ArrayList;
  */
 public class Phoenix extends Julia {
 
-    public Phoenix(double xCenter, double yCenter, double size, int max_iterations, double bailout, int out_coloring_algorithm, boolean periodicity_checking, int plane_type, double[] rotation_vals, boolean perturbation, double[] perturbation_vals) {
+    public Phoenix(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, int out_coloring_algorithm, int in_coloring_algorithm, boolean periodicity_checking, int plane_type, double[] rotation_vals, boolean perturbation, double[] perturbation_vals) {
 
-        super(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals);
+        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, periodicity_checking, plane_type, rotation_vals);
 
         if(perturbation) {
             init_val = new Perturbation(perturbation_vals[0], perturbation_vals[1]);
@@ -25,78 +25,142 @@ public class Phoenix extends Julia {
         
         switch (out_coloring_algorithm) {
 
-            case MainWindow.NORMAL_COLOR:
-                color_algorithm = new EscapeTime();
+            case MainWindow.ESCAPE_TIME:
+                out_color_algorithm = new EscapeTime();
                 break;
             case MainWindow.SMOOTH_COLOR:
-                color_algorithm = new Smooth(Math.log(bailout_squared));
+                out_color_algorithm = new Smooth(Math.log(bailout_squared));
                 break;
             case MainWindow.BINARY_DECOMPOSITION:
-                color_algorithm = new BinaryDecomposition();
+                out_color_algorithm = new BinaryDecomposition();
                 break;
             case MainWindow.BINARY_DECOMPOSITION2:
-                color_algorithm = new BinaryDecomposition2();
+                out_color_algorithm = new BinaryDecomposition2();
                 break;
             case MainWindow.ITERATIONS_PLUS_RE:
-                color_algorithm = new EscapeTimePlusRe();
+                out_color_algorithm = new EscapeTimePlusRe();
                 break;
             case MainWindow.ITERATIONS_PLUS_IM:
-                color_algorithm = new EscapeTimePlusIm();
+                out_color_algorithm = new EscapeTimePlusIm();
                 break;
             case MainWindow.ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM:
-                color_algorithm = new EscapeTimePlusRePlusImPlusReDivideIm();
+                out_color_algorithm = new EscapeTimePlusRePlusImPlusReDivideIm();
                 break;
             case MainWindow.BIOMORPH:
-                color_algorithm = new Biomorphs(bailout);
+                out_color_algorithm = new Biomorphs(bailout);
                 break;
             case MainWindow.COLOR_DECOMPOSITION:
-                color_algorithm = new ColorDecomposition();
+                out_color_algorithm = new ColorDecomposition();
                 break;
             case MainWindow. ESCAPE_TIME_COLOR_DECOMPOSITION:
-                color_algorithm = new EscapeTimeColorDecomposition();
+                out_color_algorithm = new EscapeTimeColorDecomposition();
                 break;
 
+        }
+        
+        switch (in_coloring_algorithm) {
+            
+            case MainWindow.MAXIMUM_ITERATIONS:
+                in_color_algorithm = new MaximumIterations();
+                break;
+            case MainWindow.Z_MAG:
+                in_color_algorithm = new ZMag(out_coloring_algorithm);
+                break;
+            case MainWindow.DECOMPOSITION_LIKE:
+                in_color_algorithm = new DecompositionLike(out_coloring_algorithm);       
+                break;
+            case MainWindow.RE_DIVIDE_IM:
+                in_color_algorithm = new ReDivideIm(out_coloring_algorithm);       
+                break;
+            case MainWindow.COS_MAG:
+                in_color_algorithm = new CosMag(out_coloring_algorithm);       
+                break;
+            case MainWindow.MAG_TIMES_COS_RE_SQUARED:
+                in_color_algorithm = new MagTimesCosReSquared(out_coloring_algorithm);       
+                break;
+            case MainWindow.SIN_RE_SQUARED_MINUS_IM_SQUARED:
+                in_color_algorithm = new SinReSquaredMinusImSquared(out_coloring_algorithm);       
+                break;
+            case MainWindow.ATAN_RE_TIMES_IM_TIMES_ABS_RE_TIMES_ABS_IM:
+                in_color_algorithm = new AtanReTimesImTimesAbsReTimesAbsIm(out_coloring_algorithm);       
+                break;
+            case MainWindow.SQUARES:
+                in_color_algorithm = new Squares(out_coloring_algorithm);       
+                break;
+                
         }
 
     }
 
-    public Phoenix(double xCenter, double yCenter, double size, int max_iterations, double bailout, int out_coloring_algorithm, boolean periodicity_checking, int plane_type, double[] rotation_vals, double xJuliaCenter, double yJuliaCenter) {
+    public Phoenix(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, int out_coloring_algorithm, int in_coloring_algorithm, boolean periodicity_checking, int plane_type, double[] rotation_vals, double xJuliaCenter, double yJuliaCenter) {
 
-        super(xCenter, yCenter, size, max_iterations, bailout, out_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
 
         switch (out_coloring_algorithm) {
 
-            case MainWindow.NORMAL_COLOR:
-                color_algorithm = new EscapeTime();
+            case MainWindow.ESCAPE_TIME:
+                out_color_algorithm = new EscapeTime();
                 break;
             case MainWindow.SMOOTH_COLOR:
-                color_algorithm = new Smooth(Math.log(bailout_squared));
+                out_color_algorithm = new Smooth(Math.log(bailout_squared));
                 break;
             case MainWindow.BINARY_DECOMPOSITION:
-                color_algorithm = new BinaryDecomposition();
+                out_color_algorithm = new BinaryDecomposition();
                 break;
             case MainWindow.BINARY_DECOMPOSITION2:
-                color_algorithm = new BinaryDecomposition2();
+                out_color_algorithm = new BinaryDecomposition2();
                 break;
             case MainWindow.ITERATIONS_PLUS_RE:
-                color_algorithm = new EscapeTimePlusRe();
+                out_color_algorithm = new EscapeTimePlusRe();
                 break;
             case MainWindow.ITERATIONS_PLUS_IM:
-                color_algorithm = new EscapeTimePlusIm();
+                out_color_algorithm = new EscapeTimePlusIm();
                 break;
             case MainWindow.ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM:
-                color_algorithm = new EscapeTimePlusRePlusImPlusReDivideIm();
+                out_color_algorithm = new EscapeTimePlusRePlusImPlusReDivideIm();
                 break;
             case MainWindow.BIOMORPH:
-                color_algorithm = new Biomorphs(bailout);
+                out_color_algorithm = new Biomorphs(bailout);
                 break;
             case MainWindow.COLOR_DECOMPOSITION:
-                color_algorithm = new ColorDecomposition();
+                out_color_algorithm = new ColorDecomposition();
                 break;
             case MainWindow. ESCAPE_TIME_COLOR_DECOMPOSITION:
-                color_algorithm = new EscapeTimeColorDecomposition();
+                out_color_algorithm = new EscapeTimeColorDecomposition();
                 break;
 
+        }
+        
+        switch (in_coloring_algorithm) {
+            
+            case MainWindow.MAXIMUM_ITERATIONS:
+                in_color_algorithm = new MaximumIterations();
+                break;
+            case MainWindow.Z_MAG:
+                in_color_algorithm = new ZMag(out_coloring_algorithm);
+                break;
+            case MainWindow.DECOMPOSITION_LIKE:
+                in_color_algorithm = new DecompositionLike(out_coloring_algorithm);       
+                break;
+            case MainWindow.RE_DIVIDE_IM:
+                in_color_algorithm = new ReDivideIm(out_coloring_algorithm);       
+                break;
+            case MainWindow.COS_MAG:
+                in_color_algorithm = new CosMag(out_coloring_algorithm);       
+                break;
+            case MainWindow.MAG_TIMES_COS_RE_SQUARED:
+                in_color_algorithm = new MagTimesCosReSquared(out_coloring_algorithm);       
+                break;
+            case MainWindow.SIN_RE_SQUARED_MINUS_IM_SQUARED:
+                in_color_algorithm = new SinReSquaredMinusImSquared(out_coloring_algorithm);       
+                break;
+            case MainWindow.ATAN_RE_TIMES_IM_TIMES_ABS_RE_TIMES_ABS_IM:
+                in_color_algorithm = new AtanReTimesImTimesAbsReTimesAbsIm(out_coloring_algorithm);       
+                break;
+            case MainWindow.SQUARES:
+                in_color_algorithm = new Squares(out_coloring_algorithm);       
+                break;
+                
         }
 
     }
@@ -153,11 +217,10 @@ public class Phoenix extends Julia {
         
         Complex zold = new Complex(0, 0);
 
-        double temp;
         for (; iterations < max_iterations; iterations++) {
-            if((temp = complex[0].norm_squared()) >= bailout_squared) {
-                Object[] object = {(double)iterations, complex[0], temp, zold};
-                return color_algorithm.getResult(object);
+            if(bailout_algorithm.escaped(complex[0])) {
+                Object[] object = {iterations, complex[0], zold};
+                return out_color_algorithm.getResult(object);
             }
             zold = complex[0];
             function(complex);
@@ -184,18 +247,19 @@ public class Phoenix extends Julia {
         
         Complex zold = new Complex(0, 0);
 
-        double temp;
         for (; iterations < max_iterations; iterations++) {
-            if((temp = complex[0].norm_squared()) >= bailout_squared) {
-                Object[] object = {(double)iterations, complex[0], temp, zold};
-                return color_algorithm.getResult(object);
+            if(bailout_algorithm.escaped(complex[0])) {
+                Object[] object = {iterations, complex[0], zold};
+                return out_color_algorithm.getResult(object);
             }
             zold = complex[0];
             function(complex);
 
         }
 
-        return max_iterations;
+        Object[] object = {max_iterations, complex[0]};
+        return in_color_algorithm.getResult(object);
+        
     }
 
     @Override
@@ -217,11 +281,10 @@ public class Phoenix extends Julia {
         
         Complex zold = new Complex(0, 0);
  
-        double temp;
         for (; iterations < max_iterations; iterations++) {
-            if((temp = complex[0].norm_squared()) >= bailout_squared) {
-                Object[] object = {(double)iterations, complex[0], temp, zold};
-                return color_algorithm.getResult(object);
+            if(bailout_algorithm.escaped(complex[0])) {
+                Object[] object = {iterations, complex[0], zold};
+                return out_color_algorithm.getResult(object);
             }
             zold = complex[0];
             function(complex);
@@ -246,18 +309,19 @@ public class Phoenix extends Julia {
         
         Complex zold = new Complex(0, 0);
 
-        double temp;
         for (; iterations < max_iterations; iterations++) {
-            if((temp = complex[0].norm_squared()) >= bailout_squared) {
-                Object[] object = {(double)iterations, complex[0], temp, zold};
-                return color_algorithm.getResult(object);
+            if(bailout_algorithm.escaped(complex[0])) {
+                Object[] object = {iterations, complex[0], zold};
+                return out_color_algorithm.getResult(object);
             }
             zold = complex[0];
             function(complex);
    
         }
 
-        return max_iterations;
+        Object[] object = {max_iterations, complex[0]};
+        return in_color_algorithm.getResult(object);
+        
     }
 
     @Override
