@@ -48,6 +48,9 @@ public class SierpinskiGasket extends Fractal {
             case MainWindow. ESCAPE_TIME_COLOR_DECOMPOSITION:
                 out_color_algorithm = new EscapeTimeColorDecomposition();
                 break;
+            case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER:
+                out_color_algorithm = new EscapeTimeGaussianInteger();
+                break;
 
         }
         

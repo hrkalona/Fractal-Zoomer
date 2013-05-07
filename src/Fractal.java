@@ -290,8 +290,8 @@ public abstract class Fractal {
         return max_iterations;
 
     }
+
     
-  
     protected double calculateFractalWithoutPeriodicity(Complex pixel) {
         
         int iterations = 0;
@@ -301,18 +301,21 @@ public abstract class Fractal {
         Complex[] complex = new Complex[2];
         complex[0] = tempz;//z
         complex[1] = pixel;//c
-
+        
 
         Complex zold = new Complex(0, 0);
 
 
         for (; iterations < max_iterations; iterations++) {
+                  
             if(bailout_algorithm.escaped(complex[0])) {
                 Object[] object = {iterations, complex[0], zold};
-                return out_color_algorithm.getResult(object);   
+                return out_color_algorithm.getResult(object);                
             }
             zold = complex[0];
             function(complex);
+            
+            
             
         }
 

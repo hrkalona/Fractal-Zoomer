@@ -188,7 +188,7 @@ public class Complex {
 
         double temp = re * im;
         
-        return new Complex(re * re - im * im, temp + temp);
+        return new Complex((re + im) * (re - im), temp + temp);
         
     }
 
@@ -653,6 +653,15 @@ public class Complex {
 
         return new Complex(temp * Math.cos(temp2), temp * Math.sin(temp2));
         
+     }
+     
+     /*
+      *  The closest Gaussian Integer to the Complex number
+      */
+     public Complex gaussian_integer() {
+         
+         return new Complex((int)(re < 0 ? re - 0.5 : re + 0.5), (int)(im < 0 ? im - 0.5 : im + 0.5));
+         
      }
  
 }
