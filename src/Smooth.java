@@ -28,7 +28,8 @@ public class Smooth extends OutColorAlgorithm {
         
         temp += 0.000000001;
         temp = Math.log(temp);
-        return (Integer)object[0] + (log_bailout_squared - temp) / (Math.log(temp2) - temp);
+  
+        return (Integer)object[0] + (log_bailout_squared - temp) / (Math.log(temp2) - temp) + 100800;
 
     }
 

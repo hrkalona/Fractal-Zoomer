@@ -12,10 +12,10 @@ import java.awt.Color;
  */
 public class PaletteColorSmooth extends PaletteColor {
   
-    public PaletteColorSmooth(Color[] palette, double color_intensity) {
+    public PaletteColorSmooth(Color[] palette) {
       
-        super(palette, color_intensity);
-      
+        super(palette);
+  
     }
   
  
@@ -23,8 +23,11 @@ public class PaletteColorSmooth extends PaletteColor {
     public Color getPaletteColor(double result) {
       
         result *= 256;
-        Color color = getColor((int)result / 256);
-        Color color2 = getColor((int)result / 256 - 1);
+        int temp = (int)result / 256 + mod_offset;
+        
+        Color color = getColor(temp);
+        Color color2 = getColor(temp - 1);
+   
         int k1 = (int)result % 256;
         int k2 = 255 - k1;
         int red = (k1 * color.getRed() + k2 * color2.getRed()) / 255;
@@ -43,7 +46,7 @@ public class PaletteColorSmooth extends PaletteColor {
     private Color getColor(int i) {
 
         i = i + palette.length < 0 ? 0 : i + palette.length;
-        return palette[((int)((i + palette.length) * color_intensity)) % palette.length];
+        return palette[((int)((i + palette.length))) % palette.length];
     
     }
     

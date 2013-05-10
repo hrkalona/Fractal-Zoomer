@@ -43,6 +43,7 @@ import java.util.GregorianCalendar;
 import java.util.Random;
 import java.util.StringTokenizer;
 import javax.imageio.ImageIO;
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
@@ -63,6 +64,10 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.border.EtchedBorder;
+import javax.swing.border.TitledBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 
 /*
@@ -111,8 +116,7 @@ public class MainWindow extends JFrame {
   private int bailout_test_algorithm;
   private double bailout;
   private double z_exponent;
-  private double zoom_factor;
-  private double color_intensity;  
+  private double zoom_factor; 
   private int out_coloring_algorithm;
   private int in_coloring_algorithm;
   public static int image_size;
@@ -126,6 +130,7 @@ public class MainWindow extends JFrame {
   private BufferedImage fast_julia_image;
   private BufferedImage backup_orbit;
   private BufferedImage last_used;
+  private BufferedImage colors;
   private MainWindow ptr;
   private MainPanel main_panel;
   private JScrollPane scroll_pane;
@@ -158,6 +163,7 @@ public class MainWindow extends JFrame {
   private JMenu householder_type_functions;
   private JMenu barnsley_type_functions;
   private JMenu math_type_functions;
+  private JMenuItem[] editor_palettes;
   private JMenuItem help_contents;
   private JMenuItem size_of_image;
   private JMenuItem iterations;
@@ -169,7 +175,6 @@ public class MainWindow extends JFrame {
   private JMenuItem thread_number;
   private JMenuItem bailout_number;
   private JMenuItem fract_color;
-  private JMenuItem color_intens;
   private JMenuItem random_palette;
   private JMenuItem roll_palette;
   private JMenuItem increase_roll_palette;
@@ -222,8 +227,24 @@ public class MainWindow extends JFrame {
   private JTextField imaginary;
   private JLabel[] labels;
   private JTextField[] textfields;
+  private JLabel gradient;
   private int[][] temp_custom_palette;
-  private int[][] custom_palette = {{12, 255, 0, 0}, {12, 255, 127, 0}, {12, 255, 255, 0}, {12, 0, 255, 0}, {12, 0, 0, 255}, {12, 75, 0, 130}, {12, 143, 0, 255}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}};
+  private int[][] custom_palette = {{12, 255, 0, 0}, {12, 255, 127, 0}, {12, 255, 255, 0}, {12, 0, 255, 0}, {12, 0, 0, 255}, {12, 75, 0, 130}, {12, 143, 0, 255}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}};
+  private int[][][] editor_default_palettes = {{{12,  0,   10,  20}, {12,  50, 100, 240}, {12,  20,   3,  26}, {12, 230,  60,  20}, {12,  25,  10,   9}, {12, 230, 170,   0}, {12,  20,  40,  10}, {12,   0, 100,   0}, {12,   5,  10,  10}, {12, 210,  70,  30}, {12,  90,   0,  50}, {12, 180,  90, 120}, {12,   0,  20,  40}, {12,  30,  70, 200}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}},
+      {{22, 0, 24, 255}, {21, 202, 0, 255}, {21, 255, 0, 82}, {22, 255, 133, 0}, {21, 151, 255, 0}, {21, 0, 255, 75}, {22, 0, 209, 255}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}},
+      {{15,  0,   0,  191}, {8,  123, 0, 255}, {6,  165,   0,  139}, {5, 214,  109,  0}, {5,  255,  200,   0}, {10, 243, 255,   0}, {7,  201,  0,  0}, {8,  172, 0,   112}, {5,  204,  0,  239}, {12, 208,  11,  255}, {5,  255, 138,  193}, {8, 200,  170, 178}, {5,  55,   255,  217}, {5,  0, 206, 231}, {6,  0,   124,  255}, {9, 0,  26,  173}, {12,  0,  116,   51}, {5, 0, 235,   226}, {7,  30,  255,  255}, {8,   134, 191,   255}, {5,   254,  186,  255}, {5, 242,  185,  255}, {17,  235,   184,  244}, {5, 130,  42, 57}, {8,  99,   0,  116}, {8,  50, 64, 210}, {12,  0,   128,  167}, {4, 64,  223,  102}, {9,  86,  255,   137}, {13, 134, 191,   217}, {6,  204,  99,  140}, {10,   117, 57,   105}},
+      {{12, 161, 36, 32}, {12, 32, 15, 8}, {12, 214, 207, 191}, {12, 209, 184, 127}, {12, 164, 117, 49}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}},
+      {{12, 214, 198, 146}, {12, 241, 225, 202}, {12, 96, 105, 62}, {12, 129, 170, 102}, {12, 86, 69, 41}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}},
+      {{14, 12, 0, 0}, {14, 77, 56, 56}, {14, 69, 6, 6}, {14, 148, 55, 56}, {14, 251, 195, 199}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}},
+      {{9, 186, 44, 4}, {10, 204, 214, 223}, {8, 65, 143, 55}, {8, 242, 239, 28}, {8, 57, 31, 40}, {9, 174, 237, 85}, {6, 18, 200, 230}, {6, 155, 59, 245}, {14, 152, 84, 158}, {13, 114, 74, 27}, {12, 218, 159, 151}, {14, 172, 60, 111}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}},
+      {{11, 104, 225, 252}, {7, 255, 231, 139}, {11, 110, 57, 110}, {8, 121, 196, 151}, {8, 47, 121, 17}, {7, 81, 136, 85}, {15, 167, 154, 74}, {14, 163, 108, 21}, {9, 137, 99, 44}, {15, 42, 227, 47}, {8, 175, 105, 184}, {12, 103, 169, 39}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}},
+      {{12, 37, 215, 240}, {9, 214, 16, 108}, {7, 228, 121, 33}, {9, 184, 46, 7}, {8, 1, 28, 18}, {8, 20, 114, 217}, {6, 0, 153, 51}, {11, 0, 51, 51}, {12, 165, 221, 35}, {10, 153, 102, 255}, {10, 166, 195, 162}, {7, 193, 222, 227}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}},
+      {{8,  40,  70,  10}, {9,  40, 170,  10}, {6, 100, 255,  70}, {8, 255, 255, 255}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}},
+      {{12,   0,   0,  64}, {12,   0,   0, 255}, {10,   0, 255, 255}, {12, 128, 255, 255}, {14,  64, 128, 255}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}},
+      {{22,  255,   255,  255}, {21,  0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}},
+      {{8, 255, 255, 255}, {8, 255, 206, 12}, {8, 165, 73, 14}, {8, 96, 22, 58}, {8, 39, 9, 114}, {8, 0, 25, 178}, {8, 12, 109, 255}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}},
+      {{8, 255, 255, 255}, {8, 27, 118, 255}, {8, 19, 83, 180}, {8, 40, 62, 94}, {8, 94, 40, 83}, {8, 180, 19, 147}, {8, 255, 27, 209}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}},
+      {{8, 0, 0, 0}, {8, 214, 0, 0}, {8, 255, 45, 0}, {8, 255, 100, 0}, {8, 255, 155, 0}, {8, 255, 210, 0}, {8, 255, 255, 41}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}}};
   private int i, k;
   public static final int FAST_JULIA_IMAGE_SIZE = 250;
   public static final int MANDELBROTNTH = 9;
@@ -338,6 +359,7 @@ public class MainWindow extends JFrame {
         julia_grid_first_dimension = 0;
         max_iterations = 500;
 
+        
         color_choice = 0;
         
         boundary_tracing = true;
@@ -358,7 +380,6 @@ public class MainWindow extends JFrame {
         perturbation = false;
 
         color_cycling_location = 0;
-        color_intensity = 1;
         
         filters = new boolean[7];
 
@@ -717,13 +738,7 @@ public class MainWindow extends JFrame {
         image2 = Toolkit.getDefaultToolkit().getImage(imageURL);
         icon = new ImageIcon(image2);
         decrease_roll_palette = new JMenuItem("Shift Palette Backward", icon);
-        
-        imageURL = getClass().getResource("/icons/color_intensity.png");
-        image2 = Toolkit.getDefaultToolkit().getImage(imageURL);
-        icon = new ImageIcon(image2);
-        color_intens = new JMenuItem("Color Intensity", icon);
 
-        
         tools_menu = new JMenu("Tools");
         orbit_opt = new JCheckBoxMenuItem("Orbit");
         julia_opt = new JCheckBoxMenuItem("Julia");
@@ -777,7 +792,7 @@ public class MainWindow extends JFrame {
         roll_palette.setToolTipText("Shifts the chosen palette by a number.");
         increase_roll_palette.setToolTipText("Shifts the chosen palette forward by one.");
         decrease_roll_palette.setToolTipText("Shifts the chosen palette backward by one.");
-        color_intens.setToolTipText("Sets the intensity of the palette.");
+
 
         fast_julia_filters_opt.setToolTipText("Activates the filters for the julia preview.");
 
@@ -825,7 +840,6 @@ public class MainWindow extends JFrame {
         roll_palette.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, ActionEvent.SHIFT_MASK));
         increase_roll_palette.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, ActionEvent.SHIFT_MASK));
         decrease_roll_palette.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, ActionEvent.SHIFT_MASK));
-        color_intens.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, ActionEvent.CTRL_MASK));
 
         fast_julia_filters_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, ActionEvent.CTRL_MASK));
 
@@ -2381,18 +2395,7 @@ public class MainWindow extends JFrame {
 
         });
 
-        color_intens.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                setColorIntensity();
-
-            }
-
-        });
-
-
+   
         anti_aliasing_opt.addActionListener(new ActionListener() {
 
             @Override
@@ -2699,8 +2702,6 @@ public class MainWindow extends JFrame {
         colors_menu.addSeparator();
         colors_menu.add(out_coloring_mode_menu);
         colors_menu.add(in_coloring_mode_menu);
-        colors_menu.addSeparator();
-        colors_menu.add(color_intens);
 
         tools_options_menu.add(orbit_menu);
         tools_options_menu.addSeparator();
@@ -3412,22 +3413,23 @@ public class MainWindow extends JFrame {
  
         ThreadDraw.resetAtomics();
  
+        
         for(int i = 0; i < n; i++) {
            for(int j = 0; j < n; j++) {
                if(color_choice != palette.length - 1) {
                    if(julia) {
-                       threads[i][j] = new Palette(color_choice, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, ptr, fractal_color, image, filters, out_coloring_algorithm, in_coloring_algorithm, color_intensity, boundary_tracing, periodicity_checking, plane_type,  burning_ship, function, z_exponent, color_cycling_location, rotation_vals, coefficients, xJuliaCenter, yJuliaCenter);
+                       threads[i][j] = new Palette(color_choice, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, ptr, fractal_color, image, filters, out_coloring_algorithm, in_coloring_algorithm, boundary_tracing, periodicity_checking, plane_type,  burning_ship, function, z_exponent, color_cycling_location, rotation_vals, coefficients, xJuliaCenter, yJuliaCenter);
                    }
                    else {
-                       threads[i][j] = new Palette(color_choice, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, ptr, fractal_color, image, filters, out_coloring_algorithm, in_coloring_algorithm, color_intensity, boundary_tracing, periodicity_checking, plane_type,  burning_ship, function, z_exponent, color_cycling_location, rotation_vals, perturbation, perturbation_vals, coefficients);
+                       threads[i][j] = new Palette(color_choice, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, ptr, fractal_color, image, filters, out_coloring_algorithm, in_coloring_algorithm, boundary_tracing, periodicity_checking, plane_type,  burning_ship, function, z_exponent, color_cycling_location, rotation_vals, perturbation, perturbation_vals, coefficients);
                    }      
                }
                else {
                    if(julia) {
-                       threads[i][j] = new CustomPalette(custom_palette, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm,  bailout, ptr, fractal_color, image, filters, out_coloring_algorithm, in_coloring_algorithm, color_intensity, boundary_tracing, periodicity_checking, plane_type,  burning_ship, function, z_exponent, color_cycling_location, rotation_vals, coefficients, xJuliaCenter, yJuliaCenter);
+                       threads[i][j] = new CustomPalette(custom_palette, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm,  bailout, ptr, fractal_color, image, filters, out_coloring_algorithm, in_coloring_algorithm, boundary_tracing, periodicity_checking, plane_type,  burning_ship, function, z_exponent, color_cycling_location, rotation_vals, coefficients, xJuliaCenter, yJuliaCenter);
                    }
                    else {
-                       threads[i][j] = new CustomPalette(custom_palette, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm,  bailout, ptr, fractal_color, image, filters, out_coloring_algorithm, in_coloring_algorithm, color_intensity, boundary_tracing, periodicity_checking, plane_type,  burning_ship, function, z_exponent, color_cycling_location, rotation_vals, perturbation, perturbation_vals, coefficients);
+                       threads[i][j] = new CustomPalette(custom_palette, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm,  bailout, ptr, fractal_color, image, filters, out_coloring_algorithm, in_coloring_algorithm, boundary_tracing, periodicity_checking, plane_type,  burning_ship, function, z_exponent, color_cycling_location, rotation_vals, perturbation, perturbation_vals, coefficients);
                    }
                }
            }
@@ -3470,7 +3472,7 @@ public class MainWindow extends JFrame {
                file_temp = new ObjectOutputStream(new FileOutputStream(file.toString()));
                SettingsFractals settings;
                if(julia) {
-                   settings = new SettingsJulia(xCenter, yCenter, size, max_iterations, color_choice, fractal_color, out_coloring_algorithm, in_coloring_algorithm, color_intensity, function, bailout_test_algorithm, bailout, plane_type, burning_ship, z_exponent, color_cycling_location, coefficients, custom_palette, rotation, xJuliaCenter, yJuliaCenter);
+                   settings = new SettingsJulia(xCenter, yCenter, size, max_iterations, color_choice, fractal_color, out_coloring_algorithm, in_coloring_algorithm, function, bailout_test_algorithm, bailout, plane_type, burning_ship, z_exponent, color_cycling_location, coefficients, custom_palette, rotation, xJuliaCenter, yJuliaCenter);
                }
                else {
                    int temp_bailout_test_algorithm = 0;
@@ -3479,7 +3481,7 @@ public class MainWindow extends JFrame {
                        temp_bailout_test_algorithm = bailout_test_algorithm;
                    }
                    
-                   settings = new SettingsFractals(xCenter, yCenter, size, max_iterations, color_choice, fractal_color, out_coloring_algorithm, in_coloring_algorithm, color_intensity, function, temp_bailout_test_algorithm, bailout, plane_type, burning_ship, z_exponent, color_cycling_location, coefficients, custom_palette, rotation, perturbation, perturbation_vals);
+                   settings = new SettingsFractals(xCenter, yCenter, size, max_iterations, color_choice, fractal_color, out_coloring_algorithm, in_coloring_algorithm, function, temp_bailout_test_algorithm, bailout, plane_type, burning_ship, z_exponent, color_cycling_location, coefficients, custom_palette, rotation, perturbation, perturbation_vals);
                }
                file_temp.writeObject(settings);
                file_temp.flush();
@@ -3699,8 +3701,6 @@ public class MainWindow extends JFrame {
                    in_coloring_modes[ATAN_RE_TIMES_IM_TIMES_ABS_RE_TIMES_ABS_IM].setEnabled(true);
                    in_coloring_modes[SQUARES].setEnabled(true);
                }
-
-               color_intensity = settings.getColorIntensity();
                
                coefficients = settings.getCoefficients();
                
@@ -5162,6 +5162,54 @@ public class MainWindow extends JFrame {
            public void actionPerformed(ActionEvent e) {
                fractal_color = color_chooser.getColor();
 
+               //Fix, fractal_color should not be included in the palette, boundary tracing algorithm fails some times
+               if(color_choice < palette.length - 1) {
+                   Color[] c = CustomPalette.getPalette(editor_default_palettes[color_choice]);
+                   
+                   boolean flag;
+                   while(true) {
+                       flag = false;
+                       for(int j = 0; j < c.length; j++) {
+                           if(c[j].getRGB() == fractal_color.getRGB()) {
+                               if(fractal_color.getBlue() == 255) {
+                                   fractal_color = new Color(fractal_color.getRGB() - 1); 
+                               }
+                               else {
+                                   fractal_color = new Color(fractal_color.getRGB() + 1); 
+                               }
+                               flag = true;
+                               break;
+                           }
+                       }
+                       if(!flag) {
+                           break;
+                       }
+                   }
+               }
+               else {
+                   Color[] c = CustomPalette.getPalette(custom_palette);
+                   
+                   boolean flag;
+                   while(true) {
+                       flag = false;
+                       for(int j = 0; j < c.length; j++) {
+                           if(c[j].getRGB() == fractal_color.getRGB()) {
+                               if(fractal_color.getBlue() == 255) {
+                                   fractal_color = new Color(fractal_color.getRGB() - 1); 
+                               }
+                               else {
+                                   fractal_color = new Color(fractal_color.getRGB() + 1); 
+                               }
+                               flag = true;
+                               break;
+                           }
+                       }
+                       if(!flag) {
+                           break;
+                       }
+                   }
+               }
+
                setOptions(false);
 
                progress.setValue(0);
@@ -5410,7 +5458,54 @@ public class MainWindow extends JFrame {
            palette[color_choice].setSelected(true);
        }
        
-       color_intensity = 1;     
+       
+       //Fix, fractal_color should not be included in the palette, boundary tracing algorithm fails some times
+       if(color_choice < palette.length - 1) {
+           Color[] c = CustomPalette.getPalette(editor_default_palettes[color_choice]);
+                   
+           boolean flag;
+           while(true) {
+               flag = false;
+               for(int j = 0; j < c.length; j++) {
+                   if(c[j].getRGB() == fractal_color.getRGB()) {
+                       if(fractal_color.getBlue() == 255) {
+                           fractal_color = new Color(fractal_color.getRGB() - 1); 
+                       }
+                       else {
+                           fractal_color = new Color(fractal_color.getRGB() + 1); 
+                       }
+                       flag = true;
+                           break;
+                   }
+               }
+               if(!flag) {
+                   break;
+               }
+           }
+       }
+       else {
+           Color[] c = CustomPalette.getPalette(custom_palette);
+           
+           boolean flag;
+           while(true) {
+               flag = false;
+               for(int j = 0; j < c.length; j++) {
+                   if(c[j].getRGB() == fractal_color.getRGB()) {
+                       if(fractal_color.getBlue() == 255) {
+                           fractal_color = new Color(fractal_color.getRGB() - 1); 
+                       }
+                       else {
+                           fractal_color = new Color(fractal_color.getRGB() + 1); 
+                       }
+                       flag = true;
+                           break;
+                   }
+               }
+               if(!flag) {
+                   break;
+               }
+           }
+       }
          
        setOptions(false);
 
@@ -8924,10 +9019,10 @@ public class MainWindow extends JFrame {
         for(int i = 0; i < n; i++) {
            for(int j = 0; j < n; j++) {
                if(color_choice != palette.length - 1) {
-                   threads[i][j] = new Palette(color_choice, j * temp_image_size / n, (j + 1) * temp_image_size / n, i * temp_image_size / n, (i + 1) * temp_image_size / n, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, bailout_test_algorithm, temp_bailout, ptr, fractal_color, fast_julia_filters, fast_julia_image, boundary_tracing, periodicity_checking, plane_type, filters,  out_coloring_algorithm, in_coloring_algorithm, color_intensity, burning_ship, function, z_exponent, color_cycling_location, rotation_vals, coefficients, temp_xJuliaCenter, temp_yJuliaCenter);
+                   threads[i][j] = new Palette(color_choice, j * temp_image_size / n, (j + 1) * temp_image_size / n, i * temp_image_size / n, (i + 1) * temp_image_size / n, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, bailout_test_algorithm, temp_bailout, ptr, fractal_color, fast_julia_filters, fast_julia_image, boundary_tracing, periodicity_checking, plane_type, filters,  out_coloring_algorithm, in_coloring_algorithm, burning_ship, function, z_exponent, color_cycling_location, rotation_vals, coefficients, temp_xJuliaCenter, temp_yJuliaCenter);
                }
                else {
-                   threads[i][j] = new CustomPalette(custom_palette, j * temp_image_size / n, (j + 1) * temp_image_size / n, i * temp_image_size / n, (i + 1) * temp_image_size / n, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, bailout_test_algorithm, temp_bailout, ptr, fractal_color, fast_julia_filters, fast_julia_image, boundary_tracing, periodicity_checking, plane_type, filters,  out_coloring_algorithm, in_coloring_algorithm, color_intensity, burning_ship, function, z_exponent, color_cycling_location, rotation_vals, coefficients, temp_xJuliaCenter, temp_yJuliaCenter);
+                   threads[i][j] = new CustomPalette(custom_palette, j * temp_image_size / n, (j + 1) * temp_image_size / n, i * temp_image_size / n, (i + 1) * temp_image_size / n, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, bailout_test_algorithm, temp_bailout, ptr, fractal_color, fast_julia_filters, fast_julia_image, boundary_tracing, periodicity_checking, plane_type, filters,  out_coloring_algorithm, in_coloring_algorithm, burning_ship, function, z_exponent, color_cycling_location, rotation_vals, coefficients, temp_xJuliaCenter, temp_yJuliaCenter);
                }
            }
        }
@@ -8998,10 +9093,10 @@ public class MainWindow extends JFrame {
            setOptions(false);
            
            if(color_choice != palette.length - 1) {
-               threads[0][0] = new Palette(color_choice, 0, image_size, 0, image_size, max_iterations, ptr, fractal_color, out_coloring_algorithm, color_intensity, image, color_cycling_location);
+               threads[0][0] = new Palette(color_choice, 0, image_size, 0, image_size, max_iterations, ptr, fractal_color, out_coloring_algorithm, image, color_cycling_location);
            }
            else {
-               threads[0][0] = new CustomPalette(custom_palette, 0, image_size, 0, image_size, max_iterations,  ptr, fractal_color, out_coloring_algorithm, color_intensity, image, color_cycling_location);
+               threads[0][0] = new CustomPalette(custom_palette, 0, image_size, 0, image_size, max_iterations,  ptr, fractal_color, out_coloring_algorithm, image, color_cycling_location);
            }
 
            whole_image_done = false;
@@ -9020,10 +9115,10 @@ public class MainWindow extends JFrame {
        for(int i = 0; i < n; i++) {
            for(int j = 0; j < n; j++) { 
                if(color_choice != palette.length - 1) {
-                   threads[i][j] = new Palette(color_choice, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, max_iterations, ptr, image, fractal_color, color_cycling_location, out_coloring_algorithm, color_intensity, filters);
+                   threads[i][j] = new Palette(color_choice, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, max_iterations, ptr, image, fractal_color, color_cycling_location, out_coloring_algorithm, filters);
                }
                else {
-                   threads[i][j] = new CustomPalette(custom_palette, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, max_iterations,  ptr, image, fractal_color, color_cycling_location, out_coloring_algorithm, color_intensity, filters);
+                   threads[i][j] = new CustomPalette(custom_palette, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, max_iterations,  ptr, image, fractal_color, color_cycling_location, out_coloring_algorithm, filters);
                }
            }
        }
@@ -9111,89 +9206,7 @@ public class MainWindow extends JFrame {
 
    }
 
-   private void setColorIntensity() {
-
-       if(backup_orbit != null && orbit) {
-           image = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
-           Graphics2D graphics = image.createGraphics();
-           graphics.drawImage(backup_orbit, 0, 0, image_size, image_size, null);
-       }
-       main_panel.repaint();
-
-       double default_color_intensity = 1;
-
-       main_panel.repaint();
-       String ans = (String) JOptionPane.showInputDialog(scroll_pane, "The default color intensity for this mode is " + default_color_intensity + ".\nEnter the new Color Intensity.", "Color Intensity", JOptionPane.QUESTION_MESSAGE, null, null, color_intensity);
-
-       try {
-           double temp = Double.parseDouble(ans);
-
-           if(temp <= 0) {
-               main_panel.repaint();
-               JOptionPane.showMessageDialog(scroll_pane, "Color intensity value needs to be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
-               return;
-           }
-
-           color_intensity = temp;
-
-           main_panel.repaint();
-           JOptionPane.showMessageDialog(scroll_pane, "The new color intensity is " + color_intensity + " .", "Info", JOptionPane.INFORMATION_MESSAGE);
-
-           setOptions(false);
-
-           progress.setValue(0);
-
-           //scroll_pane.getHorizontalScrollBar().setValue((int)(scroll_pane.getHorizontalScrollBar().getMaximum() / 2 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2));
-           //scroll_pane.getVerticalScrollBar().setValue((int)(scroll_pane.getVerticalScrollBar().getMaximum() / 2 - scroll_pane.getVerticalScrollBar().getSize().getHeight() / 2));
-
-           last_used = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
-           Graphics2D graphics = last_used.createGraphics();
-           graphics.drawImage(image, 0, 0, image_size, image_size, null);
-
-           image = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
-
-           backup_orbit = null;
-
-           whole_image_done = false;
-
-           if(filters[0]) {
-               if(julia_map) {
-                   createThreadsJuliaMap();
-               }
-               else {
-                   createThreads(); 
-               }
-
-               calculation_time = System.currentTimeMillis();
-
-               if(julia_map) {
-                   startThreads(julia_grid_first_dimension);
-               }
-               else {
-                   startThreads(n);
-               }
-           }
-           else {
-               createThreadsPaletteAndFilter();
-
-               calculation_time = System.currentTimeMillis();
-
-               startThreads(n);
-           }
-
-       }
-       catch(Exception ex) {
-           if(ans == null) {
-               main_panel.repaint();
-           }
-           else {
-               JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-               main_panel.repaint();
-           }
-       }
-
-   }
-
+   
    private void setPlane(int temp) {
        
        planes[plane_type].setSelected(false);
@@ -9256,8 +9269,6 @@ public class MainWindow extends JFrame {
        out_coloring_algorithm =  temp;
 
        out_coloring_modes[temp].setEnabled(false);
-
-       color_intensity = 1;
        
        if(out_coloring_algorithm == BIOMORPH || out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER) {
            fractal_functions[NEWTON3].setEnabled(false);
@@ -9670,8 +9681,8 @@ public class MainWindow extends JFrame {
    private void customPaletteEditor(final int number) {
        
        setEnabled(false);
-       int custom_palette_window_width = 640;
-       int custom_palette_window_height = 212;
+       int custom_palette_window_width = 800;
+       int custom_palette_window_height = 360;
        custom_palette_editor = new JFrame("Custom Palette Editor");
        custom_palette_editor.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/icons/palette.png")));
        custom_palette_editor.setLayout(new FlowLayout());
@@ -9702,35 +9713,38 @@ public class MainWindow extends JFrame {
             }
         }
 
-        
-        JPanel palettes = new JPanel();
+        JPanel editor_panel = new JPanel();
+        JPanel palette_colors = new JPanel();
         JPanel hues = new JPanel();
         JPanel buttons = new JPanel();
 
-        palettes.setLayout(new FlowLayout());
+        editor_panel.setPreferredSize(new Dimension(780, 255));
+        editor_panel.setLayout(new FlowLayout());
+        palette_colors.setLayout(new FlowLayout());
         hues.setLayout(new FlowLayout());
         buttons.setLayout(new FlowLayout());
 
-        labels = new JLabel[12];
-        textfields = new JTextField[12];
+        labels = new JLabel[32];
+        textfields = new JTextField[32];
         
-        JLabel temp1 = new JLabel("Custom Palette Editor");
+        /*JLabel temp1 = new JLabel("Custom Palette Editor");
         temp1.setFont(new Font("bold", Font.BOLD, 16));
-        custom_palette_editor.add(temp1);
+        custom_palette_editor.add(temp1);*/
         
-        temp1 = new JLabel("Palette:");
+        /*temp1 = new JLabel(" Colors:");
         temp1.setFont(new Font("bold", Font.BOLD, 12));
-        palettes.add(temp1);
+        palette_colors.add(temp1);
         
 
         temp1 = new JLabel("   Hues:");
         temp1.setFont(new Font("bold", Font.BOLD, 12));
-        hues.add(temp1);
+        hues.add(temp1);*/
         
         for(k = 0; k < labels.length; k++) {
             labels[k] = new JLabel("");
-            labels[k].setPreferredSize(new Dimension(40, 40));
+            labels[k].setPreferredSize(new Dimension(18, 18));
             labels[k].setOpaque(true);
+            labels[k].setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
             labels[k].setBackground(new Color(temp_custom_palette[k][1], temp_custom_palette[k][2], temp_custom_palette[k][3]));
             labels[k].setToolTipText("Left click to change this color.");
             labels[k].addMouseListener(new MouseListener() {
@@ -9776,6 +9790,28 @@ public class MainWindow extends JFrame {
 
                             custom_palette_editor.setEnabled(true);
                             choose_color_frame.dispose();
+                            
+                            Color[] cpalette = CustomPalette.getPalette(temp_custom_palette);
+        
+                            int div = colors.getWidth() / cpalette.length;
+                            int mod = colors.getWidth() % cpalette.length;
+
+
+                            Graphics2D g = colors.createGraphics();
+                            for(int i = 0, j = 0; i < cpalette.length; i++) {
+                                g.setColor(cpalette[i]);
+                                if(mod != 0) {
+                                    g.fillRect(j, 0, j + div + 1, colors.getHeight());   
+                                    j += div + 1;
+                                    mod--;
+                                }
+                                else {
+                                    g.fillRect(j, 0, j + div, colors.getHeight());   
+                                    j += div;
+                                }   
+                            }
+                            
+                            gradient.repaint();
 
                         }
                     });
@@ -9810,11 +9846,118 @@ public class MainWindow extends JFrame {
                  @Override
                  public void mouseExited(MouseEvent e) {}
             });
-            palettes.add(labels[k]);
+            palette_colors.add(labels[k]);
             
             textfields[k] = new JTextField();
-            textfields[k].setPreferredSize(new Dimension(40, 20));
+            textfields[k].setPreferredSize(new Dimension(18, 18));
             textfields[k].setText("" + temp_custom_palette[k][0]);
+            textfields[k].getDocument().addDocumentListener(new DocumentListener() {
+                
+                int temp2 = k;
+               
+                @Override
+                public void insertUpdate(DocumentEvent e) {
+                    
+                   try {
+
+                        int temp3 = Integer.parseInt(textfields[temp2].getText());
+                        
+                        if(temp3 < 0 || temp3 > 22) {
+                            return;
+                        }
+                        
+                        temp_custom_palette[temp2][0] = temp3;
+                        
+                        
+                        temp_custom_palette[temp2][1] = labels[temp2].getBackground().getRed();
+                        temp_custom_palette[temp2][2] = labels[temp2].getBackground().getGreen();
+                        temp_custom_palette[temp2][3] = labels[temp2].getBackground().getBlue();
+                        
+                        Color[] cpalette = CustomPalette.getPalette(temp_custom_palette);
+       
+                        int div = colors.getWidth() / cpalette.length;
+                        int mod = colors.getWidth() % cpalette.length;
+
+
+                        Graphics2D g = colors.createGraphics();
+                        for(int i = 0, j = 0; i < cpalette.length; i++) {
+                            g.setColor(cpalette[i]);
+                            if(mod != 0) {
+                                g.fillRect(j, 0, j + div + 1, colors.getHeight());   
+                                j += div + 1;
+                                mod--;
+                            }
+                            else {
+                                g.fillRect(j, 0, j + div, colors.getHeight());   
+                                j += div;
+                            }   
+                        }
+                            
+                        gradient.repaint();
+                   }
+                   catch(ArithmeticException ex) {
+                        Graphics2D g = colors.createGraphics();
+                        g.setColor(Color.black);
+                        g.fillRect(0, 0, colors.getWidth(), colors.getHeight());    
+                        gradient.repaint();
+                   }
+                   catch(NumberFormatException ex) {}
+                }
+
+                @Override
+                public void removeUpdate(DocumentEvent e) {
+                    try {
+
+                        int temp3 = Integer.parseInt(textfields[temp2].getText());
+                        
+                        if(temp3 < 0 || temp3 > 22) {
+                            return;
+                        }
+                        
+                        temp_custom_palette[temp2][0] = temp3;
+                        
+                        
+                        temp_custom_palette[temp2][1] = labels[temp2].getBackground().getRed();
+                        temp_custom_palette[temp2][2] = labels[temp2].getBackground().getGreen();
+                        temp_custom_palette[temp2][3] = labels[temp2].getBackground().getBlue();
+                        
+                        Color[] cpalette = CustomPalette.getPalette(temp_custom_palette);
+       
+                        int div = colors.getWidth() / cpalette.length;
+                        int mod = colors.getWidth() % cpalette.length;
+
+
+                        Graphics2D g = colors.createGraphics();
+                        for(int i = 0, j = 0; i < cpalette.length; i++) {
+                            g.setColor(cpalette[i]);
+                            if(mod != 0) {
+                                g.fillRect(j, 0, j + div + 1, colors.getHeight());   
+                                j += div + 1;
+                                mod--;
+                            }
+                            else {
+                                g.fillRect(j, 0, j + div, colors.getHeight());   
+                                j += div;
+                            }   
+                        }
+                            
+                        gradient.repaint();
+                   }
+                   catch(ArithmeticException ex) {
+                        Graphics2D g = colors.createGraphics();
+                        g.setColor(Color.black);
+                        g.fillRect(0, 0, colors.getWidth(), colors.getHeight());    
+                        gradient.repaint();
+                   }
+                   catch(NumberFormatException ex) {
+                       
+                   }
+                }
+
+                @Override
+                public void changedUpdate(DocumentEvent e) {}
+                
+            });
             hues.add(textfields[k]);
         }
         
@@ -9832,8 +9975,8 @@ public class MainWindow extends JFrame {
                          return;
                     }
                     
-                    if(temp2 < 0 || temp2 > 40) {
-                         JOptionPane.showMessageDialog(custom_palette_editor, "The hues values must between 1 and 40\n for that color to be included in the palette,\n or 0 for that color not to be included.", "Error!", JOptionPane.ERROR_MESSAGE);
+                    if(temp2 < 0 || temp2 > 22) {
+                         JOptionPane.showMessageDialog(custom_palette_editor, "The hues values must between 1 and 22\n for that color to be included in the palette,\n or 0 for that color not to be included.", "Error!", JOptionPane.ERROR_MESSAGE);
                          return;
                     }                                        
 
@@ -9849,12 +9992,13 @@ public class MainWindow extends JFrame {
                      return;
                 }
                 
+                
                 for(k = 0; k < custom_palette.length; k++) {
                     for(int j = 0; j < custom_palette[0].length; j++) {
                         custom_palette[k][j] = temp_custom_palette[k][j];
                     } 
                 }
-
+ 
                 setEnabled(true);
                 setPalette(number);
                 custom_palette_editor.dispose();
@@ -9890,6 +10034,11 @@ public class MainWindow extends JFrame {
         ImageIcon icon = new ImageIcon(image2);
         JMenuItem reset_palette = new JMenuItem("Reset Palette", icon);
         
+        imageURL = getClass().getResource("/icons/palette_default.png");
+        image2 = Toolkit.getDefaultToolkit().getImage(imageURL);
+        icon = new ImageIcon(image2);
+        JMenu default_palettes = new JMenu("Default Palettes");
+        default_palettes.setIcon(icon);
         
         imageURL = getClass().getResource("/icons/palette_random.png");
         image2 = Toolkit.getDefaultToolkit().getImage(imageURL);
@@ -9916,7 +10065,7 @@ public class MainWindow extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 
-                int[][] temp_custom_palette1 = {{12, 255, 0, 0}, {12, 255, 127, 0}, {12, 255, 255, 0}, {12, 0, 255, 0}, {12, 0, 0, 255}, {12, 75, 0, 130}, {12, 143, 0, 255}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}};
+                int[][] temp_custom_palette1 = {{12, 255, 0, 0}, {12, 255, 127, 0}, {12, 255, 255, 0}, {12, 0, 255, 0}, {12, 0, 0, 255}, {12, 75, 0, 130}, {12, 143, 0, 255}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}};
                 
                 for(int m = 0; m < labels.length; m++) {
                     temp_custom_palette[m][0] = temp_custom_palette1[m][0];
@@ -9926,6 +10075,28 @@ public class MainWindow extends JFrame {
                     labels[m].setBackground(new Color(temp_custom_palette[m][1], temp_custom_palette[m][2], temp_custom_palette[m][3]));
                     textfields[m].setText("" + temp_custom_palette[m][0]);
                 }
+                
+                Color[] cpalette = CustomPalette.getPalette(temp_custom_palette);
+        
+                int div = colors.getWidth() / cpalette.length;
+                int mod = colors.getWidth() % cpalette.length;
+
+
+                Graphics2D g = colors.createGraphics();
+                for(int i = 0, j = 0; i < cpalette.length; i++) {
+                    g.setColor(cpalette[i]);
+                    if(mod != 0) {
+                        g.fillRect(j, 0, j + div + 1, colors.getHeight());   
+                        j += div + 1;
+                        mod--;
+                    }
+                    else {
+                        g.fillRect(j, 0, j + div, colors.getHeight());   
+                        j += div;
+                    }   
+                }
+                            
+                gradient.repaint();
             }
         
         });
@@ -9946,6 +10117,28 @@ public class MainWindow extends JFrame {
                     labels[m].setBackground(new Color(temp_custom_palette[m][1], temp_custom_palette[m][2], temp_custom_palette[m][3]));
                     textfields[m].setText("" + temp_custom_palette[m][0]);
                 }
+                
+                Color[] cpalette = CustomPalette.getPalette(temp_custom_palette);
+        
+                int div = colors.getWidth() / cpalette.length;
+                int mod = colors.getWidth() % cpalette.length;
+
+
+                Graphics2D g = colors.createGraphics();
+                for(int i = 0, j = 0; i < cpalette.length; i++) {
+                    g.setColor(cpalette[i]);
+                    if(mod != 0) {
+                        g.fillRect(j, 0, j + div + 1, colors.getHeight());   
+                        j += div + 1;
+                        mod--;
+                    }
+                    else {
+                        g.fillRect(j, 0, j + div, colors.getHeight());   
+                        j += div;
+                    }   
+                }
+                            
+                gradient.repaint();
             }
         
         });
@@ -9960,7 +10153,7 @@ public class MainWindow extends JFrame {
                     try {
                         temp2 = Integer.parseInt(textfields[m].getText());
          
-                        if(temp2 > 0 && temp2 < 41) {
+                        if(temp2 > 0 && temp2 < 23) {
                             temp_custom_palette[m][0] = temp2;
                         }
                         else {
@@ -9989,11 +10182,95 @@ public class MainWindow extends JFrame {
                     textfields[m].setText("" + temp_custom_palette[m][0]);
                 }
                 
+                Color[] cpalette = CustomPalette.getPalette(temp_custom_palette);
+        
+                int div = colors.getWidth() / cpalette.length;
+                int mod = colors.getWidth() % cpalette.length;
+
+
+                Graphics2D g = colors.createGraphics();
+                for(int i = 0, j = 0; i < cpalette.length; i++) {
+                    g.setColor(cpalette[i]);
+                    if(mod != 0) {
+                        g.fillRect(j, 0, j + div + 1, colors.getHeight());   
+                        j += div + 1;
+                        mod--;
+                    }
+                    else {
+                        g.fillRect(j, 0, j + div, colors.getHeight());   
+                        j += div;
+                    }   
+                }
+                            
+                gradient.repaint();
+                
             }
         
         });
         
+        String[] coloring_option = new String[15];
+        coloring_option[0] = "Default";
+        coloring_option[1] = "Spectrum";
+        coloring_option[2] = "Alternative";
+        coloring_option[3] = "Alternative 2";
+        coloring_option[4] = "Alternative 3";
+        coloring_option[5] = "Alternative 4";
+        coloring_option[6] = "Alternative 5";
+        coloring_option[7] = "Alternative 6";
+        coloring_option[8] = "Alternative 7";
+        coloring_option[9] = "Green White";
+        coloring_option[10] = "Blue";
+        coloring_option[11] = "Gray Scale";
+        coloring_option[12] = "Earth Sky";
+        coloring_option[13] = "Hot Cold";
+        coloring_option[14] = "Fire";
+
+        editor_palettes = new JMenuItem[coloring_option.length];
+
+        for(k = 0; k < editor_palettes.length; k++) {
+            editor_palettes[k] = new JMenuItem(coloring_option[k]);
+            editor_palettes[k].addActionListener(new ActionListener() {
+                int temp = k;
+                public void actionPerformed(ActionEvent e) {
+                    
+                    for(int m = 0; m < labels.length; m++) {
+                        temp_custom_palette[m][0] = editor_default_palettes[temp][m][0];
+                        temp_custom_palette[m][1] = editor_default_palettes[temp][m][1];
+                        temp_custom_palette[m][2] = editor_default_palettes[temp][m][2];
+                        temp_custom_palette[m][3] = editor_default_palettes[temp][m][3];
+                        labels[m].setBackground(new Color(temp_custom_palette[m][1], temp_custom_palette[m][2], temp_custom_palette[m][3]));
+                        textfields[m].setText("" + temp_custom_palette[m][0]);
+                    }
+
+                    Color[] cpalette = CustomPalette.getPalette(temp_custom_palette);
+
+                    int div = colors.getWidth() / cpalette.length;
+                    int mod = colors.getWidth() % cpalette.length;
+
+
+                    Graphics2D g = colors.createGraphics();
+                    for(int i = 0, j = 0; i < cpalette.length; i++) {
+                        g.setColor(cpalette[i]);
+                        if(mod != 0) {
+                            g.fillRect(j, 0, j + div + 1, colors.getHeight());   
+                            j += div + 1;
+                            mod--;
+                        }
+                        else {
+                            g.fillRect(j, 0, j + div, colors.getHeight());   
+                            j += div;
+                        }   
+                    }
+
+                    gradient.repaint();
+
+                }
+            });
+            default_palettes.add(editor_palettes[k]);
+        }
+        
         file2.add(reset_palette);
+        file2.add(default_palettes);
         file2.add(random_palette);
         file2.add(save_palette);
         file2.add(load_palette);
@@ -10001,9 +10278,49 @@ public class MainWindow extends JFrame {
         
         custom_palette_editor.setJMenuBar(menubar2);
         
+        colors = new BufferedImage(732, 36, BufferedImage.TYPE_INT_ARGB);
+
+        Color[] cpalette = CustomPalette.getPalette(temp_custom_palette);
         
-        custom_palette_editor.add(palettes);
-        custom_palette_editor.add(hues);
+        int div = colors.getWidth() / cpalette.length;
+        int mod = colors.getWidth() % cpalette.length;
+
+        Graphics2D g = colors.createGraphics();
+        for(int i = 0, j = 0; i < cpalette.length; i++) {
+            g.setColor(cpalette[i]);
+            if(mod != 0) {
+                g.fillRect(j, 0, j + div + 1, colors.getHeight());   
+                j += div + 1;
+                mod--;
+            }
+            else {
+                g.fillRect(j, 0, j + div, colors.getHeight());   
+                j += div;
+            }   
+        }
+        
+ 
+        gradient = new JLabel(new ImageIcon(colors));
+        gradient.setPreferredSize(new Dimension(colors.getWidth(), colors.getHeight()));
+        gradient.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
+        
+        JPanel palette_panel = new JPanel();
+        
+        /*temp1 = new JLabel("Palette:");
+        temp1.setFont(new Font("bold", Font.BOLD, 12));
+        palette_panel.add(temp1);*/
+        
+        palette_panel.add(gradient);
+
+        editor_panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Custom Palette Editor",TitledBorder.CENTER,TitledBorder.CENTER));
+        palette_colors.setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Colors",TitledBorder.DEFAULT_POSITION,TitledBorder.DEFAULT_POSITION));
+        hues.setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Hues",TitledBorder.DEFAULT_POSITION,TitledBorder.DEFAULT_POSITION));
+        palette_panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Palette",TitledBorder.DEFAULT_POSITION,TitledBorder.DEFAULT_POSITION));
+        
+        editor_panel.add(palette_colors);
+        editor_panel.add(hues);
+        editor_panel.add(palette_panel);
+        custom_palette_editor.add(editor_panel);
         custom_palette_editor.add(buttons);
         custom_palette_editor.setVisible(true);
    }
@@ -10106,10 +10423,10 @@ public class MainWindow extends JFrame {
            for(int i = 0; i < n; i++) {
                for(int j = 0; j < n; j++) {
                    if(color_choice != palette.length - 1) {
-                       threads[i][j] = new Palette(color_choice, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, ptr, fractal_color, image, filters, out_coloring_algorithm, in_coloring_algorithm, color_intensity, periodicity_checking, plane_type,  burning_ship, function, z_exponent, color_cycling_location, rotation_vals, coefficients);
+                       threads[i][j] = new Palette(color_choice, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, ptr, fractal_color, image, filters, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type,  burning_ship, function, z_exponent, color_cycling_location, rotation_vals, coefficients);
                    }
                    else {
-                       threads[i][j] = new CustomPalette(custom_palette, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout,  ptr, fractal_color, image, filters, out_coloring_algorithm, in_coloring_algorithm, color_intensity, periodicity_checking, plane_type,  burning_ship, function, z_exponent, color_cycling_location, rotation_vals, coefficients);
+                       threads[i][j] = new CustomPalette(custom_palette, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout,  ptr, fractal_color, image, filters, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type,  burning_ship, function, z_exponent, color_cycling_location, rotation_vals, coefficients);
                    }
                }
            }

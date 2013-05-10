@@ -27,7 +27,6 @@ public class SettingsFractals implements Serializable {
   private int bailout_test_algorithm;
   private int out_coloring_algorithm;
   private int in_coloring_algorithm;
-  private double color_intensity;
   private int color_cycling_location;
   private int plane_type;
   private double[] coefficients;
@@ -35,7 +34,7 @@ public class SettingsFractals implements Serializable {
   private boolean perturbation;
   private double[] perturbation_vals;
 
-    public SettingsFractals(double xCenter, double yCenter, double size, int max_iterations, int color_choice, Color fractal_color, int out_coloring_algorithm, int in_coloring_algorithm, double color_intensity, int function, int bailout_test_algorithm, double bailout, int plane_type, boolean burning_ship, double z_exponent, int color_cycling_location, double[] coefficients, int[][] custom_palette, int rotation, boolean perturbation, double[] perturbation_vals) {
+    public SettingsFractals(double xCenter, double yCenter, double size, int max_iterations, int color_choice, Color fractal_color, int out_coloring_algorithm, int in_coloring_algorithm, int function, int bailout_test_algorithm, double bailout, int plane_type, boolean burning_ship, double z_exponent, int color_cycling_location, double[] coefficients, int[][] custom_palette, int rotation, boolean perturbation, double[] perturbation_vals) {
 
         this.xCenter = xCenter;
         this.yCenter = yCenter;
@@ -46,7 +45,6 @@ public class SettingsFractals implements Serializable {
         this.bailout_test_algorithm = bailout_test_algorithm;
         this.out_coloring_algorithm = out_coloring_algorithm;
         this.in_coloring_algorithm = in_coloring_algorithm;
-        this.color_intensity = color_intensity;
         this.function = function;
         this.burning_ship = burning_ship;
         this.bailout = bailout;
@@ -106,12 +104,6 @@ public class SettingsFractals implements Serializable {
     public int getInColoringAlgorithm() {
 
         return in_coloring_algorithm;
-
-    }
-
-    public double getColorIntensity() {
-
-        return color_intensity;
 
     }
 

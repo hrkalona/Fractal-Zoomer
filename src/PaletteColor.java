@@ -12,15 +12,15 @@ import java.awt.Color;
  */
 public abstract class PaletteColor {
   protected Color[] palette;
-  protected double color_intensity;
+  protected static int mod_offset;
   
-  public PaletteColor(Color[] palette, double color_intensity) {
+  public PaletteColor(Color[] palette) {
       
       this.palette = palette;
-      this.color_intensity = color_intensity;
-      
+      mod_offset = (100800 % palette.length) == 0 ? 0 : palette.length - (100800 % palette.length);
+    
   }
   
   public abstract Color getPaletteColor(double result);
-    
+   
 }

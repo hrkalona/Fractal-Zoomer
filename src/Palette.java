@@ -23,13 +23,13 @@ public class Palette extends ThreadDraw {
   private static Color[] alternative7_palette = {new Color(37, 215, 240),new Color(51, 198, 229),new Color(66, 181, 218),new Color(81, 165, 207),new Color(96, 148, 196),new Color(110, 132, 185),new Color(125, 115, 174),new Color(140, 98, 163),new Color(155, 82, 152),new Color(169, 65, 141),new Color(184, 49, 130),new Color(199, 32, 118),new Color(214, 16, 108),new Color(215, 27, 99),new Color(217, 39, 91),new Color(218, 51, 83),new Color(220, 62, 74),new Color(221, 74, 66),new Color(223, 86, 57),new Color(224, 97, 49),new Color(226, 109, 41),new Color(228, 121, 33),new Color(221, 110, 29),new Color(215, 99, 25),new Color(209, 88, 21),new Color(202, 78, 18),new Color(196, 67, 14),new Color(190, 56, 10),new Color(184, 46, 7),new Color(163, 44, 8),new Color(143, 42, 9),new Color(123, 40, 10),new Color(102, 38, 11),new Color(82, 36, 13),new Color(61, 34, 14),new Color(41, 32, 15),new Color(21, 29, 16),new Color(1, 28, 18),new Color(3, 38, 42),new Color(5, 49, 67),new Color(8, 60, 92),new Color(10, 71, 117),new Color(12, 81, 142),new Color(15, 92, 167),new Color(17, 103, 192),new Color(20, 114, 217),new Color(17, 118, 196),new Color(15, 123, 175),new Color(12, 128, 154),new Color(10, 133, 134),new Color(7, 138, 113),new Color(5, 143, 92),new Color(2, 148, 71),new Color(0, 153, 51),new Color(0, 136, 51),new Color(0, 119, 51),new Color(0, 102, 51),new Color(0, 85, 51),new Color(0, 68, 51),new Color(0, 51, 51),new Color(15, 66, 49),new Color(30, 81, 48),new Color(45, 97, 46),new Color(60, 112, 45),new Color(75, 128, 43),new Color(90, 143, 42),new Color(105, 159, 40),new Color(120, 174, 39),new Color(135, 190, 37),new Color(150, 205, 36),new Color(165, 221, 35),new Color(164, 211, 53),new Color(163, 201, 71),new Color(162, 191, 90),new Color(161, 181, 108),new Color(160, 171, 126),new Color(159, 161, 145),new Color(158, 151, 163),new Color(157, 141, 181),new Color(156, 131, 200),new Color(155, 121, 218),new Color(154, 111, 236),new Color(153, 102, 255),new Color(154, 111, 245),new Color(155, 120, 236),new Color(156, 129, 227),new Color(158, 139, 217),new Color(159, 148, 208),new Color(160, 157, 199),new Color(162, 167, 189),new Color(163, 176, 180),new Color(164, 185, 171),new Color(166, 195, 162),new Color(168, 197, 168),new Color(171, 200, 175),new Color(174, 203, 181),new Color(176, 205, 188),new Color(179, 208, 194),new Color(182, 211, 201),new Color(184, 213, 207),new Color(187, 216, 214),new Color(190, 219, 220),new Color(193, 222, 227),new Color(170, 221, 228),new Color(148, 220, 230),new Color(126, 219, 232),new Color(103, 218, 234),new Color(81, 217, 236),new Color(59, 216, 238),};
   private static Color[] greenwhite_palette = {new Color(40, 70, 10),new Color(40, 82, 10),new Color(40, 95, 10),new Color(40, 107, 10),new Color(40, 120, 10),new Color(40, 132, 10),new Color(40, 145, 10),new Color(40, 157, 10),new Color(40, 170, 10),new Color(46, 179, 16),new Color(53, 188, 23),new Color(60, 198, 30),new Color(66, 207, 36),new Color(73, 217, 43),new Color(80, 226, 50),new Color(86, 236, 56),new Color(93, 245, 63),new Color(100, 255, 70),new Color(125, 255, 100),new Color(151, 255, 131),new Color(177, 255, 162),new Color(203, 255, 193),new Color(229, 255, 224),new Color(255, 255, 255),new Color(228, 231, 224),new Color(201, 208, 193),new Color(174, 185, 163),new Color(147, 162, 132),new Color(120, 139, 101),new Color(93, 116, 71),new Color(66, 93, 40),};
   private static Color[] blue_palette = {new Color(0, 0, 64),new Color(0, 0, 79),new Color(0, 0, 95),new Color(0, 0, 111),new Color(0, 0, 127),new Color(0, 0, 143),new Color(0, 0, 159),new Color(0, 0, 175),new Color(0, 0, 191),new Color(0, 0, 207),new Color(0, 0, 223),new Color(0, 0, 239),new Color(0, 0, 255),new Color(0, 21, 255),new Color(0, 42, 255),new Color(0, 63, 255),new Color(0, 85, 255),new Color(0, 106, 255),new Color(0, 127, 255),new Color(0, 148, 255),new Color(0, 170, 255),new Color(0, 191, 255),new Color(0, 212, 255),new Color(0, 233, 255),new Color(0, 255, 255),new Color(12, 255, 255),new Color(25, 255, 255),new Color(38, 255, 255),new Color(51, 255, 255),new Color(64, 255, 255),new Color(76, 255, 255),new Color(89, 255, 255),new Color(102, 255, 255),new Color(115, 255, 255),new Color(128, 255, 255),new Color(122, 244, 255),new Color(117, 233, 255),new Color(112, 223, 255),new Color(106, 212, 255),new Color(101, 202, 255),new Color(96, 191, 255),new Color(90, 180, 255),new Color(85, 170, 255),new Color(80, 159, 255),new Color(74, 149, 255),new Color(69, 138, 255),new Color(64, 128, 255),new Color(59, 118, 241),new Color(54, 109, 227),new Color(50, 100, 214),new Color(45, 91, 200),new Color(41, 82, 186),new Color(36, 73, 173),new Color(32, 64, 159),new Color(27, 54, 145),new Color(22, 45, 132),new Color(18, 36, 118),new Color(13, 27, 104),new Color(9, 18, 91),new Color(4, 9, 77),};
-  private static Color[] grayscale_palette = {new Color(255, 255, 255),new Color(245, 245, 245),new Color(236, 236, 236),new Color(227, 227, 227),new Color(218, 218, 218),new Color(209, 209, 209),new Color(200, 200, 200),new Color(191, 191, 191),new Color(182, 182, 182),new Color(173, 173, 173),new Color(163, 163, 163),new Color(154, 154, 154),new Color(145, 145, 145),new Color(136, 136, 136),new Color(127, 127, 127),new Color(118, 118, 118),new Color(109, 109, 109),new Color(100, 100, 100),new Color(91, 91, 91),new Color(81, 81, 81),new Color(72, 72, 72),new Color(63, 63, 63),new Color(54, 54, 54),new Color(45, 45, 45),new Color(36, 36, 36),new Color(27, 27, 27),new Color(18, 18, 18),new Color(9, 9, 9),new Color(0, 0, 0),new Color(9, 9, 9),new Color(18, 18, 18),new Color(27, 27, 27),new Color(36, 36, 36),new Color(45, 45, 45),new Color(54, 54, 54),new Color(63, 63, 63),new Color(72, 72, 72),new Color(81, 81, 81),new Color(91, 91, 91),new Color(100, 100, 100),new Color(109, 109, 109),new Color(118, 118, 118),new Color(127, 127, 127),new Color(136, 136, 136),new Color(145, 145, 145),new Color(154, 154, 154),new Color(163, 163, 163),new Color(173, 173, 173),new Color(182, 182, 182),new Color(191, 191, 191),new Color(200, 200, 200),new Color(209, 209, 209),new Color(218, 218, 218),new Color(227, 227, 227),new Color(236, 236, 236),new Color(245, 245, 245),};
+  private static Color[] grayscale_palette = {new Color(255, 255, 255),new Color(243, 243, 243),new Color(231, 231, 231),new Color(220, 220, 220),new Color(208, 208, 208),new Color(197, 197, 197),new Color(185, 185, 185),new Color(173, 173, 173),new Color(162, 162, 162),new Color(150, 150, 150),new Color(139, 139, 139),new Color(127, 127, 127),new Color(115, 115, 115),new Color(104, 104, 104),new Color(92, 92, 92),new Color(81, 81, 81),new Color(69, 69, 69),new Color(57, 57, 57),new Color(46, 46, 46),new Color(34, 34, 34),new Color(23, 23, 23),new Color(11, 11, 11),new Color(0, 0, 0),new Color(12, 12, 12),new Color(24, 24, 24),new Color(36, 36, 36),new Color(48, 48, 48),new Color(60, 60, 60),new Color(72, 72, 72),new Color(85, 85, 85),new Color(97, 97, 97),new Color(109, 109, 109),new Color(121, 121, 121),new Color(133, 133, 133),new Color(145, 145, 145),new Color(157, 157, 157),new Color(170, 170, 170),new Color(182, 182, 182),new Color(194, 194, 194),new Color(206, 206, 206),new Color(218, 218, 218),new Color(230, 230, 230),new Color(242, 242, 242),};
   private static Color[] earthsky_palette = {new Color(255, 255, 255),new Color(255, 248, 224),new Color(255, 242, 194),new Color(255, 236, 163),new Color(255, 230, 133),new Color(255, 224, 103),new Color(255, 218, 72),new Color(255, 212, 42),new Color(255, 206, 12),new Color(243, 189, 12),new Color(232, 172, 12),new Color(221, 156, 12),new Color(210, 139, 13),new Color(198, 122, 13),new Color(187, 106, 13),new Color(176, 89, 13),new Color(165, 73, 14),new Color(156, 66, 19),new Color(147, 60, 25),new Color(139, 53, 30),new Color(130, 47, 36),new Color(121, 41, 41),new Color(113, 34, 47),new Color(104, 28, 52),new Color(96, 22, 58),new Color(88, 20, 65),new Color(81, 18, 72),new Color(74, 17, 79),new Color(67, 15, 86),new Color(60, 13, 93),new Color(53, 12, 100),new Color(46, 10, 107),new Color(39, 9, 114),new Color(34, 11, 122),new Color(29, 13, 130),new Color(24, 15, 138),new Color(19, 17, 146),new Color(14, 19, 154),new Color(9, 21, 162),new Color(4, 23, 170),new Color(0, 25, 178),new Color(1, 35, 187),new Color(3, 46, 197),new Color(4, 56, 206),new Color(6, 67, 216),new Color(7, 77, 226),new Color(9, 88, 235),new Color(10, 98, 245),new Color(12, 109, 255),new Color(42, 127, 255),new Color(72, 145, 255),new Color(103, 163, 255),new Color(133, 182, 255),new Color(163, 200, 255),new Color(194, 218, 255),new Color(224, 236, 255),};
   private static Color[] hotcold_palette = {new Color(255, 255, 255),new Color(226, 237, 255),new Color(198, 220, 255),new Color(169, 203, 255),new Color(141, 186, 255),new Color(112, 169, 255),new Color(84, 152, 255),new Color(55, 135, 255),new Color(27, 118, 255),new Color(26, 113, 245),new Color(25, 109, 236),new Color(24, 104, 226),new Color(23, 100, 217),new Color(22, 96, 208),new Color(21, 91, 198),new Color(20, 87, 189),new Color(19, 83, 180),new Color(21, 80, 169),new Color(24, 77, 158),new Color(26, 75, 147),new Color(29, 72, 137),new Color(32, 69, 126),new Color(34, 67, 115),new Color(37, 64, 104),new Color(40, 62, 94),new Color(46, 59, 92),new Color(53, 56, 91),new Color(60, 53, 89),new Color(67, 51, 88),new Color(73, 48, 87),new Color(80, 45, 85),new Color(87, 42, 84),new Color(94, 40, 83),new Color(104, 37, 91),new Color(115, 34, 99),new Color(126, 32, 107),new Color(137, 29, 115),new Color(147, 26, 123),new Color(158, 24, 131),new Color(169, 21, 139),new Color(180, 19, 147),new Color(189, 20, 154),new Color(198, 21, 162),new Color(208, 22, 170),new Color(217, 23, 178),new Color(226, 24, 185),new Color(236, 25, 193),new Color(245, 26, 201),new Color(255, 27, 209),new Color(255, 55, 214),new Color(255, 84, 220),new Color(255, 112, 226),new Color(255, 141, 232),new Color(255, 169, 237),new Color(255, 198, 243),new Color(255, 226, 249),};
   private static Color[] fire_palette = {new Color(0, 0, 0),new Color(26, 0, 0),new Color(53, 0, 0),new Color(80, 0, 0),new Color(107, 0, 0),new Color(133, 0, 0),new Color(160, 0, 0),new Color(187, 0, 0),new Color(214, 0, 0),new Color(219, 5, 0),new Color(224, 11, 0),new Color(229, 16, 0),new Color(234, 22, 0),new Color(239, 28, 0),new Color(244, 33, 0),new Color(249, 39, 0),new Color(255, 45, 0),new Color(255, 51, 0),new Color(255, 58, 0),new Color(255, 65, 0),new Color(255, 72, 0),new Color(255, 79, 0),new Color(255, 86, 0),new Color(255, 93, 0),new Color(255, 100, 0),new Color(255, 106, 0),new Color(255, 113, 0),new Color(255, 120, 0),new Color(255, 127, 0),new Color(255, 134, 0),new Color(255, 141, 0),new Color(255, 148, 0),new Color(255, 155, 0),new Color(255, 161, 0),new Color(255, 168, 0),new Color(255, 175, 0),new Color(255, 182, 0),new Color(255, 189, 0),new Color(255, 196, 0),new Color(255, 203, 0),new Color(255, 210, 0),new Color(255, 215, 5),new Color(255, 221, 10),new Color(255, 226, 15),new Color(255, 232, 20),new Color(255, 238, 25),new Color(255, 243, 30),new Color(255, 249, 35),new Color(255, 255, 41),new Color(223, 223, 35),new Color(191, 191, 30),new Color(159, 159, 25),new Color(127, 127, 20),new Color(95, 95, 15),new Color(63, 63, 10),new Color(31, 31, 5),};
   
 
-     public Palette(int color_choice, int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, MainWindow ptr, Color fractal_color, BufferedImage image, boolean[] filters, int out_coloring_algorithm, int in_coloring_algorithm, double color_intensity, boolean boundary_tracing, boolean periodicity_checking, int plane_type, boolean burning_ship, int function, double z_exponent, int color_cycling_location, double[] rotation_vals, boolean perturbation, double[] perturbation_vals, double[] coefficients) {
+     public Palette(int color_choice, int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, MainWindow ptr, Color fractal_color, BufferedImage image, boolean[] filters, int out_coloring_algorithm, int in_coloring_algorithm, boolean boundary_tracing, boolean periodicity_checking, int plane_type, boolean burning_ship, int function, double z_exponent, int color_cycling_location, double[] rotation_vals, boolean perturbation, double[] perturbation_vals, double[] coefficients) {
 
         super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, ptr, fractal_color, image, filters, out_coloring_algorithm, in_coloring_algorithm, boundary_tracing, periodicity_checking, plane_type,  burning_ship, function, z_exponent, color_cycling_location, rotation_vals, perturbation, perturbation_vals, coefficients);
 
@@ -49,17 +49,19 @@ public class Palette extends ThreadDraw {
             {12,   0,  20,  40},
             {12,  30,  70, 200},};*/
         
+        
+        
         /*for(int i = 0; i < 7; i++) {
            System.out.println("{" + 8 + ", " + palette.getColor((i * 8) / 56.0).getRed() + ", " + palette.getColor((i * 8) / 56.0).getGreen() + ", " + palette.getColor((i * 8) / 56.0).getBlue() + "},"); 
         }*/
   
-   /*
- 
+   
+       /*
        int n = 0;
         for (int i = 0; i < colors.length; i++) { // get the number of all colors
             n += colors[i][0];
         }
-        palette = new Color[n]; // allocate pallete
+        //palette = new Color[n]; // allocate pallete
 
         n = 0;
         int red, green, blue;
@@ -75,7 +77,7 @@ public class Palette extends ThreadDraw {
                 red = (int)(c1[1] + (c2[1] - c1[1]) * j);
                 green = (int)(c1[2] + (c2[2] - c1[2]) * j);
                 blue = (int)(c1[3] + (c2[3] - c1[3]) * j);
-                palette[n + k] = new Color(red, green, blue);
+                //palette[n + k] = new Color(red, green, blue);
                 System.out.print("new Color(" +red + ", " + green + ", " + blue + "),");
             }
             n += c1[0];
@@ -86,122 +88,122 @@ public class Palette extends ThreadDraw {
             
             case 0:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(default_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(default_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(default_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(default_palette);
                 }
                 break;
             case 1:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(spectrum_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(spectrum_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(spectrum_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(spectrum_palette);
                 }
                 break;
             case 2:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(alternative_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(alternative_palette);
                 }
                 break;
             case 3:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative2_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(alternative2_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative2_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(alternative2_palette);
                 }
                 break;
             case 4:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative3_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(alternative3_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative3_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(alternative3_palette);
                 }
                 break;
             case 5:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative4_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(alternative4_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative4_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(alternative4_palette);
                 }
                 break;
             case 6:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative5_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(alternative5_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative5_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(alternative5_palette);
                 }
                 break;   
             case 7:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative6_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(alternative6_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative6_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(alternative6_palette);
                 }
                 break;
             case 8:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative7_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(alternative7_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative7_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(alternative7_palette);
                 }
                 break;
             case 9:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(greenwhite_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(greenwhite_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(greenwhite_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(greenwhite_palette);
                 }
                 break;
             case 10:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(blue_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(blue_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(blue_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(blue_palette);
                 }
                 break;
             case 11:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(grayscale_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(grayscale_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(grayscale_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(grayscale_palette);
                 }
                 break;
             case 12:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(earthsky_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(earthsky_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(earthsky_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(earthsky_palette);
                 }
                 break;
             case 13:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(hotcold_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(hotcold_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(hotcold_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(hotcold_palette);
                 }
                 break;
             case 14:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(fire_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(fire_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(fire_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(fire_palette);
                 }
                 break;
                 
@@ -209,7 +211,7 @@ public class Palette extends ThreadDraw {
 
     }
 
-    public Palette(int color_choice, int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, MainWindow ptr, Color fractal_color, BufferedImage image, boolean[] filters, int out_coloring_algorithm, int in_coloring_algorithm, double color_intensity, boolean boundary_tracing, boolean periodicity_checking, int plane_type, boolean burning_ship, int function, double z_exponent, int color_cycling_location, double[] rotation_vals, double[] coefficients,  double xJuliaCenter, double yJuliaCenter) {
+    public Palette(int color_choice, int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, MainWindow ptr, Color fractal_color, BufferedImage image, boolean[] filters, int out_coloring_algorithm, int in_coloring_algorithm,  boolean boundary_tracing, boolean periodicity_checking, int plane_type, boolean burning_ship, int function, double z_exponent, int color_cycling_location, double[] rotation_vals, double[] coefficients,  double xJuliaCenter, double yJuliaCenter) {
 
         super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, ptr, fractal_color, image, filters, out_coloring_algorithm, in_coloring_algorithm, boundary_tracing, periodicity_checking, plane_type,  burning_ship, function, z_exponent, color_cycling_location, rotation_vals, coefficients, xJuliaCenter, yJuliaCenter);
 
@@ -217,122 +219,122 @@ public class Palette extends ThreadDraw {
             
             case 0:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(default_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(default_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(default_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(default_palette);
                 }
                 break;
             case 1:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(spectrum_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(spectrum_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(spectrum_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(spectrum_palette);
                 }
                 break;
             case 2:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(alternative_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(alternative_palette);
                 }
                 break;
             case 3:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative2_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(alternative2_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative2_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(alternative2_palette);
                 }
                 break;
             case 4:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative3_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(alternative3_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative3_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(alternative3_palette);
                 }
                 break;
             case 5:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative4_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(alternative4_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative4_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(alternative4_palette);
                 }
                 break;
             case 6:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative5_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(alternative5_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative5_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(alternative5_palette);
                 }
                 break;   
             case 7:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative6_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(alternative6_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative6_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(alternative6_palette);
                 }
                 break;
             case 8:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative7_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(alternative7_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative7_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(alternative7_palette);
                 }
                 break;
             case 9:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(greenwhite_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(greenwhite_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(greenwhite_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(greenwhite_palette);
                 }
                 break;
             case 10:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(blue_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(blue_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(blue_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(blue_palette);
                 }
                 break;
             case 11:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(grayscale_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(grayscale_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(grayscale_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(grayscale_palette);
                 }
                 break;
             case 12:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(earthsky_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(earthsky_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(earthsky_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(earthsky_palette);
                 }
                 break;
             case 13:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(hotcold_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(hotcold_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(hotcold_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(hotcold_palette);
                 }
                 break;
             case 14:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(fire_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(fire_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(fire_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(fire_palette);
                 }
                 break;
                 
@@ -341,7 +343,7 @@ public class Palette extends ThreadDraw {
 
     }
     
-    public Palette(int color_choice, int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, MainWindow ptr, Color fractal_color, BufferedImage image, boolean[] filters, int out_coloring_algorithm, int in_coloring_algorithm, double color_intensity, boolean periodicity_checking, int plane_type, boolean burning_ship, int function, double z_exponent, int color_cycling_location, double[] rotation_vals, double[] coefficients) {
+    public Palette(int color_choice, int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, MainWindow ptr, Color fractal_color, BufferedImage image, boolean[] filters, int out_coloring_algorithm, int in_coloring_algorithm,  boolean periodicity_checking, int plane_type, boolean burning_ship, int function, double z_exponent, int color_cycling_location, double[] rotation_vals, double[] coefficients) {
 
         super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, ptr, fractal_color, image, filters, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type,  burning_ship, function, z_exponent, color_cycling_location, rotation_vals, coefficients);
         
@@ -349,122 +351,122 @@ public class Palette extends ThreadDraw {
             
             case 0:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(default_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(default_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(default_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(default_palette);
                 }
                 break;
             case 1:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(spectrum_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(spectrum_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(spectrum_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(spectrum_palette);
                 }
                 break;
             case 2:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(alternative_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(alternative_palette);
                 }
                 break;
             case 3:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative2_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(alternative2_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative2_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(alternative2_palette);
                 }
                 break;
             case 4:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative3_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(alternative3_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative3_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(alternative3_palette);
                 }
                 break;
             case 5:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative4_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(alternative4_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative4_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(alternative4_palette);
                 }
                 break;
             case 6:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative5_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(alternative5_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative5_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(alternative5_palette);
                 }
                 break;   
             case 7:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative6_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(alternative6_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative6_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(alternative6_palette);
                 }
                 break;
             case 8:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative7_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(alternative7_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative7_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(alternative7_palette);
                 }
                 break;
             case 9:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(greenwhite_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(greenwhite_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(greenwhite_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(greenwhite_palette);
                 }
                 break;
             case 10:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(blue_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(blue_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(blue_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(blue_palette);
                 }
                 break;
             case 11:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(grayscale_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(grayscale_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(grayscale_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(grayscale_palette);
                 }
                 break;
             case 12:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(earthsky_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(earthsky_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(earthsky_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(earthsky_palette);
                 }
                 break;
             case 13:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(hotcold_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(hotcold_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(hotcold_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(hotcold_palette);
                 }
                 break;
             case 14:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(fire_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(fire_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(fire_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(fire_palette);
                 }
                 break;
                 
@@ -473,7 +475,7 @@ public class Palette extends ThreadDraw {
 
     }
 
-    public Palette(int color_choice, int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, MainWindow ptr, Color fractal_color, boolean fast_julia_filters, BufferedImage image, boolean boundary_tracing, boolean periodicity_checking, int plane_type, boolean[] filters, int out_coloring_algorithm, int in_coloring_algorithm, double color_intensity, boolean burning_ship, int function, double z_exponent, int color_cycling_location, double [] rotation_vals, double[] coefficients, double xJuliaCenter, double yJuliaCenter) {
+    public Palette(int color_choice, int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, MainWindow ptr, Color fractal_color, boolean fast_julia_filters, BufferedImage image, boolean boundary_tracing, boolean periodicity_checking, int plane_type, boolean[] filters, int out_coloring_algorithm, int in_coloring_algorithm,  boolean burning_ship, int function, double z_exponent, int color_cycling_location, double [] rotation_vals, double[] coefficients, double xJuliaCenter, double yJuliaCenter) {
 
         super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, ptr, fractal_color, fast_julia_filters, image, boundary_tracing, periodicity_checking, plane_type, out_coloring_algorithm, in_coloring_algorithm, filters,  burning_ship, function, z_exponent, color_cycling_location, rotation_vals, coefficients, xJuliaCenter, yJuliaCenter);
 
@@ -481,122 +483,122 @@ public class Palette extends ThreadDraw {
             
             case 0:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(default_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(default_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(default_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(default_palette);
                 }
                 break;
             case 1:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(spectrum_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(spectrum_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(spectrum_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(spectrum_palette);
                 }
                 break;
             case 2:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(alternative_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(alternative_palette);
                 }
                 break;
             case 3:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative2_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(alternative2_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative2_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(alternative2_palette);
                 }
                 break;
             case 4:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative3_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(alternative3_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative3_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(alternative3_palette);
                 }
                 break;
             case 5:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative4_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(alternative4_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative4_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(alternative4_palette);
                 }
                 break;
             case 6:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative5_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(alternative5_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative5_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(alternative5_palette);
                 }
                 break;   
             case 7:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative6_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(alternative6_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative6_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(alternative6_palette);
                 }
                 break;
             case 8:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative7_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(alternative7_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative7_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(alternative7_palette);
                 }
                 break;
             case 9:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(greenwhite_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(greenwhite_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(greenwhite_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(greenwhite_palette);
                 }
                 break;
             case 10:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(blue_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(blue_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(blue_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(blue_palette);
                 }
                 break;
             case 11:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(grayscale_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(grayscale_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(grayscale_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(grayscale_palette);
                 }
                 break;
             case 12:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(earthsky_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(earthsky_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(earthsky_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(earthsky_palette);
                 }
                 break;
             case 13:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(hotcold_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(hotcold_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(hotcold_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(hotcold_palette);
                 }
                 break;
             case 14:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(fire_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(fire_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(fire_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(fire_palette);
                 }
                 break;
                 
@@ -605,7 +607,7 @@ public class Palette extends ThreadDraw {
 
     }
 
-    public Palette(int color_choice, int FROMx, int TOx, int FROMy, int TOy, int max_iterations, MainWindow ptr, Color fractal_color, int out_coloring_algorithm, double color_intensity, BufferedImage image, int color_cycling_location) {
+    public Palette(int color_choice, int FROMx, int TOx, int FROMy, int TOy, int max_iterations, MainWindow ptr, Color fractal_color, int out_coloring_algorithm,  BufferedImage image, int color_cycling_location) {
 
         super(FROMx, TOx, FROMy, TOy, max_iterations, ptr, fractal_color, image, out_coloring_algorithm, color_cycling_location);
       
@@ -613,122 +615,122 @@ public class Palette extends ThreadDraw {
             
             case 0:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(default_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(default_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(default_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(default_palette);
                 }
                 break;
             case 1:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(spectrum_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(spectrum_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(spectrum_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(spectrum_palette);
                 }
                 break;
             case 2:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(alternative_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(alternative_palette);
                 }
                 break;
             case 3:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative2_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(alternative2_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative2_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(alternative2_palette);
                 }
                 break;
             case 4:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative3_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(alternative3_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative3_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(alternative3_palette);
                 }
                 break;
             case 5:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative4_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(alternative4_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative4_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(alternative4_palette);
                 }
                 break;
             case 6:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative5_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(alternative5_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative5_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(alternative5_palette);
                 }
                 break;   
             case 7:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative6_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(alternative6_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative6_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(alternative6_palette);
                 }
                 break;
             case 8:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative7_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(alternative7_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative7_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(alternative7_palette);
                 }
                 break;
             case 9:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(greenwhite_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(greenwhite_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(greenwhite_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(greenwhite_palette);
                 }
                 break;
             case 10:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(blue_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(blue_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(blue_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(blue_palette);
                 }
                 break;
             case 11:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(grayscale_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(grayscale_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(grayscale_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(grayscale_palette);
                 }
                 break;
             case 12:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(earthsky_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(earthsky_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(earthsky_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(earthsky_palette);
                 }
                 break;
             case 13:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(hotcold_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(hotcold_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(hotcold_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(hotcold_palette);
                 }
                 break;
             case 14:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(fire_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(fire_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(fire_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(fire_palette);
                 }
                 break;
                 
@@ -737,7 +739,7 @@ public class Palette extends ThreadDraw {
 
     }
 
-    public Palette(int color_choice, int FROMx, int TOx, int FROMy, int TOy, int max_iterations, MainWindow ptr, BufferedImage image, Color fractal_color, int color_cycling_location, int out_coloring_algorithm, double color_intensity, boolean[] filters) {
+    public Palette(int color_choice, int FROMx, int TOx, int FROMy, int TOy, int max_iterations, MainWindow ptr, BufferedImage image, Color fractal_color, int color_cycling_location, int out_coloring_algorithm,  boolean[] filters) {
 
         super(FROMx, TOx, FROMy, TOy, max_iterations, ptr, image, fractal_color, out_coloring_algorithm, color_cycling_location, filters);
         
@@ -745,122 +747,122 @@ public class Palette extends ThreadDraw {
             
             case 0:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(default_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(default_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(default_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(default_palette);
                 }
                 break;
             case 1:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(spectrum_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(spectrum_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(spectrum_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(spectrum_palette);
                 }
                 break;
             case 2:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(alternative_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(alternative_palette);
                 }
                 break;
             case 3:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative2_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(alternative2_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative2_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(alternative2_palette);
                 }
                 break;
             case 4:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative3_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(alternative3_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative3_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(alternative3_palette);
                 }
                 break;
             case 5:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative4_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(alternative4_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative4_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(alternative4_palette);
                 }
                 break;
             case 6:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative5_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(alternative5_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative5_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(alternative5_palette);
                 }
                 break;   
             case 7:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative6_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(alternative6_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative6_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(alternative6_palette);
                 }
                 break;
             case 8:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative7_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(alternative7_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative7_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(alternative7_palette);
                 }
                 break;
             case 9:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(greenwhite_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(greenwhite_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(greenwhite_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(greenwhite_palette);
                 }
                 break;
             case 10:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(blue_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(blue_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(blue_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(blue_palette);
                 }
                 break;
             case 11:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(grayscale_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(grayscale_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(grayscale_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(grayscale_palette);
                 }
                 break;
             case 12:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(earthsky_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(earthsky_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(earthsky_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(earthsky_palette);
                 }
                 break;
             case 13:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(hotcold_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(hotcold_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(hotcold_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(hotcold_palette);
                 }
                 break;
             case 14:
                 if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(fire_palette, color_intensity);
+                    palette_color = new PaletteColorSmooth(fire_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(fire_palette, color_intensity);
+                    palette_color = new PaletteColorNormal(fire_palette);
                 }
                 break;
                 

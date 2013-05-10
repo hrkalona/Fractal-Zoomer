@@ -933,7 +933,7 @@ public class ThreadDraw extends Thread {
         
     private void drawFractal(int image_size) {
  
-         //ptr.setWholeImageDone(true); // demo
+        // ptr.setWholeImageDone(true); // demo
 
          double size = fractal.getSize();
         
@@ -1023,7 +1023,7 @@ public class ThreadDraw extends Thread {
              
              int pix, y, x, curDir, curPix, startPix, startColor, nextColor, dir, Dir, nextPix, floodPix, floodColor;
              int delPix[] = {1 , image_size, -1, -image_size};
-             double start_value, curX, curY, nextX, nextY;
+             double curX, curY, nextX, nextY, previous_value;
           
              int ix, iy, next_ix, next_iy, temp_ix, temp_iy, flood_ix;
              int intX[] = {1, 0, -1, 0};
@@ -1052,8 +1052,8 @@ public class ThreadDraw extends Thread {
                          ix = x;
                          iy = y;
                     
-                         start_value = image_iterations[pix] = fractal.calculateFractal(new Complex(temp_x0, temp_y0));
-                         startColor = rgbs[pix] = start_value == max_iterations ? fractal_color.getRGB() : palette_color.getPaletteColor(start_value + color_cycling_location).getRGB();
+                         temp_result = image_iterations[pix] = fractal.calculateFractal(new Complex(temp_x0, temp_y0));
+                         startColor = rgbs[pix] = temp_result == max_iterations ? fractal_color.getRGB() : palette_color.getPaletteColor(temp_result + color_cycling_location).getRGB();
                          drawing_done++;
                          thread_calculated++;
                          /*ptr.getMainPanel().repaint();
@@ -1128,11 +1128,11 @@ public class ThreadDraw extends Thread {
                                      continue;
                                  }
 
-                                 if(rgbs[nextPix] == startColor) {           // flooding
+                                 if(rgbs[nextPix] == startColor) {           // flooding  
                                      curDir = dir;
                                      if(dir == dirUP) {
                                          floodPix = curPix;
-                                         flood_ix = temp_ix;
+                                         flood_ix = temp_ix;                                       
                                          
                                          while(true) {
                                              flood_ix++;
@@ -1141,12 +1141,13 @@ public class ThreadDraw extends Thread {
                                                  break;
                                              }
                                              
+                                             previous_value = image_iterations[floodPix];
                                              floodPix++;
                                              
                                              if((floodColor = rgbs[floodPix]) == culcColor) {
                                                  drawing_done++;
                                                  rgbs[floodPix] = startColor;
-                                                 image_iterations[floodPix] = start_value;
+                                                 image_iterations[floodPix] = previous_value;
                                                  /*ptr.getMainPanel().repaint();
                                                  try {
                                                      Thread.sleep(1); //demo
@@ -1582,7 +1583,7 @@ public class ThreadDraw extends Thread {
              
              int pix, y, x, curDir, curPix, startPix, startColor, nextColor, dir, Dir, nextPix, floodPix, floodColor;
              int delPix[] = {1 , image_size, -1, -image_size};
-             double start_value, curX, curY, nextX, nextY;
+             double curX, curY, nextX, nextY, previous_value;
           
              int ix, iy, next_ix, next_iy, temp_ix, temp_iy, flood_ix;
              int intX[] = {1, 0, -1, 0};
@@ -1601,8 +1602,8 @@ public class ThreadDraw extends Thread {
                          ix = x;
                          iy = y;
                     
-                         start_value = image_iterations[pix] = fractal.calculateFractal(new Complex(temp_x0, temp_y0));
-                         c0 = start_value == max_iterations ? fractal_color : palette_color.getPaletteColor(start_value + color_cycling_location);
+                         temp_result = image_iterations[pix] = fractal.calculateFractal(new Complex(temp_x0, temp_y0));
+                         c0 = temp_result == max_iterations ? fractal_color : palette_color.getPaletteColor(temp_result + color_cycling_location);
                          
                          temp_result2 = fractal.calculateFractal(new Complex(x_anti1 = (temp_x0 - antialiasing_size), y_anti1 = (temp_y0 - antialiasing_size)));
                          temp_result3 = fractal.calculateFractal(new Complex(x_anti2 = (temp_x0 + antialiasing_size), y_anti1));
@@ -1654,7 +1655,7 @@ public class ThreadDraw extends Thread {
                                 
                                  if((nextColor = rgbs[nextPix]) == culcColor)  {
                                      temp_result = image_iterations[nextPix] = fractal.calculateFractal(new Complex(nextX, nextY));
-                                     c0 = temp_result == max_iterations ? fractal_color : palette_color.getPaletteColor(start_value + color_cycling_location);
+                                     c0 = temp_result == max_iterations ? fractal_color : palette_color.getPaletteColor(temp_result + color_cycling_location);
 
                                      temp_result2 = fractal.calculateFractal(new Complex(x_anti1 = (nextX - antialiasing_size), y_anti1 = (nextY - antialiasing_size)));
                                      temp_result3 = fractal.calculateFractal(new Complex(x_anti2 = (nextX + antialiasing_size), y_anti1));
@@ -1724,12 +1725,13 @@ public class ThreadDraw extends Thread {
                                                  break;
                                              }
                                              
+                                             previous_value = image_iterations[floodPix];
                                              floodPix++;
                                              
                                              if((floodColor = rgbs[floodPix]) == culcColor) {
                                                  drawing_done++;
                                                  rgbs[floodPix] = startColor;
-                                                 image_iterations[floodPix] = start_value;
+                                                 image_iterations[floodPix] = previous_value;
                                                  /*ptr.getMainPanel().repaint();
                                                  try {
                                                      Thread.sleep(1); //demo
@@ -1828,7 +1830,7 @@ public class ThreadDraw extends Thread {
              
              int pix, y, x, curDir, curPix, startPix, startColor, nextColor, dir, Dir, nextPix, floodPix, floodColor;
              int delPix[] = {1 , image_size, -1, -image_size};
-             double start_value, curX, curY, nextX, nextY;
+             double curX, curY, nextX, nextY, previous_value;
           
              int ix, iy, next_ix, next_iy, temp_ix, temp_iy, flood_ix;
              int intX[] = {1, 0, -1, 0};
@@ -1846,8 +1848,8 @@ public class ThreadDraw extends Thread {
                          ix = x;
                          iy = y;
                     
-                         start_value = image_iterations[pix] = fractal.calculateJulia(new Complex(temp_x0, temp_y0));
-                         startColor = rgbs[pix] = start_value == max_iterations ? fractal_color.getRGB() : palette_color.getPaletteColor(start_value + color_cycling_location).getRGB();
+                         temp_result = image_iterations[pix] = fractal.calculateJulia(new Complex(temp_x0, temp_y0));
+                         startColor = rgbs[pix] = temp_result == max_iterations ? fractal_color.getRGB() : palette_color.getPaletteColor(temp_result + color_cycling_location).getRGB();
                          drawing_done++;
                          thread_calculated++;
                          
@@ -1925,12 +1927,13 @@ public class ThreadDraw extends Thread {
                                                  break;
                                              }
                                              
+                                             previous_value = image_iterations[floodPix];
                                              floodPix++;
                                              
                                              if((floodColor = rgbs[floodPix]) == culcColor) {
                                                  drawing_done++;
                                                  rgbs[floodPix] = startColor;
-                                                 image_iterations[floodPix] = start_value;
+                                                 image_iterations[floodPix] = previous_value;
                                              }
                                              else if(floodColor != startColor) {
                                                  break;
@@ -2054,7 +2057,7 @@ public class ThreadDraw extends Thread {
              
              int pix, y, x, curDir, curPix, startPix, startColor, nextColor, dir, Dir, nextPix, floodPix, floodColor;
              int delPix[] = {1 , image_size, -1, -image_size};
-             double start_value, curX, curY, nextX, nextY;
+             double curX, curY, nextX, nextY, previous_value;
           
              int ix, iy, next_ix, next_iy, temp_ix, temp_iy, flood_ix;
              int intX[] = {1, 0, -1, 0};
@@ -2073,8 +2076,8 @@ public class ThreadDraw extends Thread {
                          ix = x;
                          iy = y;
                     
-                         start_value = image_iterations[pix] = fractal.calculateJulia(new Complex(temp_x0, temp_y0));
-                         c0 = start_value == max_iterations ? fractal_color : palette_color.getPaletteColor(start_value + color_cycling_location);
+                         temp_result = image_iterations[pix] = fractal.calculateJulia(new Complex(temp_x0, temp_y0));
+                         c0 = temp_result == max_iterations ? fractal_color : palette_color.getPaletteColor(temp_result + color_cycling_location);
                          
                          temp_result2 = fractal.calculateJulia(new Complex(x_anti1 = (temp_x0 - antialiasing_size), y_anti1 = (temp_y0 - antialiasing_size)));
                          temp_result3 = fractal.calculateJulia(new Complex(x_anti2 = (temp_x0 + antialiasing_size), y_anti1));
@@ -2121,7 +2124,7 @@ public class ThreadDraw extends Thread {
                                 
                                  if((nextColor = rgbs[nextPix]) == culcColor)  {
                                      temp_result = image_iterations[nextPix] = fractal.calculateJulia(new Complex(nextX, nextY));
-                                     c0 = temp_result == max_iterations ? fractal_color : palette_color.getPaletteColor(start_value + color_cycling_location);
+                                     c0 = temp_result == max_iterations ? fractal_color : palette_color.getPaletteColor(temp_result + color_cycling_location);
 
                                      temp_result2 = fractal.calculateJulia(new Complex(x_anti1 = (nextX - antialiasing_size), y_anti1 = (nextY - antialiasing_size)));
                                      temp_result3 = fractal.calculateJulia(new Complex(x_anti2 = (nextX + antialiasing_size), y_anti1));
@@ -2186,12 +2189,13 @@ public class ThreadDraw extends Thread {
                                                  break;
                                              }
                                              
+                                             previous_value = image_iterations[floodPix];
                                              floodPix++;
                                              
                                              if((floodColor = rgbs[floodPix]) == culcColor) {
                                                  drawing_done++;
                                                  rgbs[floodPix] = startColor;
-                                                 image_iterations[floodPix] = start_value;
+                                                 image_iterations[floodPix] = previous_value;
                                              }
                                              else if(floodColor != startColor) {
                                                  break;
@@ -2337,7 +2341,7 @@ public class ThreadDraw extends Thread {
              
              int pix, y, x, curDir, curPix, startPix, startColor, nextColor, dir, Dir, nextPix, floodPix, floodColor;
              int delPix[] = {1 , image_size, -1, -image_size};
-             double start_value, curX, curY, nextX, nextY;
+             double curX, curY, nextX, nextY;
           
              int ix, iy, next_ix, next_iy, temp_ix, temp_iy, flood_ix;
              int intX[] = {1, 0, -1, 0};
@@ -2355,8 +2359,8 @@ public class ThreadDraw extends Thread {
                          ix = x;
                          iy = y;
                     
-                         start_value = fractal.calculateJulia(new Complex(temp_x0, temp_y0));
-                         startColor = rgbs[pix] = start_value == max_iterations ? fractal_color.getRGB() : palette_color.getPaletteColor(start_value + color_cycling_location).getRGB();
+                         temp_result = fractal.calculateJulia(new Complex(temp_x0, temp_y0));
+                         startColor = rgbs[pix] = temp_result == max_iterations ? fractal_color.getRGB() : palette_color.getPaletteColor(temp_result + color_cycling_location).getRGB();
                          
                          while(iy - 1 >= FROMy && rgbs[startPix - image_size] == startColor){   // looking for boundary
                              curPix = startPix = startPix - image_size;
@@ -2536,7 +2540,7 @@ public class ThreadDraw extends Thread {
              
              int pix, y, x, curDir, curPix, startPix, startColor, nextColor, dir, Dir, nextPix, floodPix, floodColor;
              int delPix[] = {1 , image_size, -1, -image_size};
-             double start_value, curX, curY, nextX, nextY;
+             double curX, curY, nextX, nextY;
           
              int ix, iy, next_ix, next_iy, temp_ix, temp_iy, flood_ix;
              int intX[] = {1, 0, -1, 0};
@@ -2555,8 +2559,8 @@ public class ThreadDraw extends Thread {
                          ix = x;
                          iy = y;
                     
-                         start_value = fractal.calculateJulia(new Complex(temp_x0, temp_y0));
-                         c0 = start_value == max_iterations ? fractal_color : palette_color.getPaletteColor(start_value + color_cycling_location);
+                         temp_result = fractal.calculateJulia(new Complex(temp_x0, temp_y0));
+                         c0 = temp_result == max_iterations ? fractal_color : palette_color.getPaletteColor(temp_result + color_cycling_location);
                          
                          temp_result2 = fractal.calculateJulia(new Complex(x_anti1 = (temp_x0 - antialiasing_size), y_anti1 = (temp_y0 - antialiasing_size)));
                          temp_result3 = fractal.calculateJulia(new Complex(x_anti2 = (temp_x0 + antialiasing_size), y_anti1));
@@ -2600,7 +2604,7 @@ public class ThreadDraw extends Thread {
                                 
                                  if((nextColor = rgbs[nextPix]) == culcColor)  {
                                      temp_result = fractal.calculateJulia(new Complex(nextX, nextY));
-                                     c0 = temp_result == max_iterations ? fractal_color : palette_color.getPaletteColor(start_value + color_cycling_location);
+                                     c0 = temp_result == max_iterations ? fractal_color : palette_color.getPaletteColor(temp_result + color_cycling_location);
 
                                      temp_result2 = fractal.calculateJulia(new Complex(x_anti1 = (nextX - antialiasing_size), y_anti1 = (nextY - antialiasing_size)));
                                      temp_result3 = fractal.calculateJulia(new Complex(x_anti2 = (nextX + antialiasing_size), y_anti1));

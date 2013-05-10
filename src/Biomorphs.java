@@ -26,7 +26,7 @@ public class Biomorphs extends OutColorAlgorithm {
 
         double temp = ((Complex)object[1]).getRe();
         double temp2 = ((Complex)object[1]).getIm();
-        return temp > -bailout && temp < bailout || temp2 > -bailout && temp2 < bailout ?  (Integer)object[0] : (Integer)object[0] + 100850;
+        return temp > -bailout && temp < bailout || temp2 > -bailout && temp2 < bailout ?  (Integer)object[0] + 100800 : (Integer)object[0] + 100850;
 
     }
 

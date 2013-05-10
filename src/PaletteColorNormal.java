@@ -12,16 +12,16 @@ import java.awt.Color;
  */
 public class PaletteColorNormal extends PaletteColor {
   
-  public PaletteColorNormal(Color[] palette, double color_intensity) {
+  public PaletteColorNormal(Color[] palette) {
       
-      super(palette, color_intensity);
+      super(palette);
       
   }
 
     @Override
     public Color getPaletteColor(double result) {
         
-        return palette[((int)(result * color_intensity)) % palette.length];
+        return palette[((int)((result + mod_offset))) % palette.length];
         
     }
   
