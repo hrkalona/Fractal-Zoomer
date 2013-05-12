@@ -2951,7 +2951,6 @@ public class MainWindow extends JFrame {
         real.setHorizontalAlignment(JTextField.RIGHT);
         real.setPreferredSize(new Dimension(130, 0));
         real.setEditable(false);
-        real.setFont(new Font("bold", Font.BOLD, 12));
         real.setForeground(new Color(16, 78, 139));
         real.setToolTipText("Displays the Real part of the complex number.");
         
@@ -2962,7 +2961,6 @@ public class MainWindow extends JFrame {
         imaginary.setPreferredSize(new Dimension(130, 0));
         imaginary.setHorizontalAlignment(JTextField.RIGHT);
         imaginary.setEditable(false);
-        imaginary.setFont(new Font("bold", Font.BOLD, 12));
         imaginary.setForeground(new Color(0, 139, 69));
         imaginary.setToolTipText("Displays the Imaginary part of the complex number.");
 
@@ -2980,7 +2978,7 @@ public class MainWindow extends JFrame {
         progress = new JProgressBar();
         progress.setPreferredSize(new Dimension(210, 0));
         progress.setStringPainted(true);
-        progress.setForeground(new Color(205, 133, 0));
+        progress.setForeground(new Color(255, 185, 15));
         progress.setValue(0);
         
         statusbar.add(progress);
@@ -3435,24 +3433,7 @@ public class MainWindow extends JFrame {
         startThreads(n);
 
     }
-   
 
-  /* public boolean isDrawingDone() {
-
-       try {
-           for(int i = 0; i < threads.length; i++ ) {
-               for(int j = 0; j < threads[i].length; j++) {
-                   if(!threads[i][j].isFirstPartDone()) {
-                      return false;
-                   }
-               }
-           }
-       }
-       catch(Exception ex) {}
-
-       return true;
-
-   }*/
 
    
    public boolean threadsAvailable() {
