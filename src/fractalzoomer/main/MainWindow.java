@@ -2949,7 +2949,7 @@ public class MainWindow extends JFrame {
 
         real = new JTextField("Real");
         real.setHorizontalAlignment(JTextField.RIGHT);
-        real.setPreferredSize(new Dimension(130, 0));
+        real.setPreferredSize(new Dimension(100, 0));
         real.setEditable(false);
         real.setForeground(new Color(16, 78, 139));
         real.setToolTipText("Displays the Real part of the complex number.");
@@ -2958,7 +2958,7 @@ public class MainWindow extends JFrame {
         statusbar.add(new JLabel("  "));
 
         imaginary = new JTextField("Imaginary");
-        imaginary.setPreferredSize(new Dimension(130, 0));
+        imaginary.setPreferredSize(new Dimension(100, 0));
         imaginary.setHorizontalAlignment(JTextField.RIGHT);
         imaginary.setEditable(false);
         imaginary.setForeground(new Color(0, 139, 69));
@@ -2976,7 +2976,7 @@ public class MainWindow extends JFrame {
         add(scroll_pane);
 
         progress = new JProgressBar();
-        progress.setPreferredSize(new Dimension(210, 0));
+        progress.setPreferredSize(new Dimension(225, 0));
         progress.setStringPainted(true);
         progress.setForeground(new Color(255, 185, 15));
         progress.setValue(0);
