@@ -11,19 +11,20 @@ import fractalzoomer.core.Complex;
  *
  * @author hrkalona2
  */
-public class Perturbation extends DefaultPerturbation {
+public class DefaultPerturbation {
+  protected Complex pixel;
+
     
-    public Perturbation(double re, double im) {
+    public DefaultPerturbation(double re, double im) {
     
-        super(re, im);
+        pixel = new Complex(re, im);
         
     }
 
 
-    @Override
     public Complex getPixel(Complex pixel) {
         
-        return this.pixel.plus(pixel);
+        return pixel;
         
     }
     

@@ -11,7 +11,8 @@ import fractalzoomer.planes.CotPlane;
 import fractalzoomer.planes.CothPlane;
 import fractalzoomer.planes.ExpPlane;
 import fractalzoomer.bailout_tests.HalfplaneBailoutTest;
-import fractalzoomer.fractal_options.InitialValue;
+import fractalzoomer.bailout_tests.RhombusBailoutTest;
+import fractalzoomer.fractal_options.DefaultPerturbation;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.fractal_options.Rotation;
 import fractalzoomer.out_coloring_algorithms.OutColorAlgorithm;
@@ -28,6 +29,7 @@ import fractalzoomer.planes.Plane;
 import fractalzoomer.planes.MuPlane;
 import fractalzoomer.bailout_tests.StripBailoutTest;
 import fractalzoomer.bailout_tests.SquareBailoutTest;
+import fractalzoomer.fractal_options.DefaultInitialValue;
 import fractalzoomer.planes.SqrtPlane;
 import fractalzoomer.planes.TanPlane;
 import fractalzoomer.planes.SinhPlane;
@@ -56,7 +58,8 @@ public abstract class Fractal {
   protected BailoutTest bailout_algorithm;
   protected Plane plane;
   protected Rotation rotation;
-  protected InitialValue init_val;
+  protected DefaultInitialValue init_val;
+  protected DefaultPerturbation pertur_val;
   protected boolean periodicity_checking;
   protected ArrayList<Complex> complex_orbit;
   protected Complex pixel_orbit;
@@ -151,6 +154,9 @@ public abstract class Fractal {
                 break;
             case MainWindow.BAILOUT_TEST_SQUARE:
                 bailout_algorithm = new SquareBailoutTest(bailout);
+                break;
+            case MainWindow.BAILOUT_TEST_RHOMBUS:
+                bailout_algorithm = new RhombusBailoutTest(bailout);
                 break;
             case MainWindow.BAILOUT_TEST_STRIP:
                 bailout_algorithm = new StripBailoutTest(bailout);
@@ -299,7 +305,7 @@ public abstract class Fractal {
 
         period = new Complex();
 
-        Complex tempz = init_val.getPixel(pixel);
+        Complex tempz = pertur_val.getPixel(init_val.getPixel(pixel));
         
         Complex[] complex = new Complex[2];
         complex[0] = tempz;//z
@@ -330,7 +336,7 @@ public abstract class Fractal {
         
         int iterations = 0;
 
-        Complex tempz = init_val.getPixel(pixel);
+        Complex tempz = pertur_val.getPixel(init_val.getPixel(pixel));
         
         Complex[] complex = new Complex[2];
         complex[0] = tempz;//z
@@ -447,7 +453,7 @@ public abstract class Fractal {
       int iterations = 0;
 
         Complex[] complex = new Complex[2];
-        complex[0] = init_val.getPixel(pixel_orbit);//z
+        complex[0] = pertur_val.getPixel(init_val.getPixel(pixel_orbit));//z
         complex[1] = pixel_orbit;//c
         
 

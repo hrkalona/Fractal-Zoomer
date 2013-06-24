@@ -13,7 +13,7 @@ import fractalzoomer.out_coloring_algorithms.EscapeTimeColorDecompositionConverg
 import fractalzoomer.out_coloring_algorithms.EscapeTimePlusIm;
 import fractalzoomer.out_coloring_algorithms.EscapeTimePlusRe;
 import fractalzoomer.out_coloring_algorithms.EscapeTimePlusRePlusImPlusReDivideIm;
-import fractalzoomer.fractal_options.InitialValue;
+import fractalzoomer.fractal_options.DefaultPerturbation;
 import fractalzoomer.in_coloring_algorithms.MagTimesCosReSquared;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.in_coloring_algorithms.MaximumIterations;
@@ -117,9 +117,7 @@ public class HalleyGeneralized8 extends RootFindingMethods {
     public HalleyGeneralized8(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals) {
 
         super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals);
-        
-        init_val = new InitialValue(complex_orbit.get(0).getRe(), complex_orbit.get(0).getIm());
- 
+
     }
    
     @Override

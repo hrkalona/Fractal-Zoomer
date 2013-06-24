@@ -13,6 +13,8 @@ Includes:
 Plane transformations
 Rotation
 Perturbation
+Initial Value
+Bailout Tests
 Palette editor
 Julia sets
 Julia map

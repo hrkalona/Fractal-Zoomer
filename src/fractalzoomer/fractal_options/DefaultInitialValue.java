@@ -10,18 +10,20 @@ import fractalzoomer.core.Complex;
  *
  * @author hrkalona2
  */
-public class InitialValue extends DefaultInitialValue {
+public class DefaultInitialValue {
+  protected Complex pixel;
 
-    public InitialValue(double re, double im) {
+    public DefaultInitialValue(double re, double im) {
     
-        super(re, im);
+        pixel = new Complex(re, im);
         
     }
-    
-    @Override
+
+
     public Complex getPixel(Complex pixel) {
         
-        return this.pixel;
+        return pixel;
         
     }
+    
 }

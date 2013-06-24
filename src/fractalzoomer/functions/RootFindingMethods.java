@@ -2,7 +2,6 @@ package fractalzoomer.functions;
 
 
 import fractalzoomer.core.Complex;
-import fractalzoomer.fractal_options.InitialValue;
 import java.util.ArrayList;
 
 /*
@@ -29,9 +28,7 @@ public abstract class RootFindingMethods extends Fractal {
     public RootFindingMethods(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals) {
 
         super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals);
-        
-        init_val = new InitialValue(complex_orbit.get(0).getRe(), complex_orbit.get(0).getIm());
-
+ 
     }
 
     
@@ -60,6 +57,23 @@ public abstract class RootFindingMethods extends Fractal {
         Object[] object = {max_iterations, complex[0]};
         return in_color_algorithm.getResult(object);
         
+    }
+    
+    @Override
+    public void calculateFractalOrbit() {
+      int iterations = 0;
+
+        Complex[] complex = new Complex[1];
+        complex[0] = pixel_orbit;//z
+
+        for (; iterations < max_iterations; iterations++) {
+           function(complex);
+           complex_orbit.add(rotation.getPixel(complex[0], true));
+           //if(z.getRe() >= (xCenter + size) / 2 || z.getRe() <= (xCenter - size) / 2 || z.getIm() >= (yCenter + size) / 2 || z.getIm() <= (yCenter - size) / 2) {
+               //return;  //keep only the visible ones
+           //}
+        }
+
     }
     
  

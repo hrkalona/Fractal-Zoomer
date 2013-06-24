@@ -136,7 +136,7 @@ public class ThreadDraw extends Thread {
     }
 
     //Fractal
-    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter,  double size, int max_iterations, int bailout_test_algorithm, double bailout,  MainWindow ptr, Color fractal_color, BufferedImage image, boolean[] filters, int out_coloring_algorithm, int in_coloring_algorithm, boolean boundary_tracing, boolean periodicity_checking, int plane_type, boolean burning_ship, int function, double z_exponent, int color_cycling_location, double[] rotation_vals, boolean perturbation, double[] perturbation_vals, double[] coefficients) {
+    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter,  double size, int max_iterations, int bailout_test_algorithm, double bailout,  MainWindow ptr, Color fractal_color, BufferedImage image, boolean[] filters, int out_coloring_algorithm, int in_coloring_algorithm, boolean boundary_tracing, boolean periodicity_checking, int plane_type, boolean burning_ship, int function, double z_exponent, int color_cycling_location, double[] rotation_vals, boolean perturbation, double[] perturbation_vals, boolean init_val, double[] initial_vals, double[] coefficients) {
 
         this.FROMx = FROMx;
         this.TOx = TOx;
@@ -178,46 +178,46 @@ public class ThreadDraw extends Thread {
         
         switch (function) {
             case 0:
-                fractal = new Mandelbrot(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals, burning_ship);
+                fractal = new Mandelbrot(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals, burning_ship);
                 break;
             case 1:
-                fractal = new MandelbrotCubed(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals, burning_ship);
+                fractal = new MandelbrotCubed(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals, burning_ship);
                 break;
             case 2:
-                fractal = new MandelbrotFourth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals, burning_ship);
+                fractal = new MandelbrotFourth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals, burning_ship);
                 break;
             case 3:
-                fractal = new MandelbrotFifth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals, burning_ship);
+                fractal = new MandelbrotFifth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals, burning_ship);
                 break;
             case 4:
-                fractal = new MandelbrotSixth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals, burning_ship);
+                fractal = new MandelbrotSixth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals, burning_ship);
                 break;
             case 5:
-                fractal = new MandelbrotSeventh(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals, burning_ship);
+                fractal = new MandelbrotSeventh(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals, burning_ship);
                 break;
             case 6:
-                fractal = new MandelbrotEighth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals, burning_ship);
+                fractal = new MandelbrotEighth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals, burning_ship);
                 break;
             case 7:
-                fractal = new MandelbrotNinth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals, burning_ship);
+                fractal = new MandelbrotNinth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals, burning_ship);
                 break;
             case 8:
-                fractal = new MandelbrotTenth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals, burning_ship);
+                fractal = new MandelbrotTenth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals, burning_ship);
                 break;
             case MainWindow.MANDELBROTNTH:
-                fractal = new MandelbrotNth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals, burning_ship, z_exponent);
+                fractal = new MandelbrotNth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals, burning_ship, z_exponent);
                 break;
             case MainWindow.MANDELPOLY:
-                fractal = new MandelbrotPoly(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals, burning_ship, coefficients);
+                fractal = new MandelbrotPoly(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals, burning_ship, coefficients);
                 break;
             case MainWindow.LAMBDA:
-                fractal = new Lambda(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals);
+                fractal = new Lambda(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
                 break;
             case MainWindow.MAGNET1:
-                fractal = new Magnet1(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals);
+                fractal = new Magnet1(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
                 break;
             case MainWindow.MAGNET2:
-                fractal = new Magnet2(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals);
+                fractal = new Magnet2(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
                 break;
             case MainWindow.NEWTON3:
                 fractal = new Newton3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, plane_type, rotation_vals);
@@ -241,25 +241,25 @@ public class ThreadDraw extends Thread {
                 fractal = new NewtonPoly(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, plane_type, rotation_vals, coefficients);
                 break;
             case MainWindow.BARNSLEY1:
-                fractal = new Barnsley1(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals);
+                fractal = new Barnsley1(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
                 break;
             case MainWindow.BARNSLEY2:
-                fractal = new Barnsley2(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals);
+                fractal = new Barnsley2(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
                 break;
             case MainWindow.BARNSLEY3:
-                fractal = new Barnsley3(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals);
+                fractal = new Barnsley3(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
                 break;
             case MainWindow.MANDELBAR:
-                fractal = new Mandelbar(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals);
+                fractal = new Mandelbar(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
                 break;
             case MainWindow.SPIDER:
-                fractal = new Spider(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals);
+                fractal = new Spider(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
                 break;
             case MainWindow.MANOWAR:
-                fractal = new Manowar(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals);
+                fractal = new Manowar(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
                 break;
             case MainWindow.PHOENIX:
-                fractal = new Phoenix(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals);
+                fractal = new Phoenix(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
                 break;
             case MainWindow.SIERPINSKI_GASKET:
                 fractal = new SierpinskiGasket(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, plane_type, rotation_vals);
@@ -328,34 +328,34 @@ public class ThreadDraw extends Thread {
                 fractal = new HouseholderPoly(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, plane_type, rotation_vals, coefficients);
                 break;
             case MainWindow.EXP:
-                fractal = new Exp(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals);
+                fractal = new Exp(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
                 break;
             case MainWindow.LOG:
-                fractal = new Log(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals);
+                fractal = new Log(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
                 break;
             case MainWindow.SIN:
-                fractal = new Sin(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals);
+                fractal = new Sin(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
                 break;
             case MainWindow.COS:
-                fractal = new Cos(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals);
+                fractal = new Cos(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
                 break;
             case MainWindow.TAN:
-                fractal = new Tan(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals);
+                fractal = new Tan(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
                 break;
             case MainWindow.COT:
-                fractal = new Cot(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals);
+                fractal = new Cot(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
                 break;
             case MainWindow.SINH:
-                fractal = new Sinh(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals);
+                fractal = new Sinh(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
                 break;
             case MainWindow.COSH:
-                fractal = new Cosh(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals);
+                fractal = new Cosh(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
                 break;
             case MainWindow.TANH:
-                fractal = new Tanh(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals);
+                fractal = new Tanh(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
                 break;
             case MainWindow.COTH:
-                fractal = new Coth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals);
+                fractal = new Coth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
                 break;
        
         }

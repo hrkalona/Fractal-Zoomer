@@ -19,7 +19,7 @@ public class CircleBailoutTest extends BailoutTest {
         
     }
     
-     @Override
+     @Override //euclidean norm
      public boolean escaped(Complex z) {
          
         return z.norm_squared() >= bound;

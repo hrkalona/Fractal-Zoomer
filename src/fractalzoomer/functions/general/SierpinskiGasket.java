@@ -7,6 +7,7 @@ import fractalzoomer.out_coloring_algorithms.BinaryDecomposition2;
 import fractalzoomer.out_coloring_algorithms.Biomorphs;
 import fractalzoomer.out_coloring_algorithms.ColorDecomposition;
 import fractalzoomer.core.Complex;
+import fractalzoomer.fractal_options.DefaultInitialValue;
 import fractalzoomer.in_coloring_algorithms.CosMag;
 import fractalzoomer.in_coloring_algorithms.DecompositionLike;
 import fractalzoomer.out_coloring_algorithms.EscapeTime;
@@ -15,7 +16,6 @@ import fractalzoomer.out_coloring_algorithms.EscapeTimeGaussianInteger;
 import fractalzoomer.out_coloring_algorithms.EscapeTimePlusIm;
 import fractalzoomer.out_coloring_algorithms.EscapeTimePlusRe;
 import fractalzoomer.out_coloring_algorithms.EscapeTimePlusRePlusImPlusReDivideIm;
-import fractalzoomer.fractal_options.InitialValue;
 import fractalzoomer.in_coloring_algorithms.MagTimesCosReSquared;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.functions.Fractal;
@@ -118,8 +118,6 @@ public class SierpinskiGasket extends Fractal {
     public SierpinskiGasket(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals) {
 
         super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals);
-        
-        init_val = new InitialValue(complex_orbit.get(0).getRe(), complex_orbit.get(0).getIm());
 
     }
    

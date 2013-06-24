@@ -8,6 +8,7 @@ import fractalzoomer.out_coloring_algorithms.BinaryDecomposition2;
 import fractalzoomer.out_coloring_algorithms.Biomorphs;
 import fractalzoomer.out_coloring_algorithms.ColorDecomposition;
 import fractalzoomer.core.Complex;
+import fractalzoomer.fractal_options.DefaultInitialValue;
 import fractalzoomer.in_coloring_algorithms.CosMag;
 import fractalzoomer.in_coloring_algorithms.DecompositionLike;
 import fractalzoomer.out_coloring_algorithms.EscapeTime;
@@ -16,6 +17,7 @@ import fractalzoomer.out_coloring_algorithms.EscapeTimeGaussianInteger;
 import fractalzoomer.out_coloring_algorithms.EscapeTimePlusIm;
 import fractalzoomer.out_coloring_algorithms.EscapeTimePlusRe;
 import fractalzoomer.out_coloring_algorithms.EscapeTimePlusRePlusImPlusReDivideIm;
+import fractalzoomer.fractal_options.DefaultPerturbation;
 import fractalzoomer.fractal_options.InitialValue;
 import fractalzoomer.in_coloring_algorithms.MagTimesCosReSquared;
 import fractalzoomer.main.MainWindow;
@@ -40,15 +42,22 @@ import java.util.ArrayList;
  */
 public class Mandelbar extends Julia {
 
-    public Mandelbar(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, int out_coloring_algorithm, int in_coloring_algorithm, boolean periodicity_checking, int plane_type, double[] rotation_vals, boolean perturbation, double[] perturbation_vals) {
+    public Mandelbar(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, int out_coloring_algorithm, int in_coloring_algorithm, boolean periodicity_checking, int plane_type, double[] rotation_vals, boolean perturbation, double[] perturbation_vals, boolean init_value, double[] initial_vals) {
 
         super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, periodicity_checking, plane_type, rotation_vals);
 
         if(perturbation) {
-            init_val = new Perturbation(perturbation_vals[0], perturbation_vals[1]);
+            pertur_val = new Perturbation(perturbation_vals[0], perturbation_vals[1]);
         }
         else {
-            init_val = new InitialValue(perturbation_vals[0], perturbation_vals[1]);
+            pertur_val = new DefaultPerturbation(perturbation_vals[0], perturbation_vals[1]);
+        }
+        
+        if(init_value) {
+            init_val = new InitialValue(initial_vals[0], initial_vals[1]);
+        }
+        else {
+            init_val = new DefaultInitialValue(initial_vals[0], initial_vals[1]);
         }
         
         switch (out_coloring_algorithm) {
@@ -200,15 +209,22 @@ public class Mandelbar extends Julia {
     }
 
     //orbit
-    public Mandelbar(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, boolean perturbation, double[] perturbation_vals) {
+    public Mandelbar(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, boolean perturbation, double[] perturbation_vals, boolean init_value, double[] initial_vals) {
 
         super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals);
         
         if(perturbation) {
-            init_val = new Perturbation(perturbation_vals[0], perturbation_vals[1]);
+            pertur_val = new Perturbation(perturbation_vals[0], perturbation_vals[1]);
         }
         else {
-            init_val = new InitialValue(perturbation_vals[0], perturbation_vals[1]);
+            pertur_val = new DefaultPerturbation(perturbation_vals[0], perturbation_vals[1]);
+        }
+        
+        if(init_value) {
+            init_val = new InitialValue(initial_vals[0], initial_vals[1]);
+        }
+        else {
+            init_val = new DefaultInitialValue(initial_vals[0], initial_vals[1]);
         }
 
     }

@@ -7,6 +7,8 @@ import fractalzoomer.out_coloring_algorithms.BinaryDecompositionMagnet;
 import fractalzoomer.out_coloring_algorithms.BiomorphsMagnet;
 import fractalzoomer.out_coloring_algorithms.ColorDecomposition;
 import fractalzoomer.core.Complex;
+import fractalzoomer.fractal_options.DefaultPerturbation;
+import fractalzoomer.fractal_options.InitialValue;
 import fractalzoomer.in_coloring_algorithms.CosMag;
 import fractalzoomer.in_coloring_algorithms.DecompositionLike;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeColorDecomposition;
@@ -39,17 +41,24 @@ import java.util.ArrayList;
 public class Magnet2 extends Julia {
   private double convergent_bailout;
 
-    public Magnet2(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, int out_coloring_algorithm, int in_coloring_algorithm, boolean periodicity_checking, int plane_type, double[] rotation_vals, boolean perturbation, double[] perturbation_vals) {
+    public Magnet2(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, int out_coloring_algorithm, int in_coloring_algorithm, boolean periodicity_checking, int plane_type, double[] rotation_vals, boolean perturbation, double[] perturbation_vals, boolean init_value, double[] initial_vals) {
 
         super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, periodicity_checking, plane_type, rotation_vals);
 
         convergent_bailout = 1E-9;
         
         if(perturbation) {
-            init_val = new Perturbation(perturbation_vals[0], perturbation_vals[1]);
+            pertur_val = new Perturbation(perturbation_vals[0], perturbation_vals[1]);
         }
         else {
-            init_val = new Perturbation(0, 0);
+            pertur_val = new DefaultPerturbation(perturbation_vals[0], perturbation_vals[1]);
+        }
+        
+        if(init_value) {
+            init_val = new InitialValue(initial_vals[0], initial_vals[1]);
+        }
+        else {
+            init_val = new InitialValue(0, 0);
         }
 
         switch (out_coloring_algorithm) {
@@ -205,15 +214,22 @@ public class Magnet2 extends Julia {
     }
 
     //orbit
-    public Magnet2(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, boolean perturbation, double[] perturbation_vals) {
+    public Magnet2(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, boolean perturbation, double[] perturbation_vals, boolean init_value, double[] initial_vals) {
 
         super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals);
         
         if(perturbation) {
-            init_val = new Perturbation(perturbation_vals[0], perturbation_vals[1]);
+            pertur_val = new Perturbation(perturbation_vals[0], perturbation_vals[1]);
         }
         else {
-            init_val = new Perturbation(0, 0);
+            pertur_val = new DefaultPerturbation(perturbation_vals[0], perturbation_vals[1]);
+        }
+        
+        if(init_value) {
+            init_val = new InitialValue(initial_vals[0], initial_vals[1]);
+        }
+        else {
+            init_val = new InitialValue(0, 0);
         }
 
     }
@@ -258,7 +274,7 @@ public class Magnet2 extends Julia {
 
         period = new Complex();
 
-        Complex tempz = init_val.getPixel(pixel);
+        Complex tempz = pertur_val.getPixel(init_val.getPixel(pixel));
         
         Complex[] complex = new Complex[2];
         complex[0] = tempz;//z
@@ -293,7 +309,7 @@ public class Magnet2 extends Julia {
       Boolean temp1, temp2;
       double temp4;
 
-        Complex tempz = init_val.getPixel(pixel);
+        Complex tempz = pertur_val.getPixel(init_val.getPixel(pixel));
         
         Complex[] complex = new Complex[2];
         complex[0] = tempz;//z
