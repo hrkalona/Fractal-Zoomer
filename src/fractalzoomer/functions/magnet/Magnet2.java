@@ -26,6 +26,7 @@ import fractalzoomer.in_coloring_algorithms.ReDivideIm;
 import fractalzoomer.in_coloring_algorithms.SinReSquaredMinusImSquared;
 import fractalzoomer.in_coloring_algorithms.Squares;
 import fractalzoomer.in_coloring_algorithms.ZMag;
+import fractalzoomer.out_coloring_algorithms.EscapeTimePlusReDivideIm;
 import fractalzoomer.out_coloring_algorithms.SmoothMagnet2;
 import java.util.ArrayList;
 
@@ -80,6 +81,10 @@ public class Magnet2 extends Julia {
                 break;
             case MainWindow.ITERATIONS_PLUS_IM:
                 out_color_algorithm = new EscapeTimePlusIm();
+                break;
+            case MainWindow.ITERATIONS_PLUS_RE_DIVIDE_IM:
+                convergent_bailout = 1E-2;
+                out_color_algorithm = new EscapeTimePlusReDivideIm();
                 break;
             case MainWindow.ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM:
                 convergent_bailout = 1E-2;
@@ -159,6 +164,10 @@ public class Magnet2 extends Julia {
                 break;
             case MainWindow.ITERATIONS_PLUS_IM:
                 out_color_algorithm = new EscapeTimePlusIm();
+                break;
+            case MainWindow.ITERATIONS_PLUS_RE_DIVIDE_IM:
+                convergent_bailout = 1E-2;
+                out_color_algorithm = new EscapeTimePlusReDivideIm();
                 break;
             case MainWindow.ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM:
                 convergent_bailout = 1E-2;
@@ -284,7 +293,7 @@ public class Magnet2 extends Julia {
         Complex zold2 = null;
 
         for (; iterations < max_iterations; iterations++) {
-            temp1 = (temp4 = complex[0].sub(1).norm_squared()) <= convergent_bailout;
+            temp1 = (temp4 = complex[0].distance_squared(1)) <= convergent_bailout;
             temp2 = bailout_algorithm.escaped(complex[0]);
             if(iterations > 1 && (temp1 ||  temp2)) {
                 Object[] object = {iterations, complex[0], temp2, temp4, zold, zold2};
@@ -320,7 +329,7 @@ public class Magnet2 extends Julia {
         
 
         for (; iterations < max_iterations; iterations++) {
-            temp1 = (temp4 = complex[0].sub(1).norm_squared()) <= convergent_bailout;
+            temp1 = (temp4 = complex[0].distance_squared(1)) <= convergent_bailout;
             temp2 = bailout_algorithm.escaped(complex[0]);
             if(iterations > 1 && (temp1 ||  temp2)) {
                 Object[] object = {iterations, complex[0], temp2, temp4, zold, zold2};
@@ -360,7 +369,7 @@ public class Magnet2 extends Julia {
         Complex zold2 = null;
 
         for (; iterations < max_iterations; iterations++) {
-            temp1 = (temp4 = complex[0].sub(1).norm_squared()) <= convergent_bailout;
+            temp1 = (temp4 = complex[0].distance_squared(1)) <= convergent_bailout;
             temp2 = bailout_algorithm.escaped(complex[0]);
             if(iterations > 1 && (temp1 ||  temp2)) {
                 Object[] object = {iterations, complex[0], temp2, temp4, zold, zold2};
@@ -393,7 +402,7 @@ public class Magnet2 extends Julia {
         Complex zold2 = null;
 
         for (; iterations < max_iterations; iterations++) {
-            temp1 = (temp4 = complex[0].sub(1).norm_squared()) <= convergent_bailout;
+            temp1 = (temp4 = complex[0].distance_squared(1)) <= convergent_bailout;
             temp2 = bailout_algorithm.escaped(complex[0]);
             if(iterations > 1 && (temp1 ||  temp2)) {
                 Object[] object = {iterations, complex[0], temp2, temp4, zold, zold2};

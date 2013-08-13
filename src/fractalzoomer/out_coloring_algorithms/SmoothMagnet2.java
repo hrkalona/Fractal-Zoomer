@@ -34,10 +34,10 @@ public class SmoothMagnet2 extends Smooth {
             return (Integer)object[0] + 100234 + (log_bailout_squared - temp) / (Math.log(temp2) - temp);
         }
         else {
-            double temp = Math.log(((Complex)object[4]).sub((Complex)object[5]).norm_squared());
+            double temp = Math.log(((Complex)object[4]).distance_squared((Complex)object[5]));
             return (Integer)object[0] + (log_convergent_bailout - temp) / (Math.log((Double)object[3]) - temp) + 100800;  
         }
-
+        
     }
     
 }

@@ -44,7 +44,7 @@ public abstract class RootFindingMethods extends Fractal {
         Complex zold2 = null;
 
         for (; iterations < max_iterations; iterations++) {
-            if((iterations > 1 && ((temp = (complex[0].sub(zold)).norm_squared()) <= convergent_bailout))) {
+            if((iterations > 1 && ((temp = complex[0].distance_squared(zold)) <= convergent_bailout))) {
                 Object[] object = {iterations, complex[0], temp, zold, zold2};
                 return out_color_algorithm.getResult(object);
             }

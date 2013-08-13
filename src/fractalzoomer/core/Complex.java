@@ -1,5 +1,7 @@
 package fractalzoomer.core;
 
+import java.util.Random;
+
 
 
 
@@ -196,6 +198,17 @@ public class Complex {
         return new Complex(re * temp, (-im) * temp);
         
     }
+    
+     /*
+      *  1 / z
+      */
+     public Complex reciprocal() {
+         
+        double temp = re * re + im * im;
+        
+        return new Complex(re / temp, (-im) / temp);
+        
+     }
 
     /*
      *  z^2
@@ -331,6 +344,52 @@ public class Complex {
         return Math.sqrt(re * re + im * im);
        
     }
+    
+    /*
+     *  |z1 - z2|^2
+     */
+    public double distance_squared(Complex z) {
+        
+        double temp_re = re - z.re;
+        double temp_im = im - z.im;
+        
+        return temp_re * temp_re + temp_im * temp_im;
+        
+    }
+    
+    /*
+     *  |z1 - Real|^2
+     */
+    public double distance_squared(double number) {
+        
+        double temp_re = re - number;
+        
+        return temp_re * temp_re + im * im;
+        
+    }
+    
+     /*
+     *  |z1 - z2|
+     */
+    public double distance(Complex z) {
+        
+        double temp_re = re - z.re;
+        double temp_im = im - z.im;
+        
+        return Math.sqrt(temp_re * temp_re + temp_im * temp_im);
+        
+    }
+    
+     /*
+     *  |z1 - Real|
+     */
+    public double distance(double number) {
+        
+        double temp_re = re - number;
+        
+        return Math.sqrt(temp_re * temp_re + im * im);
+        
+    }
 
      /*
      *  |Real|
@@ -382,19 +441,28 @@ public class Complex {
      */
     public Complex pow(double exponent) {
 
-	double temp = Math.pow(re * re + im * im, exponent / 2);
+	double temp = Math.pow(re * re + im * im, exponent * 0.5);
 	double temp2 = exponent * Math.atan2(im, re);
 
         return new Complex(temp * Math.cos(temp2), temp * Math.sin(temp2));
 
     }
     
+     /*
+      *  z1 ^ z2 = exp(z2 * log(z1))
+      */
+     public Complex pow(Complex z) { 
+       
+        return (z.times(this.log())).exp();
+         
+     }
+    
     /*
      *  log(z) = ln|z| + arctan(Im/Re)i
      */
     public Complex log() {
         
-        return new Complex(Math.log(this.norm()), Math.atan2(im, re));
+        return new Complex(Math.log(re * re + im * im) * 0.5, Math.atan2(im, re));
         
     }
     
@@ -679,7 +747,67 @@ public class Complex {
          return new Complex((int)(re < 0 ? re - 0.5 : re + 0.5), (int)(im < 0 ? im - 0.5 : im + 0.5));
          
      }
- 
+     
+     @Override
+     public String toString() {
+         
+         String temp = "";
+                
+         if(im > 0) {
+             temp = re + "+" + im + "i";
+         }
+         else if(im == 0) {
+             temp = re + "+" + (0.0) + "i";
+         }
+         else {
+             temp = re + "" + im + "i";
+         }
+
+         return temp;
+         
+     }
+     
+     
+     public Complex fold_out(double number) {
+         
+         double norm = re * re + im * im;
+
+         return norm > number ? this.divide(norm) : this;
+         
+     }
+     
+     public Complex fold_in(double number) {
+         
+         double norm = re * re + im * im;
+         
+         return norm < number ? this.divide(norm) : this;
+         
+     } 
+
+     public Complex fold_right(double number) {
+
+         return re < number ? new Complex(re + 2 * (number - re), im) : this;
+         
+     }
+     
+     public Complex fold_left(double number) {
+
+         return re > number ? new Complex(re - 2 * (re - number), im) : this;
+         
+     }
+     
+     public Complex fold_up(double number) {
+
+         return im < number ? new Complex(re, im + 2 * (number - im)) : this;
+         
+     }
+     
+     public Complex fold_down(double number) {
+
+         return im > number ? new Complex(re, im - 2 * (im - number)) : this;
+         
+     }
+  
 }
     
 

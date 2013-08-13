@@ -27,6 +27,7 @@ import fractalzoomer.in_coloring_algorithms.ReDivideIm;
 import fractalzoomer.in_coloring_algorithms.SinReSquaredMinusImSquared;
 import fractalzoomer.in_coloring_algorithms.Squares;
 import fractalzoomer.in_coloring_algorithms.ZMag;
+import fractalzoomer.out_coloring_algorithms.EscapeTimePlusReDivideIm;
 import fractalzoomer.out_coloring_algorithms.Smooth;
 import java.util.ArrayList;
 
@@ -78,6 +79,9 @@ public class Spider extends Julia {
                 break;
             case MainWindow.ITERATIONS_PLUS_IM:
                 out_color_algorithm = new EscapeTimePlusIm();
+                break;
+            case MainWindow.ITERATIONS_PLUS_RE_DIVIDE_IM:
+                out_color_algorithm = new EscapeTimePlusReDivideIm();
                 break;
             case MainWindow.ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM:
                 out_color_algorithm = new EscapeTimePlusRePlusImPlusReDivideIm();
@@ -154,6 +158,9 @@ public class Spider extends Julia {
                 break;
             case MainWindow.ITERATIONS_PLUS_IM:
                 out_color_algorithm = new EscapeTimePlusIm();
+                break;
+            case MainWindow.ITERATIONS_PLUS_RE_DIVIDE_IM:
+                out_color_algorithm = new EscapeTimePlusReDivideIm();
                 break;
             case MainWindow.ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM:
                 out_color_algorithm = new EscapeTimePlusRePlusImPlusReDivideIm();

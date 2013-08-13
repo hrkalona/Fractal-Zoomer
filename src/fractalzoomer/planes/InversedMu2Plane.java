@@ -22,7 +22,7 @@ public class InversedMu2Plane extends Plane {
     @Override
     public Complex getPixel(Complex pixel) {
 
-        return pixel.divide(1, 0).plus(0.25);
+        return pixel.reciprocal().plus(0.25);
 
     }
 }

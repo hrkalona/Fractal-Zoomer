@@ -24,11 +24,11 @@ public class Squares extends InColorAlgorithm {
     public Squares(int out_coloring_algorithm) { 
         super();
         
-        if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-            option = new InColorOptionDouble();
+        if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+            option = new InColorOptionInt();
         }
         else {
-            option = new InColorOptionInt();
+            option = new InColorOptionDouble();
         }
         
         pi2 = 2 * Math.PI;

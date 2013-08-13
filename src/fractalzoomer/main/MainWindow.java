@@ -12,6 +12,7 @@ package fractalzoomer.main;
 /* Also forgive me for the huge-packed main class, read above! */
 import fractalzoomer.core.DrawOrbit;
 import fractalzoomer.core.MainPanel;
+import fractalzoomer.core.RequestFocusListener;
 import fractalzoomer.core.ThreadDraw;
 import fractalzoomer.palettes.CustomPalette;
 import fractalzoomer.settings.SettingsPalette;
@@ -37,6 +38,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowStateListener;
@@ -130,6 +133,7 @@ public class MainWindow extends JFrame {
   private int bailout_test_algorithm;
   private double bailout;
   private double z_exponent;
+  private double[] z_exponent_complex;
   private double zoom_factor; 
   private int out_coloring_algorithm;
   private int in_coloring_algorithm;
@@ -147,6 +151,7 @@ public class MainWindow extends JFrame {
   private BufferedImage colors;
   private MainWindow ptr;
   private MainPanel main_panel;
+  private JLabel mode;
   private JScrollPane scroll_pane;
   private JToolBar toolbar;
   private JToolBar statusbar;
@@ -179,7 +184,13 @@ public class MainWindow extends JFrame {
   private JMenu schroder_type_functions;
   private JMenu householder_type_functions;
   private JMenu barnsley_type_functions;
+  private JMenu szegedi_butterfly_type_functions;
   private JMenu math_type_functions;
+  private JMenu formulas_type_functions;
+  private JMenu kaliset_type_functions;
+  private JMenu m_like_generalizations_type_functions;
+  private JMenu c_azb_dze_type_functions;
+  private JMenu c_azb_dze_f_g_type_functions;
   private JMenuItem[] editor_palettes;
   private JMenuItem help_contents;
   private JMenuItem size_of_image;
@@ -327,17 +338,48 @@ public class MainWindow extends JFrame {
   public static final int COSH = 57;
   public static final int TANH = 58;
   public static final int COTH = 59;
+  public static final int FORMULA1 = 60;
+  public static final int FORMULA2 = 61;
+  public static final int FORMULA3 = 62;
+  public static final int FORMULA4 = 63;
+  public static final int FORMULA5 = 64;
+  public static final int FORMULA6 = 65;
+  public static final int FORMULA7 = 66;
+  public static final int FORMULA8 = 67;
+  public static final int FORMULA9 = 68;
+  public static final int FORMULA10 = 69;
+  public static final int FORMULA11 = 70;
+  public static final int FORMULA12 = 71;
+  public static final int FORMULA13 = 72;
+  public static final int FORMULA14 = 73;
+  public static final int FORMULA15 = 74;
+  public static final int FORMULA16 = 75;
+  public static final int FORMULA17 = 76;
+  public static final int FORMULA18 = 77;
+  public static final int FORMULA19 = 78;
+  public static final int FORMULA20 = 79;
+  public static final int FORMULA21 = 80;
+  public static final int FORMULA22 = 81;
+  public static final int FORMULA23 = 82;
+  public static final int FORMULA24 = 83;
+  public static final int FORMULA25 = 84;
+  public static final int FORMULA26 = 85;
+  public static final int FROTHY_BASIN = 86;
+  public static final int MANDELBROTWTH = 87;
+  public static final int SZEGEDI_BUTTERFLY1 = 88;
+  public static final int SZEGEDI_BUTTERFLY2 = 89;
   public static final int ESCAPE_TIME = 0;
   public static final int SMOOTH_COLOR = 1;
   public static final int BINARY_DECOMPOSITION = 2;
   public static final int BINARY_DECOMPOSITION2 = 3;
   public static final int ITERATIONS_PLUS_RE = 4;
   public static final int ITERATIONS_PLUS_IM = 5;
-  public static final int ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM = 6;
-  public static final int BIOMORPH = 7;
-  public static final int COLOR_DECOMPOSITION = 8;
-  public static final int ESCAPE_TIME_COLOR_DECOMPOSITION = 9;
-  public static final int ESCAPE_TIME_GAUSSIAN_INTEGER = 10;
+  public static final int ITERATIONS_PLUS_RE_DIVIDE_IM = 6;
+  public static final int ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM = 7;
+  public static final int BIOMORPH = 8;
+  public static final int COLOR_DECOMPOSITION = 9;
+  public static final int ESCAPE_TIME_COLOR_DECOMPOSITION = 10;
+  public static final int ESCAPE_TIME_GAUSSIAN_INTEGER = 11;
   public static final int MAXIMUM_ITERATIONS = 0;
   public static final int Z_MAG = 1;
   public static final int DECOMPOSITION_LIKE = 2;
@@ -349,24 +391,30 @@ public class MainWindow extends JFrame {
   public static final int SQUARES = 8;
   public static final int MU_PLANE = 0;
   public static final int MU_SQUARED_PLANE = 1;
-  public static final int INVERSED_MU_PLANE = 2;
-  public static final int INVERSED_MU2_PLANE = 3;
-  public static final int INVERSED_MU3_PLANE = 4;
-  public static final int INVERSED_MU4_PLANE = 5;
-  public static final int LAMBDA_PLANE = 6;
-  public static final int INVERSED_LAMBDA_PLANE = 7;
-  public static final int EXP_PLANE = 8;
-  public static final int LOG_PLANE = 9;
-  public static final int SIN_PLANE = 10;
-  public static final int COS_PLANE = 11;
-  public static final int TAN_PLANE = 12;
-  public static final int COT_PLANE = 13;
-  public static final int SINH_PLANE = 14;
-  public static final int COSH_PLANE = 15;
-  public static final int TANH_PLANE = 16;
-  public static final int COTH_PLANE = 17;
-  public static final int SQRT_PLANE = 18;
-  public static final int ABS_PLANE = 19;
+  public static final int MU_SQUARED_IMAGINARY_PLANE = 2;
+  public static final int INVERSED_MU_PLANE = 3;
+  public static final int INVERSED_MU2_PLANE = 4;
+  public static final int INVERSED_MU3_PLANE = 5;
+  public static final int INVERSED_MU4_PLANE = 6;
+  public static final int LAMBDA_PLANE = 7;
+  public static final int INVERSED_LAMBDA_PLANE = 8;
+  public static final int INVERSED_LAMBDA2_PLANE = 9;
+  public static final int EXP_PLANE = 10;
+  public static final int LOG_PLANE = 11;
+  public static final int SIN_PLANE = 12;
+  public static final int COS_PLANE = 13;
+  public static final int TAN_PLANE = 14;
+  public static final int COT_PLANE = 15;
+  public static final int SINH_PLANE = 16;
+  public static final int COSH_PLANE = 17;
+  public static final int TANH_PLANE = 18;
+  public static final int COTH_PLANE = 19;
+  public static final int SQRT_PLANE = 20;
+  public static final int ABS_PLANE = 21;
+  public static final int FOLDUP_PLANE = 22;
+  public static final int FOLDRIGHT_PLANE = 23;
+  public static final int FOLDIN_PLANE = 24;
+  public static final int FOLDOUT_PLANE = 25;
   public static final int BAILOUT_TEST_CIRCLE = 0;
   public static final int BAILOUT_TEST_SQUARE = 1;
   public static final int BAILOUT_TEST_RHOMBUS = 2;
@@ -410,6 +458,10 @@ public class MainWindow extends JFrame {
         initial_vals = new double[2];
         initial_vals[0] = 0;
         initial_vals[1] = 0;
+        
+        z_exponent_complex = new double[2];
+        z_exponent_complex[0] = 0;
+        z_exponent_complex[1] = 0;
         
         perturbation = false;
         init_val = false;
@@ -584,7 +636,16 @@ public class MainWindow extends JFrame {
         
         barnsley_type_functions = new JMenu("Barnsley Type");
         
+        szegedi_butterfly_type_functions = new JMenu("Szegedi Butterfly Type");
+        
         math_type_functions = new JMenu("Math Library Type");
+        
+        formulas_type_functions = new JMenu("Formulas");
+        
+        kaliset_type_functions = new JMenu("Kaliset Type");
+        m_like_generalizations_type_functions = new JMenu("M-Like Type");
+        c_azb_dze_type_functions = new JMenu("z = c(az^b + dz^e)");
+        c_azb_dze_f_g_type_functions = new JMenu("z = (c(az^b + dz^e) + f)^g");
         
         imageURL = getClass().getResource("/fractalzoomer/icons/planes.png");
         image2 = Toolkit.getDefaultToolkit().getImage(imageURL);
@@ -1001,7 +1062,7 @@ public class MainWindow extends JFrame {
 
         });
 
-        fractal_functions = new JRadioButtonMenuItem[60];
+        fractal_functions = new JRadioButtonMenuItem[90];
         
         fractal_functions[0] = new JRadioButtonMenuItem("Mandelbrot z = z^" + 2 + " + c");
         fractal_functions[0].addActionListener(new ActionListener() {
@@ -1038,6 +1099,18 @@ public class MainWindow extends JFrame {
         });
         mandelbrot_type_functions.add(fractal_functions[MANDELBROTNTH]);
         
+        
+        fractal_functions[MANDELBROTWTH] = new JRadioButtonMenuItem("Multibrot z = z^w + c");
+        fractal_functions[MANDELBROTWTH].addActionListener(new ActionListener() {
+
+                public void actionPerformed(ActionEvent e) {
+
+                    setFunction(MANDELBROTWTH);
+
+                }
+        });
+        mandelbrot_type_functions.add(fractal_functions[MANDELBROTWTH]);
+        
         fractal_functions[MANDELPOLY] = new JRadioButtonMenuItem("Multibrot Polynomial");
         fractal_functions[MANDELPOLY].addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
@@ -1055,7 +1128,333 @@ public class MainWindow extends JFrame {
         fractal_functions_menu.add(mandelbrot_type_functions);
         
         fractal_functions_menu.addSeparator();
+        
+        fractal_functions[FORMULA1] = new JRadioButtonMenuItem("z = 0.25z^2 + c + 1/(z^2 + c)^2");
+        fractal_functions[FORMULA1].addActionListener(new ActionListener() {
+      
+                public void actionPerformed(ActionEvent e) {
 
+                    setFunction(FORMULA1);
+
+                }
+        });
+        m_like_generalizations_type_functions.add(fractal_functions[FORMULA1]);
+        m_like_generalizations_type_functions.addSeparator();
+        
+        fractal_functions[FORMULA2] = new JRadioButtonMenuItem("z = c(z + z^-1)");
+        fractal_functions[FORMULA2].addActionListener(new ActionListener() {
+      
+                public void actionPerformed(ActionEvent e) {
+
+                    setFunction(FORMULA2);
+
+                }
+        });
+        c_azb_dze_type_functions.add(fractal_functions[FORMULA2]);
+        
+        
+        fractal_functions[FORMULA3] = new JRadioButtonMenuItem("z = c(z^3 + z^-3)");
+        fractal_functions[FORMULA3].addActionListener(new ActionListener() {
+      
+                public void actionPerformed(ActionEvent e) {
+
+                    setFunction(FORMULA3);
+
+                }
+        });
+        c_azb_dze_type_functions.add(fractal_functions[FORMULA3]);
+        
+        
+        fractal_functions[FORMULA4] = new JRadioButtonMenuItem("z = c(5z^-1 + z^5)");
+        fractal_functions[FORMULA4].addActionListener(new ActionListener() {
+      
+                public void actionPerformed(ActionEvent e) {
+
+                    setFunction(FORMULA4);
+
+                }
+        });
+        c_azb_dze_type_functions.add(fractal_functions[FORMULA4]);
+        
+        
+        fractal_functions[FORMULA5] = new JRadioButtonMenuItem("z = c(z^5 - 5z)");
+        fractal_functions[FORMULA5].addActionListener(new ActionListener() {
+      
+                public void actionPerformed(ActionEvent e) {
+
+                    setFunction(FORMULA5);
+
+                }
+        });
+        c_azb_dze_type_functions.add(fractal_functions[FORMULA5]);
+        
+        
+        fractal_functions[FORMULA6] = new JRadioButtonMenuItem("z = c(2z^2 - z^4)");
+        fractal_functions[FORMULA6].addActionListener(new ActionListener() {
+      
+                public void actionPerformed(ActionEvent e) {
+
+                    setFunction(FORMULA6);
+
+                }
+        });
+        c_azb_dze_type_functions.add(fractal_functions[FORMULA6]);
+        
+        
+        fractal_functions[FORMULA7] = new JRadioButtonMenuItem("z = c(2z^-2 - z^-4)");
+        fractal_functions[FORMULA7].addActionListener(new ActionListener() {
+      
+                public void actionPerformed(ActionEvent e) {
+
+                    setFunction(FORMULA7);
+
+                }
+        });
+        c_azb_dze_type_functions.add(fractal_functions[FORMULA7]);
+        
+        
+        fractal_functions[FORMULA8] = new JRadioButtonMenuItem("z = c(5z^-1 - z^-5)");
+        fractal_functions[FORMULA8].addActionListener(new ActionListener() {
+      
+                public void actionPerformed(ActionEvent e) {
+
+                    setFunction(FORMULA8);
+
+                }
+        });
+        c_azb_dze_type_functions.add(fractal_functions[FORMULA8]);
+        
+        
+        fractal_functions[FORMULA9] = new JRadioButtonMenuItem("z = c(-3z^-3 + z^-9)");
+        fractal_functions[FORMULA9].addActionListener(new ActionListener() {
+      
+                public void actionPerformed(ActionEvent e) {
+
+                    setFunction(FORMULA9);
+
+                }
+        });
+        c_azb_dze_type_functions.add(fractal_functions[FORMULA9]);
+        
+        
+        fractal_functions[FORMULA10] = new JRadioButtonMenuItem("z = c(z^2.5 + z^-2.5)");
+        fractal_functions[FORMULA10].addActionListener(new ActionListener() {
+      
+                public void actionPerformed(ActionEvent e) {
+
+                    setFunction(FORMULA10);
+
+                }
+        });
+        c_azb_dze_type_functions.add(fractal_functions[FORMULA10]);
+        
+        
+        
+        fractal_functions[FORMULA11] = new JRadioButtonMenuItem("z = c(z^2i + z^-2)");
+        fractal_functions[FORMULA11].addActionListener(new ActionListener() {
+      
+                public void actionPerformed(ActionEvent e) {
+
+                    setFunction(FORMULA11);
+
+                }
+        });
+        c_azb_dze_type_functions.add(fractal_functions[FORMULA11]);
+        
+        
+        fractal_functions[FORMULA12] = new JRadioButtonMenuItem("z = c(-3z^-2 + 2z^-3)");
+        fractal_functions[FORMULA12].addActionListener(new ActionListener() {
+      
+                public void actionPerformed(ActionEvent e) {
+
+                    setFunction(FORMULA12);
+
+                }
+        });
+        c_azb_dze_type_functions.add(fractal_functions[FORMULA12]);
+        
+        m_like_generalizations_type_functions.add(c_azb_dze_type_functions);
+        
+        m_like_generalizations_type_functions.addSeparator();
+        
+        
+        fractal_functions[FORMULA13] = new JRadioButtonMenuItem("z = (c(2z - z^2) + 1)^2");
+        fractal_functions[FORMULA13].addActionListener(new ActionListener() {
+      
+                public void actionPerformed(ActionEvent e) {
+
+                    setFunction(FORMULA13);
+
+                }
+        });
+        c_azb_dze_f_g_type_functions.add(fractal_functions[FORMULA13]);
+        
+        
+        fractal_functions[FORMULA14] = new JRadioButtonMenuItem("z = (c(2z - z^2) + 1)^3");
+        fractal_functions[FORMULA14].addActionListener(new ActionListener() {
+      
+                public void actionPerformed(ActionEvent e) {
+
+                    setFunction(FORMULA14);
+
+                }
+        });
+        c_azb_dze_f_g_type_functions.add(fractal_functions[FORMULA14]);
+        
+        
+        fractal_functions[FORMULA15] = new JRadioButtonMenuItem("z = (c(z - z^2) + 1)^2");
+        fractal_functions[FORMULA15].addActionListener(new ActionListener() {
+      
+                public void actionPerformed(ActionEvent e) {
+
+                    setFunction(FORMULA15);
+
+                }
+        });
+        c_azb_dze_f_g_type_functions.add(fractal_functions[FORMULA15]);
+        
+        
+        fractal_functions[FORMULA16] = new JRadioButtonMenuItem("z = (c(z - z^2) + 1)^3");
+        fractal_functions[FORMULA16].addActionListener(new ActionListener() {
+      
+                public void actionPerformed(ActionEvent e) {
+
+                    setFunction(FORMULA16);
+
+                }
+        });
+        c_azb_dze_f_g_type_functions.add(fractal_functions[FORMULA16]);
+        
+        
+        fractal_functions[FORMULA17] = new JRadioButtonMenuItem("z = (c(z - z^2) + 1)^4");
+        fractal_functions[FORMULA17].addActionListener(new ActionListener() {
+      
+                public void actionPerformed(ActionEvent e) {
+
+                    setFunction(FORMULA17);
+
+                }
+        });
+        c_azb_dze_f_g_type_functions.add(fractal_functions[FORMULA17]);
+        
+        
+        fractal_functions[FORMULA18] = new JRadioButtonMenuItem("z = (c(z^3 - z^4) + 1)^5");
+        fractal_functions[FORMULA18].addActionListener(new ActionListener() {
+      
+                public void actionPerformed(ActionEvent e) {
+
+                    setFunction(FORMULA18);
+
+                }
+        });
+        c_azb_dze_f_g_type_functions.add(fractal_functions[FORMULA18]);
+        
+        m_like_generalizations_type_functions.add(c_azb_dze_f_g_type_functions);
+        
+        
+        fractal_functions[FORMULA19] = new JRadioButtonMenuItem("z = abs(z^-1) + c");
+        fractal_functions[FORMULA19].addActionListener(new ActionListener() {
+      
+                public void actionPerformed(ActionEvent e) {
+
+                    setFunction(FORMULA19);
+
+                }
+        });
+        kaliset_type_functions.add(fractal_functions[FORMULA19]);
+        
+        
+        fractal_functions[FORMULA20] = new JRadioButtonMenuItem("z = abs(z^2) + c");
+        fractal_functions[FORMULA20].addActionListener(new ActionListener() {
+      
+                public void actionPerformed(ActionEvent e) {
+
+                    setFunction(FORMULA20);
+
+                }
+        });
+        kaliset_type_functions.add(fractal_functions[FORMULA20]);
+        
+        
+        fractal_functions[FORMULA21] = new JRadioButtonMenuItem("z = abs(z)/abs(c) + c");
+        fractal_functions[FORMULA21].addActionListener(new ActionListener() {
+      
+                public void actionPerformed(ActionEvent e) {
+
+                    setFunction(FORMULA21);
+
+                }
+        });
+        kaliset_type_functions.add(fractal_functions[FORMULA21]);
+        
+        
+        fractal_functions[FORMULA22] = new JRadioButtonMenuItem("z = abs(z/c) + c");
+        fractal_functions[FORMULA22].addActionListener(new ActionListener() {
+      
+                public void actionPerformed(ActionEvent e) {
+
+                    setFunction(FORMULA22);
+
+                }
+        });
+        kaliset_type_functions.add(fractal_functions[FORMULA22]);
+        
+        
+        fractal_functions[FORMULA23] = new JRadioButtonMenuItem("z = abs(z/(0.5 + 0.5i)) + c");
+        fractal_functions[FORMULA23].addActionListener(new ActionListener() {
+      
+                public void actionPerformed(ActionEvent e) {
+
+                    setFunction(FORMULA23);
+
+                }
+        });
+        kaliset_type_functions.add(fractal_functions[FORMULA23]);
+        
+        
+        fractal_functions[FORMULA24] = new JRadioButtonMenuItem("z = abs(z)/c + c");
+        fractal_functions[FORMULA24].addActionListener(new ActionListener() {
+      
+                public void actionPerformed(ActionEvent e) {
+
+                    setFunction(FORMULA24);
+
+                }
+        });
+        kaliset_type_functions.add(fractal_functions[FORMULA24]);
+        
+        
+        fractal_functions[FORMULA25] = new JRadioButtonMenuItem("z = abs(z)^-3 + c");
+        fractal_functions[FORMULA25].addActionListener(new ActionListener() {
+      
+                public void actionPerformed(ActionEvent e) {
+
+                    setFunction(FORMULA25);
+
+                }
+        });
+        kaliset_type_functions.add(fractal_functions[FORMULA25]);
+        
+        
+        fractal_functions[FORMULA26] = new JRadioButtonMenuItem("z = abs(z^-3) + c");
+        fractal_functions[FORMULA26].addActionListener(new ActionListener() {
+      
+                public void actionPerformed(ActionEvent e) {
+
+                    setFunction(FORMULA26);
+
+                }
+        });
+        kaliset_type_functions.add(fractal_functions[FORMULA26]);
+        
+        formulas_type_functions.add(m_like_generalizations_type_functions);
+        formulas_type_functions.addSeparator();
+        formulas_type_functions.add(kaliset_type_functions);
+ 
+        
+        fractal_functions_menu.add(formulas_type_functions);
+        
+        fractal_functions_menu.addSeparator();
 
         fractal_functions[LAMBDA] = new JRadioButtonMenuItem("Lambda");
         fractal_functions[LAMBDA].addActionListener(new ActionListener() {
@@ -1224,6 +1623,33 @@ public class MainWindow extends JFrame {
         barnsley_type_functions.add(fractal_functions[BARNSLEY3]);
         fractal_functions_menu.add(barnsley_type_functions);
         fractal_functions_menu.addSeparator();
+        
+        
+        fractal_functions[SZEGEDI_BUTTERFLY1] = new JRadioButtonMenuItem("Szegedi Butterfly 1");
+        fractal_functions[SZEGEDI_BUTTERFLY1].addActionListener(new ActionListener() {
+      
+                public void actionPerformed(ActionEvent e) {
+
+                    setFunction(SZEGEDI_BUTTERFLY1);
+
+                }
+        });
+        szegedi_butterfly_type_functions.add(fractal_functions[SZEGEDI_BUTTERFLY1]);
+        
+        
+        fractal_functions[SZEGEDI_BUTTERFLY2] = new JRadioButtonMenuItem("Szegedi Butterfly 2");
+        fractal_functions[SZEGEDI_BUTTERFLY2].addActionListener(new ActionListener() {
+      
+                public void actionPerformed(ActionEvent e) {
+
+                    setFunction(SZEGEDI_BUTTERFLY2);
+
+                }
+        });
+        szegedi_butterfly_type_functions.add(fractal_functions[SZEGEDI_BUTTERFLY2]);
+        
+        fractal_functions_menu.add(szegedi_butterfly_type_functions);
+        fractal_functions_menu.addSeparator();
 
 
         fractal_functions[MANDELBAR] = new JRadioButtonMenuItem("Mandelbar");
@@ -1289,6 +1715,19 @@ public class MainWindow extends JFrame {
                 }
         });
         fractal_functions_menu.add(fractal_functions[SIERPINSKI_GASKET]);
+        fractal_functions_menu.addSeparator();
+        
+        
+        fractal_functions[FROTHY_BASIN] = new JRadioButtonMenuItem("Frothy Basin");
+        fractal_functions[FROTHY_BASIN].addActionListener(new ActionListener() {
+
+                public void actionPerformed(ActionEvent e) {
+
+                    setFunction(FROTHY_BASIN);
+
+                }
+        });
+        fractal_functions_menu.add(fractal_functions[FROTHY_BASIN]);
         fractal_functions_menu.addSeparator();
         
         
@@ -1412,6 +1851,7 @@ public class MainWindow extends JFrame {
         math_type_functions.add(fractal_functions[COTH]);
         
         fractal_functions_menu.add(math_type_functions);
+     
 
         fractal_functions[HALLEY3] = new JRadioButtonMenuItem("Halley 3");
         fractal_functions[HALLEY3].addActionListener(new ActionListener() {
@@ -1669,7 +2109,7 @@ public class MainWindow extends JFrame {
         fractal_functions[function].setEnabled(false);
         
         
-        planes = new JRadioButtonMenuItem[20];
+        planes = new JRadioButtonMenuItem[26];
         
         planes[MU_PLANE] = new JRadioButtonMenuItem("mu");
         planes[MU_PLANE].setToolTipText("The default plane.");
@@ -1693,6 +2133,18 @@ public class MainWindow extends JFrame {
                 }
         });
         planes_menu.add(planes[MU_SQUARED_PLANE]);
+        
+        
+        planes[MU_SQUARED_IMAGINARY_PLANE] = new JRadioButtonMenuItem("mu^2i");
+        planes[MU_SQUARED_IMAGINARY_PLANE].setToolTipText("The mu squared imaginary plane.");
+        planes[MU_SQUARED_IMAGINARY_PLANE].addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+
+                    setPlane(MU_SQUARED_IMAGINARY_PLANE);
+
+                }
+        });
+        planes_menu.add(planes[MU_SQUARED_IMAGINARY_PLANE]);
 
         
         planes[INVERSED_MU_PLANE] = new JRadioButtonMenuItem("1 / mu");
@@ -1761,6 +2213,66 @@ public class MainWindow extends JFrame {
                 }
         });
         planes_menu.add(planes[INVERSED_LAMBDA_PLANE]);
+        
+        
+        planes[INVERSED_LAMBDA2_PLANE] = new JRadioButtonMenuItem("1 / (lambda - 1)");
+        planes[INVERSED_LAMBDA2_PLANE].setToolTipText("An inversed lambda plane variation.");
+        planes[INVERSED_LAMBDA2_PLANE].addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+
+                    setPlane(INVERSED_LAMBDA2_PLANE);
+
+                }
+        });
+        planes_menu.add(planes[INVERSED_LAMBDA2_PLANE]);
+        
+        
+        planes[FOLDUP_PLANE] = new JRadioButtonMenuItem("fold up");
+        planes[FOLDUP_PLANE].setToolTipText("The fold up plane.");
+        planes[FOLDUP_PLANE].addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+
+                    setPlane(FOLDUP_PLANE);
+
+                }
+        });
+        planes_menu.add(planes[FOLDUP_PLANE]);
+        
+        
+        planes[FOLDRIGHT_PLANE] = new JRadioButtonMenuItem("fold right");
+        planes[FOLDRIGHT_PLANE].setToolTipText("The fold right plane.");
+        planes[FOLDRIGHT_PLANE].addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+
+                    setPlane(FOLDRIGHT_PLANE);
+
+                }
+        });
+        planes_menu.add(planes[FOLDRIGHT_PLANE]);
+        
+        
+        planes[FOLDIN_PLANE] = new JRadioButtonMenuItem("fold in");
+        planes[FOLDIN_PLANE].setToolTipText("The fold in plane.");
+        planes[FOLDIN_PLANE].addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+
+                    setPlane(FOLDIN_PLANE);
+
+                }
+        });
+        planes_menu.add(planes[FOLDIN_PLANE]);
+        
+        
+        planes[FOLDOUT_PLANE] = new JRadioButtonMenuItem("fold out");
+        planes[FOLDOUT_PLANE].setToolTipText("The fold out plane.");
+        planes[FOLDOUT_PLANE].addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+
+                    setPlane(FOLDOUT_PLANE);
+
+                }
+        });
+        planes_menu.add(planes[FOLDOUT_PLANE]);
         
         
         planes[EXP_PLANE] = new JRadioButtonMenuItem("exp");
@@ -1905,12 +2417,13 @@ public class MainWindow extends JFrame {
                 }
         });
         planes_menu.add(planes[COTH_PLANE]);
-
+        
+        
         planes[plane_type].setSelected(true);
         planes[plane_type].setEnabled(false);
         
         
-        out_coloring_modes = new JRadioButtonMenuItem[11];
+        out_coloring_modes = new JRadioButtonMenuItem[12];
         
         out_coloring_modes[ESCAPE_TIME] = new JRadioButtonMenuItem("Escape Time");
         out_coloring_modes[ESCAPE_TIME].setToolTipText("Sets the out-coloring method, using the iterations.");
@@ -1982,6 +2495,18 @@ public class MainWindow extends JFrame {
                 }
         });
         out_coloring_mode_menu.add(out_coloring_modes[ITERATIONS_PLUS_IM]);
+        
+        
+        out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM] = new JRadioButtonMenuItem("Escape Time + Re / Im");
+        out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setToolTipText("Sets the out-coloring method, using the iterations + Re(z)/Im(z).");
+        out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+
+                    setOutColoringMode(ITERATIONS_PLUS_RE_DIVIDE_IM);
+
+                }
+        });
+        out_coloring_mode_menu.add(out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM]);
         
         
         out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM] = new JRadioButtonMenuItem("Escape Time + Re + Im + Re / Im");
@@ -2759,7 +3284,7 @@ public class MainWindow extends JFrame {
                 if(!color_cycling) {
                     main_panel.repaint();
                 }
-                JOptionPane.showMessageDialog(scroll_pane, "<html><center><font size='5' face='arial' color='blue'><b><u>Fractal Zoomer</u></b></font><br><br><font size='4'><img src=\"" + getClass().getResource("/fractalzoomer/icons/mandel2.png") + "\"><br><br>made by Christos Kalonakis<br><br>Contact: <font color='red'><b>hrkalona</b></font>@gmail.com<br><br></font></center></html>", "About", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(scroll_pane, "<html><center><font size='5' face='arial' color='blue'><b><u>Fractal Zoomer</u></b></font><br><br><font size='4'><img src=\"" + getClass().getResource("/fractalzoomer/icons/mandel2.png") + "\"><br><br>Version: <b><font color='#FFB90F'>1.0.3.9</font></b><br><br>Author: <b><font color='#FFB90F'>Christos Kalonakis</font></b><br><br>Contact: <font color='#FFB90F'><b>hrkalona@gmail.com</b></font><br><br></font></center></html>", "About", JOptionPane.INFORMATION_MESSAGE);
 
             }
 
@@ -3000,10 +3525,12 @@ public class MainWindow extends JFrame {
         imaginary.setToolTipText("Displays the Imaginary part of the complex number.");
 
         statusbar.add(imaginary);
-        JLabel label = new JLabel(" i   ");
+        JLabel label = new JLabel(" i ");
         label.setFont(new Font("bold", Font.BOLD, 12));
         statusbar.add(label);
- 
+        
+        statusbar.addSeparator();
+    
         main_panel = new MainPanel(this);
         main_panel.setPreferredSize(new Dimension(image_size, image_size)); 
         scroll_pane = new JScrollPane(main_panel);
@@ -3011,13 +3538,18 @@ public class MainWindow extends JFrame {
         add(scroll_pane);
 
         progress = new JProgressBar();
-        progress.setPreferredSize(new Dimension(225, 0));
+        progress.setPreferredSize(new Dimension(220, 0));
         progress.setStringPainted(true);
         progress.setForeground(new Color(255, 185, 15));
         progress.setValue(0);
         
         statusbar.add(progress);
-        statusbar.add(new JLabel(" "));
+        statusbar.addSeparator();
+        mode = new JLabel("Normal mode");
+        mode.setPreferredSize(new Dimension(75, 0));
+        mode.setToolTipText("Displays the active mode.");
+        statusbar.add(mode);
+        
 
         file_menu.add(starting_position);
         file_menu.add(go_to);
@@ -3142,6 +3674,15 @@ public class MainWindow extends JFrame {
         setJMenuBar(menubar);
 
         threads = new ThreadDraw[n][n];
+        
+        scroll_pane.addMouseWheelListener(new MouseWheelListener() {
+
+            @Override
+            public void mouseWheelMoved(MouseWheelEvent e) {
+                
+            }
+        
+        });
 
         scroll_pane.addMouseListener(new MouseListener() {
 
@@ -3423,17 +3964,19 @@ public class MainWindow extends JFrame {
 
                     double temp2 = temp_xcenter_size + temp_size_image_size * main_panel.getMousePosition().getX();
                     double temp = temp_ycenter_size + temp_size_image_size * main_panel.getMousePosition().getY();
+                    
+                    double temp3 = temp2 * rotation_vals[0] - temp * rotation_vals[1];
+                    
+                    temp3 = temp3 == 0? 0.0 : temp3;
 
-                    real.setText("" + (temp2 * rotation_vals[0] - temp * rotation_vals[1]));
+                    real.setText("" + temp3);
 
-                    double temp3 = temp2 * rotation_vals[1] + temp * rotation_vals[0];
-
-                    if(temp3 == 0) {
-                        imaginary.setText("" + 0.0);
-                    }
-                    else {
-                        imaginary.setText("" + (-temp3));
-                    }
+                    temp3 = temp2 * rotation_vals[1] + temp * rotation_vals[0];
+                    
+                    temp3 = temp3 == 0? 0.0 : -temp3;
+                    
+                    imaginary.setText("" + temp3);
+   
                 }
                 catch(NullPointerException ex) {}
 
@@ -3548,6 +4091,24 @@ public class MainWindow extends JFrame {
                 break;
             case MANDELBROTNTH:
                 temp += "  z = z^" + z_exponent + " + c";
+                break;
+            case MANDELBROTWTH:
+                z_exponent_complex[0] = z_exponent_complex[0] == 0 ? 0.0 : z_exponent_complex[0];
+                
+                String temp3 = "";
+                
+                if(z_exponent_complex[1] > 0) {
+                   temp3 = z_exponent_complex[0] + "+" + (z_exponent_complex[1]) + "i";
+                }
+                else {
+                    if(z_exponent_complex[1] == 0) {
+                        temp3 = z_exponent_complex[0] + "+" + (0.0) + "i";
+                    }
+                    else {
+                        temp3 = z_exponent_complex[0] + "" + (z_exponent_complex[1]) + "i";
+                    }
+                }
+                temp += "  z = z^(" + temp3 + ") + c";
                 break;
             case MANDELPOLY:
                 temp += "   Multibrot " + poly + " + c";
@@ -3699,8 +4260,97 @@ public class MainWindow extends JFrame {
             case COTH:
                 temp += "   z = coth(z) + c";
                 break;
-           
+            case FROTHY_BASIN:
+                temp += "   Frothy Basin";
+                break;
+            case FORMULA1:
+                temp += "   z = 0.25z^2 + c + 1/(z^2 + c)^2";
+                break;
+            case FORMULA2:
+                temp += "   z = c(z + z^-1)";
+                break;
+            case FORMULA3:
+                temp += "   z = c(z^3 + z^-3)";
+                break;
+            case FORMULA4:
+                temp += "   z = c(5z^-1 + z^5)";
+                break;
+            case FORMULA5:
+                temp += "   z = c(z^5 - 5z)";
+                break;
+            case FORMULA6:
+                temp += "   z = c(2z^2 - z^4)";
+                break;
+            case FORMULA7:
+                temp += "   z = c(2z^-2 - z^-4)";
+                break;
+            case FORMULA8:
+                temp += "   z = c(5z^-1 - z^-5)";
+                break;
+            case FORMULA9:
+                temp += "   z = c(-3z^-3 + z^-9)";
+                break;
+            case FORMULA10:
+                temp += "   z = c(z^2.5 + z^-2.5)";
+                break;
+            case FORMULA11:
+                temp += "   z = c(z^2i + z^-2)";
+                break;
+            case FORMULA12:
+                temp += "   z = c(-3z^-2 + 2z^-3)";
+                break;
+            case FORMULA13:
+                temp += "   z = (c(2z - z^2) + 1)^2";
+                break;
+            case FORMULA14:
+                temp += "   z = (c(2z - z^2) + 1)^3";
+                break;
+            case FORMULA15:
+                temp += "   z = (c(z - z^2) + 1)^2";
+                break;
+            case FORMULA16:
+                temp += "   z = (c(z - z^2) + 1)^3";
+                break;
+            case FORMULA17:
+                temp += "   z = (c(z - z^2) + 1)^4";
+                break;
+            case FORMULA18:
+                temp += "   z = (c(z^3 - z^4) + 1)^5";
+                break;
+            case FORMULA19:
+                temp += "   z = abs(z^-1) + c";
+                break;
+            case FORMULA20:
+                temp += "   z = abs(z^2) + c";
+                break;
+            case FORMULA21:
+                temp += "   z = abs(z)/abs(c) + c";
+                break;
+            case FORMULA22:
+                temp += "   z = abs(z/c) + c";
+                break;
+            case FORMULA23:
+                temp += "   z = abs(z/(0.5 + 0.5i)) + c";
+                break;
+            case FORMULA24:
+                temp += "   z = abs(z)/c + c";
+                break;
+            case FORMULA25:
+                temp += "   z = abs(z)^-3 + c";
+                break;
+            case FORMULA26:
+                temp += "   z = abs(z^-3) + c";
+                break;
+            case SZEGEDI_BUTTERFLY1:
+                temp += "   Szegedi Butterfly 1";
+                break;
+            case SZEGEDI_BUTTERFLY2:
+                temp += "   Szegedi Butterfly 2";
+                break;
+      
        }
+       
+       temp1 = temp1 == 0.0 ? 0.0 : temp1;
        
        if(-temp2 > 0) {
            temp += "   Center: " + temp1 + "+" + (-temp2) + "i" + "   Size: " + size;
@@ -3742,18 +4392,18 @@ public class MainWindow extends JFrame {
            for(int j = 0; j < n; j++) {
                if(color_choice != palette.length - 1) {
                    if(julia) {
-                       threads[i][j] = new Palette(color_choice, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, ptr, fractal_color, image, filters, out_coloring_algorithm, in_coloring_algorithm, boundary_tracing, periodicity_checking, plane_type,  burning_ship, function, z_exponent, color_cycling_location, rotation_vals, coefficients, xJuliaCenter, yJuliaCenter);
+                       threads[i][j] = new Palette(color_choice, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, ptr, fractal_color, image, filters, out_coloring_algorithm, in_coloring_algorithm, boundary_tracing, periodicity_checking, plane_type,  burning_ship, function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, coefficients, xJuliaCenter, yJuliaCenter);
                    }
                    else {
-                       threads[i][j] = new Palette(color_choice, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, ptr, fractal_color, image, filters, out_coloring_algorithm, in_coloring_algorithm, boundary_tracing, periodicity_checking, plane_type,  burning_ship, function, z_exponent, color_cycling_location, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals, coefficients);
+                       threads[i][j] = new Palette(color_choice, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, ptr, fractal_color, image, filters, out_coloring_algorithm, in_coloring_algorithm, boundary_tracing, periodicity_checking, plane_type,  burning_ship, function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals, coefficients);
                    }      
                }
                else {
                    if(julia) {
-                       threads[i][j] = new CustomPalette(custom_palette, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm,  bailout, ptr, fractal_color, image, filters, out_coloring_algorithm, in_coloring_algorithm, boundary_tracing, periodicity_checking, plane_type,  burning_ship, function, z_exponent, color_cycling_location, rotation_vals, coefficients, xJuliaCenter, yJuliaCenter);
+                       threads[i][j] = new CustomPalette(custom_palette, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm,  bailout, ptr, fractal_color, image, filters, out_coloring_algorithm, in_coloring_algorithm, boundary_tracing, periodicity_checking, plane_type,  burning_ship, function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, coefficients, xJuliaCenter, yJuliaCenter);
                    }
                    else {
-                       threads[i][j] = new CustomPalette(custom_palette, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm,  bailout, ptr, fractal_color, image, filters, out_coloring_algorithm, in_coloring_algorithm, boundary_tracing, periodicity_checking, plane_type,  burning_ship, function, z_exponent, color_cycling_location, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals, coefficients);
+                       threads[i][j] = new CustomPalette(custom_palette, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm,  bailout, ptr, fractal_color, image, filters, out_coloring_algorithm, in_coloring_algorithm, boundary_tracing, periodicity_checking, plane_type,  burning_ship, function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals, coefficients);
                    }
                }
            }
@@ -3796,7 +4446,7 @@ public class MainWindow extends JFrame {
                file_temp = new ObjectOutputStream(new FileOutputStream(file.toString()));
                SettingsFractals settings;
                if(julia) {
-                   settings = new SettingsJulia(xCenter, yCenter, size, max_iterations, color_choice, fractal_color, out_coloring_algorithm, in_coloring_algorithm, function, bailout_test_algorithm, bailout, plane_type, burning_ship, z_exponent, color_cycling_location, coefficients, custom_palette, rotation, xJuliaCenter, yJuliaCenter);
+                   settings = new SettingsJulia(xCenter, yCenter, size, max_iterations, color_choice, fractal_color, out_coloring_algorithm, in_coloring_algorithm, function, bailout_test_algorithm, bailout, plane_type, burning_ship, z_exponent, z_exponent_complex, color_cycling_location, coefficients, custom_palette, rotation, xJuliaCenter, yJuliaCenter);
                }
                else {
                    int temp_bailout_test_algorithm = 0;
@@ -3805,7 +4455,7 @@ public class MainWindow extends JFrame {
                        temp_bailout_test_algorithm = bailout_test_algorithm;
                    }
                    
-                   settings = new SettingsFractals(xCenter, yCenter, size, max_iterations, color_choice, fractal_color, out_coloring_algorithm, in_coloring_algorithm, function, temp_bailout_test_algorithm, bailout, plane_type, burning_ship, z_exponent, color_cycling_location, coefficients, custom_palette, rotation, perturbation, perturbation_vals, init_val, initial_vals);
+                   settings = new SettingsFractals(xCenter, yCenter, size, max_iterations, color_choice, fractal_color, out_coloring_algorithm, in_coloring_algorithm, function, temp_bailout_test_algorithm, bailout, plane_type, burning_ship, z_exponent, z_exponent_complex, color_cycling_location, coefficients, custom_palette, rotation, perturbation, perturbation_vals, init_val, initial_vals);
                }
                file_temp.writeObject(settings);
                file_temp.flush();
@@ -3843,8 +4493,8 @@ public class MainWindow extends JFrame {
                SettingsFractals settings = (SettingsFractals) file_temp.readObject();
                
                String temp = "" + settings.getClass();
-               temp = temp.substring(6, temp.length()); 
-               
+               temp = temp.substring(29, temp.length()); 
+                            
                palette[color_choice].setSelected(false);
                palette[color_choice].setEnabled(true);
 
@@ -3869,7 +4519,7 @@ public class MainWindow extends JFrame {
                if(temp.equals("SettingsJulia")) {                  
                    xJuliaCenter = ((SettingsJulia) settings).getXJuliaCenter();
                    yJuliaCenter = ((SettingsJulia) settings).getYJuliaCenter();
-
+                   
                    julia = true;
                    first_seed = false;
                    julia_opt.setSelected(true);
@@ -3905,6 +4555,8 @@ public class MainWindow extends JFrame {
                    fractal_functions[HOUSEHOLDERCOS].setEnabled(false);
                    fractal_functions[HOUSEHOLDERPOLY].setEnabled(false);
                    fractal_functions[SIERPINSKI_GASKET].setEnabled(false);
+                   
+                   mode.setText("Julia mode");
                }
                else {
                    julia = false;
@@ -3986,6 +4638,8 @@ public class MainWindow extends JFrame {
                        fractal_functions[HOUSEHOLDERPOLY].setEnabled(false);
                        fractal_functions[SIERPINSKI_GASKET].setEnabled(false); 
                    }
+                   
+                   mode.setText("Normal mode");
                }
                
                perturbation_opt.setSelected(perturbation);
@@ -4149,6 +4803,16 @@ public class MainWindow extends JFrame {
                switch (function) {
                    case MANDELBROTNTH:
                        z_exponent = settings.getZExponent();
+                       fractal_functions[function].setSelected(true);
+                       if(out_coloring_algorithm != BIOMORPH) {
+                           out_coloring_modes[BIOMORPH].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+                       }
+                       break;
+                   case MANDELBROTWTH:
+                       z_exponent_complex = settings.getZExponentComplex();
                        fractal_functions[function].setSelected(true);
                        if(out_coloring_algorithm != BIOMORPH) {
                            out_coloring_modes[BIOMORPH].setEnabled(true);
@@ -4740,6 +5404,296 @@ public class MainWindow extends JFrame {
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
                        break;
+                   case FORMULA1:
+                       if(out_coloring_algorithm != BIOMORPH) {
+                           out_coloring_modes[BIOMORPH].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+                       }
+                       fractal_functions[function].setSelected(true);
+                       fractal_functions[function].setEnabled(false);
+                       break;
+                   case FORMULA2:
+                       if(out_coloring_algorithm != BIOMORPH) {
+                           out_coloring_modes[BIOMORPH].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+                       }
+                       fractal_functions[function].setSelected(true);
+                       fractal_functions[function].setEnabled(false);
+                       break;
+                   case FORMULA3:
+                       if(out_coloring_algorithm != BIOMORPH) {
+                           out_coloring_modes[BIOMORPH].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+                       }
+                       fractal_functions[function].setSelected(true);
+                       fractal_functions[function].setEnabled(false);
+                       break;
+                   case FORMULA4:
+                       if(out_coloring_algorithm != BIOMORPH) {
+                           out_coloring_modes[BIOMORPH].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+                       }
+                       fractal_functions[function].setSelected(true);
+                       fractal_functions[function].setEnabled(false);
+                       break;
+                   case FORMULA5:
+                       if(out_coloring_algorithm != BIOMORPH) {
+                           out_coloring_modes[BIOMORPH].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+                       }
+                       fractal_functions[function].setSelected(true);
+                       fractal_functions[function].setEnabled(false);
+                       break;
+                   case FORMULA6:
+                       if(out_coloring_algorithm != BIOMORPH) {
+                           out_coloring_modes[BIOMORPH].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+                       }
+                       fractal_functions[function].setSelected(true);
+                       fractal_functions[function].setEnabled(false);
+                       break;
+                   case FORMULA7:
+                       if(out_coloring_algorithm != BIOMORPH) {
+                           out_coloring_modes[BIOMORPH].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+                       }
+                       fractal_functions[function].setSelected(true);
+                       fractal_functions[function].setEnabled(false);
+                       break;
+                   case FORMULA8:
+                       if(out_coloring_algorithm != BIOMORPH) {
+                           out_coloring_modes[BIOMORPH].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+                       }
+                       fractal_functions[function].setSelected(true);
+                       fractal_functions[function].setEnabled(false);
+                       break;
+                   case FORMULA9:
+                       if(out_coloring_algorithm != BIOMORPH) {
+                           out_coloring_modes[BIOMORPH].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+                       }
+                       fractal_functions[function].setSelected(true);
+                       fractal_functions[function].setEnabled(false);
+                       break;
+                   case FORMULA10:
+                       if(out_coloring_algorithm != BIOMORPH) {
+                           out_coloring_modes[BIOMORPH].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+                       }
+                       fractal_functions[function].setSelected(true);
+                       fractal_functions[function].setEnabled(false);
+                       break;
+                   case FORMULA11:
+                       if(out_coloring_algorithm != BIOMORPH) {
+                           out_coloring_modes[BIOMORPH].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+                       }
+                       fractal_functions[function].setSelected(true);
+                       fractal_functions[function].setEnabled(false);
+                       break;
+                   case FORMULA12:
+                       if(out_coloring_algorithm != BIOMORPH) {
+                           out_coloring_modes[BIOMORPH].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+                       }
+                       fractal_functions[function].setSelected(true);
+                       fractal_functions[function].setEnabled(false);
+                       break;
+                   case FORMULA13:
+                       if(out_coloring_algorithm != BIOMORPH) {
+                           out_coloring_modes[BIOMORPH].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+                       }
+                       fractal_functions[function].setSelected(true);
+                       fractal_functions[function].setEnabled(false);
+                       break;
+                   case FORMULA14:
+                       if(out_coloring_algorithm != BIOMORPH) {
+                           out_coloring_modes[BIOMORPH].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+                       }
+                       fractal_functions[function].setSelected(true);
+                       fractal_functions[function].setEnabled(false);
+                       break;
+                   case FORMULA15:
+                       if(out_coloring_algorithm != BIOMORPH) {
+                           out_coloring_modes[BIOMORPH].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+                       }
+                       fractal_functions[function].setSelected(true);
+                       fractal_functions[function].setEnabled(false);
+                       break;
+                   case FORMULA16:
+                       if(out_coloring_algorithm != BIOMORPH) {
+                           out_coloring_modes[BIOMORPH].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+                       }
+                       fractal_functions[function].setSelected(true);
+                       fractal_functions[function].setEnabled(false);
+                       break;
+                   case FORMULA17:
+                       if(out_coloring_algorithm != BIOMORPH) {
+                           out_coloring_modes[BIOMORPH].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+                       }
+                       fractal_functions[function].setSelected(true);
+                       fractal_functions[function].setEnabled(false);
+                       break;
+                   case FORMULA18:
+                       if(out_coloring_algorithm != BIOMORPH) {
+                           out_coloring_modes[BIOMORPH].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+                       }
+                       fractal_functions[function].setSelected(true);
+                       fractal_functions[function].setEnabled(false);
+                       break;
+                   case FORMULA19:
+                       if(out_coloring_algorithm != BIOMORPH) {
+                           out_coloring_modes[BIOMORPH].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+                       }
+                       fractal_functions[function].setSelected(true);
+                       fractal_functions[function].setEnabled(false);
+                       break;
+                   case FORMULA20:
+                       if(out_coloring_algorithm != BIOMORPH) {
+                           out_coloring_modes[BIOMORPH].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+                       }
+                       fractal_functions[function].setSelected(true);
+                       fractal_functions[function].setEnabled(false);
+                       break;
+                   case FORMULA21:
+                       if(out_coloring_algorithm != BIOMORPH) {
+                           out_coloring_modes[BIOMORPH].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+                       }
+                       fractal_functions[function].setSelected(true);
+                       fractal_functions[function].setEnabled(false);
+                       break;
+                   case FORMULA22:
+                       if(out_coloring_algorithm != BIOMORPH) {
+                           out_coloring_modes[BIOMORPH].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+                       }
+                       fractal_functions[function].setSelected(true);
+                       fractal_functions[function].setEnabled(false);
+                       break;
+                   case FORMULA23:
+                       if(out_coloring_algorithm != BIOMORPH) {
+                           out_coloring_modes[BIOMORPH].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+                       }
+                       fractal_functions[function].setSelected(true);
+                       fractal_functions[function].setEnabled(false);
+                       break;
+                   case FORMULA24:
+                       if(out_coloring_algorithm != BIOMORPH) {
+                           out_coloring_modes[BIOMORPH].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+                       }
+                       fractal_functions[function].setSelected(true);
+                       fractal_functions[function].setEnabled(false);
+                       break;
+                   case FORMULA25:
+                       if(out_coloring_algorithm != BIOMORPH) {
+                           out_coloring_modes[BIOMORPH].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+                       }
+                       fractal_functions[function].setSelected(true);
+                       fractal_functions[function].setEnabled(false);
+                       break;
+                   case FORMULA26:
+                       if(out_coloring_algorithm != BIOMORPH) {
+                           out_coloring_modes[BIOMORPH].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+                       }
+                       fractal_functions[function].setSelected(true);
+                       fractal_functions[function].setEnabled(false);
+                       break;
+                   case FROTHY_BASIN:
+                       if(out_coloring_algorithm != BIOMORPH) {
+                           out_coloring_modes[BIOMORPH].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+                       }
+                       fractal_functions[function].setSelected(true);
+                       fractal_functions[function].setEnabled(false);
+                       break;   
+                   case SZEGEDI_BUTTERFLY1:
+                       if(out_coloring_algorithm != BIOMORPH) {
+                           out_coloring_modes[BIOMORPH].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+                       }
+                       fractal_functions[function].setSelected(true);
+                       fractal_functions[function].setEnabled(false);
+                       break;   
+                   case SZEGEDI_BUTTERFLY2:
+                       if(out_coloring_algorithm != BIOMORPH) {
+                           out_coloring_modes[BIOMORPH].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+                       }
+                       fractal_functions[function].setSelected(true);
+                       fractal_functions[function].setEnabled(false);
+                       break;   
                    default:
                        if(out_coloring_algorithm != BIOMORPH) {
                            out_coloring_modes[BIOMORPH].setEnabled(true);
@@ -4890,6 +5844,12 @@ public class MainWindow extends JFrame {
 
         switch (function) {
             case MANDELBROTNTH:
+                xCenter = 0;
+                yCenter = 0;
+                size = 6;
+                bailout = 2;
+                break;
+            case MANDELBROTWTH:
                 xCenter = 0;
                 yCenter = 0;
                 size = 6;
@@ -5191,6 +6151,180 @@ public class MainWindow extends JFrame {
                 size = 6;
                 bailout = 2;
                 break;
+            case FORMULA1:
+                xCenter = 0;
+                yCenter = 0;
+                size = 24;
+                bailout = 8;
+                break;
+            case FORMULA2:
+                xCenter = 0;
+                yCenter = 0;
+                size = 6;
+                bailout = 4;
+                break;
+             case FORMULA3:
+                xCenter = 0;
+                yCenter = 0;
+                size = 3;
+                bailout = 4;
+                break;
+            case FORMULA4:
+                xCenter = 0;
+                yCenter = 0;
+                size = 1.5;
+                bailout = 4;
+                break;
+            case FORMULA5:
+                xCenter = 0;
+                yCenter = 0;
+                size = 1.5;
+                bailout = 4;
+                break;
+            case FORMULA6:
+                xCenter = 0;
+                yCenter = 0;
+                size = 6;
+                bailout = 2;
+                break;
+             case FORMULA7:
+                xCenter = 0;
+                yCenter = 0;
+                size = 12;
+                bailout = 8;
+                break;
+             case FORMULA8:
+                xCenter = 0;
+                yCenter = 0;
+                size = 3;
+                bailout = 16;
+                break;
+            case FORMULA9:
+                xCenter = 0;
+                yCenter = 0;
+                size = 3;
+                bailout = 4;
+                break;
+            case FORMULA10:
+                xCenter = 0;
+                yCenter = 0;
+                size = 3;
+                bailout = 4;
+                break;
+            case FORMULA11:
+                xCenter = 0;
+                yCenter = 0;
+                size = 1.5;
+                bailout = 100;
+                break;
+            case FORMULA12:
+                xCenter = 0;
+                yCenter = 0;
+                size = 12;
+                bailout = 8;
+                break;
+            case FORMULA13:
+                xCenter = 0;
+                yCenter = 0;
+                size = 6;
+                bailout = 4;
+                break;
+            case FORMULA14:
+                xCenter = 0;
+                yCenter = 0;
+                size = 6;
+                bailout = 4;
+                break;
+            case FORMULA15:
+                xCenter = 0;
+                yCenter = 0;
+                size = 6;
+                bailout = 4;
+                break;
+            case FORMULA16:
+                xCenter = 0;
+                yCenter = 0;
+                size = 6;
+                bailout = 4;
+                break;
+            case FORMULA17:
+                xCenter = 0;
+                yCenter = 0;
+                size = 6;
+                bailout = 4;
+                break;
+            case FORMULA18:
+                xCenter = 0;
+                yCenter = 0;
+                size = 6;
+                bailout = 8;
+                break;
+            case FORMULA19:
+                xCenter = 0;
+                yCenter = 0;
+                size = 6;
+                bailout = 4;
+                break;
+            case FORMULA20:
+                xCenter = 0;
+                yCenter = 0;
+                size = 6;
+                bailout = 2;
+                break;
+            case FORMULA21:
+                xCenter = 0;
+                yCenter = 0;
+                size = 6;
+                bailout = 2;
+                break;
+            case FORMULA22:
+                xCenter = 0;
+                yCenter = 0;
+                size = 6;
+                bailout = 2;
+                break;
+            case FORMULA23:
+                xCenter = 0;
+                yCenter = 0;
+                size = 6;
+                bailout = 2;
+                break;
+            case FORMULA24:
+                xCenter = 0;
+                yCenter = 0;
+                size = 6;
+                bailout = 2;
+                break;
+            case FORMULA25:
+                xCenter = 0;
+                yCenter = 0;
+                size = 6;
+                bailout = 2;
+                break;
+            case FORMULA26:
+                xCenter = 0;
+                yCenter = 0;
+                size = 6;
+                bailout = 2;
+                break;
+            case FROTHY_BASIN:
+                xCenter = 0;
+                yCenter = 0;
+                size = 6;
+                bailout = 2;
+                break;
+            case SZEGEDI_BUTTERFLY1:
+                xCenter = 0;
+                yCenter = 0;
+                size = 12;
+                bailout = 4;
+                break;
+            case SZEGEDI_BUTTERFLY2:
+                xCenter = 0;
+                yCenter = 0;
+                size = 12;
+                bailout = 4;
+                break;
             default:
                 xCenter = 0;
                 yCenter = 0;
@@ -5243,60 +6377,235 @@ public class MainWindow extends JFrame {
        }
        main_panel.repaint();
 
+        
+        
+        JTextField field_real = new JTextField();
         double temp3 = xCenter * rotation_vals[0] - yCenter * rotation_vals[1];
-                
-        String ans = (String) JOptionPane.showInputDialog(scroll_pane, "Current Real: " + temp3 + "\nSet the real part of the new center.", "Real", JOptionPane.QUESTION_MESSAGE, null, null, temp3);
-
-        double tempReal;
-        double tempImaginary;
-
-        try {
-            tempReal = Double.parseDouble(ans);
-        }
-        catch(Exception ex) {
-            if(ans == null) {
-                main_panel.repaint();
-                return;
-            }
-            else {
-                JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-                main_panel.repaint();
-                return;
-            }
-        }
-
-        main_panel.repaint();
-        temp3 = xCenter * rotation_vals[1] + yCenter * rotation_vals[0];
+        
         if(temp3 == 0) {
-            ans = (String) JOptionPane.showInputDialog(scroll_pane, "Current Imaginary: " + 0.0 + "\nSet the imaginary part of the new center.", "Imaginary", JOptionPane.QUESTION_MESSAGE, null, null, 0.0);
+           field_real.setText("" + 0.0); 
         }
         else {
-            ans = (String) JOptionPane.showInputDialog(scroll_pane, "Current Imaginary: " + (-temp3) + "\nSet the imaginary part of the new center.", "Imaginary", JOptionPane.QUESTION_MESSAGE, null, null, -temp3);
+            field_real.setText("" + temp3);
         }
+        
+        field_real.addAncestorListener(new RequestFocusListener());
+            
+        JTextField field_imaginary = new JTextField();      
+        
+        temp3 = xCenter * rotation_vals[1] + yCenter * rotation_vals[0];
+        
+        if(temp3 == 0) {
+            field_imaginary.setText("" + 0.0);
+        }
+        else {
+            field_imaginary.setText("" + (-temp3));
+        }
+        
+        JTextField field_size = new JTextField(); 
+        field_size.setText("" + size); 
+        
+         
+        
+        Object[] message = { 
+           "Set the real and imaginary part of the new center",
+           "and the new size.",
+           "Real:", field_real,
+           "Imaginary:", field_imaginary,
+           "Size:", field_size, 
+        };
+            
 
-        try {
-            tempImaginary = -Double.parseDouble(ans); //reversed axis
-        }
-        catch(Exception ex) {
-            if(ans == null) {
-                main_panel.repaint();
-                return;
+        int res = JOptionPane.showConfirmDialog(scroll_pane, message, "Center and Size", JOptionPane.OK_CANCEL_OPTION);
+                
+            
+        if(res == JOptionPane.OK_OPTION) {
+            try {
+                double tempReal = Double.parseDouble(field_real.getText());
+                double tempImaginary = -Double.parseDouble(field_imaginary.getText());  //Reveresed Axis
+                size = Double.parseDouble(field_size.getText());
+                        
+                xCenter = tempReal * rotation_vals[0] + tempImaginary * rotation_vals[1];
+                yCenter = -tempReal * rotation_vals[1] + tempImaginary * rotation_vals[0];
             }
-            else {
+            catch(Exception ex) {
                 JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
                 main_panel.repaint();
                 return;
             }
         }
+        else {
+            main_panel.repaint();
+            return;
+        }
+                
+            
+        setOptions(false);
 
+        reloadTitle();
+        
+        progress.setValue(0);
+
+        scroll_pane.getHorizontalScrollBar().setValue((int)(scroll_pane.getHorizontalScrollBar().getMaximum() / 2 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2));
+        scroll_pane.getVerticalScrollBar().setValue((int)(scroll_pane.getVerticalScrollBar().getMaximum() / 2 - scroll_pane.getVerticalScrollBar().getSize().getHeight() / 2));
+
+        last_used = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D graphics = last_used.createGraphics();
+        graphics.drawImage(image, 0, 0, image_size, image_size, null);
+
+        image = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
+
+        backup_orbit = null;
+
+        whole_image_done = false;
+
+        createThreads();
+            
+        calculation_time = System.currentTimeMillis();
+ 
+        startThreads(n);             
+
+   }
+
+   private void goToJulia() {
+
+        if(backup_orbit != null && orbit) {
+           image = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
+           Graphics2D graphics = image.createGraphics();
+           graphics.drawImage(backup_orbit, 0, 0, image_size, image_size, null);
+        }
         main_panel.repaint();
-        ans = (String) JOptionPane.showInputDialog(scroll_pane, "Current Size: " + size + "\nSet the new size.", "Size", JOptionPane.QUESTION_MESSAGE, null, null, size);
+  
+        
+        if(first_seed) {
+            JTextField field_real = new JTextField();
+            double temp3 = xCenter * rotation_vals[0] - yCenter * rotation_vals[1];
 
-        try {
-            size = Double.parseDouble(ans);
-                        
-            xCenter = tempReal * rotation_vals[0] + tempImaginary * rotation_vals[1];
-            yCenter = -tempReal * rotation_vals[1] + tempImaginary * rotation_vals[0];
+            if(temp3 == 0) {
+               field_real.setText("" + 0.0); 
+            }
+            else {
+                field_real.setText("" + temp3);
+            }
+
+            field_real.addAncestorListener(new RequestFocusListener());
+
+            JTextField field_imaginary = new JTextField();      
+
+            temp3 = xCenter * rotation_vals[1] + yCenter * rotation_vals[0];
+
+            if(temp3 == 0) {
+                field_imaginary.setText("" + 0.0);
+            }
+            else {
+                field_imaginary.setText("" + (-temp3));
+            }
+
+            Object[] message = { 
+               "Set the real and imaginary part of the Julia seed.",
+               "Real:", field_real,
+               "Imaginary:", field_imaginary,
+            };
+
+
+            int res = JOptionPane.showConfirmDialog(scroll_pane, message, "Julia Seed", JOptionPane.OK_CANCEL_OPTION);
+            
+            if(res == JOptionPane.OK_OPTION) {
+                try {
+                    xJuliaCenter = Double.parseDouble(field_real.getText());
+                    yJuliaCenter = -Double.parseDouble(field_imaginary.getText());  //Reveresed Axis
+                }
+                catch(Exception ex) {
+                    JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
+                    main_panel.repaint();
+                    return;
+                }
+            }
+            else {
+                main_panel.repaint();
+                return;
+            }
+            
+            mode.setText("Julia mode");
+            
+            first_seed = false;              
+            defaultFractalSettings();
+        }
+        else {
+            JTextField field_real = new JTextField();
+            double temp3 = xCenter * rotation_vals[0] - yCenter * rotation_vals[1];
+
+            if(temp3 == 0) {
+               field_real.setText("" + 0.0); 
+            }
+            else {
+                field_real.setText("" + temp3);
+            }
+
+            field_real.addAncestorListener(new RequestFocusListener());
+
+            JTextField field_imaginary = new JTextField();      
+
+            temp3 = xCenter * rotation_vals[1] + yCenter * rotation_vals[0];
+
+            if(temp3 == 0) {
+                field_imaginary.setText("" + 0.0);
+            }
+            else {
+                field_imaginary.setText("" + (-temp3));
+            }
+
+            JTextField field_size = new JTextField(); 
+            field_size.setText("" + size); 
+            
+            xJuliaCenter = xJuliaCenter == 0.0 ? 0.0 : xJuliaCenter;
+       
+            String seed = "";
+
+            if(-yJuliaCenter > 0) {
+               seed = xJuliaCenter + "+" + (-yJuliaCenter) + "i";
+            }
+            else {
+               if(yJuliaCenter == 0) {
+                  seed = xJuliaCenter + "+" + (0.0) + "i";
+               }
+               else {
+                  seed = xJuliaCenter + "" + (-yJuliaCenter) + "i";
+               }
+           }
+
+            Object[] message = { 
+               "Set the real and imaginary part of the new center",
+               "and the new size.",
+               "Julia seed: " + seed,
+               "Real:", field_real,
+               "Imaginary:", field_imaginary,
+               "Size:", field_size, 
+            };
+
+
+            int res = JOptionPane.showConfirmDialog(scroll_pane, message, "Center and Size", JOptionPane.OK_CANCEL_OPTION);
+
+
+            if(res == JOptionPane.OK_OPTION) {
+                try {
+                    double tempReal = Double.parseDouble(field_real.getText());
+                    double tempImaginary = -Double.parseDouble(field_imaginary.getText());  //Reveresed Axis
+                    size = Double.parseDouble(field_size.getText());
+
+                    xCenter = tempReal * rotation_vals[0] + tempImaginary * rotation_vals[1];
+                    yCenter = -tempReal * rotation_vals[1] + tempImaginary * rotation_vals[0];
+                }
+                catch(Exception ex) {
+                    JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
+                    main_panel.repaint();
+                    return;
+                }
+            }
+            else {
+                main_panel.repaint();
+                return;
+            }
             
             setOptions(false);
 
@@ -5318,166 +6627,12 @@ public class MainWindow extends JFrame {
             whole_image_done = false;
 
             createThreads();
-            
+                
             calculation_time = System.currentTimeMillis();
- 
+
             startThreads(n);
         }
-        catch(Exception ex) {
-            if(ans == null) {
-                main_panel.repaint();
-            }
-            else {
-                JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-                main_panel.repaint();
-            }
-        }                
-
-   }
-
-   private void goToJulia() {
-
-        if(backup_orbit != null && orbit) {
-           image = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
-           Graphics2D graphics = image.createGraphics();
-           graphics.drawImage(backup_orbit, 0, 0, image_size, image_size, null);
-        }
-        main_panel.repaint();
-
-        String ans;
-
-        double temp3 = xCenter * rotation_vals[0] - yCenter * rotation_vals[1];
-        
-        if(first_seed) {
-            ans = (String) JOptionPane.showInputDialog(scroll_pane, "Set the real part of the Julia seed.", "Real", JOptionPane.QUESTION_MESSAGE, null, null, temp3);
-        }
-        else {
-            ans = (String) JOptionPane.showInputDialog(scroll_pane, "Julia Real seed: " + xJuliaCenter + "\nCurrent Real: " + temp3 + "\nSet the real part of the new center.", "Real", JOptionPane.QUESTION_MESSAGE, null, null, temp3);
-        }
-
-        double tempReal = 0;
-        double tempImaginary = 0;
   
-        try {
-            if(first_seed) { 
-                xJuliaCenter = Double.parseDouble(ans);                            
-            }
-            else {
-                tempReal = Double.parseDouble(ans);
-            }
-        }
-        catch(Exception ex) {
-            if(ans == null) {
-                main_panel.repaint();
-                return;
-            }
-            else {
-                JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-                main_panel.repaint();
-                return;
-            }
-        }
-
-        main_panel.repaint();
-        temp3 = xCenter * rotation_vals[1] + yCenter * rotation_vals[0];
-        
-        if(first_seed) {
-            if(yCenter == 0) {
-                ans = (String) JOptionPane.showInputDialog(scroll_pane, "Set the imaginary part of the Julia seed.", "Imaginary", JOptionPane.QUESTION_MESSAGE, null, null, 0.0);
-            }
-            else {
-                ans = (String) JOptionPane.showInputDialog(scroll_pane, "Set the imaginary part of the Julia seed.", "Imaginary", JOptionPane.QUESTION_MESSAGE, null, null, -temp3);
-            }
-        }
-        else {
-            if(temp3 == 0) {
-                if(yJuliaCenter == 0) {
-                    ans = (String) JOptionPane.showInputDialog(scroll_pane, "Julia Imaginary seed: " + (0.0) + "\nCurrent Imaginary: " + (0.0) + "\nSet the imaginary part of the new center.", "Imaginary", JOptionPane.QUESTION_MESSAGE, null, null, 0.0);
-                }
-                else {
-                    ans = (String) JOptionPane.showInputDialog(scroll_pane, "Julia Imaginary seed: " + (-yJuliaCenter) + "\nCurrent Imaginary: " + (0.0) + "\nSet the imaginary part of the new center.", "Imaginary", JOptionPane.QUESTION_MESSAGE, null, null, 0.0);
-                }
-            }
-            else {
-                if(yJuliaCenter == 0) {
-                    ans = (String) JOptionPane.showInputDialog(scroll_pane, "Julia Imaginary seed: " + (0.0) + "\nCurrent Imaginary: " + (-temp3) + "\nSet the imaginary part of the new center.", "Imaginary", JOptionPane.QUESTION_MESSAGE, null, null, -temp3);
-                }
-                else {
-                    ans = (String) JOptionPane.showInputDialog(scroll_pane, "Julia Imaginary seed: " + (-yJuliaCenter) + "\nCurrent Imaginary: " + (-temp3) + "\nSet the ifmaginary part of the new center.", "Imaginary", JOptionPane.QUESTION_MESSAGE, null, null, -temp3);
-                }
-            }
-        }
-
-        try {
-            if(first_seed) {
-                yJuliaCenter = -Double.parseDouble(ans);
-            }
-            else {
-                tempImaginary = -Double.parseDouble(ans); //reversed axis
-            }
-        }
-        catch(Exception ex) {
-            if(ans == null) {
-                main_panel.repaint();
-                return;
-            }
-            else {
-                JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-                main_panel.repaint();
-                return;
-            }
-        }
-        
-        try {
-            if(!first_seed) {
-                main_panel.repaint();
-                ans = (String) JOptionPane.showInputDialog(scroll_pane, "Current Size: " + size + "\nSet the new size.", "Size", JOptionPane.QUESTION_MESSAGE, null, null, size);
-
-                size = Double.parseDouble(ans);
-                
-                xCenter = tempReal * rotation_vals[0] + tempImaginary * rotation_vals[1];
-                yCenter = -tempReal * rotation_vals[1] + tempImaginary * rotation_vals[0];
-
-                setOptions(false);
-
-                reloadTitle();
-
-                progress.setValue(0);
-
-                scroll_pane.getHorizontalScrollBar().setValue((int)(scroll_pane.getHorizontalScrollBar().getMaximum() / 2 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2));
-                scroll_pane.getVerticalScrollBar().setValue((int)(scroll_pane.getVerticalScrollBar().getMaximum() / 2 - scroll_pane.getVerticalScrollBar().getSize().getHeight() / 2));
-
-                last_used = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
-                Graphics2D graphics = last_used.createGraphics();
-                graphics.drawImage(image, 0, 0, image_size, image_size, null);
-
-                image = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
-
-                backup_orbit = null;
-
-                whole_image_done = false;
-
-                createThreads();
-                
-                calculation_time = System.currentTimeMillis();
-
-                startThreads(n);
-            }
-            else {
-                first_seed = false;              
-                defaultFractalSettings();
-            }
-        }
-        catch(Exception ex) {
-            if(ans == null) {
-                main_panel.repaint();
-            }
-            else {
-                JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-                main_panel.repaint();
-            }
-        }
-
    }
 
    private void setFractalColor() {
@@ -6671,17 +7826,22 @@ public class MainWindow extends JFrame {
 
             
        if(first_seed) {
-           double temp = xCenter - size / 2 + size * main_panel.getMousePosition().getX() / image_size;
-           double temp2 = yCenter - size / 2 + size * main_panel.getMousePosition().getY() / image_size;
-           
-           xJuliaCenter = temp * rotation_vals[0] - temp2 * rotation_vals[1];
-           yJuliaCenter = temp * rotation_vals[1] + temp2 * rotation_vals[0];
-                   
-           first_seed = false;
-           orbit_opt.setEnabled(true);
-           main_panel.repaint();
-           defaultFractalSettings();
-           return;
+           if(e.getModifiers() == InputEvent.BUTTON1_MASK) {
+               double temp = xCenter - size / 2 + size * main_panel.getMousePosition().getX() / image_size;
+               double temp2 = yCenter - size / 2 + size * main_panel.getMousePosition().getY() / image_size;
+
+               xJuliaCenter = temp * rotation_vals[0] - temp2 * rotation_vals[1];
+               yJuliaCenter = temp * rotation_vals[1] + temp2 * rotation_vals[0];
+
+               first_seed = false;
+               orbit_opt.setEnabled(true);
+               main_panel.repaint();
+
+               mode.setText("Julia mode");
+
+               defaultFractalSettings();
+               return;
+           }
        }
        else {
            xCenter = xCenter - size / 2 + size * main_panel.getMousePosition().getX() / image_size;
@@ -6762,6 +7922,7 @@ public class MainWindow extends JFrame {
            }
            fractal_functions[SIERPINSKI_GASKET].setEnabled(true);
            if(!first_seed) {
+               mode.setText("Normal mode");
                defaultFractalSettings();
                main_panel.repaint();
            }
@@ -6867,11 +8028,11 @@ public class MainWindow extends JFrame {
            }
            try {
                if(julia) {
-                   pixels_orbit = new DrawOrbit(xCenter, yCenter, size, max_iterations > 300 ? 300 : max_iterations, (int)main_panel.getMousePosition().getX(), (int)main_panel.getMousePosition().getY(), image_size, image, ptr, orbit_color, orbit_style, plane_type, burning_ship, grid, function, z_exponent, rotation_vals, coefficients, xJuliaCenter, yJuliaCenter);
+                   pixels_orbit = new DrawOrbit(xCenter, yCenter, size, max_iterations > 300 ? 300 : max_iterations, (int)main_panel.getMousePosition().getX(), (int)main_panel.getMousePosition().getY(), image_size, image, ptr, orbit_color, orbit_style, plane_type, burning_ship, grid, function, z_exponent, z_exponent_complex, rotation_vals, coefficients, xJuliaCenter, yJuliaCenter);
                    pixels_orbit.start();
                }
                else {
-                   pixels_orbit = new DrawOrbit(xCenter, yCenter, size, max_iterations > 300 ? 300 : max_iterations, (int)main_panel.getMousePosition().getX(), (int)main_panel.getMousePosition().getY(), image_size, image, ptr, orbit_color, orbit_style, plane_type, burning_ship, grid, function, z_exponent, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals, coefficients);
+                   pixels_orbit = new DrawOrbit(xCenter, yCenter, size, max_iterations > 300 ? 300 : max_iterations, (int)main_panel.getMousePosition().getX(), (int)main_panel.getMousePosition().getY(), image_size, image, ptr, orbit_color, orbit_style, plane_type, burning_ship, grid, function, z_exponent, z_exponent_complex, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals, coefficients);
                    pixels_orbit.start();
                }            
            }
@@ -6885,18 +8046,18 @@ public class MainWindow extends JFrame {
                     
            double temp2 = temp_xcenter_size + temp_size_image_size * main_panel.getMousePosition().getX();
            double temp = temp_ycenter_size + temp_size_image_size * main_panel.getMousePosition().getY();
+   
+           double temp3 = temp2 * rotation_vals[0] - temp * rotation_vals[1];
                     
+           temp3 = temp3 == 0? 0.0 : temp3;
+
+           real.setText("" + temp3);
+
+           temp3 = temp2 * rotation_vals[1] + temp * rotation_vals[0];
                     
-           real.setText("" + (temp2 * rotation_vals[0] - temp * rotation_vals[1]));
-           
-           double temp3 = temp2 * rotation_vals[1] + temp * rotation_vals[0];
+           temp3 = temp3 == 0? 0.0 : -temp3;
                     
-           if(temp3 == 0) {
-               imaginary.setText("" + 0.0);
-           }
-           else {
-               imaginary.setText("" + (-temp3));
-           }
+           imaginary.setText("" + temp3);
        }
        catch(NullPointerException ex) {}
                
@@ -7279,7 +8440,7 @@ public class MainWindow extends JFrame {
                    fractal_functions[function].setSelected(false);
 
                    if(function != temp2) {
-                       if(temp2 == NEWTONPOLY || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == MANDELPOLY) {
+                       if(temp2 == MANDELBROTWTH || temp2 == NEWTONPOLY || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == MANDELPOLY) {
                            fractal_functions[temp2].setSelected(true);
                            fractal_functions[temp2].setEnabled(true);
                        }
@@ -7304,6 +8465,92 @@ public class MainWindow extends JFrame {
                out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
            }
            break;
+       case MANDELBROTWTH:
+           
+            z_exponent_complex[0] = 0;
+            z_exponent_complex[1] = 0;
+
+            JTextField field_real = new JTextField();
+            field_real.setText("" + z_exponent_complex[0]);
+            field_real.addAncestorListener(new RequestFocusListener());
+            
+            JTextField field_imaginary = new JTextField();
+            field_imaginary.setText("" + z_exponent_complex[1]);
+            
+            Object[] message = { 
+                "Set the real and imaginary part of the exponent of z.",
+                "Real:", field_real,
+                "Imaginary:", field_imaginary, 
+            };
+            
+
+            int res = JOptionPane.showConfirmDialog(scroll_pane, message, "Exponent", JOptionPane.OK_CANCEL_OPTION);
+                
+            
+            if(res == JOptionPane.OK_OPTION) {
+                try {
+                    z_exponent_complex[0] = Double.parseDouble(field_real.getText());
+                    z_exponent_complex[1] = Double.parseDouble(field_imaginary.getText());
+                }
+                catch(Exception ex) {
+                    JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
+                    z_exponent_complex[0] = 0;
+                    z_exponent_complex[1] = 0;
+                    main_panel.repaint();
+                    fractal_functions[function].setSelected(false);
+
+                    if(function != temp2) {
+                        if(temp2 == MANDELBROTNTH || temp2 == NEWTONPOLY || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == MANDELPOLY) {
+                            fractal_functions[temp2].setSelected(true);
+                            fractal_functions[temp2].setEnabled(true);
+                        }
+                        else {
+                            fractal_functions[temp2].setSelected(true);
+                            fractal_functions[temp2].setEnabled(false);
+                        }
+                        function = temp2;
+                    }
+                    else {
+                        fractal_functions[function].setSelected(true);
+                        fractal_functions[function].setEnabled(true);
+                    }
+                          
+                    return;
+                }
+            }
+            else {
+                main_panel.repaint();
+                z_exponent_complex[0] = 0;
+                z_exponent_complex[1] = 0;
+                fractal_functions[function].setSelected(false);
+
+                    if(function != temp2) {
+                        if(temp2 == MANDELBROTNTH || temp2 == NEWTONPOLY || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == MANDELPOLY) {
+                            fractal_functions[temp2].setSelected(true);
+                            fractal_functions[temp2].setEnabled(true);
+                        }
+                        else {
+                            fractal_functions[temp2].setSelected(true);
+                            fractal_functions[temp2].setEnabled(false);
+                        }
+                        function = temp2;
+                    }
+                    else {
+                        fractal_functions[function].setSelected(true);
+                        fractal_functions[function].setEnabled(true);
+                    }
+                          
+                    return;
+            }
+                        
+           fractal_functions[function].setSelected(true);
+           if(out_coloring_algorithm != BIOMORPH) {
+               out_coloring_modes[BIOMORPH].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+           }
+           break;
        case MANDELPOLY:
            main_panel.repaint();
            ans = JOptionPane.showInputDialog(scroll_pane, "Enter the coefficients of the polynomial,\nin degree descending order.\nMinimum polynomial degree, 1 (2 coefficients).\nMaximum polynomial degree, 10 (11 coefficients).", "Polynomial coeffiecients", JOptionPane.QUESTION_MESSAGE);
@@ -7319,7 +8566,7 @@ public class MainWindow extends JFrame {
                    fractal_functions[function].setSelected(false);
                    
                    if(function != temp2) {
-                       if(temp2 == MANDELBROTNTH || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == NEWTONPOLY) {
+                       if(temp2 == MANDELBROTWTH || temp2 == MANDELBROTNTH || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == NEWTONPOLY) {
                            fractal_functions[temp2].setSelected(true);
                            fractal_functions[temp2].setEnabled(true);
                        }
@@ -7344,7 +8591,7 @@ public class MainWindow extends JFrame {
                    fractal_functions[function].setSelected(false);
                    
                    if(function != temp2) {
-                       if(temp2 == MANDELBROTNTH || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == NEWTONPOLY) {
+                       if(temp2 == MANDELBROTWTH || temp2 == MANDELBROTNTH || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == NEWTONPOLY) {
                            fractal_functions[temp2].setSelected(true);
                            fractal_functions[temp2].setEnabled(true);
                        }
@@ -7384,7 +8631,7 @@ public class MainWindow extends JFrame {
                fractal_functions[function].setSelected(false);
 
                if(function != temp2) {
-                   if(temp2 == MANDELBROTNTH || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == NEWTONPOLY) {
+                   if(temp2 == MANDELBROTWTH || temp2 == MANDELBROTNTH || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == NEWTONPOLY) {
                        fractal_functions[temp2].setSelected(true);
                        fractal_functions[temp2].setEnabled(true);
                    }
@@ -7562,7 +8809,7 @@ public class MainWindow extends JFrame {
                    fractal_functions[function].setSelected(false);
                    
                    if(function != temp2) {
-                       if(temp2 == MANDELBROTNTH || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == MANDELPOLY) {
+                       if(temp2 == MANDELBROTWTH || temp2 == MANDELBROTNTH || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == MANDELPOLY) {
                            fractal_functions[temp2].setSelected(true);
                            fractal_functions[temp2].setEnabled(true);
                        }
@@ -7587,7 +8834,7 @@ public class MainWindow extends JFrame {
                    fractal_functions[function].setSelected(false);
                    
                    if(function != temp2) {
-                       if(temp2 == MANDELBROTNTH || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == MANDELPOLY) {
+                       if(temp2 == MANDELBROTWTH || temp2 == MANDELBROTNTH || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == MANDELPOLY) {
                            fractal_functions[temp2].setSelected(true);
                            fractal_functions[temp2].setEnabled(true);
                        }
@@ -7627,7 +8874,7 @@ public class MainWindow extends JFrame {
                fractal_functions[function].setSelected(false);
 
                if(function != temp2) {
-                   if(temp2 == MANDELBROTNTH || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == MANDELPOLY) {
+                   if(temp2 == MANDELBROTWTH || temp2 == MANDELBROTNTH || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == MANDELPOLY) {
                        fractal_functions[temp2].setSelected(true);
                        fractal_functions[temp2].setEnabled(true);
                    }
@@ -7779,7 +9026,7 @@ public class MainWindow extends JFrame {
                    fractal_functions[function].setSelected(false);
                    
                    if(function != temp2) {
-                       if(temp2 == MANDELBROTNTH || temp2 == NEWTONPOLY || temp2 == SCHRODERPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == MANDELPOLY) {
+                       if(temp2 == MANDELBROTWTH || temp2 == MANDELBROTNTH || temp2 == NEWTONPOLY || temp2 == SCHRODERPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == MANDELPOLY) {
                            fractal_functions[temp2].setSelected(true);
                            fractal_functions[temp2].setEnabled(true);
                        }
@@ -7804,7 +9051,7 @@ public class MainWindow extends JFrame {
                    fractal_functions[function].setSelected(false);
                    
                    if(function != temp2) {
-                       if(temp2 == MANDELBROTNTH || temp2 == NEWTONPOLY || temp2 == SCHRODERPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == MANDELPOLY) {
+                       if(temp2 == MANDELBROTWTH || temp2 == MANDELBROTNTH || temp2 == NEWTONPOLY || temp2 == SCHRODERPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == MANDELPOLY) {
                            fractal_functions[temp2].setSelected(true);
                            fractal_functions[temp2].setEnabled(true);
                        }
@@ -7844,7 +9091,7 @@ public class MainWindow extends JFrame {
                fractal_functions[function].setSelected(false);
 
                if(function != temp2) {
-                   if(temp2 == MANDELBROTNTH || temp2 == NEWTONPOLY || temp2 == SCHRODERPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == MANDELPOLY) {
+                   if(temp2 == MANDELBROTWTH || temp2 == MANDELBROTNTH || temp2 == NEWTONPOLY || temp2 == SCHRODERPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == MANDELPOLY) {
                        fractal_functions[temp2].setSelected(true);
                        fractal_functions[temp2].setEnabled(true);
                    }
@@ -7996,7 +9243,7 @@ public class MainWindow extends JFrame {
                    fractal_functions[function].setSelected(false);
                    
                    if(function != temp2) {
-                       if(temp2 == MANDELBROTNTH || temp2 == NEWTONPOLY || temp2 == HALLEYPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == MANDELPOLY) {
+                       if(temp2 == MANDELBROTWTH || temp2 == MANDELBROTNTH || temp2 == NEWTONPOLY || temp2 == HALLEYPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == MANDELPOLY) {
                            fractal_functions[temp2].setSelected(true);
                            fractal_functions[temp2].setEnabled(true);
                        }
@@ -8021,7 +9268,7 @@ public class MainWindow extends JFrame {
                    fractal_functions[function].setSelected(false);
                    
                    if(function != temp2) {
-                       if(temp2 == MANDELBROTNTH || temp2 == NEWTONPOLY || temp2 == HALLEYPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == MANDELPOLY) {
+                       if(temp2 == MANDELBROTWTH || temp2 == MANDELBROTNTH || temp2 == NEWTONPOLY || temp2 == HALLEYPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == MANDELPOLY) {
                            fractal_functions[temp2].setSelected(true);
                            fractal_functions[temp2].setEnabled(true);
                        }
@@ -8061,7 +9308,7 @@ public class MainWindow extends JFrame {
                fractal_functions[function].setSelected(false);
 
                if(function != temp2) {
-                   if(temp2 == MANDELBROTNTH || temp2 == NEWTONPOLY || temp2 == HALLEYPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == MANDELPOLY) {
+                   if(temp2 == MANDELBROTWTH || temp2 == MANDELBROTNTH || temp2 == NEWTONPOLY || temp2 == HALLEYPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == MANDELPOLY) {
                        fractal_functions[temp2].setSelected(true);
                        fractal_functions[temp2].setEnabled(true);
                    }
@@ -8213,7 +9460,7 @@ public class MainWindow extends JFrame {
                    fractal_functions[function].setSelected(false);
                    
                    if(function != temp2) {
-                       if(temp2 == MANDELBROTNTH || temp2 == NEWTONPOLY || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == MANDELPOLY) {
+                       if(temp2 == MANDELBROTWTH || temp2 == MANDELBROTNTH || temp2 == NEWTONPOLY || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == MANDELPOLY) {
                            fractal_functions[temp2].setSelected(true);
                            fractal_functions[temp2].setEnabled(true);
                        }
@@ -8238,7 +9485,7 @@ public class MainWindow extends JFrame {
                    fractal_functions[function].setSelected(false);
                    
                    if(function != temp2) {
-                       if(temp2 == MANDELBROTNTH || temp2 == NEWTONPOLY || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == MANDELPOLY) {
+                       if(temp2 == MANDELBROTWTH || temp2 == MANDELBROTNTH || temp2 == NEWTONPOLY || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == MANDELPOLY) {
                            fractal_functions[temp2].setSelected(true);
                            fractal_functions[temp2].setEnabled(true);
                        }
@@ -8278,7 +9525,7 @@ public class MainWindow extends JFrame {
                fractal_functions[function].setSelected(false);
 
                if(function != temp2) {
-                   if(temp2 == MANDELBROTNTH || temp2 == NEWTONPOLY || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == MANDELPOLY) {
+                   if(temp2 == MANDELBROTWTH || temp2 == MANDELBROTNTH || temp2 == NEWTONPOLY || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == MANDELPOLY) {
                        fractal_functions[temp2].setSelected(true);
                        fractal_functions[temp2].setEnabled(true);
                    }
@@ -8509,7 +9756,268 @@ public class MainWindow extends JFrame {
            if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
            }
-           break; 
+           break;
+       case FORMULA1:
+           fractal_functions[function].setEnabled(false);
+           if(out_coloring_algorithm != BIOMORPH) {
+               out_coloring_modes[BIOMORPH].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+           }
+           break;
+       case FORMULA2:
+           fractal_functions[function].setEnabled(false);
+           if(out_coloring_algorithm != BIOMORPH) {
+               out_coloring_modes[BIOMORPH].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+           }
+           break;
+       case FORMULA3:
+           fractal_functions[function].setEnabled(false);
+           if(out_coloring_algorithm != BIOMORPH) {
+               out_coloring_modes[BIOMORPH].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+           }
+           break;
+       case FORMULA4:
+           fractal_functions[function].setEnabled(false);
+           if(out_coloring_algorithm != BIOMORPH) {
+               out_coloring_modes[BIOMORPH].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+           }
+           break;
+       case FORMULA5:
+           fractal_functions[function].setEnabled(false);
+           if(out_coloring_algorithm != BIOMORPH) {
+               out_coloring_modes[BIOMORPH].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+           }
+           break;
+       case FORMULA6:
+           fractal_functions[function].setEnabled(false);
+           if(out_coloring_algorithm != BIOMORPH) {
+               out_coloring_modes[BIOMORPH].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+           }
+           break;
+       case FORMULA7:
+           fractal_functions[function].setEnabled(false);
+           if(out_coloring_algorithm != BIOMORPH) {
+               out_coloring_modes[BIOMORPH].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+           }
+           break;
+       case FORMULA8:
+           fractal_functions[function].setEnabled(false);
+           if(out_coloring_algorithm != BIOMORPH) {
+               out_coloring_modes[BIOMORPH].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+           }
+           break;
+       case FORMULA9:
+           fractal_functions[function].setEnabled(false);
+           if(out_coloring_algorithm != BIOMORPH) {
+               out_coloring_modes[BIOMORPH].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+           }
+           break;
+       case FORMULA10:
+           fractal_functions[function].setEnabled(false);
+           if(out_coloring_algorithm != BIOMORPH) {
+               out_coloring_modes[BIOMORPH].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+           }
+           break;
+       case FORMULA11:
+           fractal_functions[function].setEnabled(false);
+           if(out_coloring_algorithm != BIOMORPH) {
+               out_coloring_modes[BIOMORPH].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+           }
+           break;
+       case FORMULA12:
+           fractal_functions[function].setEnabled(false);
+           if(out_coloring_algorithm != BIOMORPH) {
+               out_coloring_modes[BIOMORPH].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+           }
+           break;
+       case FORMULA13:
+           fractal_functions[function].setEnabled(false);
+           if(out_coloring_algorithm != BIOMORPH) {
+               out_coloring_modes[BIOMORPH].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+           }
+           break;
+       case FORMULA14:
+           fractal_functions[function].setEnabled(false);
+           if(out_coloring_algorithm != BIOMORPH) {
+               out_coloring_modes[BIOMORPH].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+           }
+           break;
+       case FORMULA15:
+           fractal_functions[function].setEnabled(false);
+           if(out_coloring_algorithm != BIOMORPH) {
+               out_coloring_modes[BIOMORPH].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+           }
+           break;
+       case FORMULA16:
+           fractal_functions[function].setEnabled(false);
+           if(out_coloring_algorithm != BIOMORPH) {
+               out_coloring_modes[BIOMORPH].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+           }
+           break;
+       case FORMULA17:
+           fractal_functions[function].setEnabled(false);
+           if(out_coloring_algorithm != BIOMORPH) {
+               out_coloring_modes[BIOMORPH].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+           }
+           break;
+       case FORMULA18:
+           fractal_functions[function].setEnabled(false);
+           if(out_coloring_algorithm != BIOMORPH) {
+               out_coloring_modes[BIOMORPH].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+           }
+           break;
+       case FORMULA19:
+           fractal_functions[function].setEnabled(false);
+           if(out_coloring_algorithm != BIOMORPH) {
+               out_coloring_modes[BIOMORPH].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+           }
+           break;
+       case FORMULA20:
+           fractal_functions[function].setEnabled(false);
+           if(out_coloring_algorithm != BIOMORPH) {
+               out_coloring_modes[BIOMORPH].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+           }
+           break;
+       case FORMULA21:
+           fractal_functions[function].setEnabled(false);
+           if(out_coloring_algorithm != BIOMORPH) {
+               out_coloring_modes[BIOMORPH].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+           }
+           break;
+       case FORMULA22:
+           fractal_functions[function].setEnabled(false);
+           if(out_coloring_algorithm != BIOMORPH) {
+               out_coloring_modes[BIOMORPH].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+           }
+           break;
+       case FORMULA23:
+           fractal_functions[function].setEnabled(false);
+           if(out_coloring_algorithm != BIOMORPH) {
+               out_coloring_modes[BIOMORPH].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+           }
+           break;
+       case FORMULA24:
+           fractal_functions[function].setEnabled(false);
+           if(out_coloring_algorithm != BIOMORPH) {
+               out_coloring_modes[BIOMORPH].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+           }
+           break;
+       case FORMULA25:
+           fractal_functions[function].setEnabled(false);
+           if(out_coloring_algorithm != BIOMORPH) {
+               out_coloring_modes[BIOMORPH].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+           }
+           break;
+       case FORMULA26:
+           fractal_functions[function].setEnabled(false);
+           if(out_coloring_algorithm != BIOMORPH) {
+               out_coloring_modes[BIOMORPH].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+           }
+           break;
+       case FROTHY_BASIN:
+           fractal_functions[function].setEnabled(false);
+           if(out_coloring_algorithm != BIOMORPH) {
+               out_coloring_modes[BIOMORPH].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+           }
+           break;
+       case SZEGEDI_BUTTERFLY1:
+           fractal_functions[function].setEnabled(false);
+           if(out_coloring_algorithm != BIOMORPH) {
+               out_coloring_modes[BIOMORPH].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+           }
+           break;
+       case SZEGEDI_BUTTERFLY2:
+           fractal_functions[function].setEnabled(false);
+           if(out_coloring_algorithm != BIOMORPH) {
+               out_coloring_modes[BIOMORPH].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+           }
+           break;
        default:
            fractal_functions[function].setEnabled(false);
            if(out_coloring_algorithm != BIOMORPH) {
@@ -8795,7 +10303,7 @@ public class MainWindow extends JFrame {
        if(!burning_ship_opt.isSelected()) {
            burning_ship = false;
 
-           if(function <= 9 || function == MANDELPOLY) {
+           if(function <= 9 || function == MANDELPOLY || function == MANDELBROTWTH) {
                defaultFractalSettings();
            }
 
@@ -8803,7 +10311,7 @@ public class MainWindow extends JFrame {
        else {
            burning_ship = true;
 
-           if(function <= 9 || function == MANDELPOLY) {
+           if(function <= 9 || function == MANDELPOLY || function == MANDELBROTWTH) {
                defaultFractalSettings();
            }
 
@@ -8817,6 +10325,11 @@ public class MainWindow extends JFrame {
 
         switch (function) {
             case MANDELBROTNTH:
+                xCenter = 0;
+                yCenter = 0;
+                size = 6;
+                break;
+            case MANDELBROTWTH:
                 xCenter = 0;
                 yCenter = 0;
                 size = 6;
@@ -9092,6 +10605,151 @@ public class MainWindow extends JFrame {
                 yCenter = 0;
                 size = 6; 
                 break;
+            case FORMULA1:
+                xCenter = 0;
+                yCenter = 0;
+                size = 24;
+                break;
+            case FORMULA2:
+                xCenter = 0;
+                yCenter = 0;
+                size = 6;
+                break;
+             case FORMULA3:
+                xCenter = 0;
+                yCenter = 0;
+                size = 3;
+                break;
+            case FORMULA4:
+                xCenter = 0;
+                yCenter = 0;
+                size = 1.5;
+                break;
+            case FORMULA5:
+                xCenter = 0;
+                yCenter = 0;
+                size = 1.5;
+                break;
+            case FORMULA6:
+                xCenter = 0;
+                yCenter = 0;
+                size = 6;
+                break;
+             case FORMULA7:
+                xCenter = 0;
+                yCenter = 0;
+                size = 12;
+                break;
+             case FORMULA8:
+                xCenter = 0;
+                yCenter = 0;
+                size = 3;
+                break;
+            case FORMULA9:
+                xCenter = 0;
+                yCenter = 0;
+                size = 3;
+                break;
+            case FORMULA10:
+                xCenter = 0;
+                yCenter = 0;
+                size = 3;
+                break;
+            case FORMULA11:
+                xCenter = 0;
+                yCenter = 0;
+                size = 1.5;
+                break;
+            case FORMULA12:
+                xCenter = 0;
+                yCenter = 0;
+                size = 12;
+                break;
+            case FORMULA13:
+                xCenter = 0;
+                yCenter = 0;
+                size = 6;
+                break;
+            case FORMULA14:
+                xCenter = 0;
+                yCenter = 0;
+                size = 6;
+                break;
+            case FORMULA15:
+                xCenter = 0;
+                yCenter = 0;
+                size = 6;
+                break;
+            case FORMULA16:
+                xCenter = 0;
+                yCenter = 0;
+                size = 6;
+                break;
+            case FORMULA17:
+                xCenter = 0;
+                yCenter = 0;
+                size = 6;
+                break;
+            case FORMULA18:
+                xCenter = 0;
+                yCenter = 0;
+                size = 6;
+                break;
+            case FORMULA19:
+                xCenter = 0;
+                yCenter = 0;
+                size = 6;
+                break;
+            case FORMULA20:
+                xCenter = 0;
+                yCenter = 0;
+                size = 6;
+                break;
+            case FORMULA21:
+                xCenter = 0;
+                yCenter = 0;
+                size = 6;
+                break;
+            case FORMULA22:
+                xCenter = 0;
+                yCenter = 0;
+                size = 6;
+                break;
+            case FORMULA23:
+                xCenter = 0;
+                yCenter = 0;
+                size = 6;
+                break;
+            case FORMULA24:
+                xCenter = 0;
+                yCenter = 0;
+                size = 6;
+                break;
+            case FORMULA25:
+                xCenter = 0;
+                yCenter = 0;
+                size = 6;
+                break;
+            case FORMULA26:
+                xCenter = 0;
+                yCenter = 0;
+                size = 6;
+                break;
+            case FROTHY_BASIN:
+                xCenter = 0;
+                yCenter = 0;
+                size = 6;
+                break;
+            case SZEGEDI_BUTTERFLY1:
+                xCenter = 0;
+                yCenter = 0;
+                size = 12;
+                break;
+            case SZEGEDI_BUTTERFLY2:
+                xCenter = 0;
+                yCenter = 0;
+                size = 12;
+                break;
             default: 
                 xCenter = 0;
                 yCenter = 0;
@@ -9276,6 +10934,12 @@ public class MainWindow extends JFrame {
                 temp_size = 6;
                 temp_bailout = 2;
                 break;
+            case MANDELBROTWTH:
+                temp_xCenter = 0;
+                temp_yCenter = 0;
+                temp_size = 6;
+                temp_bailout = 2;
+                break;
             case MANDELPOLY:
                 temp_xCenter = 0;
                 temp_yCenter = 0;
@@ -9402,6 +11066,180 @@ public class MainWindow extends JFrame {
                 temp_size = 6;
                 temp_bailout = 2;
                 break;
+             case FORMULA1:
+                temp_xCenter = 0;
+                temp_yCenter = 0;
+                temp_size = 24;
+                temp_bailout = 8;
+                break;
+            case FORMULA2:
+                temp_xCenter = 0;
+                temp_yCenter = 0;
+                temp_size = 6;
+                temp_bailout = 4;
+                break;
+             case FORMULA3:
+                temp_xCenter = 0;
+                temp_yCenter = 0;
+                temp_size = 3;
+                temp_bailout = 4;
+                break;
+            case FORMULA4:
+                temp_xCenter = 0;
+                temp_yCenter = 0;
+                temp_size = 1.5;
+                temp_bailout = 4;
+                break;
+            case FORMULA5:
+                temp_xCenter = 0;
+                temp_yCenter = 0;
+                temp_size = 1.5;
+                temp_bailout = 4;
+                break;
+            case FORMULA6:
+                temp_xCenter = 0;
+                temp_yCenter = 0;
+                temp_size = 6;
+                temp_bailout = 2;
+                break;
+             case FORMULA7:
+                temp_xCenter = 0;
+                temp_yCenter = 0;
+                temp_size = 12;
+                temp_bailout = 8;
+                break;
+             case FORMULA8:
+                temp_xCenter = 0;
+                temp_yCenter = 0;
+                temp_size = 3;
+                temp_bailout = 16;
+                break;
+            case FORMULA9:
+                temp_xCenter = 0;
+                temp_yCenter = 0;
+                temp_size = 3;
+                temp_bailout = 4;
+                break;
+            case FORMULA10:
+                temp_xCenter = 0;
+                temp_yCenter = 0;
+                temp_size = 3;
+                temp_bailout = 4;
+                break;
+            case FORMULA11:
+                temp_xCenter = 0;
+                temp_yCenter = 0;
+                temp_size = 1.5;
+                temp_bailout = 100;
+                break;
+            case FORMULA12:
+                temp_xCenter = 0;
+                temp_yCenter = 0;
+                temp_size = 12;
+                temp_bailout = 8;
+                break;
+            case FORMULA13:
+                temp_xCenter = 0;
+                temp_yCenter = 0;
+                temp_size = 6;
+                temp_bailout = 4;
+                break;
+            case FORMULA14:
+                temp_xCenter = 0;
+                temp_yCenter = 0;
+                temp_size = 6;
+                temp_bailout = 4;
+                break;
+            case FORMULA15:
+                temp_xCenter = 0;
+                temp_yCenter = 0;
+                temp_size = 6;
+                temp_bailout = 4;
+                break;
+            case FORMULA16:
+                temp_xCenter = 0;
+                temp_yCenter = 0;
+                temp_size = 6;
+                temp_bailout = 4;
+                break;
+            case FORMULA17:
+                temp_xCenter = 0;
+                temp_yCenter = 0;
+                temp_size = 6;
+                temp_bailout = 4;
+                break;
+            case FORMULA18:
+                temp_xCenter = 0;
+                temp_yCenter = 0;
+                temp_size = 6;
+                temp_bailout = 8;
+                break;
+            case FORMULA19:
+                temp_xCenter = 0;
+                temp_yCenter = 0;
+                temp_size = 6;
+                temp_bailout = 4;
+                break;
+            case FORMULA20:
+                temp_xCenter = 0;
+                temp_yCenter = 0;
+                temp_size = 6;
+                temp_bailout = 2;
+                break;
+            case FORMULA21:
+                temp_xCenter = 0;
+                temp_yCenter = 0;
+                temp_size = 6;
+                temp_bailout = 2;
+                break;
+            case FORMULA22:
+                temp_xCenter = 0;
+                temp_yCenter = 0;
+                temp_size = 6;
+                temp_bailout = 2;
+                break;
+            case FORMULA23:
+                temp_xCenter = 0;
+                temp_yCenter = 0;
+                temp_size = 6;
+                temp_bailout = 2;
+                break;
+            case FORMULA24:
+                temp_xCenter = 0;
+                temp_yCenter = 0;
+                temp_size = 6;
+                temp_bailout = 2;
+                break;
+            case FORMULA25:
+                temp_xCenter = 0;
+                temp_yCenter = 0;
+                temp_size = 6;
+                temp_bailout = 2;
+                break;
+            case FORMULA26:
+                temp_xCenter = 0;
+                temp_yCenter = 0;
+                temp_size = 6;
+                temp_bailout = 2;
+                break;
+            case FROTHY_BASIN:
+                temp_xCenter = 0;
+                temp_yCenter = 0;
+                temp_size = 6;
+                temp_bailout = 2;
+                break;
+            case SZEGEDI_BUTTERFLY1:
+                temp_xCenter = 0;
+                temp_yCenter = 0;
+                temp_size = 12;
+                temp_bailout = 4;
+                break;
+            case SZEGEDI_BUTTERFLY2:
+                temp_xCenter = 0;
+                temp_yCenter = 0;
+                temp_size = 12;
+                temp_bailout = 4;
+                break;
             default:
                 temp_xCenter = 0;
                 temp_yCenter = 0;
@@ -9415,10 +11253,10 @@ public class MainWindow extends JFrame {
         for(int i = 0; i < n; i++) {
            for(int j = 0; j < n; j++) {
                if(color_choice != palette.length - 1) {
-                   threads[i][j] = new Palette(color_choice, j * temp_image_size / n, (j + 1) * temp_image_size / n, i * temp_image_size / n, (i + 1) * temp_image_size / n, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, bailout_test_algorithm, temp_bailout, ptr, fractal_color, fast_julia_filters, fast_julia_image, boundary_tracing, periodicity_checking, plane_type, filters,  out_coloring_algorithm, in_coloring_algorithm, burning_ship, function, z_exponent, color_cycling_location, rotation_vals, coefficients, temp_xJuliaCenter, temp_yJuliaCenter);
+                   threads[i][j] = new Palette(color_choice, j * temp_image_size / n, (j + 1) * temp_image_size / n, i * temp_image_size / n, (i + 1) * temp_image_size / n, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, bailout_test_algorithm, temp_bailout, ptr, fractal_color, fast_julia_filters, fast_julia_image, boundary_tracing, periodicity_checking, plane_type, filters,  out_coloring_algorithm, in_coloring_algorithm, burning_ship, function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, coefficients, temp_xJuliaCenter, temp_yJuliaCenter);
                }
                else {
-                   threads[i][j] = new CustomPalette(custom_palette, j * temp_image_size / n, (j + 1) * temp_image_size / n, i * temp_image_size / n, (i + 1) * temp_image_size / n, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, bailout_test_algorithm, temp_bailout, ptr, fractal_color, fast_julia_filters, fast_julia_image, boundary_tracing, periodicity_checking, plane_type, filters,  out_coloring_algorithm, in_coloring_algorithm, burning_ship, function, z_exponent, color_cycling_location, rotation_vals, coefficients, temp_xJuliaCenter, temp_yJuliaCenter);
+                   threads[i][j] = new CustomPalette(custom_palette, j * temp_image_size / n, (j + 1) * temp_image_size / n, i * temp_image_size / n, (i + 1) * temp_image_size / n, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, bailout_test_algorithm, temp_bailout, ptr, fractal_color, fast_julia_filters, fast_julia_image, boundary_tracing, periodicity_checking, plane_type, filters,  out_coloring_algorithm, in_coloring_algorithm, burning_ship, function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, coefficients, temp_xJuliaCenter, temp_yJuliaCenter);
                }
            }
        }
@@ -9857,6 +11695,8 @@ public class MainWindow extends JFrame {
                fractal_functions[HOUSEHOLDERPOLY].setEnabled(true);   
            }
            fractal_functions[SIERPINSKI_GASKET].setEnabled(true);
+           
+           mode.setText("Normal mode");
  
            threads = new ThreadDraw[n][n];
 
@@ -9905,11 +11745,14 @@ public class MainWindow extends JFrame {
                 }
            }
 
+
            julia_grid_first_dimension = temp;
            threads = new ThreadDraw[julia_grid_first_dimension][julia_grid_first_dimension];
            
            main_panel.repaint();
            JOptionPane.showMessageDialog(scroll_pane, "The image will be created using " + julia_grid_first_dimension + "x" + julia_grid_first_dimension + "\nJulia images in a 2D grid.", "Info", JOptionPane.INFORMATION_MESSAGE);
+           
+           mode.setText("Julia Map mode");
            
            setOptions(false);
            
@@ -10861,10 +12704,10 @@ public class MainWindow extends JFrame {
            for(int i = 0; i < n; i++) {
                for(int j = 0; j < n; j++) {
                    if(color_choice != palette.length - 1) {
-                       threads[i][j] = new Palette(color_choice, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, ptr, fractal_color, image, filters, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type,  burning_ship, function, z_exponent, color_cycling_location, rotation_vals, coefficients);
+                       threads[i][j] = new Palette(color_choice, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, ptr, fractal_color, image, filters, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type,  burning_ship, function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, coefficients);
                    }
                    else {
-                       threads[i][j] = new CustomPalette(custom_palette, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout,  ptr, fractal_color, image, filters, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type,  burning_ship, function, z_exponent, color_cycling_location, rotation_vals, coefficients);
+                       threads[i][j] = new CustomPalette(custom_palette, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout,  ptr, fractal_color, image, filters, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type,  burning_ship, function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, coefficients);
                    }
                }
            }
@@ -11103,58 +12946,47 @@ public class MainWindow extends JFrame {
             perturbation_vals[0] = 0;
             perturbation_vals[1] = 0;
 
-            String ans;
-
-
-            ans = (String) JOptionPane.showInputDialog(scroll_pane, "Set the real part of the perturbation.", "Real", JOptionPane.QUESTION_MESSAGE, null, null, perturbation_vals[0]);
-
-
-            try {
-                perturbation_vals[0] = Double.parseDouble(ans);
-            }
-            catch(Exception ex) {
-                if(ans == null) {
-                    main_panel.repaint();
-                    perturbation_opt.setSelected(false);
-                    perturbation_vals[0] = 0;
-                    perturbation_vals[1] = 0;
-                    return;
-                }
-                else {
-                    JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-                    perturbation_opt.setSelected(false);
-                    perturbation_vals[0] = 0;
-                    perturbation_vals[1] = 0;
-                    main_panel.repaint();
-                    return;
-                }
-            }
-
-            main_panel.repaint();
-            ans = (String) JOptionPane.showInputDialog(scroll_pane, "Set the imaginary part of the perturbation.", "Imaginary", JOptionPane.QUESTION_MESSAGE, null, null, perturbation_vals[1]);
-
-
-            try { 
-                perturbation_vals[1] = -Double.parseDouble(ans); //reversed axis 
-            }
-            catch(Exception ex) {
-                if(ans == null) {
-                    perturbation_vals[0] = 0;
-                    perturbation_vals[1] = 0;
-                    main_panel.repaint();
-                    perturbation_opt.setSelected(false);
-                    return;
-                }
-                else {
-                    JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-                    perturbation_opt.setSelected(false);
-                    perturbation_vals[0] = 0;
-                    perturbation_vals[1] = 0;
-                    main_panel.repaint();
-                    return;
-                }
-            }
             
+            JTextField field_real = new JTextField();
+            field_real.setText("" + perturbation_vals[0]);
+            field_real.addAncestorListener(new RequestFocusListener());
+            
+            JTextField field_imaginary = new JTextField();
+            field_imaginary.setText("" + perturbation_vals[1]);
+            
+            Object[] message = { 
+                "Set the real and imaginary part of the perturbation.",
+                "Real:", field_real,
+                "Imaginary:", field_imaginary, 
+            };
+            
+
+            int res = JOptionPane.showConfirmDialog(scroll_pane, message, "Perturbation", JOptionPane.OK_CANCEL_OPTION);
+                
+            
+            if(res == JOptionPane.OK_OPTION) {
+                try {
+                    perturbation_vals[0] = Double.parseDouble(field_real.getText());
+                    perturbation_vals[1] = Double.parseDouble(field_imaginary.getText());
+                }
+                catch(Exception ex) {
+                    JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
+                    perturbation_opt.setSelected(false);
+                    perturbation_vals[0] = 0;
+                    perturbation_vals[1] = 0;
+                    main_panel.repaint();
+                    return;
+                }
+            }
+            else {
+                main_panel.repaint();
+                perturbation_opt.setSelected(false);
+                perturbation_vals[0] = 0;
+                perturbation_vals[1] = 0;
+                return;
+            }
+
+
             perturbation = true;
             julia_opt.setEnabled(false);
             julia_map_opt.setEnabled(false);
@@ -11248,24 +13080,29 @@ public class MainWindow extends JFrame {
             initial_vals[0] = 0;
             initial_vals[1] = 0;
 
-            String ans;
+            JTextField field_real = new JTextField();
+            field_real.setText("" + initial_vals[0]);
+            field_real.addAncestorListener(new RequestFocusListener());
+            
+            JTextField field_imaginary = new JTextField();
+            field_imaginary.setText("" + initial_vals[1]);
+            
+            Object[] message = { 
+                "Set the real and imaginary part of the initial value.",
+                "Real:", field_real,
+                "Imaginary:", field_imaginary, 
+            };
+            
 
-
-            ans = (String) JOptionPane.showInputDialog(scroll_pane, "Set the real part of the initial value.", "Real", JOptionPane.QUESTION_MESSAGE, null, null, initial_vals[0]);
-
-
-            try {
-                initial_vals[0] = Double.parseDouble(ans);
-            }
-            catch(Exception ex) {
-                if(ans == null) {
-                    main_panel.repaint();
-                    init_val_opt.setSelected(false);
-                    initial_vals[0] = 0;
-                    initial_vals[1] = 0;
-                    return;
+            int res = JOptionPane.showConfirmDialog(scroll_pane, message, "Initial Value", JOptionPane.OK_CANCEL_OPTION);
+                
+            
+            if(res == JOptionPane.OK_OPTION) {
+                try {
+                    initial_vals[0] = Double.parseDouble(field_real.getText());
+                    initial_vals[1] = Double.parseDouble(field_imaginary.getText());
                 }
-                else {
+                catch(Exception ex) {
                     JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
                     init_val_opt.setSelected(false);
                     initial_vals[0] = 0;
@@ -11274,30 +13111,12 @@ public class MainWindow extends JFrame {
                     return;
                 }
             }
-
-            main_panel.repaint();
-            ans = (String) JOptionPane.showInputDialog(scroll_pane, "Set the imaginary part of the initial value.", "Imaginary", JOptionPane.QUESTION_MESSAGE, null, null, initial_vals[1]);
-
-
-            try { 
-                initial_vals[1] = -Double.parseDouble(ans); //reversed axis 
-            }
-            catch(Exception ex) {
-                if(ans == null) {
-                    initial_vals[0] = 0;
-                    initial_vals[1] = 0;
-                    main_panel.repaint();
-                    init_val_opt.setSelected(false);
-                    return;
-                }
-                else {
-                    JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-                    init_val_opt.setSelected(false);
-                    initial_vals[0] = 0;
-                    initial_vals[1] = 0;
-                    main_panel.repaint();
-                    return;
-                }
+            else {
+                main_panel.repaint();
+                init_val_opt.setSelected(false);
+                initial_vals[0] = 0;
+                initial_vals[1] = 0;
+                return;
             }
             
             init_val = true;

@@ -30,6 +30,12 @@ import fractalzoomer.planes.MuPlane;
 import fractalzoomer.bailout_tests.StripBailoutTest;
 import fractalzoomer.bailout_tests.SquareBailoutTest;
 import fractalzoomer.fractal_options.DefaultInitialValue;
+import fractalzoomer.planes.FoldInPlane;
+import fractalzoomer.planes.FoldOutPlane;
+import fractalzoomer.planes.FoldRightPlane;
+import fractalzoomer.planes.FoldUpPlane;
+import fractalzoomer.planes.InversedLambda2Plane;
+import fractalzoomer.planes.MuSquaredImaginaryPlane;
 import fractalzoomer.planes.SqrtPlane;
 import fractalzoomer.planes.TanPlane;
 import fractalzoomer.planes.SinhPlane;
@@ -89,6 +95,9 @@ public abstract class Fractal {
             case MainWindow.MU_SQUARED_PLANE:
                 plane = new MuSquaredPlane();
                 break;
+            case MainWindow.MU_SQUARED_IMAGINARY_PLANE:
+                plane = new MuSquaredImaginaryPlane();
+                break;
             case MainWindow.INVERSED_MU_PLANE:
                 plane = new InversedMuPlane();
                 break;
@@ -106,6 +115,9 @@ public abstract class Fractal {
                 break;
             case MainWindow.INVERSED_LAMBDA_PLANE:
                 plane = new InversedLambdaPlane();
+                break;
+            case MainWindow.INVERSED_LAMBDA2_PLANE:
+                plane = new InversedLambda2Plane();
                 break;
             case MainWindow.EXP_PLANE:
                 plane = new ExpPlane();
@@ -142,6 +154,18 @@ public abstract class Fractal {
                 break;
             case MainWindow.ABS_PLANE:
                 plane = new AbsPlane();
+                break;
+            case MainWindow.FOLDUP_PLANE:
+                plane = new FoldUpPlane();
+                break;
+            case MainWindow.FOLDRIGHT_PLANE:
+                plane = new FoldRightPlane();
+                break;
+            case MainWindow.FOLDIN_PLANE:
+                plane = new FoldInPlane();
+                break;
+            case MainWindow.FOLDOUT_PLANE:
+                plane = new FoldOutPlane();
                 break;
                 
         }
@@ -190,6 +214,9 @@ public abstract class Fractal {
             case MainWindow.MU_SQUARED_PLANE:
                 plane = new MuSquaredPlane();
                 break;
+            case MainWindow.MU_SQUARED_IMAGINARY_PLANE:
+                plane = new MuSquaredImaginaryPlane();
+                break;
             case MainWindow.INVERSED_MU_PLANE:
                 plane = new InversedMuPlane();
                 break;
@@ -207,6 +234,9 @@ public abstract class Fractal {
                 break;
             case MainWindow.INVERSED_LAMBDA_PLANE:
                 plane = new InversedLambdaPlane();
+                break;
+            case MainWindow.INVERSED_LAMBDA2_PLANE:
+                plane = new InversedLambda2Plane();
                 break;
             case MainWindow.EXP_PLANE:
                 plane = new ExpPlane();
@@ -244,6 +274,18 @@ public abstract class Fractal {
             case MainWindow.ABS_PLANE:
                 plane = new AbsPlane();
                 break;
+            case MainWindow.FOLDUP_PLANE:
+                plane = new FoldUpPlane();
+                break;
+            case MainWindow.FOLDRIGHT_PLANE:
+                plane = new FoldRightPlane();
+                break;
+            case MainWindow.FOLDIN_PLANE:
+                plane = new FoldInPlane();
+                break;
+            case MainWindow.FOLDOUT_PLANE:
+                plane = new FoldOutPlane();
+                break;
                 
         }
         
@@ -263,7 +305,7 @@ public abstract class Fractal {
 
         
         //Check for period
-        if(z.sub(period).norm_squared() < getPeriodSize()) {
+        if(z.distance_squared(period) < getPeriodSize()) {
             return true;
         }
 
@@ -354,9 +396,7 @@ public abstract class Fractal {
             }
             zold = complex[0];
             function(complex);
-            
-            
-            
+        
         }
 
         

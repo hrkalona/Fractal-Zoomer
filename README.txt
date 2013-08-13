@@ -7,7 +7,7 @@ Boundary Tracing
 Periodicity Checking
 
 Functions:
-Over 50 different fractal generating functions
+Over 85 different fractal generating functions
 
 Includes:
 Plane transformations

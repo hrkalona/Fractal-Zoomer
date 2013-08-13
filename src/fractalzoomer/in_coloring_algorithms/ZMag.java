@@ -21,11 +21,11 @@ public class ZMag extends InColorAlgorithm {
   public ZMag(int out_coloring_algorithm) { 
         super();
         
-        if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-            option = new InColorOptionDouble();
+        if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+            option = new InColorOptionInt();
         }
         else {
-            option = new InColorOptionInt();
+            option = new InColorOptionDouble();
         }
   
     }
@@ -33,7 +33,7 @@ public class ZMag extends InColorAlgorithm {
     @Override
     public double getResult(Object[] object) {
         
-        return option.getFinalResult(((Complex)object[1]).norm_squared() * ((Integer)object[0] / 3.0) + 100920);
+        return option.getFinalResult(((Complex)object[1]).norm_squared() * ((Integer)object[0] / 3.0) + 100820);
 
     }
     

@@ -36,7 +36,7 @@ public class SmoothMagnet1 extends Smooth {
             return (Integer)object[0] + 100234 + (log_bailout_squared - temp) / (Math.log(temp2) - temp);
         }
         else {
-            return (Integer)object[0] - (log_convergent_bailout - (Double)object[3]) / ((Double)object[3] - Math.log(((Complex)object[1]).sub((Complex)object[4]).norm_squared())) + 100800;
+            return (Integer)object[0] - (log_convergent_bailout - (Double)object[3]) / ((Double)object[3] - Math.log(((Complex)object[1]).distance_squared((Complex)object[4]))) + 100800;
         }
 
     }

@@ -21,6 +21,7 @@ public class SettingsFractals implements Serializable {
   private double yCenter;
   private double size;
   private double z_exponent;
+  private double[] z_exponent_complex;
   private double bailout;
   private int max_iterations;
   private int color_choice;
@@ -38,7 +39,7 @@ public class SettingsFractals implements Serializable {
   private boolean init_val;
   private double[] initial_vals;
 
-    public SettingsFractals(double xCenter, double yCenter, double size, int max_iterations, int color_choice, Color fractal_color, int out_coloring_algorithm, int in_coloring_algorithm, int function, int bailout_test_algorithm, double bailout, int plane_type, boolean burning_ship, double z_exponent, int color_cycling_location, double[] coefficients, int[][] custom_palette, int rotation, boolean perturbation, double[] perturbation_vals, boolean init_val, double[] initial_vals) {
+    public SettingsFractals(double xCenter, double yCenter, double size, int max_iterations, int color_choice, Color fractal_color, int out_coloring_algorithm, int in_coloring_algorithm, int function, int bailout_test_algorithm, double bailout, int plane_type, boolean burning_ship, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] coefficients, int[][] custom_palette, int rotation, boolean perturbation, double[] perturbation_vals, boolean init_val, double[] initial_vals) {
 
         this.xCenter = xCenter;
         this.yCenter = yCenter;
@@ -54,6 +55,7 @@ public class SettingsFractals implements Serializable {
         this.bailout = bailout;
         this.plane_type = plane_type;
         this.z_exponent = z_exponent;
+        this.z_exponent_complex = z_exponent_complex;
         this.color_cycling_location = color_cycling_location;
         this.coefficients = coefficients;
         this.custom_palette = custom_palette;
@@ -128,6 +130,12 @@ public class SettingsFractals implements Serializable {
     public double getZExponent() {
 
         return z_exponent;
+        
+    }
+
+    public double[] getZExponentComplex() {
+
+        return z_exponent_complex;
         
     }
     

@@ -17,9 +17,9 @@ import java.awt.image.BufferedImage;
  */
 public class CustomPalette extends ThreadDraw {
     
-     public CustomPalette(int[][] custom_palette, int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm,  double bailout, MainWindow ptr, Color fractal_color, BufferedImage image, boolean[] filters, int out_coloring_algorithm, int in_coloring_algorithm, boolean boundary_tracing, boolean periodicity_checking, int plane_type,  boolean burning_ship, int function, double z_exponent, int color_cycling_location, double[] rotation_vals, boolean perturbation, double[] perturbation_vals, boolean init_val, double[] initial_vals, double[] coefficients) {
+     public CustomPalette(int[][] custom_palette, int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm,  double bailout, MainWindow ptr, Color fractal_color, BufferedImage image, boolean[] filters, int out_coloring_algorithm, int in_coloring_algorithm, boolean boundary_tracing, boolean periodicity_checking, int plane_type,  boolean burning_ship, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] rotation_vals, boolean perturbation, double[] perturbation_vals, boolean init_val, double[] initial_vals, double[] coefficients) {
 
-        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, bailout_test_algorithm,  bailout, ptr, fractal_color, image, filters, out_coloring_algorithm, in_coloring_algorithm, boundary_tracing, periodicity_checking, plane_type,  burning_ship, function, z_exponent, color_cycling_location, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals, coefficients);
+        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, bailout_test_algorithm,  bailout, ptr, fractal_color, image, filters, out_coloring_algorithm, in_coloring_algorithm, boundary_tracing, periodicity_checking, plane_type,  burning_ship, function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals, coefficients);
 
         int n = 0, counter = 0;
         for (int i = 0; i < custom_palette.length; i++) { // get the number of all colors
@@ -65,18 +65,18 @@ public class CustomPalette extends ThreadDraw {
             n += c1[0];
         }
 
-        if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-            palette_color = new PaletteColorSmooth(palette);
+        if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+            palette_color = new PaletteColorNormal(palette);
         }
         else {
-            palette_color = new PaletteColorNormal(palette);
+            palette_color = new PaletteColorSmooth(palette);
         }
 
     }
 
-    public CustomPalette(int[][] custom_palette, int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm,  double bailout, MainWindow ptr, Color fractal_color, BufferedImage image, boolean[] filters, int out_coloring_algorithm, int in_coloring_algorithm, boolean boundary_tracing, boolean periodicity_checking, int plane_type,  boolean burning_ship, int function, double z_exponent, int color_cycling_location, double[] rotation_vals, double[] coefficients, double xJuliaCenter, double yJuliaCenter) {
+    public CustomPalette(int[][] custom_palette, int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm,  double bailout, MainWindow ptr, Color fractal_color, BufferedImage image, boolean[] filters, int out_coloring_algorithm, int in_coloring_algorithm, boolean boundary_tracing, boolean periodicity_checking, int plane_type,  boolean burning_ship, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] rotation_vals, double[] coefficients, double xJuliaCenter, double yJuliaCenter) {
 
-        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, bailout_test_algorithm,  bailout, ptr, fractal_color, image, filters, out_coloring_algorithm, in_coloring_algorithm, boundary_tracing, periodicity_checking, plane_type,  burning_ship, function, z_exponent, color_cycling_location, rotation_vals, coefficients, xJuliaCenter, yJuliaCenter);
+        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, bailout_test_algorithm,  bailout, ptr, fractal_color, image, filters, out_coloring_algorithm, in_coloring_algorithm, boundary_tracing, periodicity_checking, plane_type,  burning_ship, function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, coefficients, xJuliaCenter, yJuliaCenter);
 
         int n = 0, counter = 0;
         for (int i = 0; i < custom_palette.length; i++) { // get the number of all colors
@@ -115,18 +115,18 @@ public class CustomPalette extends ThreadDraw {
         }
 
 
-        if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-            palette_color = new PaletteColorSmooth(palette);
+        if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+            palette_color = new PaletteColorNormal(palette);
         }
         else {
-            palette_color = new PaletteColorNormal(palette);
+            palette_color = new PaletteColorSmooth(palette);
         }
 
     }
     
-    public CustomPalette(int[][] custom_palette, int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout,  MainWindow ptr, Color fractal_color, BufferedImage image, boolean[] filters, int out_coloring_algorithm, int in_coloring_algorithm, boolean periodicity_checking, int plane_type,  boolean burning_ship, int function, double z_exponent, int color_cycling_location, double[] rotation_vals, double[] coefficients) {
+    public CustomPalette(int[][] custom_palette, int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout,  MainWindow ptr, Color fractal_color, BufferedImage image, boolean[] filters, int out_coloring_algorithm, int in_coloring_algorithm, boolean periodicity_checking, int plane_type,  boolean burning_ship, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] rotation_vals, double[] coefficients) {
 
-        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout,  ptr, fractal_color, image, filters, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type,  burning_ship, function, z_exponent, color_cycling_location, rotation_vals, coefficients);
+        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout,  ptr, fractal_color, image, filters, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type,  burning_ship, function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, coefficients);
         
         int n = 0, counter = 0;
         for (int i = 0; i < custom_palette.length; i++) { // get the number of all colors
@@ -164,18 +164,18 @@ public class CustomPalette extends ThreadDraw {
             n += c1[0];
         }
         
-        if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-            palette_color = new PaletteColorSmooth(palette);
+        if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+            palette_color = new PaletteColorNormal(palette);
         }
         else {
-            palette_color = new PaletteColorNormal(palette);
+            palette_color = new PaletteColorSmooth(palette);
         }
 
     }
 
-    public CustomPalette(int[][] custom_palette, int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, MainWindow ptr, Color fractal_color, boolean fast_julia_filters, BufferedImage image, boolean boundary_tracing, boolean periodicity_checking, int plane_type, boolean[] filters,  int out_coloring_algorithm, int in_coloring_algorithm, boolean burning_ship, int function, double z_exponent, int color_cycling_location, double[] rotation_vals, double[] coefficients, double xJuliaCenter, double yJuliaCenter) {
+    public CustomPalette(int[][] custom_palette, int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, MainWindow ptr, Color fractal_color, boolean fast_julia_filters, BufferedImage image, boolean boundary_tracing, boolean periodicity_checking, int plane_type, boolean[] filters,  int out_coloring_algorithm, int in_coloring_algorithm, boolean burning_ship, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] rotation_vals, double[] coefficients, double xJuliaCenter, double yJuliaCenter) {
 
-        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, ptr, fractal_color, fast_julia_filters, image, boundary_tracing, periodicity_checking, plane_type, out_coloring_algorithm, in_coloring_algorithm, filters,  burning_ship, function, z_exponent, color_cycling_location, rotation_vals, coefficients, xJuliaCenter, yJuliaCenter);
+        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, ptr, fractal_color, fast_julia_filters, image, boundary_tracing, periodicity_checking, plane_type, out_coloring_algorithm, in_coloring_algorithm, filters,  burning_ship, function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, coefficients, xJuliaCenter, yJuliaCenter);
 
         int n = 0, counter = 0;
         for (int i = 0; i < custom_palette.length; i++) { // get the number of all colors
@@ -213,11 +213,11 @@ public class CustomPalette extends ThreadDraw {
             n += c1[0];
         }
 
-        if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-            palette_color = new PaletteColorSmooth(palette);
+        if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+            palette_color = new PaletteColorNormal(palette);
         }
         else {
-            palette_color = new PaletteColorNormal(palette);
+            palette_color = new PaletteColorSmooth(palette);
         }
 
     }
@@ -262,11 +262,11 @@ public class CustomPalette extends ThreadDraw {
             n += c1[0];
         }
 
-        if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-            palette_color = new PaletteColorSmooth(palette);
+        if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+            palette_color = new PaletteColorNormal(palette);
         }
         else {
-            palette_color = new PaletteColorNormal(palette);
+            palette_color = new PaletteColorSmooth(palette);
         }
 
     }
@@ -312,11 +312,11 @@ public class CustomPalette extends ThreadDraw {
             n += c1[0];
         }
         
-        if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-            palette_color = new PaletteColorSmooth(palette);
+        if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+            palette_color = new PaletteColorNormal(palette);
         }
         else {
-            palette_color = new PaletteColorNormal(palette);
+            palette_color = new PaletteColorSmooth(palette);
         }
 
     }

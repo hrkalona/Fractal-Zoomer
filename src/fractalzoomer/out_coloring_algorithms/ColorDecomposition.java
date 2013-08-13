@@ -28,7 +28,7 @@ public class ColorDecomposition extends OutColorAlgorithm {
     @Override
     public double getResult(Object[] object) {
 
-        return (int)((Math.atan2(((Complex)object[1]).getIm(), ((Complex)object[1]).getRe()) / (pi2)  + 0.75) * pi59) + 100800;
+        return (Math.atan2(((Complex)object[1]).getIm(), ((Complex)object[1]).getRe()) / (pi2)  + 0.75) * pi59 + 100800;
 
     }
     

@@ -24,7 +24,7 @@ public class EscapeTimePlusIm extends OutColorAlgorithm {
 
         double temp2 = ((Complex)object[1]).getIm();
         double temp3 = ((Integer)object[0]) + temp2 + 100800;
-        return (int)(Math.abs(temp3));
+        return Math.abs(temp3);
 
     }
     

@@ -11,6 +11,33 @@ import fractalzoomer.functions.math.Cos;
 import fractalzoomer.functions.math.Coth;
 import fractalzoomer.functions.math.Exp;
 import fractalzoomer.functions.Fractal;
+import fractalzoomer.functions.formulas.m_like_generalization.c_azb_dze.Formula10;
+import fractalzoomer.functions.formulas.m_like_generalization.c_azb_dze.Formula11;
+import fractalzoomer.functions.formulas.m_like_generalization.c_azb_dze.Formula12;
+import fractalzoomer.functions.formulas.m_like_generalization.c_azb_dze_f_g.Formula13;
+import fractalzoomer.functions.formulas.m_like_generalization.c_azb_dze_f_g.Formula15;
+import fractalzoomer.functions.formulas.m_like_generalization.c_azb_dze_f_g.Formula16;
+import fractalzoomer.functions.formulas.m_like_generalization.c_azb_dze_f_g.Formula17;
+import fractalzoomer.functions.formulas.m_like_generalization.c_azb_dze_f_g.Formula18;
+import fractalzoomer.functions.formulas.m_like_generalization.c_azb_dze_f_g.Formula14;
+import fractalzoomer.functions.formulas.kaliset.Formula19;
+import fractalzoomer.functions.formulas.m_like_generalization.c_azb_dze.Formula2;
+import fractalzoomer.functions.formulas.kaliset.Formula20;
+import fractalzoomer.functions.formulas.kaliset.Formula21;
+import fractalzoomer.functions.formulas.kaliset.Formula22;
+import fractalzoomer.functions.formulas.kaliset.Formula24;
+import fractalzoomer.functions.formulas.kaliset.Formula25;
+import fractalzoomer.functions.formulas.kaliset.Formula26;
+import fractalzoomer.functions.formulas.kaliset.Formula23;
+import fractalzoomer.functions.formulas.m_like_generalization.Formula1;
+import fractalzoomer.functions.formulas.m_like_generalization.c_azb_dze.Formula3;
+import fractalzoomer.functions.formulas.m_like_generalization.c_azb_dze.Formula4;
+import fractalzoomer.functions.formulas.m_like_generalization.c_azb_dze.Formula5;
+import fractalzoomer.functions.formulas.m_like_generalization.c_azb_dze.Formula6;
+import fractalzoomer.functions.formulas.m_like_generalization.c_azb_dze.Formula7;
+import fractalzoomer.functions.formulas.m_like_generalization.c_azb_dze.Formula8;
+import fractalzoomer.functions.formulas.m_like_generalization.c_azb_dze.Formula9;
+import fractalzoomer.functions.general.FrothyBasin;
 import fractalzoomer.functions.halley.HalleySin;
 import fractalzoomer.functions.halley.Halley4;
 import fractalzoomer.functions.halley.HalleyPoly;
@@ -59,10 +86,13 @@ import fractalzoomer.functions.schroder.SchroderPoly;
 import fractalzoomer.functions.schroder.SchroderCos;
 import fractalzoomer.functions.schroder.SchroderGeneralized8;
 import fractalzoomer.functions.general.SierpinskiGasket;
+import fractalzoomer.functions.mandelbrot.MandelbrotWth;
 import fractalzoomer.functions.math.Sinh;
 import fractalzoomer.functions.math.Sin;
 import fractalzoomer.functions.math.Tan;
 import fractalzoomer.functions.math.Tanh;
+import fractalzoomer.functions.szegedi_butterfly.SzegediButterfly1;
+import fractalzoomer.functions.szegedi_butterfly.SzegediButterfly2;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
@@ -90,12 +120,12 @@ public class DrawOrbit extends Thread {
   protected int image_size;
   protected Color orbit_color;
 
-    public DrawOrbit(double xCenter, double yCenter, double size, int max_iterations, int pixel_x, int pixel_y, int image_size, BufferedImage image, MainWindow ptr, Color orbit_color, boolean orbit_style, int plane_type, boolean burning_ship, boolean grid, int function , double z_exponent, double[] rotation_vals, boolean perturbation, double[] perturbation_vals, boolean init_val, double[] initial_vals, double[] coefficients) {
+    public DrawOrbit(double xCenter, double yCenter, double size, int max_iterations, int pixel_x, int pixel_y, int image_size, BufferedImage image, MainWindow ptr, Color orbit_color, boolean orbit_style, int plane_type, boolean burning_ship, boolean grid, int function , double z_exponent, double[] z_exponent_complex, double[] rotation_vals, boolean perturbation, double[] perturbation_vals, boolean init_val, double[] initial_vals, double[] coefficients) {
 
         this.image_size = image_size;
         
-        double xPixel = xCenter - size * 0.5 + size * pixel_x / (image_size);
-        double yPixel = yCenter - size * 0.5 + size * pixel_y / (image_size);
+        double xPixel = xCenter - size * 0.5 + size * pixel_x / image_size;
+        double yPixel = yCenter - size * 0.5 + size * pixel_y / image_size;
 
         complex_orbit = new ArrayList<Complex>(max_iterations + 1);
         complex_orbit.add(new Complex(xPixel, yPixel));
@@ -130,6 +160,9 @@ public class DrawOrbit extends Thread {
                 break;
             case MainWindow.MANDELBROTNTH:
                 pixel_orbit = new MandelbrotNth(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals, burning_ship, z_exponent);
+                break;
+            case MainWindow.MANDELBROTWTH:
+                pixel_orbit = new MandelbrotWth(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals, burning_ship, z_exponent_complex);
                 break;
             case MainWindow.MANDELPOLY:
                 pixel_orbit = new MandelbrotPoly(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals, burning_ship, coefficients);
@@ -281,6 +314,93 @@ public class DrawOrbit extends Thread {
             case MainWindow.COTH:
                 pixel_orbit = new Coth(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
                 break;
+            case MainWindow.FORMULA1:
+                pixel_orbit = new Formula1(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
+                break;
+            case MainWindow.FORMULA2:
+                pixel_orbit = new Formula2(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
+                break;
+            case MainWindow.FORMULA3:
+                pixel_orbit = new Formula3(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
+                break;
+            case MainWindow.FORMULA4:
+                pixel_orbit = new Formula4(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
+                break;
+            case MainWindow.FORMULA5:
+                pixel_orbit = new Formula5(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
+                break;
+            case MainWindow.FORMULA6:
+                pixel_orbit = new Formula6(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
+                break;
+            case MainWindow.FORMULA7:
+                pixel_orbit = new Formula7(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
+                break;
+            case MainWindow.FORMULA8:
+                pixel_orbit = new Formula8(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
+                break;
+            case MainWindow.FORMULA9:
+                pixel_orbit = new Formula9(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
+                break;
+            case MainWindow.FORMULA10:
+                pixel_orbit = new Formula10(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
+                break;
+            case MainWindow.FORMULA11:
+                pixel_orbit = new Formula11(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
+                break;
+            case MainWindow.FORMULA12:
+                pixel_orbit = new Formula12(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
+                break;
+            case MainWindow.FORMULA13:
+                pixel_orbit = new Formula13(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
+                break;
+            case MainWindow.FORMULA14:
+                pixel_orbit = new Formula14(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
+                break;
+            case MainWindow.FORMULA15:
+                pixel_orbit = new Formula15(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
+                break;
+            case MainWindow.FORMULA16:
+                pixel_orbit = new Formula16(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
+                break;
+            case MainWindow.FORMULA17:
+                pixel_orbit = new Formula17(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
+                break;
+            case MainWindow.FORMULA18:
+                pixel_orbit = new Formula18(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
+                break;
+            case MainWindow.FORMULA19:
+                pixel_orbit = new Formula19(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
+                break;
+            case MainWindow.FORMULA20:
+                pixel_orbit = new Formula20(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
+                break;
+            case MainWindow.FORMULA21:
+                pixel_orbit = new Formula21(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
+                break;
+            case MainWindow.FORMULA22:
+                pixel_orbit = new Formula22(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
+                break;
+            case MainWindow.FORMULA23:
+                pixel_orbit = new Formula23(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
+                break;
+            case MainWindow.FORMULA24:
+                pixel_orbit = new Formula24(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
+                break;
+            case MainWindow.FORMULA25:
+                pixel_orbit = new Formula25(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
+                break;
+            case MainWindow.FORMULA26:
+                pixel_orbit = new Formula26(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
+                break;
+            case MainWindow.FROTHY_BASIN:
+                pixel_orbit = new FrothyBasin(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
+                break;
+            case MainWindow.SZEGEDI_BUTTERFLY1:
+                pixel_orbit = new SzegediButterfly1(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
+                break;
+            case MainWindow.SZEGEDI_BUTTERFLY2:
+                pixel_orbit = new SzegediButterfly2(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
+                break;
                         
         }
 
@@ -294,12 +414,12 @@ public class DrawOrbit extends Thread {
 
     }
 
-    public DrawOrbit(double xCenter, double yCenter, double size, int max_iterations, int pixel_x, int pixel_y, int image_size, BufferedImage image, MainWindow ptr, Color orbit_color, boolean orbit_style, int plane_type, boolean burning_ship, boolean grid, int function , double z_exponent, double[] rotation_vals, double[] coefficients, double xJuliaCenter, double yJuliaCenter) {
+    public DrawOrbit(double xCenter, double yCenter, double size, int max_iterations, int pixel_x, int pixel_y, int image_size, BufferedImage image, MainWindow ptr, Color orbit_color, boolean orbit_style, int plane_type, boolean burning_ship, boolean grid, int function , double z_exponent, double[] z_exponent_complex, double[] rotation_vals, double[] coefficients, double xJuliaCenter, double yJuliaCenter) {
 
         this.image_size = image_size;
         
-        double xPixel = xCenter - size * 0.5 + size * pixel_x / (image_size);
-        double yPixel = yCenter - size * 0.5 + size * pixel_y / (image_size);
+        double xPixel = xCenter - size * 0.5 + size * pixel_x / image_size;
+        double yPixel = yCenter - size * 0.5 + size * pixel_y / image_size;
 
         complex_orbit = new ArrayList<Complex>(max_iterations + 1);
         complex_orbit.add(new Complex(xPixel, yPixel));
@@ -334,6 +454,9 @@ public class DrawOrbit extends Thread {
                 break;
             case MainWindow.MANDELBROTNTH:
                 pixel_orbit = new MandelbrotNth(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, burning_ship, z_exponent, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.MANDELBROTWTH:
+                pixel_orbit = new MandelbrotWth(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, burning_ship, z_exponent_complex, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.MANDELPOLY:
                 pixel_orbit = new MandelbrotPoly(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, burning_ship, coefficients, xJuliaCenter, yJuliaCenter);
@@ -397,6 +520,93 @@ public class DrawOrbit extends Thread {
                 break;
             case MainWindow.COTH:
                 pixel_orbit = new Coth(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.FORMULA1:
+                pixel_orbit = new Formula1(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.FORMULA2:
+                pixel_orbit = new Formula2(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.FORMULA3:
+                pixel_orbit = new Formula3(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.FORMULA4:
+                pixel_orbit = new Formula4(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.FORMULA5:
+                pixel_orbit = new Formula5(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.FORMULA6:
+                pixel_orbit = new Formula6(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.FORMULA7:
+                pixel_orbit = new Formula7(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.FORMULA8:
+                pixel_orbit = new Formula8(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.FORMULA9:
+                pixel_orbit = new Formula9(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.FORMULA10:
+                pixel_orbit = new Formula10(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.FORMULA11:
+                pixel_orbit = new Formula11(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.FORMULA12:
+                pixel_orbit = new Formula12(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.FORMULA13:
+                pixel_orbit = new Formula13(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.FORMULA14:
+                pixel_orbit = new Formula14(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.FORMULA15:
+                pixel_orbit = new Formula15(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.FORMULA16:
+                pixel_orbit = new Formula16(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.FORMULA17:
+                pixel_orbit = new Formula17(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.FORMULA18:
+                pixel_orbit = new Formula18(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.FORMULA19:
+                pixel_orbit = new Formula19(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.FORMULA20:
+                pixel_orbit = new Formula20(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.FORMULA21:
+                pixel_orbit = new Formula21(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.FORMULA22:
+                pixel_orbit = new Formula22(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.FORMULA23:
+                pixel_orbit = new Formula23(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.FORMULA24:
+                pixel_orbit = new Formula24(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.FORMULA25:
+                pixel_orbit = new Formula25(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.FORMULA26:
+                pixel_orbit = new Formula26(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.FROTHY_BASIN:
+                pixel_orbit = new FrothyBasin(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.SZEGEDI_BUTTERFLY1:
+                pixel_orbit = new SzegediButterfly1(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.SZEGEDI_BUTTERFLY2:
+                pixel_orbit = new SzegediButterfly2(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
                 break;
                 
         }

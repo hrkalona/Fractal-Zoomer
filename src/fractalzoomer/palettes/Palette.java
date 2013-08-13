@@ -33,9 +33,9 @@ public class Palette extends ThreadDraw {
   private static Color[] fire_palette = {new Color(0, 0, 0),new Color(26, 0, 0),new Color(53, 0, 0),new Color(80, 0, 0),new Color(107, 0, 0),new Color(133, 0, 0),new Color(160, 0, 0),new Color(187, 0, 0),new Color(214, 0, 0),new Color(219, 5, 0),new Color(224, 11, 0),new Color(229, 16, 0),new Color(234, 22, 0),new Color(239, 28, 0),new Color(244, 33, 0),new Color(249, 39, 0),new Color(255, 45, 0),new Color(255, 51, 0),new Color(255, 58, 0),new Color(255, 65, 0),new Color(255, 72, 0),new Color(255, 79, 0),new Color(255, 86, 0),new Color(255, 93, 0),new Color(255, 100, 0),new Color(255, 106, 0),new Color(255, 113, 0),new Color(255, 120, 0),new Color(255, 127, 0),new Color(255, 134, 0),new Color(255, 141, 0),new Color(255, 148, 0),new Color(255, 155, 0),new Color(255, 161, 0),new Color(255, 168, 0),new Color(255, 175, 0),new Color(255, 182, 0),new Color(255, 189, 0),new Color(255, 196, 0),new Color(255, 203, 0),new Color(255, 210, 0),new Color(255, 215, 5),new Color(255, 221, 10),new Color(255, 226, 15),new Color(255, 232, 20),new Color(255, 238, 25),new Color(255, 243, 30),new Color(255, 249, 35),new Color(255, 255, 41),new Color(223, 223, 35),new Color(191, 191, 30),new Color(159, 159, 25),new Color(127, 127, 20),new Color(95, 95, 15),new Color(63, 63, 10),new Color(31, 31, 5),};
   
 
-     public Palette(int color_choice, int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, MainWindow ptr, Color fractal_color, BufferedImage image, boolean[] filters, int out_coloring_algorithm, int in_coloring_algorithm, boolean boundary_tracing, boolean periodicity_checking, int plane_type, boolean burning_ship, int function, double z_exponent, int color_cycling_location, double[] rotation_vals, boolean perturbation, double[] perturbation_vals, boolean init_val, double[] initial_vals, double[] coefficients) {
+     public Palette(int color_choice, int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, MainWindow ptr, Color fractal_color, BufferedImage image, boolean[] filters, int out_coloring_algorithm, int in_coloring_algorithm, boolean boundary_tracing, boolean periodicity_checking, int plane_type, boolean burning_ship, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] rotation_vals, boolean perturbation, double[] perturbation_vals, boolean init_val, double[] initial_vals, double[] coefficients) {
 
-        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, ptr, fractal_color, image, filters, out_coloring_algorithm, in_coloring_algorithm, boundary_tracing, periodicity_checking, plane_type,  burning_ship, function, z_exponent, color_cycling_location, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals, coefficients);
+        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, ptr, fractal_color, image, filters, out_coloring_algorithm, in_coloring_algorithm, boundary_tracing, periodicity_checking, plane_type,  burning_ship, function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals, coefficients);
 
         /*int[][] colors = {
             {12,  0,   10,  20},
@@ -91,123 +91,123 @@ public class Palette extends ThreadDraw {
         switch (color_choice) {
             
             case 0:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(default_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(default_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(default_palette);
+                    palette_color = new PaletteColorSmooth(default_palette);
                 }
                 break;
             case 1:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(spectrum_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(spectrum_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(spectrum_palette);
+                    palette_color = new PaletteColorSmooth(spectrum_palette);
                 }
                 break;
             case 2:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(alternative_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative_palette);
+                    palette_color = new PaletteColorSmooth(alternative_palette);
                 }
                 break;
             case 3:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative2_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(alternative2_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative2_palette);
+                    palette_color = new PaletteColorSmooth(alternative2_palette);
                 }
                 break;
             case 4:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative3_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(alternative3_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative3_palette);
+                    palette_color = new PaletteColorSmooth(alternative3_palette);
                 }
                 break;
             case 5:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative4_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(alternative4_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative4_palette);
+                    palette_color = new PaletteColorSmooth(alternative4_palette);
                 }
                 break;
             case 6:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative5_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(alternative5_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative5_palette);
+                    palette_color = new PaletteColorSmooth(alternative5_palette);
                 }
                 break;   
             case 7:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative6_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(alternative6_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative6_palette);
+                    palette_color = new PaletteColorSmooth(alternative6_palette);
                 }
                 break;
             case 8:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative7_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(alternative7_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative7_palette);
+                    palette_color = new PaletteColorSmooth(alternative7_palette);
                 }
                 break;
             case 9:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(greenwhite_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(greenwhite_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(greenwhite_palette);
+                    palette_color = new PaletteColorSmooth(greenwhite_palette);
                 }
                 break;
             case 10:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(blue_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(blue_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(blue_palette);
+                    palette_color = new PaletteColorSmooth(blue_palette);
                 }
                 break;
             case 11:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(grayscale_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(grayscale_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(grayscale_palette);
+                    palette_color = new PaletteColorSmooth(grayscale_palette);
                 }
                 break;
             case 12:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(earthsky_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(earthsky_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(earthsky_palette);
+                    palette_color = new PaletteColorSmooth(earthsky_palette);
                 }
                 break;
             case 13:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(hotcold_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(hotcold_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(hotcold_palette);
+                    palette_color = new PaletteColorSmooth(hotcold_palette);
                 }
                 break;
             case 14:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(fire_palette);
+               if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(fire_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(fire_palette);
+                    palette_color = new PaletteColorSmooth(fire_palette);
                 }
                 break;
                 
@@ -215,130 +215,130 @@ public class Palette extends ThreadDraw {
 
     }
 
-    public Palette(int color_choice, int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, MainWindow ptr, Color fractal_color, BufferedImage image, boolean[] filters, int out_coloring_algorithm, int in_coloring_algorithm,  boolean boundary_tracing, boolean periodicity_checking, int plane_type, boolean burning_ship, int function, double z_exponent, int color_cycling_location, double[] rotation_vals, double[] coefficients,  double xJuliaCenter, double yJuliaCenter) {
+    public Palette(int color_choice, int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, MainWindow ptr, Color fractal_color, BufferedImage image, boolean[] filters, int out_coloring_algorithm, int in_coloring_algorithm,  boolean boundary_tracing, boolean periodicity_checking, int plane_type, boolean burning_ship, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] rotation_vals, double[] coefficients,  double xJuliaCenter, double yJuliaCenter) {
 
-        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, ptr, fractal_color, image, filters, out_coloring_algorithm, in_coloring_algorithm, boundary_tracing, periodicity_checking, plane_type,  burning_ship, function, z_exponent, color_cycling_location, rotation_vals, coefficients, xJuliaCenter, yJuliaCenter);
+        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, ptr, fractal_color, image, filters, out_coloring_algorithm, in_coloring_algorithm, boundary_tracing, periodicity_checking, plane_type,  burning_ship, function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, coefficients, xJuliaCenter, yJuliaCenter);
 
         switch (color_choice) {
             
             case 0:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(default_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(default_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(default_palette);
+                    palette_color = new PaletteColorSmooth(default_palette);
                 }
                 break;
             case 1:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(spectrum_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(spectrum_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(spectrum_palette);
+                    palette_color = new PaletteColorSmooth(spectrum_palette);
                 }
                 break;
             case 2:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(alternative_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative_palette);
+                    palette_color = new PaletteColorSmooth(alternative_palette);
                 }
                 break;
             case 3:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative2_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(alternative2_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative2_palette);
+                    palette_color = new PaletteColorSmooth(alternative2_palette);
                 }
                 break;
             case 4:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative3_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(alternative3_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative3_palette);
+                    palette_color = new PaletteColorSmooth(alternative3_palette);
                 }
                 break;
             case 5:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative4_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(alternative4_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative4_palette);
+                    palette_color = new PaletteColorSmooth(alternative4_palette);
                 }
                 break;
             case 6:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative5_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(alternative5_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative5_palette);
+                    palette_color = new PaletteColorSmooth(alternative5_palette);
                 }
                 break;   
             case 7:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative6_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(alternative6_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative6_palette);
+                    palette_color = new PaletteColorSmooth(alternative6_palette);
                 }
                 break;
             case 8:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative7_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(alternative7_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative7_palette);
+                    palette_color = new PaletteColorSmooth(alternative7_palette);
                 }
                 break;
             case 9:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(greenwhite_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(greenwhite_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(greenwhite_palette);
+                    palette_color = new PaletteColorSmooth(greenwhite_palette);
                 }
                 break;
             case 10:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(blue_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(blue_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(blue_palette);
+                    palette_color = new PaletteColorSmooth(blue_palette);
                 }
                 break;
             case 11:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(grayscale_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(grayscale_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(grayscale_palette);
+                    palette_color = new PaletteColorSmooth(grayscale_palette);
                 }
                 break;
             case 12:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(earthsky_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(earthsky_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(earthsky_palette);
+                    palette_color = new PaletteColorSmooth(earthsky_palette);
                 }
                 break;
             case 13:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(hotcold_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(hotcold_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(hotcold_palette);
+                    palette_color = new PaletteColorSmooth(hotcold_palette);
                 }
                 break;
             case 14:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(fire_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(fire_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(fire_palette);
+                    palette_color = new PaletteColorSmooth(fire_palette);
                 }
                 break;
                 
@@ -347,130 +347,130 @@ public class Palette extends ThreadDraw {
 
     }
     
-    public Palette(int color_choice, int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, MainWindow ptr, Color fractal_color, BufferedImage image, boolean[] filters, int out_coloring_algorithm, int in_coloring_algorithm,  boolean periodicity_checking, int plane_type, boolean burning_ship, int function, double z_exponent, int color_cycling_location, double[] rotation_vals, double[] coefficients) {
+    public Palette(int color_choice, int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, MainWindow ptr, Color fractal_color, BufferedImage image, boolean[] filters, int out_coloring_algorithm, int in_coloring_algorithm,  boolean periodicity_checking, int plane_type, boolean burning_ship, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] rotation_vals, double[] coefficients) {
 
-        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, ptr, fractal_color, image, filters, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type,  burning_ship, function, z_exponent, color_cycling_location, rotation_vals, coefficients);
+        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, ptr, fractal_color, image, filters, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type,  burning_ship, function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, coefficients);
         
         switch (color_choice) {
             
             case 0:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(default_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(default_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(default_palette);
+                    palette_color = new PaletteColorSmooth(default_palette);
                 }
                 break;
             case 1:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(spectrum_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(spectrum_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(spectrum_palette);
+                    palette_color = new PaletteColorSmooth(spectrum_palette);
                 }
                 break;
             case 2:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(alternative_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative_palette);
+                    palette_color = new PaletteColorSmooth(alternative_palette);
                 }
                 break;
             case 3:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative2_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(alternative2_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative2_palette);
+                    palette_color = new PaletteColorSmooth(alternative2_palette);
                 }
                 break;
             case 4:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative3_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(alternative3_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative3_palette);
+                    palette_color = new PaletteColorSmooth(alternative3_palette);
                 }
                 break;
             case 5:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative4_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(alternative4_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative4_palette);
+                    palette_color = new PaletteColorSmooth(alternative4_palette);
                 }
                 break;
             case 6:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative5_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(alternative5_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative5_palette);
+                    palette_color = new PaletteColorSmooth(alternative5_palette);
                 }
                 break;   
             case 7:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative6_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(alternative6_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative6_palette);
+                    palette_color = new PaletteColorSmooth(alternative6_palette);
                 }
                 break;
             case 8:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative7_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(alternative7_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative7_palette);
+                    palette_color = new PaletteColorSmooth(alternative7_palette);
                 }
                 break;
             case 9:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(greenwhite_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(greenwhite_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(greenwhite_palette);
+                    palette_color = new PaletteColorSmooth(greenwhite_palette);
                 }
                 break;
             case 10:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(blue_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(blue_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(blue_palette);
+                    palette_color = new PaletteColorSmooth(blue_palette);
                 }
                 break;
             case 11:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(grayscale_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(grayscale_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(grayscale_palette);
+                    palette_color = new PaletteColorSmooth(grayscale_palette);
                 }
                 break;
             case 12:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(earthsky_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(earthsky_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(earthsky_palette);
+                    palette_color = new PaletteColorSmooth(earthsky_palette);
                 }
                 break;
             case 13:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(hotcold_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(hotcold_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(hotcold_palette);
+                    palette_color = new PaletteColorSmooth(hotcold_palette);
                 }
                 break;
             case 14:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(fire_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(fire_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(fire_palette);
+                    palette_color = new PaletteColorSmooth(fire_palette);
                 }
                 break;
                 
@@ -479,130 +479,130 @@ public class Palette extends ThreadDraw {
 
     }
 
-    public Palette(int color_choice, int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, MainWindow ptr, Color fractal_color, boolean fast_julia_filters, BufferedImage image, boolean boundary_tracing, boolean periodicity_checking, int plane_type, boolean[] filters, int out_coloring_algorithm, int in_coloring_algorithm,  boolean burning_ship, int function, double z_exponent, int color_cycling_location, double [] rotation_vals, double[] coefficients, double xJuliaCenter, double yJuliaCenter) {
+    public Palette(int color_choice, int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, MainWindow ptr, Color fractal_color, boolean fast_julia_filters, BufferedImage image, boolean boundary_tracing, boolean periodicity_checking, int plane_type, boolean[] filters, int out_coloring_algorithm, int in_coloring_algorithm,  boolean burning_ship, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double [] rotation_vals, double[] coefficients, double xJuliaCenter, double yJuliaCenter) {
 
-        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, ptr, fractal_color, fast_julia_filters, image, boundary_tracing, periodicity_checking, plane_type, out_coloring_algorithm, in_coloring_algorithm, filters,  burning_ship, function, z_exponent, color_cycling_location, rotation_vals, coefficients, xJuliaCenter, yJuliaCenter);
+        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, ptr, fractal_color, fast_julia_filters, image, boundary_tracing, periodicity_checking, plane_type, out_coloring_algorithm, in_coloring_algorithm, filters,  burning_ship, function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, coefficients, xJuliaCenter, yJuliaCenter);
 
         switch (color_choice) {
             
             case 0:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(default_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(default_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(default_palette);
+                    palette_color = new PaletteColorSmooth(default_palette);
                 }
                 break;
             case 1:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(spectrum_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(spectrum_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(spectrum_palette);
+                    palette_color = new PaletteColorSmooth(spectrum_palette);
                 }
                 break;
             case 2:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(alternative_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative_palette);
+                    palette_color = new PaletteColorSmooth(alternative_palette);
                 }
                 break;
             case 3:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative2_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(alternative2_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative2_palette);
+                    palette_color = new PaletteColorSmooth(alternative2_palette);
                 }
                 break;
             case 4:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative3_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(alternative3_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative3_palette);
+                    palette_color = new PaletteColorSmooth(alternative3_palette);
                 }
                 break;
             case 5:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative4_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(alternative4_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative4_palette);
+                    palette_color = new PaletteColorSmooth(alternative4_palette);
                 }
                 break;
             case 6:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative5_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(alternative5_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative5_palette);
+                    palette_color = new PaletteColorSmooth(alternative5_palette);
                 }
                 break;   
             case 7:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative6_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(alternative6_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative6_palette);
+                    palette_color = new PaletteColorSmooth(alternative6_palette);
                 }
                 break;
             case 8:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative7_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(alternative7_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative7_palette);
+                    palette_color = new PaletteColorSmooth(alternative7_palette);
                 }
                 break;
             case 9:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(greenwhite_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(greenwhite_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(greenwhite_palette);
+                    palette_color = new PaletteColorSmooth(greenwhite_palette);
                 }
                 break;
             case 10:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(blue_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(blue_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(blue_palette);
+                    palette_color = new PaletteColorSmooth(blue_palette);
                 }
                 break;
             case 11:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(grayscale_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(grayscale_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(grayscale_palette);
+                    palette_color = new PaletteColorSmooth(grayscale_palette);
                 }
                 break;
             case 12:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(earthsky_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(earthsky_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(earthsky_palette);
+                    palette_color = new PaletteColorSmooth(earthsky_palette);
                 }
                 break;
             case 13:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(hotcold_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(hotcold_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(hotcold_palette);
+                    palette_color = new PaletteColorSmooth(hotcold_palette);
                 }
                 break;
             case 14:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(fire_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(fire_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(fire_palette);
+                    palette_color = new PaletteColorSmooth(fire_palette);
                 }
                 break;
                 
@@ -618,123 +618,123 @@ public class Palette extends ThreadDraw {
         switch (color_choice) {
             
             case 0:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(default_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(default_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(default_palette);
+                    palette_color = new PaletteColorSmooth(default_palette);
                 }
                 break;
             case 1:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(spectrum_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(spectrum_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(spectrum_palette);
+                    palette_color = new PaletteColorSmooth(spectrum_palette);
                 }
                 break;
             case 2:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(alternative_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative_palette);
+                    palette_color = new PaletteColorSmooth(alternative_palette);
                 }
                 break;
             case 3:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative2_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(alternative2_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative2_palette);
+                    palette_color = new PaletteColorSmooth(alternative2_palette);
                 }
                 break;
             case 4:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative3_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(alternative3_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative3_palette);
+                    palette_color = new PaletteColorSmooth(alternative3_palette);
                 }
                 break;
             case 5:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative4_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(alternative4_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative4_palette);
+                    palette_color = new PaletteColorSmooth(alternative4_palette);
                 }
                 break;
             case 6:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative5_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(alternative5_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative5_palette);
+                    palette_color = new PaletteColorSmooth(alternative5_palette);
                 }
                 break;   
             case 7:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative6_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(alternative6_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative6_palette);
+                    palette_color = new PaletteColorSmooth(alternative6_palette);
                 }
                 break;
             case 8:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative7_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(alternative7_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative7_palette);
+                    palette_color = new PaletteColorSmooth(alternative7_palette);
                 }
                 break;
             case 9:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(greenwhite_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(greenwhite_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(greenwhite_palette);
+                    palette_color = new PaletteColorSmooth(greenwhite_palette);
                 }
                 break;
             case 10:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(blue_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(blue_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(blue_palette);
+                    palette_color = new PaletteColorSmooth(blue_palette);
                 }
                 break;
             case 11:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(grayscale_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(grayscale_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(grayscale_palette);
+                    palette_color = new PaletteColorSmooth(grayscale_palette);
                 }
                 break;
             case 12:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(earthsky_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(earthsky_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(earthsky_palette);
+                    palette_color = new PaletteColorSmooth(earthsky_palette);
                 }
                 break;
             case 13:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(hotcold_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(hotcold_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(hotcold_palette);
+                    palette_color = new PaletteColorSmooth(hotcold_palette);
                 }
                 break;
             case 14:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(fire_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(fire_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(fire_palette);
+                    palette_color = new PaletteColorSmooth(fire_palette);
                 }
                 break;
                 
@@ -750,123 +750,123 @@ public class Palette extends ThreadDraw {
         switch (color_choice) {
             
             case 0:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(default_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(default_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(default_palette);
+                    palette_color = new PaletteColorSmooth(default_palette);
                 }
                 break;
             case 1:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(spectrum_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(spectrum_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(spectrum_palette);
+                    palette_color = new PaletteColorSmooth(spectrum_palette);
                 }
                 break;
             case 2:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(alternative_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative_palette);
+                    palette_color = new PaletteColorSmooth(alternative_palette);
                 }
                 break;
             case 3:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative2_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(alternative2_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative2_palette);
+                    palette_color = new PaletteColorSmooth(alternative2_palette);
                 }
                 break;
             case 4:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative3_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(alternative3_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative3_palette);
+                    palette_color = new PaletteColorSmooth(alternative3_palette);
                 }
                 break;
             case 5:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative4_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(alternative4_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative4_palette);
+                    palette_color = new PaletteColorSmooth(alternative4_palette);
                 }
                 break;
             case 6:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative5_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(alternative5_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative5_palette);
+                    palette_color = new PaletteColorSmooth(alternative5_palette);
                 }
                 break;   
             case 7:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative6_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(alternative6_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative6_palette);
+                    palette_color = new PaletteColorSmooth(alternative6_palette);
                 }
                 break;
             case 8:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(alternative7_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(alternative7_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(alternative7_palette);
+                    palette_color = new PaletteColorSmooth(alternative7_palette);
                 }
                 break;
             case 9:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(greenwhite_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(greenwhite_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(greenwhite_palette);
+                    palette_color = new PaletteColorSmooth(greenwhite_palette);
                 }
                 break;
             case 10:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(blue_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(blue_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(blue_palette);
+                    palette_color = new PaletteColorSmooth(blue_palette);
                 }
                 break;
             case 11:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(grayscale_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(grayscale_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(grayscale_palette);
+                    palette_color = new PaletteColorSmooth(grayscale_palette);
                 }
                 break;
             case 12:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(earthsky_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(earthsky_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(earthsky_palette);
+                    palette_color = new PaletteColorSmooth(earthsky_palette);
                 }
                 break;
             case 13:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(hotcold_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(hotcold_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(hotcold_palette);
+                    palette_color = new PaletteColorSmooth(hotcold_palette);
                 }
                 break;
             case 14:
-                if(out_coloring_algorithm == MainWindow.SMOOTH_COLOR) {
-                    palette_color = new PaletteColorSmooth(fire_palette);
+                if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+                    palette_color = new PaletteColorNormal(fire_palette);
                 }
                 else {
-                    palette_color = new PaletteColorNormal(fire_palette);
+                    palette_color = new PaletteColorSmooth(fire_palette);
                 }
                 break;
                 
