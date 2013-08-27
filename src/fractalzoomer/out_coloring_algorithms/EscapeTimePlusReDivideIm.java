@@ -20,9 +20,8 @@ public class EscapeTimePlusReDivideIm extends OutColorAlgorithm {
 
     @Override
     public double getResult(Object[] object) {
-
-        double temp3 = ((Integer)object[0]) + ((Complex)object[1]).getRe() / ((Complex)object[1]).getIm() + 100800;
-        return Math.abs(temp3);
+        
+        return Math.abs(((Integer)object[0]) + ((Complex)object[1]).getRe() / ((Complex)object[1]).getIm() + 100800);
 
     }
 

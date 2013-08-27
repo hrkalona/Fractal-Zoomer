@@ -27,6 +27,12 @@ import fractalzoomer.in_coloring_algorithms.ReDivideIm;
 import fractalzoomer.in_coloring_algorithms.SinReSquaredMinusImSquared;
 import fractalzoomer.in_coloring_algorithms.Squares;
 import fractalzoomer.in_coloring_algorithms.ZMag;
+import fractalzoomer.out_coloring_algorithms.EscapeTimeAlgorithm1;
+import fractalzoomer.out_coloring_algorithms.EscapeTimeAlgorithm2;
+import fractalzoomer.out_coloring_algorithms.EscapeTimeGaussianInteger2;
+import fractalzoomer.out_coloring_algorithms.EscapeTimeGaussianInteger3;
+import fractalzoomer.out_coloring_algorithms.EscapeTimeGaussianInteger4;
+import fractalzoomer.out_coloring_algorithms.EscapeTimeGaussianInteger5;
 import fractalzoomer.out_coloring_algorithms.EscapeTimePlusReDivideIm;
 import fractalzoomer.out_coloring_algorithms.Smooth;
 import java.util.ArrayList;
@@ -97,6 +103,24 @@ public class Manowar extends Julia {
                 break;
             case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER:
                 out_color_algorithm = new EscapeTimeGaussianInteger();
+                break;
+            case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER2:
+                out_color_algorithm = new EscapeTimeGaussianInteger2();
+                break;
+            case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER3:
+                out_color_algorithm = new EscapeTimeGaussianInteger3();
+                break;
+            case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER4:
+                out_color_algorithm = new EscapeTimeGaussianInteger4();
+                break;
+            case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER5:
+                out_color_algorithm = new EscapeTimeGaussianInteger5();
+                break;
+            case MainWindow.ESCAPE_TIME_ALGORITHM:
+                out_color_algorithm = new EscapeTimeAlgorithm1(2);
+                break;
+            case MainWindow.ESCAPE_TIME_ALGORITHM2:
+                out_color_algorithm = new EscapeTimeAlgorithm2();
                 break;
 
         }
@@ -176,6 +200,24 @@ public class Manowar extends Julia {
                 break;
             case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER:
                 out_color_algorithm = new EscapeTimeGaussianInteger();
+                break;
+            case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER2:
+                out_color_algorithm = new EscapeTimeGaussianInteger2();
+                break;
+            case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER3:
+                out_color_algorithm = new EscapeTimeGaussianInteger3();
+                break;
+            case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER4:
+                out_color_algorithm = new EscapeTimeGaussianInteger4();
+                break;
+            case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER5:
+                out_color_algorithm = new EscapeTimeGaussianInteger5();
+                break;
+            case MainWindow.ESCAPE_TIME_ALGORITHM:
+                out_color_algorithm = new EscapeTimeAlgorithm1(2);
+                break;
+            case MainWindow.ESCAPE_TIME_ALGORITHM2:
+                out_color_algorithm = new EscapeTimeAlgorithm2();
                 break;
 
         }

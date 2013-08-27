@@ -30,6 +30,7 @@ import fractalzoomer.functions.formulas.kaliset.Formula25;
 import fractalzoomer.functions.formulas.kaliset.Formula26;
 import fractalzoomer.functions.formulas.kaliset.Formula23;
 import fractalzoomer.functions.formulas.m_like_generalization.Formula1;
+import fractalzoomer.functions.formulas.m_like_generalization.c_azb_dze.Formula27;
 import fractalzoomer.functions.formulas.m_like_generalization.c_azb_dze.Formula3;
 import fractalzoomer.functions.formulas.m_like_generalization.c_azb_dze.Formula4;
 import fractalzoomer.functions.formulas.m_like_generalization.c_azb_dze.Formula5;
@@ -392,6 +393,9 @@ public class DrawOrbit extends Thread {
             case MainWindow.FORMULA26:
                 pixel_orbit = new Formula26(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
                 break;
+            case MainWindow.FORMULA27:
+                pixel_orbit = new Formula27(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
+                break;
             case MainWindow.FROTHY_BASIN:
                 pixel_orbit = new FrothyBasin(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
                 break;
@@ -598,6 +602,9 @@ public class DrawOrbit extends Thread {
                 break;
             case MainWindow.FORMULA26:
                 pixel_orbit = new Formula26(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.FORMULA27:
+                pixel_orbit = new Formula27(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FROTHY_BASIN:
                 pixel_orbit = new FrothyBasin(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);

@@ -1,15 +1,15 @@
 package fractalzoomer.functions;
 
 
-import fractalzoomer.planes.AbsPlane;
+import fractalzoomer.planes.math.AbsPlane;
 import fractalzoomer.bailout_tests.BailoutTest;
 import fractalzoomer.bailout_tests.CircleBailoutTest;
 import fractalzoomer.core.Complex;
-import fractalzoomer.planes.CosPlane;
-import fractalzoomer.planes.CoshPlane;
-import fractalzoomer.planes.CotPlane;
-import fractalzoomer.planes.CothPlane;
-import fractalzoomer.planes.ExpPlane;
+import fractalzoomer.planes.math.trigonometric.CosPlane;
+import fractalzoomer.planes.math.trigonometric.CoshPlane;
+import fractalzoomer.planes.math.trigonometric.CotPlane;
+import fractalzoomer.planes.math.trigonometric.CothPlane;
+import fractalzoomer.planes.math.ExpPlane;
 import fractalzoomer.bailout_tests.HalfplaneBailoutTest;
 import fractalzoomer.bailout_tests.RhombusBailoutTest;
 import fractalzoomer.fractal_options.DefaultPerturbation;
@@ -17,30 +17,46 @@ import fractalzoomer.main.MainWindow;
 import fractalzoomer.fractal_options.Rotation;
 import fractalzoomer.out_coloring_algorithms.OutColorAlgorithm;
 import fractalzoomer.in_coloring_algorithms.InColorAlgorithm;
-import fractalzoomer.planes.InversedLambdaPlane;
-import fractalzoomer.planes.InversedMuPlane;
-import fractalzoomer.planes.InversedMu2Plane;
-import fractalzoomer.planes.InversedMu3Plane;
-import fractalzoomer.planes.InversedMu4Plane;
-import fractalzoomer.planes.LogPlane;
-import fractalzoomer.planes.LambdaPlane;
-import fractalzoomer.planes.MuSquaredPlane;
+import fractalzoomer.planes.general.InversedLambdaPlane;
+import fractalzoomer.planes.general.InversedMuPlane;
+import fractalzoomer.planes.general.InversedMu2Plane;
+import fractalzoomer.planes.general.InversedMu3Plane;
+import fractalzoomer.planes.general.InversedMu4Plane;
+import fractalzoomer.planes.math.LogPlane;
+import fractalzoomer.planes.general.LambdaPlane;
+import fractalzoomer.planes.general.MuSquaredPlane;
 import fractalzoomer.planes.Plane;
-import fractalzoomer.planes.MuPlane;
+import fractalzoomer.planes.general.MuPlane;
 import fractalzoomer.bailout_tests.StripBailoutTest;
 import fractalzoomer.bailout_tests.SquareBailoutTest;
 import fractalzoomer.fractal_options.DefaultInitialValue;
-import fractalzoomer.planes.FoldInPlane;
-import fractalzoomer.planes.FoldOutPlane;
-import fractalzoomer.planes.FoldRightPlane;
-import fractalzoomer.planes.FoldUpPlane;
-import fractalzoomer.planes.InversedLambda2Plane;
-import fractalzoomer.planes.MuSquaredImaginaryPlane;
-import fractalzoomer.planes.SqrtPlane;
-import fractalzoomer.planes.TanPlane;
-import fractalzoomer.planes.SinhPlane;
-import fractalzoomer.planes.SinPlane;
-import fractalzoomer.planes.TanhPlane;
+import fractalzoomer.planes.fold.FoldInPlane;
+import fractalzoomer.planes.fold.FoldOutPlane;
+import fractalzoomer.planes.fold.FoldRightPlane;
+import fractalzoomer.planes.fold.FoldUpPlane;
+import fractalzoomer.planes.general.InversedLambda2Plane;
+import fractalzoomer.planes.general.MuSquaredImaginaryPlane;
+import fractalzoomer.planes.math.inverse_trigonometric.ACosPlane;
+import fractalzoomer.planes.math.inverse_trigonometric.ACoshPlane;
+import fractalzoomer.planes.math.inverse_trigonometric.ACotPlane;
+import fractalzoomer.planes.math.inverse_trigonometric.ACothPlane;
+import fractalzoomer.planes.math.inverse_trigonometric.ACscPlane;
+import fractalzoomer.planes.math.inverse_trigonometric.ACschPlane;
+import fractalzoomer.planes.math.inverse_trigonometric.ASecPlane;
+import fractalzoomer.planes.math.inverse_trigonometric.ASechPlane;
+import fractalzoomer.planes.math.inverse_trigonometric.ASinPlane;
+import fractalzoomer.planes.math.inverse_trigonometric.ASinhPlane;
+import fractalzoomer.planes.math.inverse_trigonometric.ATanPlane;
+import fractalzoomer.planes.math.inverse_trigonometric.ATanhPlane;
+import fractalzoomer.planes.math.trigonometric.CscPlane;
+import fractalzoomer.planes.math.trigonometric.CschPlane;
+import fractalzoomer.planes.math.trigonometric.SecPlane;
+import fractalzoomer.planes.math.trigonometric.SechPlane;
+import fractalzoomer.planes.math.SqrtPlane;
+import fractalzoomer.planes.math.trigonometric.TanPlane;
+import fractalzoomer.planes.math.trigonometric.SinhPlane;
+import fractalzoomer.planes.math.trigonometric.SinPlane;
+import fractalzoomer.planes.math.trigonometric.TanhPlane;
 import java.util.ArrayList;
 
 /*
@@ -148,6 +164,54 @@ public abstract class Fractal {
                 break;
             case MainWindow.COTH_PLANE:
                 plane = new CothPlane();
+                break;
+            case MainWindow.SEC_PLANE:
+                plane = new SecPlane();
+                break;
+            case MainWindow.CSC_PLANE:
+                plane = new CscPlane();
+                break;
+            case MainWindow.SECH_PLANE:
+                plane = new SechPlane();
+                break;
+            case MainWindow.CSCH_PLANE:
+                plane = new CschPlane();
+                break;
+            case MainWindow.ASIN_PLANE:
+                plane = new ASinPlane();
+                break;
+            case MainWindow.ACOS_PLANE:
+                plane = new ACosPlane();
+                break;
+            case MainWindow.ATAN_PLANE:
+                plane = new ATanPlane();
+                break;
+            case MainWindow.ACOT_PLANE:
+                plane = new ACotPlane();
+                break;
+            case MainWindow.ASINH_PLANE:
+                plane = new ASinhPlane();
+                break;
+            case MainWindow.ACOSH_PLANE:
+                plane = new ACoshPlane();
+                break;
+            case MainWindow.ATANH_PLANE:
+                plane = new ATanhPlane();
+                break;
+            case MainWindow.ACOTH_PLANE:
+                plane = new ACothPlane();
+                break;
+            case MainWindow.ASEC_PLANE:
+                plane = new ASecPlane();
+                break;
+            case MainWindow.ACSC_PLANE:
+                plane = new ACscPlane();
+                break;
+            case MainWindow.ASECH_PLANE:
+                plane = new ASechPlane();
+                break;
+            case MainWindow.ACSCH_PLANE:
+                plane = new ACschPlane();
                 break;
             case MainWindow.SQRT_PLANE:
                 plane = new SqrtPlane();
@@ -268,6 +332,54 @@ public abstract class Fractal {
             case MainWindow.COTH_PLANE:
                 plane = new CothPlane();
                 break;
+            case MainWindow.SEC_PLANE:
+                plane = new SecPlane();
+                break;
+            case MainWindow.CSC_PLANE:
+                plane = new CscPlane();
+                break;
+            case MainWindow.SECH_PLANE:
+                plane = new SechPlane();
+                break;
+            case MainWindow.CSCH_PLANE:
+                plane = new CschPlane();
+                break;
+            case MainWindow.ASIN_PLANE:
+                plane = new ASinPlane();
+                break;
+            case MainWindow.ACOS_PLANE:
+                plane = new ACosPlane();
+                break;
+            case MainWindow.ATAN_PLANE:
+                plane = new ATanPlane();
+                break;
+            case MainWindow.ACOT_PLANE:
+                plane = new ACotPlane();
+                break;
+            case MainWindow.ASINH_PLANE:
+                plane = new ASinhPlane();
+                break;
+            case MainWindow.ACOSH_PLANE:
+                plane = new ACoshPlane();
+                break;
+            case MainWindow.ATANH_PLANE:
+                plane = new ATanhPlane();
+                break;
+            case MainWindow.ACOTH_PLANE:
+                plane = new ACothPlane();
+                break;
+            case MainWindow.ASEC_PLANE:
+                plane = new ASecPlane();
+                break;
+            case MainWindow.ACSC_PLANE:
+                plane = new ACscPlane();
+                break;
+            case MainWindow.ASECH_PLANE:
+                plane = new ASechPlane();
+                break;
+            case MainWindow.ACSCH_PLANE:
+                plane = new ACschPlane();
+                break;
             case MainWindow.SQRT_PLANE:
                 plane = new SqrtPlane();
                 break;
@@ -387,18 +499,18 @@ public abstract class Fractal {
 
         Complex zold = new Complex();
 
-
         for (; iterations < max_iterations; iterations++) {
                   
             if(bailout_algorithm.escaped(complex[0])) {
                 Object[] object = {iterations, complex[0], zold};
-                return out_color_algorithm.getResult(object);                
+                return out_color_algorithm.getResult(object); 
+               
             }
             zold = complex[0];
             function(complex);
         
         }
-
+  
         
         Object[] object = {max_iterations, complex[0]};
         return in_color_algorithm.getResult(object);

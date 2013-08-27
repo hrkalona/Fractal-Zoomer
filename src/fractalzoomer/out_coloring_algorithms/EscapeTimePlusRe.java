@@ -21,10 +21,8 @@ public class EscapeTimePlusRe extends OutColorAlgorithm {
 
     @Override
     public double getResult(Object[] object) {
-
-        double temp = ((Complex)object[1]).getRe();
-        double temp3 = ((Integer)object[0]) + temp + 100800;
-        return Math.abs(temp3);
+        
+        return Math.abs(((Integer)object[0]) + ((Complex)object[1]).getRe() + 100800);
 
     }
     

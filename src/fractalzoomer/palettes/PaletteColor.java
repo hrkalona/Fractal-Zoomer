@@ -1,8 +1,5 @@
 package fractalzoomer.palettes;
 
-
-import java.awt.Color;
-
 /*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
@@ -13,16 +10,16 @@ import java.awt.Color;
  * @author hrkalona2
  */
 public abstract class PaletteColor {
-  protected Color[] palette;
+  protected int[] palette;
   protected static int mod_offset;
   
-  public PaletteColor(Color[] palette) {
+  public PaletteColor(int[] palette) {
       
       this.palette = palette;
       mod_offset = (100800 % palette.length) == 0 ? 0 : palette.length - (100800 % palette.length);
     
   }
   
-  public abstract Color getPaletteColor(double result);
+  public abstract int getPaletteColor(double result);
    
 }

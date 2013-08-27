@@ -33,7 +33,7 @@ public class AtanReTimesImTimesAbsReTimesAbsIm extends InColorAlgorithm {
     @Override
     public double getResult(Object[] object) {
         
-        return option.getFinalResult(Math.atan(((Complex)object[1]).getRe() * ((Complex)object[1]).getIm() * ((Complex)object[1]).absRe() * ((Complex)object[1]).absIm()) * 400 + 100820);
+        return option.getFinalResult(Math.abs(Math.atan(((Complex)object[1]).getRe() * ((Complex)object[1]).getIm() * ((Complex)object[1]).absRe() * ((Complex)object[1]).absIm())) * 400 + 100820);
          
     }
     

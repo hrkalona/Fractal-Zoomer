@@ -1,8 +1,5 @@
 package fractalzoomer.palettes;
 
-
-import java.awt.Color;
-
 /*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
@@ -14,14 +11,14 @@ import java.awt.Color;
  */
 public class PaletteColorNormal extends PaletteColor {
   
-  public PaletteColorNormal(Color[] palette) {
+  public PaletteColorNormal(int[] palette) {
       
       super(palette);
       
   }
 
     @Override
-    public Color getPaletteColor(double result) {
+    public int getPaletteColor(double result) {
         
         return palette[((int)((result + mod_offset))) % palette.length];
         

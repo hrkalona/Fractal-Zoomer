@@ -126,6 +126,12 @@ public class MainWindow extends JFrame {
   private boolean first_seed;
   private double size;
   private int max_iterations;
+  private int samples;
+  private int edges;
+  private int emboss;
+  private int channel_swapping;
+  private int contrast_brightness;
+  private int masking;
   private int n;
   private int julia_grid_first_dimension;
   private int color_choice;
@@ -166,8 +172,20 @@ public class MainWindow extends JFrame {
   private JMenu rotation_menu;
   private JMenu filters_menu;
   private JMenu planes_menu;
+  private JMenu planes_general_menu;
+  private JMenu planes_fold_menu;
+  private JMenu planes_math_menu;
+  private JMenu planes_math_trigonometric_menu;
+  private JMenu planes_math_inverse_trigonometric_menu;
   private JMenu optimizations_menu;
   private JMenu tools_options_menu;
+  private JMenu filters_options_menu;
+  private JMenu antialiasing_menu;
+  private JMenu edgedetection_menu;
+  private JMenu emboss_menu;
+  private JMenu contrast_brightness_menu;
+  private JMenu mask_color_channel_menu;
+  private JMenu color_channel_swapping_menu;
   private JMenu window_menu;
   private JMenu orbit_menu;
   private JMenu orbit_style_menu;
@@ -222,11 +240,14 @@ public class MainWindow extends JFrame {
   private JCheckBoxMenuItem boundary_tracing_opt;
   private JCheckBoxMenuItem anti_aliasing_opt;  
   private JCheckBoxMenuItem edges_opt;
-  private JCheckBoxMenuItem edges2_opt;
   private JCheckBoxMenuItem emboss_opt;
   private JCheckBoxMenuItem invert_colors_opt;
   private JCheckBoxMenuItem sharpness_opt;
-  private JCheckBoxMenuItem embosscolored_opt;
+  private JCheckBoxMenuItem blurring_opt;
+  private JCheckBoxMenuItem mask_color_channel_opt;
+  private JCheckBoxMenuItem fade_out_opt;
+  private JCheckBoxMenuItem color_channel_swapping_opt;
+  private JCheckBoxMenuItem contrast_brightness_opt;
   private JCheckBoxMenuItem orbit_opt;
   private JCheckBoxMenuItem julia_opt;
   private JCheckBoxMenuItem fast_julia_filters_opt;
@@ -241,6 +262,20 @@ public class MainWindow extends JFrame {
   private JCheckBoxMenuItem statusbar_opt;
   private JRadioButtonMenuItem line;
   private JRadioButtonMenuItem dot;
+  private JRadioButtonMenuItem antialiasing_4_samples;
+  private JRadioButtonMenuItem antialiasing_8_samples;
+  private JRadioButtonMenuItem edgedetection_thin_lines;
+  private JRadioButtonMenuItem edgedetection_thick_lines;
+  private JRadioButtonMenuItem emboss_grayscale;
+  private JRadioButtonMenuItem emboss_colored;
+  private JRadioButtonMenuItem channel_swapping_grb;
+  private JRadioButtonMenuItem channel_swapping_bgr;
+  private JRadioButtonMenuItem contrast;
+  private JRadioButtonMenuItem brightness;
+  private JRadioButtonMenuItem contrastBrightness;
+  private JRadioButtonMenuItem mask_red;
+  private JRadioButtonMenuItem mask_green;
+  private JRadioButtonMenuItem mask_blue;
   private JRadioButtonMenuItem fractal_functions[];
   private JRadioButtonMenuItem[] palette;
   private JRadioButtonMenuItem[] planes;
@@ -255,6 +290,9 @@ public class MainWindow extends JFrame {
   private JButton random_palette_button;
   private JButton iterations_button;
   private JButton rotation_button;
+  private JButton orbit_button;
+  private JButton julia_button;
+  private JButton color_cycling_button;
   private JButton help_button;
   private JFrame fract_color_frame;
   private JFrame orbit_color_frame;
@@ -279,6 +317,7 @@ public class MainWindow extends JFrame {
       {{9, 186, 44, 4}, {10, 204, 214, 223}, {8, 65, 143, 55}, {8, 242, 239, 28}, {8, 57, 31, 40}, {9, 174, 237, 85}, {6, 18, 200, 230}, {6, 155, 59, 245}, {14, 152, 84, 158}, {13, 114, 74, 27}, {12, 218, 159, 151}, {14, 172, 60, 111}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}},
       {{11, 104, 225, 252}, {7, 255, 231, 139}, {11, 110, 57, 110}, {8, 121, 196, 151}, {8, 47, 121, 17}, {7, 81, 136, 85}, {15, 167, 154, 74}, {14, 163, 108, 21}, {9, 137, 99, 44}, {15, 42, 227, 47}, {8, 175, 105, 184}, {12, 103, 169, 39}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}},
       {{12, 37, 215, 240}, {9, 214, 16, 108}, {7, 228, 121, 33}, {9, 184, 46, 7}, {8, 1, 28, 18}, {8, 20, 114, 217}, {6, 0, 153, 51}, {11, 0, 51, 51}, {12, 165, 221, 35}, {10, 153, 102, 255}, {10, 166, 195, 162}, {7, 193, 222, 227}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}},
+      {{22, 0, 0, 0}, {22, 98, 90, 88}, {22, 255, 255, 255}, {22, 220, 175, 121}, {22, 145, 90, 33}, {22, 37, 22, 8}, {22, 0, 0, 0}, {22, 4, 50, 71}, {22, 17, 121, 169}, {22, 33, 48, 51}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}},
       {{8,  40,  70,  10}, {9,  40, 170,  10}, {6, 100, 255,  70}, {8, 255, 255, 255}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}},
       {{12,   0,   0,  64}, {12,   0,   0, 255}, {10,   0, 255, 255}, {12, 128, 255, 255}, {14,  64, 128, 255}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}},
       {{22,  255,   255,  255}, {21,  0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}},
@@ -364,10 +403,11 @@ public class MainWindow extends JFrame {
   public static final int FORMULA24 = 83;
   public static final int FORMULA25 = 84;
   public static final int FORMULA26 = 85;
-  public static final int FROTHY_BASIN = 86;
-  public static final int MANDELBROTWTH = 87;
-  public static final int SZEGEDI_BUTTERFLY1 = 88;
-  public static final int SZEGEDI_BUTTERFLY2 = 89;
+  public static final int FORMULA27 = 86;
+  public static final int FROTHY_BASIN = 87;
+  public static final int MANDELBROTWTH = 88;
+  public static final int SZEGEDI_BUTTERFLY1 = 89;
+  public static final int SZEGEDI_BUTTERFLY2 = 90;
   public static final int ESCAPE_TIME = 0;
   public static final int SMOOTH_COLOR = 1;
   public static final int BINARY_DECOMPOSITION = 2;
@@ -380,6 +420,12 @@ public class MainWindow extends JFrame {
   public static final int COLOR_DECOMPOSITION = 9;
   public static final int ESCAPE_TIME_COLOR_DECOMPOSITION = 10;
   public static final int ESCAPE_TIME_GAUSSIAN_INTEGER = 11;
+  public static final int ESCAPE_TIME_GAUSSIAN_INTEGER2 = 12;
+  public static final int ESCAPE_TIME_GAUSSIAN_INTEGER3 = 13;
+  public static final int ESCAPE_TIME_GAUSSIAN_INTEGER4 = 14;
+  public static final int ESCAPE_TIME_GAUSSIAN_INTEGER5 = 15;
+  public static final int ESCAPE_TIME_ALGORITHM = 16;
+  public static final int ESCAPE_TIME_ALGORITHM2 = 17;
   public static final int MAXIMUM_ITERATIONS = 0;
   public static final int Z_MAG = 1;
   public static final int DECOMPOSITION_LIKE = 2;
@@ -415,6 +461,22 @@ public class MainWindow extends JFrame {
   public static final int FOLDRIGHT_PLANE = 23;
   public static final int FOLDIN_PLANE = 24;
   public static final int FOLDOUT_PLANE = 25;
+  public static final int ASIN_PLANE = 26;
+  public static final int ACOS_PLANE = 27;
+  public static final int ATAN_PLANE = 28;
+  public static final int ACOT_PLANE = 29;
+  public static final int ASINH_PLANE = 30;
+  public static final int ACOSH_PLANE = 31;
+  public static final int ATANH_PLANE = 32;
+  public static final int ACOTH_PLANE = 33;
+  public static final int SEC_PLANE = 34;
+  public static final int CSC_PLANE = 35;
+  public static final int SECH_PLANE = 36;
+  public static final int CSCH_PLANE = 37;
+  public static final int ASEC_PLANE = 38;
+  public static final int ACSC_PLANE = 39;
+  public static final int ASECH_PLANE = 40;
+  public static final int ACSCH_PLANE = 41;
   public static final int BAILOUT_TEST_CIRCLE = 0;
   public static final int BAILOUT_TEST_SQUARE = 1;
   public static final int BAILOUT_TEST_RHOMBUS = 2;
@@ -436,7 +498,13 @@ public class MainWindow extends JFrame {
         n = 2;
         julia_grid_first_dimension = 0;
         max_iterations = 500;
-
+ 
+        samples = 4;
+        edges = 0;
+        emboss = 0;
+        contrast_brightness = 0;
+        masking = 0;
+        channel_swapping = 0;
         
         color_choice = 0;
         
@@ -468,14 +536,13 @@ public class MainWindow extends JFrame {
 
         color_cycling_location = 0;
         
-        filters = new boolean[7];
-
-        
         first_paint = false;
         
         plane_type = MU_PLANE;
         out_coloring_algorithm = ESCAPE_TIME;
         in_coloring_algorithm = MAXIMUM_ITERATIONS;
+        
+        filters = new boolean[10];
         
         filters[0] = false;
         filters[1] = false;
@@ -484,6 +551,9 @@ public class MainWindow extends JFrame {
         filters[4] = false;
         filters[5] = false;
         filters[6] = false;
+        filters[7] = false;
+        filters[8] = false;
+        filters[9] = false;
         
         orbit = false;
         orbit_style = true;
@@ -528,7 +598,6 @@ public class MainWindow extends JFrame {
             }
         }
         
-        //image = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
  
         Toolkit toolkit = Toolkit.getDefaultToolkit();
         // Get the current screen size
@@ -653,6 +722,12 @@ public class MainWindow extends JFrame {
         planes_menu = new JMenu("Planes");
         planes_menu.setIcon(icon);
         
+        planes_general_menu = new JMenu("General Planes");
+        planes_fold_menu = new JMenu("Fold Planes");
+        planes_math_menu = new JMenu("Math Planes");
+        planes_math_trigonometric_menu = new JMenu("Trigonometric Planes");
+        planes_math_inverse_trigonometric_menu = new JMenu("Inverse Trigonometric Planes");
+        
         burning_ship_opt = new JCheckBoxMenuItem("Burning Ship");
         
         imageURL = getClass().getResource("/fractalzoomer/icons/image_size.png");
@@ -748,6 +823,19 @@ public class MainWindow extends JFrame {
         tools_options_menu = new JMenu("Tools Options");
         tools_options_menu.setIcon(icon);
         
+        imageURL = getClass().getResource("/fractalzoomer/icons/filter_options.png");
+        image2 = Toolkit.getDefaultToolkit().getImage(imageURL);
+        icon = new ImageIcon(image2);
+        filters_options_menu = new JMenu("Filters Options");
+        filters_options_menu.setIcon(icon);
+        
+        antialiasing_menu = new JMenu("Anti-Aliasing");
+        edgedetection_menu = new JMenu("Edge Detection");
+        emboss_menu = new JMenu("Emboss");
+        contrast_brightness_menu = new JMenu("Contrast/Brigntness");
+        mask_color_channel_menu = new JMenu("Mask Color Channel");
+        color_channel_swapping_menu = new JMenu("Color Channel Swapping");
+        
         
         imageURL = getClass().getResource("/fractalzoomer/icons/window.png");
         image2 = Toolkit.getDefaultToolkit().getImage(imageURL);
@@ -758,7 +846,7 @@ public class MainWindow extends JFrame {
         toolbar_opt = new JCheckBoxMenuItem("Tool Bar");
         statusbar_opt = new JCheckBoxMenuItem("Status Bar");
         
-        imageURL = getClass().getResource("/fractalzoomer/icons/orbit.png");
+        imageURL = getClass().getResource("/fractalzoomer/icons/orbit_options.png");
         image2 = Toolkit.getDefaultToolkit().getImage(imageURL);
         icon = new ImageIcon(image2);
         orbit_menu = new JMenu("Orbit");
@@ -786,11 +874,14 @@ public class MainWindow extends JFrame {
 
         anti_aliasing_opt = new JCheckBoxMenuItem("Anti-Aliasing");
         edges_opt = new JCheckBoxMenuItem("Edge Detection");
-        edges2_opt = new JCheckBoxMenuItem("Edge Detection 2");
         sharpness_opt = new JCheckBoxMenuItem("Sharpness");
+        blurring_opt = new JCheckBoxMenuItem("Blurring");
         emboss_opt = new JCheckBoxMenuItem("Emboss");
-        embosscolored_opt = new JCheckBoxMenuItem("Emboss Colored");
+        contrast_brightness_opt = new JCheckBoxMenuItem("Contrast/Brightness");
+        fade_out_opt = new JCheckBoxMenuItem("Fade Out");
         invert_colors_opt = new JCheckBoxMenuItem("Inverted Colors");
+        mask_color_channel_opt = new JCheckBoxMenuItem("Mask Color Channel");
+        color_channel_swapping_opt = new JCheckBoxMenuItem("Color Channel Swapping");
         
 
         imageURL = getClass().getResource("/fractalzoomer/icons/colors_menu.png");
@@ -918,11 +1009,14 @@ public class MainWindow extends JFrame {
 
         anti_aliasing_opt.setToolTipText("Smooths the image.");
         edges_opt.setToolTipText("Detects the edges of the image (Thick Edges).");
-        edges2_opt.setToolTipText("Detects the edges of the image (Thin Edges).");
         sharpness_opt.setToolTipText("Makes the edges of the image more sharp.");
         emboss_opt.setToolTipText("Raises the light colored areas and carves the dark ones, using gray scale.");
-        embosscolored_opt.setToolTipText("Raises the light colored areas and carves the dark ones.");
         invert_colors_opt.setToolTipText("Inverts the colors of the image.");
+        blurring_opt.setToolTipText("Blurs the image.");
+        mask_color_channel_opt.setToolTipText("Removes a color channel of the image.");
+        fade_out_opt.setToolTipText("Applies a fade out effect to the image.");
+        color_channel_swapping_opt.setToolTipText("Swaps the color channels of the image.");
+        contrast_brightness_opt.setToolTipText("Changes the contrast/brightness of the image.");
         
         help_contents.setToolTipText("Loads the help file.");
         
@@ -970,11 +1064,14 @@ public class MainWindow extends JFrame {
                     
         anti_aliasing_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G, ActionEvent.CTRL_MASK));
         edges_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, ActionEvent.CTRL_MASK));
-        edges2_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, ActionEvent.SHIFT_MASK));
         sharpness_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, ActionEvent.ALT_MASK));
         emboss_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_M, ActionEvent.CTRL_MASK));
-        embosscolored_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_M, ActionEvent.ALT_MASK));
         invert_colors_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, ActionEvent.ALT_MASK));
+        blurring_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, ActionEvent.ALT_MASK));
+        mask_color_channel_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_M, ActionEvent.ALT_MASK));
+        fade_out_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, ActionEvent.ALT_MASK));
+        color_channel_swapping_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, ActionEvent.SHIFT_MASK));
+        contrast_brightness_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, ActionEvent.SHIFT_MASK));
 
         about.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, ActionEvent.ALT_MASK));
         help_contents.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, 0));
@@ -1062,7 +1159,7 @@ public class MainWindow extends JFrame {
 
         });
 
-        fractal_functions = new JRadioButtonMenuItem[90];
+        fractal_functions = new JRadioButtonMenuItem[91];
         
         fractal_functions[0] = new JRadioButtonMenuItem("Mandelbrot z = z^" + 2 + " + c");
         fractal_functions[0].addActionListener(new ActionListener() {
@@ -1141,6 +1238,7 @@ public class MainWindow extends JFrame {
         m_like_generalizations_type_functions.add(fractal_functions[FORMULA1]);
         m_like_generalizations_type_functions.addSeparator();
         
+
         fractal_functions[FORMULA2] = new JRadioButtonMenuItem("z = c(z + z^-1)");
         fractal_functions[FORMULA2].addActionListener(new ActionListener() {
       
@@ -1272,6 +1370,18 @@ public class MainWindow extends JFrame {
                 }
         });
         c_azb_dze_type_functions.add(fractal_functions[FORMULA12]);
+        
+        fractal_functions[FORMULA27] = new JRadioButtonMenuItem("z = c((z + 2)^6 + (z + 2)^-6)");
+        fractal_functions[FORMULA27].addActionListener(new ActionListener() {
+      
+                public void actionPerformed(ActionEvent e) {
+
+                    setFunction(FORMULA27);
+
+                }
+        });
+        c_azb_dze_type_functions.add(fractal_functions[FORMULA27]);
+
         
         m_like_generalizations_type_functions.add(c_azb_dze_type_functions);
         
@@ -2108,8 +2218,14 @@ public class MainWindow extends JFrame {
         fractal_functions[function].setSelected(true);
         fractal_functions[function].setEnabled(false);
         
+        planes_menu.add(planes_general_menu);
+        planes_menu.addSeparator();
+        planes_menu.add(planes_fold_menu);
+        planes_menu.addSeparator();
+        planes_menu.add(planes_math_menu);
+
         
-        planes = new JRadioButtonMenuItem[26];
+        planes = new JRadioButtonMenuItem[42];
         
         planes[MU_PLANE] = new JRadioButtonMenuItem("mu");
         planes[MU_PLANE].setToolTipText("The default plane.");
@@ -2120,7 +2236,7 @@ public class MainWindow extends JFrame {
 
                 }
         });
-        planes_menu.add(planes[MU_PLANE]);
+        planes_general_menu.add(planes[MU_PLANE]);
         
         
         planes[MU_SQUARED_PLANE] = new JRadioButtonMenuItem("mu^2");
@@ -2132,7 +2248,7 @@ public class MainWindow extends JFrame {
 
                 }
         });
-        planes_menu.add(planes[MU_SQUARED_PLANE]);
+        planes_general_menu.add(planes[MU_SQUARED_PLANE]);
         
         
         planes[MU_SQUARED_IMAGINARY_PLANE] = new JRadioButtonMenuItem("mu^2i");
@@ -2144,7 +2260,7 @@ public class MainWindow extends JFrame {
 
                 }
         });
-        planes_menu.add(planes[MU_SQUARED_IMAGINARY_PLANE]);
+        planes_general_menu.add(planes[MU_SQUARED_IMAGINARY_PLANE]);
 
         
         planes[INVERSED_MU_PLANE] = new JRadioButtonMenuItem("1 / mu");
@@ -2156,7 +2272,7 @@ public class MainWindow extends JFrame {
 
                 }
         });
-        planes_menu.add(planes[INVERSED_MU_PLANE]);
+        planes_general_menu.add(planes[INVERSED_MU_PLANE]);
         
         planes[INVERSED_MU2_PLANE] = new JRadioButtonMenuItem("1 / (mu + 0.25)");
         planes[INVERSED_MU2_PLANE].setToolTipText("An inversed mu plane variation.");
@@ -2167,7 +2283,7 @@ public class MainWindow extends JFrame {
 
                 }
         });
-        planes_menu.add(planes[INVERSED_MU2_PLANE]);
+        planes_general_menu.add(planes[INVERSED_MU2_PLANE]);
 
         
         planes[INVERSED_MU3_PLANE] = new JRadioButtonMenuItem("1 / (mu - 1.40115)");
@@ -2179,7 +2295,7 @@ public class MainWindow extends JFrame {
 
                 }
         });
-        planes_menu.add(planes[INVERSED_MU3_PLANE]);
+        planes_general_menu.add(planes[INVERSED_MU3_PLANE]);
         
         planes[INVERSED_MU4_PLANE] = new JRadioButtonMenuItem("1 / (mu - 2)");
         planes[INVERSED_MU4_PLANE].setToolTipText("An inversed mu plane variation.");
@@ -2190,7 +2306,7 @@ public class MainWindow extends JFrame {
 
                 }
         });
-        planes_menu.add(planes[INVERSED_MU4_PLANE]);
+        planes_general_menu.add(planes[INVERSED_MU4_PLANE]);
         
         planes[LAMBDA_PLANE] = new JRadioButtonMenuItem("lambda");
         planes[LAMBDA_PLANE].setToolTipText("The lambda plane.");
@@ -2201,7 +2317,7 @@ public class MainWindow extends JFrame {
 
                 }
         });
-        planes_menu.add(planes[LAMBDA_PLANE]);
+        planes_general_menu.add(planes[LAMBDA_PLANE]);
         
         planes[INVERSED_LAMBDA_PLANE] = new JRadioButtonMenuItem("1 / lambda");
         planes[INVERSED_LAMBDA_PLANE].setToolTipText("The inversed lambda plane.");
@@ -2212,7 +2328,7 @@ public class MainWindow extends JFrame {
 
                 }
         });
-        planes_menu.add(planes[INVERSED_LAMBDA_PLANE]);
+        planes_general_menu.add(planes[INVERSED_LAMBDA_PLANE]);
         
         
         planes[INVERSED_LAMBDA2_PLANE] = new JRadioButtonMenuItem("1 / (lambda - 1)");
@@ -2224,7 +2340,7 @@ public class MainWindow extends JFrame {
 
                 }
         });
-        planes_menu.add(planes[INVERSED_LAMBDA2_PLANE]);
+        planes_general_menu.add(planes[INVERSED_LAMBDA2_PLANE]);
         
         
         planes[FOLDUP_PLANE] = new JRadioButtonMenuItem("fold up");
@@ -2236,7 +2352,7 @@ public class MainWindow extends JFrame {
 
                 }
         });
-        planes_menu.add(planes[FOLDUP_PLANE]);
+        planes_fold_menu.add(planes[FOLDUP_PLANE]);
         
         
         planes[FOLDRIGHT_PLANE] = new JRadioButtonMenuItem("fold right");
@@ -2248,7 +2364,7 @@ public class MainWindow extends JFrame {
 
                 }
         });
-        planes_menu.add(planes[FOLDRIGHT_PLANE]);
+        planes_fold_menu.add(planes[FOLDRIGHT_PLANE]);
         
         
         planes[FOLDIN_PLANE] = new JRadioButtonMenuItem("fold in");
@@ -2260,7 +2376,7 @@ public class MainWindow extends JFrame {
 
                 }
         });
-        planes_menu.add(planes[FOLDIN_PLANE]);
+        planes_fold_menu.add(planes[FOLDIN_PLANE]);
         
         
         planes[FOLDOUT_PLANE] = new JRadioButtonMenuItem("fold out");
@@ -2272,7 +2388,7 @@ public class MainWindow extends JFrame {
 
                 }
         });
-        planes_menu.add(planes[FOLDOUT_PLANE]);
+        planes_fold_menu.add(planes[FOLDOUT_PLANE]);
         
         
         planes[EXP_PLANE] = new JRadioButtonMenuItem("exp");
@@ -2284,7 +2400,7 @@ public class MainWindow extends JFrame {
 
                 }
         });
-        planes_menu.add(planes[EXP_PLANE]);
+        planes_math_menu.add(planes[EXP_PLANE]);
         
         
         planes[LOG_PLANE] = new JRadioButtonMenuItem("log");
@@ -2296,7 +2412,7 @@ public class MainWindow extends JFrame {
 
                 }
         });
-        planes_menu.add(planes[LOG_PLANE]);
+        planes_math_menu.add(planes[LOG_PLANE]);
         
         
         planes[SQRT_PLANE] = new JRadioButtonMenuItem("sqrt");
@@ -2308,7 +2424,7 @@ public class MainWindow extends JFrame {
 
                 }
         });
-        planes_menu.add(planes[SQRT_PLANE]);
+        planes_math_menu.add(planes[SQRT_PLANE]);
         
         
         planes[ABS_PLANE] = new JRadioButtonMenuItem("abs");
@@ -2320,7 +2436,7 @@ public class MainWindow extends JFrame {
 
                 }
         });
-        planes_menu.add(planes[ABS_PLANE]);
+        planes_math_menu.add(planes[ABS_PLANE]);
         
         
         planes[SIN_PLANE] = new JRadioButtonMenuItem("sin");
@@ -2332,7 +2448,7 @@ public class MainWindow extends JFrame {
 
                 }
         });
-        planes_menu.add(planes[SIN_PLANE]);
+        planes_math_trigonometric_menu.add(planes[SIN_PLANE]);
         
         
         planes[COS_PLANE] = new JRadioButtonMenuItem("cos");
@@ -2344,7 +2460,7 @@ public class MainWindow extends JFrame {
 
                 }
         });
-        planes_menu.add(planes[COS_PLANE]);
+        planes_math_trigonometric_menu.add(planes[COS_PLANE]);
         
         
         planes[TAN_PLANE] = new JRadioButtonMenuItem("tan");
@@ -2356,7 +2472,7 @@ public class MainWindow extends JFrame {
 
                 }
         });
-        planes_menu.add(planes[TAN_PLANE]);
+        planes_math_trigonometric_menu.add(planes[TAN_PLANE]);
         
         
         planes[COT_PLANE] = new JRadioButtonMenuItem("cot");
@@ -2368,11 +2484,11 @@ public class MainWindow extends JFrame {
 
                 }
         });
-        planes_menu.add(planes[COT_PLANE]);
+        planes_math_trigonometric_menu.add(planes[COT_PLANE]);
         
         
         planes[SINH_PLANE] = new JRadioButtonMenuItem("sinh");
-        planes[SINH_PLANE].setToolTipText("The sinh plane.");
+        planes[SINH_PLANE].setToolTipText("The hyperbolic sin plane.");
         planes[SINH_PLANE].addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
 
@@ -2380,11 +2496,11 @@ public class MainWindow extends JFrame {
 
                 }
         });
-        planes_menu.add(planes[SINH_PLANE]);
+        planes_math_trigonometric_menu.add(planes[SINH_PLANE]);
         
         
         planes[COSH_PLANE] = new JRadioButtonMenuItem("cosh");
-        planes[COSH_PLANE].setToolTipText("The cosh plane.");
+        planes[COSH_PLANE].setToolTipText("The hyperbolic cos plane.");
         planes[COSH_PLANE].addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
 
@@ -2392,11 +2508,11 @@ public class MainWindow extends JFrame {
 
                 }
         });
-        planes_menu.add(planes[COSH_PLANE]);
+        planes_math_trigonometric_menu.add(planes[COSH_PLANE]);
         
         
         planes[TANH_PLANE] = new JRadioButtonMenuItem("tanh");
-        planes[TANH_PLANE].setToolTipText("The tanh plane.");
+        planes[TANH_PLANE].setToolTipText("The hyperbolic tan plane.");
         planes[TANH_PLANE].addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
 
@@ -2404,11 +2520,11 @@ public class MainWindow extends JFrame {
 
                 }
         });
-        planes_menu.add(planes[TANH_PLANE]);
+        planes_math_trigonometric_menu.add(planes[TANH_PLANE]);
         
         
         planes[COTH_PLANE] = new JRadioButtonMenuItem("coth");
-        planes[COTH_PLANE].setToolTipText("The coth plane.");
+        planes[COTH_PLANE].setToolTipText("The hyperbolic cot plane.");
         planes[COTH_PLANE].addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
 
@@ -2416,14 +2532,212 @@ public class MainWindow extends JFrame {
 
                 }
         });
-        planes_menu.add(planes[COTH_PLANE]);
+        planes_math_trigonometric_menu.add(planes[COTH_PLANE]);
         
+        
+        planes[SEC_PLANE] = new JRadioButtonMenuItem("sec");
+        planes[SEC_PLANE].setToolTipText("The sec plane.");
+        planes[SEC_PLANE].addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+
+                    setPlane(SEC_PLANE);
+
+                }
+        });
+        planes_math_trigonometric_menu.add(planes[SEC_PLANE]);
+        
+        
+        planes[CSC_PLANE] = new JRadioButtonMenuItem("csc");
+        planes[CSC_PLANE].setToolTipText("The csc plane.");
+        planes[CSC_PLANE].addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+
+                    setPlane(CSC_PLANE);
+
+                }
+        });
+        planes_math_trigonometric_menu.add(planes[CSC_PLANE]);
+        
+        
+        planes[SECH_PLANE] = new JRadioButtonMenuItem("sech");
+        planes[SECH_PLANE].setToolTipText("The hyperbolic sec plane.");
+        planes[SECH_PLANE].addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+
+                    setPlane(SECH_PLANE);
+
+                }
+        });
+        planes_math_trigonometric_menu.add(planes[SECH_PLANE]);
+        
+        
+        planes[CSCH_PLANE] = new JRadioButtonMenuItem("csch");
+        planes[CSCH_PLANE].setToolTipText("The hyperbolic csc plane.");
+        planes[CSCH_PLANE].addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+
+                    setPlane(CSCH_PLANE);
+
+                }
+        });
+        planes_math_trigonometric_menu.add(planes[CSCH_PLANE]);
+        
+        
+        planes[ASIN_PLANE] = new JRadioButtonMenuItem("asin");
+        planes[ASIN_PLANE].setToolTipText("The inverse sin plane.");
+        planes[ASIN_PLANE].addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+
+                    setPlane(ASIN_PLANE);
+
+                }
+        });
+        planes_math_inverse_trigonometric_menu.add(planes[ASIN_PLANE]);
+        
+        
+        planes[ACOS_PLANE] = new JRadioButtonMenuItem("acos");
+        planes[ACOS_PLANE].setToolTipText("The inverse cos plane.");
+        planes[ACOS_PLANE].addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+
+                    setPlane(ACOS_PLANE);
+
+                }
+        });
+        planes_math_inverse_trigonometric_menu.add(planes[ACOS_PLANE]);
+        
+        
+        planes[ATAN_PLANE] = new JRadioButtonMenuItem("atan");
+        planes[ATAN_PLANE].setToolTipText("The inverse tan plane.");
+        planes[ATAN_PLANE].addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+
+                    setPlane(ATAN_PLANE);
+
+                }
+        });
+        planes_math_inverse_trigonometric_menu.add(planes[ATAN_PLANE]);
+        
+        
+        planes[ACOT_PLANE] = new JRadioButtonMenuItem("acot");
+        planes[ACOT_PLANE].setToolTipText("The inverse cot plane.");
+        planes[ACOT_PLANE].addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+
+                    setPlane(ACOT_PLANE);
+
+                }
+        });
+        planes_math_inverse_trigonometric_menu.add(planes[ACOT_PLANE]);
+        
+        
+        planes[ASINH_PLANE] = new JRadioButtonMenuItem("asinh");
+        planes[ASINH_PLANE].setToolTipText("The inverse hyperbolic sin plane.");
+        planes[ASINH_PLANE].addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+
+                    setPlane(ASINH_PLANE);
+
+                }
+        });
+        planes_math_inverse_trigonometric_menu.add(planes[ASINH_PLANE]);
+        
+        
+        planes[ACOSH_PLANE] = new JRadioButtonMenuItem("acosh");
+        planes[ACOSH_PLANE].setToolTipText("The inverse hyperbolic cos plane.");
+        planes[ACOSH_PLANE].addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+
+                    setPlane(ACOSH_PLANE);
+
+                }
+        });
+        planes_math_inverse_trigonometric_menu.add(planes[ACOSH_PLANE]);
+        
+        
+        planes[ATANH_PLANE] = new JRadioButtonMenuItem("atanh");
+        planes[ATANH_PLANE].setToolTipText("The inverse hyperbolic tan plane.");
+        planes[ATANH_PLANE].addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+
+                    setPlane(ATANH_PLANE);
+
+                }
+        });
+        planes_math_inverse_trigonometric_menu.add(planes[ATANH_PLANE]);
+        
+        
+        planes[ACOTH_PLANE] = new JRadioButtonMenuItem("acoth");
+        planes[ACOTH_PLANE].setToolTipText("The inverse hyperbolic cot plane.");
+        planes[ACOTH_PLANE].addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+
+                    setPlane(ACOTH_PLANE);
+
+                }
+        });
+        planes_math_inverse_trigonometric_menu.add(planes[ACOTH_PLANE]);
+        
+        
+        planes[ASEC_PLANE] = new JRadioButtonMenuItem("asec");
+        planes[ASEC_PLANE].setToolTipText("The inverse sec plane.");
+        planes[ASEC_PLANE].addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+
+                    setPlane(ASEC_PLANE);
+
+                }
+        });
+        planes_math_inverse_trigonometric_menu.add(planes[ASEC_PLANE]);
+        
+        
+        planes[ACSC_PLANE] = new JRadioButtonMenuItem("acsc");
+        planes[ACSC_PLANE].setToolTipText("The inverse csc plane.");
+        planes[ACSC_PLANE].addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+
+                    setPlane(ACSC_PLANE);
+
+                }
+        });
+        planes_math_inverse_trigonometric_menu.add(planes[ACSC_PLANE]);
+        
+        
+        planes[ASECH_PLANE] = new JRadioButtonMenuItem("asech");
+        planes[ASECH_PLANE].setToolTipText("The inverse hyperbolic sec plane.");
+        planes[ASECH_PLANE].addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+
+                    setPlane(ASECH_PLANE);
+
+                }
+        });
+        planes_math_inverse_trigonometric_menu.add(planes[ASECH_PLANE]);
+        
+        
+        planes[ACSCH_PLANE] = new JRadioButtonMenuItem("acsch");
+        planes[ACSCH_PLANE].setToolTipText("The inverse hyperbolic csc plane.");
+        planes[ACSCH_PLANE].addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+
+                    setPlane(ACSCH_PLANE);
+
+                }
+        });
+        planes_math_inverse_trigonometric_menu.add(planes[ACSCH_PLANE]);
+        
+        planes_math_menu.addSeparator();
+        planes_math_menu.add(planes_math_trigonometric_menu);
+        planes_math_menu.addSeparator();
+        planes_math_menu.add(planes_math_inverse_trigonometric_menu);
+        
+
         
         planes[plane_type].setSelected(true);
         planes[plane_type].setEnabled(false);
         
         
-        out_coloring_modes = new JRadioButtonMenuItem[12];
+        out_coloring_modes = new JRadioButtonMenuItem[18];
         
         out_coloring_modes[ESCAPE_TIME] = new JRadioButtonMenuItem("Escape Time");
         out_coloring_modes[ESCAPE_TIME].setToolTipText("Sets the out-coloring method, using the iterations.");
@@ -2568,6 +2882,78 @@ public class MainWindow extends JFrame {
         });
         out_coloring_mode_menu.add(out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER]);
         
+        
+        out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2] = new JRadioButtonMenuItem("Escape Time + Gaussian Integer 2");
+        out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setToolTipText("Sets the out-coloring method, using Escape Time + Gaussian Integer 2.");
+        out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+
+                    setOutColoringMode(ESCAPE_TIME_GAUSSIAN_INTEGER2);
+
+                }
+        });
+        out_coloring_mode_menu.add(out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2]);
+        
+        
+        out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3] = new JRadioButtonMenuItem("Escape Time + Gaussian Integer 3");
+        out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setToolTipText("Sets the out-coloring method, using Escape Time + Gaussian Integer 3.");
+        out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+
+                    setOutColoringMode(ESCAPE_TIME_GAUSSIAN_INTEGER3);
+
+                }
+        });
+        out_coloring_mode_menu.add(out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3]);
+        
+        
+        out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4] = new JRadioButtonMenuItem("Escape Time + Gaussian Integer 4");
+        out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setToolTipText("Sets the out-coloring method, using Escape Time + Gaussian Integer 4.");
+        out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+
+                    setOutColoringMode(ESCAPE_TIME_GAUSSIAN_INTEGER4);
+
+                }
+        });
+        out_coloring_mode_menu.add(out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4]);
+        
+        
+        out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5] = new JRadioButtonMenuItem("Escape Time + Gaussian Integer 5");
+        out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setToolTipText("Sets the out-coloring method, using Escape Time + Gaussian Integer 5.");
+        out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+
+                    setOutColoringMode(ESCAPE_TIME_GAUSSIAN_INTEGER5);
+
+                }
+        });
+        out_coloring_mode_menu.add(out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5]);
+        
+        
+        out_coloring_modes[ESCAPE_TIME_ALGORITHM] = new JRadioButtonMenuItem("Escape Time + Algorithm");
+        out_coloring_modes[ESCAPE_TIME_ALGORITHM].setToolTipText("Sets the out-coloring method, using Escape Time + Algorithm.");
+        out_coloring_modes[ESCAPE_TIME_ALGORITHM].addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+
+                    setOutColoringMode(ESCAPE_TIME_ALGORITHM);
+
+                }
+        });
+        out_coloring_mode_menu.add(out_coloring_modes[ESCAPE_TIME_ALGORITHM]);
+        
+        
+        out_coloring_modes[ESCAPE_TIME_ALGORITHM2] = new JRadioButtonMenuItem("Escape Time + Algorithm 2");
+        out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setToolTipText("Sets the out-coloring method, using Escape Time + Algorithm 2.");
+        out_coloring_modes[ESCAPE_TIME_ALGORITHM2].addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+
+                    setOutColoringMode(ESCAPE_TIME_ALGORITHM2);
+
+                }
+        });
+        out_coloring_mode_menu.add(out_coloring_modes[ESCAPE_TIME_ALGORITHM2]);
+  
         
         out_coloring_modes[out_coloring_algorithm].setSelected(true);
         out_coloring_modes[out_coloring_algorithm].setEnabled(false);
@@ -2889,7 +3275,7 @@ public class MainWindow extends JFrame {
             }
         });
 
-        coloring_option = new String[16];
+        coloring_option = new String[17];
         coloring_option[0] = "Default";
         coloring_option[1] = "Spectrum";
         coloring_option[2] = "Alternative";
@@ -2899,13 +3285,14 @@ public class MainWindow extends JFrame {
         coloring_option[6] = "Alternative 5";
         coloring_option[7] = "Alternative 6";
         coloring_option[8] = "Alternative 7";
-        coloring_option[9] = "Green White";
-        coloring_option[10] = "Blue";
-        coloring_option[11] = "Gray Scale";
-        coloring_option[12] = "Earth Sky";
-        coloring_option[13] = "Hot Cold";
-        coloring_option[14] = "Fire";
-        coloring_option[15] = "Custom Palette";
+        coloring_option[9] = "Alternative 8";
+        coloring_option[10] = "Green White";
+        coloring_option[11] = "Blue";
+        coloring_option[12] = "Gray Scale";
+        coloring_option[13] = "Earth Sky";
+        coloring_option[14] = "Hot Cold";
+        coloring_option[15] = "Fire";
+        coloring_option[16] = "Custom Palette";
 
         palette = new JRadioButtonMenuItem[coloring_option.length];
 
@@ -2947,13 +3334,14 @@ public class MainWindow extends JFrame {
         palette[6].setToolTipText("An alternative palette.");
         palette[7].setToolTipText("An alternative palette.");
         palette[8].setToolTipText("An alternative palette.");
-        palette[9].setToolTipText("A palette based on green and white.");
-        palette[10].setToolTipText("A palette based on blue.");
-        palette[11].setToolTipText("A palette based on gray scale.");
-        palette[12].setToolTipText("A palette based on colors of earth and sky.");
-        palette[13].setToolTipText("A palette based on colors of hot and cold.");
-        palette[14].setToolTipText("A palette based on colors of fire.");
-        palette[15].setToolTipText("A palette custom made by the user.");
+        palette[9].setToolTipText("An alternative palette.");
+        palette[10].setToolTipText("A palette based on green and white.");
+        palette[11].setToolTipText("A palette based on blue.");
+        palette[12].setToolTipText("A palette based on gray scale.");
+        palette[13].setToolTipText("A palette based on colors of earth and sky.");
+        palette[14].setToolTipText("A palette based on colors of hot and cold.");
+        palette[15].setToolTipText("A palette based on colors of fire.");
+        palette[16].setToolTipText("A palette custom made by the user.");
         
         
         random_palette.addActionListener(new ActionListener() {
@@ -3018,23 +3406,13 @@ public class MainWindow extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
 
-                setEdges();
+                setEdgeDetection();
 
             }
 
         });
         
-        edges2_opt.addActionListener(new ActionListener () {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                setEdges2();
-
-            }
-
-        });
-        
+ 
         invert_colors_opt.addActionListener(new ActionListener () {
 
             @Override
@@ -3068,17 +3446,61 @@ public class MainWindow extends JFrame {
 
         });
         
-        embosscolored_opt.addActionListener(new ActionListener () {
+        blurring_opt.addActionListener(new ActionListener () {
 
             @Override
             public void actionPerformed(ActionEvent e) {
 
-                setEmbossColored();
+                setBlurring();
 
             }
 
         });
         
+        mask_color_channel_opt.addActionListener(new ActionListener () {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                setMaskColorChannel();
+
+            }
+
+        });
+        
+        fade_out_opt.addActionListener(new ActionListener () {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                setFadeOut();
+
+            }
+
+        });
+        
+        color_channel_swapping_opt.addActionListener(new ActionListener () {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                setColorChannelSwapping();
+
+            }
+
+        });
+        
+        contrast_brightness_opt.addActionListener(new ActionListener () {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                setContrastBrightness();
+
+            }
+
+        });
+
         boundary_tracing_opt.addActionListener(new ActionListener() {
 
             @Override
@@ -3193,6 +3615,227 @@ public class MainWindow extends JFrame {
             }
         });
         
+        
+        antialiasing_4_samples = new JRadioButtonMenuItem("4x Samples");
+        antialiasing_4_samples.setToolTipText("Sets the antialiasing sampling to 4 samples per pixel.");
+        antialiasing_8_samples = new JRadioButtonMenuItem("8x Samples");
+        antialiasing_8_samples.setToolTipText("Sets the antialiasing sampling to 8 samples per pixel.");
+        
+        antialiasing_menu.add(antialiasing_4_samples);
+        antialiasing_menu.add(antialiasing_8_samples);
+        
+        antialiasing_4_samples.setSelected(true);
+        antialiasing_4_samples.setEnabled(false);
+        
+        antialiasing_4_samples.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                set4Samples();
+
+            }
+        });
+
+        antialiasing_8_samples.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                set8Samples();
+
+            }
+        });
+        
+        edgedetection_thin_lines = new JRadioButtonMenuItem("Thin Edges");
+        edgedetection_thin_lines.setToolTipText("Sets the edge detection edges to thin.");
+        edgedetection_thick_lines = new JRadioButtonMenuItem("Thick Edges");
+        edgedetection_thick_lines.setToolTipText("Sets the edge detection edges to thick.");
+        
+        edgedetection_menu.add(edgedetection_thin_lines);
+        edgedetection_menu.add(edgedetection_thick_lines);
+        
+        edgedetection_thin_lines.setSelected(true);
+        edgedetection_thin_lines.setEnabled(false);
+        
+        edgedetection_thin_lines.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                setThinEdges();
+
+            }
+        });
+
+        edgedetection_thick_lines.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                setThickEdges();
+
+            }
+        });
+        
+        
+        emboss_grayscale = new JRadioButtonMenuItem("Emboss Grayscale");
+        emboss_grayscale.setToolTipText("Sets the emboss to grayscale.");
+        emboss_colored = new JRadioButtonMenuItem("Emboss Colored");
+        emboss_colored.setToolTipText("Sets the emboss to colored.");
+        
+        emboss_menu.add(emboss_grayscale);
+        emboss_menu.add(emboss_colored);
+        
+        emboss_grayscale.setSelected(true);
+        emboss_grayscale.setEnabled(false);
+        
+        
+        emboss_grayscale.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                setEmbossGrayscale();
+
+            }
+        });
+
+        emboss_colored.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                setEmbossColored();
+
+            }
+        });
+        
+        contrast = new JRadioButtonMenuItem("Contrast");
+        contrast.setToolTipText("Increases the contrast of the image.");
+        brightness = new JRadioButtonMenuItem("Brightness");
+        brightness.setToolTipText("Increases the brightness of the image.");
+        contrastBrightness = new JRadioButtonMenuItem("Contrast & Brightness");
+        contrastBrightness.setToolTipText("Increases the contrast and the brightness of the image.");
+        
+        contrast_brightness_menu.add(contrast);
+        contrast_brightness_menu.add(brightness);
+        contrast_brightness_menu.add(contrastBrightness);
+        
+        contrast.setSelected(true);
+        contrast.setEnabled(false);
+        
+        
+        contrast.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                setContrast();
+
+            }
+        });
+
+        brightness.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                setBrightness();
+
+            }
+        });
+        
+        contrastBrightness.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                setContrastAndBrightness();
+
+            }
+        });
+        
+        mask_red = new JRadioButtonMenuItem("Mask Red Channel");
+        mask_red.setToolTipText("Removes the red channel of the image.");
+        mask_green = new JRadioButtonMenuItem("Mask Green Channel");
+        mask_green.setToolTipText("Removes the red channel of the image.");
+        mask_blue = new JRadioButtonMenuItem("Mask Blue Channel");
+        mask_blue.setToolTipText("Removes the red channel of the image.");
+        
+        mask_color_channel_menu.add(mask_red);
+        mask_color_channel_menu.add(mask_green);
+        mask_color_channel_menu.add(mask_blue);
+        
+        mask_red.setSelected(true);
+        mask_red.setEnabled(false);
+        
+        
+        mask_red.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                setMaskRed();
+
+            }
+        });
+
+        mask_green.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                setMaskGreen();
+
+            }
+        });
+        
+        mask_blue.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                setMaskBlue();
+
+            }
+        });
+        
+
+        channel_swapping_grb = new JRadioButtonMenuItem("Color Channel Swapping GRB");
+        channel_swapping_grb.setToolTipText("Sets the color channels of the image from RGB to GRB.");
+        channel_swapping_bgr = new JRadioButtonMenuItem("Color Channel Swapping BGR");
+        channel_swapping_bgr.setToolTipText("Sets the color channels of the image from RGB to BGR.");
+        
+        color_channel_swapping_menu.add(channel_swapping_grb);
+        color_channel_swapping_menu.add(channel_swapping_bgr);
+        
+        channel_swapping_grb.setSelected(true);
+        channel_swapping_grb.setEnabled(false);
+        
+        
+        channel_swapping_grb.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                setChannelSwappingGRB();
+
+            }
+        });
+
+        channel_swapping_bgr.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                setChannelSwappingBGR();
+
+            }
+        });
+
+                        
+        
         zoom_in.addActionListener(new ActionListener() {
 
             @Override
@@ -3284,7 +3927,7 @@ public class MainWindow extends JFrame {
                 if(!color_cycling) {
                     main_panel.repaint();
                 }
-                JOptionPane.showMessageDialog(scroll_pane, "<html><center><font size='5' face='arial' color='blue'><b><u>Fractal Zoomer</u></b></font><br><br><font size='4'><img src=\"" + getClass().getResource("/fractalzoomer/icons/mandel2.png") + "\"><br><br>Version: <b><font color='#FFB90F'>1.0.3.9</font></b><br><br>Author: <b><font color='#FFB90F'>Christos Kalonakis</font></b><br><br>Contact: <font color='#FFB90F'><b>hrkalona@gmail.com</b></font><br><br></font></center></html>", "About", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(scroll_pane, "<html><center><font size='5' face='arial' color='blue'><b><u>Fractal Zoomer</u></b></font><br><br><font size='4'><img src=\"" + getClass().getResource("/fractalzoomer/icons/mandel2.png") + "\"><br><br>Version: <b>1.0.4.0</b><br><br>Author: <b>Christos Kalonakis</b><br><br>Contact: <a href=\"mailto:hrkalona@gmail.com\">hrkalona@gmail.com</a><br><br></font></center></html>", "About", JOptionPane.INFORMATION_MESSAGE);
 
             }
 
@@ -3479,6 +4122,101 @@ public class MainWindow extends JFrame {
         
         toolbar.addSeparator();
         
+        orbit_button = new JButton();
+        imageURL = getClass().getResource("/fractalzoomer/icons/orbit.png");
+        image2 = Toolkit.getDefaultToolkit().getImage(imageURL);
+        icon = new ImageIcon(image2);
+        orbit_button.setIcon(icon);
+        orbit_button.setToolTipText("Displays the orbit of a complex number.");
+        orbit_button.setFocusable(false);
+        
+        orbit_button.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                
+                if(!orbit_button.isSelected()) {
+                    orbit_button.setSelected(true);
+                    orbit_opt.setSelected(true);
+                }
+                else {
+                    orbit_button.setSelected(false);
+                    orbit_opt.setSelected(false);
+                }
+                
+                setOrbitOption();
+                
+            }
+            
+        });
+        
+        toolbar.add(orbit_button);
+        
+        
+        julia_button = new JButton();
+        imageURL = getClass().getResource("/fractalzoomer/icons/julia.png");
+        image2 = Toolkit.getDefaultToolkit().getImage(imageURL);
+        icon = new ImageIcon(image2);
+        julia_button.setIcon(icon);
+        julia_button.setToolTipText("Generates an image based on a seed (chosen pixel).");
+        julia_button.setFocusable(false);
+        
+        
+        julia_button.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                
+                if(!julia_button.isSelected()) {
+                    julia_button.setSelected(true);
+                    julia_opt.setSelected(true);
+                }
+                else {
+                    julia_button.setSelected(false);
+                    julia_opt.setSelected(false);
+                }
+                
+                setJuliaOption();
+                
+            }
+            
+        });
+        
+        toolbar.add(julia_button);
+        
+        color_cycling_button = new JButton();
+        imageURL = getClass().getResource("/fractalzoomer/icons/color_cycling.png");
+        image2 = Toolkit.getDefaultToolkit().getImage(imageURL);
+        icon = new ImageIcon(image2);
+        color_cycling_button.setIcon(icon);
+        color_cycling_button.setToolTipText("Animates the image, cycling through the palette.");
+        color_cycling_button.setFocusable(false);
+        
+        
+        color_cycling_button.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                
+                if(!color_cycling_opt.isSelected()) {
+                    color_cycling_button.setSelected(true);
+                    color_cycling_opt.setSelected(true);
+                }
+                else {
+                    color_cycling_button.setSelected(false);
+                    color_cycling_opt.setSelected(false);
+                }
+                
+                setColorCycling();
+                
+            }
+            
+        });
+        
+        toolbar.add(color_cycling_button);
+        
+        toolbar.addSeparator();
+        
         help_button = new JButton();
         imageURL = getClass().getResource("/fractalzoomer/icons/help.png");
         image2 = Toolkit.getDefaultToolkit().getImage(imageURL);
@@ -3500,7 +4238,7 @@ public class MainWindow extends JFrame {
        
         toolbar.add(help_button);
         
-        
+  
         statusbar = new JToolBar();
         statusbar.setFloatable(false);
         add(statusbar, BorderLayout.PAGE_END);
@@ -3577,6 +4315,19 @@ public class MainWindow extends JFrame {
         tools_options_menu.add(grid_color_opt);
         tools_options_menu.addSeparator();
         tools_options_menu.add(fast_julia_filters_opt);
+
+        filters_options_menu.add(antialiasing_menu);
+        filters_options_menu.addSeparator();
+        filters_options_menu.add(edgedetection_menu);
+        filters_options_menu.addSeparator();
+        filters_options_menu.add(emboss_menu);
+        filters_options_menu.addSeparator();
+        filters_options_menu.add(contrast_brightness_menu);
+        filters_options_menu.addSeparator();
+        filters_options_menu.add(mask_color_channel_menu);
+        filters_options_menu.addSeparator();
+        filters_options_menu.add(color_channel_swapping_menu);
+ 
         
         iterations_menu.add(iterations);
         iterations_menu.add(increase_iterations);
@@ -3622,6 +4373,8 @@ public class MainWindow extends JFrame {
         options_menu.addSeparator();
         options_menu.add(tools_options_menu);
         options_menu.addSeparator();
+        options_menu.add(filters_options_menu);
+        options_menu.addSeparator();
         options_menu.add(window_menu);
         
  
@@ -3641,15 +4394,23 @@ public class MainWindow extends JFrame {
         filters_menu.addSeparator();
         filters_menu.add(edges_opt);
         filters_menu.addSeparator();
-        filters_menu.add(edges2_opt);
-        filters_menu.addSeparator();
         filters_menu.add(sharpness_opt);
+        filters_menu.addSeparator();
+        filters_menu.add(blurring_opt);
         filters_menu.addSeparator();
         filters_menu.add(emboss_opt);
         filters_menu.addSeparator();
-        filters_menu.add(embosscolored_opt);
+        filters_menu.add(contrast_brightness_opt);
+        filters_menu.addSeparator();
+        filters_menu.add(fade_out_opt);
         filters_menu.addSeparator();
         filters_menu.add(invert_colors_opt);
+        filters_menu.addSeparator();
+        filters_menu.add(mask_color_channel_opt);
+        filters_menu.addSeparator();
+        filters_menu.add(color_channel_swapping_opt);
+        
+        
         
 
 
@@ -3847,8 +4608,9 @@ public class MainWindow extends JFrame {
                 if(julia && first_seed) {
                     julia = false;
                     julia_opt.setSelected(false);
+                    julia_button.setSelected(false);
                     
-                    if(out_coloring_algorithm != BIOMORPH && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+                    if(out_coloring_algorithm != BIOMORPH && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
                         fractal_functions[NEWTON3].setEnabled(true);
                         fractal_functions[NEWTON4].setEnabled(true);
                         fractal_functions[NEWTONGENERALIZED3].setEnabled(true);
@@ -3958,8 +4720,9 @@ public class MainWindow extends JFrame {
                         return;
                     }
                  
-                    double temp_xcenter_size = xCenter - size / 2;
-                    double temp_ycenter_size = yCenter - size / 2;
+                    double size_2 = size * 0.5;
+                    double temp_xcenter_size = xCenter - size_2;
+                    double temp_ycenter_size = yCenter - size_2;
                     double temp_size_image_size = size / image_size;
 
                     double temp2 = temp_xcenter_size + temp_size_image_size * main_panel.getMousePosition().getX();
@@ -4341,6 +5104,9 @@ public class MainWindow extends JFrame {
             case FORMULA26:
                 temp += "   z = abs(z^-3) + c";
                 break;
+            case FORMULA27:
+                temp += "   z = c((z + 2)^6 + (z + 2)^-6)";
+                break;
             case SZEGEDI_BUTTERFLY1:
                 temp += "   Szegedi Butterfly 1";
                 break;
@@ -4369,12 +5135,17 @@ public class MainWindow extends JFrame {
        setTitle(temp);
       
        try {
-           real.setText("" + (xCenter - size / 2 + size * main_panel.getMousePosition().getX() / image_size));
-           if((yCenter - size / 2 + size * main_panel.getMousePosition().getY() / image_size) == 0) {
+           double size_2 = size * 0.5;
+           double temp_size_image_size = size / image_size;
+           
+           real.setText("" + (xCenter - size_2 + temp_size_image_size * main_panel.getMousePosition().getX()));
+           
+           double temp3 = 0;
+           if((temp3 = yCenter - size_2 + temp_size_image_size * main_panel.getMousePosition().getY()) == 0) {
                imaginary.setText("" + 0.0);
            }
            else {
-               imaginary.setText("" + (-(yCenter - size / 2 + size * main_panel.getMousePosition().getY() / image_size)));
+               imaginary.setText("" + (-temp3));
            }
        }
        catch(NullPointerException ex) {}
@@ -4392,18 +5163,18 @@ public class MainWindow extends JFrame {
            for(int j = 0; j < n; j++) {
                if(color_choice != palette.length - 1) {
                    if(julia) {
-                       threads[i][j] = new Palette(color_choice, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, ptr, fractal_color, image, filters, out_coloring_algorithm, in_coloring_algorithm, boundary_tracing, periodicity_checking, plane_type,  burning_ship, function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, coefficients, xJuliaCenter, yJuliaCenter);
+                       threads[i][j] = new Palette(color_choice, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, ptr, fractal_color, image, filters, samples, edges, emboss, contrast_brightness, masking, channel_swapping, out_coloring_algorithm, in_coloring_algorithm, boundary_tracing, periodicity_checking, plane_type,  burning_ship, function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, coefficients, xJuliaCenter, yJuliaCenter);
                    }
                    else {
-                       threads[i][j] = new Palette(color_choice, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, ptr, fractal_color, image, filters, out_coloring_algorithm, in_coloring_algorithm, boundary_tracing, periodicity_checking, plane_type,  burning_ship, function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals, coefficients);
+                       threads[i][j] = new Palette(color_choice, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, ptr, fractal_color, image, filters, samples, edges, emboss, contrast_brightness, masking, channel_swapping, out_coloring_algorithm, in_coloring_algorithm, boundary_tracing, periodicity_checking, plane_type,  burning_ship, function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals, coefficients);
                    }      
                }
                else {
                    if(julia) {
-                       threads[i][j] = new CustomPalette(custom_palette, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm,  bailout, ptr, fractal_color, image, filters, out_coloring_algorithm, in_coloring_algorithm, boundary_tracing, periodicity_checking, plane_type,  burning_ship, function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, coefficients, xJuliaCenter, yJuliaCenter);
+                       threads[i][j] = new CustomPalette(custom_palette, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm,  bailout, ptr, fractal_color, image, filters, samples, edges, emboss, contrast_brightness, masking, channel_swapping, out_coloring_algorithm, in_coloring_algorithm, boundary_tracing, periodicity_checking, plane_type,  burning_ship, function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, coefficients, xJuliaCenter, yJuliaCenter);
                    }
                    else {
-                       threads[i][j] = new CustomPalette(custom_palette, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm,  bailout, ptr, fractal_color, image, filters, out_coloring_algorithm, in_coloring_algorithm, boundary_tracing, periodicity_checking, plane_type,  burning_ship, function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals, coefficients);
+                       threads[i][j] = new CustomPalette(custom_palette, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm,  bailout, ptr, fractal_color, image, filters, samples, edges, emboss, contrast_brightness, masking, channel_swapping, out_coloring_algorithm, in_coloring_algorithm, boundary_tracing, periodicity_checking, plane_type,  burning_ship, function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals, coefficients);
                    }
                }
            }
@@ -4523,6 +5294,7 @@ public class MainWindow extends JFrame {
                    julia = true;
                    first_seed = false;
                    julia_opt.setSelected(true);
+                   julia_button.setSelected(true);
                    julia_map_opt.setEnabled(false);
                    perturbation_opt.setEnabled(false);
                    init_val_opt.setEnabled(false);
@@ -4562,6 +5334,7 @@ public class MainWindow extends JFrame {
                    julia = false;
                    first_seed = true;
                    julia_opt.setSelected(false);
+                   julia_button.setSelected(false);
                    
                    perturbation = settings.getPerturbation();
                    init_val = settings.getInitVal();
@@ -4607,6 +5380,7 @@ public class MainWindow extends JFrame {
                    }
                    else {
                        julia_opt.setEnabled(false);
+                       julia_button.setEnabled(false);
                        julia_map_opt.setEnabled(false);
                        fractal_functions[NEWTON3].setEnabled(false);
                        fractal_functions[NEWTON4].setEnabled(false);
@@ -4728,7 +5502,7 @@ public class MainWindow extends JFrame {
                    poly += coefficients[l]; 
                }
 
-               if(out_coloring_algorithm == BIOMORPH || out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER) {
+               if(out_coloring_algorithm == BIOMORPH || out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER || out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER2 || out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER3 || out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER4 || out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER5) {
                    fractal_functions[NEWTON3].setEnabled(false);
                    fractal_functions[NEWTON4].setEnabled(false);
                    fractal_functions[NEWTONGENERALIZED3].setEnabled(false);
@@ -4810,6 +5584,18 @@ public class MainWindow extends JFrame {
                        if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
                        }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
+                       }
                        break;
                    case MANDELBROTWTH:
                        z_exponent_complex = settings.getZExponentComplex();
@@ -4820,6 +5606,18 @@ public class MainWindow extends JFrame {
                        if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
                        }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
+                       }
                        break;
                    case MANDELPOLY:
                        if(out_coloring_algorithm != BIOMORPH) {
@@ -4827,6 +5625,18 @@ public class MainWindow extends JFrame {
                        }
                        if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
                        }
                        fractal_functions[function].setSelected(true);
                        break;
@@ -4836,6 +5646,18 @@ public class MainWindow extends JFrame {
                        }
                        if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
                        }
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
@@ -4847,6 +5669,18 @@ public class MainWindow extends JFrame {
                        if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
                        }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
+                       }
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
                        break;
@@ -4857,6 +5691,18 @@ public class MainWindow extends JFrame {
                        if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
                        }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
+                       }
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
                        break;
@@ -4864,9 +5710,14 @@ public class MainWindow extends JFrame {
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
                        julia_opt.setEnabled(false);
+                       julia_button.setEnabled(false);
                        julia_map_opt.setEnabled(false);
                        out_coloring_modes[BIOMORPH].setEnabled(false);
                        out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(false);
                        periodicity_checking_opt.setEnabled(false);
                        bailout_number.setEnabled(false);
                        bailout_test_menu.setEnabled(false);
@@ -4877,9 +5728,14 @@ public class MainWindow extends JFrame {
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
                        julia_opt.setEnabled(false);
+                       julia_button.setEnabled(false);
                        julia_map_opt.setEnabled(false);
                        out_coloring_modes[BIOMORPH].setEnabled(false);
                        out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(false);
                        periodicity_checking_opt.setEnabled(false);
                        bailout_number.setEnabled(false);
                        bailout_test_menu.setEnabled(false);
@@ -4890,9 +5746,14 @@ public class MainWindow extends JFrame {
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
                        julia_opt.setEnabled(false);
+                       julia_button.setEnabled(false);
                        julia_map_opt.setEnabled(false);
                        out_coloring_modes[BIOMORPH].setEnabled(false);
                        out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(false);
                        periodicity_checking_opt.setEnabled(false);
                        bailout_number.setEnabled(false);
                        bailout_test_menu.setEnabled(false);
@@ -4903,9 +5764,14 @@ public class MainWindow extends JFrame {
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
                        julia_opt.setEnabled(false);
+                       julia_button.setEnabled(false);
                        julia_map_opt.setEnabled(false);
                        out_coloring_modes[BIOMORPH].setEnabled(false);
                        out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(false);
                        periodicity_checking_opt.setEnabled(false);
                        bailout_number.setEnabled(false);
                        bailout_test_menu.setEnabled(false);
@@ -4916,9 +5782,14 @@ public class MainWindow extends JFrame {
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
                        julia_opt.setEnabled(false);
+                       julia_button.setEnabled(false);
                        julia_map_opt.setEnabled(false);
                        out_coloring_modes[BIOMORPH].setEnabled(false);
                        out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(false);
                        periodicity_checking_opt.setEnabled(false);
                        bailout_number.setEnabled(false);
                        bailout_test_menu.setEnabled(false);
@@ -4929,9 +5800,14 @@ public class MainWindow extends JFrame {
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
                        julia_opt.setEnabled(false);
+                       julia_button.setEnabled(false);
                        julia_map_opt.setEnabled(false);
                        out_coloring_modes[BIOMORPH].setEnabled(false);
                        out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(false);
                        periodicity_checking_opt.setEnabled(false);
                        bailout_number.setEnabled(false);
                        bailout_test_menu.setEnabled(false);
@@ -4941,9 +5817,14 @@ public class MainWindow extends JFrame {
                    case NEWTONPOLY:
                        fractal_functions[function].setSelected(true);
                        julia_opt.setEnabled(false);
+                       julia_button.setEnabled(false);
                        julia_map_opt.setEnabled(false);
                        out_coloring_modes[BIOMORPH].setEnabled(false);
                        out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(false);
                        periodicity_checking_opt.setEnabled(false);
                        bailout_number.setEnabled(false);
                        bailout_test_menu.setEnabled(false);
@@ -4954,9 +5835,14 @@ public class MainWindow extends JFrame {
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
                        julia_opt.setEnabled(false);
+                       julia_button.setEnabled(false);
                        julia_map_opt.setEnabled(false);
                        out_coloring_modes[BIOMORPH].setEnabled(false);
                        out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(false);
                        periodicity_checking_opt.setEnabled(false);
                        bailout_number.setEnabled(false);
                        bailout_test_menu.setEnabled(false);
@@ -4967,9 +5853,14 @@ public class MainWindow extends JFrame {
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
                        julia_opt.setEnabled(false);
+                       julia_button.setEnabled(false);
                        julia_map_opt.setEnabled(false);
                        out_coloring_modes[BIOMORPH].setEnabled(false);
                        out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(false);
                        periodicity_checking_opt.setEnabled(false);
                        bailout_number.setEnabled(false);
                        bailout_test_menu.setEnabled(false);
@@ -4980,9 +5871,14 @@ public class MainWindow extends JFrame {
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
                        julia_opt.setEnabled(false);
+                       julia_button.setEnabled(false);
                        julia_map_opt.setEnabled(false);
                        out_coloring_modes[BIOMORPH].setEnabled(false);
                        out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(false);
                        periodicity_checking_opt.setEnabled(false);
                        bailout_number.setEnabled(false);
                        bailout_test_menu.setEnabled(false);
@@ -4993,9 +5889,14 @@ public class MainWindow extends JFrame {
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
                        julia_opt.setEnabled(false);
+                       julia_button.setEnabled(false);
                        julia_map_opt.setEnabled(false);
                        out_coloring_modes[BIOMORPH].setEnabled(false);
                        out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(false);
                        periodicity_checking_opt.setEnabled(false);
                        bailout_number.setEnabled(false);
                        bailout_test_menu.setEnabled(false);
@@ -5006,9 +5907,14 @@ public class MainWindow extends JFrame {
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
                        julia_opt.setEnabled(false);
+                       julia_button.setEnabled(false);
                        julia_map_opt.setEnabled(false);
                        out_coloring_modes[BIOMORPH].setEnabled(false);
                        out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(false);
                        periodicity_checking_opt.setEnabled(false);
                        bailout_number.setEnabled(false);
                        bailout_test_menu.setEnabled(false);
@@ -5019,9 +5925,14 @@ public class MainWindow extends JFrame {
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
                        julia_opt.setEnabled(false);
+                       julia_button.setEnabled(false);
                        julia_map_opt.setEnabled(false);
                        out_coloring_modes[BIOMORPH].setEnabled(false);
                        out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(false);
                        periodicity_checking_opt.setEnabled(false);
                        bailout_number.setEnabled(false);
                        bailout_test_menu.setEnabled(false);
@@ -5031,9 +5942,14 @@ public class MainWindow extends JFrame {
                    case HALLEYPOLY:
                        fractal_functions[function].setSelected(true);
                        julia_opt.setEnabled(false);
+                       julia_button.setEnabled(false);
                        julia_map_opt.setEnabled(false);
                        out_coloring_modes[BIOMORPH].setEnabled(false);
                        out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(false);
                        periodicity_checking_opt.setEnabled(false);
                        bailout_number.setEnabled(false);
                        bailout_test_menu.setEnabled(false);
@@ -5044,9 +5960,14 @@ public class MainWindow extends JFrame {
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
                        julia_opt.setEnabled(false);
+                       julia_button.setEnabled(false);
                        julia_map_opt.setEnabled(false);
                        out_coloring_modes[BIOMORPH].setEnabled(false);
                        out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(false);
                        periodicity_checking_opt.setEnabled(false);
                        bailout_number.setEnabled(false);
                        bailout_test_menu.setEnabled(false);
@@ -5057,9 +5978,14 @@ public class MainWindow extends JFrame {
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
                        julia_opt.setEnabled(false);
+                       julia_button.setEnabled(false);
                        julia_map_opt.setEnabled(false);
                        out_coloring_modes[BIOMORPH].setEnabled(false);
                        out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(false);
                        periodicity_checking_opt.setEnabled(false);
                        bailout_number.setEnabled(false);
                        bailout_test_menu.setEnabled(false);
@@ -5070,9 +5996,14 @@ public class MainWindow extends JFrame {
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
                        julia_opt.setEnabled(false);
+                       julia_button.setEnabled(false);
                        julia_map_opt.setEnabled(false);
                        out_coloring_modes[BIOMORPH].setEnabled(false);
                        out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(false);
                        periodicity_checking_opt.setEnabled(false);
                        bailout_number.setEnabled(false);
                        bailout_test_menu.setEnabled(false);
@@ -5083,9 +6014,14 @@ public class MainWindow extends JFrame {
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
                        julia_opt.setEnabled(false);
+                       julia_button.setEnabled(false);
                        julia_map_opt.setEnabled(false);
                        out_coloring_modes[BIOMORPH].setEnabled(false);
                        out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(false);
                        periodicity_checking_opt.setEnabled(false);
                        bailout_number.setEnabled(false);
                        bailout_test_menu.setEnabled(false);
@@ -5096,9 +6032,14 @@ public class MainWindow extends JFrame {
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
                        julia_opt.setEnabled(false);
+                       julia_button.setEnabled(false);
                        julia_map_opt.setEnabled(false);
                        out_coloring_modes[BIOMORPH].setEnabled(false);
                        out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(false);
                        periodicity_checking_opt.setEnabled(false);
                        bailout_number.setEnabled(false);
                        bailout_test_menu.setEnabled(false);
@@ -5109,9 +6050,14 @@ public class MainWindow extends JFrame {
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
                        julia_opt.setEnabled(false);
+                       julia_button.setEnabled(false);
                        julia_map_opt.setEnabled(false);
                        out_coloring_modes[BIOMORPH].setEnabled(false);
                        out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(false);
                        periodicity_checking_opt.setEnabled(false);
                        bailout_number.setEnabled(false);
                        bailout_test_menu.setEnabled(false);
@@ -5121,9 +6067,14 @@ public class MainWindow extends JFrame {
                    case SCHRODERPOLY:
                        fractal_functions[function].setSelected(true);
                        julia_opt.setEnabled(false);
+                       julia_button.setEnabled(false);
                        julia_map_opt.setEnabled(false);
                        out_coloring_modes[BIOMORPH].setEnabled(false);
                        out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(false);
                        periodicity_checking_opt.setEnabled(false);
                        bailout_number.setEnabled(false);
                        bailout_test_menu.setEnabled(false);
@@ -5134,9 +6085,14 @@ public class MainWindow extends JFrame {
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
                        julia_opt.setEnabled(false);
+                       julia_button.setEnabled(false);
                        julia_map_opt.setEnabled(false);
                        out_coloring_modes[BIOMORPH].setEnabled(false);
                        out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(false);
                        periodicity_checking_opt.setEnabled(false);
                        bailout_number.setEnabled(false);
                        bailout_test_menu.setEnabled(false);
@@ -5147,9 +6103,14 @@ public class MainWindow extends JFrame {
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
                        julia_opt.setEnabled(false);
+                       julia_button.setEnabled(false);
                        julia_map_opt.setEnabled(false);
                        out_coloring_modes[BIOMORPH].setEnabled(false);
                        out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(false);
                        periodicity_checking_opt.setEnabled(false);
                        bailout_number.setEnabled(false);
                        bailout_test_menu.setEnabled(false);
@@ -5160,9 +6121,14 @@ public class MainWindow extends JFrame {
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
                        julia_opt.setEnabled(false);
+                       julia_button.setEnabled(false);
                        julia_map_opt.setEnabled(false);
                        out_coloring_modes[BIOMORPH].setEnabled(false);
                        out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(false);
                        periodicity_checking_opt.setEnabled(false);
                        bailout_number.setEnabled(false);
                        bailout_test_menu.setEnabled(false);
@@ -5173,9 +6139,14 @@ public class MainWindow extends JFrame {
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
                        julia_opt.setEnabled(false);
+                       julia_button.setEnabled(false);
                        julia_map_opt.setEnabled(false);
                        out_coloring_modes[BIOMORPH].setEnabled(false);
                        out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(false);
                        periodicity_checking_opt.setEnabled(false);
                        bailout_number.setEnabled(false);
                        bailout_test_menu.setEnabled(false);
@@ -5186,9 +6157,14 @@ public class MainWindow extends JFrame {
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
                        julia_opt.setEnabled(false);
+                       julia_button.setEnabled(false);
                        julia_map_opt.setEnabled(false);
                        out_coloring_modes[BIOMORPH].setEnabled(false);
                        out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(false);
                        periodicity_checking_opt.setEnabled(false);
                        bailout_number.setEnabled(false);
                        bailout_test_menu.setEnabled(false);
@@ -5199,9 +6175,14 @@ public class MainWindow extends JFrame {
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
                        julia_opt.setEnabled(false);
+                       julia_button.setEnabled(false);
                        julia_map_opt.setEnabled(false);
                        out_coloring_modes[BIOMORPH].setEnabled(false);
                        out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(false);
                        periodicity_checking_opt.setEnabled(false);
                        bailout_number.setEnabled(false);
                        bailout_test_menu.setEnabled(false);
@@ -5211,9 +6192,14 @@ public class MainWindow extends JFrame {
                    case HOUSEHOLDERPOLY:
                        fractal_functions[function].setSelected(true);
                        julia_opt.setEnabled(false);
+                       julia_button.setEnabled(false);
                        julia_map_opt.setEnabled(false);
                        out_coloring_modes[BIOMORPH].setEnabled(false);
                        out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(false);
+                       out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(false);
                        periodicity_checking_opt.setEnabled(false);
                        bailout_number.setEnabled(false);
                        bailout_test_menu.setEnabled(false);
@@ -5227,6 +6213,18 @@ public class MainWindow extends JFrame {
                        if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
                        }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
+                       }
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
                        break;
@@ -5236,6 +6234,18 @@ public class MainWindow extends JFrame {
                        }
                        if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
                        }
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
@@ -5247,6 +6257,18 @@ public class MainWindow extends JFrame {
                        if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
                        }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
+                       }
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
                        break;
@@ -5256,6 +6278,18 @@ public class MainWindow extends JFrame {
                        }
                        if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
                        }
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
@@ -5267,6 +6301,18 @@ public class MainWindow extends JFrame {
                        if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
                        }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
+                       }
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
                        break;
@@ -5276,6 +6322,18 @@ public class MainWindow extends JFrame {
                        }
                        if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
                        }
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
@@ -5287,6 +6345,18 @@ public class MainWindow extends JFrame {
                        if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
                        }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
+                       }
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
                        break;
@@ -5297,9 +6367,22 @@ public class MainWindow extends JFrame {
                        if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
                        }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
+                       }
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
                        julia_opt.setEnabled(false);
+                       julia_button.setEnabled(false);
                        periodicity_checking_opt.setEnabled(false);
                        perturbation_opt.setEnabled(false);
                        init_val_opt.setEnabled(false);
@@ -5311,6 +6394,18 @@ public class MainWindow extends JFrame {
                        if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
                        }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
+                       }
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
                        break;
@@ -5320,6 +6415,18 @@ public class MainWindow extends JFrame {
                        }
                        if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
                        }
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
@@ -5331,6 +6438,18 @@ public class MainWindow extends JFrame {
                        if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
                        }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
+                       }
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
                        break;
@@ -5340,6 +6459,18 @@ public class MainWindow extends JFrame {
                        }
                        if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
                        }
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
@@ -5351,6 +6482,18 @@ public class MainWindow extends JFrame {
                        if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
                        }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
+                       }
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
                        break;
@@ -5360,6 +6503,18 @@ public class MainWindow extends JFrame {
                        }
                        if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
                        }
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
@@ -5371,6 +6526,18 @@ public class MainWindow extends JFrame {
                        if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
                        }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
+                       }
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
                        break;
@@ -5380,6 +6547,18 @@ public class MainWindow extends JFrame {
                        }
                        if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
                        }
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
@@ -5391,6 +6570,18 @@ public class MainWindow extends JFrame {
                        if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
                        }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
+                       }
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
                        break;
@@ -5400,6 +6591,18 @@ public class MainWindow extends JFrame {
                        }
                        if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
                        }
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
@@ -5411,6 +6614,18 @@ public class MainWindow extends JFrame {
                        if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
                        }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
+                       }
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
                        break;
@@ -5420,6 +6635,18 @@ public class MainWindow extends JFrame {
                        }
                        if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
                        }
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
@@ -5431,6 +6658,18 @@ public class MainWindow extends JFrame {
                        if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
                        }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
+                       }
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
                        break;
@@ -5440,6 +6679,18 @@ public class MainWindow extends JFrame {
                        }
                        if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
                        }
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
@@ -5451,6 +6702,18 @@ public class MainWindow extends JFrame {
                        if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
                        }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
+                       }
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
                        break;
@@ -5460,6 +6723,18 @@ public class MainWindow extends JFrame {
                        }
                        if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
                        }
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
@@ -5471,6 +6746,18 @@ public class MainWindow extends JFrame {
                        if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
                        }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
+                       }
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
                        break;
@@ -5480,6 +6767,18 @@ public class MainWindow extends JFrame {
                        }
                        if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
                        }
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
@@ -5491,6 +6790,18 @@ public class MainWindow extends JFrame {
                        if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
                        }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
+                       }
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
                        break;
@@ -5500,6 +6811,18 @@ public class MainWindow extends JFrame {
                        }
                        if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
                        }
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
@@ -5511,6 +6834,18 @@ public class MainWindow extends JFrame {
                        if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
                        }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
+                       }
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
                        break;
@@ -5520,6 +6855,18 @@ public class MainWindow extends JFrame {
                        }
                        if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
                        }
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
@@ -5531,6 +6878,18 @@ public class MainWindow extends JFrame {
                        if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
                        }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
+                       }
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
                        break;
@@ -5540,6 +6899,18 @@ public class MainWindow extends JFrame {
                        }
                        if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
                        }
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
@@ -5551,6 +6922,18 @@ public class MainWindow extends JFrame {
                        if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
                        }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
+                       }
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
                        break;
@@ -5560,6 +6943,18 @@ public class MainWindow extends JFrame {
                        }
                        if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
                        }
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
@@ -5571,6 +6966,18 @@ public class MainWindow extends JFrame {
                        if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
                        }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
+                       }
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
                        break;
@@ -5580,6 +6987,18 @@ public class MainWindow extends JFrame {
                        }
                        if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
                        }
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
@@ -5591,6 +7010,18 @@ public class MainWindow extends JFrame {
                        if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
                        }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
+                       }
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
                        break;
@@ -5600,6 +7031,18 @@ public class MainWindow extends JFrame {
                        }
                        if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
                        }
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
@@ -5611,6 +7054,18 @@ public class MainWindow extends JFrame {
                        if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
                        }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
+                       }
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
                        break;
@@ -5620,6 +7075,18 @@ public class MainWindow extends JFrame {
                        }
                        if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
                        }
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
@@ -5631,6 +7098,18 @@ public class MainWindow extends JFrame {
                        if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
                        }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
+                       }
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
                        break;
@@ -5640,6 +7119,18 @@ public class MainWindow extends JFrame {
                        }
                        if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
                        }
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
@@ -5651,6 +7142,18 @@ public class MainWindow extends JFrame {
                        if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
                        }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
+                       }
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
                        break;
@@ -5660,6 +7163,40 @@ public class MainWindow extends JFrame {
                        }
                        if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
+                       }
+                       fractal_functions[function].setSelected(true);
+                       fractal_functions[function].setEnabled(false);
+                       break;
+                   case FORMULA27:
+                       if(out_coloring_algorithm != BIOMORPH) {
+                           out_coloring_modes[BIOMORPH].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
                        }
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
@@ -5671,6 +7208,18 @@ public class MainWindow extends JFrame {
                        if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
                        }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
+                       }
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
                        break;   
@@ -5680,6 +7229,18 @@ public class MainWindow extends JFrame {
                        }
                        if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
                        }
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
@@ -5691,6 +7252,18 @@ public class MainWindow extends JFrame {
                        if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
                        }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
+                       }
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
                        break;   
@@ -5700,6 +7273,18 @@ public class MainWindow extends JFrame {
                        }
                        if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
                        }
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
@@ -5779,8 +7364,9 @@ public class MainWindow extends JFrame {
        graphics.drawImage(image, 0, 0, null);
 
        if(grid && !orbit) {
-           double temp_xcenter_size = xCenter - size / 2;
-           double temp_ycenter_size = yCenter - size / 2;
+           double size_2 = size * 0.5;
+           double temp_xcenter_size = xCenter - size_2;
+           double temp_ycenter_size = yCenter - size_2;
            double temp_size_image_size = size / image_size;
 
 
@@ -6306,6 +7892,20 @@ public class MainWindow extends JFrame {
                 yCenter = 0;
                 size = 6;
                 bailout = 2;
+                break;
+            case FORMULA27:
+                if(julia) {
+                    xCenter = -2;
+                    yCenter = 0;
+                    size = 6;
+                    bailout = 8;
+                }
+                else {
+                    xCenter = 0;
+                    yCenter = 0;
+                    size = 3;
+                    bailout = 8;
+                }
                 break;
             case FROTHY_BASIN:
                 xCenter = 0;
@@ -7121,7 +8721,7 @@ public class MainWindow extends JFrame {
        
    }
 
-   private void setEdges() {
+   private void setEdgeDetection() {
 
        if(!edges_opt.isSelected()) {
            filters[1] = false;
@@ -7168,97 +8768,6 @@ public class MainWindow extends JFrame {
        }
        else {
            filters[1] = true;
-
-           setOptions(false);
-
-           progress.setValue(0);
-
-           last_used = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
-           Graphics2D graphics = last_used.createGraphics();
-           graphics.drawImage(image, 0, 0, image_size, image_size, null);
-
-           image = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
-
-           backup_orbit = null;
-
-           whole_image_done = false;
-
-           if(filters[0]) {
-               if(julia_map) {
-                   createThreadsJuliaMap();
-               }
-               else {
-                   createThreads(); 
-               }
-
-               calculation_time = System.currentTimeMillis();
-
-               if(julia_map) {
-                   startThreads(julia_grid_first_dimension);
-               }
-               else {
-                   startThreads(n);
-               }
-           }
-           else {
-               createThreadsPaletteAndFilter();
-
-               calculation_time = System.currentTimeMillis();
-
-               startThreads(n);
-           }
-
-       }
-
-   }
-   
-    private void setEdges2() {
-
-       if(!edges2_opt.isSelected()) {
-           filters[6] = false;
-
-           setOptions(false);
-
-           progress.setValue(0);
-
-           last_used = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
-           Graphics2D graphics = last_used.createGraphics();
-           graphics.drawImage(image, 0, 0, image_size, image_size, null);
-
-           image = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
-
-           backup_orbit = null;
-
-           whole_image_done = false;
-
-           if(filters[0]) {
-               if(julia_map) {
-                   createThreadsJuliaMap();
-               }
-               else {
-                   createThreads(); 
-               }
-
-               calculation_time = System.currentTimeMillis();
-
-               if(julia_map) {
-                   startThreads(julia_grid_first_dimension);
-               }
-               else {
-                   startThreads(n);
-               }
-           }
-           else {
-               createThreadsPaletteAndFilter();
-
-               calculation_time = System.currentTimeMillis();
-
-               startThreads(n);
-           }
-
-       }
-       else {
-           filters[6] = true;
 
            setOptions(false);
 
@@ -7396,6 +8905,96 @@ public class MainWindow extends JFrame {
    private void setInvertColors() {
 
        if(!invert_colors_opt.isSelected()) {
+           filters[4] = false;
+
+           setOptions(false);
+
+           progress.setValue(0);
+
+           last_used = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
+           Graphics2D graphics = last_used.createGraphics();
+           graphics.drawImage(image, 0, 0, image_size, image_size, null);
+
+           image = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
+           
+           backup_orbit = null;
+
+           whole_image_done = false;
+
+           if(filters[0]) {
+               if(julia_map) {
+                   createThreadsJuliaMap();
+               }
+               else {
+                   createThreads(); 
+               }
+
+               calculation_time = System.currentTimeMillis();
+
+               if(julia_map) {
+                   startThreads(julia_grid_first_dimension);
+               }
+               else {
+                   startThreads(n);
+               }
+           }
+           else {
+               createThreadsPaletteAndFilter();
+
+               calculation_time = System.currentTimeMillis();
+
+               startThreads(n);
+           }
+       }
+       else {
+           filters[4] = true;
+
+           setOptions(false);
+
+           progress.setValue(0);
+
+           last_used = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
+           Graphics2D graphics = last_used.createGraphics();
+           graphics.drawImage(image, 0, 0, image_size, image_size, null);
+
+           image = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
+
+           backup_orbit = null;
+
+           whole_image_done = false;
+
+           if(filters[0]) {
+               if(julia_map) {
+                   createThreadsJuliaMap();
+               }
+               else {
+                   createThreads(); 
+               }
+
+               calculation_time = System.currentTimeMillis();
+
+               if(julia_map) {
+                   startThreads(julia_grid_first_dimension);
+               }
+               else {
+                   startThreads(n);
+               }
+           }
+           else {
+               createThreadsPaletteAndFilter();
+
+               calculation_time = System.currentTimeMillis();
+
+               startThreads(n);
+           }
+
+       }
+       
+   }
+   
+   private void setBlurring() {
+       
+       if(!blurring_opt.isSelected()) {
            filters[5] = false;
 
            setOptions(false);
@@ -7573,10 +9172,11 @@ public class MainWindow extends JFrame {
        
    }
    
-   private void setEmbossColored() {
-
-       if(!embosscolored_opt.isSelected()) {
-           filters[4] = false;
+   
+    private void setMaskColorChannel() {
+       
+       if(!mask_color_channel_opt.isSelected()) {
+           filters[6] = false;
 
            setOptions(false);
 
@@ -7587,7 +9187,7 @@ public class MainWindow extends JFrame {
            graphics.drawImage(image, 0, 0, image_size, image_size, null);
 
            image = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
-
+           
            backup_orbit = null;
 
            whole_image_done = false;
@@ -7618,7 +9218,7 @@ public class MainWindow extends JFrame {
            }
        }
        else {
-           filters[4] = true;
+           filters[6] = true;
 
            setOptions(false);
 
@@ -7662,6 +9262,279 @@ public class MainWindow extends JFrame {
        }
        
    }
+    
+    
+   private void setFadeOut() {
+       
+       if(!fade_out_opt.isSelected()) {
+           filters[7] = false;
+
+           setOptions(false);
+
+           progress.setValue(0);
+
+           last_used = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
+           Graphics2D graphics = last_used.createGraphics();
+           graphics.drawImage(image, 0, 0, image_size, image_size, null);
+
+           image = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
+           
+           backup_orbit = null;
+
+           whole_image_done = false;
+
+           if(filters[0]) {
+               if(julia_map) {
+                   createThreadsJuliaMap();
+               }
+               else {
+                   createThreads(); 
+               }
+
+               calculation_time = System.currentTimeMillis();
+
+               if(julia_map) {
+                   startThreads(julia_grid_first_dimension);
+               }
+               else {
+                   startThreads(n);
+               }
+           }
+           else {
+               createThreadsPaletteAndFilter();
+
+               calculation_time = System.currentTimeMillis();
+
+               startThreads(n);
+           }
+       }
+       else {
+           filters[7] = true;
+
+           setOptions(false);
+
+           progress.setValue(0);
+
+           last_used = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
+           Graphics2D graphics = last_used.createGraphics();
+           graphics.drawImage(image, 0, 0, image_size, image_size, null);
+
+           image = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
+
+           backup_orbit = null;
+
+           whole_image_done = false;
+
+           if(filters[0]) {
+               if(julia_map) {
+                   createThreadsJuliaMap();
+               }
+               else {
+                   createThreads(); 
+               }
+
+               calculation_time = System.currentTimeMillis();
+
+               if(julia_map) {
+                   startThreads(julia_grid_first_dimension);
+               }
+               else {
+                   startThreads(n);
+               }
+           }
+           else {
+               createThreadsPaletteAndFilter();
+
+               calculation_time = System.currentTimeMillis();
+
+               startThreads(n);
+           }
+
+       }
+       
+   }
+   
+   
+   private void setColorChannelSwapping() {
+       
+       if(!color_channel_swapping_opt.isSelected()) {
+           filters[8] = false;
+
+           setOptions(false);
+
+           progress.setValue(0);
+
+           last_used = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
+           Graphics2D graphics = last_used.createGraphics();
+           graphics.drawImage(image, 0, 0, image_size, image_size, null);
+
+           image = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
+           
+           backup_orbit = null;
+
+           whole_image_done = false;
+
+           if(filters[0]) {
+               if(julia_map) {
+                   createThreadsJuliaMap();
+               }
+               else {
+                   createThreads(); 
+               }
+
+               calculation_time = System.currentTimeMillis();
+
+               if(julia_map) {
+                   startThreads(julia_grid_first_dimension);
+               }
+               else {
+                   startThreads(n);
+               }
+           }
+           else {
+               createThreadsPaletteAndFilter();
+
+               calculation_time = System.currentTimeMillis();
+
+               startThreads(n);
+           }
+       }
+       else {
+           filters[8] = true;
+
+           setOptions(false);
+
+           progress.setValue(0);
+
+           last_used = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
+           Graphics2D graphics = last_used.createGraphics();
+           graphics.drawImage(image, 0, 0, image_size, image_size, null);
+
+           image = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
+
+           backup_orbit = null;
+
+           whole_image_done = false;
+
+           if(filters[0]) {
+               if(julia_map) {
+                   createThreadsJuliaMap();
+               }
+               else {
+                   createThreads(); 
+               }
+
+               calculation_time = System.currentTimeMillis();
+
+               if(julia_map) {
+                   startThreads(julia_grid_first_dimension);
+               }
+               else {
+                   startThreads(n);
+               }
+           }
+           else {
+               createThreadsPaletteAndFilter();
+
+               calculation_time = System.currentTimeMillis();
+
+               startThreads(n);
+           }
+
+       }
+       
+   }
+   
+   private void setContrastBrightness() {
+       
+       if(!contrast_brightness_opt.isSelected()) {
+           filters[9] = false;
+
+           setOptions(false);
+
+           progress.setValue(0);
+
+           last_used = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
+           Graphics2D graphics = last_used.createGraphics();
+           graphics.drawImage(image, 0, 0, image_size, image_size, null);
+
+           image = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
+           
+           backup_orbit = null;
+
+           whole_image_done = false;
+
+           if(filters[0]) {
+               if(julia_map) {
+                   createThreadsJuliaMap();
+               }
+               else {
+                   createThreads(); 
+               }
+
+               calculation_time = System.currentTimeMillis();
+
+               if(julia_map) {
+                   startThreads(julia_grid_first_dimension);
+               }
+               else {
+                   startThreads(n);
+               }
+           }
+           else {
+               createThreadsPaletteAndFilter();
+
+               calculation_time = System.currentTimeMillis();
+
+               startThreads(n);
+           }
+       }
+       else {
+           filters[9] = true;
+
+           setOptions(false);
+
+           progress.setValue(0);
+
+           last_used = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
+           Graphics2D graphics = last_used.createGraphics();
+           graphics.drawImage(image, 0, 0, image_size, image_size, null);
+
+           image = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
+
+           backup_orbit = null;
+
+           whole_image_done = false;
+
+           if(filters[0]) {
+               if(julia_map) {
+                   createThreadsJuliaMap();
+               }
+               else {
+                   createThreads(); 
+               }
+
+               calculation_time = System.currentTimeMillis();
+
+               if(julia_map) {
+                   startThreads(julia_grid_first_dimension);
+               }
+               else {
+                   startThreads(n);
+               }
+           }
+           else {
+               createThreadsPaletteAndFilter();
+
+               calculation_time = System.currentTimeMillis();
+
+               startThreads(n);
+           }
+
+       }
+       
+   }
+   
 
    private void setGrid() {
 
@@ -7769,8 +9642,11 @@ public class MainWindow extends JFrame {
            return;
        }
       
-       xCenter = xCenter - size / 2 + size * main_panel.getMousePosition().getX() / image_size;
-       yCenter = yCenter - size / 2 + size * main_panel.getMousePosition().getY() / image_size;
+       double size_2 = size * 0.5;
+       double temp_size_image_size = size / image_size;
+       
+       xCenter = xCenter - size_2 + temp_size_image_size * main_panel.getMousePosition().getX();
+       yCenter = yCenter - size_2 + temp_size_image_size * main_panel.getMousePosition().getY();
 
 
        switch(e.getModifiers()) {
@@ -7827,14 +9703,18 @@ public class MainWindow extends JFrame {
             
        if(first_seed) {
            if(e.getModifiers() == InputEvent.BUTTON1_MASK) {
-               double temp = xCenter - size / 2 + size * main_panel.getMousePosition().getX() / image_size;
-               double temp2 = yCenter - size / 2 + size * main_panel.getMousePosition().getY() / image_size;
+               double size_2 = size * 0.5;
+               double temp_size_image_size = size / image_size;
+               
+               double temp = xCenter - size_2 + temp_size_image_size * main_panel.getMousePosition().getX();
+               double temp2 = yCenter - size_2 + temp_size_image_size * main_panel.getMousePosition().getY();
 
                xJuliaCenter = temp * rotation_vals[0] - temp2 * rotation_vals[1];
                yJuliaCenter = temp * rotation_vals[1] + temp2 * rotation_vals[0];
 
                first_seed = false;
                orbit_opt.setEnabled(true);
+               orbit_button.setEnabled(true);
                main_panel.repaint();
 
                mode.setText("Julia mode");
@@ -7844,8 +9724,11 @@ public class MainWindow extends JFrame {
            }
        }
        else {
-           xCenter = xCenter - size / 2 + size * main_panel.getMousePosition().getX() / image_size;
-           yCenter = yCenter - size / 2 + size * main_panel.getMousePosition().getY() / image_size;
+           double size_2 = size * 0.5;
+           double temp_size_image_size = size / image_size;
+           
+           xCenter = xCenter - size_2 + temp_size_image_size * main_panel.getMousePosition().getX();
+           yCenter = yCenter - size_2 + temp_size_image_size * main_panel.getMousePosition().getY();
        
            switch(e.getModifiers()) {
                case InputEvent.BUTTON1_MASK:
@@ -7889,8 +9772,9 @@ public class MainWindow extends JFrame {
 
        if(!julia_opt.isSelected()) {
            julia = false;
+           julia_button.setSelected(false);
            fast_julia_image = null;
-           if(out_coloring_algorithm != BIOMORPH && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+           if(out_coloring_algorithm != BIOMORPH && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
                fractal_functions[NEWTON3].setEnabled(true);
                fractal_functions[NEWTON4].setEnabled(true);
                fractal_functions[NEWTONGENERALIZED3].setEnabled(true);
@@ -7933,9 +9817,11 @@ public class MainWindow extends JFrame {
        }
        else {
            julia = true;
+           julia_button.setSelected(true);
            first_seed = true;
            fast_julia_image = null;
            orbit_opt.setEnabled(false);
+           orbit_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
            perturbation_opt.setEnabled(false);
            init_val_opt.setEnabled(false);
@@ -7977,13 +9863,16 @@ public class MainWindow extends JFrame {
 
        if(!orbit_opt.isSelected()) {
            orbit = false;
+           orbit_button.setSelected(false);
            if(function != NEWTON3 && function != NEWTON4 && function != NEWTONGENERALIZED3 && function != NEWTONGENERALIZED8 && function != NEWTONSIN && function != NEWTONCOS && function != NEWTONPOLY && function != HALLEY3 && function != HALLEY4 && function != HALLEYGENERALIZED3 && function != HALLEYGENERALIZED8 && function != HALLEYSIN && function != HALLEYCOS && function != HALLEYPOLY && function != SCHRODER3 && function != SCHRODER4 && function != SCHRODERGENERALIZED3 && function != SCHRODERGENERALIZED8 && function != SCHRODERSIN && function != SCHRODERCOS && function != SCHRODERPOLY && function != HOUSEHOLDER3 && function != HOUSEHOLDER4 && function != HOUSEHOLDERGENERALIZED3 && function != HOUSEHOLDERGENERALIZED8 && function != HOUSEHOLDERSIN && function != HOUSEHOLDERCOS && function != HOUSEHOLDERPOLY && function != SIERPINSKI_GASKET) {
                julia_opt.setEnabled(true);
+               julia_button.setEnabled(true);
                if(!julia) {
                    julia_map_opt.setEnabled(true);
                }
            }
            color_cycling_opt.setEnabled(true);
+           color_cycling_button.setEnabled(true);
            if(backup_orbit != null) {
                image = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
                Graphics2D graphics = image.createGraphics();
@@ -7994,9 +9883,12 @@ public class MainWindow extends JFrame {
        }
        else {
            orbit = true;
+           orbit_button.setSelected(true);
            julia_opt.setEnabled(false);
+           julia_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
            color_cycling_opt.setEnabled(false);
+           color_cycling_button.setEnabled(false);
            backup_orbit = null;
            last_used = null;
        }
@@ -8028,11 +9920,11 @@ public class MainWindow extends JFrame {
            }
            try {
                if(julia) {
-                   pixels_orbit = new DrawOrbit(xCenter, yCenter, size, max_iterations > 300 ? 300 : max_iterations, (int)main_panel.getMousePosition().getX(), (int)main_panel.getMousePosition().getY(), image_size, image, ptr, orbit_color, orbit_style, plane_type, burning_ship, grid, function, z_exponent, z_exponent_complex, rotation_vals, coefficients, xJuliaCenter, yJuliaCenter);
+                   pixels_orbit = new DrawOrbit(xCenter, yCenter, size, max_iterations > 400 ? 400 : max_iterations, (int)main_panel.getMousePosition().getX(), (int)main_panel.getMousePosition().getY(), image_size, image, ptr, orbit_color, orbit_style, plane_type, burning_ship, grid, function, z_exponent, z_exponent_complex, rotation_vals, coefficients, xJuliaCenter, yJuliaCenter);
                    pixels_orbit.start();
                }
                else {
-                   pixels_orbit = new DrawOrbit(xCenter, yCenter, size, max_iterations > 300 ? 300 : max_iterations, (int)main_panel.getMousePosition().getX(), (int)main_panel.getMousePosition().getY(), image_size, image, ptr, orbit_color, orbit_style, plane_type, burning_ship, grid, function, z_exponent, z_exponent_complex, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals, coefficients);
+                   pixels_orbit = new DrawOrbit(xCenter, yCenter, size, max_iterations > 400 ? 400 : max_iterations, (int)main_panel.getMousePosition().getX(), (int)main_panel.getMousePosition().getY(), image_size, image, ptr, orbit_color, orbit_style, plane_type, burning_ship, grid, function, z_exponent, z_exponent_complex, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals, coefficients);
                    pixels_orbit.start();
                }            
            }
@@ -8040,8 +9932,9 @@ public class MainWindow extends JFrame {
        }
 
        try {
-           double temp_xcenter_size = xCenter - size / 2;
-           double temp_ycenter_size = yCenter - size / 2;
+           double size_2 = size * 0.5;
+           double temp_xcenter_size = xCenter - size_2;
+           double temp_ycenter_size = yCenter - size_2;
            double temp_size_image_size = size / image_size;
                     
            double temp2 = temp_xcenter_size + temp_size_image_size * main_panel.getMousePosition().getX();
@@ -8210,19 +10103,26 @@ public class MainWindow extends JFrame {
    
        if(((!julia && !orbit) || (!first_seed && !orbit)) && !julia_map && !perturbation && (function != NEWTON3 && function != NEWTON4 && function != NEWTONGENERALIZED3 && function != NEWTONGENERALIZED8 && function != NEWTONSIN && function != NEWTONCOS && function != NEWTONPOLY && function != HALLEY3 && function != HALLEY4 && function != HALLEYGENERALIZED3 && function != HALLEYGENERALIZED8 && function != HALLEYSIN && function != HALLEYCOS && function != HALLEYPOLY && function != SCHRODER3 && function != SCHRODER4 && function != SCHRODERGENERALIZED3 && function != SCHRODERGENERALIZED8 && function != SCHRODERSIN && function != SCHRODERCOS && function != SCHRODERPOLY && function != HOUSEHOLDER3 && function != HOUSEHOLDER4 && function != HOUSEHOLDERGENERALIZED3 && function != HOUSEHOLDERGENERALIZED8 && function != HOUSEHOLDERSIN && function != HOUSEHOLDERCOS && function != HOUSEHOLDERPOLY && function != SIERPINSKI_GASKET)) {
            julia_opt.setEnabled(option);
+           julia_button.setEnabled(option);
        }
 
        if(!orbit && !color_cycling) {
            color_cycling_opt.setEnabled(option);
+           color_cycling_button.setEnabled(option);
        }
 
        anti_aliasing_opt.setEnabled(option);
        edges_opt.setEnabled(option);
-       edges2_opt.setEnabled(option);
        emboss_opt.setEnabled(option);
        sharpness_opt.setEnabled(option);
-       embosscolored_opt.setEnabled(option);
        invert_colors_opt.setEnabled(option);
+       blurring_opt.setEnabled(option);
+       mask_color_channel_opt.setEnabled(option);
+       fade_out_opt.setEnabled(option);
+       color_channel_swapping_opt.setEnabled(option);
+       contrast_brightness_opt.setEnabled(option);
+       
+       filters_options_menu.setEnabled(option);
        
        if(rotation == 0 || rotation == 360 || rotation == -360) {
            grid_opt.setEnabled(option);
@@ -8238,6 +10138,7 @@ public class MainWindow extends JFrame {
        }
        if(!julia_map) {
            orbit_opt.setEnabled(option);
+           orbit_button.setEnabled(option);
        }
        planes_menu.setEnabled(option);
        
@@ -8464,6 +10365,18 @@ public class MainWindow extends JFrame {
            if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
            }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
+           }
            break;
        case MANDELBROTWTH:
            
@@ -8549,6 +10462,18 @@ public class MainWindow extends JFrame {
            }
            if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
            }
            break;
        case MANDELPOLY:
@@ -8694,6 +10619,18 @@ public class MainWindow extends JFrame {
            if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
            }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
+           }
            break;
        case LAMBDA:
            fractal_functions[function].setEnabled(false);
@@ -8702,6 +10639,18 @@ public class MainWindow extends JFrame {
            }
            if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
            }
            break;
        case MAGNET1:         
@@ -8712,6 +10661,18 @@ public class MainWindow extends JFrame {
            if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
            }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
+           }
            break;
        case MAGNET2:
            fractal_functions[function].setEnabled(false);
@@ -8721,13 +10682,30 @@ public class MainWindow extends JFrame {
            if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
            }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
+           }
            break;
        case NEWTON3:
            fractal_functions[function].setEnabled(false);
            julia_opt.setEnabled(false);
+           julia_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
            out_coloring_modes[BIOMORPH].setEnabled(false);
            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(false);
            periodicity_checking_opt.setEnabled(false);
            bailout_number.setEnabled(false);
            bailout_test_menu.setEnabled(false);
@@ -8737,9 +10715,14 @@ public class MainWindow extends JFrame {
        case NEWTON4:
            fractal_functions[function].setEnabled(false);
            julia_opt.setEnabled(false);
+           julia_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
            out_coloring_modes[BIOMORPH].setEnabled(false);
            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(false);
            periodicity_checking_opt.setEnabled(false);
            bailout_number.setEnabled(false);
            bailout_test_menu.setEnabled(false);
@@ -8749,9 +10732,14 @@ public class MainWindow extends JFrame {
        case NEWTONGENERALIZED3:
            fractal_functions[function].setEnabled(false);
            julia_opt.setEnabled(false);
+           julia_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
            out_coloring_modes[BIOMORPH].setEnabled(false);
            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(false);
            periodicity_checking_opt.setEnabled(false);
            bailout_number.setEnabled(false);
            bailout_test_menu.setEnabled(false);
@@ -8761,9 +10749,14 @@ public class MainWindow extends JFrame {
        case NEWTONGENERALIZED8:
            fractal_functions[function].setEnabled(false);
            julia_opt.setEnabled(false);
+           julia_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
            out_coloring_modes[BIOMORPH].setEnabled(false);
            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(false);
            periodicity_checking_opt.setEnabled(false);
            bailout_number.setEnabled(false);
            bailout_test_menu.setEnabled(false);
@@ -8773,9 +10766,14 @@ public class MainWindow extends JFrame {
        case NEWTONSIN:
            fractal_functions[function].setEnabled(false);
            julia_opt.setEnabled(false);
+           julia_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
            out_coloring_modes[BIOMORPH].setEnabled(false);
            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(false);
            periodicity_checking_opt.setEnabled(false);
            bailout_number.setEnabled(false);
            bailout_test_menu.setEnabled(false);
@@ -8785,9 +10783,14 @@ public class MainWindow extends JFrame {
        case NEWTONCOS:
            fractal_functions[function].setEnabled(false);
            julia_opt.setEnabled(false);
+           julia_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
            out_coloring_modes[BIOMORPH].setEnabled(false);
            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(false);
            periodicity_checking_opt.setEnabled(false);
            bailout_number.setEnabled(false);
            bailout_test_menu.setEnabled(false);
@@ -8929,9 +10932,14 @@ public class MainWindow extends JFrame {
            JOptionPane.showMessageDialog(scroll_pane, poly, "Polynomial", JOptionPane.INFORMATION_MESSAGE);
            main_panel.repaint();
            julia_opt.setEnabled(false);
+           julia_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
            out_coloring_modes[BIOMORPH].setEnabled(false);
            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(false);
            periodicity_checking_opt.setEnabled(false);
            bailout_number.setEnabled(false);
            bailout_test_menu.setEnabled(false);
@@ -8942,9 +10950,14 @@ public class MainWindow extends JFrame {
        case HALLEY3:
            fractal_functions[function].setEnabled(false);
            julia_opt.setEnabled(false);
+           julia_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
            out_coloring_modes[BIOMORPH].setEnabled(false);
            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(false);
            periodicity_checking_opt.setEnabled(false);
            bailout_number.setEnabled(false);
            bailout_test_menu.setEnabled(false);
@@ -8954,9 +10967,14 @@ public class MainWindow extends JFrame {
        case HALLEY4:
            fractal_functions[function].setEnabled(false);
            julia_opt.setEnabled(false);
+           julia_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
            out_coloring_modes[BIOMORPH].setEnabled(false);
            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(false);
            periodicity_checking_opt.setEnabled(false);
            bailout_number.setEnabled(false);
            bailout_test_menu.setEnabled(false);
@@ -8966,9 +10984,14 @@ public class MainWindow extends JFrame {
        case HALLEYGENERALIZED3:
            fractal_functions[function].setEnabled(false);
            julia_opt.setEnabled(false);
+           julia_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
            out_coloring_modes[BIOMORPH].setEnabled(false);
            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(false);
            periodicity_checking_opt.setEnabled(false);
            bailout_number.setEnabled(false);
            bailout_test_menu.setEnabled(false);
@@ -8978,9 +11001,14 @@ public class MainWindow extends JFrame {
        case HALLEYGENERALIZED8:
            fractal_functions[function].setEnabled(false);
            julia_opt.setEnabled(false);
+           julia_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
            out_coloring_modes[BIOMORPH].setEnabled(false);
            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(false);
            periodicity_checking_opt.setEnabled(false);
            bailout_number.setEnabled(false);
            bailout_test_menu.setEnabled(false);
@@ -8990,9 +11018,14 @@ public class MainWindow extends JFrame {
        case HALLEYSIN:
            fractal_functions[function].setEnabled(false);
            julia_opt.setEnabled(false);
+           julia_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
            out_coloring_modes[BIOMORPH].setEnabled(false);
            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(false);
            periodicity_checking_opt.setEnabled(false);
            bailout_number.setEnabled(false);
            bailout_test_menu.setEnabled(false);
@@ -9002,9 +11035,14 @@ public class MainWindow extends JFrame {
        case HALLEYCOS:
            fractal_functions[function].setEnabled(false);
            julia_opt.setEnabled(false);
+           julia_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
            out_coloring_modes[BIOMORPH].setEnabled(false);
            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(false);
            periodicity_checking_opt.setEnabled(false);
            bailout_number.setEnabled(false);
            bailout_test_menu.setEnabled(false);
@@ -9146,9 +11184,14 @@ public class MainWindow extends JFrame {
            JOptionPane.showMessageDialog(scroll_pane, poly, "Polynomial", JOptionPane.INFORMATION_MESSAGE);
            main_panel.repaint();
            julia_opt.setEnabled(false);
+           julia_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
            out_coloring_modes[BIOMORPH].setEnabled(false);
            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(false);
            periodicity_checking_opt.setEnabled(false);
            bailout_number.setEnabled(false);
            bailout_test_menu.setEnabled(false);
@@ -9159,9 +11202,14 @@ public class MainWindow extends JFrame {
        case SCHRODER3:
            fractal_functions[function].setEnabled(false);
            julia_opt.setEnabled(false);
+           julia_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
            out_coloring_modes[BIOMORPH].setEnabled(false);
            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(false);
            periodicity_checking_opt.setEnabled(false);
            bailout_number.setEnabled(false);
            bailout_test_menu.setEnabled(false);
@@ -9171,9 +11219,14 @@ public class MainWindow extends JFrame {
        case SCHRODER4:
            fractal_functions[function].setEnabled(false);
            julia_opt.setEnabled(false);
+           julia_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
            out_coloring_modes[BIOMORPH].setEnabled(false);
            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(false);
            periodicity_checking_opt.setEnabled(false);
            bailout_number.setEnabled(false);
            bailout_test_menu.setEnabled(false);
@@ -9183,9 +11236,14 @@ public class MainWindow extends JFrame {
        case SCHRODERGENERALIZED3:
            fractal_functions[function].setEnabled(false);
            julia_opt.setEnabled(false);
+           julia_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
            out_coloring_modes[BIOMORPH].setEnabled(false);
            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(false);
            periodicity_checking_opt.setEnabled(false);
            bailout_number.setEnabled(false);
            bailout_test_menu.setEnabled(false);
@@ -9195,9 +11253,14 @@ public class MainWindow extends JFrame {
        case SCHRODERGENERALIZED8:
            fractal_functions[function].setEnabled(false);
            julia_opt.setEnabled(false);
+           julia_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
            out_coloring_modes[BIOMORPH].setEnabled(false);
            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(false);
            periodicity_checking_opt.setEnabled(false);
            bailout_number.setEnabled(false);
            bailout_test_menu.setEnabled(false);
@@ -9207,9 +11270,14 @@ public class MainWindow extends JFrame {
        case SCHRODERSIN:
            fractal_functions[function].setEnabled(false);
            julia_opt.setEnabled(false);
+           julia_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
            out_coloring_modes[BIOMORPH].setEnabled(false);
            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(false);
            periodicity_checking_opt.setEnabled(false);
            bailout_number.setEnabled(false);
            bailout_test_menu.setEnabled(false);
@@ -9219,9 +11287,14 @@ public class MainWindow extends JFrame {
        case SCHRODERCOS:
            fractal_functions[function].setEnabled(false);
            julia_opt.setEnabled(false);
+           julia_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
            out_coloring_modes[BIOMORPH].setEnabled(false);
            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(false);
            periodicity_checking_opt.setEnabled(false);
            bailout_number.setEnabled(false);
            bailout_test_menu.setEnabled(false);
@@ -9363,9 +11436,14 @@ public class MainWindow extends JFrame {
            JOptionPane.showMessageDialog(scroll_pane, poly, "Polynomial", JOptionPane.INFORMATION_MESSAGE);
            main_panel.repaint();
            julia_opt.setEnabled(false);
+           julia_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
            out_coloring_modes[BIOMORPH].setEnabled(false);
            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(false);
            periodicity_checking_opt.setEnabled(false);
            bailout_number.setEnabled(false);
            bailout_test_menu.setEnabled(false);
@@ -9376,9 +11454,14 @@ public class MainWindow extends JFrame {
        case HOUSEHOLDER3:
            fractal_functions[function].setEnabled(false);
            julia_opt.setEnabled(false);
+           julia_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
            out_coloring_modes[BIOMORPH].setEnabled(false);
            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(false);
            periodicity_checking_opt.setEnabled(false);
            bailout_number.setEnabled(false);
            bailout_test_menu.setEnabled(false);
@@ -9388,9 +11471,14 @@ public class MainWindow extends JFrame {
        case HOUSEHOLDER4:
            fractal_functions[function].setEnabled(false);
            julia_opt.setEnabled(false);
+           julia_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
            out_coloring_modes[BIOMORPH].setEnabled(false);
            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(false);
            periodicity_checking_opt.setEnabled(false);
            bailout_number.setEnabled(false);
            bailout_test_menu.setEnabled(false);
@@ -9400,9 +11488,14 @@ public class MainWindow extends JFrame {
        case HOUSEHOLDERGENERALIZED3:
            fractal_functions[function].setEnabled(false);
            julia_opt.setEnabled(false);
+           julia_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
            out_coloring_modes[BIOMORPH].setEnabled(false);
            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(false);
            periodicity_checking_opt.setEnabled(false);
            bailout_number.setEnabled(false);
            bailout_test_menu.setEnabled(false);
@@ -9412,9 +11505,14 @@ public class MainWindow extends JFrame {
        case HOUSEHOLDERGENERALIZED8:
            fractal_functions[function].setEnabled(false);
            julia_opt.setEnabled(false);
+           julia_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
            out_coloring_modes[BIOMORPH].setEnabled(false);
            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(false);
            periodicity_checking_opt.setEnabled(false);
            bailout_number.setEnabled(false);
            bailout_test_menu.setEnabled(false);
@@ -9424,9 +11522,14 @@ public class MainWindow extends JFrame {
        case HOUSEHOLDERSIN:
            fractal_functions[function].setEnabled(false);
            julia_opt.setEnabled(false);
+           julia_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
            out_coloring_modes[BIOMORPH].setEnabled(false);
            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(false);
            periodicity_checking_opt.setEnabled(false);
            bailout_number.setEnabled(false);
            bailout_test_menu.setEnabled(false);
@@ -9436,9 +11539,14 @@ public class MainWindow extends JFrame {
        case HOUSEHOLDERCOS:
            fractal_functions[function].setEnabled(false);
            julia_opt.setEnabled(false);
+           julia_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
            out_coloring_modes[BIOMORPH].setEnabled(false);
            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(false);
            periodicity_checking_opt.setEnabled(false);
            bailout_number.setEnabled(false);
            bailout_test_menu.setEnabled(false);
@@ -9580,9 +11688,14 @@ public class MainWindow extends JFrame {
            JOptionPane.showMessageDialog(scroll_pane, poly, "Polynomial", JOptionPane.INFORMATION_MESSAGE);
            main_panel.repaint();
            julia_opt.setEnabled(false);
+           julia_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
            out_coloring_modes[BIOMORPH].setEnabled(false);
            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(false);
            periodicity_checking_opt.setEnabled(false);
            bailout_number.setEnabled(false);
            bailout_test_menu.setEnabled(false);
@@ -9598,6 +11711,18 @@ public class MainWindow extends JFrame {
            if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
            }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
+           }
            break;
        case BARNSLEY2:
            fractal_functions[function].setEnabled(false);
@@ -9606,6 +11731,18 @@ public class MainWindow extends JFrame {
            }
            if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
            }
            break;
        case BARNSLEY3:
@@ -9616,6 +11753,18 @@ public class MainWindow extends JFrame {
            if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
            }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
+           }
            break;
        case MANDELBAR:
            fractal_functions[function].setEnabled(false);
@@ -9624,6 +11773,18 @@ public class MainWindow extends JFrame {
            }
            if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
            }
            break;
        case SPIDER:
@@ -9634,6 +11795,18 @@ public class MainWindow extends JFrame {
            if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
            }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
+           }
            break;
        case MANOWAR:
            fractal_functions[function].setEnabled(false);
@@ -9642,6 +11815,18 @@ public class MainWindow extends JFrame {
            }
            if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
            }
            break;
        case PHOENIX:
@@ -9652,6 +11837,18 @@ public class MainWindow extends JFrame {
            if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
            }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
+           }
            break;
        case SIERPINSKI_GASKET:
            fractal_functions[function].setEnabled(false);
@@ -9661,7 +11858,20 @@ public class MainWindow extends JFrame {
            if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
            }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
+           }
            julia_opt.setEnabled(false);
+           julia_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
            periodicity_checking_opt.setEnabled(false);
            perturbation_opt.setEnabled(false);
@@ -9675,6 +11885,18 @@ public class MainWindow extends JFrame {
            if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
            }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
+           }
            break;   
        case LOG:
            fractal_functions[function].setEnabled(false);
@@ -9683,6 +11905,18 @@ public class MainWindow extends JFrame {
            }
            if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
            }
            break; 
        case SIN:
@@ -9693,6 +11927,18 @@ public class MainWindow extends JFrame {
            if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
            }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
+           }
            break; 
        case COS:
            fractal_functions[function].setEnabled(false);
@@ -9701,6 +11947,18 @@ public class MainWindow extends JFrame {
            }
            if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
            }
            break; 
        case TAN:
@@ -9711,6 +11969,18 @@ public class MainWindow extends JFrame {
            if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
            }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
+           }
            break; 
        case COT:
            fractal_functions[function].setEnabled(false);
@@ -9719,6 +11989,18 @@ public class MainWindow extends JFrame {
            }
            if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
            }
            break; 
        case SINH:
@@ -9729,6 +12011,18 @@ public class MainWindow extends JFrame {
            if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
            }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
+           }
            break; 
        case COSH:
            fractal_functions[function].setEnabled(false);
@@ -9737,6 +12031,18 @@ public class MainWindow extends JFrame {
            }
            if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
            }
            break; 
        case TANH:
@@ -9747,6 +12053,18 @@ public class MainWindow extends JFrame {
            if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
            }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
+           }
            break; 
        case COTH:
            fractal_functions[function].setEnabled(false);
@@ -9755,6 +12073,18 @@ public class MainWindow extends JFrame {
            }
            if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
            }
            break;
        case FORMULA1:
@@ -9765,6 +12095,18 @@ public class MainWindow extends JFrame {
            if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
            }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
+           }
            break;
        case FORMULA2:
            fractal_functions[function].setEnabled(false);
@@ -9773,6 +12115,18 @@ public class MainWindow extends JFrame {
            }
            if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
            }
            break;
        case FORMULA3:
@@ -9783,6 +12137,18 @@ public class MainWindow extends JFrame {
            if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
            }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
+           }
            break;
        case FORMULA4:
            fractal_functions[function].setEnabled(false);
@@ -9791,6 +12157,18 @@ public class MainWindow extends JFrame {
            }
            if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
            }
            break;
        case FORMULA5:
@@ -9801,6 +12179,18 @@ public class MainWindow extends JFrame {
            if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
            }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
+           }
            break;
        case FORMULA6:
            fractal_functions[function].setEnabled(false);
@@ -9809,6 +12199,18 @@ public class MainWindow extends JFrame {
            }
            if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
            }
            break;
        case FORMULA7:
@@ -9819,6 +12221,18 @@ public class MainWindow extends JFrame {
            if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
            }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
+           }
            break;
        case FORMULA8:
            fractal_functions[function].setEnabled(false);
@@ -9827,6 +12241,18 @@ public class MainWindow extends JFrame {
            }
            if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
            }
            break;
        case FORMULA9:
@@ -9837,6 +12263,18 @@ public class MainWindow extends JFrame {
            if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
            }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
+           }
            break;
        case FORMULA10:
            fractal_functions[function].setEnabled(false);
@@ -9845,6 +12283,18 @@ public class MainWindow extends JFrame {
            }
            if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
            }
            break;
        case FORMULA11:
@@ -9855,6 +12305,18 @@ public class MainWindow extends JFrame {
            if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
            }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
+           }
            break;
        case FORMULA12:
            fractal_functions[function].setEnabled(false);
@@ -9863,6 +12325,18 @@ public class MainWindow extends JFrame {
            }
            if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
            }
            break;
        case FORMULA13:
@@ -9873,6 +12347,18 @@ public class MainWindow extends JFrame {
            if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
            }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
+           }
            break;
        case FORMULA14:
            fractal_functions[function].setEnabled(false);
@@ -9881,6 +12367,18 @@ public class MainWindow extends JFrame {
            }
            if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
            }
            break;
        case FORMULA15:
@@ -9891,6 +12389,18 @@ public class MainWindow extends JFrame {
            if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
            }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
+           }
            break;
        case FORMULA16:
            fractal_functions[function].setEnabled(false);
@@ -9899,6 +12409,18 @@ public class MainWindow extends JFrame {
            }
            if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
            }
            break;
        case FORMULA17:
@@ -9909,6 +12431,18 @@ public class MainWindow extends JFrame {
            if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
            }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
+           }
            break;
        case FORMULA18:
            fractal_functions[function].setEnabled(false);
@@ -9917,6 +12451,18 @@ public class MainWindow extends JFrame {
            }
            if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
            }
            break;
        case FORMULA19:
@@ -9927,6 +12473,18 @@ public class MainWindow extends JFrame {
            if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
            }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
+           }
            break;
        case FORMULA20:
            fractal_functions[function].setEnabled(false);
@@ -9935,6 +12493,18 @@ public class MainWindow extends JFrame {
            }
            if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
            }
            break;
        case FORMULA21:
@@ -9945,6 +12515,18 @@ public class MainWindow extends JFrame {
            if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
            }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
+           }
            break;
        case FORMULA22:
            fractal_functions[function].setEnabled(false);
@@ -9953,6 +12535,18 @@ public class MainWindow extends JFrame {
            }
            if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
            }
            break;
        case FORMULA23:
@@ -9963,6 +12557,18 @@ public class MainWindow extends JFrame {
            if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
            }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
+           }
            break;
        case FORMULA24:
            fractal_functions[function].setEnabled(false);
@@ -9971,6 +12577,18 @@ public class MainWindow extends JFrame {
            }
            if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
            }
            break;
        case FORMULA25:
@@ -9981,6 +12599,18 @@ public class MainWindow extends JFrame {
            if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
            }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
+           }
            break;
        case FORMULA26:
            fractal_functions[function].setEnabled(false);
@@ -9989,6 +12619,39 @@ public class MainWindow extends JFrame {
            }
            if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
+           }
+           break;
+       case FORMULA27:
+           fractal_functions[function].setEnabled(false);
+           if(out_coloring_algorithm != BIOMORPH) {
+               out_coloring_modes[BIOMORPH].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
            }
            break;
        case FROTHY_BASIN:
@@ -9999,6 +12662,18 @@ public class MainWindow extends JFrame {
            if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
            }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
+           }
            break;
        case SZEGEDI_BUTTERFLY1:
            fractal_functions[function].setEnabled(false);
@@ -10007,6 +12682,18 @@ public class MainWindow extends JFrame {
            }
            if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
            }
            break;
        case SZEGEDI_BUTTERFLY2:
@@ -10017,6 +12704,18 @@ public class MainWindow extends JFrame {
            if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
            }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
+           }
            break;
        default:
            fractal_functions[function].setEnabled(false);
@@ -10025,6 +12724,18 @@ public class MainWindow extends JFrame {
            }
            if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+           }
+           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
            }
            break;
        }
@@ -10735,6 +13446,18 @@ public class MainWindow extends JFrame {
                 yCenter = 0;
                 size = 6;
                 break;
+            case FORMULA27:
+                if(julia) {
+                    xCenter = -2;
+                    yCenter = 0;
+                    size = 6;
+                }
+                else {
+                    xCenter = 0;
+                    yCenter = 0;
+                    size = 3;
+                }
+                break;
             case FROTHY_BASIN:
                 xCenter = 0;
                 yCenter = 0;
@@ -10907,11 +13630,12 @@ public class MainWindow extends JFrame {
        
         double temp_xCenter, temp_yCenter, temp_size, temp_xJuliaCenter, temp_yJuliaCenter;
         int temp_bailout;
-        int temp_max_iterations = max_iterations > 175 ? 175 : max_iterations;
+        int temp_max_iterations = max_iterations > 200 ? 200 : max_iterations;
         int temp_image_size = FAST_JULIA_IMAGE_SIZE;
 
-        double temp_xcenter_size = xCenter - size / 2;
-        double temp_ycenter_size = yCenter - size / 2;
+        double size_2 = size * 0.5;
+        double temp_xcenter_size = xCenter - size_2;
+        double temp_ycenter_size = yCenter - size_2;
         double temp_size_image_size = size / image_size;
 
         try {
@@ -11222,6 +13946,12 @@ public class MainWindow extends JFrame {
                 temp_size = 6;
                 temp_bailout = 2;
                 break;
+            case FORMULA27:
+                temp_xCenter = -2;
+                temp_yCenter = 0;
+                temp_size = 6;
+                temp_bailout = 8;
+                break;
             case FROTHY_BASIN:
                 temp_xCenter = 0;
                 temp_yCenter = 0;
@@ -11253,10 +13983,10 @@ public class MainWindow extends JFrame {
         for(int i = 0; i < n; i++) {
            for(int j = 0; j < n; j++) {
                if(color_choice != palette.length - 1) {
-                   threads[i][j] = new Palette(color_choice, j * temp_image_size / n, (j + 1) * temp_image_size / n, i * temp_image_size / n, (i + 1) * temp_image_size / n, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, bailout_test_algorithm, temp_bailout, ptr, fractal_color, fast_julia_filters, fast_julia_image, boundary_tracing, periodicity_checking, plane_type, filters,  out_coloring_algorithm, in_coloring_algorithm, burning_ship, function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, coefficients, temp_xJuliaCenter, temp_yJuliaCenter);
+                   threads[i][j] = new Palette(color_choice, j * temp_image_size / n, (j + 1) * temp_image_size / n, i * temp_image_size / n, (i + 1) * temp_image_size / n, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, bailout_test_algorithm, temp_bailout, ptr, fractal_color, fast_julia_filters, fast_julia_image, boundary_tracing, periodicity_checking, plane_type, filters, samples, edges, emboss, contrast_brightness, masking, channel_swapping,  out_coloring_algorithm, in_coloring_algorithm, burning_ship, function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, coefficients, temp_xJuliaCenter, temp_yJuliaCenter);
                }
                else {
-                   threads[i][j] = new CustomPalette(custom_palette, j * temp_image_size / n, (j + 1) * temp_image_size / n, i * temp_image_size / n, (i + 1) * temp_image_size / n, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, bailout_test_algorithm, temp_bailout, ptr, fractal_color, fast_julia_filters, fast_julia_image, boundary_tracing, periodicity_checking, plane_type, filters,  out_coloring_algorithm, in_coloring_algorithm, burning_ship, function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, coefficients, temp_xJuliaCenter, temp_yJuliaCenter);
+                   threads[i][j] = new CustomPalette(custom_palette, j * temp_image_size / n, (j + 1) * temp_image_size / n, i * temp_image_size / n, (i + 1) * temp_image_size / n, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, bailout_test_algorithm, temp_bailout, ptr, fractal_color, fast_julia_filters, fast_julia_image, boundary_tracing, periodicity_checking, plane_type, filters, samples, edges, emboss, contrast_brightness, masking, channel_swapping,  out_coloring_algorithm, in_coloring_algorithm, burning_ship, function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, coefficients, temp_xJuliaCenter, temp_yJuliaCenter);
                }
            }
        }
@@ -11270,11 +14000,12 @@ public class MainWindow extends JFrame {
        if(!color_cycling_opt.isSelected()) {
            
            color_cycling = false;
+           color_cycling_button.setSelected(false);
            threads[0][0].setColorCycling(false);
            while(!threadsAvailable()) {}
            color_cycling_location = threads[0][0].getColorCyclingLocation();
           
-           if(filters[0] || filters[1]|| filters[2] || filters[3]|| filters[4] || filters[5] || filters[6]) {
+           if(filters[0] || filters[1] || filters[2] || filters[3] || filters[4] || filters[5] || filters[6] || filters[7] || filters[8] || filters[9]) {
                setOptions(false);
               
                progress.setValue(0);
@@ -11323,7 +14054,7 @@ public class MainWindow extends JFrame {
        else {
                      
            color_cycling = true;
-
+           color_cycling_button.setSelected(true);
            setOptions(false);
            
            if(color_choice != palette.length - 1) {
@@ -11349,10 +14080,10 @@ public class MainWindow extends JFrame {
        for(int i = 0; i < n; i++) {
            for(int j = 0; j < n; j++) { 
                if(color_choice != palette.length - 1) {
-                   threads[i][j] = new Palette(color_choice, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, max_iterations, ptr, image, fractal_color, color_cycling_location, out_coloring_algorithm, filters);
+                   threads[i][j] = new Palette(color_choice, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, max_iterations, ptr, image, fractal_color, color_cycling_location, out_coloring_algorithm, filters, edges, emboss, contrast_brightness, masking, channel_swapping);
                }
                else {
-                   threads[i][j] = new CustomPalette(custom_palette, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, max_iterations,  ptr, image, fractal_color, color_cycling_location, out_coloring_algorithm, filters);
+                   threads[i][j] = new CustomPalette(custom_palette, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, max_iterations,  ptr, image, fractal_color, color_cycling_location, out_coloring_algorithm, filters, edges, emboss, contrast_brightness, masking, channel_swapping);
                }
            }
        }
@@ -11504,7 +14235,7 @@ public class MainWindow extends JFrame {
 
        out_coloring_modes[temp].setEnabled(false);
        
-       if(out_coloring_algorithm == BIOMORPH || out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER) {
+       if(out_coloring_algorithm == BIOMORPH || out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER || out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER2 || out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER3 || out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER4 || out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER5) {
            fractal_functions[NEWTON3].setEnabled(false);
            fractal_functions[NEWTON4].setEnabled(false);
            fractal_functions[NEWTONGENERALIZED3].setEnabled(false);
@@ -11538,9 +14269,17 @@ public class MainWindow extends JFrame {
            if(function != NEWTON3 && function != NEWTON4 && function != NEWTONGENERALIZED3 && function != NEWTONGENERALIZED8 && function != NEWTONSIN && function != NEWTONCOS && function != NEWTONPOLY && function != HALLEY3 && function != HALLEY4 && function != HALLEYGENERALIZED3 && function != HALLEYGENERALIZED8 && function != HALLEYSIN && function != HALLEYCOS && function != HALLEYPOLY && function != SCHRODER3 && function != SCHRODER4 && function != SCHRODERGENERALIZED3 && function != SCHRODERGENERALIZED8 && function != SCHRODERSIN && function != SCHRODERCOS && function != SCHRODERPOLY && function != HOUSEHOLDER3 && function != HOUSEHOLDER4 && function != HOUSEHOLDERGENERALIZED3 && function != HOUSEHOLDERGENERALIZED8 && function != HOUSEHOLDERSIN && function != HOUSEHOLDERCOS && function != HOUSEHOLDERPOLY) {
                out_coloring_modes[BIOMORPH].setEnabled(true);
                out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
            }
            out_coloring_modes[BIOMORPH].setSelected(false);
            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setSelected(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setSelected(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setSelected(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setSelected(false);
+           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setSelected(false);
 
            if(!julia_map && !julia && !perturbation && function != NEWTON3 && function != NEWTON4 && function != NEWTONGENERALIZED3 && function != NEWTONGENERALIZED8 && function != NEWTONSIN && function != NEWTONCOS && function != NEWTONPOLY && function != HALLEY3 && function != HALLEY4 && function != HALLEYGENERALIZED3 && function != HALLEYGENERALIZED8 && function != HALLEYSIN && function != HALLEYCOS && function != HALLEYPOLY && function != SCHRODER3 && function != SCHRODER4 && function != SCHRODERGENERALIZED3 && function != SCHRODERGENERALIZED8 && function != SCHRODERSIN && function != SCHRODERCOS && function != SCHRODERPOLY && function != HOUSEHOLDER3 && function != HOUSEHOLDER4 && function != HOUSEHOLDERGENERALIZED3 && function != HOUSEHOLDERGENERALIZED8 && function != HOUSEHOLDERSIN && function != HOUSEHOLDERCOS && function != HOUSEHOLDERPOLY) {
                fractal_functions[NEWTON3].setEnabled(true);
@@ -11664,7 +14403,7 @@ public class MainWindow extends JFrame {
            julia_map = false;
            setOptions(false);
            
-           if(out_coloring_algorithm != BIOMORPH && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+           if(out_coloring_algorithm != BIOMORPH && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
                fractal_functions[NEWTON3].setEnabled(true);
                fractal_functions[NEWTON4].setEnabled(true);
                fractal_functions[NEWTONGENERALIZED3].setEnabled(true);
@@ -11695,6 +14434,8 @@ public class MainWindow extends JFrame {
                fractal_functions[HOUSEHOLDERPOLY].setEnabled(true);   
            }
            fractal_functions[SIERPINSKI_GASKET].setEnabled(true);
+           
+           boundary_tracing_opt.setEnabled(true);
            
            mode.setText("Normal mode");
  
@@ -11791,6 +14532,8 @@ public class MainWindow extends JFrame {
            perturbation_opt.setEnabled(false);
            init_val_opt.setEnabled(false);
   
+           boundary_tracing_opt.setEnabled(false);
+           
            progress.setValue(0);
 
            scroll_pane.getHorizontalScrollBar().setValue((int)(scroll_pane.getHorizontalScrollBar().getMaximum() / 2 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2));
@@ -11831,8 +14574,9 @@ public class MainWindow extends JFrame {
 
    public void drawGrid(Graphics2D brush) {
 
-        double temp_xcenter_size = xCenter - size / 2;
-        double temp_ycenter_size = yCenter - size / 2;
+        double size_2 = size * 0.5;
+        double temp_xcenter_size = xCenter - size_2;
+        double temp_ycenter_size = yCenter - size_2;
         double temp_size_image_size = size / image_size;
 
         brush.setColor(grid_color);
@@ -12041,12 +14785,12 @@ public class MainWindow extends JFrame {
                             for(int i = 0, j = 0; i < c.length; i++) {
                                 g.setColor(c[i]);
                                 if(mod != 0) {
-                                    g.fillRect(j, 0, j + div + 1, colors.getHeight());   
+                                    g.fillRect(j, 0, div + 1, colors.getHeight());   
                                     j += div + 1;
                                     mod--;
                                 }
                                 else {
-                                    g.fillRect(j, 0, j + div, colors.getHeight());   
+                                    g.fillRect(j, 0, div, colors.getHeight());   
                                     j += div;
                                 }   
                             }
@@ -12123,12 +14867,12 @@ public class MainWindow extends JFrame {
                         for(int i = 0, j = 0; i < c.length; i++) {
                             g.setColor(c[i]);
                             if(mod != 0) {
-                                g.fillRect(j, 0, j + div + 1, colors.getHeight());   
+                                g.fillRect(j, 0, div + 1, colors.getHeight());   
                                 j += div + 1;
                                 mod--;
                             }
                             else {
-                                g.fillRect(j, 0, j + div, colors.getHeight());   
+                                g.fillRect(j, 0, div, colors.getHeight());   
                                 j += div;
                             }   
                         }
@@ -12171,12 +14915,12 @@ public class MainWindow extends JFrame {
                         for(int i = 0, j = 0; i < c.length; i++) {
                             g.setColor(c[i]);
                             if(mod != 0) {
-                                g.fillRect(j, 0, j + div + 1, colors.getHeight());   
+                                g.fillRect(j, 0, div + 1, colors.getHeight());   
                                 j += div + 1;
                                 mod--;
                             }
                             else {
-                                g.fillRect(j, 0, j + div, colors.getHeight());   
+                                g.fillRect(j, 0, div, colors.getHeight());   
                                 j += div;
                             }   
                         }
@@ -12342,12 +15086,12 @@ public class MainWindow extends JFrame {
                 for(int i = 0, j = 0; i < c.length; i++) {
                     g.setColor(c[i]);
                     if(mod != 0) {
-                        g.fillRect(j, 0, j + div + 1, colors.getHeight());   
+                        g.fillRect(j, 0, div + 1, colors.getHeight());   
                         j += div + 1;
                         mod--;
                     }
                     else {
-                        g.fillRect(j, 0, j + div, colors.getHeight());   
+                        g.fillRect(j, 0, div, colors.getHeight());   
                         j += div;
                     }   
                 }
@@ -12409,12 +15153,12 @@ public class MainWindow extends JFrame {
                 for(int i = 0, j = 0; i < c.length; i++) {
                     g.setColor(c[i]);
                     if(mod != 0) {
-                        g.fillRect(j, 0, j + div + 1, colors.getHeight());   
+                        g.fillRect(j, 0, div + 1, colors.getHeight());   
                         j += div + 1;
                         mod--;
                     }
                     else {
-                        g.fillRect(j, 0, j + div, colors.getHeight());   
+                        g.fillRect(j, 0, div, colors.getHeight());   
                         j += div;
                     }   
                 }
@@ -12473,12 +15217,12 @@ public class MainWindow extends JFrame {
                 for(int i = 0, j = 0; i < c.length; i++) {
                     g.setColor(c[i]);
                     if(mod != 0) {
-                        g.fillRect(j, 0, j + div + 1, colors.getHeight());   
+                        g.fillRect(j, 0, div + 1, colors.getHeight());   
                         j += div + 1;
                         mod--;
                     }
                     else {
-                        g.fillRect(j, 0, j + div, colors.getHeight());   
+                        g.fillRect(j, 0, div, colors.getHeight());   
                         j += div;
                     }   
                 }
@@ -12489,24 +15233,8 @@ public class MainWindow extends JFrame {
         
         });
         
-        String[] coloring_option = new String[15];
-        coloring_option[0] = "Default";
-        coloring_option[1] = "Spectrum";
-        coloring_option[2] = "Alternative";
-        coloring_option[3] = "Alternative 2";
-        coloring_option[4] = "Alternative 3";
-        coloring_option[5] = "Alternative 4";
-        coloring_option[6] = "Alternative 5";
-        coloring_option[7] = "Alternative 6";
-        coloring_option[8] = "Alternative 7";
-        coloring_option[9] = "Green White";
-        coloring_option[10] = "Blue";
-        coloring_option[11] = "Gray Scale";
-        coloring_option[12] = "Earth Sky";
-        coloring_option[13] = "Hot Cold";
-        coloring_option[14] = "Fire";
-
-        editor_palettes = new JMenuItem[coloring_option.length];
+   
+        editor_palettes = new JMenuItem[coloring_option.length - 1];
 
         for(k = 0; k < editor_palettes.length; k++) {
             editor_palettes[k] = new JMenuItem(coloring_option[k]);
@@ -12528,17 +15256,16 @@ public class MainWindow extends JFrame {
                     int div = colors.getWidth() / c.length;
                     int mod = colors.getWidth() % c.length;
 
-
                     Graphics2D g = colors.createGraphics();
                     for(int i = 0, j = 0; i < c.length; i++) {
                         g.setColor(c[i]);
                         if(mod != 0) {
-                            g.fillRect(j, 0, j + div + 1, colors.getHeight());   
+                            g.fillRect(j, 0, div + 1, colors.getHeight());   
                             j += div + 1;
                             mod--;
                         }
                         else {
-                            g.fillRect(j, 0, j + div, colors.getHeight());   
+                            g.fillRect(j, 0, div, colors.getHeight());   
                             j += div;
                         }   
                     }
@@ -12567,15 +15294,16 @@ public class MainWindow extends JFrame {
         int mod = colors.getWidth() % c.length;
 
         Graphics2D g = colors.createGraphics();
+        
         for(int i = 0, j = 0; i < c.length; i++) {
             g.setColor(c[i]);
             if(mod != 0) {
-                g.fillRect(j, 0, j + div + 1, colors.getHeight());   
+                g.fillRect(j, 0, div + 1, colors.getHeight());   
                 j += div + 1;
                 mod--;
             }
             else {
-                g.fillRect(j, 0, j + div, colors.getHeight());   
+                g.fillRect(j, 0, div, colors.getHeight());   
                 j += div;
             }   
         }
@@ -12704,10 +15432,10 @@ public class MainWindow extends JFrame {
            for(int i = 0; i < n; i++) {
                for(int j = 0; j < n; j++) {
                    if(color_choice != palette.length - 1) {
-                       threads[i][j] = new Palette(color_choice, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, ptr, fractal_color, image, filters, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type,  burning_ship, function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, coefficients);
+                       threads[i][j] = new Palette(color_choice, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, ptr, fractal_color, image, filters, samples, edges, emboss, contrast_brightness, masking, channel_swapping, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type,  burning_ship, function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, coefficients);
                    }
                    else {
-                       threads[i][j] = new CustomPalette(custom_palette, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout,  ptr, fractal_color, image, filters, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type,  burning_ship, function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, coefficients);
+                       threads[i][j] = new CustomPalette(custom_palette, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout,  ptr, fractal_color, image, filters, samples, edges, emboss, contrast_brightness, masking, channel_swapping, out_coloring_algorithm, in_coloring_algorithm, periodicity_checking, plane_type,  burning_ship, function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, coefficients);
                    }
                }
            }
@@ -12897,7 +15625,7 @@ public class MainWindow extends JFrame {
        if(!perturbation_opt.isSelected()) {
            perturbation = false;
            
-           if(out_coloring_algorithm != BIOMORPH && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER && !init_val) {
+           if(out_coloring_algorithm != BIOMORPH && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER  && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3  && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5 && !init_val) {
                fractal_functions[NEWTON3].setEnabled(true);
                fractal_functions[NEWTON4].setEnabled(true);
                fractal_functions[NEWTONGENERALIZED3].setEnabled(true);
@@ -12989,6 +15717,7 @@ public class MainWindow extends JFrame {
 
             perturbation = true;
             julia_opt.setEnabled(false);
+            julia_button.setEnabled(false);
             julia_map_opt.setEnabled(false);
             fractal_functions[NEWTON3].setEnabled(false);
             fractal_functions[NEWTON4].setEnabled(false);
@@ -13031,7 +15760,7 @@ public class MainWindow extends JFrame {
        if(!init_val_opt.isSelected()) {
            init_val = false;
            
-           if(out_coloring_algorithm != BIOMORPH && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER && !perturbation) {
+           if(out_coloring_algorithm != BIOMORPH && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5 && !perturbation) {
                fractal_functions[NEWTON3].setEnabled(true);
                fractal_functions[NEWTON4].setEnabled(true);
                fractal_functions[NEWTONGENERALIZED3].setEnabled(true);
@@ -13121,6 +15850,7 @@ public class MainWindow extends JFrame {
             
             init_val = true;
             julia_opt.setEnabled(false);
+            julia_button.setEnabled(false);
             julia_map_opt.setEnabled(false);
             fractal_functions[NEWTON3].setEnabled(false);
             fractal_functions[NEWTON4].setEnabled(false);
@@ -13246,12 +15976,735 @@ public class MainWindow extends JFrame {
        return julia_grid_first_dimension * julia_grid_first_dimension;
        
    }
+   
+   private void set4Samples() {
+       
+       samples = 4;
+       
+       antialiasing_8_samples.setSelected(false);
+       antialiasing_8_samples.setEnabled(true);
+       antialiasing_4_samples.setSelected(true);
+       antialiasing_4_samples.setEnabled(false);
 
+       if(filters[0]) {
+           setOptions(false);
+
+           progress.setValue(0);
+
+           last_used = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
+           Graphics2D graphics = last_used.createGraphics();
+           graphics.drawImage(image, 0, 0, image_size, image_size, null);
+
+           image = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
+
+           backup_orbit = null;
+
+           whole_image_done = false;
+
+           if(julia_map) {
+               createThreadsJuliaMap();
+           }
+           else {
+               createThreads(); 
+           }
+
+           calculation_time = System.currentTimeMillis();
+
+           if(julia_map) {
+               startThreads(julia_grid_first_dimension);
+           }
+           else {
+               startThreads(n);
+           }
+       }
+       
+   }
+   
+   private void set8Samples() {
+       
+       samples = 8;
+     
+       antialiasing_4_samples.setSelected(false);
+       antialiasing_4_samples.setEnabled(true);
+       antialiasing_8_samples.setSelected(true);
+       antialiasing_8_samples.setEnabled(false);
+
+       if(filters[0]) {
+           setOptions(false);
+
+           progress.setValue(0);
+
+           last_used = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
+           Graphics2D graphics = last_used.createGraphics();
+           graphics.drawImage(image, 0, 0, image_size, image_size, null);
+
+           image = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
+
+           backup_orbit = null;
+
+           whole_image_done = false;
+
+           if(julia_map) {
+               createThreadsJuliaMap();
+           }
+           else {
+               createThreads(); 
+           }
+
+           calculation_time = System.currentTimeMillis();
+
+           if(julia_map) {
+               startThreads(julia_grid_first_dimension);
+           }
+           else {
+               startThreads(n);
+           }
+       }
+       
+   }
+   
+   private void setThinEdges() {
+       
+       edges = 0;
+     
+       edgedetection_thick_lines.setSelected(false);
+       edgedetection_thick_lines.setEnabled(true);
+       edgedetection_thin_lines.setSelected(true);
+       edgedetection_thin_lines.setEnabled(false);
+       
+       if(filters[1]) {
+           setOptions(false);
+
+           progress.setValue(0);
+
+           last_used = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
+           Graphics2D graphics = last_used.createGraphics();
+           graphics.drawImage(image, 0, 0, image_size, image_size, null);
+
+           image = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
+
+           backup_orbit = null;
+
+           whole_image_done = false;
+
+           if(filters[0]) {
+               if(julia_map) {
+                   createThreadsJuliaMap();
+               }
+               else {
+                   createThreads(); 
+               }
+
+               calculation_time = System.currentTimeMillis();
+
+               if(julia_map) {
+                   startThreads(julia_grid_first_dimension);
+               }
+               else {
+                   startThreads(n);
+               }
+           }
+           else {
+               createThreadsPaletteAndFilter();
+
+               calculation_time = System.currentTimeMillis();
+
+               startThreads(n);
+           }
+       }
+       
+   }
+   
+   private void setThickEdges() {
+       
+       edges = 1;
+     
+       edgedetection_thin_lines.setSelected(false);
+       edgedetection_thin_lines.setEnabled(true);
+       edgedetection_thick_lines.setSelected(true);
+       edgedetection_thick_lines.setEnabled(false);
+       
+       if(filters[1]) {
+           setOptions(false);
+
+           progress.setValue(0);
+
+           last_used = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
+           Graphics2D graphics = last_used.createGraphics();
+           graphics.drawImage(image, 0, 0, image_size, image_size, null);
+
+           image = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
+
+           backup_orbit = null;
+
+           whole_image_done = false;
+
+           if(filters[0]) {
+               if(julia_map) {
+                   createThreadsJuliaMap();
+               }
+               else {
+                   createThreads(); 
+               }
+
+               calculation_time = System.currentTimeMillis();
+
+               if(julia_map) {
+                   startThreads(julia_grid_first_dimension);
+               }
+               else {
+                   startThreads(n);
+               }
+           }
+           else {
+               createThreadsPaletteAndFilter();
+
+               calculation_time = System.currentTimeMillis();
+
+               startThreads(n);
+           }
+       }
+       
+   }
+   
+   private void setEmbossGrayscale() {
+       
+       emboss = 0;
+     
+       emboss_colored.setSelected(false);
+       emboss_colored.setEnabled(true);
+       emboss_grayscale.setSelected(true);
+       emboss_grayscale.setEnabled(false);
+       
+       if(filters[2]) {
+           setOptions(false);
+
+           progress.setValue(0);
+
+           last_used = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
+           Graphics2D graphics = last_used.createGraphics();
+           graphics.drawImage(image, 0, 0, image_size, image_size, null);
+
+           image = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
+
+           backup_orbit = null;
+
+           whole_image_done = false;
+
+           if(filters[0]) {
+               if(julia_map) {
+                   createThreadsJuliaMap();
+               }
+               else {
+                   createThreads(); 
+               }
+
+               calculation_time = System.currentTimeMillis();
+
+               if(julia_map) {
+                   startThreads(julia_grid_first_dimension);
+               }
+               else {
+                   startThreads(n);
+               }
+           }
+           else {
+               createThreadsPaletteAndFilter();
+
+               calculation_time = System.currentTimeMillis();
+
+               startThreads(n);
+           }
+       }
+       
+   }
+
+    private void setEmbossColored() {
+       
+       emboss = 1;
+     
+       emboss_grayscale.setSelected(false);
+       emboss_grayscale.setEnabled(true);
+       emboss_colored.setSelected(true);
+       emboss_colored.setEnabled(false);
+       
+       if(filters[2]) {
+           setOptions(false);
+
+           progress.setValue(0);
+
+           last_used = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
+           Graphics2D graphics = last_used.createGraphics();
+           graphics.drawImage(image, 0, 0, image_size, image_size, null);
+
+           image = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
+
+           backup_orbit = null;
+
+           whole_image_done = false;
+
+           if(filters[0]) {
+               if(julia_map) {
+                   createThreadsJuliaMap();
+               }
+               else {
+                   createThreads(); 
+               }
+
+               calculation_time = System.currentTimeMillis();
+
+               if(julia_map) {
+                   startThreads(julia_grid_first_dimension);
+               }
+               else {
+                   startThreads(n);
+               }
+           }
+           else {
+               createThreadsPaletteAndFilter();
+
+               calculation_time = System.currentTimeMillis();
+
+               startThreads(n);
+           }
+       }
+       
+   }
+    
+   private void setContrast() {
+       
+       contrast_brightness = 0;
+     
+       contrastBrightness.setSelected(false);
+       contrastBrightness.setEnabled(true);
+       brightness.setSelected(false);
+       brightness.setEnabled(true);
+       contrast.setSelected(true);
+       contrast.setEnabled(false);
+       
+       if(filters[9]) {
+           setOptions(false);
+
+           progress.setValue(0);
+
+           last_used = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
+           Graphics2D graphics = last_used.createGraphics();
+           graphics.drawImage(image, 0, 0, image_size, image_size, null);
+
+           image = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
+
+           backup_orbit = null;
+
+           whole_image_done = false;
+
+           if(filters[0]) {
+               if(julia_map) {
+                   createThreadsJuliaMap();
+               }
+               else {
+                   createThreads(); 
+               }
+
+               calculation_time = System.currentTimeMillis();
+
+               if(julia_map) {
+                   startThreads(julia_grid_first_dimension);
+               }
+               else {
+                   startThreads(n);
+               }
+           }
+           else {
+               createThreadsPaletteAndFilter();
+
+               calculation_time = System.currentTimeMillis();
+
+               startThreads(n);
+           }
+       }
+       
+   }
+
+    private void setBrightness() {
+       
+       contrast_brightness = 1;
+     
+       contrastBrightness.setSelected(false);
+       contrastBrightness.setEnabled(true);
+       contrast.setSelected(false);
+       contrast.setEnabled(true);
+       brightness.setSelected(true);
+       brightness.setEnabled(false);
+       
+       if(filters[9]) {
+           setOptions(false);
+
+           progress.setValue(0);
+
+           last_used = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
+           Graphics2D graphics = last_used.createGraphics();
+           graphics.drawImage(image, 0, 0, image_size, image_size, null);
+
+           image = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
+
+           backup_orbit = null;
+
+           whole_image_done = false;
+
+           if(filters[0]) {
+               if(julia_map) {
+                   createThreadsJuliaMap();
+               }
+               else {
+                   createThreads(); 
+               }
+
+               calculation_time = System.currentTimeMillis();
+
+               if(julia_map) {
+                   startThreads(julia_grid_first_dimension);
+               }
+               else {
+                   startThreads(n);
+               }
+           }
+           else {
+               createThreadsPaletteAndFilter();
+
+               calculation_time = System.currentTimeMillis();
+
+               startThreads(n);
+           }
+       }
+       
+   }
+    
+   private void setContrastAndBrightness() {
+       
+       contrast_brightness = 2;
+     
+       brightness.setSelected(false);
+       brightness.setEnabled(true);
+       contrast.setSelected(false);
+       contrast.setEnabled(true);
+       contrastBrightness.setSelected(true);
+       contrastBrightness.setEnabled(false);
+       
+       if(filters[9]) {
+           setOptions(false);
+
+           progress.setValue(0);
+
+           last_used = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
+           Graphics2D graphics = last_used.createGraphics();
+           graphics.drawImage(image, 0, 0, image_size, image_size, null);
+
+           image = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
+
+           backup_orbit = null;
+
+           whole_image_done = false;
+
+           if(filters[0]) {
+               if(julia_map) {
+                   createThreadsJuliaMap();
+               }
+               else {
+                   createThreads(); 
+               }
+
+               calculation_time = System.currentTimeMillis();
+
+               if(julia_map) {
+                   startThreads(julia_grid_first_dimension);
+               }
+               else {
+                   startThreads(n);
+               }
+           }
+           else {
+               createThreadsPaletteAndFilter();
+
+               calculation_time = System.currentTimeMillis();
+
+               startThreads(n);
+           }
+       }
+       
+   }
+   
+   private void setMaskRed() {
+       
+       masking = 0;
+     
+       mask_green.setSelected(false);
+       mask_green.setEnabled(true);
+       mask_blue.setSelected(false);
+       mask_blue.setEnabled(true);
+       mask_red.setSelected(true);
+       mask_red.setEnabled(false);
+       
+       if(filters[6]) {
+           setOptions(false);
+
+           progress.setValue(0);
+
+           last_used = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
+           Graphics2D graphics = last_used.createGraphics();
+           graphics.drawImage(image, 0, 0, image_size, image_size, null);
+
+           image = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
+
+           backup_orbit = null;
+
+           whole_image_done = false;
+
+           if(filters[0]) {
+               if(julia_map) {
+                   createThreadsJuliaMap();
+               }
+               else {
+                   createThreads(); 
+               }
+
+               calculation_time = System.currentTimeMillis();
+
+               if(julia_map) {
+                   startThreads(julia_grid_first_dimension);
+               }
+               else {
+                   startThreads(n);
+               }
+           }
+           else {
+               createThreadsPaletteAndFilter();
+
+               calculation_time = System.currentTimeMillis();
+
+               startThreads(n);
+           }
+       }
+       
+   }
+
+    private void setMaskGreen() {
+       
+       masking = 1;
+     
+       mask_blue.setSelected(false);
+       mask_blue.setEnabled(true);
+       mask_red.setSelected(false);
+       mask_red.setEnabled(true);
+       mask_green.setSelected(true);
+       mask_green.setEnabled(false);
+       
+       if(filters[6]) {
+           setOptions(false);
+
+           progress.setValue(0);
+
+           last_used = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
+           Graphics2D graphics = last_used.createGraphics();
+           graphics.drawImage(image, 0, 0, image_size, image_size, null);
+
+           image = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
+
+           backup_orbit = null;
+
+           whole_image_done = false;
+
+           if(filters[0]) {
+               if(julia_map) {
+                   createThreadsJuliaMap();
+               }
+               else {
+                   createThreads(); 
+               }
+
+               calculation_time = System.currentTimeMillis();
+
+               if(julia_map) {
+                   startThreads(julia_grid_first_dimension);
+               }
+               else {
+                   startThreads(n);
+               }
+           }
+           else {
+               createThreadsPaletteAndFilter();
+
+               calculation_time = System.currentTimeMillis();
+
+               startThreads(n);
+           }
+       }
+       
+   }
+    
+   private void setMaskBlue() {
+       
+       masking = 2;
+     
+       mask_green.setSelected(false);
+       mask_green.setEnabled(true);
+       mask_red.setSelected(false);
+       mask_red.setEnabled(true);
+       mask_blue.setSelected(true);
+       mask_blue.setEnabled(false);
+       
+       if(filters[6]) {
+           setOptions(false);
+
+           progress.setValue(0);
+
+           last_used = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
+           Graphics2D graphics = last_used.createGraphics();
+           graphics.drawImage(image, 0, 0, image_size, image_size, null);
+
+           image = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
+
+           backup_orbit = null;
+
+           whole_image_done = false;
+
+           if(filters[0]) {
+               if(julia_map) {
+                   createThreadsJuliaMap();
+               }
+               else {
+                   createThreads(); 
+               }
+
+               calculation_time = System.currentTimeMillis();
+
+               if(julia_map) {
+                   startThreads(julia_grid_first_dimension);
+               }
+               else {
+                   startThreads(n);
+               }
+           }
+           else {
+               createThreadsPaletteAndFilter();
+
+               calculation_time = System.currentTimeMillis();
+
+               startThreads(n);
+           }
+       }
+       
+   }
+   
+   
+   private void setChannelSwappingGRB() {
+       
+       channel_swapping = 0;
+     
+       channel_swapping_bgr.setSelected(false);
+       channel_swapping_bgr.setEnabled(true);
+       channel_swapping_grb.setSelected(true);
+       channel_swapping_grb.setEnabled(false);
+       
+       if(filters[8]) {
+           setOptions(false);
+
+           progress.setValue(0);
+
+           last_used = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
+           Graphics2D graphics = last_used.createGraphics();
+           graphics.drawImage(image, 0, 0, image_size, image_size, null);
+
+           image = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
+
+           backup_orbit = null;
+
+           whole_image_done = false;
+
+           if(filters[0]) {
+               if(julia_map) {
+                   createThreadsJuliaMap();
+               }
+               else {
+                   createThreads(); 
+               }
+
+               calculation_time = System.currentTimeMillis();
+
+               if(julia_map) {
+                   startThreads(julia_grid_first_dimension);
+               }
+               else {
+                   startThreads(n);
+               }
+           }
+           else {
+               createThreadsPaletteAndFilter();
+
+               calculation_time = System.currentTimeMillis();
+
+               startThreads(n);
+           }
+       }
+       
+   }
+    
+   private void setChannelSwappingBGR() {
+       
+       channel_swapping = 1;
+     
+       channel_swapping_grb.setSelected(false);
+       channel_swapping_grb.setEnabled(true);
+       channel_swapping_bgr.setSelected(true);
+       channel_swapping_bgr.setEnabled(false);
+       
+       if(filters[8]) {
+           setOptions(false);
+
+           progress.setValue(0);
+
+           last_used = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
+           Graphics2D graphics = last_used.createGraphics();
+           graphics.drawImage(image, 0, 0, image_size, image_size, null);
+
+           image = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
+
+           backup_orbit = null;
+
+           whole_image_done = false;
+
+           if(filters[0]) {
+               if(julia_map) {
+                   createThreadsJuliaMap();
+               }
+               else {
+                   createThreads(); 
+               }
+
+               calculation_time = System.currentTimeMillis();
+
+               if(julia_map) {
+                   startThreads(julia_grid_first_dimension);
+               }
+               else {
+                   startThreads(n);
+               }
+           }
+           else {
+               createThreadsPaletteAndFilter();
+
+               calculation_time = System.currentTimeMillis();
+
+               startThreads(n);
+           }
+       }
+       
+   }
+    
    public static void main(String[] args) throws InterruptedException {
 
        MainWindow fractals = new MainWindow();
        Thread.currentThread().sleep(1300);
-       fractals.setVisible(true);
+       fractals.setVisible(true); 
 
    }
 

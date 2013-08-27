@@ -13,7 +13,6 @@ import fractalzoomer.out_coloring_algorithms.EscapeTimeColorDecompositionConverg
 import fractalzoomer.out_coloring_algorithms.EscapeTimePlusIm;
 import fractalzoomer.out_coloring_algorithms.EscapeTimePlusRe;
 import fractalzoomer.out_coloring_algorithms.EscapeTimePlusRePlusImPlusReDivideIm;
-import fractalzoomer.fractal_options.DefaultPerturbation;
 import fractalzoomer.in_coloring_algorithms.MagTimesCosReSquared;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.in_coloring_algorithms.MaximumIterations;
@@ -22,6 +21,8 @@ import fractalzoomer.in_coloring_algorithms.ReDivideIm;
 import fractalzoomer.in_coloring_algorithms.SinReSquaredMinusImSquared;
 import fractalzoomer.in_coloring_algorithms.Squares;
 import fractalzoomer.in_coloring_algorithms.ZMag;
+import fractalzoomer.out_coloring_algorithms.EscapeTimeAlgorithm1;
+import fractalzoomer.out_coloring_algorithms.EscapeTimeAlgorithm2;
 import fractalzoomer.out_coloring_algorithms.EscapeTimePlusReDivideIm;
 import fractalzoomer.out_coloring_algorithms.SmoothRootFindingMethod;
 import java.util.ArrayList;
@@ -74,12 +75,19 @@ public class HalleyGeneralized8 extends RootFindingMethods {
                 out_color_algorithm = new EscapeTimePlusRePlusImPlusReDivideIm();
                 break;
             case MainWindow.COLOR_DECOMPOSITION:
-                convergent_bailout = 1E-3;
+                convergent_bailout = 1E-6;
                 out_color_algorithm = new ColorDecompositionConverge();
                 break;
             case MainWindow. ESCAPE_TIME_COLOR_DECOMPOSITION:
-                convergent_bailout = 1E-3;
+                convergent_bailout = 1E-6;
                 out_color_algorithm = new EscapeTimeColorDecompositionConverge();
+                break;
+            case MainWindow.ESCAPE_TIME_ALGORITHM:
+                out_color_algorithm = new EscapeTimeAlgorithm1(3);
+                break;
+            case MainWindow.ESCAPE_TIME_ALGORITHM2:
+                convergent_bailout = 1E-1;
+                out_color_algorithm = new EscapeTimeAlgorithm2();
                 break;
 
         }

@@ -22,7 +22,7 @@ public class EscapeTimeGaussianInteger extends OutColorAlgorithm {
     @Override
     public double getResult(Object[] object) {
         
-        return (Integer)object[0] + ((Complex)(object[1])).distance_squared(((Complex)(object[1])).gaussian_integer()) * 95 + 100800;
+        return (Integer)object[0] + ((Complex)(object[1])).distance_squared(((Complex)(object[1])).gaussian_integer()) * 90 + 100800;
  
     }   
     
