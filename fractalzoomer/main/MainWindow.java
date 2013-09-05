@@ -18178,7 +18178,7 @@ public class MainWindow extends JFrame {
        
        setEnabled(false);
        int custom_palette_window_width = 800;
-       int custom_palette_window_height = 360;
+       int custom_palette_window_height = 355;
        custom_palette_editor = new JFrame("Custom Palette Editor");
        custom_palette_editor.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/fractalzoomer/icons/palette.png")));
        custom_palette_editor.setLayout(new FlowLayout());
@@ -18217,7 +18217,9 @@ public class MainWindow extends JFrame {
         editor_panel.setPreferredSize(new Dimension(780, 255));
         editor_panel.setLayout(new FlowLayout());
         palette_colors.setLayout(new FlowLayout());
+        palette_colors.setPreferredSize(new Dimension(760, 60));
         hues.setLayout(new FlowLayout());
+        hues.setPreferredSize(new Dimension(760, 60));
         buttons.setLayout(new FlowLayout());
 
         labels = new JLabel[32];
@@ -18826,6 +18828,7 @@ public class MainWindow extends JFrame {
         gradient.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
         
         JPanel palette_panel = new JPanel();
+        palette_panel.setPreferredSize(new Dimension(760, 80));
         
         /*temp1 = new JLabel("Palette:");
         temp1.setFont(new Font("bold", Font.BOLD, 12));
@@ -19533,6 +19536,7 @@ public class MainWindow extends JFrame {
   
        JPanel panel  = new JPanel();
        
+       panel.setPreferredSize(new Dimension(400, 330));
        
        JPanel[] panels = new JPanel[combo_boxes.length];
        
