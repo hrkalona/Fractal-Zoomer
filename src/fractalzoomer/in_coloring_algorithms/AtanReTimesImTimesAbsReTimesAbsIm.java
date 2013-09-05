@@ -1,7 +1,6 @@
 package fractalzoomer.in_coloring_algorithms;
 
 import fractalzoomer.core.Complex;
-import fractalzoomer.main.MainWindow;
 import fractalzoomer.in_coloring_algorithms.options.InColorOption;
 import fractalzoomer.in_coloring_algorithms.options.InColorOptionDouble;
 import fractalzoomer.in_coloring_algorithms.options.InColorOptionInt;
@@ -18,10 +17,10 @@ import fractalzoomer.in_coloring_algorithms.options.InColorOptionInt;
 public class AtanReTimesImTimesAbsReTimesAbsIm extends InColorAlgorithm {
   private InColorOption option;
 
-    public AtanReTimesImTimesAbsReTimesAbsIm(int out_coloring_algorithm) { 
+    public AtanReTimesImTimesAbsReTimesAbsIm(boolean smoothing) { 
         super();
         
-        if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+        if(!smoothing) {
             option = new InColorOptionInt();
         }
         else {

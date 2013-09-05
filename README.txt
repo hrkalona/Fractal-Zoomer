@@ -7,7 +7,7 @@ Boundary Tracing
 Periodicity Checking
 
 Functions:
-Over 85 different fractal generating functions
+Over 100 different fractal generating functions
 
 Includes:
 Plane transformations
@@ -18,7 +18,7 @@ Bailout Tests
 Palette editor
 Julia sets
 Julia map
-Many Color Algorithms, such as escape time and smooth
+Many Color Algorithms
 Color Cycling
 Orbits
 Image filters

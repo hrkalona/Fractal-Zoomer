@@ -30,6 +30,8 @@ import fractalzoomer.functions.formulas.kaliset.Formula25;
 import fractalzoomer.functions.formulas.kaliset.Formula26;
 import fractalzoomer.functions.formulas.kaliset.Formula23;
 import fractalzoomer.functions.formulas.m_like_generalization.Formula1;
+import fractalzoomer.functions.formulas.m_like_generalization.Formula28;
+import fractalzoomer.functions.formulas.m_like_generalization.Formula29;
 import fractalzoomer.functions.formulas.m_like_generalization.c_azb_dze.Formula27;
 import fractalzoomer.functions.formulas.m_like_generalization.c_azb_dze.Formula3;
 import fractalzoomer.functions.formulas.m_like_generalization.c_azb_dze.Formula4;
@@ -39,20 +41,20 @@ import fractalzoomer.functions.formulas.m_like_generalization.c_azb_dze.Formula7
 import fractalzoomer.functions.formulas.m_like_generalization.c_azb_dze.Formula8;
 import fractalzoomer.functions.formulas.m_like_generalization.c_azb_dze.Formula9;
 import fractalzoomer.functions.general.FrothyBasin;
-import fractalzoomer.functions.halley.HalleySin;
-import fractalzoomer.functions.halley.Halley4;
-import fractalzoomer.functions.halley.HalleyPoly;
-import fractalzoomer.functions.halley.HalleyGeneralized8;
-import fractalzoomer.functions.householder.HouseholderGeneralized8;
-import fractalzoomer.functions.halley.HalleyCos;
-import fractalzoomer.functions.halley.HalleyGeneralized3;
-import fractalzoomer.functions.halley.Halley3;
-import fractalzoomer.functions.householder.Householder3;
-import fractalzoomer.functions.householder.HouseholderSin;
-import fractalzoomer.functions.householder.HouseholderCos;
-import fractalzoomer.functions.householder.Householder4;
-import fractalzoomer.functions.householder.HouseholderPoly;
-import fractalzoomer.functions.householder.HouseholderGeneralized3;
+import fractalzoomer.functions.root_finding_methods.halley.HalleySin;
+import fractalzoomer.functions.root_finding_methods.halley.Halley4;
+import fractalzoomer.functions.root_finding_methods.halley.HalleyPoly;
+import fractalzoomer.functions.root_finding_methods.halley.HalleyGeneralized8;
+import fractalzoomer.functions.root_finding_methods.householder.HouseholderGeneralized8;
+import fractalzoomer.functions.root_finding_methods.halley.HalleyCos;
+import fractalzoomer.functions.root_finding_methods.halley.HalleyGeneralized3;
+import fractalzoomer.functions.root_finding_methods.halley.Halley3;
+import fractalzoomer.functions.root_finding_methods.householder.Householder3;
+import fractalzoomer.functions.root_finding_methods.householder.HouseholderSin;
+import fractalzoomer.functions.root_finding_methods.householder.HouseholderCos;
+import fractalzoomer.functions.root_finding_methods.householder.Householder4;
+import fractalzoomer.functions.root_finding_methods.householder.HouseholderPoly;
+import fractalzoomer.functions.root_finding_methods.householder.HouseholderGeneralized3;
 import fractalzoomer.functions.general.Lambda;
 import fractalzoomer.functions.math.Log;
 import fractalzoomer.functions.magnet.Magnet1;
@@ -70,28 +72,40 @@ import fractalzoomer.functions.mandelbrot.MandelbrotSixth;
 import fractalzoomer.functions.mandelbrot.Mandelbrot;
 import fractalzoomer.functions.mandelbrot.MandelbrotTenth;
 import fractalzoomer.functions.mandelbrot.MandelbrotCubed;
-import fractalzoomer.functions.newton.NewtonCos;
-import fractalzoomer.functions.newton.NewtonGeneralized3;
-import fractalzoomer.functions.newton.Newton3;
-import fractalzoomer.functions.newton.NewtonGeneralized8;
-import fractalzoomer.functions.newton.NewtonPoly;
+import fractalzoomer.functions.root_finding_methods.newton.NewtonCos;
+import fractalzoomer.functions.root_finding_methods.newton.NewtonGeneralized3;
+import fractalzoomer.functions.root_finding_methods.newton.Newton3;
+import fractalzoomer.functions.root_finding_methods.newton.NewtonGeneralized8;
+import fractalzoomer.functions.root_finding_methods.newton.NewtonPoly;
 import fractalzoomer.functions.general.Phoenix;
-import fractalzoomer.functions.newton.NewtonSin;
-import fractalzoomer.functions.newton.Newton4;
+import fractalzoomer.functions.root_finding_methods.newton.NewtonSin;
+import fractalzoomer.functions.root_finding_methods.newton.Newton4;
 import fractalzoomer.functions.general.Spider;
-import fractalzoomer.functions.schroder.Schroder4;
-import fractalzoomer.functions.schroder.SchroderGeneralized3;
-import fractalzoomer.functions.schroder.SchroderSin;
-import fractalzoomer.functions.schroder.Schroder3;
-import fractalzoomer.functions.schroder.SchroderPoly;
-import fractalzoomer.functions.schroder.SchroderCos;
-import fractalzoomer.functions.schroder.SchroderGeneralized8;
+import fractalzoomer.functions.root_finding_methods.schroder.Schroder4;
+import fractalzoomer.functions.root_finding_methods.schroder.SchroderGeneralized3;
+import fractalzoomer.functions.root_finding_methods.schroder.SchroderSin;
+import fractalzoomer.functions.root_finding_methods.schroder.Schroder3;
+import fractalzoomer.functions.root_finding_methods.schroder.SchroderPoly;
+import fractalzoomer.functions.root_finding_methods.schroder.SchroderCos;
+import fractalzoomer.functions.root_finding_methods.schroder.SchroderGeneralized8;
 import fractalzoomer.functions.general.SierpinskiGasket;
 import fractalzoomer.functions.mandelbrot.MandelbrotWth;
 import fractalzoomer.functions.math.Sinh;
 import fractalzoomer.functions.math.Sin;
 import fractalzoomer.functions.math.Tan;
 import fractalzoomer.functions.math.Tanh;
+import fractalzoomer.functions.general.Nova;
+import fractalzoomer.functions.math.Cos2;
+import fractalzoomer.functions.math.Sin2;
+import fractalzoomer.functions.root_finding_methods.secant.Secant3;
+import fractalzoomer.functions.root_finding_methods.secant.Secant4;
+import fractalzoomer.functions.root_finding_methods.secant.SecantCos;
+import fractalzoomer.functions.root_finding_methods.secant.SecantGeneralized3;
+import fractalzoomer.functions.root_finding_methods.secant.SecantGeneralized8;
+import fractalzoomer.functions.root_finding_methods.secant.SecantPoly;
+import fractalzoomer.functions.root_finding_methods.steffensen.Steffensen3;
+import fractalzoomer.functions.root_finding_methods.steffensen.Steffensen4;
+import fractalzoomer.functions.root_finding_methods.steffensen.SteffensenGeneralized3;
 import fractalzoomer.functions.szegedi_butterfly.SzegediButterfly1;
 import fractalzoomer.functions.szegedi_butterfly.SzegediButterfly2;
 import java.awt.Color;
@@ -121,7 +135,7 @@ public class DrawOrbit extends Thread {
   protected int image_size;
   protected Color orbit_color;
 
-    public DrawOrbit(double xCenter, double yCenter, double size, int max_iterations, int pixel_x, int pixel_y, int image_size, BufferedImage image, MainWindow ptr, Color orbit_color, boolean orbit_style, int plane_type, boolean burning_ship, boolean grid, int function , double z_exponent, double[] z_exponent_complex, double[] rotation_vals, boolean perturbation, double[] perturbation_vals, boolean init_val, double[] initial_vals, double[] coefficients) {
+    public DrawOrbit(double xCenter, double yCenter, double size, int max_iterations, int pixel_x, int pixel_y, int image_size, BufferedImage image, MainWindow ptr, Color orbit_color, boolean orbit_style, int plane_type, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, boolean grid, int function , double z_exponent, double[] z_exponent_complex, double[] rotation_vals, boolean perturbation, double[] perturbation_vals, boolean init_val, double[] initial_vals, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method) {
 
         this.image_size = image_size;
         
@@ -133,40 +147,40 @@ public class DrawOrbit extends Thread {
 
         switch (function) {
             case 0:
-                pixel_orbit = new Mandelbrot(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals, burning_ship);
+                pixel_orbit = new Mandelbrot(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals, burning_ship, mandel_grass, mandel_grass_vals);
                 break;
             case 1:
-                pixel_orbit = new MandelbrotCubed(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals, burning_ship);
+                pixel_orbit = new MandelbrotCubed(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals, burning_ship, mandel_grass, mandel_grass_vals);
                 break;
             case 2:
-                pixel_orbit = new MandelbrotFourth(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals, burning_ship);
+                pixel_orbit = new MandelbrotFourth(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals, burning_ship, mandel_grass, mandel_grass_vals);
                 break;
             case 3:
-                pixel_orbit = new MandelbrotFifth(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals, burning_ship);
+                pixel_orbit = new MandelbrotFifth(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals, burning_ship, mandel_grass, mandel_grass_vals);
                 break;
             case 4:
-                pixel_orbit = new MandelbrotSixth(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals, burning_ship);
+                pixel_orbit = new MandelbrotSixth(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals, burning_ship, mandel_grass, mandel_grass_vals);
                 break;
             case 5:
-                pixel_orbit = new MandelbrotSeventh(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals, burning_ship);
+                pixel_orbit = new MandelbrotSeventh(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals, burning_ship, mandel_grass, mandel_grass_vals);
                 break;
             case 6:
-                pixel_orbit = new MandelbrotEighth(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals, burning_ship);
+                pixel_orbit = new MandelbrotEighth(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals, burning_ship, mandel_grass, mandel_grass_vals);
                 break;
             case 7:
-                pixel_orbit = new MandelbrotNinth(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals, burning_ship);
+                pixel_orbit = new MandelbrotNinth(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals, burning_ship, mandel_grass, mandel_grass_vals);
                 break;
             case 8:
-                pixel_orbit = new MandelbrotTenth(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals, burning_ship);
+                pixel_orbit = new MandelbrotTenth(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals, burning_ship, mandel_grass, mandel_grass_vals);
                 break;
             case MainWindow.MANDELBROTNTH:
-                pixel_orbit = new MandelbrotNth(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals, burning_ship, z_exponent);
+                pixel_orbit = new MandelbrotNth(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals, burning_ship, mandel_grass, mandel_grass_vals, z_exponent);
                 break;
             case MainWindow.MANDELBROTWTH:
-                pixel_orbit = new MandelbrotWth(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals, burning_ship, z_exponent_complex);
+                pixel_orbit = new MandelbrotWth(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals, burning_ship, mandel_grass, mandel_grass_vals, z_exponent_complex);
                 break;
             case MainWindow.MANDELPOLY:
-                pixel_orbit = new MandelbrotPoly(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals, burning_ship, coefficients);
+                pixel_orbit = new MandelbrotPoly(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals, burning_ship, mandel_grass, mandel_grass_vals, coefficients);
                 break;
             case MainWindow.LAMBDA:
                 pixel_orbit = new Lambda(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
@@ -285,6 +299,36 @@ public class DrawOrbit extends Thread {
             case MainWindow.HOUSEHOLDERPOLY:
                 pixel_orbit = new HouseholderPoly(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, coefficients);
                 break;
+            case MainWindow.SECANT3:
+                pixel_orbit = new Secant3(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals);
+                break;
+            case MainWindow.SECANT4:
+                pixel_orbit = new Secant4(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals);
+                break;
+            case MainWindow.SECANTGENERALIZED3:
+                pixel_orbit = new SecantGeneralized3(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals);
+                break;
+            case MainWindow.SECANTGENERALIZED8:
+                pixel_orbit = new SecantGeneralized8(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals);
+                break;
+            case MainWindow.SECANTCOS:
+                pixel_orbit = new SecantCos(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals);
+                break;
+            case MainWindow.SECANTPOLY:
+                pixel_orbit = new SecantPoly(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, coefficients);
+                break;
+            case MainWindow.STEFFENSEN3:
+                pixel_orbit = new Steffensen3(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals);
+                break;
+            case MainWindow.STEFFENSEN4:
+                pixel_orbit = new Steffensen4(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals);
+                break;
+            case MainWindow.STEFFENSENGENERALIZED3:
+                pixel_orbit = new SteffensenGeneralized3(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals);
+                break;
+            case MainWindow.NOVA:
+                pixel_orbit = new Nova(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals, z_exponent_nova, relaxation, nova_method);
+                break;
             case MainWindow.EXP:
                 pixel_orbit = new Exp(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
                 break;
@@ -314,6 +358,12 @@ public class DrawOrbit extends Thread {
                 break;
             case MainWindow.COTH:
                 pixel_orbit = new Coth(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
+                break;
+            case MainWindow.SIN2:
+                pixel_orbit = new Sin2(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
+                break;
+            case MainWindow.COS2:
+                pixel_orbit = new Cos2(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
                 break;
             case MainWindow.FORMULA1:
                 pixel_orbit = new Formula1(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
@@ -396,6 +446,12 @@ public class DrawOrbit extends Thread {
             case MainWindow.FORMULA27:
                 pixel_orbit = new Formula27(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
                 break;
+            case MainWindow.FORMULA28:
+                pixel_orbit = new Formula28(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
+                break;
+            case MainWindow.FORMULA29:
+                pixel_orbit = new Formula29(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
+                break;
             case MainWindow.FROTHY_BASIN:
                 pixel_orbit = new FrothyBasin(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
                 break;
@@ -418,7 +474,7 @@ public class DrawOrbit extends Thread {
 
     }
 
-    public DrawOrbit(double xCenter, double yCenter, double size, int max_iterations, int pixel_x, int pixel_y, int image_size, BufferedImage image, MainWindow ptr, Color orbit_color, boolean orbit_style, int plane_type, boolean burning_ship, boolean grid, int function , double z_exponent, double[] z_exponent_complex, double[] rotation_vals, double[] coefficients, double xJuliaCenter, double yJuliaCenter) {
+    public DrawOrbit(double xCenter, double yCenter, double size, int max_iterations, int pixel_x, int pixel_y, int image_size, BufferedImage image, MainWindow ptr, Color orbit_color, boolean orbit_style, int plane_type, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, boolean grid, int function , double z_exponent, double[] z_exponent_complex, double[] rotation_vals, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, double xJuliaCenter, double yJuliaCenter) {
 
         this.image_size = image_size;
         
@@ -430,40 +486,40 @@ public class DrawOrbit extends Thread {
 
         switch (function) {
             case 0:
-                pixel_orbit = new Mandelbrot(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, burning_ship, xJuliaCenter, yJuliaCenter);
+                pixel_orbit = new Mandelbrot(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, burning_ship, mandel_grass, mandel_grass_vals, xJuliaCenter, yJuliaCenter);
                 break;
             case 1:
-                pixel_orbit = new MandelbrotCubed(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, burning_ship, xJuliaCenter, yJuliaCenter);
+                pixel_orbit = new MandelbrotCubed(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, burning_ship, mandel_grass, mandel_grass_vals, xJuliaCenter, yJuliaCenter);
                 break;
             case 2:
-                pixel_orbit = new MandelbrotFourth(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, burning_ship, xJuliaCenter, yJuliaCenter);
+                pixel_orbit = new MandelbrotFourth(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, burning_ship, mandel_grass, mandel_grass_vals, xJuliaCenter, yJuliaCenter);
                 break;
             case 3:
-                pixel_orbit = new MandelbrotFifth(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, burning_ship, xJuliaCenter, yJuliaCenter);
+                pixel_orbit = new MandelbrotFifth(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, burning_ship, mandel_grass, mandel_grass_vals, xJuliaCenter, yJuliaCenter);
                 break;
             case 4:
-                pixel_orbit = new MandelbrotSixth(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, burning_ship, xJuliaCenter, yJuliaCenter);
+                pixel_orbit = new MandelbrotSixth(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, burning_ship, mandel_grass, mandel_grass_vals, xJuliaCenter, yJuliaCenter);
                 break;
             case 5:
-                pixel_orbit = new MandelbrotSeventh(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, burning_ship, xJuliaCenter, yJuliaCenter);
+                pixel_orbit = new MandelbrotSeventh(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, burning_ship, mandel_grass, mandel_grass_vals, xJuliaCenter, yJuliaCenter);
                 break;
             case 6:
-                pixel_orbit = new MandelbrotEighth(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, burning_ship, xJuliaCenter, yJuliaCenter);
+                pixel_orbit = new MandelbrotEighth(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, burning_ship, mandel_grass, mandel_grass_vals, xJuliaCenter, yJuliaCenter);
                 break;
             case 7:
-                pixel_orbit = new MandelbrotNinth(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, burning_ship, xJuliaCenter, yJuliaCenter);
+                pixel_orbit = new MandelbrotNinth(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, burning_ship, mandel_grass, mandel_grass_vals, xJuliaCenter, yJuliaCenter);
                 break;
             case 8:
-                pixel_orbit = new MandelbrotTenth(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, burning_ship, xJuliaCenter, yJuliaCenter);
+                pixel_orbit = new MandelbrotTenth(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, burning_ship, mandel_grass, mandel_grass_vals, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.MANDELBROTNTH:
-                pixel_orbit = new MandelbrotNth(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, burning_ship, z_exponent, xJuliaCenter, yJuliaCenter);
+                pixel_orbit = new MandelbrotNth(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, burning_ship, mandel_grass, mandel_grass_vals, z_exponent, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.MANDELBROTWTH:
-                pixel_orbit = new MandelbrotWth(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, burning_ship, z_exponent_complex, xJuliaCenter, yJuliaCenter);
+                pixel_orbit = new MandelbrotWth(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, burning_ship, mandel_grass, mandel_grass_vals, z_exponent_complex, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.MANDELPOLY:
-                pixel_orbit = new MandelbrotPoly(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, burning_ship, coefficients, xJuliaCenter, yJuliaCenter);
+                pixel_orbit = new MandelbrotPoly(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, burning_ship, mandel_grass, mandel_grass_vals, coefficients, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.LAMBDA:
                 pixel_orbit = new Lambda(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
@@ -495,6 +551,9 @@ public class DrawOrbit extends Thread {
             case MainWindow.PHOENIX:
                 pixel_orbit = new Phoenix(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
                 break;
+            case MainWindow.NOVA:
+                pixel_orbit = new Nova(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, z_exponent_nova, relaxation, nova_method, xJuliaCenter, yJuliaCenter);
+                break;
             case MainWindow.EXP:
                 pixel_orbit = new Exp(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
                 break;
@@ -524,6 +583,12 @@ public class DrawOrbit extends Thread {
                 break;
             case MainWindow.COTH:
                 pixel_orbit = new Coth(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.SIN2:
+                pixel_orbit = new Sin2(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.COS2:
+                pixel_orbit = new Cos2(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA1:
                 pixel_orbit = new Formula1(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
@@ -606,6 +671,12 @@ public class DrawOrbit extends Thread {
             case MainWindow.FORMULA27:
                 pixel_orbit = new Formula27(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
                 break;
+            case MainWindow.FORMULA28:
+                pixel_orbit = new Formula28(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.FORMULA29:
+                pixel_orbit = new Formula29(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
             case MainWindow.FROTHY_BASIN:
                 pixel_orbit = new FrothyBasin(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
                 break;
@@ -640,32 +711,27 @@ public class DrawOrbit extends Thread {
         }
 
         if(julia) {
-            if(orbit_style) {
-                drawJuliaLine();
-            }
-            else {
-                drawJuliaDot();
-            }
+            pixel_orbit.calculateJuliaOrbit();
         }
         else {
-            if(orbit_style) {
-                drawFractalLine();
-            }
-            else {
-                drawFractalDot();
-            }
+            pixel_orbit.calculateFractalOrbit();  
+        }
+        
+        if(orbit_style) {
+            drawLine();
+        }
+        else {
+            drawDot();
         }
 
         ((Graphics2D)ptr.getMainPanel().getGraphics()).drawImage(image, 0, 0, ptr);
               
     }
 
-    private void drawFractalLine() {
+    private void drawLine() {
       int x0, y0, x1 = 0, y1 = 0, list_size;
 
         Graphics2D full_image_g = image.createGraphics();
-
-        pixel_orbit.calculateFractalOrbit();
 
         full_image_g.setColor(orbit_color);
 
@@ -683,9 +749,11 @@ public class DrawOrbit extends Thread {
             y0 = (int)((complex_orbit.get(i).getIm() - temp_ycenter_size) / temp_size_image_size);
             x1 = (int)((complex_orbit.get(i + 1).getRe() - temp_xcenter_size) / temp_size_image_size);
             y1 = (int)((complex_orbit.get(i + 1).getIm() - temp_ycenter_size) / temp_size_image_size);
-            if(Math.abs(x0) == 2147483647 || Math.abs(y0) == 2147483647) {
-                break;
+
+            if(Math.abs(x0) == 2147483647 || Math.abs(y0) == 2147483647 || Math.abs(x1) == 2147483647 || Math.abs(y1) == 2147483647) {
+                return;
             }
+            
             full_image_g.drawLine(x0, y0, x1, y1);
             full_image_g.fillOval(x0, y0, 3, 3);
         }
@@ -694,46 +762,11 @@ public class DrawOrbit extends Thread {
 
     }
 
-    private void drawJuliaLine() {
-      int x0, y0, x1 = 0, y1 = 0, list_size;
-
-        Graphics2D full_image_g = image.createGraphics();
-
-        pixel_orbit.calculateJuliaOrbit();
-
-        full_image_g.setColor(orbit_color);
-
-        full_image_g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        list_size = complex_orbit.size() - 1;
-
-        double size = pixel_orbit.getSize();
-
-        double temp_xcenter_size = pixel_orbit.getXCenter() - size * 0.5;
-        double temp_ycenter_size = pixel_orbit.getYCenter() - size * 0.5;
-        double temp_size_image_size = size / image_size;
-
-        for(int i = 0; i < list_size; i++) {
-            x0 = (int)((complex_orbit.get(i).getRe() - temp_xcenter_size) / temp_size_image_size);
-            y0 = (int)((complex_orbit.get(i).getIm() - temp_ycenter_size) / temp_size_image_size);
-            x1 = (int)((complex_orbit.get(i + 1).getRe() - temp_xcenter_size) / temp_size_image_size);
-            y1 = (int)((complex_orbit.get(i + 1).getIm() - temp_ycenter_size) / temp_size_image_size);
-            if(Math.abs(x0) == 2147483647 || Math.abs(y0) == 2147483647) {
-                break;
-            }
-            full_image_g.drawLine(x0, y0, x1, y1);
-            full_image_g.fillOval(x0, y0, 3, 3);
-        }
-        
-        full_image_g.fillOval(x1, y1, 3, 3);        
-
-    }
-
-    private void drawFractalDot() {
+ 
+    private void drawDot() {
       int x0, y0, list_size;
 
         Graphics2D full_image_g = image.createGraphics();
-
-        pixel_orbit.calculateFractalOrbit();
 
         full_image_g.setColor(orbit_color);
 
@@ -749,38 +782,11 @@ public class DrawOrbit extends Thread {
         for(int i = 0; i < list_size; i++) {
             x0 = (int)((complex_orbit.get(i).getRe() - temp_xcenter_size) / temp_size_image_size);
             y0 = (int)((complex_orbit.get(i).getIm() - temp_ycenter_size) / temp_size_image_size);
+            
             if(Math.abs(x0) == 2147483647 || Math.abs(y0) == 2147483647) {
-                break;
+                return;
             }
-            full_image_g.drawString(".", x0 - 1, y0 + 1);
-        }
-
-    }
-
-    private void drawJuliaDot() {
-      int x0, y0, list_size;
-
-        Graphics2D full_image_g = image.createGraphics();
-
-        pixel_orbit.calculateJuliaOrbit();
-
-        full_image_g.setColor(orbit_color);
-
-        full_image_g.setFont(new Font("Arial", 1 , 11));
-        list_size = complex_orbit.size();
-
-        double size = pixel_orbit.getSize();
-
-        double temp_xcenter_size = pixel_orbit.getXCenter() - size * 0.5;
-        double temp_ycenter_size = pixel_orbit.getYCenter() - size * 0.5;
-        double temp_size_image_size = size / image_size;
-
-        for(int i = 0; i < list_size; i++) {
-            x0 = (int)((complex_orbit.get(i).getRe() - temp_xcenter_size) / temp_size_image_size);
-            y0 = (int)((complex_orbit.get(i).getIm() - temp_ycenter_size) / temp_size_image_size);
-            if(Math.abs(x0) == 2147483647 || Math.abs(y0) == 2147483647) {
-                break;
-            }
+            
             full_image_g.drawString(".", x0 - 1, y0 + 1);
         }
 

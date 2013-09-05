@@ -609,12 +609,17 @@ public abstract class Fractal {
         complex[1] = pixel_orbit;//c
         
 
+        Complex temp = null;
+        
         for (; iterations < max_iterations; iterations++) {
            function(complex);
-           complex_orbit.add(rotation.getPixel(complex[0], true));
-           //if(z.getRe() >= (xCenter + size) / 2 || z.getRe() <= (xCenter - size) / 2 || z.getIm() >= (yCenter + size) / 2 || z.getIm() <= (yCenter - size) / 2) {
-               //return;  //keep only the visible ones
-           //}
+           temp = rotation.getPixel(complex[0], true);
+           
+           if(Double.isNaN(temp.getRe()) || Double.isNaN(temp.getIm()) || Double.isInfinite(temp.getRe()) || Double.isInfinite(temp.getIm())) {
+               break;
+           }
+           
+           complex_orbit.add(temp);
         }
 
     }

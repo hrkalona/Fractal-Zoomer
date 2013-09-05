@@ -16,12 +16,17 @@ import java.io.Serializable;
  */
 public class SettingsFractals implements Serializable {
   private boolean burning_ship;
+  private boolean mandel_grass;
+  private double[] mandel_grass_vals;
   private int function;
   private double xCenter;
   private double yCenter;
   private double size;
   private double z_exponent;
   private double[] z_exponent_complex;
+  private double[] z_exponent_nova;
+  private double[] relaxation;
+  private int nova_method;
   private double bailout;
   private int max_iterations;
   private int color_choice;
@@ -30,6 +35,7 @@ public class SettingsFractals implements Serializable {
   private int bailout_test_algorithm;
   private int out_coloring_algorithm;
   private int in_coloring_algorithm;
+  private boolean smoothing;
   private int color_cycling_location;
   private int plane_type;
   private double[] coefficients;
@@ -39,7 +45,7 @@ public class SettingsFractals implements Serializable {
   private boolean init_val;
   private double[] initial_vals;
 
-    public SettingsFractals(double xCenter, double yCenter, double size, int max_iterations, int color_choice, Color fractal_color, int out_coloring_algorithm, int in_coloring_algorithm, int function, int bailout_test_algorithm, double bailout, int plane_type, boolean burning_ship, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] coefficients, int[][] custom_palette, int rotation, boolean perturbation, double[] perturbation_vals, boolean init_val, double[] initial_vals) {
+    public SettingsFractals(double xCenter, double yCenter, double size, int max_iterations, int color_choice, Color fractal_color, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, int function, int bailout_test_algorithm, double bailout, int plane_type, boolean burning_ship, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] coefficients, int[][] custom_palette, int rotation, boolean perturbation, double[] perturbation_vals, boolean init_val, double[] initial_vals, boolean mandel_grass, double[] mandel_grass_vals, double[] z_exponent_nova, double[] relaxation, int nova_method) {
 
         this.xCenter = xCenter;
         this.yCenter = yCenter;
@@ -50,6 +56,7 @@ public class SettingsFractals implements Serializable {
         this.bailout_test_algorithm = bailout_test_algorithm;
         this.out_coloring_algorithm = out_coloring_algorithm;
         this.in_coloring_algorithm = in_coloring_algorithm;
+        this.smoothing = smoothing;
         this.function = function;
         this.burning_ship = burning_ship;
         this.bailout = bailout;
@@ -64,6 +71,11 @@ public class SettingsFractals implements Serializable {
         this.perturbation_vals = perturbation_vals;
         this.init_val = init_val;
         this.initial_vals = initial_vals;
+        this.mandel_grass = mandel_grass;
+        this.mandel_grass_vals = mandel_grass_vals;
+        this.z_exponent_nova = z_exponent_nova;
+        this.relaxation = relaxation;
+        this.nova_method = nova_method;
         
     }
   
@@ -202,6 +214,42 @@ public class SettingsFractals implements Serializable {
     public double[] getInitialVals() {
         
         return initial_vals;
+        
+    }
+    
+    public boolean getMandelGrass() {
+        
+        return mandel_grass;
+        
+    }
+    
+    public double[] getMandelGrassVals() {
+        
+        return mandel_grass_vals;
+        
+    }
+    
+    public double[] getZExponentNova() {
+        
+        return z_exponent_nova;
+        
+    }
+    
+    public double[] getRelaxation() {
+        
+        return relaxation;
+        
+    }
+    
+    public int getNovaMethod() {
+        
+        return nova_method;
+        
+    }
+    
+    public boolean getSmoothing() {
+        
+        return smoothing;
         
     }
 

@@ -33,7 +33,17 @@ import fractalzoomer.out_coloring_algorithms.EscapeTimeGaussianInteger3;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeGaussianInteger4;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeGaussianInteger5;
 import fractalzoomer.out_coloring_algorithms.EscapeTimePlusReDivideIm;
-import fractalzoomer.out_coloring_algorithms.SmoothMagnet2;
+import fractalzoomer.out_coloring_algorithms.SmoothBinaryDecomposition2Magnet2;
+import fractalzoomer.out_coloring_algorithms.SmoothBinaryDecompositionMagnet2;
+import fractalzoomer.out_coloring_algorithms.SmoothBiomorphsMagnet2;
+import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeAlgorithm2Magnet2;
+import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeColorDecompositionMagnet2;
+import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeGaussianInteger3Magnet2;
+import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeGaussianInteger4Magnet2;
+import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeGaussianIntegerMagnet2;
+import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeMagnet2;
+import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimePlusImMagnet2;
+import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimePlusReMagnet2;
 import java.util.ArrayList;
 
 /*
@@ -48,7 +58,7 @@ import java.util.ArrayList;
 public class Magnet2 extends Julia {
   private double convergent_bailout;
 
-    public Magnet2(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, int out_coloring_algorithm, int in_coloring_algorithm, boolean periodicity_checking, int plane_type, double[] rotation_vals, boolean perturbation, double[] perturbation_vals, boolean init_value, double[] initial_vals) {
+    public Magnet2(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, boolean periodicity_checking, int plane_type, double[] rotation_vals, boolean perturbation, double[] perturbation_vals, boolean init_value, double[] initial_vals) {
 
         super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, periodicity_checking, plane_type, rotation_vals);
 
@@ -71,22 +81,44 @@ public class Magnet2 extends Julia {
         switch (out_coloring_algorithm) {
 
             case MainWindow.ESCAPE_TIME:
-                out_color_algorithm = new EscapeTimeMagnet();
-                break;
-            case MainWindow.SMOOTH_COLOR:
-                out_color_algorithm = new SmoothMagnet2(Math.log(bailout_squared), Math.log(convergent_bailout));
+                if(!smoothing) {
+                    out_color_algorithm = new EscapeTimeMagnet();
+                }
+                else {
+                    out_color_algorithm = new SmoothEscapeTimeMagnet2(Math.log(bailout_squared), Math.log(convergent_bailout));
+                }
                 break;
             case MainWindow.BINARY_DECOMPOSITION:
-                out_color_algorithm = new BinaryDecompositionMagnet();
+                if(!smoothing) {
+                    out_color_algorithm = new BinaryDecompositionMagnet();
+                }
+                else {
+                    out_color_algorithm = new SmoothBinaryDecompositionMagnet2(Math.log(bailout_squared), Math.log(convergent_bailout));
+                }
                 break;
             case MainWindow.BINARY_DECOMPOSITION2:
-                out_color_algorithm = new BinaryDecomposition2Magnet();
+                if(!smoothing) {
+                    out_color_algorithm = new BinaryDecomposition2Magnet();
+                }
+                else {
+                    out_color_algorithm = new SmoothBinaryDecomposition2Magnet2(Math.log(bailout_squared), Math.log(convergent_bailout));
+                }
                 break;
             case MainWindow.ITERATIONS_PLUS_RE:
-                out_color_algorithm = new EscapeTimePlusRe();
+                if(!smoothing) {
+                    out_color_algorithm = new EscapeTimePlusRe();
+                }
+                else {
+                    out_color_algorithm = new SmoothEscapeTimePlusReMagnet2(Math.log(convergent_bailout));
+                }
                 break;
             case MainWindow.ITERATIONS_PLUS_IM:
-                out_color_algorithm = new EscapeTimePlusIm();
+                if(!smoothing) {
+                    out_color_algorithm = new EscapeTimePlusIm();
+                }
+                else {
+                    out_color_algorithm = new SmoothEscapeTimePlusImMagnet2(Math.log(convergent_bailout));
+                }
                 break;
             case MainWindow.ITERATIONS_PLUS_RE_DIVIDE_IM:
                 convergent_bailout = 1E-2;
@@ -97,25 +129,50 @@ public class Magnet2 extends Julia {
                 out_color_algorithm = new EscapeTimePlusRePlusImPlusReDivideIm();
                 break;
             case MainWindow.BIOMORPH:
-                out_color_algorithm = new BiomorphsMagnet(bailout);
+                if(!smoothing) {
+                    out_color_algorithm = new BiomorphsMagnet(bailout);
+                }
+                else {
+                    out_color_algorithm = new SmoothBiomorphsMagnet2(Math.log(bailout_squared), Math.log(convergent_bailout), bailout);
+                }
                 break;
             case MainWindow.COLOR_DECOMPOSITION:
                 out_color_algorithm = new ColorDecomposition();
                 break;
             case MainWindow. ESCAPE_TIME_COLOR_DECOMPOSITION:
-                out_color_algorithm = new EscapeTimeColorDecomposition();
+                if(!smoothing) {
+                    out_color_algorithm = new EscapeTimeColorDecomposition();
+                }
+                else {
+                    out_color_algorithm = new SmoothEscapeTimeColorDecompositionMagnet2(Math.log(convergent_bailout));   
+                }
                 break;
             case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER:
-                out_color_algorithm = new EscapeTimeGaussianInteger();
+                if(!smoothing) {
+                    out_color_algorithm = new EscapeTimeGaussianInteger();
+                }
+                else {
+                    out_color_algorithm = new SmoothEscapeTimeGaussianIntegerMagnet2(Math.log(convergent_bailout));  
+                }
                 break;
             case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER2:
                 out_color_algorithm = new EscapeTimeGaussianInteger2();
                 break;
             case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER3:
-                out_color_algorithm = new EscapeTimeGaussianInteger3();
+                if(!smoothing) {
+                    out_color_algorithm = new EscapeTimeGaussianInteger3();
+                }
+                else {
+                    out_color_algorithm = new SmoothEscapeTimeGaussianInteger3Magnet2(Math.log(convergent_bailout));  
+                }
                 break;
             case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER4:
-                out_color_algorithm = new EscapeTimeGaussianInteger4();
+                if(!smoothing) {
+                    out_color_algorithm = new EscapeTimeGaussianInteger4();
+                }
+                else {
+                    out_color_algorithm = new SmoothEscapeTimeGaussianInteger4Magnet2(Math.log(convergent_bailout));  
+                }
                 break;
             case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER5:
                 out_color_algorithm = new EscapeTimeGaussianInteger5();
@@ -124,10 +181,15 @@ public class Magnet2 extends Julia {
                 out_color_algorithm = new EscapeTimeAlgorithm1(4);
                 break;
             case MainWindow.ESCAPE_TIME_ALGORITHM2:
-                out_color_algorithm = new EscapeTimeAlgorithm2();
+                if(!smoothing) {
+                    out_color_algorithm = new EscapeTimeAlgorithm2();
+                }
+                else {
+                    out_color_algorithm = new SmoothEscapeTimeAlgorithm2Magnet2(Math.log(convergent_bailout));  
+                }
                 break;
 
-        }
+        } 
         
         switch (in_coloring_algorithm) {
             
@@ -135,35 +197,36 @@ public class Magnet2 extends Julia {
                 in_color_algorithm = new MaximumIterations();
                 break;
             case MainWindow.Z_MAG:
-                in_color_algorithm = new ZMag(out_coloring_algorithm);
+                in_color_algorithm = new ZMag(smoothing);
                 break;
             case MainWindow.DECOMPOSITION_LIKE:
-                in_color_algorithm = new DecompositionLike(out_coloring_algorithm);       
+                in_color_algorithm = new DecompositionLike(smoothing);       
                 break;
             case MainWindow.RE_DIVIDE_IM:
-                in_color_algorithm = new ReDivideIm(out_coloring_algorithm);       
+                in_color_algorithm = new ReDivideIm(smoothing);       
                 break;
             case MainWindow.COS_MAG:
-                in_color_algorithm = new CosMag(out_coloring_algorithm);       
+                in_color_algorithm = new CosMag(smoothing);       
                 break;
             case MainWindow.MAG_TIMES_COS_RE_SQUARED:
-                in_color_algorithm = new MagTimesCosReSquared(out_coloring_algorithm);       
+                in_color_algorithm = new MagTimesCosReSquared(smoothing);       
                 break;
             case MainWindow.SIN_RE_SQUARED_MINUS_IM_SQUARED:
-                in_color_algorithm = new SinReSquaredMinusImSquared(out_coloring_algorithm);       
+                in_color_algorithm = new SinReSquaredMinusImSquared(smoothing);       
                 break;
             case MainWindow.ATAN_RE_TIMES_IM_TIMES_ABS_RE_TIMES_ABS_IM:
-                in_color_algorithm = new AtanReTimesImTimesAbsReTimesAbsIm(out_coloring_algorithm);       
+                in_color_algorithm = new AtanReTimesImTimesAbsReTimesAbsIm(smoothing);       
                 break;
             case MainWindow.SQUARES:
-                in_color_algorithm = new Squares(out_coloring_algorithm);       
+                in_color_algorithm = new Squares(smoothing);       
                 break;
                 
         }
 
+
     }
 
-    public Magnet2(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, int out_coloring_algorithm, int in_coloring_algorithm, boolean periodicity_checking, int plane_type, double[] rotation_vals, double xJuliaCenter, double yJuliaCenter) {
+    public Magnet2(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, boolean periodicity_checking, int plane_type, double[] rotation_vals, double xJuliaCenter, double yJuliaCenter) {
 
         super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
 
@@ -172,22 +235,44 @@ public class Magnet2 extends Julia {
         switch (out_coloring_algorithm) {
 
             case MainWindow.ESCAPE_TIME:
-                out_color_algorithm = new EscapeTimeMagnet();
-                break;
-            case MainWindow.SMOOTH_COLOR:
-                out_color_algorithm = new SmoothMagnet2(Math.log(bailout_squared), Math.log(convergent_bailout));
+                if(!smoothing) {
+                    out_color_algorithm = new EscapeTimeMagnet();
+                }
+                else {
+                    out_color_algorithm = new SmoothEscapeTimeMagnet2(Math.log(bailout_squared), Math.log(convergent_bailout));
+                }
                 break;
             case MainWindow.BINARY_DECOMPOSITION:
-                out_color_algorithm = new BinaryDecompositionMagnet();
+                if(!smoothing) {
+                    out_color_algorithm = new BinaryDecompositionMagnet();
+                }
+                else {
+                    out_color_algorithm = new SmoothBinaryDecompositionMagnet2(Math.log(bailout_squared), Math.log(convergent_bailout));
+                }
                 break;
             case MainWindow.BINARY_DECOMPOSITION2:
-                out_color_algorithm = new BinaryDecomposition2Magnet();
+                if(!smoothing) {
+                    out_color_algorithm = new BinaryDecomposition2Magnet();
+                }
+                else {
+                    out_color_algorithm = new SmoothBinaryDecomposition2Magnet2(Math.log(bailout_squared), Math.log(convergent_bailout));
+                }
                 break;
             case MainWindow.ITERATIONS_PLUS_RE:
-                out_color_algorithm = new EscapeTimePlusRe();
+                if(!smoothing) {
+                    out_color_algorithm = new EscapeTimePlusRe();
+                }
+                else {
+                    out_color_algorithm = new SmoothEscapeTimePlusReMagnet2(Math.log(convergent_bailout));
+                }
                 break;
             case MainWindow.ITERATIONS_PLUS_IM:
-                out_color_algorithm = new EscapeTimePlusIm();
+                if(!smoothing) {
+                    out_color_algorithm = new EscapeTimePlusIm();
+                }
+                else {
+                    out_color_algorithm = new SmoothEscapeTimePlusImMagnet2(Math.log(convergent_bailout));
+                }
                 break;
             case MainWindow.ITERATIONS_PLUS_RE_DIVIDE_IM:
                 convergent_bailout = 1E-2;
@@ -198,25 +283,50 @@ public class Magnet2 extends Julia {
                 out_color_algorithm = new EscapeTimePlusRePlusImPlusReDivideIm();
                 break;
             case MainWindow.BIOMORPH:
-                out_color_algorithm = new BiomorphsMagnet(bailout);
+                if(!smoothing) {
+                    out_color_algorithm = new BiomorphsMagnet(bailout);
+                }
+                else {
+                    out_color_algorithm = new SmoothBiomorphsMagnet2(Math.log(bailout_squared), Math.log(convergent_bailout), bailout);
+                }
                 break;
             case MainWindow.COLOR_DECOMPOSITION:
                 out_color_algorithm = new ColorDecomposition();
                 break;
             case MainWindow. ESCAPE_TIME_COLOR_DECOMPOSITION:
-                out_color_algorithm = new EscapeTimeColorDecomposition();
+                if(!smoothing) {
+                    out_color_algorithm = new EscapeTimeColorDecomposition();
+                }
+                else {
+                    out_color_algorithm = new SmoothEscapeTimeColorDecompositionMagnet2(Math.log(convergent_bailout));   
+                }
                 break;
             case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER:
-                out_color_algorithm = new EscapeTimeGaussianInteger();
+                if(!smoothing) {
+                    out_color_algorithm = new EscapeTimeGaussianInteger();
+                }
+                else {
+                    out_color_algorithm = new SmoothEscapeTimeGaussianIntegerMagnet2(Math.log(convergent_bailout));  
+                }
                 break;
             case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER2:
                 out_color_algorithm = new EscapeTimeGaussianInteger2();
                 break;
             case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER3:
-                out_color_algorithm = new EscapeTimeGaussianInteger3();
+                if(!smoothing) {
+                    out_color_algorithm = new EscapeTimeGaussianInteger3();
+                }
+                else {
+                    out_color_algorithm = new SmoothEscapeTimeGaussianInteger3Magnet2(Math.log(convergent_bailout));  
+                }
                 break;
             case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER4:
-                out_color_algorithm = new EscapeTimeGaussianInteger4();
+                if(!smoothing) {
+                    out_color_algorithm = new EscapeTimeGaussianInteger4();
+                }
+                else {
+                    out_color_algorithm = new SmoothEscapeTimeGaussianInteger4Magnet2(Math.log(convergent_bailout));  
+                }
                 break;
             case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER5:
                 out_color_algorithm = new EscapeTimeGaussianInteger5();
@@ -225,10 +335,15 @@ public class Magnet2 extends Julia {
                 out_color_algorithm = new EscapeTimeAlgorithm1(4);
                 break;
             case MainWindow.ESCAPE_TIME_ALGORITHM2:
-                out_color_algorithm = new EscapeTimeAlgorithm2();
+                if(!smoothing) {
+                    out_color_algorithm = new EscapeTimeAlgorithm2();
+                }
+                else {
+                    out_color_algorithm = new SmoothEscapeTimeAlgorithm2Magnet2(Math.log(convergent_bailout));  
+                }
                 break;
 
-        }
+        } 
         
         switch (in_coloring_algorithm) {
             
@@ -236,31 +351,32 @@ public class Magnet2 extends Julia {
                 in_color_algorithm = new MaximumIterations();
                 break;
             case MainWindow.Z_MAG:
-                in_color_algorithm = new ZMag(out_coloring_algorithm);
+                in_color_algorithm = new ZMag(smoothing);
                 break;
             case MainWindow.DECOMPOSITION_LIKE:
-                in_color_algorithm = new DecompositionLike(out_coloring_algorithm);       
+                in_color_algorithm = new DecompositionLike(smoothing);       
                 break;
             case MainWindow.RE_DIVIDE_IM:
-                in_color_algorithm = new ReDivideIm(out_coloring_algorithm);       
+                in_color_algorithm = new ReDivideIm(smoothing);       
                 break;
             case MainWindow.COS_MAG:
-                in_color_algorithm = new CosMag(out_coloring_algorithm);       
+                in_color_algorithm = new CosMag(smoothing);       
                 break;
             case MainWindow.MAG_TIMES_COS_RE_SQUARED:
-                in_color_algorithm = new MagTimesCosReSquared(out_coloring_algorithm);       
+                in_color_algorithm = new MagTimesCosReSquared(smoothing);       
                 break;
             case MainWindow.SIN_RE_SQUARED_MINUS_IM_SQUARED:
-                in_color_algorithm = new SinReSquaredMinusImSquared(out_coloring_algorithm);       
+                in_color_algorithm = new SinReSquaredMinusImSquared(smoothing);       
                 break;
             case MainWindow.ATAN_RE_TIMES_IM_TIMES_ABS_RE_TIMES_ABS_IM:
-                in_color_algorithm = new AtanReTimesImTimesAbsReTimesAbsIm(out_coloring_algorithm);       
+                in_color_algorithm = new AtanReTimesImTimesAbsReTimesAbsIm(smoothing);       
                 break;
             case MainWindow.SQUARES:
-                in_color_algorithm = new Squares(out_coloring_algorithm);       
+                in_color_algorithm = new Squares(smoothing);       
                 break;
                 
         }
+
 
     }
 
@@ -331,13 +447,13 @@ public class Magnet2 extends Julia {
         complex[0] = tempz;//z
         complex[1] = pixel;//c
 
-        Complex zold = null;
-        Complex zold2 = null;
+        Complex zold = new Complex();
+        Complex zold2 = new Complex();
 
         for (; iterations < max_iterations; iterations++) {
             temp1 = (temp4 = complex[0].distance_squared(1)) <= convergent_bailout;
             temp2 = bailout_algorithm.escaped(complex[0]);
-            if(iterations > 1 && (temp1 ||  temp2)) {
+            if(temp1 || temp2) {
                 Object[] object = {iterations, complex[0], temp2, temp4, zold, zold2};
                 return out_color_algorithm.getResult(object);
             }
@@ -366,14 +482,13 @@ public class Magnet2 extends Julia {
         complex[0] = tempz;//z
         complex[1] = pixel;//c
 
-        Complex zold = null;
-        Complex zold2 = null;
-        
-
+        Complex zold = new Complex();
+        Complex zold2 = new Complex();
+   
         for (; iterations < max_iterations; iterations++) {
             temp1 = (temp4 = complex[0].distance_squared(1)) <= convergent_bailout;
             temp2 = bailout_algorithm.escaped(complex[0]);
-            if(iterations > 1 && (temp1 ||  temp2)) {
+            if(temp1 || temp2) {
                 Object[] object = {iterations, complex[0], temp2, temp4, zold, zold2};
                 return out_color_algorithm.getResult(object);
             }
@@ -407,13 +522,13 @@ public class Magnet2 extends Julia {
         complex[0] = pixel;//z
         complex[1] = seed;//c
 
-        Complex zold = null;
-        Complex zold2 = null;
+        Complex zold = new Complex();
+        Complex zold2 = new Complex();
 
         for (; iterations < max_iterations; iterations++) {
             temp1 = (temp4 = complex[0].distance_squared(1)) <= convergent_bailout;
             temp2 = bailout_algorithm.escaped(complex[0]);
-            if(iterations > 1 && (temp1 ||  temp2)) {
+            if(temp1 || temp2) {
                 Object[] object = {iterations, complex[0], temp2, temp4, zold, zold2};
                 return out_color_algorithm.getResult(object);
             }
@@ -440,13 +555,13 @@ public class Magnet2 extends Julia {
         complex[0] = pixel;//z
         complex[1] = seed;//c
 
-        Complex zold = null;
-        Complex zold2 = null;
+        Complex zold = new Complex();
+        Complex zold2 = new Complex();
 
         for (; iterations < max_iterations; iterations++) {
             temp1 = (temp4 = complex[0].distance_squared(1)) <= convergent_bailout;
             temp2 = bailout_algorithm.escaped(complex[0]);
-            if(iterations > 1 && (temp1 ||  temp2)) {
+            if(temp1 || temp2) {
                 Object[] object = {iterations, complex[0], temp2, temp4, zold, zold2};
                 return out_color_algorithm.getResult(object);
             }

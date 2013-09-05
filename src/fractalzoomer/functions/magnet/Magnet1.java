@@ -33,7 +33,17 @@ import fractalzoomer.out_coloring_algorithms.EscapeTimeGaussianInteger3;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeGaussianInteger4;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeGaussianInteger5;
 import fractalzoomer.out_coloring_algorithms.EscapeTimePlusReDivideIm;
-import fractalzoomer.out_coloring_algorithms.SmoothMagnet1;
+import fractalzoomer.out_coloring_algorithms.SmoothBinaryDecomposition2Magnet1;
+import fractalzoomer.out_coloring_algorithms.SmoothBinaryDecompositionMagnet1;
+import fractalzoomer.out_coloring_algorithms.SmoothBiomorphsMagnet1;
+import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeAlgorithm2Magnet1;
+import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeColorDecompositionMagnet1;
+import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeGaussianInteger3Magnet1;
+import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeGaussianInteger4Magnet1;
+import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeGaussianIntegerMagnet1;
+import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeMagnet1;
+import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimePlusImMagnet1;
+import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimePlusReMagnet1;
 import java.util.ArrayList;
 
 /*
@@ -48,7 +58,7 @@ import java.util.ArrayList;
 public class Magnet1 extends Julia {
   private double convergent_bailout;
 
-    public Magnet1(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, int out_coloring_algorithm, int in_coloring_algorithm, boolean periodicity_checking, int plane_type, double[] rotation_vals, boolean perturbation, double[] perturbation_vals, boolean init_value, double[] initial_vals) {
+    public Magnet1(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, boolean periodicity_checking, int plane_type, double[] rotation_vals, boolean perturbation, double[] perturbation_vals, boolean init_value, double[] initial_vals) {
 
         super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, periodicity_checking, plane_type, rotation_vals);
 
@@ -71,22 +81,44 @@ public class Magnet1 extends Julia {
         switch (out_coloring_algorithm) {
 
             case MainWindow.ESCAPE_TIME:
-                out_color_algorithm = new EscapeTimeMagnet();
-                break;
-            case MainWindow.SMOOTH_COLOR:
-                out_color_algorithm = new SmoothMagnet1(Math.log(bailout_squared), Math.log(convergent_bailout));
+                if(!smoothing) {
+                    out_color_algorithm = new EscapeTimeMagnet();
+                }
+                else {
+                    out_color_algorithm = new SmoothEscapeTimeMagnet1(Math.log(bailout_squared), Math.log(convergent_bailout));
+                }
                 break;
             case MainWindow.BINARY_DECOMPOSITION:
-                out_color_algorithm = new BinaryDecompositionMagnet();
+                if(!smoothing) {
+                    out_color_algorithm = new BinaryDecompositionMagnet();
+                }
+                else {
+                    out_color_algorithm = new SmoothBinaryDecompositionMagnet1(Math.log(bailout_squared), Math.log(convergent_bailout));
+                }
                 break;
             case MainWindow.BINARY_DECOMPOSITION2:
-                out_color_algorithm = new BinaryDecomposition2Magnet();
+                if(!smoothing) {
+                    out_color_algorithm = new BinaryDecomposition2Magnet();
+                }
+                else {
+                    out_color_algorithm = new SmoothBinaryDecomposition2Magnet1(Math.log(bailout_squared), Math.log(convergent_bailout));
+                }
                 break;
             case MainWindow.ITERATIONS_PLUS_RE:
-                out_color_algorithm = new EscapeTimePlusRe();
+                if(!smoothing) {
+                    out_color_algorithm = new EscapeTimePlusRe();
+                }
+                else {
+                    out_color_algorithm = new SmoothEscapeTimePlusReMagnet1(Math.log(convergent_bailout));
+                }
                 break;
             case MainWindow.ITERATIONS_PLUS_IM:
-                out_color_algorithm = new EscapeTimePlusIm();
+                if(!smoothing) {
+                    out_color_algorithm = new EscapeTimePlusIm();
+                }
+                else {
+                    out_color_algorithm = new SmoothEscapeTimePlusImMagnet1(Math.log(convergent_bailout));
+                }
                 break;
             case MainWindow.ITERATIONS_PLUS_RE_DIVIDE_IM:
                 convergent_bailout = 1E-2;
@@ -97,25 +129,50 @@ public class Magnet1 extends Julia {
                 out_color_algorithm = new EscapeTimePlusRePlusImPlusReDivideIm();
                 break;
             case MainWindow.BIOMORPH:
-                out_color_algorithm = new BiomorphsMagnet(bailout);
+                if(!smoothing) {
+                    out_color_algorithm = new BiomorphsMagnet(bailout);
+                }
+                else {
+                    out_color_algorithm = new SmoothBiomorphsMagnet1(Math.log(bailout_squared), Math.log(convergent_bailout), bailout);
+                }
                 break;
             case MainWindow.COLOR_DECOMPOSITION:
                 out_color_algorithm = new ColorDecomposition();
                 break;
             case MainWindow. ESCAPE_TIME_COLOR_DECOMPOSITION:
-                out_color_algorithm = new EscapeTimeColorDecomposition();
+                if(!smoothing) {
+                    out_color_algorithm = new EscapeTimeColorDecomposition();
+                }
+                else {
+                    out_color_algorithm = new SmoothEscapeTimeColorDecompositionMagnet1(Math.log(convergent_bailout));  
+                }
                 break;
             case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER:
-                out_color_algorithm = new EscapeTimeGaussianInteger();
+                if(!smoothing) {
+                    out_color_algorithm = new EscapeTimeGaussianInteger();
+                }
+                else {
+                    out_color_algorithm = new SmoothEscapeTimeGaussianIntegerMagnet1(Math.log(convergent_bailout));  
+                }
                 break;
             case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER2:
                 out_color_algorithm = new EscapeTimeGaussianInteger2();
                 break;
             case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER3:
-                out_color_algorithm = new EscapeTimeGaussianInteger3();
+                if(!smoothing) {
+                    out_color_algorithm = new EscapeTimeGaussianInteger3();
+                }
+                else {
+                    out_color_algorithm = new SmoothEscapeTimeGaussianInteger3Magnet1(Math.log(convergent_bailout));  
+                }
                 break;
             case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER4:
-                out_color_algorithm = new EscapeTimeGaussianInteger4();
+                if(!smoothing) {
+                    out_color_algorithm = new EscapeTimeGaussianInteger4();
+                }
+                else {
+                    out_color_algorithm = new SmoothEscapeTimeGaussianInteger4Magnet1(Math.log(convergent_bailout));  
+                }
                 break;
             case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER5:
                 out_color_algorithm = new EscapeTimeGaussianInteger5();
@@ -124,108 +181,12 @@ public class Magnet1 extends Julia {
                 out_color_algorithm = new EscapeTimeAlgorithm1(4);
                 break;
             case MainWindow.ESCAPE_TIME_ALGORITHM2:
-                out_color_algorithm = new EscapeTimeAlgorithm2();
-                break;
-                
-        }
-        
-        switch (in_coloring_algorithm) {
-            
-            case MainWindow.MAXIMUM_ITERATIONS:
-                in_color_algorithm = new MaximumIterations();
-                break;
-            case MainWindow.Z_MAG:
-                in_color_algorithm = new ZMag(out_coloring_algorithm);
-                break;
-            case MainWindow.DECOMPOSITION_LIKE:
-                in_color_algorithm = new DecompositionLike(out_coloring_algorithm);       
-                break;
-            case MainWindow.RE_DIVIDE_IM:
-                in_color_algorithm = new ReDivideIm(out_coloring_algorithm);       
-                break;
-            case MainWindow.COS_MAG:
-                in_color_algorithm = new CosMag(out_coloring_algorithm);       
-                break;
-            case MainWindow.MAG_TIMES_COS_RE_SQUARED:
-                in_color_algorithm = new MagTimesCosReSquared(out_coloring_algorithm);       
-                break;
-            case MainWindow.SIN_RE_SQUARED_MINUS_IM_SQUARED:
-                in_color_algorithm = new SinReSquaredMinusImSquared(out_coloring_algorithm);       
-                break;
-            case MainWindow.ATAN_RE_TIMES_IM_TIMES_ABS_RE_TIMES_ABS_IM:
-                in_color_algorithm = new AtanReTimesImTimesAbsReTimesAbsIm(out_coloring_algorithm);       
-                break;
-            case MainWindow.SQUARES:
-                in_color_algorithm = new Squares(out_coloring_algorithm);       
-                break;
-                
-        }
-
-    }
-
-    public Magnet1(double xCenter, double yCenter, double size, int max_iterations,int  bailout_test_algorithm, double bailout, int out_coloring_algorithm, int in_coloring_algorithm, boolean periodicity_checking, int plane_type, double[] rotation_vals, double xJuliaCenter, double yJuliaCenter) {
-
-        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
-
-        convergent_bailout = 1E-12;
-
-        switch (out_coloring_algorithm) {
-
-            case MainWindow.ESCAPE_TIME:
-                out_color_algorithm = new EscapeTimeMagnet();
-                break;
-            case MainWindow.SMOOTH_COLOR:
-                out_color_algorithm = new SmoothMagnet1(Math.log(bailout_squared), Math.log(convergent_bailout));
-                break;
-            case MainWindow.BINARY_DECOMPOSITION:
-                out_color_algorithm = new BinaryDecompositionMagnet();
-                break;
-            case MainWindow.BINARY_DECOMPOSITION2:
-                out_color_algorithm = new BinaryDecomposition2Magnet();
-                break;
-            case MainWindow.ITERATIONS_PLUS_RE:
-                out_color_algorithm = new EscapeTimePlusRe();
-                break;
-            case MainWindow.ITERATIONS_PLUS_IM:
-                out_color_algorithm = new EscapeTimePlusIm();
-                break;
-            case MainWindow.ITERATIONS_PLUS_RE_DIVIDE_IM:
-                convergent_bailout = 1E-2;
-                out_color_algorithm = new EscapeTimePlusReDivideIm();
-                break;
-            case MainWindow.ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM:
-                convergent_bailout = 1E-2;
-                out_color_algorithm = new EscapeTimePlusRePlusImPlusReDivideIm();
-                break;
-            case MainWindow.BIOMORPH:
-                out_color_algorithm = new BiomorphsMagnet(bailout);
-                break;
-            case MainWindow.COLOR_DECOMPOSITION:
-                out_color_algorithm = new ColorDecomposition();
-                break;
-            case MainWindow. ESCAPE_TIME_COLOR_DECOMPOSITION:
-                out_color_algorithm = new EscapeTimeColorDecomposition();
-                break;
-            case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER:
-                out_color_algorithm = new EscapeTimeGaussianInteger();
-                break;
-            case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER2:
-                out_color_algorithm = new EscapeTimeGaussianInteger2();
-                break;
-            case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER3:
-                out_color_algorithm = new EscapeTimeGaussianInteger3();
-                break;
-            case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER4:
-                out_color_algorithm = new EscapeTimeGaussianInteger4();
-                break;
-            case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER5:
-                out_color_algorithm = new EscapeTimeGaussianInteger5();
-                break;
-            case MainWindow.ESCAPE_TIME_ALGORITHM:
-                out_color_algorithm = new EscapeTimeAlgorithm1(4);
-                break;
-            case MainWindow.ESCAPE_TIME_ALGORITHM2:
-                out_color_algorithm = new EscapeTimeAlgorithm2();
+                if(!smoothing) {
+                    out_color_algorithm = new EscapeTimeAlgorithm2();
+                }
+                else {
+                    out_color_algorithm = new SmoothEscapeTimeAlgorithm2Magnet1(Math.log(convergent_bailout));  
+                }
                 break;
 
         } 
@@ -236,28 +197,182 @@ public class Magnet1 extends Julia {
                 in_color_algorithm = new MaximumIterations();
                 break;
             case MainWindow.Z_MAG:
-                in_color_algorithm = new ZMag(out_coloring_algorithm);
+                in_color_algorithm = new ZMag(smoothing);
                 break;
             case MainWindow.DECOMPOSITION_LIKE:
-                in_color_algorithm = new DecompositionLike(out_coloring_algorithm);       
+                in_color_algorithm = new DecompositionLike(smoothing);       
                 break;
             case MainWindow.RE_DIVIDE_IM:
-                in_color_algorithm = new ReDivideIm(out_coloring_algorithm);       
+                in_color_algorithm = new ReDivideIm(smoothing);       
                 break;
             case MainWindow.COS_MAG:
-                in_color_algorithm = new CosMag(out_coloring_algorithm);       
+                in_color_algorithm = new CosMag(smoothing);       
                 break;
             case MainWindow.MAG_TIMES_COS_RE_SQUARED:
-                in_color_algorithm = new MagTimesCosReSquared(out_coloring_algorithm);       
+                in_color_algorithm = new MagTimesCosReSquared(smoothing);       
                 break;
             case MainWindow.SIN_RE_SQUARED_MINUS_IM_SQUARED:
-                in_color_algorithm = new SinReSquaredMinusImSquared(out_coloring_algorithm);       
+                in_color_algorithm = new SinReSquaredMinusImSquared(smoothing);       
                 break;
             case MainWindow.ATAN_RE_TIMES_IM_TIMES_ABS_RE_TIMES_ABS_IM:
-                in_color_algorithm = new AtanReTimesImTimesAbsReTimesAbsIm(out_coloring_algorithm);       
+                in_color_algorithm = new AtanReTimesImTimesAbsReTimesAbsIm(smoothing);       
                 break;
             case MainWindow.SQUARES:
-                in_color_algorithm = new Squares(out_coloring_algorithm);       
+                in_color_algorithm = new Squares(smoothing);       
+                break;
+                
+        }
+
+
+    }
+
+    public Magnet1(double xCenter, double yCenter, double size, int max_iterations,int  bailout_test_algorithm, double bailout, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, boolean periodicity_checking, int plane_type, double[] rotation_vals, double xJuliaCenter, double yJuliaCenter) {
+
+        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+
+        convergent_bailout = 1E-12;
+
+        switch (out_coloring_algorithm) {
+
+            case MainWindow.ESCAPE_TIME:
+                if(!smoothing) {
+                    out_color_algorithm = new EscapeTimeMagnet();
+                }
+                else {
+                    out_color_algorithm = new SmoothEscapeTimeMagnet1(Math.log(bailout_squared), Math.log(convergent_bailout));
+                }
+                break;
+            case MainWindow.BINARY_DECOMPOSITION:
+                if(!smoothing) {
+                    out_color_algorithm = new BinaryDecompositionMagnet();
+                }
+                else {
+                    out_color_algorithm = new SmoothBinaryDecompositionMagnet1(Math.log(bailout_squared), Math.log(convergent_bailout));
+                }
+                break;
+            case MainWindow.BINARY_DECOMPOSITION2:
+                if(!smoothing) {
+                    out_color_algorithm = new BinaryDecomposition2Magnet();
+                }
+                else {
+                    out_color_algorithm = new SmoothBinaryDecomposition2Magnet1(Math.log(bailout_squared), Math.log(convergent_bailout));
+                }
+                break;
+            case MainWindow.ITERATIONS_PLUS_RE:
+                if(!smoothing) {
+                    out_color_algorithm = new EscapeTimePlusRe();
+                }
+                else {
+                    out_color_algorithm = new SmoothEscapeTimePlusReMagnet1(Math.log(convergent_bailout));
+                }
+                break;
+            case MainWindow.ITERATIONS_PLUS_IM:
+                if(!smoothing) {
+                    out_color_algorithm = new EscapeTimePlusIm();
+                }
+                else {
+                    out_color_algorithm = new SmoothEscapeTimePlusImMagnet1(Math.log(convergent_bailout));
+                }
+                break;
+            case MainWindow.ITERATIONS_PLUS_RE_DIVIDE_IM:
+                convergent_bailout = 1E-2;
+                out_color_algorithm = new EscapeTimePlusReDivideIm();
+                break;
+            case MainWindow.ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM:
+                convergent_bailout = 1E-2;
+                out_color_algorithm = new EscapeTimePlusRePlusImPlusReDivideIm();
+                break;
+            case MainWindow.BIOMORPH:
+                if(!smoothing) {
+                    out_color_algorithm = new BiomorphsMagnet(bailout);
+                }
+                else {
+                    out_color_algorithm = new SmoothBiomorphsMagnet1(Math.log(bailout_squared), Math.log(convergent_bailout), bailout);
+                }
+                break;
+            case MainWindow.COLOR_DECOMPOSITION:
+                out_color_algorithm = new ColorDecomposition();
+                break;
+            case MainWindow. ESCAPE_TIME_COLOR_DECOMPOSITION:
+                if(!smoothing) {
+                    out_color_algorithm = new EscapeTimeColorDecomposition();
+                }
+                else {
+                    out_color_algorithm = new SmoothEscapeTimeColorDecompositionMagnet1(Math.log(convergent_bailout));  
+                }
+                break;
+            case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER:
+                if(!smoothing) {
+                    out_color_algorithm = new EscapeTimeGaussianInteger();
+                }
+                else {
+                    out_color_algorithm = new SmoothEscapeTimeGaussianIntegerMagnet1(Math.log(convergent_bailout));  
+                }
+                break;
+            case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER2:
+                out_color_algorithm = new EscapeTimeGaussianInteger2();
+                break;
+            case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER3:
+                if(!smoothing) {
+                    out_color_algorithm = new EscapeTimeGaussianInteger3();
+                }
+                else {
+                    out_color_algorithm = new SmoothEscapeTimeGaussianInteger3Magnet1(Math.log(convergent_bailout));  
+                }
+                break;
+            case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER4:
+                if(!smoothing) {
+                    out_color_algorithm = new EscapeTimeGaussianInteger4();
+                }
+                else {
+                    out_color_algorithm = new SmoothEscapeTimeGaussianInteger4Magnet1(Math.log(convergent_bailout));  
+                }
+                break;
+            case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER5:
+                out_color_algorithm = new EscapeTimeGaussianInteger5();
+                break;
+            case MainWindow.ESCAPE_TIME_ALGORITHM:
+                out_color_algorithm = new EscapeTimeAlgorithm1(4);
+                break;
+            case MainWindow.ESCAPE_TIME_ALGORITHM2:
+                if(!smoothing) {
+                    out_color_algorithm = new EscapeTimeAlgorithm2();
+                }
+                else {
+                    out_color_algorithm = new SmoothEscapeTimeAlgorithm2Magnet1(Math.log(convergent_bailout));  
+                }
+                break;
+
+        } 
+        
+        switch (in_coloring_algorithm) {
+            
+            case MainWindow.MAXIMUM_ITERATIONS:
+                in_color_algorithm = new MaximumIterations();
+                break;
+            case MainWindow.Z_MAG:
+                in_color_algorithm = new ZMag(smoothing);
+                break;
+            case MainWindow.DECOMPOSITION_LIKE:
+                in_color_algorithm = new DecompositionLike(smoothing);       
+                break;
+            case MainWindow.RE_DIVIDE_IM:
+                in_color_algorithm = new ReDivideIm(smoothing);       
+                break;
+            case MainWindow.COS_MAG:
+                in_color_algorithm = new CosMag(smoothing);       
+                break;
+            case MainWindow.MAG_TIMES_COS_RE_SQUARED:
+                in_color_algorithm = new MagTimesCosReSquared(smoothing);       
+                break;
+            case MainWindow.SIN_RE_SQUARED_MINUS_IM_SQUARED:
+                in_color_algorithm = new SinReSquaredMinusImSquared(smoothing);       
+                break;
+            case MainWindow.ATAN_RE_TIMES_IM_TIMES_ABS_RE_TIMES_ABS_IM:
+                in_color_algorithm = new AtanReTimesImTimesAbsReTimesAbsIm(smoothing);       
+                break;
+            case MainWindow.SQUARES:
+                in_color_algorithm = new Squares(smoothing);       
                 break;
                 
         }

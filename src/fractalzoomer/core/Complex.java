@@ -14,6 +14,7 @@ package fractalzoomer.core;
  * @author hrkalona
  */
 public class Complex {
+  public static final double pi_2 = Math.PI / 2;
   private double re;
   private double im;
   
@@ -518,7 +519,7 @@ public class Complex {
       */
      public Complex acos() {
         
-         return this.asin().r_sub(Math.PI / 2);
+         return this.asin().r_sub(pi_2);
          
      }
      
@@ -716,7 +717,7 @@ public class Complex {
       */
      public Complex asec() {
 
-         return (((this.square().reciprocal()).r_sub(1).sqrt()).plus(this.i_divide(1))).log().times_i(1).plus(Math.PI / 2);
+         return (((this.square().reciprocal()).r_sub(1).sqrt()).plus(this.i_divide(1))).log().times_i(1).plus(pi_2);
          
      }
      

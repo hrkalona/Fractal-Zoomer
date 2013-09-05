@@ -31,7 +31,10 @@ import fractalzoomer.out_coloring_algorithms.EscapeTimeGaussianInteger3;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeGaussianInteger4;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeGaussianInteger5;
 import fractalzoomer.out_coloring_algorithms.EscapeTimePlusReDivideIm;
-import fractalzoomer.out_coloring_algorithms.Smooth;
+import fractalzoomer.out_coloring_algorithms.SmoothBinaryDecomposition;
+import fractalzoomer.out_coloring_algorithms.SmoothBinaryDecomposition2;
+import fractalzoomer.out_coloring_algorithms.SmoothBiomorphs;
+import fractalzoomer.out_coloring_algorithms.SmoothEscapeTime;
 import java.util.ArrayList;
 
 /*
@@ -45,23 +48,35 @@ import java.util.ArrayList;
  */
 public class SierpinskiGasket extends Fractal {
     
-    public SierpinskiGasket(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, int out_coloring_algorithm, int in_coloring_algorithm, int plane_type, double[] rotation_vals) {
+    public SierpinskiGasket(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, int plane_type, double[] rotation_vals) {
 
         super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, false, plane_type, rotation_vals);
 
         switch (out_coloring_algorithm) {
 
             case MainWindow.ESCAPE_TIME:
-                out_color_algorithm = new EscapeTime();
-                break;
-            case MainWindow.SMOOTH_COLOR:
-                out_color_algorithm = new Smooth(Math.log(bailout_squared));
+                if(!smoothing) {
+                    out_color_algorithm = new EscapeTime();
+                }
+                else {
+                    out_color_algorithm = new SmoothEscapeTime(Math.log(bailout_squared));
+                }
                 break;
             case MainWindow.BINARY_DECOMPOSITION:
-                out_color_algorithm = new BinaryDecomposition();
+                if(!smoothing) {
+                    out_color_algorithm = new BinaryDecomposition();
+                }
+                else {
+                    out_color_algorithm = new SmoothBinaryDecomposition(Math.log(bailout_squared));
+                }
                 break;
             case MainWindow.BINARY_DECOMPOSITION2:
-                out_color_algorithm = new BinaryDecomposition2();
+                if(!smoothing) {
+                    out_color_algorithm = new BinaryDecomposition2();
+                }
+                else {
+                    out_color_algorithm = new SmoothBinaryDecomposition2(Math.log(bailout_squared));
+                }
                 break;
             case MainWindow.ITERATIONS_PLUS_RE:
                 out_color_algorithm = new EscapeTimePlusRe();
@@ -76,12 +91,17 @@ public class SierpinskiGasket extends Fractal {
                 out_color_algorithm = new EscapeTimePlusRePlusImPlusReDivideIm();
                 break;
             case MainWindow.BIOMORPH:
-                out_color_algorithm = new Biomorphs(bailout);
+                if(!smoothing) {
+                    out_color_algorithm = new Biomorphs(bailout);
+                }
+                else {
+                    out_color_algorithm = new SmoothBiomorphs(Math.log(bailout_squared), bailout);
+                }
                 break;
             case MainWindow.COLOR_DECOMPOSITION:
                 out_color_algorithm = new ColorDecomposition();
                 break;
-            case MainWindow. ESCAPE_TIME_COLOR_DECOMPOSITION:
+            case MainWindow.ESCAPE_TIME_COLOR_DECOMPOSITION:
                 out_color_algorithm = new EscapeTimeColorDecomposition();
                 break;
             case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER:
@@ -105,37 +125,38 @@ public class SierpinskiGasket extends Fractal {
             case MainWindow.ESCAPE_TIME_ALGORITHM2:
                 out_color_algorithm = new EscapeTimeAlgorithm2();
                 break;
-
+                         
         }
-        
+
+
         switch (in_coloring_algorithm) {
             
             case MainWindow.MAXIMUM_ITERATIONS:
                 in_color_algorithm = new MaximumIterations();
                 break;
             case MainWindow.Z_MAG:
-                in_color_algorithm = new ZMag(out_coloring_algorithm);
+                in_color_algorithm = new ZMag(smoothing);
                 break;
             case MainWindow.DECOMPOSITION_LIKE:
-                in_color_algorithm = new DecompositionLike(out_coloring_algorithm);       
+                in_color_algorithm = new DecompositionLike(smoothing);       
                 break;
             case MainWindow.RE_DIVIDE_IM:
-                in_color_algorithm = new ReDivideIm(out_coloring_algorithm);       
+                in_color_algorithm = new ReDivideIm(smoothing);       
                 break;
             case MainWindow.COS_MAG:
-                in_color_algorithm = new CosMag(out_coloring_algorithm);       
+                in_color_algorithm = new CosMag(smoothing);       
                 break;
             case MainWindow.MAG_TIMES_COS_RE_SQUARED:
-                in_color_algorithm = new MagTimesCosReSquared(out_coloring_algorithm);       
+                in_color_algorithm = new MagTimesCosReSquared(smoothing);       
                 break;
             case MainWindow.SIN_RE_SQUARED_MINUS_IM_SQUARED:
-                in_color_algorithm = new SinReSquaredMinusImSquared(out_coloring_algorithm);       
+                in_color_algorithm = new SinReSquaredMinusImSquared(smoothing);       
                 break;
             case MainWindow.ATAN_RE_TIMES_IM_TIMES_ABS_RE_TIMES_ABS_IM:
-                in_color_algorithm = new AtanReTimesImTimesAbsReTimesAbsIm(out_coloring_algorithm);       
+                in_color_algorithm = new AtanReTimesImTimesAbsReTimesAbsIm(smoothing);       
                 break;
             case MainWindow.SQUARES:
-                in_color_algorithm = new Squares(out_coloring_algorithm);       
+                in_color_algorithm = new Squares(smoothing);       
                 break;
                 
         }
@@ -189,12 +210,17 @@ public class SierpinskiGasket extends Fractal {
         Complex[] complex = new Complex[1];
         complex[0] = pixel_orbit;//z
         
+        Complex temp = null;
+        
         for (; iterations < max_iterations; iterations++) {
            function(complex);
-           complex_orbit.add(rotation.getPixel(complex[0], true));
-           //if(z.getRe() >= (xCenter + size) / 2 || z.getRe() <= (xCenter - size) / 2 || z.getIm() >= (yCenter + size) / 2 || z.getIm() <= (yCenter - size) / 2) {
-               //return;  //keep only the visible ones
-           //}
+           temp = rotation.getPixel(complex[0], true);
+           
+           if(Double.isNaN(temp.getRe()) || Double.isNaN(temp.getIm()) || Double.isInfinite(temp.getRe()) || Double.isInfinite(temp.getIm())) {
+               break;
+           }
+           
+           complex_orbit.add(temp);
         }
 
     }

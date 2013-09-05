@@ -1,7 +1,6 @@
 package fractalzoomer.in_coloring_algorithms;
 
 import fractalzoomer.core.Complex;
-import fractalzoomer.main.MainWindow;
 import fractalzoomer.in_coloring_algorithms.options.InColorOption;
 import fractalzoomer.in_coloring_algorithms.options.InColorOptionDouble;
 import fractalzoomer.in_coloring_algorithms.options.InColorOptionInt;
@@ -20,10 +19,10 @@ public class CosMag extends InColorAlgorithm {
 
     
 
-    public CosMag(int out_coloring_algorithm) { 
+    public CosMag(boolean smoothing) { 
         super();
         
-        if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+        if(!smoothing) {
             option = new InColorOptionInt();
         }
         else {

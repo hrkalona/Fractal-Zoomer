@@ -22,6 +22,7 @@ import fractalzoomer.out_coloring_algorithms.EscapeTimePlusRe;
 import fractalzoomer.out_coloring_algorithms.EscapeTimePlusRePlusImPlusReDivideIm;
 import fractalzoomer.fractal_options.DefaultPerturbation;
 import fractalzoomer.fractal_options.InitialValue;
+import fractalzoomer.fractal_options.MandelGrass;
 import fractalzoomer.in_coloring_algorithms.MagTimesCosReSquared;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.fractal_options.MandelVariation;
@@ -40,7 +41,10 @@ import fractalzoomer.out_coloring_algorithms.EscapeTimeGaussianInteger3;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeGaussianInteger4;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeGaussianInteger5;
 import fractalzoomer.out_coloring_algorithms.EscapeTimePlusReDivideIm;
-import fractalzoomer.out_coloring_algorithms.Smooth;
+import fractalzoomer.out_coloring_algorithms.SmoothBinaryDecomposition;
+import fractalzoomer.out_coloring_algorithms.SmoothBinaryDecomposition2;
+import fractalzoomer.out_coloring_algorithms.SmoothBiomorphs;
+import fractalzoomer.out_coloring_algorithms.SmoothEscapeTime;
 import java.util.ArrayList;
 
 /*
@@ -55,8 +59,9 @@ import java.util.ArrayList;
 public class MandelbrotWth extends Julia {
   private Complex z_exponent;
   private MandelVariation type;
+  private MandelVariation type2;
 
-    public MandelbrotWth(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, int out_coloring_algorithm, int in_coloring_algorithm, boolean periodicity_checking, int plane_type, double[] rotation_vals, boolean perturbation, double[] perturbation_vals, boolean init_value, double[] initial_vals, boolean burning_ship, double[] z_exponent) {
+    public MandelbrotWth(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, boolean periodicity_checking, int plane_type, double[] rotation_vals, boolean perturbation, double[] perturbation_vals, boolean init_value, double[] initial_vals, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, double[] z_exponent) {
 
         super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, periodicity_checking, plane_type, rotation_vals);
         
@@ -67,6 +72,13 @@ public class MandelbrotWth extends Julia {
             type = new NormalMandel();
         }
         
+        if(mandel_grass) {
+            type2 = new MandelGrass(mandel_grass_vals[0], mandel_grass_vals[1]);   
+        }
+        else {
+            type2 = new NormalMandel();
+        }
+        
         if(perturbation) {
             pertur_val = new Perturbation(perturbation_vals[0], perturbation_vals[1]);
         }
@@ -86,16 +98,28 @@ public class MandelbrotWth extends Julia {
         switch (out_coloring_algorithm) {
 
             case MainWindow.ESCAPE_TIME:
-                out_color_algorithm = new EscapeTime();
-                break;
-            case MainWindow.SMOOTH_COLOR:
-                out_color_algorithm = new Smooth(Math.log(bailout_squared));
+                if(!smoothing) {
+                    out_color_algorithm = new EscapeTime();
+                }
+                else {
+                    out_color_algorithm = new SmoothEscapeTime(Math.log(bailout_squared));
+                }
                 break;
             case MainWindow.BINARY_DECOMPOSITION:
-                out_color_algorithm = new BinaryDecomposition();
+                if(!smoothing) {
+                    out_color_algorithm = new BinaryDecomposition();
+                }
+                else {
+                    out_color_algorithm = new SmoothBinaryDecomposition(Math.log(bailout_squared));
+                }
                 break;
             case MainWindow.BINARY_DECOMPOSITION2:
-                out_color_algorithm = new BinaryDecomposition2();
+                if(!smoothing) {
+                    out_color_algorithm = new BinaryDecomposition2();
+                }
+                else {
+                    out_color_algorithm = new SmoothBinaryDecomposition2(Math.log(bailout_squared));
+                }
                 break;
             case MainWindow.ITERATIONS_PLUS_RE:
                 out_color_algorithm = new EscapeTimePlusRe();
@@ -110,12 +134,17 @@ public class MandelbrotWth extends Julia {
                 out_color_algorithm = new EscapeTimePlusRePlusImPlusReDivideIm();
                 break;
             case MainWindow.BIOMORPH:
-                out_color_algorithm = new Biomorphs(bailout);
+                if(!smoothing) {
+                    out_color_algorithm = new Biomorphs(bailout);
+                }
+                else {
+                    out_color_algorithm = new SmoothBiomorphs(Math.log(bailout_squared), bailout);
+                }
                 break;
             case MainWindow.COLOR_DECOMPOSITION:
                 out_color_algorithm = new ColorDecomposition();
                 break;
-            case MainWindow. ESCAPE_TIME_COLOR_DECOMPOSITION:
+            case MainWindow.ESCAPE_TIME_COLOR_DECOMPOSITION:
                 out_color_algorithm = new EscapeTimeColorDecomposition();
                 break;
             case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER:
@@ -139,44 +168,45 @@ public class MandelbrotWth extends Julia {
             case MainWindow.ESCAPE_TIME_ALGORITHM2:
                 out_color_algorithm = new EscapeTimeAlgorithm2();
                 break;
-                
+                         
         }
-        
+
+
         switch (in_coloring_algorithm) {
             
             case MainWindow.MAXIMUM_ITERATIONS:
                 in_color_algorithm = new MaximumIterations();
                 break;
             case MainWindow.Z_MAG:
-                in_color_algorithm = new ZMag(out_coloring_algorithm);
+                in_color_algorithm = new ZMag(smoothing);
                 break;
             case MainWindow.DECOMPOSITION_LIKE:
-                in_color_algorithm = new DecompositionLike(out_coloring_algorithm);       
+                in_color_algorithm = new DecompositionLike(smoothing);       
                 break;
             case MainWindow.RE_DIVIDE_IM:
-                in_color_algorithm = new ReDivideIm(out_coloring_algorithm);       
+                in_color_algorithm = new ReDivideIm(smoothing);       
                 break;
             case MainWindow.COS_MAG:
-                in_color_algorithm = new CosMag(out_coloring_algorithm);       
+                in_color_algorithm = new CosMag(smoothing);       
                 break;
             case MainWindow.MAG_TIMES_COS_RE_SQUARED:
-                in_color_algorithm = new MagTimesCosReSquared(out_coloring_algorithm);       
+                in_color_algorithm = new MagTimesCosReSquared(smoothing);       
                 break;
             case MainWindow.SIN_RE_SQUARED_MINUS_IM_SQUARED:
-                in_color_algorithm = new SinReSquaredMinusImSquared(out_coloring_algorithm);       
+                in_color_algorithm = new SinReSquaredMinusImSquared(smoothing);       
                 break;
             case MainWindow.ATAN_RE_TIMES_IM_TIMES_ABS_RE_TIMES_ABS_IM:
-                in_color_algorithm = new AtanReTimesImTimesAbsReTimesAbsIm(out_coloring_algorithm);       
+                in_color_algorithm = new AtanReTimesImTimesAbsReTimesAbsIm(smoothing);       
                 break;
             case MainWindow.SQUARES:
-                in_color_algorithm = new Squares(out_coloring_algorithm);       
+                in_color_algorithm = new Squares(smoothing);       
                 break;
                 
         }
 
     }
 
-    public MandelbrotWth(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, int out_coloring_algorithm, int in_coloring_algorithm, boolean periodicity_checking, int plane_type, double[] rotation_vals, boolean burning_ship, double[] z_exponent, double xJuliaCenter, double yJuliaCenter) {
+    public MandelbrotWth(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, boolean periodicity_checking, int plane_type, double[] rotation_vals, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, double[] z_exponent, double xJuliaCenter, double yJuliaCenter) {
 
         super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
         
@@ -187,21 +217,40 @@ public class MandelbrotWth extends Julia {
             type = new NormalMandel();
         }
         
+        if(mandel_grass) {
+            type2 = new MandelGrass(mandel_grass_vals[0], mandel_grass_vals[1]);   
+        }
+        else {
+            type2 = new NormalMandel();
+        }
+        
         this.z_exponent = new Complex(z_exponent[0], z_exponent[1]);
 
         switch (out_coloring_algorithm) {
 
             case MainWindow.ESCAPE_TIME:
-                out_color_algorithm = new EscapeTime();
-                break;
-            case MainWindow.SMOOTH_COLOR:
-                out_color_algorithm = new Smooth(Math.log(bailout_squared));
+                if(!smoothing) {
+                    out_color_algorithm = new EscapeTime();
+                }
+                else {
+                    out_color_algorithm = new SmoothEscapeTime(Math.log(bailout_squared));
+                }
                 break;
             case MainWindow.BINARY_DECOMPOSITION:
-                out_color_algorithm = new BinaryDecomposition();
+                if(!smoothing) {
+                    out_color_algorithm = new BinaryDecomposition();
+                }
+                else {
+                    out_color_algorithm = new SmoothBinaryDecomposition(Math.log(bailout_squared));
+                }
                 break;
             case MainWindow.BINARY_DECOMPOSITION2:
-                out_color_algorithm = new BinaryDecomposition2();
+                if(!smoothing) {
+                    out_color_algorithm = new BinaryDecomposition2();
+                }
+                else {
+                    out_color_algorithm = new SmoothBinaryDecomposition2(Math.log(bailout_squared));
+                }
                 break;
             case MainWindow.ITERATIONS_PLUS_RE:
                 out_color_algorithm = new EscapeTimePlusRe();
@@ -216,12 +265,17 @@ public class MandelbrotWth extends Julia {
                 out_color_algorithm = new EscapeTimePlusRePlusImPlusReDivideIm();
                 break;
             case MainWindow.BIOMORPH:
-                out_color_algorithm = new Biomorphs(bailout);
+                if(!smoothing) {
+                    out_color_algorithm = new Biomorphs(bailout);
+                }
+                else {
+                    out_color_algorithm = new SmoothBiomorphs(Math.log(bailout_squared), bailout);
+                }
                 break;
             case MainWindow.COLOR_DECOMPOSITION:
                 out_color_algorithm = new ColorDecomposition();
                 break;
-            case MainWindow. ESCAPE_TIME_COLOR_DECOMPOSITION:
+            case MainWindow.ESCAPE_TIME_COLOR_DECOMPOSITION:
                 out_color_algorithm = new EscapeTimeColorDecomposition();
                 break;
             case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER:
@@ -245,37 +299,38 @@ public class MandelbrotWth extends Julia {
             case MainWindow.ESCAPE_TIME_ALGORITHM2:
                 out_color_algorithm = new EscapeTimeAlgorithm2();
                 break;
-
+                         
         }
-        
+
+
         switch (in_coloring_algorithm) {
             
             case MainWindow.MAXIMUM_ITERATIONS:
                 in_color_algorithm = new MaximumIterations();
                 break;
             case MainWindow.Z_MAG:
-                in_color_algorithm = new ZMag(out_coloring_algorithm);
+                in_color_algorithm = new ZMag(smoothing);
                 break;
             case MainWindow.DECOMPOSITION_LIKE:
-                in_color_algorithm = new DecompositionLike(out_coloring_algorithm);       
+                in_color_algorithm = new DecompositionLike(smoothing);       
                 break;
             case MainWindow.RE_DIVIDE_IM:
-                in_color_algorithm = new ReDivideIm(out_coloring_algorithm);       
+                in_color_algorithm = new ReDivideIm(smoothing);       
                 break;
             case MainWindow.COS_MAG:
-                in_color_algorithm = new CosMag(out_coloring_algorithm);       
+                in_color_algorithm = new CosMag(smoothing);       
                 break;
             case MainWindow.MAG_TIMES_COS_RE_SQUARED:
-                in_color_algorithm = new MagTimesCosReSquared(out_coloring_algorithm);       
+                in_color_algorithm = new MagTimesCosReSquared(smoothing);       
                 break;
             case MainWindow.SIN_RE_SQUARED_MINUS_IM_SQUARED:
-                in_color_algorithm = new SinReSquaredMinusImSquared(out_coloring_algorithm);       
+                in_color_algorithm = new SinReSquaredMinusImSquared(smoothing);       
                 break;
             case MainWindow.ATAN_RE_TIMES_IM_TIMES_ABS_RE_TIMES_ABS_IM:
-                in_color_algorithm = new AtanReTimesImTimesAbsReTimesAbsIm(out_coloring_algorithm);       
+                in_color_algorithm = new AtanReTimesImTimesAbsReTimesAbsIm(smoothing);       
                 break;
             case MainWindow.SQUARES:
-                in_color_algorithm = new Squares(out_coloring_algorithm);       
+                in_color_algorithm = new Squares(smoothing);       
                 break;
                 
         }
@@ -283,7 +338,7 @@ public class MandelbrotWth extends Julia {
     }
 
     //orbit
-    public MandelbrotWth(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, boolean perturbation, double[] perturbation_vals, boolean init_value, double[] initial_vals, boolean burning_ship, double[] z_exponent) {
+    public MandelbrotWth(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, boolean perturbation, double[] perturbation_vals, boolean init_value, double[] initial_vals, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, double[] z_exponent) {
 
         super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals);
         
@@ -292,6 +347,13 @@ public class MandelbrotWth extends Julia {
         }
         else {
             type = new NormalMandel();
+        }
+        
+        if(mandel_grass) {
+            type2 = new MandelGrass(mandel_grass_vals[0], mandel_grass_vals[1]);   
+        }
+        else {
+            type2 = new NormalMandel();
         }
         
         this.z_exponent = new Complex(z_exponent[0], z_exponent[1]);
@@ -312,7 +374,7 @@ public class MandelbrotWth extends Julia {
 
     }
 
-    public MandelbrotWth(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, boolean burning_ship, double[] z_exponent, double xJuliaCenter, double yJuliaCenter) {
+    public MandelbrotWth(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, double[] z_exponent, double xJuliaCenter, double yJuliaCenter) {
 
         super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
         
@@ -323,6 +385,13 @@ public class MandelbrotWth extends Julia {
             type = new NormalMandel();
         }
         
+        if(mandel_grass) {
+            type2 = new MandelGrass(mandel_grass_vals[0], mandel_grass_vals[1]);   
+        }
+        else {
+            type2 = new NormalMandel();
+        }
+        
         this.z_exponent = new Complex(z_exponent[0], z_exponent[1]);
 
     }
@@ -330,7 +399,9 @@ public class MandelbrotWth extends Julia {
     @Override
     protected void function(Complex[] complex) {
 
-        complex[0] = type.getPixel(complex[0]).pow(z_exponent).plus(complex[1]);
+        Complex temp = type.getPixel(complex[0]);
+        Complex temp2 = temp.pow(z_exponent).plus(complex[1]);
+        complex[0] = type2.getPixel(temp2);
 
     }
     

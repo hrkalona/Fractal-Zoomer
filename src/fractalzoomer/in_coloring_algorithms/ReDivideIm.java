@@ -4,7 +4,6 @@ import fractalzoomer.in_coloring_algorithms.options.InColorOption;
 import fractalzoomer.in_coloring_algorithms.options.InColorOptionDouble;
 import fractalzoomer.in_coloring_algorithms.options.InColorOptionInt;
 import fractalzoomer.core.Complex;
-import fractalzoomer.main.MainWindow;
 
 /*
  * To change this template, choose Tools | Templates
@@ -20,10 +19,10 @@ public class ReDivideIm extends InColorAlgorithm {
 
     
 
-    public ReDivideIm(int out_coloring_algorithm) { 
+    public ReDivideIm(boolean smoothing) { 
         super();
         
-        if(out_coloring_algorithm == MainWindow.NORMAL || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION || out_coloring_algorithm == MainWindow.BINARY_DECOMPOSITION2 || out_coloring_algorithm == MainWindow.BIOMORPH) {
+        if(!smoothing) {
             option = new InColorOptionInt();
         }
         else {
