@@ -39,8 +39,8 @@ import fractalzoomer.out_coloring_algorithms.EscapeTimeGaussianInteger3;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeGaussianInteger4;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeGaussianInteger5;
 import fractalzoomer.out_coloring_algorithms.EscapeTimePlusReDivideIm;
-import fractalzoomer.out_coloring_algorithms.SmoothBinaryDecomposition2Nova;
-import fractalzoomer.out_coloring_algorithms.SmoothBinaryDecompositionNova;
+import fractalzoomer.out_coloring_algorithms.SmoothBinaryDecomposition2RootFindingMethod;
+import fractalzoomer.out_coloring_algorithms.SmoothBinaryDecompositionRootFindingMethod;
 import fractalzoomer.out_coloring_algorithms.SmoothBiomorphsNova;
 import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeColorDecompositionRootFindingMethod;
 import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeRootFindingMethod;
@@ -99,7 +99,7 @@ public class Nova extends Julia {
                     out_color_algorithm = new BinaryDecomposition();
                 }
                 else {
-                    out_color_algorithm = new SmoothBinaryDecompositionNova(Math.log(convergent_bailout));
+                    out_color_algorithm = new SmoothBinaryDecompositionRootFindingMethod(Math.log(convergent_bailout));
                 }
                 break;
             case MainWindow.BINARY_DECOMPOSITION2:
@@ -107,7 +107,7 @@ public class Nova extends Julia {
                     out_color_algorithm = new BinaryDecomposition2();
                 }
                 else {
-                    out_color_algorithm = new SmoothBinaryDecomposition2Nova(Math.log(convergent_bailout));
+                    out_color_algorithm = new SmoothBinaryDecomposition2RootFindingMethod(Math.log(convergent_bailout));
                 }
                 break;
             case MainWindow.ITERATIONS_PLUS_RE:
@@ -233,7 +233,7 @@ public class Nova extends Julia {
                     out_color_algorithm = new BinaryDecomposition();
                 }
                 else {
-                    out_color_algorithm = new SmoothBinaryDecompositionNova(Math.log(convergent_bailout));
+                    out_color_algorithm = new SmoothBinaryDecompositionRootFindingMethod(Math.log(convergent_bailout));
                 }
                 break;
             case MainWindow.BINARY_DECOMPOSITION2:
@@ -250,7 +250,7 @@ public class Nova extends Julia {
                     out_color_algorithm = new BinaryDecomposition2();
                 }
                 else {
-                    out_color_algorithm = new SmoothBinaryDecomposition2Nova(Math.log(convergent_bailout));
+                    out_color_algorithm = new SmoothBinaryDecomposition2RootFindingMethod(Math.log(convergent_bailout));
                 }
                 break;
             case MainWindow.ITERATIONS_PLUS_RE:

@@ -49,6 +49,7 @@ public class Halley3 extends RootFindingMethods {
                 else {
                     out_color_algorithm = new SmoothEscapeTimeRootFindingMethod(Math.log(convergent_bailout));
                 }
+                break;
             case MainWindow.BINARY_DECOMPOSITION:
                 convergent_bailout = 1E-4;
                 if(!smoothing) {
