@@ -2087,19 +2087,7 @@ public class MainWindow extends JFrame {
                 }
         });
         math_type_functions.add(fractal_functions[COTH]);
-        
-        
-        fractal_functions[COTH] = new JRadioButtonMenuItem("z = coth(z) + c");
-        fractal_functions[COTH].addActionListener(new ActionListener() {
-      
-                public void actionPerformed(ActionEvent e) {
 
-                    setFunction(COTH);
-
-                }
-        });
-        math_type_functions.add(fractal_functions[COTH]);
-        
         
         fractal_functions[SIN2] = new JRadioButtonMenuItem("z = sin(z)c");
         fractal_functions[SIN2].addActionListener(new ActionListener() {
