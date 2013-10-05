@@ -33,7 +33,7 @@ public class SmoothEscapeTimeMagnet1 extends SmoothEscapeTime {
             double temp2 = ((Complex)object[1]).norm_squared();
             temp += 0.000000001;
             temp = Math.log(temp);
-            return (Integer)object[0] + 100234 + (log_bailout_squared - temp) / (Math.log(temp2) - temp);
+            return (Integer)object[0] + (log_bailout_squared - temp) / (Math.log(temp2) - temp) + 100906;
         }
         else {
             return (Integer)object[0] - (log_convergent_bailout - (Double)object[3]) / ((Double)object[3] - Math.log(((Complex)object[1]).distance_squared((Complex)object[4]))) + 100800;

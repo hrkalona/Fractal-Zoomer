@@ -30,8 +30,15 @@ public class SmoothEscapeTimePlusImMagnet1 extends OutColorAlgorithm {
             temp3 = -(log_convergent_bailout - (Double)object[3]) / ((Double)object[3] - Math.log(((Complex)object[1]).distance_squared((Complex)object[4])));
         }
         
-        return Math.abs(((Integer)object[0]) + ((Complex)object[1]).getIm() + temp3 + 100800);
+        return Math.abs(((Integer)object[0]) + ((Complex)object[1]).getIm() + temp3) + 100800;
 
+    }
+    
+    @Override
+    public double getResult3D(Object[] object) {
+        
+        return  getResult(object);
+        
     }
         
 }

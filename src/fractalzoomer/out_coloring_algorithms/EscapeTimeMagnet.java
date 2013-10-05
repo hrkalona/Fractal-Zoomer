@@ -18,7 +18,7 @@ public class EscapeTimeMagnet extends EscapeTime {
     @Override
     public double getResult(Object[] object) {
 
-        return  (Boolean)object[2] ? (Integer)object[0] + 100234  : (Integer)object[0] + 100800;
+        return  (Boolean)object[2] ? (Integer)object[0] + 100906  : (Integer)object[0] + 100800;
 
     }
     

@@ -17,7 +17,7 @@ public class MaximumIterations extends InColorAlgorithm {
     
     @Override
     public double getResult(Object[] object) {
-        
+  
         return (Integer)object[0];
         
     }

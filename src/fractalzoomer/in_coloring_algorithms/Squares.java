@@ -41,7 +41,7 @@ public class Squares extends InColorAlgorithm {
         double re = ((Complex)object[1]).getRe();
         double im = ((Complex)object[1]).getIm();
         
-        return ((Math.abs((int)(re * 40)) % 2) ^ (Math.abs((int)(im * 40)) % 2)) == 1 ? option.getFinalResult(Math.abs((Math.atan2(im, re) / (pi2)  + 0.75) * pi59 + 100820)) :  option.getFinalResult(Math.abs((Math.atan2(re, im) / (pi2)  + 0.75) * pi59 + 100820));
+        return ((Math.abs((int)(re * 40)) % 2) ^ (Math.abs((int)(im * 40)) % 2)) == 1 ? option.getFinalResult(Math.abs((Math.atan2(im, re) / (pi2)  + 0.75) * pi59) + 100820) :  option.getFinalResult(Math.abs((Math.atan2(re, im) / (pi2)  + 0.75) * pi59) + 100820);
 
     }
     

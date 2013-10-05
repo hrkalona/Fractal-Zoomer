@@ -36,7 +36,7 @@ public class SmoothBinaryDecompositionMagnet2 extends SmoothBinaryDecomposition 
             temp3 = (Integer)object[0] + (log_convergent_bailout - temp) / (Math.log((Double)object[3]) - temp);  
         }
         
-        return ((Boolean)object[2] ? (((Complex)object[1]).getIm() < 0 ? temp3 + 100850 : temp3 + 100234) : ((Complex)object[1]).getIm() < 0 ? temp3 + 100850 : temp3 + 100800);
+        return ((Boolean)object[2] ? (((Complex)object[1]).getIm() < 0 ? temp3 + 100850 : temp3 + 100906) : ((Complex)object[1]).getIm() < 0 ? temp3 + 100850 : temp3 + 100800);
 
     }
 }

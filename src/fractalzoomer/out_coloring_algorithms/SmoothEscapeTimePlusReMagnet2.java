@@ -31,8 +31,15 @@ public class SmoothEscapeTimePlusReMagnet2 extends OutColorAlgorithm {
             temp3 = (log_convergent_bailout - temp) / (Math.log((Double)object[3]) - temp);  
         }
         
-        return Math.abs(((Integer)object[0]) + ((Complex)object[1]).getRe() + temp3 + 100800);
+        return Math.abs(((Integer)object[0]) + ((Complex)object[1]).getRe() + temp3) + 100800;
 
+    }
+    
+    @Override
+    public double getResult3D(Object[] object) {
+        
+        return  getResult(object);
+        
     }
         
 }

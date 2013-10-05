@@ -26,6 +26,7 @@ import fractalzoomer.functions.Julia;
 import fractalzoomer.in_coloring_algorithms.ReDivideIm;
 import fractalzoomer.in_coloring_algorithms.SinReSquaredMinusImSquared;
 import fractalzoomer.in_coloring_algorithms.Squares;
+import fractalzoomer.in_coloring_algorithms.Squares2;
 import fractalzoomer.in_coloring_algorithms.ZMag;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeAlgorithm1;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeAlgorithm2;
@@ -175,6 +176,9 @@ public class Log extends Julia {
             case MainWindow.SQUARES:
                 in_color_algorithm = new Squares(smoothing);       
                 break;
+            case MainWindow.SQUARES2:
+                in_color_algorithm = new Squares2();       
+                break;
                 
         }
 
@@ -290,6 +294,9 @@ public class Log extends Julia {
             case MainWindow.SQUARES:
                 in_color_algorithm = new Squares(smoothing);       
                 break;
+            case MainWindow.SQUARES2:
+                in_color_algorithm = new Squares2();       
+                break;
                 
         }
 
@@ -325,7 +332,7 @@ public class Log extends Julia {
     @Override
     protected void function(Complex[] complex) {
 
-        complex[0] = complex[0].log().plus(complex[1]);
+        complex[0].log_mutable().plus_mutable(complex[1]);
 
     }
 

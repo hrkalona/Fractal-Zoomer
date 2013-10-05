@@ -39,7 +39,7 @@ public class SmoothBiomorphsMagnet2 extends SmoothBiomorphs {
         double temp = ((Complex)object[1]).getRe();
         double temp2 = ((Complex)object[1]).getIm();
         
-        return (Boolean)object[2] ? (temp > -bailout && temp < bailout || temp2 > -bailout && temp2 < bailout ?  temp3 + 100234 : temp3 + 100850) : (temp > -bailout && temp < bailout || temp2 > -bailout && temp2 < bailout ?  temp3 + 100800 : temp3 + 100850);
+        return (Boolean)object[2] ? (temp > -bailout && temp < bailout || temp2 > -bailout && temp2 < bailout ?  temp3 + 100906 : temp3 + 100850) : (temp > -bailout && temp < bailout || temp2 > -bailout && temp2 < bailout ?  temp3 + 100800 : temp3 + 100850);
 
     }
     

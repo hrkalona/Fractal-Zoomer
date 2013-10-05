@@ -35,7 +35,7 @@ public class SmoothBinaryDecompositionMagnet1 extends SmoothBinaryDecomposition 
             temp3 = (Integer)object[0] - (log_convergent_bailout - (Double)object[3]) / ((Double)object[3] - Math.log(((Complex)object[1]).distance_squared((Complex)object[4])));
         }
         
-        return ((Boolean)object[2] ? (((Complex)object[1]).getIm() < 0 ? temp3 + 100850 : temp3 + 100234) : ((Complex)object[1]).getIm() < 0 ? temp3 + 100850 : temp3 + 100800);
+        return ((Boolean)object[2] ? (((Complex)object[1]).getIm() < 0 ? temp3 + 100850 : temp3 + 100906) : ((Complex)object[1]).getIm() < 0 ? temp3 + 100850 : temp3 + 100800);
 
     }
 }

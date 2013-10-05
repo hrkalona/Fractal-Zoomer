@@ -34,5 +34,12 @@ public class SmoothEscapeTimeGaussianIntegerMagnet2 extends OutColorAlgorithm {
         return (Integer)object[0] + ((Complex)(object[1])).distance_squared(((Complex)(object[1])).gaussian_integer()) * 90 + temp3 + 100800;
 
     }
+    
+    @Override
+    public double getResult3D(Object[] object) {
+        
+        return  getResult(object);
+        
+    }
         
 }

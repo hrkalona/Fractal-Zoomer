@@ -14,5 +14,7 @@ package fractalzoomer.out_coloring_algorithms;
 public abstract class OutColorAlgorithm {
 
     public abstract double getResult(Object[] object);
+    
+    public abstract double getResult3D(Object[] object);
 
 }

@@ -23,8 +23,15 @@ public class EscapeTimeAlgorithm2 extends OutColorAlgorithm {
 
         Complex temp = ((Complex)object[1]).sub(((Complex)object[1]).sin());
         
-        return (Integer)object[0] +  Math.abs(Math.atan(temp.getIm() / temp.getRe())) * 8  + 100800;      
+        return (Integer)object[0] +  Math.abs(Math.atan(temp.getIm() / temp.getRe())) * 8 + 100800;      
                 
+    }
+    
+    @Override
+    public double getResult3D(Object[] object) {
+        
+        return  getResult(object);
+        
     }
     
 }

@@ -30,6 +30,7 @@ import fractalzoomer.functions.Julia;
 import fractalzoomer.in_coloring_algorithms.ReDivideIm;
 import fractalzoomer.in_coloring_algorithms.SinReSquaredMinusImSquared;
 import fractalzoomer.in_coloring_algorithms.Squares;
+import fractalzoomer.in_coloring_algorithms.Squares2;
 import fractalzoomer.in_coloring_algorithms.ZMag;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeAlgorithm1;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeAlgorithm2;
@@ -198,6 +199,9 @@ public class MandelbrotPoly extends Julia {
             case MainWindow.SQUARES:
                 in_color_algorithm = new Squares(smoothing);       
                 break;
+            case MainWindow.SQUARES2:
+                in_color_algorithm = new Squares2();       
+                break;
                 
         }
        
@@ -329,6 +333,9 @@ public class MandelbrotPoly extends Julia {
             case MainWindow.SQUARES:
                 in_color_algorithm = new Squares(smoothing);       
                 break;
+            case MainWindow.SQUARES2:
+                in_color_algorithm = new Squares2();       
+                break;
                 
         }
 
@@ -396,9 +403,9 @@ public class MandelbrotPoly extends Julia {
     @Override
     protected void function(Complex[] complex) {
 
-        Complex temp = type.getPixel(complex[0]);
-        Complex temp2 = temp.tenth().times(coefficients[0]).plus(temp.ninth().times(coefficients[1])).plus(temp.eighth().times(coefficients[2])).plus(temp.seventh().times(coefficients[3])).plus(temp.sixth().times(coefficients[4])).plus(temp.fifth().times(coefficients[5])).plus(temp.fourth().times(coefficients[6])).plus(temp.cube().times(coefficients[7])).plus(temp.square().times(coefficients[8])).plus(temp.times(coefficients[9])).plus(coefficients[10]).plus(complex[1]);
-        complex[0] = type2.getPixel(temp2);
+        type.getPixel(complex[0]);
+        complex[0] = complex[0].tenth().times_mutable(coefficients[0]).plus_mutable(complex[0].ninth().times_mutable(coefficients[1])).plus_mutable(complex[0].eighth().times_mutable(coefficients[2])).plus_mutable(complex[0].seventh().times_mutable(coefficients[3])).plus_mutable(complex[0].sixth().times_mutable(coefficients[4])).plus_mutable(complex[0].fifth().times_mutable(coefficients[5])).plus_mutable(complex[0].fourth().times_mutable(coefficients[6])).plus_mutable(complex[0].cube().times_mutable(coefficients[7])).plus_mutable(complex[0].square().times_mutable(coefficients[8])).plus_mutable(complex[0].times(coefficients[9])).plus_mutable(coefficients[10]).plus_mutable(complex[1]);
+        type2.getPixel(complex[0]);
   
     } 
     

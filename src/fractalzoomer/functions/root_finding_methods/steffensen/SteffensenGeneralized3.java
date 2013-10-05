@@ -9,21 +9,23 @@ import fractalzoomer.out_coloring_algorithms.BinaryDecomposition;
 import fractalzoomer.out_coloring_algorithms.BinaryDecomposition2;
 import fractalzoomer.out_coloring_algorithms.ColorDecompositionRootFindingMethod;
 import fractalzoomer.core.Complex;
+import fractalzoomer.functions.root_finding_methods.RootFindingMethods;
 import fractalzoomer.in_coloring_algorithms.CosMag;
 import fractalzoomer.in_coloring_algorithms.DecompositionLike;
 import fractalzoomer.out_coloring_algorithms.EscapeTime;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeColorDecompositionRootFindingMethod;
 import fractalzoomer.in_coloring_algorithms.MagTimesCosReSquared;
 import fractalzoomer.main.MainWindow;
-import fractalzoomer.functions.root_finding_methods.RootFindingMethods;
 import fractalzoomer.in_coloring_algorithms.MaximumIterations;
 import fractalzoomer.in_coloring_algorithms.ReDivideIm;
 import fractalzoomer.in_coloring_algorithms.SinReSquaredMinusImSquared;
 import fractalzoomer.in_coloring_algorithms.Squares;
+import fractalzoomer.in_coloring_algorithms.Squares2;
 import fractalzoomer.in_coloring_algorithms.ZMag;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeAlgorithm1;
 import fractalzoomer.out_coloring_algorithms.SmoothBinaryDecomposition2RootFindingMethod;
 import fractalzoomer.out_coloring_algorithms.SmoothBinaryDecompositionRootFindingMethod;
+import fractalzoomer.out_coloring_algorithms.SmoothColorDecompositionRootFindingMethod;
 import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeColorDecompositionRootFindingMethod;
 import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeRootFindingMethod;
 import java.util.ArrayList;
@@ -72,7 +74,12 @@ public class SteffensenGeneralized3 extends RootFindingMethods {
                 }
                 break;
             case MainWindow.COLOR_DECOMPOSITION:
-                out_color_algorithm = new ColorDecompositionRootFindingMethod();
+                if(!smoothing) {
+                    out_color_algorithm = new ColorDecompositionRootFindingMethod();
+                }
+                else {
+                    out_color_algorithm = new SmoothColorDecompositionRootFindingMethod(Math.log(convergent_bailout));
+                }
                 break;
             case MainWindow. ESCAPE_TIME_COLOR_DECOMPOSITION:
                 if(!smoothing) {
@@ -117,6 +124,9 @@ public class SteffensenGeneralized3 extends RootFindingMethods {
             case MainWindow.SQUARES:
                 in_color_algorithm = new Squares(smoothing);       
                 break;
+            case MainWindow.SQUARES2:
+                in_color_algorithm = new Squares2();       
+                break;
                 
         }
 
@@ -132,13 +142,13 @@ public class SteffensenGeneralized3 extends RootFindingMethods {
     @Override
     protected void function(Complex[] complex) {
  
-        Complex fz = complex[0].cube().sub(complex[0].times(2)).plus(2);
+        Complex fz = complex[0].cube().sub_mutable(complex[0].times(2)).plus_mutable(2);
     
         Complex temp = complex[0].plus(fz);
         
-        Complex ffz = temp.cube().sub(temp.times(2)).plus(2);
+        Complex ffz = temp.cube().sub_mutable(temp.times_mutable(2)).plus_mutable(2);
 
-        complex[0] = complex[0].sub((fz.square()).divide(ffz.sub(fz)));
+        complex[0].sub_mutable((fz.square()).divide_mutable(ffz.sub_mutable(fz)));
 
     }
 

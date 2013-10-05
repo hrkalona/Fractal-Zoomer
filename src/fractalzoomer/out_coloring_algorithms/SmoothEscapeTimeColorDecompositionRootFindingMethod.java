@@ -29,8 +29,16 @@ public class SmoothEscapeTimeColorDecompositionRootFindingMethod extends EscapeT
         double temp3 = Math.log(((Complex)object[3]).distance_squared((Complex)object[4]));
         double temp4 = (log_convergent_bailout - temp3) / (Math.log((Double)object[2]) - temp3);  
 
-        return Math.abs(((Integer)object[0]) + (long)(((Math.atan2(temp2, temp) / (pi2)  + 0.75) * pi59)  + (temp * temp + temp2 * temp2) * 2.5) + temp4 + 100800);
+        return Math.abs(((Integer)object[0]) + (long)(((Math.atan2(temp2, temp) / (pi2)  + 0.75) * pi59)  + (temp * temp + temp2 * temp2) * 2.5) + temp4) + 100800;
        
+    }
+    
+    @Override
+    public double getResult3D(Object[] object) {
+        
+        double temp = Math.log(((Complex)object[3]).distance_squared((Complex)object[4]));
+        return (Integer)object[0] + (log_convergent_bailout - temp) / (Math.log((Double)object[2]) - temp) + 100800;  
+        
     }
     
 }

@@ -6,21 +6,23 @@ import fractalzoomer.out_coloring_algorithms.BinaryDecomposition;
 import fractalzoomer.out_coloring_algorithms.BinaryDecomposition2;
 import fractalzoomer.out_coloring_algorithms.ColorDecompositionRootFindingMethod;
 import fractalzoomer.core.Complex;
+import fractalzoomer.functions.root_finding_methods.RootFindingMethods;
 import fractalzoomer.in_coloring_algorithms.CosMag;
 import fractalzoomer.in_coloring_algorithms.DecompositionLike;
 import fractalzoomer.out_coloring_algorithms.EscapeTime;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeColorDecompositionRootFindingMethod;
 import fractalzoomer.in_coloring_algorithms.MagTimesCosReSquared;
 import fractalzoomer.main.MainWindow;
-import fractalzoomer.functions.root_finding_methods.RootFindingMethods;
 import fractalzoomer.in_coloring_algorithms.MaximumIterations;
 import fractalzoomer.in_coloring_algorithms.ReDivideIm;
 import fractalzoomer.in_coloring_algorithms.SinReSquaredMinusImSquared;
 import fractalzoomer.in_coloring_algorithms.Squares;
+import fractalzoomer.in_coloring_algorithms.Squares2;
 import fractalzoomer.in_coloring_algorithms.ZMag;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeAlgorithm1;
 import fractalzoomer.out_coloring_algorithms.SmoothBinaryDecomposition2RootFindingMethod;
 import fractalzoomer.out_coloring_algorithms.SmoothBinaryDecompositionRootFindingMethod;
+import fractalzoomer.out_coloring_algorithms.SmoothColorDecompositionRootFindingMethod;
 import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeColorDecompositionRootFindingMethod;
 import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeRootFindingMethod;
 import java.util.ArrayList;
@@ -72,7 +74,12 @@ public class SchroderPoly extends RootFindingMethods {
                 }
                 break;
             case MainWindow.COLOR_DECOMPOSITION:
-                out_color_algorithm = new ColorDecompositionRootFindingMethod();
+                if(!smoothing) {
+                    out_color_algorithm = new ColorDecompositionRootFindingMethod();
+                }
+                else {
+                    out_color_algorithm = new SmoothColorDecompositionRootFindingMethod(Math.log(convergent_bailout));
+                }
                 break;
             case MainWindow. ESCAPE_TIME_COLOR_DECOMPOSITION:
                 if(!smoothing) {
@@ -117,6 +124,9 @@ public class SchroderPoly extends RootFindingMethods {
             case MainWindow.SQUARES:
                 in_color_algorithm = new Squares(smoothing);       
                 break;
+            case MainWindow.SQUARES2:
+                in_color_algorithm = new Squares2();       
+                break;
                 
         }
 
@@ -135,11 +145,11 @@ public class SchroderPoly extends RootFindingMethods {
     @Override
     protected void function(Complex[] complex) {
             
-        Complex fz = complex[0].tenth().times(coefficients[0]).plus(complex[0].ninth().times(coefficients[1])).plus(complex[0].eighth().times(coefficients[2])).plus(complex[0].seventh().times(coefficients[3])).plus(complex[0].sixth().times(coefficients[4])).plus(complex[0].fifth().times(coefficients[5])).plus(complex[0].fourth().times(coefficients[6])).plus(complex[0].cube().times(coefficients[7])).plus(complex[0].square().times(coefficients[8])).plus(complex[0].times(coefficients[9])).plus(coefficients[10]);
-        Complex dfz = complex[0].ninth().times(10 * coefficients[0]).plus(complex[0].eighth().times(9 * coefficients[1])).plus(complex[0].seventh().times(8 *coefficients[2])).plus(complex[0].sixth().times(7 * coefficients[3])).plus(complex[0].fifth().times(6 * coefficients[4])).plus(complex[0].fourth().times(5 * coefficients[5])).plus(complex[0].cube().times(4 * coefficients[6])).plus(complex[0].square().times(3 * coefficients[7])).plus(complex[0].times(2 * coefficients[8])).plus(coefficients[9]);
-        Complex ddfz = complex[0].eighth().times(90 * coefficients[0]).plus(complex[0].seventh().times(72 * coefficients[1])).plus(complex[0].sixth().times(56 * coefficients[2])).plus(complex[0].fifth().times(42 * coefficients[3])).plus(complex[0].fourth().times(30 * coefficients[4])).plus(complex[0].cube().times(20 * coefficients[5])).plus(complex[0].square().times(12 * coefficients[6])).plus(complex[0].times(6 * coefficients[7])).plus(2 * coefficients[8]);
+        Complex fz = complex[0].tenth().times_mutable(coefficients[0]).plus_mutable(complex[0].ninth().times_mutable(coefficients[1])).plus_mutable(complex[0].eighth().times_mutable(coefficients[2])).plus_mutable(complex[0].seventh().times_mutable(coefficients[3])).plus_mutable(complex[0].sixth().times_mutable(coefficients[4])).plus_mutable(complex[0].fifth().times_mutable(coefficients[5])).plus_mutable(complex[0].fourth().times_mutable(coefficients[6])).plus_mutable(complex[0].cube().times_mutable(coefficients[7])).plus_mutable(complex[0].square().times_mutable(coefficients[8])).plus_mutable(complex[0].times(coefficients[9])).plus_mutable(coefficients[10]);
+        Complex dfz = complex[0].ninth().times_mutable(10 * coefficients[0]).plus_mutable(complex[0].eighth().times_mutable(9 * coefficients[1])).plus_mutable(complex[0].seventh().times_mutable(8 *coefficients[2])).plus_mutable(complex[0].sixth().times_mutable(7 * coefficients[3])).plus_mutable(complex[0].fifth().times_mutable(6 * coefficients[4])).plus_mutable(complex[0].fourth().times_mutable(5 * coefficients[5])).plus_mutable(complex[0].cube().times_mutable(4 * coefficients[6])).plus_mutable(complex[0].square().times_mutable(3 * coefficients[7])).plus_mutable(complex[0].times(2 * coefficients[8])).plus_mutable(coefficients[9]);
+        Complex ddfz = complex[0].eighth().times_mutable(90 * coefficients[0]).plus_mutable(complex[0].seventh().times_mutable(72 * coefficients[1])).plus_mutable(complex[0].sixth().times_mutable(56 * coefficients[2])).plus_mutable(complex[0].fifth().times_mutable(42 * coefficients[3])).plus_mutable(complex[0].fourth().times_mutable(30 * coefficients[4])).plus_mutable(complex[0].cube().times_mutable(20 * coefficients[5])).plus_mutable(complex[0].square().times_mutable(12 * coefficients[6])).plus_mutable(complex[0].times(6 * coefficients[7])).plus_mutable(2 * coefficients[8]);
 
-        complex[0] = complex[0].sub((fz.times(dfz)).divide((dfz.square()).sub(fz.times(ddfz))));//schroeder
+        complex[0].sub_mutable((fz.times(dfz)).divide_mutable((dfz.square_mutable()).sub_mutable(fz.times_mutable(ddfz))));//schroeder
 
     }
  

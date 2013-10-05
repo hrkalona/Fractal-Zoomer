@@ -26,6 +26,7 @@ import fractalzoomer.functions.Julia;
 import fractalzoomer.in_coloring_algorithms.ReDivideIm;
 import fractalzoomer.in_coloring_algorithms.SinReSquaredMinusImSquared;
 import fractalzoomer.in_coloring_algorithms.Squares;
+import fractalzoomer.in_coloring_algorithms.Squares2;
 import fractalzoomer.in_coloring_algorithms.ZMag;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeAlgorithm1;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeAlgorithm2;
@@ -175,6 +176,9 @@ public class Barnsley3 extends Julia {
             case MainWindow.SQUARES:
                 in_color_algorithm = new Squares(smoothing);       
                 break;
+            case MainWindow.SQUARES2:
+                in_color_algorithm = new Squares2();       
+                break;
                 
         }
 
@@ -290,6 +294,9 @@ public class Barnsley3 extends Julia {
             case MainWindow.SQUARES:
                 in_color_algorithm = new Squares(smoothing);       
                 break;
+            case MainWindow.SQUARES2:
+                in_color_algorithm = new Squares2();       
+                break;
                 
         }
 
@@ -326,9 +333,14 @@ public class Barnsley3 extends Julia {
     protected void function(Complex[] complex) {
 
         double temp = complex[0].getRe();
+        
+        if(temp > 0) {
+            complex[0].square_mutable().sub_mutable(1);
+        }
+        else {
+            complex[0].square_mutable().plus_mutable(new Complex(complex[1].getRe() * temp, complex[1].getIm() * temp)).sub_mutable(1);
+        }
 
-        complex[0] = temp > 0 ? complex[0].square().sub(1) : complex[0].square().plus(new Complex(complex[1].getRe() * temp, complex[1].getIm() * temp)).sub(1);
-
-    }
+    }  
 
 }

@@ -36,5 +36,12 @@ public class SmoothEscapeTimeAlgorithm2Magnet2 extends OutColorAlgorithm {
         return (Integer)object[0] +  Math.abs(Math.atan(temp.getIm() / temp.getRe())) * 8  + temp3 + 100800; 
 
     }
+    
+    @Override
+    public double getResult3D(Object[] object) {
+        
+        return  getResult(object);
+        
+    }
         
 }

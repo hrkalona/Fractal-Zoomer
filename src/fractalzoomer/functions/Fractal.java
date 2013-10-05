@@ -413,7 +413,7 @@ public abstract class Fractal {
 
     }
 
-    protected boolean periodicityCheck(Complex z) {
+    protected final boolean periodicityCheck(Complex z) {
 
         
         //Check for period
@@ -432,7 +432,7 @@ public abstract class Fractal {
             }
             update_counter++;
 
-            period = z;  
+            period.assign(z);  
         } //End of update history
 
         check_counter++;
@@ -446,7 +446,14 @@ public abstract class Fractal {
         return periodicity_checking ? calculateFractalWithPeriodicity(plane.getPixel(rotation.getPixel(pixel, false))) : calculateFractalWithoutPeriodicity(plane.getPixel(rotation.getPixel(pixel, false)));
 
     }
+    
+    public double[] calculateFractal3D(Complex pixel) {
+        
+        return periodicity_checking ? calculateFractal3DWithPeriodicity(plane.getPixel(rotation.getPixel(pixel, false))) : calculateFractal3DWithoutPeriodicity(plane.getPixel(rotation.getPixel(pixel, false)));
 
+    }
+
+    
     public double calculateFractalWithPeriodicity(Complex pixel) {
 
         int iterations = 0;
@@ -459,11 +466,11 @@ public abstract class Fractal {
 
         period = new Complex();
 
-        Complex tempz = pertur_val.getPixel(init_val.getPixel(pixel));
+        Complex tempz = new Complex(pertur_val.getPixel(init_val.getPixel(pixel)));
         
         Complex[] complex = new Complex[2];
         complex[0] = tempz;//z
-        complex[1] = pixel;//c
+        complex[1] = new Complex(pixel);//c
 
         Complex zold = new Complex();
 
@@ -472,7 +479,7 @@ public abstract class Fractal {
                 Object[] object = {iterations, complex[0], zold};
                 return out_color_algorithm.getResult(object);
             }
-            zold = complex[0];
+            zold.assign(complex[0]);
             function(complex);
 
             if(periodicityCheck(complex[0])) {
@@ -490,11 +497,11 @@ public abstract class Fractal {
         
         int iterations = 0;
 
-        Complex tempz = pertur_val.getPixel(init_val.getPixel(pixel));
+        Complex tempz = new Complex(pertur_val.getPixel(init_val.getPixel(pixel)));
         
         Complex[] complex = new Complex[2];
         complex[0] = tempz;//z
-        complex[1] = pixel;//c
+        complex[1] = new Complex(pixel);//c
         
 
         Complex zold = new Complex();
@@ -503,10 +510,9 @@ public abstract class Fractal {
                   
             if(bailout_algorithm.escaped(complex[0])) {
                 Object[] object = {iterations, complex[0], zold};
-                return out_color_algorithm.getResult(object); 
-               
+                return out_color_algorithm.getResult(object);
             }
-            zold = complex[0];
+            zold.assign(complex[0]);
             function(complex);
         
         }
@@ -514,7 +520,7 @@ public abstract class Fractal {
         
         Object[] object = {max_iterations, complex[0]};
         return in_color_algorithm.getResult(object);
-        
+  
        /* int iterations = 0; 
         
         int exp = 28;
@@ -557,6 +563,87 @@ public abstract class Fractal {
         }
         
         return max_iterations;*/
+
+    }
+    
+    public double[] calculateFractal3DWithPeriodicity(Complex pixel) {
+
+        int iterations = 0;
+
+        check = 3;
+        check_counter = 0;
+
+        update = 10;
+        update_counter = 0;
+
+        period = new Complex();
+
+        Complex tempz = new Complex(pertur_val.getPixel(init_val.getPixel(pixel)));
+        
+        Complex[] complex = new Complex[2];
+        complex[0] = tempz;//z
+        complex[1] = new Complex(pixel);//c
+
+        Complex zold = new Complex();
+        
+        double temp;
+
+        for (; iterations < max_iterations; iterations++) {
+            if(bailout_algorithm.escaped(complex[0])) {
+                Object[] object = {iterations, complex[0], zold};
+                temp = out_color_algorithm.getResult(object);
+                double[] array = {40 * Math.log(temp - 100799) - 100, temp};
+                return array;
+            }
+            zold.assign(complex[0]);
+            function(complex);
+
+            if(periodicityCheck(complex[0])) {
+                double[] array = {40 * Math.log(max_iterations + 1) - 100, max_iterations};
+                return array;
+            }
+
+        }
+
+        double[] array = {40 * Math.log(max_iterations + 1) - 100, max_iterations};
+        return array;
+
+    }
+    
+    public double[] calculateFractal3DWithoutPeriodicity(Complex pixel) {
+        
+        int iterations = 0;
+
+        Complex tempz = new Complex(pertur_val.getPixel(init_val.getPixel(pixel)));
+        
+        Complex[] complex = new Complex[2];
+        complex[0] = tempz;//z
+        complex[1] = new Complex(pixel);//c
+        
+
+        Complex zold = new Complex();
+        double temp;
+
+        for (; iterations < max_iterations; iterations++) {
+                  
+            if(bailout_algorithm.escaped(complex[0])) {
+                Object[] object = {iterations, complex[0], zold};
+                temp = out_color_algorithm.getResult(object);
+                double[] array = {40 * Math.log(temp - 100799) - 100, temp};
+                return array;
+               
+            }
+            zold.assign(complex[0]);
+            function(complex);
+        
+        }
+  
+        
+        Object[] object = {max_iterations, complex[0]};
+        temp = in_color_algorithm.getResult(object);
+        double result = temp == max_iterations ? max_iterations : max_iterations + temp - 100820;
+        double[] array = {40 * Math.log(result + 1) - 100, temp};
+        return array;
 
     }
     
@@ -605,8 +692,8 @@ public abstract class Fractal {
       int iterations = 0;
 
         Complex[] complex = new Complex[2];
-        complex[0] = pertur_val.getPixel(init_val.getPixel(pixel_orbit));//z
-        complex[1] = pixel_orbit;//c
+        complex[0] = new Complex(pertur_val.getPixel(init_val.getPixel(pixel_orbit)));//z
+        complex[1] = new Complex(pixel_orbit);//c
         
 
         Complex temp = null;
@@ -627,6 +714,8 @@ public abstract class Fractal {
     public abstract void calculateJuliaOrbit();
     
     public abstract double calculateJulia(Complex pixel);
+    
+    public abstract double[] calculateJulia3D(Complex pixel);
 
     public double getXCenter() {
 

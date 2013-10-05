@@ -9,21 +9,23 @@ import fractalzoomer.out_coloring_algorithms.BinaryDecomposition;
 import fractalzoomer.out_coloring_algorithms.BinaryDecomposition2;
 import fractalzoomer.out_coloring_algorithms.ColorDecompositionRootFindingMethod;
 import fractalzoomer.core.Complex;
+import fractalzoomer.functions.root_finding_methods.RootFindingMethods;
 import fractalzoomer.in_coloring_algorithms.CosMag;
 import fractalzoomer.in_coloring_algorithms.DecompositionLike;
 import fractalzoomer.out_coloring_algorithms.EscapeTime;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeColorDecompositionRootFindingMethod;
 import fractalzoomer.in_coloring_algorithms.MagTimesCosReSquared;
 import fractalzoomer.main.MainWindow;
-import fractalzoomer.functions.root_finding_methods.RootFindingMethods;
 import fractalzoomer.in_coloring_algorithms.MaximumIterations;
 import fractalzoomer.in_coloring_algorithms.ReDivideIm;
 import fractalzoomer.in_coloring_algorithms.SinReSquaredMinusImSquared;
 import fractalzoomer.in_coloring_algorithms.Squares;
+import fractalzoomer.in_coloring_algorithms.Squares2;
 import fractalzoomer.in_coloring_algorithms.ZMag;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeAlgorithm1;
 import fractalzoomer.out_coloring_algorithms.SmoothBinaryDecomposition2RootFindingMethod;
 import fractalzoomer.out_coloring_algorithms.SmoothBinaryDecompositionRootFindingMethod;
+import fractalzoomer.out_coloring_algorithms.SmoothColorDecompositionRootFindingMethod;
 import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeColorDecompositionRootFindingMethod;
 import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeRootFindingMethod;
 import java.util.ArrayList;
@@ -72,7 +74,12 @@ public class SecantCos extends RootFindingMethods {
                 }
                 break;
             case MainWindow.COLOR_DECOMPOSITION:
-                out_color_algorithm = new ColorDecompositionRootFindingMethod();
+                if(!smoothing) {
+                    out_color_algorithm = new ColorDecompositionRootFindingMethod();
+                }
+                else {
+                    out_color_algorithm = new SmoothColorDecompositionRootFindingMethod(Math.log(convergent_bailout));
+                }
                 break;
             case MainWindow. ESCAPE_TIME_COLOR_DECOMPOSITION:
                 if(!smoothing) {
@@ -117,6 +124,9 @@ public class SecantCos extends RootFindingMethods {
             case MainWindow.SQUARES:
                 in_color_algorithm = new Squares(smoothing);       
                 break;
+            case MainWindow.SQUARES2:
+                in_color_algorithm = new Squares2();       
+                break;
                 
         }
 
@@ -134,10 +144,10 @@ public class SecantCos extends RootFindingMethods {
         
         Complex fz1 = complex[0].cos();
 
-        Complex temp = complex[0];
-        complex[0] = complex[0].sub(fz1.times((complex[0].sub(complex[1])).divide(fz1.sub(complex[2]))));
-        complex[1] = temp;
-        complex[2] = fz1;
+        Complex temp = new Complex(complex[0]);
+        complex[0].sub_mutable(fz1.times((complex[0].sub(complex[1])).divide_mutable(fz1.sub(complex[2]))));
+        complex[1].assign(temp);
+        complex[2].assign(fz1);
 
     }
     
@@ -159,14 +169,47 @@ public class SecantCos extends RootFindingMethods {
                 Object[] object = {iterations, complex[0], temp, zold, zold2};
                 return out_color_algorithm.getResult(object);
             }
-            zold2 = zold;
-            zold = complex[0];
+            zold2.assign(zold);
+            zold.assign(complex[0]);
             function(complex);
  
         }
 
         Object[] object = {max_iterations, complex[0]};
         return in_color_algorithm.getResult(object);
+        
+    }
+    
+    @Override
+    public double[] calculateFractal3DWithoutPeriodicity(Complex pixel) {
+      int iterations = 0;
+      double temp = 0;
+
+        Complex[] complex = new Complex[3];
+        complex[0] = pixel;//z
+        complex[1] = new Complex(); //zold
+        complex[2] = new Complex(1, 0); 
+        
+        Complex zold = new Complex();
+        Complex zold2 = new Complex();
+
+        for (; iterations < max_iterations; iterations++) {
+            if((temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
+                Object[] object = {iterations, complex[0], temp, zold, zold2};
+                double[] array = {40 * Math.log(out_color_algorithm.getResult3D(object) - 100799) - 100, out_color_algorithm.getResult(object)};
+                return array;
+            }
+            zold2.assign(zold);
+            zold.assign(complex[0]);
+            function(complex);
+ 
+        }
+
+        Object[] object = {max_iterations, complex[0]};
+        double temp2 = in_color_algorithm.getResult(object);
+        double result = temp2 == max_iterations ? max_iterations : max_iterations + temp2 - 100820;
+        double[] array = {40 * Math.log(result + 1) - 100, temp2};
+        return array;
         
     }
     

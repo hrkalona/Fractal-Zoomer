@@ -33,5 +33,12 @@ public class Biomorphs extends OutColorAlgorithm {
         return temp > -bailout && temp < bailout || temp2 > -bailout && temp2 < bailout ?  (Integer)object[0] + 100800 : (Integer)object[0] + 100850;
 
     }
+    
+    @Override
+    public double getResult3D(Object[] object) {
+        
+        return  getResult(object);
+        
+    }
 
 }

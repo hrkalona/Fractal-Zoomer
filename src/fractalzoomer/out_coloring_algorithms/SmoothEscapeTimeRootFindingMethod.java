@@ -29,11 +29,18 @@ public class SmoothEscapeTimeRootFindingMethod extends OutColorAlgorithm {
     public double getResult(Object[] object) {
 
         //double temp4 = Math.log(((Complex)object[3]).distance_squared((Complex)object[4]));
-        //return (Integer)object[0] - (log_convergent_bailout - temp4) / ((Double)object[2] - temp4) + 100800;
+        //return (Integer)object[0] - (log_convergent_bailout - temp4) / ((Double)object[2] - temp4);
   
         double temp = Math.log(((Complex)object[3]).distance_squared((Complex)object[4]));
         return (Integer)object[0] + (log_convergent_bailout - temp) / (Math.log((Double)object[2]) - temp) + 100800;  
 
+    }
+    
+    @Override
+    public double getResult3D(Object[] object) {
+        
+        return  getResult(object);
+        
     }
 
 }

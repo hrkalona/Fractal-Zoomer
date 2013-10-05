@@ -22,7 +22,7 @@ public class BinaryDecompositionMagnet extends BinaryDecomposition {
     @Override
     public double getResult(Object[] object) {
 
-        return ((Boolean)object[2] ? (((Complex)object[1]).getIm() < 0 ? (Integer)object[0] + 100850 : (Integer)object[0] + 100234) : ((Complex)object[1]).getIm() < 0 ? (Integer)object[0] + 100850 : (Integer)object[0] + 100800);
+        return ((Boolean)object[2] ? (((Complex)object[1]).getIm() < 0 ? (Integer)object[0] + 100850 : (Integer)object[0] + 100906) : ((Complex)object[1]).getIm() < 0 ? (Integer)object[0] + 100850 : (Integer)object[0] + 100800);
 
     } 
     

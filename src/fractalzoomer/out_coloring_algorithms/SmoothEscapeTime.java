@@ -36,5 +36,12 @@ public class SmoothEscapeTime extends OutColorAlgorithm {
         return (Integer)object[0] + (log_bailout_squared - temp) / (Math.log(temp2) - temp) + 100800;
 
     }
+    
+    @Override
+    public double getResult3D(Object[] object) {
+        
+        return  getResult(object);
+        
+    }
 
 }

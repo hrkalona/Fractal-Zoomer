@@ -24,7 +24,7 @@ public class MandelGrass extends MandelVariation {
     @Override
     public Complex getPixel(Complex pixel) {
         
-        return pixel.plus(pixel.divide(pixel.norm()).times(factor));
+        return pixel.plus_mutable((pixel.divide(pixel.norm())).times_mutable(factor));
         
     }
     

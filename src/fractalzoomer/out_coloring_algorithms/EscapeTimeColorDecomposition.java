@@ -26,8 +26,15 @@ public class EscapeTimeColorDecomposition extends OutColorAlgorithm {
     @Override
     public double getResult(Object[] object) {
 
-        return Math.abs(((Integer)object[0]) + (Math.atan2(((Complex)object[1]).getIm(), ((Complex)object[1]).getRe()) / pi2  + 0.75) * pi59 + 100800);
+        return Math.abs(((Integer)object[0]) + (Math.atan2(((Complex)object[1]).getIm(), ((Complex)object[1]).getRe()) / pi2  + 0.75) * pi59) + 100800;
 
+    }
+    
+    @Override
+    public double getResult3D(Object[] object) {
+        
+        return  getResult(object);
+        
     }
     
 }

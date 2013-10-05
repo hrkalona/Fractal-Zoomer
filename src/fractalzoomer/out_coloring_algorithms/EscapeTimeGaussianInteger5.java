@@ -26,8 +26,15 @@ public class EscapeTimeGaussianInteger5 extends OutColorAlgorithm {
         double re = temp.getRe();
         double im = temp.getIm();
  
-        return Math.abs((Integer)object[0] +  re + im + re / im + 100800);
+        return Math.abs((Integer)object[0] +  re + im + re / im) + 100800;
         
-    }   
+    } 
+    
+    @Override
+    public double getResult3D(Object[] object) {
+        
+        return  getResult(object);
+        
+    }
     
 }

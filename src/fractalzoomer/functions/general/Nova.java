@@ -29,6 +29,7 @@ import fractalzoomer.in_coloring_algorithms.MagTimesCosReSquared;
 import fractalzoomer.in_coloring_algorithms.ReDivideIm;
 import fractalzoomer.in_coloring_algorithms.SinReSquaredMinusImSquared;
 import fractalzoomer.in_coloring_algorithms.Squares;
+import fractalzoomer.in_coloring_algorithms.Squares2;
 import fractalzoomer.in_coloring_algorithms.ZMag;
 import fractalzoomer.out_coloring_algorithms.ColorDecompositionRootFindingMethod;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeAlgorithm1;
@@ -42,6 +43,7 @@ import fractalzoomer.out_coloring_algorithms.EscapeTimePlusReDivideIm;
 import fractalzoomer.out_coloring_algorithms.SmoothBinaryDecomposition2RootFindingMethod;
 import fractalzoomer.out_coloring_algorithms.SmoothBinaryDecompositionRootFindingMethod;
 import fractalzoomer.out_coloring_algorithms.SmoothBiomorphsNova;
+import fractalzoomer.out_coloring_algorithms.SmoothColorDecompositionRootFindingMethod;
 import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeColorDecompositionRootFindingMethod;
 import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeRootFindingMethod;
 import java.util.ArrayList;
@@ -190,6 +192,9 @@ public class Nova extends Julia {
             case MainWindow.SQUARES:
                 in_color_algorithm = new Squares(smoothing);       
                 break;
+            case MainWindow.SQUARES2:
+                in_color_algorithm = new Squares2();       
+                break;
                 
         }
 
@@ -274,7 +279,12 @@ public class Nova extends Julia {
                 }
                 break;
             case MainWindow.COLOR_DECOMPOSITION:
-                out_color_algorithm = new ColorDecompositionRootFindingMethod();
+                if(!smoothing) {
+                    out_color_algorithm = new ColorDecompositionRootFindingMethod();
+                }
+                else {
+                    out_color_algorithm = new SmoothColorDecompositionRootFindingMethod(Math.log(convergent_bailout));
+                }
                 break;
             case MainWindow. ESCAPE_TIME_COLOR_DECOMPOSITION:
                 if(!smoothing) {
@@ -338,6 +348,9 @@ public class Nova extends Julia {
             case MainWindow.SQUARES:
                 in_color_algorithm = new Squares(smoothing);       
                 break;
+            case MainWindow.SQUARES2:
+                in_color_algorithm = new Squares2();       
+                break;
                 
         }
 
@@ -394,38 +407,38 @@ public class Nova extends Julia {
         
         if(z_exponent.getIm() == 0) {
             if(z_exponent.getRe() == 2) {
-                fz = complex[0].square().sub(1);
+                fz = complex[0].square().sub_mutable(1);
             }
             else if(z_exponent.getRe() == 3) {
-                fz = complex[0].cube().sub(1);
+                fz = complex[0].cube().sub_mutable(1);
             }
             else if(z_exponent.getRe() == 4) {
-                fz = complex[0].fourth().sub(1);
+                fz = complex[0].fourth().sub_mutable(1);
             }
             else if(z_exponent.getRe() == 5) {
-                fz = complex[0].fifth().sub(1);
+                fz = complex[0].fifth().sub_mutable(1);
             }
             else if(z_exponent.getRe() == 6) {
-                fz = complex[0].sixth().sub(1);
+                fz = complex[0].sixth().sub_mutable(1);
             }
             else if(z_exponent.getRe() == 7) {
-                fz = complex[0].seventh().sub(1); 
+                fz = complex[0].seventh().sub_mutable(1); 
             }
             else if(z_exponent.getRe() == 8) {
-                fz = complex[0].eighth().sub(1);
+                fz = complex[0].eighth().sub_mutable(1);
             }
             else if(z_exponent.getRe() == 9) {
-                fz = complex[0].ninth().sub(1); 
+                fz = complex[0].ninth().sub_mutable(1); 
             }
             else if(z_exponent.getRe() == 10) {
-                fz = complex[0].tenth().sub(1);
+                fz = complex[0].tenth().sub_mutable(1);
             }
             else {
-                fz = complex[0].pow(z_exponent.getRe()).sub(1);
+                fz = complex[0].pow(z_exponent.getRe()).sub_mutable(1);
             }
         }
         else {
-            fz = complex[0].pow(z_exponent).sub(1);
+            fz = complex[0].pow(z_exponent).sub_mutable(1);
         }
         
         if(nova_method != MainWindow.NOVA_SECANT) {
@@ -434,35 +447,35 @@ public class Nova extends Julia {
                     dfz = complex[0].times(2); 
                 }
                 else if(z_exponent.getRe() == 3) {
-                    dfz = complex[0].square().times(3);
+                    dfz = complex[0].square().times_mutable(3);
                 }
                 else if(z_exponent.getRe() == 4) {
-                    dfz = complex[0].cube().times(4);
+                    dfz = complex[0].cube().times_mutable(4);
                 }
                 else if(z_exponent.getRe() == 5) {
-                    dfz = complex[0].fourth().times(5);
+                    dfz = complex[0].fourth().times_mutable(5);
                 }
                 else if(z_exponent.getRe() == 6) {
-                    dfz = complex[0].fifth().times(6);
+                    dfz = complex[0].fifth().times_mutable(6);
                 }
                 else if(z_exponent.getRe() == 7) {
-                    dfz = complex[0].sixth().times(7); 
+                    dfz = complex[0].sixth().times_mutable(7); 
                 }
                 else if(z_exponent.getRe() == 8) {
-                    dfz = complex[0].seventh().times(8);
+                    dfz = complex[0].seventh().times_mutable(8);
                 }
                 else if(z_exponent.getRe() == 9) {
-                    dfz = complex[0].eighth().times(9); 
+                    dfz = complex[0].eighth().times_mutable(9); 
                 }
                 else if(z_exponent.getRe() == 10) {
-                    dfz = complex[0].ninth().times(10);
+                    dfz = complex[0].ninth().times_mutable(10);
                 }
                 else {
-                    dfz = complex[0].pow(z_exponent.getRe() - 1).times(z_exponent.getRe());
+                    dfz = complex[0].pow(z_exponent.getRe() - 1).times_mutable(z_exponent.getRe());
                 }
             }
             else {
-                dfz = complex[0].pow(z_exponent.sub(1)).times(z_exponent);
+                dfz = complex[0].pow(z_exponent.sub(1)).times_mutable(z_exponent);
             }
         }
         
@@ -475,32 +488,32 @@ public class Nova extends Julia {
                     ddfz = complex[0].times(6);
                 }
                 else if(z_exponent.getRe() == 4) {
-                    ddfz = complex[0].square().times(12);
+                    ddfz = complex[0].square().times_mutable(12);
                 }
                 else if(z_exponent.getRe() == 5) {
-                    ddfz = complex[0].cube().times(20);
+                    ddfz = complex[0].cube().times_mutable(20);
                 }
                 else if(z_exponent.getRe() == 6) {
-                    ddfz = complex[0].fourth().times(30);
+                    ddfz = complex[0].fourth().times_mutable(30);
                 }
                 else if(z_exponent.getRe() == 7) { 
-                    ddfz = complex[0].fifth().times(42);
+                    ddfz = complex[0].fifth().times_mutable(42);
                 }
                 else if(z_exponent.getRe() == 8) {
-                    ddfz = complex[0].sixth().times(56);
+                    ddfz = complex[0].sixth().times_mutable(56);
                 }
                 else if(z_exponent.getRe() == 9) {
-                    ddfz = complex[0].seventh().times(72);
+                    ddfz = complex[0].seventh().times_mutable(72);
                 }
                 else if(z_exponent.getRe() == 10) {
-                    ddfz = complex[0].eighth().times(90);
+                    ddfz = complex[0].eighth().times_mutable(90);
                 }
                 else {
-                    ddfz = complex[0].pow(z_exponent.getRe() - 2).times(z_exponent.getRe() * (z_exponent.getRe() - 1));
+                    ddfz = complex[0].pow(z_exponent.getRe() - 2).times_mutable(z_exponent.getRe() * (z_exponent.getRe() - 1));
                 }
             }
             else {
-                ddfz = complex[0].pow(z_exponent.sub(2)).times(z_exponent.times(z_exponent.sub(1)));
+                ddfz = complex[0].pow(z_exponent.sub(2)).times_mutable(z_exponent.times(z_exponent.sub(1)));
             }
         }
         
@@ -511,38 +524,38 @@ public class Nova extends Julia {
              
              if(z_exponent.getIm() == 0) {
                 if(z_exponent.getRe() == 2) {
-                    ffz = temp.square().sub(1);
+                    ffz = temp.square_mutable().sub_mutable(1);
                 }
                 else if(z_exponent.getRe() == 3) {
-                    ffz = temp.cube().sub(1);
+                    ffz = temp.cube_mutable().sub_mutable(1);
                 }
                 else if(z_exponent.getRe() == 4) {
-                    ffz = temp.fourth().sub(1);
+                    ffz = temp.fourth_mutable().sub_mutable(1);
                 }
                 else if(z_exponent.getRe() == 5) {
-                    ffz = temp.fifth().sub(1);
+                    ffz = temp.fifth_mutable().sub_mutable(1);
                 }
                 else if(z_exponent.getRe() == 6) {
-                    ffz = temp.sixth().sub(1);
+                    ffz = temp.sixth_mutable().sub_mutable(1);
                 }
                 else if(z_exponent.getRe() == 7) {
-                    ffz = temp.seventh().sub(1); 
+                    ffz = temp.seventh_mutable().sub_mutable(1); 
                 }
                 else if(z_exponent.getRe() == 8) {
-                    ffz = temp.eighth().sub(1);
+                    ffz = temp.eighth_mutable().sub_mutable(1);
                 }
                 else if(z_exponent.getRe() == 9) {
-                    ffz = temp.ninth().sub(1); 
+                    ffz = temp.ninth_mutable().sub_mutable(1); 
                 }
                 else if(z_exponent.getRe() == 10) {
-                    ffz = temp.tenth().sub(1);
+                    ffz = temp.tenth_mutable().sub_mutable(1);
                 }
                 else {
-                    ffz = temp.pow(z_exponent.getRe()).sub(1);
+                    ffz = temp.pow_mutable(z_exponent.getRe()).sub_mutable(1);
                 }
             }
             else {
-                ffz = temp.pow(z_exponent).sub(1);
+                ffz = temp.pow(z_exponent).sub_mutable(1);
             }
         }
         
@@ -550,25 +563,25 @@ public class Nova extends Julia {
         switch (nova_method) {
             
             case MainWindow.NOVA_NEWTON:
-                complex[0] = complex[0].sub((fz.divide(dfz)).times(relaxation)).plus(complex[1]); //newton
+                complex[0].sub_mutable(((fz).divide_mutable(dfz)).times_mutable(relaxation)).plus_mutable(complex[1]); //newton
                 break;
             case MainWindow.NOVA_HALLEY:
-                complex[0] = complex[0].sub(((fz.times(dfz).times(2)).divide((dfz.square().times(2)).sub(fz.times(ddfz)))).times(relaxation)).plus(complex[1]); //halley
+                complex[0].sub_mutable(((fz.times(dfz).times_mutable(2)).divide_mutable((dfz.square_mutable().times_mutable(2)).sub_mutable(fz.times_mutable(ddfz)))).times_mutable(relaxation)).plus_mutable(complex[1]); //halley
                 break;
             case MainWindow.NOVA_SCHRODER:
-                complex[0] = complex[0].sub(((fz.times(dfz)).divide((dfz.square()).sub(fz.times(ddfz)))).times(relaxation)).plus(complex[1]); //schroder
+                complex[0].sub_mutable(((fz.times(dfz)).divide_mutable((dfz.square_mutable()).sub_mutable(fz.times_mutable(ddfz)))).times_mutable(relaxation)).plus_mutable(complex[1]);//schroeder
                 break;
             case MainWindow.NOVA_HOUSEHOLDER:
-                complex[0] = complex[0].sub((fz.times(dfz.square().times(2).plus(fz.times(ddfz)))).divide(dfz.cube().times(2)).times(relaxation)).plus(complex[1]); //householder
+                complex[0].sub_mutable(((fz.times_mutable(dfz.square().times_mutable(2).plus_mutable(fz.times(ddfz)))).divide_mutable(dfz.cube_mutable().times_mutable(2))).times_mutable(relaxation)).plus_mutable(complex[1]);//householder
                 break;
             case MainWindow.NOVA_SECANT:
-                Complex temp = complex[0];
-                complex[0] = complex[0].sub((fz.times((complex[0].sub(complex[2])).divide(fz.sub(complex[3])))).times(relaxation)).plus(complex[1]); //secant
-                complex[2] = temp;
-                complex[3] = fz;
+                Complex temp = new Complex(complex[0]);
+                complex[0].sub_mutable((fz.times((complex[0].sub(complex[2])).divide_mutable(fz.sub(complex[3])))).times_mutable(relaxation)).plus_mutable(complex[1]); //secant
+                complex[2].assign(temp);
+                complex[3].assign(fz);
                 break;
             case MainWindow.NOVA_STEFFENSEN:
-                complex[0] = complex[0].sub(((fz.square()).divide(ffz.sub(fz))).times(relaxation)).plus(complex[1]); //steffensen
+                complex[0].sub_mutable(((fz.square()).divide_mutable(ffz.sub_mutable(fz))).times_mutable(relaxation)).plus_mutable(complex[1]); //steffensen
                 break;
                 
         }
@@ -581,11 +594,11 @@ public class Nova extends Julia {
       int iterations = 0;
       double temp = 0;
 
-        Complex tempz = pertur_val.getPixel(init_val.getPixel(pixel));
+        Complex tempz = new Complex(pertur_val.getPixel(init_val.getPixel(pixel)));
       
         Complex[] complex = new Complex[4];
         complex[0] = tempz;
-        complex[1] = pixel;//c
+        complex[1] = new Complex(pixel);//c
         complex[2] = new Complex();
         complex[3] = new Complex(-1, 0);
 
@@ -597,8 +610,8 @@ public class Nova extends Julia {
                 Object[] object = {iterations, complex[0], temp, zold, zold2};
                 return out_color_algorithm.getResult(object);
             }
-            zold2 = zold;
-            zold = complex[0];
+            zold2.assign(zold);
+            zold.assign(complex[0]);
             function(complex);
  
         }
@@ -616,20 +629,20 @@ public class Nova extends Julia {
 
         Complex[] complex = new Complex[4];
         complex[0] = pixel;
-        complex[1] = seed;//c
+        complex[1] = new Complex(seed);//c
         complex[2] = new Complex();
         complex[3] = new Complex(-1, 0);
 
-        Complex zold = null;
-        Complex zold2 = null;
+        Complex zold = new Complex();
+        Complex zold2 = new Complex();
 
         for (; iterations < max_iterations; iterations++) {
-            if((iterations > 1 && ((temp = complex[0].distance_squared(zold)) <= convergent_bailout))) {
+            if((temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
                 Object[] object = {iterations, complex[0], temp, zold, zold2};
                 return out_color_algorithm.getResult(object);
             }
-            zold2 = zold;
-            zold = complex[0];
+            zold2.assign(zold);
+            zold.assign(complex[0]);
             function(complex);
  
         }
@@ -639,13 +652,86 @@ public class Nova extends Julia {
         
     }
     
+     @Override
+    public double[] calculateFractal3DWithoutPeriodicity(Complex pixel) {
+      int iterations = 0;
+      double temp = 0;
+
+        Complex tempz = new Complex(pertur_val.getPixel(init_val.getPixel(pixel)));
+      
+        Complex[] complex = new Complex[4];
+        complex[0] = tempz;
+        complex[1] = new Complex(pixel);//c
+        complex[2] = new Complex();
+        complex[3] = new Complex(-1, 0);
+
+        Complex zold = new Complex();
+        Complex zold2 = new Complex();
+
+        double temp2;
+        
+        for (; iterations < max_iterations; iterations++) {
+            if((temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
+                Object[] object = {iterations, complex[0], temp, zold, zold2};
+                temp2 = out_color_algorithm.getResult(object);
+                double[] array = {40 * Math.log(temp2 - 100799) - 100, temp2};
+                return array;
+            }
+            zold2.assign(zold);
+            zold.assign(complex[0]);
+            function(complex);
+ 
+        }
+
+        Object[] object = {max_iterations, complex[0]};
+        temp2 = in_color_algorithm.getResult(object);
+        double result = temp2 == max_iterations ? max_iterations : max_iterations + temp2 - 100820;
+        double[] array = {40 * Math.log(result + 1) - 100, temp2};
+        return array;
+        
+    } 
+     
+    @Override
+    public double[] calculateJulia3DWithoutPeriodicity(Complex pixel) {
+      int iterations = 0;
+      double temp = 0;
+
+        Complex[] complex = new Complex[4];
+        complex[0] = pixel;
+        complex[1] = new Complex(seed);//c
+        complex[2] = new Complex();
+        complex[3] = new Complex(-1, 0);
+
+        Complex zold = new Complex();
+        Complex zold2 = new Complex();
+
+        for (; iterations < max_iterations; iterations++) {
+            if((temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
+                Object[] object = {iterations, complex[0], temp, zold, zold2};
+                double[] array = {40 * Math.log(out_color_algorithm.getResult3D(object) - 100799) - 100, out_color_algorithm.getResult(object)};
+                return array;
+            }
+            zold2.assign(zold);
+            zold.assign(complex[0]);
+            function(complex);
+ 
+        }
+
+        Object[] object = {max_iterations, complex[0]};
+        double temp2 = in_color_algorithm.getResult(object);
+        double result = temp2 == max_iterations ? max_iterations : max_iterations + temp2 - 100820;
+        double[] array = {40 * Math.log(result + 1) - 100, temp2};
+        return array;
+        
+    }
+    
     @Override
     public void calculateFractalOrbit() {
       int iterations = 0;
       
         Complex[] complex = new Complex[4];
-        complex[0] = pertur_val.getPixel(init_val.getPixel(pixel_orbit));
-        complex[1] = pixel_orbit;//c
+        complex[0] = new Complex(pertur_val.getPixel(init_val.getPixel(pixel_orbit)));
+        complex[1] = new Complex(pixel_orbit);//c
         complex[2] = new Complex();
         complex[3] = new Complex(-1, 0);
 

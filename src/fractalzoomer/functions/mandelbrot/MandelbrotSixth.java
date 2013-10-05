@@ -30,6 +30,7 @@ import fractalzoomer.functions.Julia;
 import fractalzoomer.in_coloring_algorithms.ReDivideIm;
 import fractalzoomer.in_coloring_algorithms.SinReSquaredMinusImSquared;
 import fractalzoomer.in_coloring_algorithms.Squares;
+import fractalzoomer.in_coloring_algorithms.Squares2;
 import fractalzoomer.in_coloring_algorithms.ZMag;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeAlgorithm1;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeAlgorithm2;
@@ -195,6 +196,9 @@ public class MandelbrotSixth extends Julia {
             case MainWindow.SQUARES:
                 in_color_algorithm = new Squares(smoothing);       
                 break;
+            case MainWindow.SQUARES2:
+                in_color_algorithm = new Squares2();       
+                break;
                 
         }
 
@@ -324,6 +328,9 @@ public class MandelbrotSixth extends Julia {
             case MainWindow.SQUARES:
                 in_color_algorithm = new Squares(smoothing);       
                 break;
+            case MainWindow.SQUARES2:
+                in_color_algorithm = new Squares2();       
+                break;
                 
         }
 
@@ -387,10 +394,10 @@ public class MandelbrotSixth extends Julia {
     @Override
     protected void function(Complex[] complex) {
 
-        Complex temp = type.getPixel(complex[0]);
-        Complex temp2 = temp.sixth().plus(complex[1]);
-        complex[0] = type2.getPixel(temp2);
-
+        type.getPixel(complex[0]);
+        complex[0].sixth_mutable().plus_mutable(complex[1]);
+        type2.getPixel(complex[0]);
+         
     }
 
 }

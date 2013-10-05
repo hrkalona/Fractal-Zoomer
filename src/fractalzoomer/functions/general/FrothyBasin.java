@@ -18,6 +18,7 @@ import fractalzoomer.in_coloring_algorithms.MaximumIterations;
 import fractalzoomer.in_coloring_algorithms.ReDivideIm;
 import fractalzoomer.in_coloring_algorithms.SinReSquaredMinusImSquared;
 import fractalzoomer.in_coloring_algorithms.Squares;
+import fractalzoomer.in_coloring_algorithms.Squares2;
 import fractalzoomer.in_coloring_algorithms.ZMag;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.out_coloring_algorithms.BinaryDecomposition;
@@ -174,6 +175,9 @@ public class FrothyBasin extends Julia {
             case MainWindow.SQUARES:
                 in_color_algorithm = new Squares(smoothing);       
                 break;
+            case MainWindow.SQUARES2:
+                in_color_algorithm = new Squares2();       
+                break;
                 
         }
         
@@ -290,6 +294,9 @@ public class FrothyBasin extends Julia {
             case MainWindow.SQUARES:
                 in_color_algorithm = new Squares(smoothing);       
                 break;
+            case MainWindow.SQUARES2:
+                in_color_algorithm = new Squares2();       
+                break;
                 
         }
 
@@ -326,7 +333,7 @@ public class FrothyBasin extends Julia {
     @Override
     protected void function(Complex[] complex) {
     
-        complex[0] = (complex[0].square()).sub(new Complex(1, 1.028713768218725).times(complex[0].conjugate())).plus(complex[1]);
+        complex[0] = (complex[0].square()).sub_mutable(new Complex(1, 1.028713768218725).times_mutable(complex[0].conjugate())).plus_mutable(complex[1]);
 
     }
     

@@ -29,6 +29,7 @@ import fractalzoomer.functions.Julia;
 import fractalzoomer.in_coloring_algorithms.ReDivideIm;
 import fractalzoomer.in_coloring_algorithms.SinReSquaredMinusImSquared;
 import fractalzoomer.in_coloring_algorithms.Squares;
+import fractalzoomer.in_coloring_algorithms.Squares2;
 import fractalzoomer.in_coloring_algorithms.ZMag;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeAlgorithm1;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeAlgorithm2;
@@ -53,11 +54,14 @@ import java.util.ArrayList;
  * @author hrkalona
  */
 public class Formula23 extends Julia {
+  private Complex denom;
 
     public Formula23(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, boolean periodicity_checking, int plane_type, double[] rotation_vals, boolean perturbation, double[] perturbation_vals, boolean init_value, double[] initial_vals) {
 
         super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, periodicity_checking, plane_type, rotation_vals);
 
+        denom = new Complex(0.5, 0.5);
+        
         if(perturbation) {
             pertur_val = new Perturbation(perturbation_vals[0], perturbation_vals[1]);
         }
@@ -178,6 +182,9 @@ public class Formula23 extends Julia {
             case MainWindow.SQUARES:
                 in_color_algorithm = new Squares(smoothing);       
                 break;
+            case MainWindow.SQUARES2:
+                in_color_algorithm = new Squares2();       
+                break;
                 
         }
 
@@ -187,6 +194,8 @@ public class Formula23 extends Julia {
 
         super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, periodicity_checking, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
 
+        denom = new Complex(0.5, 0.5);
+        
         switch (out_coloring_algorithm) {
 
             case MainWindow.ESCAPE_TIME:
@@ -293,6 +302,9 @@ public class Formula23 extends Julia {
             case MainWindow.SQUARES:
                 in_color_algorithm = new Squares(smoothing);       
                 break;
+            case MainWindow.SQUARES2:
+                in_color_algorithm = new Squares2();       
+                break;
                 
         }
 
@@ -302,6 +314,8 @@ public class Formula23 extends Julia {
     public Formula23(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, boolean perturbation, double[] perturbation_vals, boolean init_value, double[] initial_vals) {
 
         super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals);
+        
+        denom = new Complex(0.5, 0.5);
         
         if(perturbation) {
             pertur_val = new Perturbation(perturbation_vals[0], perturbation_vals[1]);
@@ -323,12 +337,14 @@ public class Formula23 extends Julia {
 
         super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
 
+        denom = new Complex(0.5, 0.5);
+        
     }
 
     @Override
     protected void function(Complex[] complex) {
 
-        complex[0] = complex[0].divide(new Complex(0.5, 0.5)).abs().plus(complex[1]);
+        complex[0].divide_mutable(denom).abs_mutable().plus_mutable(complex[1]);
 
     }
 

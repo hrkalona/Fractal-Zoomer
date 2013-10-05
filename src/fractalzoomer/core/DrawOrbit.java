@@ -95,8 +95,14 @@ import fractalzoomer.functions.math.Sin;
 import fractalzoomer.functions.math.Tan;
 import fractalzoomer.functions.math.Tanh;
 import fractalzoomer.functions.general.Nova;
-import fractalzoomer.functions.math.Cos2;
-import fractalzoomer.functions.math.Sin2;
+import fractalzoomer.functions.formulas.general.Formula31;
+import fractalzoomer.functions.formulas.general.Formula30;
+import fractalzoomer.functions.formulas.general.Formula32;
+import fractalzoomer.functions.formulas.general.Formula33;
+import fractalzoomer.functions.formulas.general.Formula34;
+import fractalzoomer.functions.formulas.general.Formula35;
+import fractalzoomer.functions.formulas.general.Formula36;
+import fractalzoomer.functions.formulas.general.Formula37;
 import fractalzoomer.functions.root_finding_methods.secant.Secant3;
 import fractalzoomer.functions.root_finding_methods.secant.Secant4;
 import fractalzoomer.functions.root_finding_methods.secant.SecantCos;
@@ -359,11 +365,11 @@ public class DrawOrbit extends Thread {
             case MainWindow.COTH:
                 pixel_orbit = new Coth(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
                 break;
-            case MainWindow.SIN2:
-                pixel_orbit = new Sin2(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
+            case MainWindow.FORMULA30:
+                pixel_orbit = new Formula30(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
                 break;
-            case MainWindow.COS2:
-                pixel_orbit = new Cos2(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
+            case MainWindow.FORMULA31:
+                pixel_orbit = new Formula31(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
                 break;
             case MainWindow.FORMULA1:
                 pixel_orbit = new Formula1(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
@@ -451,6 +457,24 @@ public class DrawOrbit extends Thread {
                 break;
             case MainWindow.FORMULA29:
                 pixel_orbit = new Formula29(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
+                break;
+            case MainWindow.FORMULA32:
+                pixel_orbit = new Formula32(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
+                break;
+            case MainWindow.FORMULA33:
+                pixel_orbit = new Formula33(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
+                break;
+            case MainWindow.FORMULA34:
+                pixel_orbit = new Formula34(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
+                break;
+            case MainWindow.FORMULA35:
+                pixel_orbit = new Formula35(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
+                break;
+            case MainWindow.FORMULA36:
+                pixel_orbit = new Formula36(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
+                break;
+            case MainWindow.FORMULA37:
+                pixel_orbit = new Formula37(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
                 break;
             case MainWindow.FROTHY_BASIN:
                 pixel_orbit = new FrothyBasin(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals);
@@ -584,11 +608,11 @@ public class DrawOrbit extends Thread {
             case MainWindow.COTH:
                 pixel_orbit = new Coth(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
                 break;
-            case MainWindow.SIN2:
-                pixel_orbit = new Sin2(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+            case MainWindow.FORMULA30:
+                pixel_orbit = new Formula30(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
                 break;
-            case MainWindow.COS2:
-                pixel_orbit = new Cos2(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+            case MainWindow.FORMULA31:
+                pixel_orbit = new Formula31(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA1:
                 pixel_orbit = new Formula1(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
@@ -676,6 +700,24 @@ public class DrawOrbit extends Thread {
                 break;
             case MainWindow.FORMULA29:
                 pixel_orbit = new Formula29(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.FORMULA32:
+                pixel_orbit = new Formula32(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.FORMULA33:
+                pixel_orbit = new Formula33(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.FORMULA34:
+                pixel_orbit = new Formula34(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.FORMULA35:
+                pixel_orbit = new Formula35(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.FORMULA36:
+                pixel_orbit = new Formula36(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.FORMULA37:
+                pixel_orbit = new Formula37(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FROTHY_BASIN:
                 pixel_orbit = new FrothyBasin(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, xJuliaCenter, yJuliaCenter);

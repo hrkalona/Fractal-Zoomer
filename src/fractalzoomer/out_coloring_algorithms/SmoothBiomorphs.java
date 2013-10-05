@@ -39,4 +39,12 @@ public class SmoothBiomorphs extends OutColorAlgorithm {
         return temp4 > -bailout && temp4 < bailout || temp5 > -bailout && temp5 < bailout ?  temp3 + 100800 : temp3 + 100850;
 
     }
+    
+    @Override
+    public double getResult3D(Object[] object) {
+        
+        return  getResult(object);
+        
+    }
+    
 }

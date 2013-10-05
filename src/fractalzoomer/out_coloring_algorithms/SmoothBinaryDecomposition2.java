@@ -34,4 +34,12 @@ public class SmoothBinaryDecomposition2 extends OutColorAlgorithm {
         return ((Complex)object[1]).getRe() < 0 ? temp3 + 100850 : temp3 + 100800;
 
     }
+    
+    @Override
+    public double getResult3D(Object[] object) {
+        
+        return  getResult(object);
+        
+    }
+    
 }

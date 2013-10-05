@@ -55,6 +55,14 @@ public abstract class Julia extends Fractal {
         return periodicity_checking ? calculateJuliaWithPeriodicity(rotation.getPixel(pixel, false)) : calculateJuliaWithoutPeriodicity(rotation.getPixel(pixel, false));
 
     }
+    
+    @Override
+    public double[] calculateJulia3D(Complex pixel) {
+
+        return periodicity_checking ? calculateJulia3DWithPeriodicity(rotation.getPixel(pixel, false)) : calculateJulia3DWithoutPeriodicity(rotation.getPixel(pixel, false));
+
+    }
+
 
     public double calculateJuliaWithPeriodicity(Complex pixel) {
       int iterations = 0;
@@ -70,7 +78,7 @@ public abstract class Julia extends Fractal {
 
         Complex[] complex = new Complex[2];
         complex[0] = pixel;//z
-        complex[1] = seed;//c
+        complex[1] = new Complex(seed);//c
 
         Complex zold = new Complex();
 
@@ -79,7 +87,7 @@ public abstract class Julia extends Fractal {
                 Object[] object = {iterations, complex[0], zold};
                 return out_color_algorithm.getResult(object);
             }
-            zold = complex[0];
+            zold.assign(complex[0]);
             function(complex);
 
             if(periodicityCheck(complex[0])) {
@@ -90,12 +98,13 @@ public abstract class Julia extends Fractal {
         return max_iterations;
     }
 
+
     public double calculateJuliaWithoutPeriodicity(Complex pixel) {
       int iterations = 0;
 
         Complex[] complex = new Complex[2];
         complex[0] = pixel;//z
-        complex[1] = seed;//c
+        complex[1] = new Complex(seed);//c
 
         Complex zold = new Complex();
 
@@ -104,13 +113,86 @@ public abstract class Julia extends Fractal {
                 Object[] object = {iterations, complex[0], zold};
                 return out_color_algorithm.getResult(object);
             }
-            zold = complex[0];
+            zold.assign(complex[0]);
             function(complex);
   
         }
 
         Object[] object = {max_iterations, complex[0]};
         return in_color_algorithm.getResult(object);
+        
+    }
+    
+    public double[] calculateJulia3DWithPeriodicity(Complex pixel) {
+      int iterations = 0;
+
+        check = 3;
+        check_counter = 0;
+
+        update = 10;
+        update_counter = 0;
+
+        period = new Complex();
+
+
+        Complex[] complex = new Complex[2];
+        complex[0] = pixel;//z
+        complex[1] = new Complex(seed);//c
+
+        Complex zold = new Complex();
+
+        double temp;
+        
+        for (; iterations < max_iterations; iterations++) {
+            if(bailout_algorithm.escaped(complex[0])) {
+                Object[] object = {iterations, complex[0], zold};
+                temp = out_color_algorithm.getResult(object);
+                double[] array = {40 * Math.log(temp - 100799) - 100, temp};
+                return array;
+            }
+            zold.assign(complex[0]);
+            function(complex);
+
+            if(periodicityCheck(complex[0])) {
+                double[] array = {40 * Math.log(max_iterations + 1) - 100, max_iterations};
+                return array;
+            }
+        }
+        
+        double[] array = {40 * Math.log(max_iterations + 1) - 100, max_iterations};
+        return array;
+        
+    }
+
+
+    public double[] calculateJulia3DWithoutPeriodicity(Complex pixel) {
+      int iterations = 0;
+
+        Complex[] complex = new Complex[2];
+        complex[0] = pixel;//z
+        complex[1] = new Complex(seed);//c
+
+        Complex zold = new Complex();
+        
+        double temp;
+
+        for (; iterations < max_iterations; iterations++) {
+            if(bailout_algorithm.escaped(complex[0])) {
+                Object[] object = {iterations, complex[0], zold};
+                temp = out_color_algorithm.getResult(object);
+                double[] array = {40 * Math.log(temp - 100799) - 100, temp};
+                return array;
+            }
+            zold.assign(complex[0]);
+            function(complex);
+  
+        }
+
+        Object[] object = {max_iterations, complex[0]};
+        temp = in_color_algorithm.getResult(object);
+        double result = temp == max_iterations ? max_iterations : max_iterations + temp - 100820;
+        double[] array = {40 * Math.log(result + 1) - 100, temp};
+        return array;
         
     }
 

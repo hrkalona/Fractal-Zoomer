@@ -30,6 +30,7 @@ import fractalzoomer.functions.Julia;
 import fractalzoomer.in_coloring_algorithms.ReDivideIm;
 import fractalzoomer.in_coloring_algorithms.SinReSquaredMinusImSquared;
 import fractalzoomer.in_coloring_algorithms.Squares;
+import fractalzoomer.in_coloring_algorithms.Squares2;
 import fractalzoomer.in_coloring_algorithms.ZMag;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeAlgorithm1;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeAlgorithm2;
@@ -175,6 +176,9 @@ public class SzegediButterfly1 extends Julia {
             case MainWindow.SQUARES:
                 in_color_algorithm = new Squares(smoothing);       
                 break;
+            case MainWindow.SQUARES2:
+                in_color_algorithm = new Squares2();       
+                break;
                 
         }
 
@@ -290,6 +294,9 @@ public class SzegediButterfly1 extends Julia {
             case MainWindow.SQUARES:
                 in_color_algorithm = new Squares(smoothing);       
                 break;
+            case MainWindow.SQUARES2:
+                in_color_algorithm = new Squares2();       
+                break;
                 
         }
 
@@ -328,7 +335,7 @@ public class SzegediButterfly1 extends Julia {
         double temp = complex[0].getIm();
         double temp2 = complex[0].getRe();
 
-        complex[0] = new Complex(temp * temp - Math.sqrt(complex[0].absRe()), temp2 * temp2 - Math.sqrt(complex[0].absIm())).plus(complex[1]);
+        complex[0] = new Complex(temp * temp - Math.sqrt(complex[0].absRe()), temp2 * temp2 - Math.sqrt(complex[0].absIm())).plus_mutable(complex[1]);
 
     }
 

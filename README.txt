@@ -18,6 +18,7 @@ Bailout Tests
 Palette editor
 Julia sets
 Julia map
+3D Heightmap
 Many Color Algorithms
 Color Cycling
 Orbits

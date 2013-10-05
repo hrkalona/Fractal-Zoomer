@@ -29,5 +29,12 @@ public class BinaryDecomposition extends OutColorAlgorithm {
         return ((Complex)object[1]).getIm() < 0 ? (Integer)object[0] + 100850 : (Integer)object[0] + 100800;
 
     }
+    
+    @Override
+    public double getResult3D(Object[] object) {
+        
+        return  getResult(object);
+        
+    }
 
 }

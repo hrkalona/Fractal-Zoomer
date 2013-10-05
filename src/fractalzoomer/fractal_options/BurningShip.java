@@ -24,7 +24,7 @@ public class BurningShip extends MandelVariation {
     @Override
     public Complex getPixel(Complex pixel) {
         
-        return pixel.abs();
+        return pixel.abs_mutable();
         
     }
     

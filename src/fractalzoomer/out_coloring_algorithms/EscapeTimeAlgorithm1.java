@@ -30,4 +30,11 @@ public class EscapeTimeAlgorithm1 extends OutColorAlgorithm {
            
     }
     
+    @Override
+    public double getResult3D(Object[] object) {
+        
+        return  getResult(object);
+        
+    }
+    
 }

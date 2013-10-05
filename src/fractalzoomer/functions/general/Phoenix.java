@@ -26,6 +26,7 @@ import fractalzoomer.functions.Julia;
 import fractalzoomer.in_coloring_algorithms.ReDivideIm;
 import fractalzoomer.in_coloring_algorithms.SinReSquaredMinusImSquared;
 import fractalzoomer.in_coloring_algorithms.Squares;
+import fractalzoomer.in_coloring_algorithms.Squares2;
 import fractalzoomer.in_coloring_algorithms.ZMag;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeAlgorithm1;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeAlgorithm2;
@@ -175,6 +176,9 @@ public class Phoenix extends Julia {
             case MainWindow.SQUARES:
                 in_color_algorithm = new Squares(smoothing);       
                 break;
+            case MainWindow.SQUARES2:
+                in_color_algorithm = new Squares2();       
+                break;
                 
         }
 
@@ -290,6 +294,9 @@ public class Phoenix extends Julia {
             case MainWindow.SQUARES:
                 in_color_algorithm = new Squares(smoothing);       
                 break;
+            case MainWindow.SQUARES2:
+                in_color_algorithm = new Squares2();       
+                break;
                 
         }
 
@@ -327,7 +334,7 @@ public class Phoenix extends Julia {
 
 
         double temp = complex[1].getIm();
-        Complex tempz = complex[0].square().plus(new Complex(temp * complex[2].getRe() + complex[1].getRe(), temp * complex[2].getIm()));
+        Complex tempz = complex[0].square().plus_mutable(new Complex(temp * complex[2].getRe() + complex[1].getRe(), temp * complex[2].getIm()));
         complex[2] = complex[0];
         complex[0] = tempz;
      
@@ -345,11 +352,11 @@ public class Phoenix extends Julia {
 
         period = new Complex();
         
-        Complex temp_z = pertur_val.getPixel(init_val.getPixel(pixel));
+        Complex temp_z = new Complex(pertur_val.getPixel(init_val.getPixel(pixel)));
         
         Complex[] complex = new Complex[3];
         complex[0] = temp_z;//z
-        complex[1] = pixel;//c
+        complex[1] = new Complex(pixel);//c
         complex[2] = new Complex();//s
         
         Complex zold = new Complex();
@@ -359,7 +366,7 @@ public class Phoenix extends Julia {
                 Object[] object = {iterations, complex[0], zold};
                 return out_color_algorithm.getResult(object);
             }
-            zold = complex[0];
+            zold.assign(complex[0]);
             function(complex);
 
             if(periodicityCheck(complex[0])) {
@@ -375,11 +382,11 @@ public class Phoenix extends Julia {
     public double calculateFractalWithoutPeriodicity(Complex pixel) {
       int iterations = 0;
 
-        Complex temp_z = pertur_val.getPixel(init_val.getPixel(pixel));
+        Complex temp_z = new Complex(pertur_val.getPixel(init_val.getPixel(pixel)));
         
         Complex[] complex = new Complex[3];
         complex[0] = temp_z;//z
-        complex[1] = pixel;//c
+        complex[1] = new Complex(pixel);//c
         complex[2] = new Complex();//s
         
         Complex zold = new Complex();
@@ -389,7 +396,7 @@ public class Phoenix extends Julia {
                 Object[] object = {iterations, complex[0], zold};
                 return out_color_algorithm.getResult(object);
             }
-            zold = complex[0];
+            zold.assign(complex[0]);
             function(complex);
 
         }
@@ -413,7 +420,7 @@ public class Phoenix extends Julia {
 
         Complex[] complex = new Complex[3];
         complex[0] = pixel;//z
-        complex[1] = seed;//c
+        complex[1] = new Complex(seed);//c
         complex[2] = new Complex();//s
         
         Complex zold = new Complex();
@@ -423,7 +430,7 @@ public class Phoenix extends Julia {
                 Object[] object = {iterations, complex[0], zold};
                 return out_color_algorithm.getResult(object);
             }
-            zold = complex[0];
+            zold.assign(complex[0]);
             function(complex);
 
             if(periodicityCheck(complex[0])) {
@@ -441,7 +448,7 @@ public class Phoenix extends Julia {
 
         Complex[] complex = new Complex[3];
         complex[0] = pixel;//z
-        complex[1] = seed;//c
+        complex[1] = new Complex(seed);//c
         complex[2] = new Complex();//s
         
         Complex zold = new Complex();
@@ -451,7 +458,7 @@ public class Phoenix extends Julia {
                 Object[] object = {iterations, complex[0], zold};
                 return out_color_algorithm.getResult(object);
             }
-            zold = complex[0];
+            zold.assign(complex[0]);
             function(complex);
    
         }
@@ -460,14 +467,169 @@ public class Phoenix extends Julia {
         return in_color_algorithm.getResult(object);
         
     }
+    
+    @Override
+    public double[] calculateFractal3DWithPeriodicity(Complex pixel) {
+      int iterations = 0;
+
+        check = 3;
+        check_counter = 0;
+
+        update = 10;
+        update_counter = 0;
+
+        period = new Complex();
+        
+        Complex temp_z = new Complex(pertur_val.getPixel(init_val.getPixel(pixel)));
+        
+        Complex[] complex = new Complex[3];
+        complex[0] = temp_z;//z
+        complex[1] = new Complex(pixel);//c
+        complex[2] = new Complex();//s
+        
+        Complex zold = new Complex();
+
+        double temp;
+        
+        for (; iterations < max_iterations; iterations++) {
+            if(bailout_algorithm.escaped(complex[0])) {
+                Object[] object = {iterations, complex[0], zold};
+                temp = out_color_algorithm.getResult(object);
+                double[] array = {40 * Math.log(temp - 100799) - 100, temp};
+                return array;
+            }
+            zold.assign(complex[0]);
+            function(complex);
+
+            if(periodicityCheck(complex[0])) {
+                double[] array = {40 * Math.log(max_iterations + 1) - 100, max_iterations};
+                return array;
+            }
+
+        }
+
+        double[] array = {40 * Math.log(max_iterations + 1) - 100, max_iterations};
+        return array;
+        
+    }
+
+    @Override
+    public double[] calculateFractal3DWithoutPeriodicity(Complex pixel) {
+      int iterations = 0;
+
+        Complex temp_z = new Complex(pertur_val.getPixel(init_val.getPixel(pixel)));
+        
+        Complex[] complex = new Complex[3];
+        complex[0] = temp_z;//z
+        complex[1] = new Complex(pixel);//c
+        complex[2] = new Complex();//s
+        
+        Complex zold = new Complex();
+
+        double temp;
+        
+        for (; iterations < max_iterations; iterations++) {
+            if(bailout_algorithm.escaped(complex[0])) {
+                Object[] object = {iterations, complex[0], zold};
+                temp = out_color_algorithm.getResult(object);
+                double[] array = {40 * Math.log(temp - 100799) - 100, temp};
+                return array;
+            }
+            zold.assign(complex[0]);
+            function(complex);
+
+        }
+
+        Object[] object = {max_iterations, complex[0]};
+        temp = in_color_algorithm.getResult(object);
+        double result = temp == max_iterations ? max_iterations : max_iterations + temp - 100820;
+        double[] array = {40 * Math.log(result + 1) - 100, temp};
+        return array;
+        
+    }
+
+    @Override
+    public double[] calculateJulia3DWithPeriodicity(Complex pixel) {
+      int iterations = 0;
+
+        check = 3;
+        check_counter = 0;
+
+        update = 10;
+        update_counter = 0;
+
+        period = new Complex();
+
+        Complex[] complex = new Complex[3];
+        complex[0] = pixel;//z
+        complex[1] = new Complex(seed);//c
+        complex[2] = new Complex();//s
+        
+        Complex zold = new Complex();
+ 
+        double temp;
+        
+        for (; iterations < max_iterations; iterations++) {
+            if(bailout_algorithm.escaped(complex[0])) {
+                Object[] object = {iterations, complex[0], zold};
+                temp = out_color_algorithm.getResult(object);
+                double[] array = {40 * Math.log(temp - 100799) - 100, temp};
+                return array;
+            }
+            zold.assign(complex[0]);
+            function(complex);
+
+            if(periodicityCheck(complex[0])) {
+                double[] array = {40 * Math.log(max_iterations + 1) - 100, max_iterations};
+                return array;
+            }
+            
+        }
+
+        double[] array = {40 * Math.log(max_iterations + 1) - 100, max_iterations};
+        return array;
+    }
+
+    @Override
+    public double[] calculateJulia3DWithoutPeriodicity(Complex pixel) {
+      int iterations = 0;
+
+        Complex[] complex = new Complex[3];
+        complex[0] = pixel;//z
+        complex[1] = new Complex(seed);//c
+        complex[2] = new Complex();//s
+        
+        Complex zold = new Complex();
+
+        double temp;
+        
+        for (; iterations < max_iterations; iterations++) {
+            if(bailout_algorithm.escaped(complex[0])) {
+                Object[] object = {iterations, complex[0], zold};
+                temp = out_color_algorithm.getResult(object);
+                double[] array = {40 * Math.log(temp - 100799) - 100, temp};
+                return array;
+            }
+            zold.assign(complex[0]);
+            function(complex);
+   
+        }
+
+        Object[] object = {max_iterations, complex[0]};
+        temp = in_color_algorithm.getResult(object);
+        double result = temp == max_iterations ? max_iterations : max_iterations + temp - 100820;
+        double[] array = {40 * Math.log(result + 1) - 100, temp};
+        return array;
+        
+    }
 
     @Override
     public void calculateFractalOrbit() {
       int iterations = 0;
 
         Complex[] complex = new Complex[3];
-        complex[0] = pertur_val.getPixel(init_val.getPixel(pixel_orbit));//z
-        complex[1] = pixel_orbit;//c
+        complex[0] = new Complex(pertur_val.getPixel(init_val.getPixel(pixel_orbit)));//z
+        complex[1] = new Complex(pixel_orbit);//c
         complex[2] = new Complex();//s
 
         Complex temp = null;

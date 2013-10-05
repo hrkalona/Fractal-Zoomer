@@ -17,6 +17,7 @@ import fractalzoomer.in_coloring_algorithms.MaximumIterations;
 import fractalzoomer.in_coloring_algorithms.ReDivideIm;
 import fractalzoomer.in_coloring_algorithms.SinReSquaredMinusImSquared;
 import fractalzoomer.in_coloring_algorithms.Squares;
+import fractalzoomer.in_coloring_algorithms.Squares2;
 import fractalzoomer.in_coloring_algorithms.ZMag;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.out_coloring_algorithms.BinaryDecomposition;
@@ -172,6 +173,9 @@ public class Formula1 extends Julia {
             case MainWindow.SQUARES:
                 in_color_algorithm = new Squares(smoothing);       
                 break;
+            case MainWindow.SQUARES2:
+                in_color_algorithm = new Squares2();       
+                break;
                 
         }
 
@@ -287,6 +291,9 @@ public class Formula1 extends Julia {
             case MainWindow.SQUARES:
                 in_color_algorithm = new Squares(smoothing);       
                 break;
+            case MainWindow.SQUARES2:
+                in_color_algorithm = new Squares2();       
+                break;
                 
         }
 
@@ -322,8 +329,8 @@ public class Formula1 extends Julia {
     @Override
     protected void function(Complex[] complex) {
 
-        Complex temp = complex[0].square();
-        complex[0] = (temp.times(0.25)).plus(complex[1]).plus(((temp.plus(complex[1])).square()).reciprocal());
+        complex[0].square_mutable();
+        complex[0] = (complex[0].times(0.25)).plus_mutable(complex[1]).plus_mutable(((complex[0].plus(complex[1])).square_mutable()).reciprocal_mutable());
 
     }
 

@@ -49,14 +49,45 @@ public abstract class RootFindingMethods extends Fractal {
                 Object[] object = {iterations, complex[0], temp, zold, zold2};
                 return out_color_algorithm.getResult(object);
             }
-            zold2 = zold;
-            zold = complex[0];
+            zold2.assign(zold);
+            zold.assign(complex[0]);
             function(complex);
  
         }
 
         Object[] object = {max_iterations, complex[0]};
         return in_color_algorithm.getResult(object);
+        
+    }
+    
+    @Override
+    public double[] calculateFractal3DWithoutPeriodicity(Complex pixel) {
+      int iterations = 0;
+      double temp = 0;
+
+        Complex[] complex = new Complex[1];
+        complex[0] = pixel;//z
+
+        Complex zold = new Complex();
+        Complex zold2 = new Complex();
+
+        for (; iterations < max_iterations; iterations++) {
+            if((temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
+                Object[] object = {iterations, complex[0], temp, zold, zold2};
+                double[] array = {40 * Math.log(out_color_algorithm.getResult3D(object) - 100799) - 100, out_color_algorithm.getResult(object)};
+                return array;
+            }
+            zold2.assign(zold);
+            zold.assign(complex[0]);
+            function(complex);
+ 
+        }
+
+        Object[] object = {max_iterations, complex[0]};
+        double temp2 = in_color_algorithm.getResult(object);
+        double result = temp2 == max_iterations ? max_iterations : max_iterations + temp2 - 100820;
+        double[] array = {40 * Math.log(result + 1) - 100, temp2};
+        return array;
         
     }
     
@@ -86,6 +117,11 @@ public abstract class RootFindingMethods extends Fractal {
     @Override
     public double calculateJulia(Complex pixel) {
         return 0;
+    }
+    
+    @Override
+    public double[] calculateJulia3D(Complex pixel) {
+        return null;
     }
 
     @Override

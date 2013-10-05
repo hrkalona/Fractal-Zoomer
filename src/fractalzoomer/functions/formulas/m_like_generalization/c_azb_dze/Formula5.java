@@ -17,6 +17,7 @@ import fractalzoomer.in_coloring_algorithms.MaximumIterations;
 import fractalzoomer.in_coloring_algorithms.ReDivideIm;
 import fractalzoomer.in_coloring_algorithms.SinReSquaredMinusImSquared;
 import fractalzoomer.in_coloring_algorithms.Squares;
+import fractalzoomer.in_coloring_algorithms.Squares2;
 import fractalzoomer.in_coloring_algorithms.ZMag;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.out_coloring_algorithms.BinaryDecomposition;
@@ -172,6 +173,9 @@ public class Formula5 extends Julia {
             case MainWindow.SQUARES:
                 in_color_algorithm = new Squares(smoothing);       
                 break;
+            case MainWindow.SQUARES2:
+                in_color_algorithm = new Squares2();       
+                break;
                 
         }
 
@@ -287,6 +291,9 @@ public class Formula5 extends Julia {
             case MainWindow.SQUARES:
                 in_color_algorithm = new Squares(smoothing);       
                 break;
+            case MainWindow.SQUARES2:
+                in_color_algorithm = new Squares2();       
+                break;
                 
         }
 
@@ -322,8 +329,136 @@ public class Formula5 extends Julia {
     @Override
     protected void function(Complex[] complex) {
     
-        complex[0] = ((complex[0].fifth()).sub(complex[0].times(5))).times(complex[1]);
+        complex[0] = ((complex[0].fifth()).sub_mutable(complex[0].times(5))).times_mutable(complex[1]);
 
+    }
+    
+    @Override
+     public double calculateFractalWithPeriodicity(Complex pixel) {
+
+        int iterations = 0;
+
+        check = 3;
+        check_counter = 0;
+
+        update = 10;
+        update_counter = 0;
+
+        period = new Complex();
+
+        Complex tempz = new Complex(pertur_val.getPixel(init_val.getPixel(pixel)));
+        
+        Complex[] complex = new Complex[2];
+        complex[0] = tempz;//z
+        complex[1] = new Complex(pixel);//c
+
+        Complex zold = new Complex();
+
+        for (; iterations < max_iterations; iterations++) {
+            if(bailout_algorithm.escaped(complex[0])) {
+                Object[] object = {iterations, complex[0], zold};
+                return out_color_algorithm.getResult(object);
+            }
+            zold.assign(complex[0]);
+            function(complex);
+
+            if(periodicityCheck(complex[0])) {
+                return max_iterations;
+            }
+
+        }
+
+        return max_iterations;
+
+    }
+    
+    @Override
+    public double calculateFractalWithoutPeriodicity(Complex pixel) {
+
+        int iterations = 0;
+
+        Complex tempz = new Complex(pertur_val.getPixel(init_val.getPixel(pixel)));
+        
+        Complex[] complex = new Complex[2];
+        complex[0] = tempz;//z
+        complex[1] = new Complex(pixel);//c
+       
+        Complex zold = new Complex();
+
+        for (; iterations < max_iterations; iterations++) {
+            if(bailout_algorithm.escaped(complex[0])) {
+                Object[] object = {iterations, complex[0], zold};
+                return out_color_algorithm.getResult(object);
+            }
+            zold.assign(complex[0]);
+            function(complex);
+  
+        }
+
+        Object[] object = {max_iterations, complex[0]};
+        return in_color_algorithm.getResult(object);
+
+    }
+    
+    @Override
+    public double calculateJuliaWithPeriodicity(Complex pixel) {
+      int iterations = 0;
+
+        check = 3;
+        check_counter = 0;
+
+        update = 10;
+        update_counter = 0;
+
+        period = new Complex();
+
+
+        Complex[] complex = new Complex[2];
+        complex[0] = pixel;//z
+        complex[1] = new Complex(seed);//c
+
+        Complex zold = new Complex();
+
+        for (; iterations < max_iterations; iterations++) {
+            if(bailout_algorithm.escaped(complex[0])) {
+                Object[] object = {iterations, complex[0], zold};
+                return out_color_algorithm.getResult(object);
+            }
+            zold.assign(complex[0]);
+            function(complex);
+
+            if(periodicityCheck(complex[0])) {
+                return max_iterations;
+            }
+        }
+        
+        return max_iterations;
+    }
+
+
+    @Override
+    public double calculateJuliaWithoutPeriodicity(Complex pixel) {
+      int iterations = 0;
+
+        Complex[] complex = new Complex[2];
+        complex[0] = pixel;//z
+        complex[1] = new Complex(seed);//c
+
+        Complex zold = new Complex();
+
+        for (; iterations < max_iterations; iterations++) {
+            if(bailout_algorithm.escaped(complex[0])) {
+                Object[] object = {iterations, complex[0], zold};
+                return out_color_algorithm.getResult(object);
+            }
+            zold.assign(complex[0]);
+            function(complex);
+  
+        }
+
+        Object[] object = {max_iterations, complex[0]};
+        return in_color_algorithm.getResult(object);
+        
     }
 
 }

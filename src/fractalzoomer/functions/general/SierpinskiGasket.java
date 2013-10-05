@@ -23,6 +23,7 @@ import fractalzoomer.in_coloring_algorithms.MaximumIterations;
 import fractalzoomer.in_coloring_algorithms.ReDivideIm;
 import fractalzoomer.in_coloring_algorithms.SinReSquaredMinusImSquared;
 import fractalzoomer.in_coloring_algorithms.Squares;
+import fractalzoomer.in_coloring_algorithms.Squares2;
 import fractalzoomer.in_coloring_algorithms.ZMag;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeAlgorithm1;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeAlgorithm2;
@@ -158,6 +159,9 @@ public class SierpinskiGasket extends Fractal {
             case MainWindow.SQUARES:
                 in_color_algorithm = new Squares(smoothing);       
                 break;
+            case MainWindow.SQUARES2:
+                in_color_algorithm = new Squares2();       
+                break;
                 
         }
 
@@ -173,8 +177,17 @@ public class SierpinskiGasket extends Fractal {
     @Override
     protected void function(Complex[] complex) {
 
-        Complex temp = complex[0].times(2);
-        complex[0] = complex[0].getIm() > 0.5 ? temp.sub(new Complex(0, 1)) :complex[0].getRe() > 0.5 ? temp.sub(1) : temp;
+        double temp = complex[0].getIm();
+        double temp2 = complex[0].getRe();
+        
+        complex[0].times_mutable(2);
+        
+        if(temp > 0.5) {
+            complex[0].sub_i_mutable(1);
+        }
+        else if(temp2 > 0.5) {
+            complex[0].sub_mutable(1);
+        }
 
     }
 
@@ -193,13 +206,45 @@ public class SierpinskiGasket extends Fractal {
                 return out_color_algorithm.getResult(object);
             }
             
-            zold = complex[0];
+            zold.assign(complex[0]);
             function(complex);
  
         }
 
         Object[] object = {max_iterations, complex[0]};
         return in_color_algorithm.getResult(object);
+        
+    }
+    
+    @Override
+    public double[] calculateFractal3DWithoutPeriodicity(Complex pixel) {
+      int iterations = 0;
+
+        Complex[] complex = new Complex[1];
+        complex[0] = pixel;//z
+        
+        Complex zold = new Complex();
+            
+        double temp;
+        
+        for (; iterations < max_iterations; iterations++) {
+            if(bailout_algorithm.escaped(complex[0])) {
+                Object[] object = {iterations, complex[0], zold};
+                temp = out_color_algorithm.getResult(object);
+                double[] array = {40 * Math.log(temp - 100799) - 100, temp};
+                return array;
+            }
+            
+            zold.assign(complex[0]);
+            function(complex);
+ 
+        }
+
+        Object[] object = {max_iterations, complex[0]};
+        temp = in_color_algorithm.getResult(object);
+        double result = temp == max_iterations ? max_iterations : max_iterations + temp - 100820;
+        double[] array = {40 * Math.log(result + 1) - 100, temp};
+        return array;
         
     }
     
@@ -228,6 +273,11 @@ public class SierpinskiGasket extends Fractal {
     @Override
     public double calculateJulia(Complex pixel) {
         return 0;
+    }
+    
+    @Override
+    public double[] calculateJulia3D(Complex pixel) {
+        return null;
     }
 
     @Override
