@@ -41,9 +41,9 @@ import java.util.ArrayList;
  */
 public class Secant3 extends RootFindingMethods {
 
-    public Secant3(double xCenter, double yCenter, double size, int max_iterations, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, int plane_type, double[] rotation_vals) {
+    public Secant3(double xCenter, double yCenter, double size, int max_iterations, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center) {
 
-        super(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, plane_type, rotation_vals);
+        super(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, plane_type, rotation_vals, rotation_center);
                  
         switch (out_coloring_algorithm) {
 
@@ -131,9 +131,9 @@ public class Secant3 extends RootFindingMethods {
     }
 
     //orbit
-    public Secant3(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals) {
+    public Secant3(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center) {
 
-        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals);
+        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center);
  
     }
    

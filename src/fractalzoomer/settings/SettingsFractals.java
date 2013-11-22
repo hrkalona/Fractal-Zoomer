@@ -40,12 +40,13 @@ public class SettingsFractals implements Serializable {
   private int plane_type;
   private double[] coefficients;
   private int rotation;
+  private double[] rotation_center;
   private boolean perturbation;
   private double[] perturbation_vals;
   private boolean init_val;
   private double[] initial_vals;
 
-    public SettingsFractals(double xCenter, double yCenter, double size, int max_iterations, int color_choice, Color fractal_color, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, int function, int bailout_test_algorithm, double bailout, int plane_type, boolean burning_ship, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] coefficients, int[][] custom_palette, int rotation, boolean perturbation, double[] perturbation_vals, boolean init_val, double[] initial_vals, boolean mandel_grass, double[] mandel_grass_vals, double[] z_exponent_nova, double[] relaxation, int nova_method) {
+    public SettingsFractals(double xCenter, double yCenter, double size, int max_iterations, int color_choice, Color fractal_color, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, int function, int bailout_test_algorithm, double bailout, int plane_type, boolean burning_ship, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] coefficients, int[][] custom_palette, int rotation, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean init_val, double[] initial_vals, boolean mandel_grass, double[] mandel_grass_vals, double[] z_exponent_nova, double[] relaxation, int nova_method) {
 
         this.xCenter = xCenter;
         this.yCenter = yCenter;
@@ -67,6 +68,7 @@ public class SettingsFractals implements Serializable {
         this.coefficients = coefficients;
         this.custom_palette = custom_palette;
         this.rotation = rotation;
+        this.rotation_center = rotation_center;
         this.perturbation = perturbation;
         this.perturbation_vals = perturbation_vals;
         this.init_val = init_val;
@@ -190,6 +192,12 @@ public class SettingsFractals implements Serializable {
     public int getRotation() {
         
         return rotation;
+        
+    }
+    
+    public double[] getRotationCenter() {
+        
+        return rotation_center;
         
     }
     

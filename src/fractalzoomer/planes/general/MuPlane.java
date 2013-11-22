@@ -26,7 +26,7 @@ public class MuPlane extends Plane {
     public Complex getPixel(Complex pixel) {
         
         return pixel;
-
+ 
     }
     
 }

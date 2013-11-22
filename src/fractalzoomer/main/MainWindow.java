@@ -132,6 +132,7 @@ public class MainWindow extends JFrame {
   private int rotation;
   private int grid_tiles;
   private double[] rotation_vals;
+  private double[] rotation_center;
   private double[] mandel_grass_vals;
   private double fiX;
   private double fiY;
@@ -141,6 +142,8 @@ public class MainWindow extends JFrame {
   private int detail;
   private int function;
   private int nova_method;
+  private int color_interpolation;
+  private int color_space;
   private boolean first_seed;
   private double size;
   private int max_iterations;
@@ -175,6 +178,8 @@ public class MainWindow extends JFrame {
   private JLabel mode;
   private JScrollPane scroll_pane;
   private JComboBox[] combo_boxes_filters;
+  private JComboBox combo_box_color_space;
+  private JComboBox combo_box_color_interp;
   private JToolBar toolbar;
   private JToolBar statusbar;
   private JMenuBar menubar;
@@ -190,6 +195,7 @@ public class MainWindow extends JFrame {
   private JMenu planes_menu;
   private JMenu planes_general_menu;
   private JMenu planes_fold_menu;
+  private JMenu planes_newton_menu;
   private JMenu planes_math_menu;
   private JMenu planes_math_trigonometric_menu;
   private JMenu planes_math_inverse_trigonometric_menu;
@@ -514,6 +520,10 @@ public class MainWindow extends JFrame {
   public static final int ACSC_PLANE = 39;
   public static final int ASECH_PLANE = 40;
   public static final int ACSCH_PLANE = 41;
+  public static final int NEWTON3_PLANE = 42;
+  public static final int NEWTON4_PLANE = 43;
+  public static final int NEWTONGENERALIZED3_PLANE = 44;
+  public static final int NEWTONGENERALIZED8_PLANE = 45;
   public static final int BAILOUT_TEST_CIRCLE = 0;
   public static final int BAILOUT_TEST_SQUARE = 1;
   public static final int BAILOUT_TEST_RHOMBUS = 2;
@@ -589,6 +599,9 @@ public class MainWindow extends JFrame {
         
         boundary_tracing = true;
         
+        color_interpolation = 0;
+        color_space = 0;
+        
         z_exponent = 2;
         
         nova_method = NOVA_NEWTON;
@@ -598,9 +611,13 @@ public class MainWindow extends JFrame {
         
         rotation_vals = new double[2];
         rotation = 0;
-  
+        
         rotation_vals[0] = Math.cos(Math.toRadians(rotation));
         rotation_vals[1] = Math.sin(Math.toRadians(rotation));
+        
+        rotation_center = new double[2];
+        rotation_center[0] = 0;
+        rotation_center[1] = 0;
         
         perturbation_vals = new double[2];
         perturbation_vals[0] = 0;
@@ -821,6 +838,7 @@ public class MainWindow extends JFrame {
         
         planes_general_menu = new JMenu("General Planes");
         planes_fold_menu = new JMenu("Fold Planes");
+        planes_newton_menu = new JMenu("Newton Planes");
         planes_math_menu = new JMenu("Math Planes");
         planes_math_trigonometric_menu = new JMenu("Trigonometric Planes");
         planes_math_inverse_trigonometric_menu = new JMenu("Inverse Trigonometric Planes");
@@ -2607,10 +2625,12 @@ public class MainWindow extends JFrame {
         planes_menu.addSeparator();
         planes_menu.add(planes_fold_menu);
         planes_menu.addSeparator();
+        planes_menu.add(planes_newton_menu);
+        planes_menu.addSeparator();
         planes_menu.add(planes_math_menu);
 
         
-        planes = new JRadioButtonMenuItem[42];
+        planes = new JRadioButtonMenuItem[46];
         
         planes[MU_PLANE] = new JRadioButtonMenuItem("mu");
         planes[MU_PLANE].setToolTipText("The default plane.");
@@ -2774,6 +2794,56 @@ public class MainWindow extends JFrame {
                 }
         });
         planes_fold_menu.add(planes[FOLDOUT_PLANE]);
+        
+        
+        
+        planes[NEWTON3_PLANE] = new JRadioButtonMenuItem("Newton 3");
+        planes[NEWTON3_PLANE].setToolTipText("The Newton 3 plane.");
+        planes[NEWTON3_PLANE].addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+
+                    setPlane(NEWTON3_PLANE);
+
+                }
+        });
+        planes_newton_menu.add(planes[NEWTON3_PLANE]);
+        
+
+        planes[NEWTON4_PLANE] = new JRadioButtonMenuItem("Newton 4");
+        planes[NEWTON4_PLANE].setToolTipText("The Newton 4 plane.");
+        planes[NEWTON4_PLANE].addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+
+                    setPlane(NEWTON4_PLANE);
+
+                }
+        });
+        planes_newton_menu.add(planes[NEWTON4_PLANE]);
+        
+        
+        planes[NEWTONGENERALIZED3_PLANE] = new JRadioButtonMenuItem("Newton Generalized 3");
+        planes[NEWTONGENERALIZED3_PLANE].setToolTipText("The Newton Generalized 3 plane.");
+        planes[NEWTONGENERALIZED3_PLANE].addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+
+                    setPlane(NEWTONGENERALIZED3_PLANE);
+
+                }
+        });
+        planes_newton_menu.add(planes[NEWTONGENERALIZED3_PLANE]);
+        
+        
+        planes[NEWTONGENERALIZED8_PLANE] = new JRadioButtonMenuItem("Newton Generalized 8");
+        planes[NEWTONGENERALIZED8_PLANE].setToolTipText("The Newton Generalized 8 plane.");
+        planes[NEWTONGENERALIZED8_PLANE].addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+
+                    setPlane(NEWTONGENERALIZED8_PLANE);
+
+                }
+        });
+        planes_newton_menu.add(planes[NEWTONGENERALIZED8_PLANE]);
+ 
         
         
         planes[EXP_PLANE] = new JRadioButtonMenuItem("exp");
@@ -4184,7 +4254,7 @@ public class MainWindow extends JFrame {
                 if(!color_cycling) {
                     main_panel.repaint();
                 }
-                JOptionPane.showMessageDialog(scroll_pane, "<html><center><font size='5' face='arial' color='blue'><b><u>Fractal Zoomer</u></b></font><br><br><font size='4'><img src=\"" + getClass().getResource("/fractalzoomer/icons/mandel2.png") + "\"><br><br>Version: <b>1.0.4.4</b><br><br>Author: <b>Christos Kalonakis</b><br><br>Contact: <a href=\"mailto:hrkalona@gmail.com\">hrkalona@gmail.com</a><br><br></font></center></html>", "About", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(scroll_pane, "<html><center><font size='5' face='arial' color='blue'><b><u>Fractal Zoomer</u></b></font><br><br><font size='4'><img src=\"" + getClass().getResource("/fractalzoomer/icons/mandel2.png") + "\"><br><br>Version: <b>1.0.4.5</b><br><br>Author: <b>Christos Kalonakis</b><br><br>Contact: <a href=\"mailto:hrkalona@gmail.com\">hrkalona@gmail.com</a><br><br></font></center></html>", "About", JOptionPane.INFORMATION_MESSAGE);
 
             }
 
@@ -5080,16 +5150,16 @@ public class MainWindow extends JFrame {
                     double temp_ycenter_size = yCenter - size_2;
                     double temp_size_image_size = size / image_size;
 
-                    double temp2 = temp_xcenter_size + temp_size_image_size * main_panel.getMousePosition().getX();
-                    double temp = temp_ycenter_size + temp_size_image_size * main_panel.getMousePosition().getY();
+                    double temp2 = temp_xcenter_size + temp_size_image_size * x1 - rotation_center[0];
+                    double temp = temp_ycenter_size + temp_size_image_size * y1 - rotation_center[1];
                     
-                    double temp3 = temp2 * rotation_vals[0] - temp * rotation_vals[1];
+                    double temp3 = temp2 * rotation_vals[0] - temp * rotation_vals[1] + rotation_center[0];
                     
                     temp3 = temp3 == 0? 0.0 : temp3;
 
                     real.setText("" + temp3);
 
-                    temp3 = temp2 * rotation_vals[1] + temp * rotation_vals[0];
+                    temp3 = temp2 * rotation_vals[1] + temp * rotation_vals[0] + rotation_center[1];
                     
                     temp3 = temp3 == 0? 0.0 : -temp3;
                     
@@ -5173,8 +5243,11 @@ public class MainWindow extends JFrame {
 
        String temp = "";
        
-       double temp1 = xCenter * rotation_vals[0] - yCenter * rotation_vals[1];
-       double temp2 = xCenter * rotation_vals[1] + yCenter * rotation_vals[0];
+       double temp_xcenter = xCenter - rotation_center[0];
+       double temp_ycenter = yCenter - rotation_center[1];
+       
+       double temp1 = temp_xcenter * rotation_vals[0] - temp_ycenter * rotation_vals[1] + rotation_center[0];
+       double temp2 = temp_xcenter * rotation_vals[1] + temp_ycenter * rotation_vals[0] + rotation_center[1];
        
        temp = "Fractal Zoomer   #";
        
@@ -5601,24 +5674,39 @@ public class MainWindow extends JFrame {
        
        
        setTitle(temp);
-      
-       try {
-           double size_2 = size * 0.5;
-           double temp_size_image_size = size / image_size;
-           
-           real.setText("" + (xCenter - size_2 + temp_size_image_size * main_panel.getMousePosition().getX()));
-           
-           double temp3 = 0;
-           if((temp3 = yCenter - size_2 + temp_size_image_size * main_panel.getMousePosition().getY()) == 0) {
-               imaginary.setText("" + 0.0);
-           }
-           else {
-               imaginary.setText("" + (-temp3));
-           }
-       }
-       catch(NullPointerException ex) {}
        
-       main_panel.repaint();
+       if(!d3) {
+           try {
+               int x1 = (int)main_panel.getMousePosition().getX();  
+               int y1 = (int)main_panel.getMousePosition().getY();
+
+
+               double size_2 = size * 0.5;
+               double temp_xcenter_size = xCenter - size_2;
+               double temp_ycenter_size = yCenter - size_2;
+               double temp_size_image_size = size / image_size;
+
+               double temp4 = temp_xcenter_size + temp_size_image_size * x1 - rotation_center[0];
+               double temp5 = temp_ycenter_size + temp_size_image_size * y1 - rotation_center[1];
+
+               double temp6 = temp4 * rotation_vals[0] - temp5 * rotation_vals[1] + rotation_center[0];
+
+               temp6= temp6 == 0? 0.0 : temp6;
+
+               real.setText("" + temp6);
+
+               temp6 = temp4 * rotation_vals[1] + temp5 * rotation_vals[0] + rotation_center[1];
+
+               temp6 = temp6 == 0? 0.0 : -temp6;
+
+               imaginary.setText("" + temp6);
+
+
+               main_panel.repaint();
+           }
+           catch(Exception ex) {}
+       }
+       
        
    }
 
@@ -5632,37 +5720,37 @@ public class MainWindow extends JFrame {
                if(color_choice != palette.length - 1) {
                    if(julia) {
                        if(d3) {
-                           threads[i][j] = new Palette(color_choice, j * detail / n, (j + 1) * detail / n, i * detail / n, (i + 1) * detail / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, d3, detail, fiX, fiY, ptr, fractal_color, image, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, boundary_tracing, periodicity_checking, plane_type,  burning_ship, mandel_grass, mandel_grass_vals,  function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, coefficients, z_exponent_nova, relaxation, nova_method, xJuliaCenter, yJuliaCenter);
+                           threads[i][j] = new Palette(color_choice, j * detail / n, (j + 1) * detail / n, i * detail / n, (i + 1) * detail / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, d3, detail, fiX, fiY, ptr, fractal_color, image, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, boundary_tracing, periodicity_checking, plane_type,  burning_ship, mandel_grass, mandel_grass_vals,  function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, coefficients, z_exponent_nova, relaxation, nova_method, xJuliaCenter, yJuliaCenter);
                        }
                        else {
-                           threads[i][j] = new Palette(color_choice, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, d3, detail, fiX, fiY, ptr, fractal_color, image, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, boundary_tracing, periodicity_checking, plane_type,  burning_ship, mandel_grass, mandel_grass_vals,  function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, coefficients, z_exponent_nova, relaxation, nova_method, xJuliaCenter, yJuliaCenter);
+                           threads[i][j] = new Palette(color_choice, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, d3, detail, fiX, fiY, ptr, fractal_color, image, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, boundary_tracing, periodicity_checking, plane_type,  burning_ship, mandel_grass, mandel_grass_vals,  function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, coefficients, z_exponent_nova, relaxation, nova_method, xJuliaCenter, yJuliaCenter);
                        }
                    }
                    else {
                        if(d3) {
-                           threads[i][j] = new Palette(color_choice, j * detail / n, (j + 1) * detail / n, i * detail / n, (i + 1) * detail / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, d3, detail, fiX, fiY, ptr, fractal_color, image, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, boundary_tracing, periodicity_checking, plane_type,  burning_ship, mandel_grass, mandel_grass_vals,  function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals, coefficients, z_exponent_nova, relaxation, nova_method);
+                           threads[i][j] = new Palette(color_choice, j * detail / n, (j + 1) * detail / n, i * detail / n, (i + 1) * detail / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, d3, detail, fiX, fiY, ptr, fractal_color, image, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, boundary_tracing, periodicity_checking, plane_type,  burning_ship, mandel_grass, mandel_grass_vals,  function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, coefficients, z_exponent_nova, relaxation, nova_method);
                        }
                        else {
-                           threads[i][j] = new Palette(color_choice, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, d3, detail, fiX, fiY, ptr, fractal_color, image, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, boundary_tracing, periodicity_checking, plane_type,  burning_ship, mandel_grass, mandel_grass_vals,  function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals, coefficients, z_exponent_nova, relaxation, nova_method);
+                           threads[i][j] = new Palette(color_choice, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, d3, detail, fiX, fiY, ptr, fractal_color, image, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, boundary_tracing, periodicity_checking, plane_type,  burning_ship, mandel_grass, mandel_grass_vals,  function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, coefficients, z_exponent_nova, relaxation, nova_method);
                        }   
                    }
                }
                else {
                    if(julia) {
                        if(d3) {
-                           threads[i][j] = new CustomPalette(custom_palette, j * detail / n, (j + 1) * detail / n, i * detail / n, (i + 1) * detail / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, d3, detail, fiX, fiY, ptr, fractal_color, image, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, boundary_tracing, periodicity_checking, plane_type,  burning_ship, mandel_grass, mandel_grass_vals,  function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, coefficients, z_exponent_nova, relaxation, nova_method, xJuliaCenter, yJuliaCenter);
+                           threads[i][j] = new CustomPalette(custom_palette, color_interpolation, color_space, j * detail / n, (j + 1) * detail / n, i * detail / n, (i + 1) * detail / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, d3, detail, fiX, fiY, ptr, fractal_color, image, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, boundary_tracing, periodicity_checking, plane_type,  burning_ship, mandel_grass, mandel_grass_vals,  function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, coefficients, z_exponent_nova, relaxation, nova_method, xJuliaCenter, yJuliaCenter);
                        }
                        else {
-                           threads[i][j] = new CustomPalette(custom_palette, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, d3, detail, fiX, fiY, ptr, fractal_color, image, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, boundary_tracing, periodicity_checking, plane_type,  burning_ship, mandel_grass, mandel_grass_vals,  function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, coefficients, z_exponent_nova, relaxation, nova_method, xJuliaCenter, yJuliaCenter);
+                           threads[i][j] = new CustomPalette(custom_palette, color_interpolation, color_space, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, d3, detail, fiX, fiY, ptr, fractal_color, image, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, boundary_tracing, periodicity_checking, plane_type,  burning_ship, mandel_grass, mandel_grass_vals,  function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, coefficients, z_exponent_nova, relaxation, nova_method, xJuliaCenter, yJuliaCenter);
                        }  
                    }
                    else {
                        if(d3) {
-                           threads[i][j] = new CustomPalette(custom_palette, j * detail / n, (j + 1) * detail / n, i * detail / n, (i + 1) * detail / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm,  bailout, d3, detail, fiX, fiY, ptr, fractal_color, image, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, boundary_tracing, periodicity_checking, plane_type,  burning_ship, mandel_grass, mandel_grass_vals,  function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals, coefficients, z_exponent_nova, relaxation, nova_method);
+                           threads[i][j] = new CustomPalette(custom_palette, color_interpolation, color_space, j * detail / n, (j + 1) * detail / n, i * detail / n, (i + 1) * detail / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm,  bailout, d3, detail, fiX, fiY, ptr, fractal_color, image, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, boundary_tracing, periodicity_checking, plane_type,  burning_ship, mandel_grass, mandel_grass_vals,  function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, coefficients, z_exponent_nova, relaxation, nova_method);
                    
                        }
                        else {
-                           threads[i][j] = new CustomPalette(custom_palette, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm,  bailout, d3, detail, fiX, fiY, ptr, fractal_color, image, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, boundary_tracing, periodicity_checking, plane_type,  burning_ship, mandel_grass, mandel_grass_vals,  function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals, coefficients, z_exponent_nova, relaxation, nova_method);
+                           threads[i][j] = new CustomPalette(custom_palette, color_interpolation, color_space, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm,  bailout, d3, detail, fiX, fiY, ptr, fractal_color, image, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, boundary_tracing, periodicity_checking, plane_type,  burning_ship, mandel_grass, mandel_grass_vals,  function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, coefficients, z_exponent_nova, relaxation, nova_method);
                        }
                    }
                }
@@ -5705,7 +5793,7 @@ public class MainWindow extends JFrame {
                file_temp = new ObjectOutputStream(new FileOutputStream(file.toString()));
                SettingsFractals settings;
                if(julia) {
-                   settings = new SettingsJulia(xCenter, yCenter, size, max_iterations, color_choice, fractal_color, out_coloring_algorithm, in_coloring_algorithm, smoothing, function, bailout_test_algorithm, bailout, plane_type, burning_ship, z_exponent, z_exponent_complex, color_cycling_location, coefficients, custom_palette, rotation, mandel_grass, mandel_grass_vals, z_exponent_nova, relaxation, nova_method, xJuliaCenter, yJuliaCenter);
+                   settings = new SettingsJulia(xCenter, yCenter, size, max_iterations, color_choice, fractal_color, out_coloring_algorithm, in_coloring_algorithm, smoothing, function, bailout_test_algorithm, bailout, plane_type, burning_ship, z_exponent, z_exponent_complex, color_cycling_location, coefficients, custom_palette, rotation, rotation_center, mandel_grass, mandel_grass_vals, z_exponent_nova, relaxation, nova_method, xJuliaCenter, yJuliaCenter);
                }
                else {
                    int temp_bailout_test_algorithm = 0;
@@ -5714,7 +5802,7 @@ public class MainWindow extends JFrame {
                        temp_bailout_test_algorithm = bailout_test_algorithm;
                    }
                    
-                   settings = new SettingsFractals(xCenter, yCenter, size, max_iterations, color_choice, fractal_color, out_coloring_algorithm, in_coloring_algorithm, smoothing, function, temp_bailout_test_algorithm, bailout, plane_type, burning_ship, z_exponent, z_exponent_complex, color_cycling_location, coefficients, custom_palette, rotation, perturbation, perturbation_vals, init_val, initial_vals, mandel_grass, mandel_grass_vals, z_exponent_nova, relaxation, nova_method);
+                   settings = new SettingsFractals(xCenter, yCenter, size, max_iterations, color_choice, fractal_color, out_coloring_algorithm, in_coloring_algorithm, smoothing, function, temp_bailout_test_algorithm, bailout, plane_type, burning_ship, z_exponent, z_exponent_complex, color_cycling_location, coefficients, custom_palette, rotation, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, mandel_grass, mandel_grass_vals, z_exponent_nova, relaxation, nova_method);
                }
                file_temp.writeObject(settings);
                file_temp.flush();
@@ -5959,8 +6047,13 @@ public class MainWindow extends JFrame {
                burning_ship = settings.getBurningShip();
                color_cycling_location = settings.getColorCyclingLocation();
                plane_type = settings.getPlaneType();
-               custom_palette = settings.getCustomPalette();
+               
+               if(color_choice == palette.length - 1) {
+                   custom_palette = settings.getCustomPalette();
+               }
+               
                rotation = settings.getRotation();
+               rotation_center = settings.getRotationCenter();
                
                bailout_test_algorithm = settings.getBailoutTestAlgorithm();
                
@@ -10466,7 +10559,8 @@ public class MainWindow extends JFrame {
                 size = 6;
                 bailout = 2;
                 break;
-        }   
+        } 
+        
                
         reloadTitle();
 
@@ -10519,10 +10613,14 @@ public class MainWindow extends JFrame {
         
         
         JTextField field_real = new JTextField();
-        double temp3 = xCenter * rotation_vals[0] - yCenter * rotation_vals[1];
+        
+        double temp_xcenter = xCenter - rotation_center[0];
+        double temp_ycenter = yCenter - rotation_center[1];
+        
+        double temp3 = temp_xcenter * rotation_vals[0] - temp_ycenter * rotation_vals[1] + rotation_center[0];
         
         if(temp3 == 0) {
-           field_real.setText("" + 0.0); 
+            field_real.setText("" + 0.0); 
         }
         else {
             field_real.setText("" + temp3);
@@ -10532,7 +10630,7 @@ public class MainWindow extends JFrame {
             
         JTextField field_imaginary = new JTextField();      
         
-        temp3 = xCenter * rotation_vals[1] + yCenter * rotation_vals[0];
+        temp3 = temp_xcenter * rotation_vals[1] + temp_ycenter * rotation_vals[0] + rotation_center[1];
         
         if(temp3 == 0) {
             field_imaginary.setText("" + 0.0);
@@ -10562,12 +10660,12 @@ public class MainWindow extends JFrame {
             
         if(res == JOptionPane.OK_OPTION) {
             try {
-                double tempReal = Double.parseDouble(field_real.getText());
-                double tempImaginary = -Double.parseDouble(field_imaginary.getText());  //Reveresed Axis
+                double tempReal = Double.parseDouble(field_real.getText()) - rotation_center[0];
+                double tempImaginary = -Double.parseDouble(field_imaginary.getText()) - rotation_center[1];  //Reveresed Axis
                 size = Double.parseDouble(field_size.getText());
                         
-                xCenter = tempReal * rotation_vals[0] + tempImaginary * rotation_vals[1];
-                yCenter = -tempReal * rotation_vals[1] + tempImaginary * rotation_vals[0];
+                xCenter = tempReal * rotation_vals[0] + tempImaginary * rotation_vals[1] + rotation_center[0];
+                yCenter = -tempReal * rotation_vals[1] + tempImaginary * rotation_vals[0] + rotation_center[1];
             }
             catch(Exception ex) {
                 JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
@@ -10618,7 +10716,11 @@ public class MainWindow extends JFrame {
         
         if(first_seed) {
             JTextField field_real = new JTextField();
-            double temp3 = xCenter * rotation_vals[0] - yCenter * rotation_vals[1];
+            
+            double temp_xcenter = xCenter - rotation_center[0];
+            double temp_ycenter = yCenter - rotation_center[1];
+            
+            double temp3 = temp_xcenter * rotation_vals[0] - temp_ycenter * rotation_vals[1] + rotation_center[0];
 
             if(temp3 == 0) {
                field_real.setText("" + 0.0); 
@@ -10631,7 +10733,7 @@ public class MainWindow extends JFrame {
 
             JTextField field_imaginary = new JTextField();      
 
-            temp3 = xCenter * rotation_vals[1] + yCenter * rotation_vals[0];
+            temp3 = temp_xcenter * rotation_vals[1] + temp_ycenter * rotation_vals[0] + rotation_center[1];
 
             if(temp3 == 0) {
                 field_imaginary.setText("" + 0.0);
@@ -10674,7 +10776,12 @@ public class MainWindow extends JFrame {
         }
         else {
             JTextField field_real = new JTextField();
-            double temp3 = xCenter * rotation_vals[0] - yCenter * rotation_vals[1];
+            
+            double temp_xcenter = xCenter - rotation_center[0];
+            double temp_ycenter = yCenter - rotation_center[1];
+            
+            double temp3 = temp_xcenter * rotation_vals[0] - temp_ycenter * rotation_vals[1] + rotation_center[0];
+
 
             if(temp3 == 0) {
                field_real.setText("" + 0.0); 
@@ -10687,7 +10794,7 @@ public class MainWindow extends JFrame {
 
             JTextField field_imaginary = new JTextField();      
 
-            temp3 = xCenter * rotation_vals[1] + yCenter * rotation_vals[0];
+            temp3 = temp_xcenter * rotation_vals[1] + temp_ycenter * rotation_vals[0] + rotation_center[1];
 
             if(temp3 == 0) {
                 field_imaginary.setText("" + 0.0);
@@ -10732,12 +10839,12 @@ public class MainWindow extends JFrame {
 
             if(res == JOptionPane.OK_OPTION) {
                 try {
-                    double tempReal = Double.parseDouble(field_real.getText());
-                    double tempImaginary = -Double.parseDouble(field_imaginary.getText());  //Reveresed Axis
+                    double tempReal = Double.parseDouble(field_real.getText()) - rotation_center[0];
+                    double tempImaginary = -Double.parseDouble(field_imaginary.getText()) - rotation_center[1];  //Reveresed Axis
                     size = Double.parseDouble(field_size.getText());
 
-                    xCenter = tempReal * rotation_vals[0] + tempImaginary * rotation_vals[1];
-                    yCenter = -tempReal * rotation_vals[1] + tempImaginary * rotation_vals[0];
+                    xCenter = tempReal * rotation_vals[0] + tempImaginary * rotation_vals[1] + rotation_center[0];
+                    yCenter = -tempReal * rotation_vals[1] + tempImaginary * rotation_vals[0] + rotation_center[1];
                 }
                 catch(Exception ex) {
                     JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
@@ -10820,7 +10927,7 @@ public class MainWindow extends JFrame {
 
                //Fix, fractal_color should not be included in the palette, boundary tracing algorithm fails some times
                if(color_choice < palette.length - 1) {
-                   Color[] c = CustomPalette.getPalette(editor_default_palettes[color_choice]);
+                   Color[] c = CustomPalette.getPalette(editor_default_palettes[color_choice], 0, 0);
                    
                    boolean flag = true;
                    
@@ -10842,7 +10949,7 @@ public class MainWindow extends JFrame {
                    
                }
                else {
-                   Color[] c = CustomPalette.getPalette(custom_palette);
+                   Color[] c = CustomPalette.getPalette(custom_palette, color_interpolation, color_space);
                    
                    boolean flag = true;
                    
@@ -11123,7 +11230,7 @@ public class MainWindow extends JFrame {
        
        //Fix, fractal_color should not be included in the palette, boundary tracing algorithm fails some times
        if(color_choice < palette.length - 1) {
-           Color[] c = CustomPalette.getPalette(editor_default_palettes[color_choice]);
+           Color[] c = CustomPalette.getPalette(editor_default_palettes[color_choice], 0, 0);
                    
            boolean flag = true;
            
@@ -11145,7 +11252,7 @@ public class MainWindow extends JFrame {
            
        }
        else {
-           Color[] c = CustomPalette.getPalette(custom_palette);
+           Color[] c = CustomPalette.getPalette(custom_palette, color_interpolation, color_space);
            
            boolean flag = true;
            
@@ -12106,7 +12213,7 @@ public class MainWindow extends JFrame {
 
    private void setSettingsFractal(MouseEvent e) {
 
-       if(!threadsAvailable() || julia_map) {
+       if(!threadsAvailable() || julia_map || (e.getModifiers() != InputEvent.BUTTON1_MASK && e.getModifiers() != InputEvent.BUTTON2_MASK && e.getModifiers() != InputEvent.BUTTON3_MASK)) {
            return;
        }
 
@@ -12120,7 +12227,8 @@ public class MainWindow extends JFrame {
        
        xCenter = xCenter - size_2 + temp_size_image_size * main_panel.getMousePosition().getX();
        yCenter = yCenter - size_2 + temp_size_image_size * main_panel.getMousePosition().getY();
-
+       
+       
 
        switch(e.getModifiers()) {
            case InputEvent.BUTTON1_MASK: {
@@ -12162,7 +12270,7 @@ public class MainWindow extends JFrame {
 
    private void setSettingsJulia(MouseEvent e) {
 
-       if(!threadsAvailable()) {
+       if(!threadsAvailable() || (e.getModifiers() != InputEvent.BUTTON1_MASK && e.getModifiers() != InputEvent.BUTTON2_MASK && e.getModifiers() != InputEvent.BUTTON3_MASK)) {
            return;
        }
 
@@ -12178,11 +12286,11 @@ public class MainWindow extends JFrame {
                double size_2 = size * 0.5;
                double temp_size_image_size = size / image_size;
                
-               double temp = xCenter - size_2 + temp_size_image_size * main_panel.getMousePosition().getX();
-               double temp2 = yCenter - size_2 + temp_size_image_size * main_panel.getMousePosition().getY();
+               double temp = xCenter - size_2 + temp_size_image_size * main_panel.getMousePosition().getX() - rotation_center[0];
+               double temp2 = yCenter - size_2 + temp_size_image_size * main_panel.getMousePosition().getY() - rotation_center[1];
 
-               xJuliaCenter = temp * rotation_vals[0] - temp2 * rotation_vals[1];
-               yJuliaCenter = temp * rotation_vals[1] + temp2 * rotation_vals[0];
+               xJuliaCenter = temp * rotation_vals[0] - temp2 * rotation_vals[1] + rotation_center[0];
+               yJuliaCenter = temp * rotation_vals[1] + temp2 * rotation_vals[0] + rotation_center[1];
 
                first_seed = false;
                
@@ -12464,11 +12572,11 @@ public class MainWindow extends JFrame {
            }
            try {
                if(julia) {
-                   pixels_orbit = new DrawOrbit(xCenter, yCenter, size, max_iterations > 400 ? 400 : max_iterations, (int)main_panel.getMousePosition().getX(), (int)main_panel.getMousePosition().getY(), image_size, image, ptr, orbit_color, orbit_style, plane_type, burning_ship, mandel_grass, mandel_grass_vals, grid, function, z_exponent, z_exponent_complex, rotation_vals, coefficients, z_exponent_nova, relaxation, nova_method, xJuliaCenter, yJuliaCenter);
+                   pixels_orbit = new DrawOrbit(xCenter, yCenter, size, max_iterations > 400 ? 400 : max_iterations, (int)main_panel.getMousePosition().getX(), (int)main_panel.getMousePosition().getY(), image_size, image, ptr, orbit_color, orbit_style, plane_type, burning_ship, mandel_grass, mandel_grass_vals, grid, function, z_exponent, z_exponent_complex, rotation_vals, rotation_center, coefficients, z_exponent_nova, relaxation, nova_method, xJuliaCenter, yJuliaCenter);
                    pixels_orbit.start();
                }
                else {
-                   pixels_orbit = new DrawOrbit(xCenter, yCenter, size, max_iterations > 400 ? 400 : max_iterations, (int)main_panel.getMousePosition().getX(), (int)main_panel.getMousePosition().getY(), image_size, image, ptr, orbit_color, orbit_style, plane_type, burning_ship, mandel_grass, mandel_grass_vals, grid, function, z_exponent, z_exponent_complex, rotation_vals, perturbation, perturbation_vals, init_val, initial_vals, coefficients, z_exponent_nova, relaxation, nova_method);
+                   pixels_orbit = new DrawOrbit(xCenter, yCenter, size, max_iterations > 400 ? 400 : max_iterations, (int)main_panel.getMousePosition().getX(), (int)main_panel.getMousePosition().getY(), image_size, image, ptr, orbit_color, orbit_style, plane_type, burning_ship, mandel_grass, mandel_grass_vals, grid, function, z_exponent, z_exponent_complex, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, coefficients, z_exponent_nova, relaxation, nova_method);
                    pixels_orbit.start();
                }            
            }
@@ -12481,16 +12589,16 @@ public class MainWindow extends JFrame {
            double temp_ycenter_size = yCenter - size_2;
            double temp_size_image_size = size / image_size;
                     
-           double temp2 = temp_xcenter_size + temp_size_image_size * main_panel.getMousePosition().getX();
-           double temp = temp_ycenter_size + temp_size_image_size * main_panel.getMousePosition().getY();
+           double temp2 = temp_xcenter_size + temp_size_image_size * main_panel.getMousePosition().getX() - rotation_center[0];
+           double temp = temp_ycenter_size + temp_size_image_size * main_panel.getMousePosition().getY() - rotation_center[1];
    
-           double temp3 = temp2 * rotation_vals[0] - temp * rotation_vals[1];
+           double temp3 = temp2 * rotation_vals[0] - temp * rotation_vals[1] + rotation_center[0];
                     
            temp3 = temp3 == 0? 0.0 : temp3;
 
            real.setText("" + temp3);
 
-           temp3 = temp2 * rotation_vals[1] + temp * rotation_vals[0];
+           temp3 = temp2 * rotation_vals[1] + temp * rotation_vals[0] + rotation_center[1];
                     
            temp3 = temp3 == 0? 0.0 : -temp3;
                     
@@ -17171,88 +17279,151 @@ public class MainWindow extends JFrame {
    
    private void setRotation() {
 
-       if(backup_orbit != null && orbit) {
+        if(backup_orbit != null && orbit) {
            image = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
            System.arraycopy(((DataBufferInt)backup_orbit.getRaster().getDataBuffer()).getData(), 0, ((DataBufferInt)image.getRaster().getDataBuffer()).getData(), 0, image_size * image_size);
-       }
-       main_panel.repaint();
+        }
+        main_panel.repaint();
+       
+       
+        JTextField field_rotation = new JTextField();
+        field_rotation.setText("" + rotation);
+        
+        field_rotation.addAncestorListener(new RequestFocusListener());
+       
+        JTextField field_real = new JTextField();
 
-       String ans = JOptionPane.showInputDialog(scroll_pane, "You are using " + rotation + " for rotation value.\nEnter the new rotation value.", "Rotation Value", JOptionPane.QUESTION_MESSAGE);
+        field_real.setText("" + rotation_center[0] ); 
+     
+        JTextField field_imaginary = new JTextField();   
 
-       try {
-           int temp = Integer.parseInt(ans);
+        if(rotation_center[1] == 0) {
+            field_imaginary.setText("" + 0.0);  
+        }
+        else {
+            field_imaginary.setText("" + (-rotation_center[1]));
+        }
+        
+  
+        Object[] message = { 
+           " ",
+           "Set the rotation angle in degrees.",
+           "Rotation:", field_rotation,
+           " ",
+           "Set the rotation center.",
+           "Real:", field_real,
+           "Imaginary:", field_imaginary,
+           " ",
+        };
+            
+
+        int res = JOptionPane.showConfirmDialog(scroll_pane, message, "Rotation", JOptionPane.OK_CANCEL_OPTION);
+                
+        
+        int temp;
+        double tempReal, tempImaginary;
+        
+        if(res == JOptionPane.OK_OPTION) {
+            try {
+                temp = Integer.parseInt(field_rotation.getText());
+                tempReal = Double.parseDouble(field_real.getText());
+                tempImaginary = -Double.parseDouble(field_imaginary.getText());  //Reveresed Axis
+                
+            }
+            catch(Exception ex) {
+                JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
+                main_panel.repaint();
+                return;
+            }
+        }
+        else {
+            main_panel.repaint();
+            return;
+        }
+        
            
-           if(temp < -360) {
+       if(temp < -360) {
+           main_panel.repaint();
+           JOptionPane.showMessageDialog(scroll_pane, "Rotation angle needs to be greater than -361.", "Error!", JOptionPane.ERROR_MESSAGE);
+           return;
+       }
+       else {
+           if(temp > 360) {
                main_panel.repaint();
-               JOptionPane.showMessageDialog(scroll_pane, "Rotation value needs to be greater than -361.", "Error!", JOptionPane.ERROR_MESSAGE);
+               JOptionPane.showMessageDialog(scroll_pane, "Rotation angle needs to be lower than 361.", "Error!", JOptionPane.ERROR_MESSAGE);
                return;
            }
-           else {
-               if(temp > 360) {
-                   main_panel.repaint();
-                   JOptionPane.showMessageDialog(scroll_pane, "Rotation value needs to be lower than 361.", "Error!", JOptionPane.ERROR_MESSAGE);
-                   return;
-               }
-           }
-           rotation = temp;
+      }
+       
+      rotation = temp;
  
-           rotation_vals[0] = Math.cos(Math.toRadians(rotation));
-           rotation_vals[1] = Math.sin(Math.toRadians(rotation));
-
-           main_panel.repaint();
-           JOptionPane.showMessageDialog(scroll_pane, "The new rotation value is " + rotation + ".", "Info", JOptionPane.INFORMATION_MESSAGE);
-
-           setOptions(false);
-
-           progress.setValue(0);
+      rotation_vals[0] = Math.cos(Math.toRadians(rotation));
+      rotation_vals[1] = Math.sin(Math.toRadians(rotation));
            
-           reloadTitle();
+      rotation_center[0] = tempReal;
+      rotation_center[1] = tempImaginary;
+      
+      rotation_center[0] = rotation_center[0] == 0 ? 0 : rotation_center[0];
+      rotation_center[1] = rotation_center[1] == 0 ? 0 : rotation_center[1];
 
-           last_used = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
-           System.arraycopy(((DataBufferInt)image.getRaster().getDataBuffer()).getData(), 0, ((DataBufferInt)last_used.getRaster().getDataBuffer()).getData(), 0, image_size * image_size);
+      main_panel.repaint();
+      
+      String temp_str = "" + rotation_center[0];
 
-           image = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
-           
-           if(d3) {
-               Arrays.fill(((DataBufferInt)image.getRaster().getDataBuffer()).getData(), 0, image_size * image_size, Color.BLACK.getRGB());
-           }
-           
-           if(rotation != 0 && rotation != 360 && rotation != -360) {
-               grid_opt.setEnabled(false);
-               grid = false;
-               grid_opt.setSelected(false);
-           }
-
-           backup_orbit = null;
-
-           whole_image_done = false;
-
-           if(julia_map) {
-               createThreadsJuliaMap();
-           }
-           else {
-               createThreads(); 
-           }
-
-           calculation_time = System.currentTimeMillis();
-
-           if(julia_map) {
-               startThreads(julia_grid_first_dimension);
-           }
-           else {
-               startThreads(n);
-           }
-
+       if(-rotation_center[1]  > 0) {
+           temp_str += "+" + (-rotation_center[1]) + "i";        
        }
-       catch(Exception ex) {
-           if(ans == null) {
-               main_panel.repaint();
+       else {
+           if(rotation_center[1] == 0) {
+               temp_str += "+" + (0.0) + "i";
            }
            else {
-               JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-               main_panel.repaint();
+               temp_str += "" + (-rotation_center[1]) + "i";
            }
        }
+      
+      JOptionPane.showMessageDialog(scroll_pane, "The new rotation angle is " + rotation + " degrees,\nabout the point " + temp_str + ".", "Info", JOptionPane.INFORMATION_MESSAGE);
+
+      setOptions(false);
+
+      progress.setValue(0);
+           
+      reloadTitle();
+
+      last_used = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
+      System.arraycopy(((DataBufferInt)image.getRaster().getDataBuffer()).getData(), 0, ((DataBufferInt)last_used.getRaster().getDataBuffer()).getData(), 0, image_size * image_size);
+
+      image = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
+           
+      if(d3) {
+          Arrays.fill(((DataBufferInt)image.getRaster().getDataBuffer()).getData(), 0, image_size * image_size, Color.BLACK.getRGB());
+      }
+           
+      if(rotation != 0 && rotation != 360 && rotation != -360) {
+          grid_opt.setEnabled(false);
+          grid = false;
+          grid_opt.setSelected(false);
+      }
+
+      backup_orbit = null;
+
+      whole_image_done = false;
+
+      if(julia_map) {
+          createThreadsJuliaMap();
+      }
+      else {
+          createThreads(); 
+      }
+
+      calculation_time = System.currentTimeMillis();
+
+      if(julia_map) {
+          startThreads(julia_grid_first_dimension);
+      }
+      else {
+          startThreads(n);
+      }
 
    }
    
@@ -17263,15 +17434,15 @@ public class MainWindow extends JFrame {
        }
        rotation++;
        
+       rotation_vals[0] = Math.cos(Math.toRadians(rotation));
+       rotation_vals[1] = Math.sin(Math.toRadians(rotation));
+       
        if(rotation != 0 && rotation != 360 && rotation != -360) {
            grid_opt.setEnabled(false);
            grid = false;
            grid_opt.setSelected(false);
        }
-       
-       rotation_vals[0] = Math.cos(Math.toRadians(rotation));
-       rotation_vals[1] = Math.sin(Math.toRadians(rotation));
-       
+
        setOptions(false);
 
        progress.setValue(0);
@@ -18044,6 +18215,7 @@ public class MainWindow extends JFrame {
                 size = 6;           
                 break;
         }
+        
 
         reloadTitle();
 
@@ -18095,9 +18267,9 @@ public class MainWindow extends JFrame {
                return;
            }
 
-           if(temp > 7000) {
+           if(temp > 6500) {
                main_panel.repaint();
-               JOptionPane.showMessageDialog(scroll_pane, "Image size needs to be lower than than 7001.", "Error!", JOptionPane.ERROR_MESSAGE);
+               JOptionPane.showMessageDialog(scroll_pane, "Image size needs to be lower than than 6501.", "Error!", JOptionPane.ERROR_MESSAGE);
                return;
            }
 
@@ -18238,11 +18410,11 @@ public class MainWindow extends JFrame {
         double temp_size_image_size = size / image_size;
 
         try {
-            double temp1 = temp_xcenter_size + temp_size_image_size * main_panel.getMousePosition().getX();
-            double temp2 = temp_ycenter_size + temp_size_image_size * main_panel.getMousePosition().getY();
+            double temp1 = temp_xcenter_size + temp_size_image_size * main_panel.getMousePosition().getX() - rotation_center[0];
+            double temp2 = temp_ycenter_size + temp_size_image_size * main_panel.getMousePosition().getY() - rotation_center[1];
             
-            temp_xJuliaCenter = temp1 * rotation_vals[0] - temp2 * rotation_vals[1];
-            temp_yJuliaCenter = temp1 * rotation_vals[1] + temp2 * rotation_vals[0];
+            temp_xJuliaCenter = temp1 * rotation_vals[0] - temp2 * rotation_vals[1] + rotation_center[0];
+            temp_yJuliaCenter = temp1 * rotation_vals[1] + temp2 * rotation_vals[0] + rotation_center[1];
         }
         catch(Exception ex) {
             return;
@@ -18642,10 +18814,10 @@ public class MainWindow extends JFrame {
         for(int i = 0; i < n; i++) {
            for(int j = 0; j < n; j++) {
                if(color_choice != palette.length - 1) {
-                   threads[i][j] = new Palette(color_choice, j * FAST_JULIA_IMAGE_SIZE / n, (j + 1) * FAST_JULIA_IMAGE_SIZE / n, i * FAST_JULIA_IMAGE_SIZE / n, (i + 1) * FAST_JULIA_IMAGE_SIZE / n, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, bailout_test_algorithm, temp_bailout, ptr, fractal_color, fast_julia_filters, fast_julia_image, boundary_tracing, periodicity_checking, plane_type, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, burning_ship, mandel_grass, mandel_grass_vals,  function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, coefficients, z_exponent_nova, relaxation, nova_method, temp_xJuliaCenter, temp_yJuliaCenter);
+                   threads[i][j] = new Palette(color_choice, j * FAST_JULIA_IMAGE_SIZE / n, (j + 1) * FAST_JULIA_IMAGE_SIZE / n, i * FAST_JULIA_IMAGE_SIZE / n, (i + 1) * FAST_JULIA_IMAGE_SIZE / n, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, bailout_test_algorithm, temp_bailout, ptr, fractal_color, fast_julia_filters, fast_julia_image, boundary_tracing, periodicity_checking, plane_type, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, burning_ship, mandel_grass, mandel_grass_vals,  function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, coefficients, z_exponent_nova, relaxation, nova_method, temp_xJuliaCenter, temp_yJuliaCenter);
                }
                else {
-                   threads[i][j] = new CustomPalette(custom_palette, j * FAST_JULIA_IMAGE_SIZE / n, (j + 1) * FAST_JULIA_IMAGE_SIZE / n, i * FAST_JULIA_IMAGE_SIZE / n, (i + 1) * FAST_JULIA_IMAGE_SIZE / n, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, bailout_test_algorithm, temp_bailout, ptr, fractal_color, fast_julia_filters, fast_julia_image, boundary_tracing, periodicity_checking, plane_type, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, burning_ship, mandel_grass, mandel_grass_vals,  function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, coefficients, z_exponent_nova, relaxation, nova_method, temp_xJuliaCenter, temp_yJuliaCenter);
+                   threads[i][j] = new CustomPalette(custom_palette, color_interpolation, color_space, j * FAST_JULIA_IMAGE_SIZE / n, (j + 1) * FAST_JULIA_IMAGE_SIZE / n, i * FAST_JULIA_IMAGE_SIZE / n, (i + 1) * FAST_JULIA_IMAGE_SIZE / n, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, bailout_test_algorithm, temp_bailout, ptr, fractal_color, fast_julia_filters, fast_julia_image, boundary_tracing, periodicity_checking, plane_type, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, burning_ship, mandel_grass, mandel_grass_vals,  function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, coefficients, z_exponent_nova, relaxation, nova_method, temp_xJuliaCenter, temp_yJuliaCenter);
                }
            }
        }
@@ -18719,7 +18891,7 @@ public class MainWindow extends JFrame {
                threads[0][0] = new Palette(color_choice, 0, image_size, 0, image_size, max_iterations, ptr, fractal_color, smoothing, image, color_cycling_location);
            }
            else {
-               threads[0][0] = new CustomPalette(custom_palette, 0, image_size, 0, image_size, max_iterations,  ptr, fractal_color, smoothing, image, color_cycling_location);
+               threads[0][0] = new CustomPalette(custom_palette, color_interpolation, color_space, 0, image_size, 0, image_size, max_iterations,  ptr, fractal_color, smoothing, image, color_cycling_location);
            }
 
            whole_image_done = false;
@@ -18741,7 +18913,7 @@ public class MainWindow extends JFrame {
                    threads[i][j] = new Palette(color_choice, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, max_iterations, ptr, image, fractal_color, color_cycling_location, smoothing, filters, filters_options_vals);
                }
                else {
-                   threads[i][j] = new CustomPalette(custom_palette, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, max_iterations,  ptr, image, fractal_color, color_cycling_location, smoothing, filters, filters_options_vals);
+                   threads[i][j] = new CustomPalette(custom_palette, color_interpolation, color_space, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, max_iterations,  ptr, image, fractal_color, color_cycling_location, smoothing, filters, filters_options_vals);
                }
            }
        }
@@ -19447,7 +19619,7 @@ public class MainWindow extends JFrame {
        
        setEnabled(false);
        int custom_palette_window_width = 800;
-       int custom_palette_window_height = 355;
+       int custom_palette_window_height = 418;
        custom_palette_editor = new JFrame("Custom Palette Editor");
        custom_palette_editor.setIconImage(Toolkit.getDefaultToolkit().getImage(getClass().getResource("/fractalzoomer/icons/palette.png")));
        custom_palette_editor.setLayout(new FlowLayout());
@@ -19483,7 +19655,7 @@ public class MainWindow extends JFrame {
         JPanel hues = new JPanel();
         JPanel buttons = new JPanel();
 
-        editor_panel.setPreferredSize(new Dimension(780, 255));
+        editor_panel.setPreferredSize(new Dimension(780, 318));
         editor_panel.setLayout(new FlowLayout());
         palette_colors.setLayout(new FlowLayout());
         palette_colors.setPreferredSize(new Dimension(760, 60));
@@ -19558,26 +19730,33 @@ public class MainWindow extends JFrame {
                             custom_palette_editor.setEnabled(true);
                             choose_color_frame.dispose();
                             
-                            Color[] c = CustomPalette.getPalette(temp_custom_palette);
+                            Color[] c = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex());
         
-                            int div = colors.getWidth() / c.length;
-                            int mod = colors.getWidth() % c.length;
-
-
-                            Graphics2D g = colors.createGraphics();
-                            for(int i = 0, j = 0; i < c.length; i++) {
-                                g.setColor(c[i]);
-                                if(mod != 0) {
-                                    g.fillRect(j, 0, div + 1, colors.getHeight());   
-                                    j += div + 1;
-                                    mod--;
-                                }
-                                else {
-                                    g.fillRect(j, 0, div, colors.getHeight());   
-                                    j += div;
-                                }   
-                            }
                             
+                            try {
+                                int div = colors.getWidth() / c.length;
+                                int mod = colors.getWidth() % c.length;
+                                
+                                Graphics2D g = colors.createGraphics();
+                                for(int i = 0, j = 0; i < c.length; i++) {
+                                    g.setColor(c[i]);
+                                    if(mod != 0) {
+                                        g.fillRect(j, 0, div + 1, colors.getHeight());   
+                                        j += div + 1;
+                                        mod--;
+                                    }
+                                    else {
+                                        g.fillRect(j, 0, div, colors.getHeight());   
+                                        j += div;
+                                    }   
+                                }
+                            }
+                            catch(Exception ex) {
+                                Graphics2D g = colors.createGraphics();
+                                g.setColor(Color.LIGHT_GRAY);
+                                g.fillRect(0, 0, colors.getWidth(), colors.getHeight());  
+                            }
+
                             gradient.repaint();
 
                         }
@@ -19640,31 +19819,37 @@ public class MainWindow extends JFrame {
                         temp_custom_palette[temp2][2] = labels[temp2].getBackground().getGreen();
                         temp_custom_palette[temp2][3] = labels[temp2].getBackground().getBlue();
                         
-                        Color[] c = CustomPalette.getPalette(temp_custom_palette);
+                        Color[] c = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex());
        
-                        int div = colors.getWidth() / c.length;
-                        int mod = colors.getWidth() % c.length;
-
-
-                        Graphics2D g = colors.createGraphics();
-                        for(int i = 0, j = 0; i < c.length; i++) {
-                            g.setColor(c[i]);
-                            if(mod != 0) {
-                                g.fillRect(j, 0, div + 1, colors.getHeight());   
-                                j += div + 1;
-                                mod--;
+                        try {
+                            int div = colors.getWidth() / c.length;
+                            int mod = colors.getWidth() % c.length;
+                                
+                            Graphics2D g = colors.createGraphics();
+                            for(int i = 0, j = 0; i < c.length; i++) {
+                                g.setColor(c[i]);
+                                if(mod != 0) {
+                                    g.fillRect(j, 0, div + 1, colors.getHeight());   
+                                    j += div + 1;
+                                    mod--;
+                                }
+                                else {
+                                    g.fillRect(j, 0, div, colors.getHeight());   
+                                    j += div;
+                                }   
                             }
-                            else {
-                                g.fillRect(j, 0, div, colors.getHeight());   
-                                j += div;
-                            }   
+                        }
+                        catch(Exception ex) {
+                            Graphics2D g = colors.createGraphics();
+                            g.setColor(Color.LIGHT_GRAY);
+                            g.fillRect(0, 0, colors.getWidth(), colors.getHeight());  
                         }
                             
                         gradient.repaint();
                    }
                    catch(ArithmeticException ex) {
                         Graphics2D g = colors.createGraphics();
-                        g.setColor(Color.black);
+                        g.setColor(Color.LIGHT_GRAY);
                         g.fillRect(0, 0, colors.getWidth(), colors.getHeight());    
                         gradient.repaint();
                    }
@@ -19688,31 +19873,37 @@ public class MainWindow extends JFrame {
                         temp_custom_palette[temp2][2] = labels[temp2].getBackground().getGreen();
                         temp_custom_palette[temp2][3] = labels[temp2].getBackground().getBlue();
                         
-                        Color[] c = CustomPalette.getPalette(temp_custom_palette);
+                        Color[] c = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex());
        
-                        int div = colors.getWidth() / c.length;
-                        int mod = colors.getWidth() % c.length;
-
-
-                        Graphics2D g = colors.createGraphics();
-                        for(int i = 0, j = 0; i < c.length; i++) {
-                            g.setColor(c[i]);
-                            if(mod != 0) {
-                                g.fillRect(j, 0, div + 1, colors.getHeight());   
-                                j += div + 1;
-                                mod--;
+                        try {
+                            int div = colors.getWidth() / c.length;
+                            int mod = colors.getWidth() % c.length;
+                                
+                            Graphics2D g = colors.createGraphics();
+                            for(int i = 0, j = 0; i < c.length; i++) {
+                                g.setColor(c[i]);
+                                if(mod != 0) {
+                                    g.fillRect(j, 0, div + 1, colors.getHeight());   
+                                    j += div + 1;
+                                    mod--;
+                                }
+                                else {
+                                    g.fillRect(j, 0, div, colors.getHeight());   
+                                    j += div;
+                                }   
                             }
-                            else {
-                                g.fillRect(j, 0, div, colors.getHeight());   
-                                j += div;
-                            }   
+                        }
+                        catch(Exception ex) {
+                            Graphics2D g = colors.createGraphics();
+                            g.setColor(Color.LIGHT_GRAY);
+                            g.fillRect(0, 0, colors.getWidth(), colors.getHeight());  
                         }
                             
                         gradient.repaint();
                    }
                    catch(ArithmeticException ex) {
                         Graphics2D g = colors.createGraphics();
-                        g.setColor(Color.black);
+                        g.setColor(Color.LIGHT_GRAY);
                         g.fillRect(0, 0, colors.getWidth(), colors.getHeight());    
                         gradient.repaint();
                    }
@@ -19760,27 +19951,35 @@ public class MainWindow extends JFrame {
                      return;
                 }
                 
-                Color[] c = CustomPalette.getPalette(temp_custom_palette);
-                
+
+
+                Color[] c = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex());
+
                 boolean same_colors = false;
-                
+
                 for(int m = 0; m < c.length; m++) {
                     if(c[m].getRGB() == c[(m + 1) % c.length].getRGB()) {
                         same_colors = true;
                         break;
                     }
                 }
-                
+
                 if(same_colors) {
-                     JOptionPane.showMessageDialog(custom_palette_editor, "Neighbour colors cannot be the same.", "Error!", JOptionPane.ERROR_MESSAGE);
-                     return;
+                     int reply = JOptionPane.showConfirmDialog(custom_palette_editor, "The palette contains same adjacent colors.\nThis might cause errors in the created images if you are using \nthe boundary tracing algorithm along with color cycling,\nor if you wanna apply a new palette later.", "Warning!", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+                     if(reply == JOptionPane.CANCEL_OPTION) {
+                         return;
+                     }
                 }
+                
    
                 for(k = 0; k < custom_palette.length; k++) {
                     for(int j = 0; j < custom_palette[0].length; j++) {
                         custom_palette[k][j] = temp_custom_palette[k][j];
                     } 
                 }
+                
+                color_interpolation = combo_box_color_interp.getSelectedIndex();
+                color_space = combo_box_color_space.getSelectedIndex();
  
                 setEnabled(true);
                 setPalette(number);
@@ -19859,24 +20058,30 @@ public class MainWindow extends JFrame {
                     textfields[m].setText("" + temp_custom_palette[m][0]);
                 }
                 
-                Color[] c = CustomPalette.getPalette(temp_custom_palette);
+                Color[] c = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex());
         
-                int div = colors.getWidth() / c.length;
-                int mod = colors.getWidth() % c.length;
-
-
-                Graphics2D g = colors.createGraphics();
-                for(int i = 0, j = 0; i < c.length; i++) {
-                    g.setColor(c[i]);
-                    if(mod != 0) {
-                        g.fillRect(j, 0, div + 1, colors.getHeight());   
-                        j += div + 1;
-                        mod--;
+                try {
+                    int div = colors.getWidth() / c.length;
+                    int mod = colors.getWidth() % c.length;
+                                
+                    Graphics2D g = colors.createGraphics();
+                    for(int i = 0, j = 0; i < c.length; i++) {
+                        g.setColor(c[i]);
+                        if(mod != 0) {
+                            g.fillRect(j, 0, div + 1, colors.getHeight());   
+                            j += div + 1;
+                            mod--;
+                        }
+                        else {
+                            g.fillRect(j, 0, div, colors.getHeight());   
+                            j += div;
+                        }   
                     }
-                    else {
-                        g.fillRect(j, 0, div, colors.getHeight());   
-                        j += div;
-                    }   
+                }
+                catch(Exception ex) {
+                    Graphics2D g = colors.createGraphics();
+                    g.setColor(Color.LIGHT_GRAY);
+                    g.fillRect(0, 0, colors.getWidth(), colors.getHeight());  
                 }
                             
                 gradient.repaint();
@@ -19893,26 +20098,29 @@ public class MainWindow extends JFrame {
                 Random generator = new Random(System.currentTimeMillis());
                 Color[] c;
                 
-                for(int m = 0; m < temp_custom_palette.length; m++) {
-                        temp_custom_palette[m][0] = generator.nextInt(12) + 5;
-                        temp_custom_palette[m][1] = generator.nextInt(256);
-                        temp_custom_palette[m][2] = generator.nextInt(256);
-                        temp_custom_palette[m][3] = generator.nextInt(256);
-                    }
-
+                double golden_ratio_conjugate = (1 + Math.sqrt(5)) / 2.0;
+        
+                float hue = generator.nextFloat();
+                float brightness = generator.nextFloat();
+  
                 boolean same_colors;
 
                 do {
                     for(int m = 0; m < temp_custom_palette.length; m++) {
-                        temp_custom_palette[m][0] = generator.nextInt(12) + 5;
-                        temp_custom_palette[m][1] = generator.nextInt(256);
-                        temp_custom_palette[m][2] = generator.nextInt(256);
-                        temp_custom_palette[m][3] = generator.nextInt(256);
+                        hue += golden_ratio_conjugate;
+                        hue %= 1;
+                        brightness += golden_ratio_conjugate;
+                        brightness %= 1;
+                        Color temp_color = Color.getHSBColor(hue, generator.nextFloat(), brightness);
+                        temp_custom_palette[m][0] = generator.nextInt(12) + 7;
+                        temp_custom_palette[m][1] = temp_color.getRed();
+                        temp_custom_palette[m][2] = temp_color.getGreen();
+                        temp_custom_palette[m][3] = temp_color.getBlue();
                     }
 
                     same_colors = false;
 
-                    c = CustomPalette.getPalette(temp_custom_palette);
+                    c = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex());
 
                     for(int m = 0; m < c.length; m++) {
                         if(c[m].getRGB() == c[(m + 1) % c.length].getRGB()) {
@@ -19928,22 +20136,28 @@ public class MainWindow extends JFrame {
                     textfields[m].setText("" + temp_custom_palette[m][0]);
                 }
         
-                int div = colors.getWidth() / c.length;
-                int mod = colors.getWidth() % c.length;
-
-
-                Graphics2D g = colors.createGraphics();
-                for(int i = 0, j = 0; i < c.length; i++) {
-                    g.setColor(c[i]);
-                    if(mod != 0) {
-                        g.fillRect(j, 0, div + 1, colors.getHeight());   
-                        j += div + 1;
-                        mod--;
+                try {
+                    int div = colors.getWidth() / c.length;
+                    int mod = colors.getWidth() % c.length;
+                                
+                    Graphics2D g = colors.createGraphics();
+                    for(int i = 0, j = 0; i < c.length; i++) {
+                        g.setColor(c[i]);
+                        if(mod != 0) {
+                            g.fillRect(j, 0, div + 1, colors.getHeight());   
+                            j += div + 1;
+                            mod--;
+                        }
+                        else {
+                            g.fillRect(j, 0, div, colors.getHeight());   
+                            j += div;
+                        }   
                     }
-                    else {
-                        g.fillRect(j, 0, div, colors.getHeight());   
-                        j += div;
-                    }   
+                }
+                catch(Exception ex) {
+                    Graphics2D g = colors.createGraphics();
+                    g.setColor(Color.LIGHT_GRAY);
+                    g.fillRect(0, 0, colors.getWidth(), colors.getHeight());  
                 }
                             
                 gradient.repaint();
@@ -19990,24 +20204,30 @@ public class MainWindow extends JFrame {
                     textfields[m].setText("" + temp_custom_palette[m][0]);
                 }
                 
-                Color[] c = CustomPalette.getPalette(temp_custom_palette);
+                Color[] c = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex());
         
-                int div = colors.getWidth() / c.length;
-                int mod = colors.getWidth() % c.length;
-
-
-                Graphics2D g = colors.createGraphics();
-                for(int i = 0, j = 0; i < c.length; i++) {
-                    g.setColor(c[i]);
-                    if(mod != 0) {
-                        g.fillRect(j, 0, div + 1, colors.getHeight());   
-                        j += div + 1;
-                        mod--;
+                try {
+                    int div = colors.getWidth() / c.length;
+                    int mod = colors.getWidth() % c.length;
+                                
+                    Graphics2D g = colors.createGraphics();
+                    for(int i = 0, j = 0; i < c.length; i++) {
+                        g.setColor(c[i]);
+                        if(mod != 0) {
+                            g.fillRect(j, 0, div + 1, colors.getHeight());   
+                            j += div + 1;
+                            mod--;
+                        }
+                        else {
+                            g.fillRect(j, 0, div, colors.getHeight());   
+                            j += div;
+                        }   
                     }
-                    else {
-                        g.fillRect(j, 0, div, colors.getHeight());   
-                        j += div;
-                    }   
+                }
+                catch(Exception ex) {
+                    Graphics2D g = colors.createGraphics();
+                    g.setColor(Color.LIGHT_GRAY);
+                    g.fillRect(0, 0, colors.getWidth(), colors.getHeight());  
                 }
                             
                 gradient.repaint();
@@ -20034,23 +20254,30 @@ public class MainWindow extends JFrame {
                         textfields[m].setText("" + temp_custom_palette[m][0]);
                     }
 
-                    Color[] c = CustomPalette.getPalette(temp_custom_palette);
+                    Color[] c = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex());
 
-                    int div = colors.getWidth() / c.length;
-                    int mod = colors.getWidth() % c.length;
+                    try {
+                        int div = colors.getWidth() / c.length;
+                        int mod = colors.getWidth() % c.length;
 
-                    Graphics2D g = colors.createGraphics();
-                    for(int i = 0, j = 0; i < c.length; i++) {
-                        g.setColor(c[i]);
-                        if(mod != 0) {
-                            g.fillRect(j, 0, div + 1, colors.getHeight());   
-                            j += div + 1;
-                            mod--;
+                        Graphics2D g = colors.createGraphics();
+                        for(int i = 0, j = 0; i < c.length; i++) {
+                            g.setColor(c[i]);
+                            if(mod != 0) {
+                                g.fillRect(j, 0, div + 1, colors.getHeight());   
+                                j += div + 1;
+                                mod--;
+                            }
+                            else {
+                                g.fillRect(j, 0, div, colors.getHeight());   
+                                j += div;
+                            }   
                         }
-                        else {
-                            g.fillRect(j, 0, div, colors.getHeight());   
-                            j += div;
-                        }   
+                    }
+                    catch(Exception ex) {
+                        Graphics2D g = colors.createGraphics();
+                        g.setColor(Color.LIGHT_GRAY);
+                        g.fillRect(0, 0, colors.getWidth(), colors.getHeight());  
                     }
 
                     gradient.repaint();
@@ -20071,25 +20298,132 @@ public class MainWindow extends JFrame {
         
         colors = new BufferedImage(732, 36, BufferedImage.TYPE_INT_ARGB);
 
-        Color[] c = CustomPalette.getPalette(temp_custom_palette);
+        Color[] c = CustomPalette.getPalette(temp_custom_palette, color_interpolation, color_space);
         
-        int div = colors.getWidth() / c.length;
-        int mod = colors.getWidth() % c.length;
-
-        Graphics2D g = colors.createGraphics();
-        
-        for(int i = 0, j = 0; i < c.length; i++) {
-            g.setColor(c[i]);
-            if(mod != 0) {
-                g.fillRect(j, 0, div + 1, colors.getHeight());   
-                j += div + 1;
-                mod--;
+        try {
+            int div = colors.getWidth() / c.length;
+            int mod = colors.getWidth() % c.length;
+                                
+            Graphics2D g = colors.createGraphics();
+            for(int i = 0, j = 0; i < c.length; i++) {
+                g.setColor(c[i]);
+                if(mod != 0) {
+                    g.fillRect(j, 0, div + 1, colors.getHeight());   
+                    j += div + 1;
+                    mod--;
+                }
+                else {
+                    g.fillRect(j, 0, div, colors.getHeight());   
+                    j += div;
+                }   
             }
-            else {
-                g.fillRect(j, 0, div, colors.getHeight());   
-                j += div;
-            }   
-        }
+         }
+         catch(Exception ex) {
+             Graphics2D g = colors.createGraphics();
+             g.setColor(Color.LIGHT_GRAY);
+             g.fillRect(0, 0, colors.getWidth(), colors.getHeight());  
+         }
+
+        
+        JPanel color_space_panel = new JPanel();
+        color_space_panel.setPreferredSize(new Dimension(110, 60));
+        color_space_panel.setLayout(new FlowLayout());
+        
+        
+        String[] color_space_str = {"RGB", "HSB"};
+       
+        combo_box_color_space = new JComboBox(color_space_str);
+        combo_box_color_space.setSelectedIndex(color_space);
+        combo_box_color_space.setFocusable(false);
+        combo_box_color_space.setToolTipText("Sets the color space option.");
+        
+        
+        
+        combo_box_color_space.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Color[] c = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex());
+        
+                try {
+                    int div = colors.getWidth() / c.length;
+                    int mod = colors.getWidth() % c.length;
+                                
+                    Graphics2D g = colors.createGraphics();
+                    for(int i = 0, j = 0; i < c.length; i++) {
+                        g.setColor(c[i]);
+                        if(mod != 0) {
+                            g.fillRect(j, 0, div + 1, colors.getHeight());   
+                            j += div + 1;
+                            mod--;
+                        }
+                        else {
+                            g.fillRect(j, 0, div, colors.getHeight());   
+                            j += div;
+                        }   
+                    }
+                }
+                catch(Exception ex) {
+                    Graphics2D g = colors.createGraphics();
+                    g.setColor(Color.LIGHT_GRAY);
+                    g.fillRect(0, 0, colors.getWidth(), colors.getHeight());  
+                }
+                            
+                gradient.repaint();
+            }
+            
+        });
+
+        color_space_panel.add(combo_box_color_space);
+        
+        JPanel color_interp_panel = new JPanel();
+        color_interp_panel.setPreferredSize(new Dimension(150, 60));
+        color_interp_panel.setLayout(new FlowLayout());
+ 
+        String[] color_interp_str = {"Linear", "Cosine", "Acceleration", "Deceleration"};
+       
+        combo_box_color_interp = new JComboBox(color_interp_str);
+        combo_box_color_interp.setSelectedIndex(color_interpolation);
+        combo_box_color_interp.setFocusable(false);
+        combo_box_color_interp.setToolTipText("Sets the color interpolation option.");
+        
+
+        combo_box_color_interp.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Color[] c = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex());
+        
+                try {
+                    int div = colors.getWidth() / c.length;
+                    int mod = colors.getWidth() % c.length;
+                                
+                    Graphics2D g = colors.createGraphics();
+                    for(int i = 0, j = 0; i < c.length; i++) {
+                        g.setColor(c[i]);
+                        if(mod != 0) {
+                            g.fillRect(j, 0, div + 1, colors.getHeight());   
+                            j += div + 1;
+                            mod--;
+                        }
+                        else {
+                            g.fillRect(j, 0, div, colors.getHeight());   
+                            j += div;
+                        }   
+                    }
+                }
+                catch(Exception ex) {
+                    Graphics2D g = colors.createGraphics();
+                    g.setColor(Color.LIGHT_GRAY);
+                    g.fillRect(0, 0, colors.getWidth(), colors.getHeight());  
+                }
+                            
+                gradient.repaint();
+            }
+            
+        });
+
+        color_interp_panel.add(combo_box_color_interp);
         
  
         gradient = new JLabel(new ImageIcon(colors));
@@ -20099,23 +20433,24 @@ public class MainWindow extends JFrame {
         JPanel palette_panel = new JPanel();
         palette_panel.setPreferredSize(new Dimension(760, 80));
         
-        /*temp1 = new JLabel("Palette:");
-        temp1.setFont(new Font("bold", Font.BOLD, 12));
-        palette_panel.add(temp1);*/
-        
         palette_panel.add(gradient);
 
         editor_panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Custom Palette Editor",TitledBorder.CENTER,TitledBorder.CENTER));
         palette_colors.setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Colors",TitledBorder.DEFAULT_POSITION,TitledBorder.DEFAULT_POSITION));
         hues.setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Hues",TitledBorder.DEFAULT_POSITION,TitledBorder.DEFAULT_POSITION));
+        color_space_panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Color Space",TitledBorder.DEFAULT_POSITION,TitledBorder.DEFAULT_POSITION));
+        color_interp_panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Color Interpolation",TitledBorder.DEFAULT_POSITION,TitledBorder.DEFAULT_POSITION));
         palette_panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Palette",TitledBorder.DEFAULT_POSITION,TitledBorder.DEFAULT_POSITION));
-        
+       
         editor_panel.add(palette_colors);
         editor_panel.add(hues);
+        editor_panel.add(color_space_panel);
+        editor_panel.add(color_interp_panel);
         editor_panel.add(palette_panel);
         custom_palette_editor.add(editor_panel);
         custom_palette_editor.add(buttons);
         custom_palette_editor.setVisible(true);
+        
    }
    
    private void savePalette() {
@@ -20214,10 +20549,10 @@ public class MainWindow extends JFrame {
            for(int i = 0; i < n; i++) {
                for(int j = 0; j < n; j++) {
                    if(color_choice != palette.length - 1) {
-                       threads[i][j] = new Palette(color_choice, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, ptr, fractal_color, image, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type,  burning_ship, mandel_grass, mandel_grass_vals,  function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, coefficients, z_exponent_nova, relaxation, nova_method);
+                       threads[i][j] = new Palette(color_choice, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, ptr, fractal_color, image, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type,  burning_ship, mandel_grass, mandel_grass_vals,  function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, coefficients, z_exponent_nova, relaxation, nova_method);
                    }
                    else {
-                       threads[i][j] = new CustomPalette(custom_palette, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout,  ptr, fractal_color, image, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type,  burning_ship, mandel_grass, mandel_grass_vals,  function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, coefficients, z_exponent_nova, relaxation, nova_method);
+                       threads[i][j] = new CustomPalette(custom_palette, color_interpolation, color_space, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout,  ptr, fractal_color, image, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type,  burning_ship, mandel_grass, mandel_grass_vals,  function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, coefficients, z_exponent_nova, relaxation, nova_method);
                    }
                }
            }
@@ -20744,18 +21079,28 @@ public class MainWindow extends JFrame {
         Color[] c;
         
         boolean same_colors;
-                
+        
+        double golden_ratio_conjugate = (1 + Math.sqrt(5)) / 2.0;
+        
+        float hue = generator.nextFloat();
+        float brightness = generator.nextFloat();
+        
         do {
             for(int m = 0; m < custom_palette.length; m++) {
-                custom_palette[m][0] = generator.nextInt(12) + 5;
-                custom_palette[m][1] = generator.nextInt(256);
-                custom_palette[m][2] = generator.nextInt(256);
-                custom_palette[m][3] = generator.nextInt(256);
+                hue += golden_ratio_conjugate;
+                hue %= 1;
+                brightness += golden_ratio_conjugate;
+                brightness %= 1;
+                Color temp_color = Color.getHSBColor(hue, generator.nextFloat(), brightness);
+                custom_palette[m][0] = generator.nextInt(12) + 7;
+                custom_palette[m][1] = temp_color.getRed();
+                custom_palette[m][2] = temp_color.getGreen();
+                custom_palette[m][3] = temp_color.getBlue();
             }
 
             same_colors = false;
 
-            c = CustomPalette.getPalette(custom_palette);
+            c = CustomPalette.getPalette(custom_palette, color_interpolation, color_space);
 
             for(int m = 0; m < c.length; m++) {
                 if(c[m].getRGB() == c[(m + 1) % c.length].getRGB()) {
@@ -20933,7 +21278,7 @@ public class MainWindow extends JFrame {
        
        
        panels[GRAYSCALE]  = new JPanel();
-       String[] grayscale_str = {"Grayscale NTSC", "Grayscale HDTV", "Grayscale Average"};
+       String[] grayscale_str = {"Grayscale Luminance NTSC", "Grayscale Luminance HDTV", "Grayscale Average", "Grayscale Lightness"};
        
        combo_boxes_filters[GRAYSCALE] = new JComboBox(grayscale_str);
        combo_boxes_filters[GRAYSCALE].setSelectedIndex(combo_box_choices_filters[GRAYSCALE]);
@@ -21151,13 +21496,13 @@ public class MainWindow extends JFrame {
                    return;
                }
                else {
-                    if(temp > (int)(1.2 * image_size)) {
+                    if(temp > image_size) {
                          main_panel.repaint();
-                         JOptionPane.showMessageDialog(scroll_pane, "The 3D detail level needs to be lower than " + ((int)(1.2 * image_size) + 1) + ".", "Error!", JOptionPane.ERROR_MESSAGE);
+                         JOptionPane.showMessageDialog(scroll_pane, "The 3D detail level needs to be lower than " + (image_size + 1) + ".", "Error!", JOptionPane.ERROR_MESSAGE);
                          d3_opt.setSelected(false);
                          d3_button.setSelected(false);
                          return;
-                    }
+                    }                 
                }
 
 
@@ -21172,6 +21517,8 @@ public class MainWindow extends JFrame {
                main_panel.repaint();
                JOptionPane.showMessageDialog(scroll_pane, "The 3D image will be created using " + detail + "x" + detail + " points.", "Info", JOptionPane.INFORMATION_MESSAGE);
 
+               setOptions(false);
+               
                ThreadDraw.set3DArrays(detail);
                
                progress.setMaximum((detail * detail) + (detail * detail / 100));
@@ -21181,8 +21528,6 @@ public class MainWindow extends JFrame {
                boundary_tracing_opt.setEnabled(false);
                
                d3_details_opt.setEnabled(true);
-
-               setOptions(false);
 
                d3 = true;
                
@@ -21242,9 +21587,9 @@ public class MainWindow extends JFrame {
                return;
            }
            else {
-               if(temp > (int)(1.2 * image_size)) {
+               if(temp > image_size) {
                    main_panel.repaint();
-                   JOptionPane.showMessageDialog(scroll_pane, "The 3D detail level needs to be lower than " + ((int)(1.2 * image_size) + 1) + ".", "Error!", JOptionPane.ERROR_MESSAGE);
+                   JOptionPane.showMessageDialog(scroll_pane, "The 3D detail level needs to be lower than " + (image_size + 1) + ".", "Error!", JOptionPane.ERROR_MESSAGE);
                    return;
                }
           }

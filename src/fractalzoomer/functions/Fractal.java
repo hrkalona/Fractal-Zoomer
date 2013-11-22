@@ -57,6 +57,10 @@ import fractalzoomer.planes.math.trigonometric.TanPlane;
 import fractalzoomer.planes.math.trigonometric.SinhPlane;
 import fractalzoomer.planes.math.trigonometric.SinPlane;
 import fractalzoomer.planes.math.trigonometric.TanhPlane;
+import fractalzoomer.planes.newton.Newton3Plane;
+import fractalzoomer.planes.newton.Newton4Plane;
+import fractalzoomer.planes.newton.NewtonGeneralized3Plane;
+import fractalzoomer.planes.newton.NewtonGeneralized8Plane;
 import java.util.ArrayList;
 
 /*
@@ -92,7 +96,7 @@ public abstract class Fractal {
   protected Complex period;
 
 
-    public Fractal(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, boolean periodicity_checking, int plane_type, double[] rotation_vals) {
+    public Fractal(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center) {
 
         this.xCenter = xCenter;
         this.yCenter = yCenter;
@@ -102,7 +106,7 @@ public abstract class Fractal {
         bailout_squared = bailout * bailout;
         this.periodicity_checking = periodicity_checking;
    
-        rotation = new Rotation(rotation_vals[0], rotation_vals[1]);
+        rotation = new Rotation(rotation_vals[0], rotation_vals[1], rotation_center[0], rotation_center[1]);
 
         switch (plane_type) {
             case MainWindow.MU_PLANE:
@@ -230,6 +234,18 @@ public abstract class Fractal {
                 break;
             case MainWindow.FOLDOUT_PLANE:
                 plane = new FoldOutPlane();
+                break;
+            case MainWindow.NEWTON3_PLANE:
+                plane = new Newton3Plane();
+                break;
+            case MainWindow.NEWTON4_PLANE:
+                plane = new Newton4Plane();
+                break;
+            case MainWindow.NEWTONGENERALIZED3_PLANE:
+                plane = new NewtonGeneralized3Plane();
+                break;
+            case MainWindow.NEWTONGENERALIZED8_PLANE:
+                plane = new NewtonGeneralized8Plane();
                 break;
                 
         }
@@ -260,7 +276,7 @@ public abstract class Fractal {
     }
 
     //orbit
-    public Fractal(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals) {
+    public Fractal(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center) {
 
         this.xCenter = xCenter;
         this.yCenter = yCenter;
@@ -269,7 +285,7 @@ public abstract class Fractal {
         this.complex_orbit = complex_orbit;
         pixel_orbit = this.complex_orbit.get(0);
         
-        rotation = new Rotation(rotation_vals[0], rotation_vals[1]);
+        rotation = new Rotation(rotation_vals[0], rotation_vals[1], rotation_center[0], rotation_center[1]);
         
         switch (plane_type) {
             case MainWindow.MU_PLANE:
@@ -398,7 +414,19 @@ public abstract class Fractal {
             case MainWindow.FOLDOUT_PLANE:
                 plane = new FoldOutPlane();
                 break;
-                
+            case MainWindow.NEWTON3_PLANE:
+                plane = new Newton3Plane();
+                break;
+            case MainWindow.NEWTON4_PLANE:
+                plane = new Newton4Plane();
+                break;
+            case MainWindow.NEWTONGENERALIZED3_PLANE:
+                plane = new NewtonGeneralized3Plane();
+                break;
+            case MainWindow.NEWTONGENERALIZED8_PLANE:
+                plane = new NewtonGeneralized8Plane();
+                break;
+       
         }
         
         pixel_orbit = plane.getPixel(rotation.getPixel(pixel_orbit, false));
