@@ -28,6 +28,7 @@ public class SettingsFractals implements Serializable {
   private double[] relaxation;
   private int nova_method;
   private double bailout;
+  private double n_norm;
   private int max_iterations;
   private int color_choice;
   private int[][] custom_palette;
@@ -46,7 +47,7 @@ public class SettingsFractals implements Serializable {
   private boolean init_val;
   private double[] initial_vals;
 
-    public SettingsFractals(double xCenter, double yCenter, double size, int max_iterations, int color_choice, Color fractal_color, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, int function, int bailout_test_algorithm, double bailout, int plane_type, boolean burning_ship, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] coefficients, int[][] custom_palette, int rotation, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean init_val, double[] initial_vals, boolean mandel_grass, double[] mandel_grass_vals, double[] z_exponent_nova, double[] relaxation, int nova_method) {
+    public SettingsFractals(double xCenter, double yCenter, double size, int max_iterations, int color_choice, Color fractal_color, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, int function, int bailout_test_algorithm, double bailout, double n_norm, int plane_type, boolean burning_ship, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] coefficients, int[][] custom_palette, int rotation, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean init_val, double[] initial_vals, boolean mandel_grass, double[] mandel_grass_vals, double[] z_exponent_nova, double[] relaxation, int nova_method) {
 
         this.xCenter = xCenter;
         this.yCenter = yCenter;
@@ -61,6 +62,7 @@ public class SettingsFractals implements Serializable {
         this.function = function;
         this.burning_ship = burning_ship;
         this.bailout = bailout;
+        this.n_norm = n_norm;
         this.plane_type = plane_type;
         this.z_exponent = z_exponent;
         this.z_exponent_complex = z_exponent_complex;
@@ -162,6 +164,12 @@ public class SettingsFractals implements Serializable {
     public double getBailout() {
 
         return bailout;
+        
+    }
+    
+    public double getNNorm() {
+
+        return n_norm;
         
     }
 

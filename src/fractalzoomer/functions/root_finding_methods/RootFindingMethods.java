@@ -19,7 +19,7 @@ public abstract class RootFindingMethods extends Fractal {
 
     public RootFindingMethods(double xCenter, double yCenter, double size, int max_iterations, int out_coloring_algorithm, int plane_type, double[] rotation_vals, double[] rotation_center) {
 
-        super(xCenter, yCenter, size, max_iterations, 0, 0, false, plane_type, rotation_vals, rotation_center);
+        super(xCenter, yCenter, size, max_iterations, 0, 0, 0, false, plane_type, rotation_vals, rotation_center);
 
         convergent_bailout = 1E-12;
 

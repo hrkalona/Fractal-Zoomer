@@ -7,7 +7,6 @@ import fractalzoomer.out_coloring_algorithms.BinaryDecomposition2;
 import fractalzoomer.out_coloring_algorithms.Biomorphs;
 import fractalzoomer.out_coloring_algorithms.ColorDecomposition;
 import fractalzoomer.core.Complex;
-import fractalzoomer.fractal_options.DefaultInitialValue;
 import fractalzoomer.in_coloring_algorithms.CosMag;
 import fractalzoomer.in_coloring_algorithms.DecompositionLike;
 import fractalzoomer.out_coloring_algorithms.EscapeTime;
@@ -49,9 +48,9 @@ import java.util.ArrayList;
  */
 public class SierpinskiGasket extends Fractal {
     
-    public SierpinskiGasket(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center) {
+    public SierpinskiGasket(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center) {
 
-        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, false, plane_type, rotation_vals, rotation_center);
+        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, false, plane_type, rotation_vals, rotation_center);
 
         switch (out_coloring_algorithm) {
 

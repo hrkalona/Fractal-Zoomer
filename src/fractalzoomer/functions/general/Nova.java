@@ -59,9 +59,9 @@ public class Nova extends Julia {
   protected int nova_method;
     
 
-    public Nova(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean init_value, double[] initial_vals, double[] z_exponent, double[] relaxation, int nova_method) {
+    public Nova(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean init_value, double[] initial_vals, double[] z_exponent, double[] relaxation, int nova_method) {
 
-        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, false, plane_type, rotation_vals, rotation_center);
+        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, false, plane_type, rotation_vals, rotation_center);
 
         convergent_bailout = 1E-12;
         
@@ -202,9 +202,9 @@ public class Nova extends Julia {
 
     
 
-     public Nova(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, double[] z_exponent, double[] relaxation, int nova_method, double xJuliaCenter, double yJuliaCenter) {
+     public Nova(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, double[] z_exponent, double[] relaxation, int nova_method, double xJuliaCenter, double yJuliaCenter) {
 
-        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, false, plane_type, rotation_vals, rotation_center, xJuliaCenter, yJuliaCenter);
+        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, false, plane_type, rotation_vals, rotation_center, xJuliaCenter, yJuliaCenter);
 
         convergent_bailout = 1E-12;
         

@@ -16,15 +16,15 @@ import java.util.ArrayList;
 public abstract class Julia extends Fractal {
   protected Complex seed;
 
-    public Julia(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center) {
+    public Julia(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center) {
 
-        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, periodicity_checking, plane_type, rotation_vals, rotation_center);
+        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, periodicity_checking, plane_type, rotation_vals, rotation_center);
 
     }
     
-    public Julia(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, double xJuliaCenter, double yJuliaCenter) {
+    public Julia(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, double xJuliaCenter, double yJuliaCenter) {
 
-        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, periodicity_checking, plane_type, rotation_vals, rotation_center);
+        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, periodicity_checking, plane_type, rotation_vals, rotation_center);
  
         seed = plane.getPixel(new Complex(xJuliaCenter, yJuliaCenter));
 

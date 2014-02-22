@@ -11,6 +11,7 @@ import fractalzoomer.planes.math.trigonometric.CotPlane;
 import fractalzoomer.planes.math.trigonometric.CothPlane;
 import fractalzoomer.planes.math.ExpPlane;
 import fractalzoomer.bailout_tests.HalfplaneBailoutTest;
+import fractalzoomer.bailout_tests.NNormBailoutTest;
 import fractalzoomer.bailout_tests.RhombusBailoutTest;
 import fractalzoomer.fractal_options.DefaultPerturbation;
 import fractalzoomer.main.MainWindow;
@@ -96,7 +97,7 @@ public abstract class Fractal {
   protected Complex period;
 
 
-    public Fractal(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center) {
+    public Fractal(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center) {
 
         this.xCenter = xCenter;
         this.yCenter = yCenter;
@@ -267,6 +268,9 @@ public abstract class Fractal {
                 break;
             case MainWindow.BAILOUT_TEST_HALFPLANE:
                 bailout_algorithm = new HalfplaneBailoutTest(bailout);
+                break;
+            case MainWindow.BAILOUT_TEST_NNORM:
+                bailout_algorithm = new NNormBailoutTest(bailout, n_norm);
                 break;
                 
         }
