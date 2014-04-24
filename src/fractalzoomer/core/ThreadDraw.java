@@ -103,6 +103,7 @@ import fractalzoomer.functions.formulas.general.Formula34;
 import fractalzoomer.functions.formulas.general.Formula35;
 import fractalzoomer.functions.formulas.general.Formula36;
 import fractalzoomer.functions.formulas.general.Formula37;
+import fractalzoomer.functions.formulas.m_like_generalization.Formula38;
 import fractalzoomer.functions.root_finding_methods.secant.Secant3;
 import fractalzoomer.functions.root_finding_methods.secant.Secant4;
 import fractalzoomer.functions.root_finding_methods.secant.SecantCos;
@@ -579,6 +580,9 @@ public abstract class ThreadDraw extends Thread {
             case MainWindow.FORMULA37:
                 fractal = new Formula37(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals);
                 break;
+            case MainWindow.FORMULA38:
+                fractal = new Formula38(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals);
+                break;
             case MainWindow.FROTHY_BASIN:
                 fractal = new FrothyBasin(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals);
                 break;
@@ -839,6 +843,9 @@ public abstract class ThreadDraw extends Thread {
                 break;
             case MainWindow.FORMULA37:
                 fractal = new Formula37(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.FORMULA38:
+                fractal = new Formula38(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FROTHY_BASIN:
                 fractal = new FrothyBasin(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, xJuliaCenter, yJuliaCenter);
@@ -1104,6 +1111,9 @@ public abstract class ThreadDraw extends Thread {
             case MainWindow.FORMULA37:
                 fractal = new Formula37(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, xJuliaCenter, yJuliaCenter);
                 break;
+            case MainWindow.FORMULA38:
+                fractal = new Formula38(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, xJuliaCenter, yJuliaCenter);
+                break;
             case MainWindow.FROTHY_BASIN:
                 fractal = new FrothyBasin(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, xJuliaCenter, yJuliaCenter);
                 break;
@@ -1360,6 +1370,9 @@ public abstract class ThreadDraw extends Thread {
             case MainWindow.FORMULA37:
                 fractal = new Formula37(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, xJuliaCenter, yJuliaCenter);
                 break;
+            case MainWindow.FORMULA38:
+                fractal = new Formula38(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, xJuliaCenter, yJuliaCenter);
+                break;
             case MainWindow.FROTHY_BASIN:
                 fractal = new FrothyBasin(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, xJuliaCenter, yJuliaCenter);
                 break;
@@ -1579,7 +1592,10 @@ public abstract class ThreadDraw extends Thread {
              else {
                  ptr.getProgressBar().setValue((image_size * image_size) + (image_size *  image_size / 100));
              }
-             ptr.getProgressBar().setToolTipText(System.currentTimeMillis() - ptr.getCalculationTime() + " ms  # " + String.format("%6.2f", ((double)total_calculated.get()) / (image_size * image_size) * 100) + "% Calculated.");
+             
+             double temp = filters[MainWindow.ANTIALIASING] ? filters_options_vals[MainWindow.ANTIALIASING] + 1 : 1;
+             int temp2 = image_size * image_size;
+             ptr.getProgressBar().setToolTipText("<html>Elapsed Time: " + (System.currentTimeMillis() - ptr.getCalculationTime()) + " ms<br>Pixels Calculated: " + String.format("%6.2f", ((double)total_calculated.get()) / (temp2) * 100) + "%<br>Sampled Image: " + String.format("%.1f", (temp2 * temp) / 1000000.0) + " megapixels</html>");
          }
     }
     
@@ -4363,7 +4379,7 @@ public abstract class ThreadDraw extends Thread {
              ptr.setWholeImageDone(true);
              ptr.getMainPanel().repaint();
              ptr.getProgressBar().setValue((detail * detail) + (detail *  detail / 100));
-             ptr.getProgressBar().setToolTipText(System.currentTimeMillis() - ptr.getCalculationTime() + " ms.");
+             ptr.getProgressBar().setToolTipText("Elapsed Time: " + (System.currentTimeMillis() - ptr.getCalculationTime()) + " ms");
          }
          
     }
@@ -4438,7 +4454,7 @@ public abstract class ThreadDraw extends Thread {
              ptr.setWholeImageDone(true);
              ptr.getMainPanel().repaint();
              ptr.getProgressBar().setValue((image_size * image_size) + (image_size *  image_size / 100));
-             ptr.getProgressBar().setToolTipText(System.currentTimeMillis() - ptr.getCalculationTime() + " ms.");
+             ptr.getProgressBar().setToolTipText("Elapsed Time: " + (System.currentTimeMillis() - ptr.getCalculationTime()) + " ms");
          }
         
     }
@@ -4671,7 +4687,7 @@ public abstract class ThreadDraw extends Thread {
              ptr.setWholeImageDone(true);
              ptr.getMainPanel().repaint();
              ptr.getProgressBar().setValue((image_size * image_size) + (image_size *  image_size / 100));
-             ptr.getProgressBar().setToolTipText(System.currentTimeMillis() - ptr.getCalculationTime() + " ms.");
+             ptr.getProgressBar().setToolTipText("Elapsed Time: " + (System.currentTimeMillis() - ptr.getCalculationTime()) + " ms");
          }
         
     }

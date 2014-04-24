@@ -103,6 +103,7 @@ import fractalzoomer.functions.formulas.general.Formula34;
 import fractalzoomer.functions.formulas.general.Formula35;
 import fractalzoomer.functions.formulas.general.Formula36;
 import fractalzoomer.functions.formulas.general.Formula37;
+import fractalzoomer.functions.formulas.m_like_generalization.Formula38;
 import fractalzoomer.functions.root_finding_methods.secant.Secant3;
 import fractalzoomer.functions.root_finding_methods.secant.Secant4;
 import fractalzoomer.functions.root_finding_methods.secant.SecantCos;
@@ -476,6 +477,9 @@ public class DrawOrbit extends Thread {
             case MainWindow.FORMULA37:
                 pixel_orbit = new Formula37(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals);
                 break;
+            case MainWindow.FORMULA38:
+                pixel_orbit = new Formula38(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals);
+                break;
             case MainWindow.FROTHY_BASIN:
                 pixel_orbit = new FrothyBasin(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals);
                 break;
@@ -718,6 +722,9 @@ public class DrawOrbit extends Thread {
                 break;
             case MainWindow.FORMULA37:
                 pixel_orbit = new Formula37(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.FORMULA38:
+                pixel_orbit = new Formula38(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FROTHY_BASIN:
                 pixel_orbit = new FrothyBasin(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, xJuliaCenter, yJuliaCenter);

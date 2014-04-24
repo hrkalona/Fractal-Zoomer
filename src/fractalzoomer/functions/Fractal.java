@@ -474,9 +474,9 @@ public abstract class Fractal {
     }
 
     public double calculateFractal(Complex pixel) {
-        
+ 
         return periodicity_checking ? calculateFractalWithPeriodicity(plane.getPixel(rotation.getPixel(pixel, false))) : calculateFractalWithoutPeriodicity(plane.getPixel(rotation.getPixel(pixel, false)));
-
+ 
     }
     
     public double[] calculateFractal3D(Complex pixel) {
@@ -485,7 +485,6 @@ public abstract class Fractal {
 
     }
 
-    
     public double calculateFractalWithPeriodicity(Complex pixel) {
 
         int iterations = 0;

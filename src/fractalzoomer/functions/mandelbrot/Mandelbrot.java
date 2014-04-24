@@ -32,6 +32,7 @@ import fractalzoomer.in_coloring_algorithms.SinReSquaredMinusImSquared;
 import fractalzoomer.in_coloring_algorithms.Squares;
 import fractalzoomer.in_coloring_algorithms.Squares2;
 import fractalzoomer.in_coloring_algorithms.ZMag;
+import fractalzoomer.out_coloring_algorithms.DistanceEstimator;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeAlgorithm1;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeAlgorithm2;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeGaussianInteger2;
@@ -57,6 +58,7 @@ import java.util.ArrayList;
 public class Mandelbrot extends Julia {
   private MandelVariation type;
   private MandelVariation type2;
+  boolean dem;
 
     public Mandelbrot(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean init_value, double[] initial_vals, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals) {
 
@@ -89,6 +91,8 @@ public class Mandelbrot extends Julia {
         else {
             init_val = new DefaultInitialValue(initial_vals[0], initial_vals[1]);
         }
+        
+        dem = false;
 
         switch (out_coloring_algorithm) {
 
@@ -163,6 +167,10 @@ public class Mandelbrot extends Julia {
             case MainWindow.ESCAPE_TIME_ALGORITHM2:
                 out_color_algorithm = new EscapeTimeAlgorithm2();
                 break;
+            case MainWindow.DISTANCE_ESTIMATOR:
+                out_color_algorithm = new DistanceEstimator();
+                dem = true;
+                break;
                          
         }
 
@@ -222,6 +230,8 @@ public class Mandelbrot extends Julia {
         else {
             type2 = new NormalMandel();
         }
+        
+        dem = false;
       
         switch (out_coloring_algorithm) {
 
@@ -295,6 +305,10 @@ public class Mandelbrot extends Julia {
                 break;
             case MainWindow.ESCAPE_TIME_ALGORITHM2:
                 out_color_algorithm = new EscapeTimeAlgorithm2();
+                break;
+            case MainWindow.DISTANCE_ESTIMATOR:
+                out_color_algorithm = new DistanceEstimator();
+                dem = true;
                 break;
 
         }
@@ -399,8 +413,576 @@ public class Mandelbrot extends Julia {
         type2.getPixel(complex[0]);
    
     }
-      
     
+    @Override
+    public double calculateFractalWithoutPeriodicity(Complex pixel) {
+        
+        if(dem) {
+            int iterations = 0;
+
+            Complex tempz = new Complex(pertur_val.getPixel(init_val.getPixel(pixel)));
+
+            Complex[] complex = new Complex[2];
+            complex[0] = tempz;//z
+            complex[1] = new Complex(pixel);//c
+
+            Complex de = new Complex(0.7, 0.7);
+
+            for (; iterations < max_iterations; iterations++) {
+
+                 if(bailout_algorithm.escaped(complex[0])) {
+                    Object[] object = {iterations, complex[0], de};
+                    return out_color_algorithm.getResult(object);
+                 }
+
+                 de.times_mutable(complex[0]);
+                 function(complex);          
+
+            }
+
+
+            Object[] object = {max_iterations, complex[0]};
+            return in_color_algorithm.getResult(object);
+        }
+        else {
+            int iterations = 0;
+
+            Complex tempz = new Complex(pertur_val.getPixel(init_val.getPixel(pixel)));
+
+            Complex[] complex = new Complex[2];
+            complex[0] = tempz;//z
+            complex[1] = new Complex(pixel);//c
+
+
+            Complex zold = new Complex();
+
+            for (; iterations < max_iterations; iterations++) {
+
+                if(bailout_algorithm.escaped(complex[0])) {
+                    Object[] object = {iterations, complex[0], zold};
+                    return out_color_algorithm.getResult(object);
+                }
+                zold.assign(complex[0]);
+                function(complex);
+
+            }
+
+
+            Object[] object = {max_iterations, complex[0]};
+            return in_color_algorithm.getResult(object);
+        }
+  
+    }
+    
+    @Override
+    public double calculateFractalWithPeriodicity(Complex pixel) {
+
+        if(dem) {
+            int iterations = 0;
+
+            check = 3;
+            check_counter = 0;
+
+            update = 10;
+            update_counter = 0;
+
+            period = new Complex();
+
+            Complex tempz = new Complex(pertur_val.getPixel(init_val.getPixel(pixel)));
+
+            Complex[] complex = new Complex[2];
+            complex[0] = tempz;//z
+            complex[1] = new Complex(pixel);//c
+
+            Complex de = new Complex(0.7, 0.7);
+
+            for (; iterations < max_iterations; iterations++) {
+                if(bailout_algorithm.escaped(complex[0])) {
+                    Object[] object = {iterations, complex[0], de};
+                    return out_color_algorithm.getResult(object);
+                }
+                de.times_mutable(complex[0]);
+                function(complex);
+
+                if(periodicityCheck(complex[0])) {
+                    return max_iterations;
+                }
+
+            }
+
+            return max_iterations;
+        }
+        else {
+            int iterations = 0;
+
+            check = 3;
+            check_counter = 0;
+
+            update = 10;
+            update_counter = 0;
+
+            period = new Complex();
+
+            Complex tempz = new Complex(pertur_val.getPixel(init_val.getPixel(pixel)));
+
+            Complex[] complex = new Complex[2];
+            complex[0] = tempz;//z
+            complex[1] = new Complex(pixel);//c
+
+            Complex zold = new Complex();
+
+            for (; iterations < max_iterations; iterations++) {
+                if(bailout_algorithm.escaped(complex[0])) {
+                    Object[] object = {iterations, complex[0], zold};
+                    return out_color_algorithm.getResult(object);
+                }
+                zold.assign(complex[0]);
+                function(complex);
+
+                if(periodicityCheck(complex[0])) {
+                    return max_iterations;
+                }
+
+            }
+
+            return max_iterations;
+        }
+
+    }
+    
+    @Override
+    public double calculateJuliaWithPeriodicity(Complex pixel) {
+        
+        if(dem) {
+            int iterations = 0;
+
+            check = 3;
+            check_counter = 0;
+
+            update = 10;
+            update_counter = 0;
+
+            period = new Complex();
+
+
+            Complex[] complex = new Complex[2];
+            complex[0] = pixel;//z
+            complex[1] = new Complex(seed);//c
+
+            Complex de = new Complex(0.7, 0.7);
+
+            for (; iterations < max_iterations; iterations++) {
+                if(bailout_algorithm.escaped(complex[0])) {
+                    Object[] object = {iterations, complex[0], de};
+                    return out_color_algorithm.getResult(object);
+                }
+                de.times_mutable(complex[0]);
+                function(complex);
+
+                if(periodicityCheck(complex[0])) {
+                    return max_iterations;
+                }
+            }
+
+            return max_iterations;
+        }
+        else {
+            int iterations = 0;
+
+            check = 3;
+            check_counter = 0;
+
+            update = 10;
+            update_counter = 0;
+
+            period = new Complex();
+
+
+            Complex[] complex = new Complex[2];
+            complex[0] = pixel;//z
+            complex[1] = new Complex(seed);//c
+
+            Complex zold = new Complex();
+
+            for (; iterations < max_iterations; iterations++) {
+                if(bailout_algorithm.escaped(complex[0])) {
+                    Object[] object = {iterations, complex[0], zold};
+                    return out_color_algorithm.getResult(object);
+                }
+                zold.assign(complex[0]);
+                function(complex);
+
+                if(periodicityCheck(complex[0])) {
+                    return max_iterations;
+                }
+            }
+
+            return max_iterations;
+        }
+    }
+
+
+    @Override
+    public double calculateJuliaWithoutPeriodicity(Complex pixel) {
+    
+       if(dem) {
+            int iterations = 0;
+
+            Complex[] complex = new Complex[2];
+            complex[0] = pixel;//z
+            complex[1] = new Complex(seed);//c
+
+            Complex de = new Complex(0.7, 0.7);
+
+            for (; iterations < max_iterations; iterations++) {
+                if(bailout_algorithm.escaped(complex[0])) {
+                    Object[] object = {iterations, complex[0], de};
+                    return out_color_algorithm.getResult(object);
+                }
+                de.times_mutable(complex[0]);
+                function(complex);
+
+            }
+
+            Object[] object = {max_iterations, complex[0]};
+            return in_color_algorithm.getResult(object);
+       }
+       else {
+            int iterations = 0;
+
+            Complex[] complex = new Complex[2];
+            complex[0] = pixel;//z
+            complex[1] = new Complex(seed);//c
+
+            Complex zold = new Complex();
+
+            for (; iterations < max_iterations; iterations++) {
+                if(bailout_algorithm.escaped(complex[0])) {
+                    Object[] object = {iterations, complex[0], zold};
+                    return out_color_algorithm.getResult(object);
+                }
+                zold.assign(complex[0]);
+                function(complex);
+
+            }
+
+            Object[] object = {max_iterations, complex[0]};
+            return in_color_algorithm.getResult(object);
+       }
+        
+    }
+    
+    @Override
+    public double[] calculateFractal3DWithoutPeriodicity(Complex pixel) {
+        
+        if(dem) {
+            int iterations = 0;
+
+            Complex tempz = new Complex(pertur_val.getPixel(init_val.getPixel(pixel)));
+
+            Complex[] complex = new Complex[2];
+            complex[0] = tempz;//z
+            complex[1] = new Complex(pixel);//c
+
+
+            Complex de = new Complex(0.7, 0.7);
+            double temp;
+
+            for (; iterations < max_iterations; iterations++) {
+
+                if(bailout_algorithm.escaped(complex[0])) {
+                    Object[] object = {iterations, complex[0], de};
+                    temp = out_color_algorithm.getResult(object);
+                    double[] array = {40 * Math.log(temp - 100799) - 100, temp};
+                    return array;
+
+                }
+                de.times_mutable(complex[0]);
+                function(complex);
+
+            }
+
+
+            Object[] object = {max_iterations, complex[0]};
+            temp = in_color_algorithm.getResult(object);
+            double result = temp == max_iterations ? max_iterations : max_iterations + temp - 100820;
+            double[] array = {40 * Math.log(result + 1) - 100, temp};
+            return array;
+        }
+        else {
+            int iterations = 0;
+
+            Complex tempz = new Complex(pertur_val.getPixel(init_val.getPixel(pixel)));
+
+            Complex[] complex = new Complex[2];
+            complex[0] = tempz;//z
+            complex[1] = new Complex(pixel);//c
+
+
+            Complex zold = new Complex();
+            double temp;
+
+            for (; iterations < max_iterations; iterations++) {
+
+                if(bailout_algorithm.escaped(complex[0])) {
+                    Object[] object = {iterations, complex[0], zold};
+                    temp = out_color_algorithm.getResult(object);
+                    double[] array = {40 * Math.log(temp - 100799) - 100, temp};
+                    return array;
+
+                }
+                zold.assign(complex[0]);
+                function(complex);
+
+            }
+
+
+            Object[] object = {max_iterations, complex[0]};
+            temp = in_color_algorithm.getResult(object);
+            double result = temp == max_iterations ? max_iterations : max_iterations + temp - 100820;
+            double[] array = {40 * Math.log(result + 1) - 100, temp};
+            return array;
+        }
+
+    }
+    
+    @Override
+    public double[] calculateFractal3DWithPeriodicity(Complex pixel) {
+
+        if(dem) {
+            int iterations = 0;
+
+            check = 3;
+            check_counter = 0;
+
+            update = 10;
+            update_counter = 0;
+
+            period = new Complex();
+
+            Complex tempz = new Complex(pertur_val.getPixel(init_val.getPixel(pixel)));
+
+            Complex[] complex = new Complex[2];
+            complex[0] = tempz;//z
+            complex[1] = new Complex(pixel);//c
+
+            Complex de = new Complex(0.7, 0.7);
+
+            double temp;
+
+            for (; iterations < max_iterations; iterations++) {
+                if(bailout_algorithm.escaped(complex[0])) {
+                    Object[] object = {iterations, complex[0], de};
+                    temp = out_color_algorithm.getResult(object);
+                    double[] array = {40 * Math.log(temp - 100799) - 100, temp};
+                    return array;
+                }
+                de.times_mutable(complex[0]);
+                function(complex);
+
+                if(periodicityCheck(complex[0])) {
+                    double[] array = {40 * Math.log(max_iterations + 1) - 100, max_iterations};
+                    return array;
+                }
+
+            }
+
+            double[] array = {40 * Math.log(max_iterations + 1) - 100, max_iterations};
+            return array;
+        }
+        else {
+            int iterations = 0;
+
+            check = 3;
+            check_counter = 0;
+
+            update = 10;
+            update_counter = 0;
+
+            period = new Complex();
+
+            Complex tempz = new Complex(pertur_val.getPixel(init_val.getPixel(pixel)));
+
+            Complex[] complex = new Complex[2];
+            complex[0] = tempz;//z
+            complex[1] = new Complex(pixel);//c
+
+            Complex zold = new Complex();
+
+            double temp;
+
+            for (; iterations < max_iterations; iterations++) {
+                if(bailout_algorithm.escaped(complex[0])) {
+                    Object[] object = {iterations, complex[0], zold};
+                    temp = out_color_algorithm.getResult(object);
+                    double[] array = {40 * Math.log(temp - 100799) - 100, temp};
+                    return array;
+                }
+                zold.assign(complex[0]);
+                function(complex);
+
+                if(periodicityCheck(complex[0])) {
+                    double[] array = {40 * Math.log(max_iterations + 1) - 100, max_iterations};
+                    return array;
+                }
+
+            }
+
+            double[] array = {40 * Math.log(max_iterations + 1) - 100, max_iterations};
+            return array;
+        }
+
+    }
+    
+    @Override
+    public double[] calculateJulia3DWithPeriodicity(Complex pixel) {
+
+        if(dem) {
+            int iterations = 0;
+
+            check = 3;
+            check_counter = 0;
+
+            update = 10;
+            update_counter = 0;
+
+            period = new Complex();
+
+
+            Complex[] complex = new Complex[2];
+            complex[0] = pixel;//z
+            complex[1] = new Complex(seed);//c
+
+            Complex de = new Complex(0.7, 0.7);
+
+            double temp;
+
+            for (; iterations < max_iterations; iterations++) {
+                if(bailout_algorithm.escaped(complex[0])) {
+                    Object[] object = {iterations, complex[0], de};
+                    temp = out_color_algorithm.getResult(object);
+                    double[] array = {40 * Math.log(temp - 100799) - 100, temp};
+                    return array;
+                }
+                de.times_mutable(complex[0]);
+                function(complex);
+
+                if(periodicityCheck(complex[0])) {
+                    double[] array = {40 * Math.log(max_iterations + 1) - 100, max_iterations};
+                    return array;
+                }
+            }
+
+            double[] array = {40 * Math.log(max_iterations + 1) - 100, max_iterations};
+            return array;
+        }
+        else {
+            int iterations = 0;
+
+            check = 3;
+            check_counter = 0;
+
+            update = 10;
+            update_counter = 0;
+
+            period = new Complex();
+
+
+            Complex[] complex = new Complex[2];
+            complex[0] = pixel;//z
+            complex[1] = new Complex(seed);//c
+
+            Complex zold = new Complex();
+
+            double temp;
+
+            for (; iterations < max_iterations; iterations++) {
+                if(bailout_algorithm.escaped(complex[0])) {
+                    Object[] object = {iterations, complex[0], zold};
+                    temp = out_color_algorithm.getResult(object);
+                    double[] array = {40 * Math.log(temp - 100799) - 100, temp};
+                    return array;
+                }
+                zold.assign(complex[0]);
+                function(complex);
+
+                if(periodicityCheck(complex[0])) {
+                    double[] array = {40 * Math.log(max_iterations + 1) - 100, max_iterations};
+                    return array;
+                }
+            }
+
+            double[] array = {40 * Math.log(max_iterations + 1) - 100, max_iterations};
+            return array;
+        }
+        
+    }
+
+
+    @Override
+    public double[] calculateJulia3DWithoutPeriodicity(Complex pixel) {
+        
+        if(dem) {
+            int iterations = 0;
+
+            Complex[] complex = new Complex[2];
+            complex[0] = pixel;//z
+            complex[1] = new Complex(seed);//c
+
+            Complex de = new Complex(0.7, 0.7);
+
+            double temp;
+
+            for (; iterations < max_iterations; iterations++) {
+                if(bailout_algorithm.escaped(complex[0])) {
+                    Object[] object = {iterations, complex[0], de};
+                    temp = out_color_algorithm.getResult(object);
+                    double[] array = {40 * Math.log(temp - 100799) - 100, temp};
+                    return array;
+                }
+                de.times_mutable(complex[0]);
+                function(complex);
+
+            }
+
+            Object[] object = {max_iterations, complex[0]};
+            temp = in_color_algorithm.getResult(object);
+            double result = temp == max_iterations ? max_iterations : max_iterations + temp - 100820;
+            double[] array = {40 * Math.log(result + 1) - 100, temp};
+            return array;
+        }
+        else {
+            int iterations = 0;
+
+            Complex[] complex = new Complex[2];
+            complex[0] = pixel;//z
+            complex[1] = new Complex(seed);//c
+
+            Complex zold = new Complex();
+
+            double temp;
+
+            for (; iterations < max_iterations; iterations++) {
+                if(bailout_algorithm.escaped(complex[0])) {
+                    Object[] object = {iterations, complex[0], zold};
+                    temp = out_color_algorithm.getResult(object);
+                    double[] array = {40 * Math.log(temp - 100799) - 100, temp};
+                    return array;
+                }
+                zold.assign(complex[0]);
+                function(complex);
+
+            }
+
+            Object[] object = {max_iterations, complex[0]};
+            temp = in_color_algorithm.getResult(object);
+            double result = temp == max_iterations ? max_iterations : max_iterations + temp - 100820;
+            double[] array = {40 * Math.log(result + 1) - 100, temp};
+            return array;
+        }
+        
+    }
+
     protected boolean mandelbrotOptimization(Complex pixel) {
 
         //if(!burning_ship) {

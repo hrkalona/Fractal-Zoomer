@@ -32,6 +32,9 @@ public class SettingsFractals implements Serializable {
   private int max_iterations;
   private int color_choice;
   private int[][] custom_palette;
+  private int color_interpolation;
+  private int color_space; 
+  private boolean reversed_palette;
   private Color fractal_color;
   private int bailout_test_algorithm;
   private int out_coloring_algorithm;
@@ -40,14 +43,14 @@ public class SettingsFractals implements Serializable {
   private int color_cycling_location;
   private int plane_type;
   private double[] coefficients;
-  private int rotation;
+  private double rotation;
   private double[] rotation_center;
   private boolean perturbation;
   private double[] perturbation_vals;
   private boolean init_val;
   private double[] initial_vals;
 
-    public SettingsFractals(double xCenter, double yCenter, double size, int max_iterations, int color_choice, Color fractal_color, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, int function, int bailout_test_algorithm, double bailout, double n_norm, int plane_type, boolean burning_ship, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] coefficients, int[][] custom_palette, int rotation, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean init_val, double[] initial_vals, boolean mandel_grass, double[] mandel_grass_vals, double[] z_exponent_nova, double[] relaxation, int nova_method) {
+    public SettingsFractals(double xCenter, double yCenter, double size, int max_iterations, int color_choice, Color fractal_color, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, int function, int bailout_test_algorithm, double bailout, double n_norm, int plane_type, boolean burning_ship, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] coefficients, int[][] custom_palette, int color_interpolation, int color_space, boolean reversed_palette, double rotation, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean init_val, double[] initial_vals, boolean mandel_grass, double[] mandel_grass_vals, double[] z_exponent_nova, double[] relaxation, int nova_method) {
 
         this.xCenter = xCenter;
         this.yCenter = yCenter;
@@ -69,6 +72,9 @@ public class SettingsFractals implements Serializable {
         this.color_cycling_location = color_cycling_location;
         this.coefficients = coefficients;
         this.custom_palette = custom_palette;
+        this.color_interpolation = color_interpolation;
+        this.color_space = color_space;
+        this.reversed_palette = reversed_palette;
         this.rotation = rotation;
         this.rotation_center = rotation_center;
         this.perturbation = perturbation;
@@ -197,7 +203,7 @@ public class SettingsFractals implements Serializable {
         
     }
     
-    public int getRotation() {
+    public double getRotation() {
         
         return rotation;
         
@@ -266,6 +272,24 @@ public class SettingsFractals implements Serializable {
     public boolean getSmoothing() {
         
         return smoothing;
+        
+    }
+    
+    public int getColorInterpolation() {
+        
+        return color_interpolation;
+        
+    }
+    
+    public int getColorSpace() {
+        
+        return color_space;
+        
+    }
+    
+    public boolean getReveresedPalette() {
+        
+        return reversed_palette;
         
     }
 
