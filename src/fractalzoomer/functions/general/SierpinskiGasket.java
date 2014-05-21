@@ -26,15 +26,18 @@ import fractalzoomer.in_coloring_algorithms.Squares2;
 import fractalzoomer.in_coloring_algorithms.ZMag;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeAlgorithm1;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeAlgorithm2;
+import fractalzoomer.out_coloring_algorithms.EscapeTimeEscapeRadius;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeGaussianInteger2;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeGaussianInteger3;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeGaussianInteger4;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeGaussianInteger5;
+import fractalzoomer.out_coloring_algorithms.EscapeTimeGrid;
 import fractalzoomer.out_coloring_algorithms.EscapeTimePlusReDivideIm;
 import fractalzoomer.out_coloring_algorithms.SmoothBinaryDecomposition;
 import fractalzoomer.out_coloring_algorithms.SmoothBinaryDecomposition2;
 import fractalzoomer.out_coloring_algorithms.SmoothBiomorphs;
 import fractalzoomer.out_coloring_algorithms.SmoothEscapeTime;
+import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeGrid;
 import java.util.ArrayList;
 
 /*
@@ -48,9 +51,9 @@ import java.util.ArrayList;
  */
 public class SierpinskiGasket extends Fractal {
     
-    public SierpinskiGasket(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center) {
+    public SierpinskiGasket(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane) {
 
-        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, false, plane_type, rotation_vals, rotation_center);
+        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, false, plane_type, rotation_vals, rotation_center, user_plane);
 
         switch (out_coloring_algorithm) {
 
@@ -125,6 +128,17 @@ public class SierpinskiGasket extends Fractal {
             case MainWindow.ESCAPE_TIME_ALGORITHM2:
                 out_color_algorithm = new EscapeTimeAlgorithm2();
                 break;
+            case MainWindow.ESCAPE_TIME_ESCAPE_RADIUS:
+                out_color_algorithm = new EscapeTimeEscapeRadius(Math.log(bailout_squared));
+                break;
+            case MainWindow.ESCAPE_TIME_GRID:
+                if(!smoothing) {
+                    out_color_algorithm = new EscapeTimeGrid(Math.log(bailout_squared));
+                }
+                else {
+                    out_color_algorithm = new SmoothEscapeTimeGrid(Math.log(bailout_squared));
+                }
+                break;
                          
         }
 
@@ -167,9 +181,9 @@ public class SierpinskiGasket extends Fractal {
     }
 
     //orbit
-    public SierpinskiGasket(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center) {
+    public SierpinskiGasket(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane) {
 
-        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center);
+        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane);
 
     }
    

@@ -33,15 +33,18 @@ import fractalzoomer.in_coloring_algorithms.Squares2;
 import fractalzoomer.in_coloring_algorithms.ZMag;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeAlgorithm1;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeAlgorithm2;
+import fractalzoomer.out_coloring_algorithms.EscapeTimeEscapeRadius;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeGaussianInteger2;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeGaussianInteger3;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeGaussianInteger4;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeGaussianInteger5;
+import fractalzoomer.out_coloring_algorithms.EscapeTimeGrid;
 import fractalzoomer.out_coloring_algorithms.EscapeTimePlusReDivideIm;
 import fractalzoomer.out_coloring_algorithms.SmoothBinaryDecomposition;
 import fractalzoomer.out_coloring_algorithms.SmoothBinaryDecomposition2;
 import fractalzoomer.out_coloring_algorithms.SmoothBiomorphs;
 import fractalzoomer.out_coloring_algorithms.SmoothEscapeTime;
+import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeGrid;
 import java.util.ArrayList;
 
 /*
@@ -55,9 +58,9 @@ import java.util.ArrayList;
  */
 public class Formula31 extends Julia {
 
-    public Formula31(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean init_value, double[] initial_vals) {
+    public Formula31(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean init_value, double[] initial_vals, String user_plane) {
 
-        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, periodicity_checking, plane_type, rotation_vals, rotation_center);
+        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane);
 
         if(perturbation) {
             pertur_val = new Perturbation(perturbation_vals[0], perturbation_vals[1]);
@@ -146,6 +149,17 @@ public class Formula31 extends Julia {
             case MainWindow.ESCAPE_TIME_ALGORITHM2:
                 out_color_algorithm = new EscapeTimeAlgorithm2();
                 break;
+            case MainWindow.ESCAPE_TIME_ESCAPE_RADIUS:
+                out_color_algorithm = new EscapeTimeEscapeRadius(Math.log(bailout_squared));
+                break;
+            case MainWindow.ESCAPE_TIME_GRID:
+                if(!smoothing) {
+                    out_color_algorithm = new EscapeTimeGrid(Math.log(bailout_squared));
+                }
+                else {
+                    out_color_algorithm = new SmoothEscapeTimeGrid(Math.log(bailout_squared));
+                }
+                break;
                          
         }
 
@@ -187,9 +201,9 @@ public class Formula31 extends Julia {
 
     }
 
-    public Formula31(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, double xJuliaCenter, double yJuliaCenter) {
+    public Formula31(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, double xJuliaCenter, double yJuliaCenter) {
 
-        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, periodicity_checking, plane_type, rotation_vals, rotation_center, xJuliaCenter, yJuliaCenter);
+        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, xJuliaCenter, yJuliaCenter);
 
         switch (out_coloring_algorithm) {
 
@@ -263,6 +277,17 @@ public class Formula31 extends Julia {
                 break;
             case MainWindow.ESCAPE_TIME_ALGORITHM2:
                 out_color_algorithm = new EscapeTimeAlgorithm2();
+                break;
+            case MainWindow.ESCAPE_TIME_ESCAPE_RADIUS:
+                out_color_algorithm = new EscapeTimeEscapeRadius(Math.log(bailout_squared));
+                break;
+            case MainWindow.ESCAPE_TIME_GRID:
+                if(!smoothing) {
+                    out_color_algorithm = new EscapeTimeGrid(Math.log(bailout_squared));
+                }
+                else {
+                    out_color_algorithm = new SmoothEscapeTimeGrid(Math.log(bailout_squared));
+                }
                 break;
                          
         }
@@ -306,9 +331,9 @@ public class Formula31 extends Julia {
     }
 
     //orbit
-    public Formula31(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean init_value, double[] initial_vals) {
+    public Formula31(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean init_value, double[] initial_vals, String user_plane) {
 
-        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center);
+        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane);
         
         if(perturbation) {
             pertur_val = new Perturbation(perturbation_vals[0], perturbation_vals[1]);
@@ -326,9 +351,9 @@ public class Formula31 extends Julia {
 
     }
 
-    public Formula31(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, double xJuliaCenter, double yJuliaCenter) {
+    public Formula31(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, double xJuliaCenter, double yJuliaCenter) {
 
-        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, xJuliaCenter, yJuliaCenter);
+        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, xJuliaCenter, yJuliaCenter);
 
     }
 

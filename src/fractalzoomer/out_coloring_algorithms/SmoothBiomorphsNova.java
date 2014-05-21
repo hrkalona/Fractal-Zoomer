@@ -13,9 +13,9 @@ import fractalzoomer.core.Complex;
 public class SmoothBiomorphsNova extends SmoothBiomorphs {
   protected double log_convergent_bailout;
     
-    public SmoothBiomorphsNova(double log_convergent_bailout, double bailout) {
+    public SmoothBiomorphsNova(double log_convergent_bailout) {
         
-        super(0, bailout);
+        super(0, 2.0);
         this.log_convergent_bailout = log_convergent_bailout;
         
     }

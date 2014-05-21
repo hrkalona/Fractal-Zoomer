@@ -30,7 +30,7 @@ public class SmoothEscapeTimeColorDecompositionMagnet1 extends ColorDecompositio
             temp3 = -(log_convergent_bailout - (Double)object[3]) / ((Double)object[3] - Math.log(((Complex)object[1]).distance_squared((Complex)object[4])));
         }
         
-        return Math.abs(((Integer)object[0]) + (Math.atan2(((Complex)object[1]).getIm(), ((Complex)object[1]).getRe()) / pi2  + 0.75) * pi59 + temp3) + 100800;
+        return Math.abs(((Integer)object[0]) + (((Complex)object[1]).arg() / pi2  + 0.75) * pi59 + temp3) + 100800;
 
     }
         

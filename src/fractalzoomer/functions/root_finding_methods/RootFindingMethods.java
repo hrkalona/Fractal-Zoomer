@@ -17,18 +17,18 @@ import java.util.ArrayList;
 public abstract class RootFindingMethods extends Fractal { 
   protected double convergent_bailout;
 
-    public RootFindingMethods(double xCenter, double yCenter, double size, int max_iterations, int out_coloring_algorithm, int plane_type, double[] rotation_vals, double[] rotation_center) {
+    public RootFindingMethods(double xCenter, double yCenter, double size, int max_iterations, int out_coloring_algorithm, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane) {
 
-        super(xCenter, yCenter, size, max_iterations, 0, 0, 0, false, plane_type, rotation_vals, rotation_center);
+        super(xCenter, yCenter, size, max_iterations, 0, 0, 0, false, plane_type, rotation_vals, rotation_center, user_plane);
 
         convergent_bailout = 1E-12;
 
     }
 
     //orbit
-    public RootFindingMethods(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center) {
+    public RootFindingMethods(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane) {
 
-        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center);
+        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane);
  
     }
 

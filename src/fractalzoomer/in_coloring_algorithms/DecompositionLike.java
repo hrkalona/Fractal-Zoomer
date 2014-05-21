@@ -38,7 +38,7 @@ public class DecompositionLike  extends InColorAlgorithm {
     @Override
     public double getResult(Object[] object) {
         
-        return option.getFinalResult(Math.abs((Math.atan2(((Complex)object[1]).getIm(), ((Complex)object[1]).getRe()) / (pi2)  + 0.75) * pi59) + 100820);
+        return option.getFinalResult(Math.abs((((Complex)object[1]).arg() / (pi2)  + 0.75) * pi59) + 100820);
 
     }
     

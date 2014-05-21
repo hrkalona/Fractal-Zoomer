@@ -731,6 +731,15 @@ public final class Complex {
     }
     
     /*
+     *  <z
+     */
+    public final double arg() {
+         
+         return Math.atan2(im, re);
+         
+    }
+    
+    /*
      *  |z - Real|^2
      */
     public final double distance_squared(double number) {
@@ -1423,7 +1432,7 @@ public final class Complex {
          return im > number ? new Complex(re, im - 2 * (im - number)) : this;
          
      }
- 
+         
      
 }
     

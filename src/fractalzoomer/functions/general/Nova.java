@@ -35,16 +35,19 @@ import fractalzoomer.out_coloring_algorithms.ColorDecompositionRootFindingMethod
 import fractalzoomer.out_coloring_algorithms.EscapeTimeAlgorithm1;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeAlgorithm2;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeColorDecompositionRootFindingMethod;
+import fractalzoomer.out_coloring_algorithms.EscapeTimeEscapeRadiusNova;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeGaussianInteger2;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeGaussianInteger3;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeGaussianInteger4;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeGaussianInteger5;
+import fractalzoomer.out_coloring_algorithms.EscapeTimeGridNova;
 import fractalzoomer.out_coloring_algorithms.EscapeTimePlusReDivideIm;
 import fractalzoomer.out_coloring_algorithms.SmoothBinaryDecomposition2RootFindingMethod;
 import fractalzoomer.out_coloring_algorithms.SmoothBinaryDecompositionRootFindingMethod;
 import fractalzoomer.out_coloring_algorithms.SmoothBiomorphsNova;
 import fractalzoomer.out_coloring_algorithms.SmoothColorDecompositionRootFindingMethod;
 import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeColorDecompositionRootFindingMethod;
+import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeGridNova;
 import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeRootFindingMethod;
 import java.util.ArrayList;
 
@@ -59,9 +62,9 @@ public class Nova extends Julia {
   protected int nova_method;
     
 
-    public Nova(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean init_value, double[] initial_vals, double[] z_exponent, double[] relaxation, int nova_method) {
+    public Nova(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean init_value, double[] initial_vals, double[] z_exponent, double[] relaxation, int nova_method, String user_plane) {
 
-        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, false, plane_type, rotation_vals, rotation_center);
+        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, false, plane_type, rotation_vals, rotation_center, user_plane);
 
         convergent_bailout = 1E-12;
         
@@ -129,7 +132,7 @@ public class Nova extends Julia {
                     out_color_algorithm = new Biomorphs(2);
                 }
                 else {
-                    out_color_algorithm = new SmoothBiomorphsNova(Math.log(convergent_bailout), 2);
+                    out_color_algorithm = new SmoothBiomorphsNova(Math.log(convergent_bailout));
                 }
                 break;
             case MainWindow.COLOR_DECOMPOSITION:
@@ -158,6 +161,17 @@ public class Nova extends Julia {
                 break;
             case MainWindow.ESCAPE_TIME_ALGORITHM2:
                 out_color_algorithm = new EscapeTimeAlgorithm2();
+                break;
+            case MainWindow.ESCAPE_TIME_ESCAPE_RADIUS:
+                out_color_algorithm = new EscapeTimeEscapeRadiusNova();
+                break;
+            case MainWindow.ESCAPE_TIME_GRID:
+                if(!smoothing) {
+                    out_color_algorithm = new EscapeTimeGridNova();
+                }
+                else {
+                    out_color_algorithm = new SmoothEscapeTimeGridNova(Math.log(convergent_bailout));
+                }
                 break;
       
 
@@ -202,9 +216,9 @@ public class Nova extends Julia {
 
     
 
-     public Nova(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, double[] z_exponent, double[] relaxation, int nova_method, double xJuliaCenter, double yJuliaCenter) {
+     public Nova(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, double[] z_exponent, double[] relaxation, int nova_method, String user_plane, double xJuliaCenter, double yJuliaCenter) {
 
-        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, false, plane_type, rotation_vals, rotation_center, xJuliaCenter, yJuliaCenter);
+        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, false, plane_type, rotation_vals, rotation_center, user_plane, xJuliaCenter, yJuliaCenter);
 
         convergent_bailout = 1E-12;
         
@@ -275,7 +289,7 @@ public class Nova extends Julia {
                     out_color_algorithm = new Biomorphs(2);
                 }
                 else {
-                    out_color_algorithm = new SmoothBiomorphsNova(Math.log(convergent_bailout), 2);
+                    out_color_algorithm = new SmoothBiomorphsNova(Math.log(convergent_bailout));
                 }
                 break;
             case MainWindow.COLOR_DECOMPOSITION:
@@ -314,6 +328,17 @@ public class Nova extends Julia {
                 break;
             case MainWindow.ESCAPE_TIME_ALGORITHM2:
                 out_color_algorithm = new EscapeTimeAlgorithm2();
+                break;
+            case MainWindow.ESCAPE_TIME_ESCAPE_RADIUS:
+                out_color_algorithm = new EscapeTimeEscapeRadiusNova();
+                break;
+            case MainWindow.ESCAPE_TIME_GRID:
+                if(!smoothing) {
+                    out_color_algorithm = new EscapeTimeGridNova();
+                }
+                else {
+                    out_color_algorithm = new SmoothEscapeTimeGridNova(Math.log(convergent_bailout));
+                }
                 break;
                 
  
@@ -357,9 +382,9 @@ public class Nova extends Julia {
     }
 
     //orbit
-    public Nova(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean init_value, double[] initial_vals, double[] z_exponent, double[] relaxation, int nova_method) {
+    public Nova(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean init_value, double[] initial_vals, double[] z_exponent, double[] relaxation, int nova_method, String user_plane) {
 
-        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center);
+        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane);
         
         this.nova_method = nova_method;
         
@@ -383,9 +408,9 @@ public class Nova extends Julia {
 
     }
 
-    public Nova(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, double[] z_exponent, double[] relaxation, int nova_method, double xJuliaCenter, double yJuliaCenter) {
+    public Nova(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, double[] z_exponent, double[] relaxation, int nova_method, String user_plane, double xJuliaCenter, double yJuliaCenter) {
 
-        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, xJuliaCenter, yJuliaCenter);
+        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, xJuliaCenter, yJuliaCenter);
         
         this.nova_method = nova_method;
         

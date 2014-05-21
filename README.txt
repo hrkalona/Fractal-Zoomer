@@ -10,6 +10,7 @@ Functions:
 Over 100 different fractal generating functions
 
 Includes:
+User Formulas
 Plane transformations
 Rotation
 Perturbation

@@ -29,19 +29,23 @@ import fractalzoomer.in_coloring_algorithms.Squares2;
 import fractalzoomer.in_coloring_algorithms.ZMag;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeAlgorithm1;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeAlgorithm2;
+import fractalzoomer.out_coloring_algorithms.EscapeTimeEscapeRadiusMagnet;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeGaussianInteger2;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeGaussianInteger3;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeGaussianInteger4;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeGaussianInteger5;
+import fractalzoomer.out_coloring_algorithms.EscapeTimeGridMagnet;
 import fractalzoomer.out_coloring_algorithms.EscapeTimePlusReDivideIm;
 import fractalzoomer.out_coloring_algorithms.SmoothBinaryDecomposition2Magnet2;
 import fractalzoomer.out_coloring_algorithms.SmoothBinaryDecompositionMagnet2;
 import fractalzoomer.out_coloring_algorithms.SmoothBiomorphsMagnet2;
 import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeAlgorithm2Magnet2;
 import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeColorDecompositionMagnet2;
+import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeEscapeRadiusMagnet2;
 import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeGaussianInteger3Magnet2;
 import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeGaussianInteger4Magnet2;
 import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeGaussianIntegerMagnet2;
+import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeGridMagnet2;
 import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeMagnet2;
 import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimePlusImMagnet2;
 import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimePlusReMagnet2;
@@ -59,9 +63,9 @@ import java.util.ArrayList;
 public class Magnet2 extends Julia {
   private double convergent_bailout;
 
-    public Magnet2(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean init_value, double[] initial_vals) {
+    public Magnet2(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean init_value, double[] initial_vals, String user_plane) {
 
-        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, periodicity_checking, plane_type, rotation_vals, rotation_center);
+        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane);
 
         convergent_bailout = 1E-9;
         
@@ -189,6 +193,22 @@ public class Magnet2 extends Julia {
                     out_color_algorithm = new SmoothEscapeTimeAlgorithm2Magnet2(Math.log(convergent_bailout));  
                 }
                 break;
+            case MainWindow.ESCAPE_TIME_ESCAPE_RADIUS:
+                if(!smoothing) {
+                    out_color_algorithm = new EscapeTimeEscapeRadiusMagnet(Math.log(bailout_squared));
+                }
+                else {
+                    out_color_algorithm = new SmoothEscapeTimeEscapeRadiusMagnet2(Math.log(bailout_squared), Math.log(convergent_bailout));
+                }
+                break;
+            case MainWindow.ESCAPE_TIME_GRID:
+                if(!smoothing) {
+                    out_color_algorithm = new EscapeTimeGridMagnet(Math.log(bailout_squared));
+                }
+                else {
+                    out_color_algorithm = new SmoothEscapeTimeGridMagnet2(Math.log(bailout_squared), Math.log(convergent_bailout));
+                }
+                break;
 
         } 
         
@@ -230,9 +250,9 @@ public class Magnet2 extends Julia {
 
     }
 
-    public Magnet2(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, double xJuliaCenter, double yJuliaCenter) {
+    public Magnet2(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, double xJuliaCenter, double yJuliaCenter) {
 
-        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, periodicity_checking, plane_type, rotation_vals, rotation_center, xJuliaCenter, yJuliaCenter);
+        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, xJuliaCenter, yJuliaCenter);
 
         convergent_bailout = 1E-8;
 
@@ -346,6 +366,22 @@ public class Magnet2 extends Julia {
                     out_color_algorithm = new SmoothEscapeTimeAlgorithm2Magnet2(Math.log(convergent_bailout));  
                 }
                 break;
+            case MainWindow.ESCAPE_TIME_ESCAPE_RADIUS:
+                if(!smoothing) {
+                    out_color_algorithm = new EscapeTimeEscapeRadiusMagnet(Math.log(bailout_squared));
+                }
+                else {
+                    out_color_algorithm = new SmoothEscapeTimeEscapeRadiusMagnet2(Math.log(bailout_squared), Math.log(convergent_bailout));
+                }
+                break;
+            case MainWindow.ESCAPE_TIME_GRID:
+                if(!smoothing) {
+                    out_color_algorithm = new EscapeTimeGridMagnet(Math.log(bailout_squared));
+                }
+                else {
+                    out_color_algorithm = new SmoothEscapeTimeGridMagnet2(Math.log(bailout_squared), Math.log(convergent_bailout));
+                }
+                break;
 
         } 
         
@@ -388,9 +424,9 @@ public class Magnet2 extends Julia {
     }
 
     //orbit
-    public Magnet2(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean init_value, double[] initial_vals) {
+    public Magnet2(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean init_value, double[] initial_vals, String user_plane) {
 
-        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center);
+        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane);
         
         if(perturbation) {
             pertur_val = new Perturbation(perturbation_vals[0], perturbation_vals[1]);
@@ -408,9 +444,9 @@ public class Magnet2 extends Julia {
 
     }
 
-    public Magnet2(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, double xJuliaCenter, double yJuliaCenter) {
+    public Magnet2(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, double xJuliaCenter, double yJuliaCenter) {
 
-        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, xJuliaCenter, yJuliaCenter);
+        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, xJuliaCenter, yJuliaCenter);
 
     }
 

@@ -31,6 +31,7 @@ import fractalzoomer.planes.general.MuPlane;
 import fractalzoomer.bailout_tests.StripBailoutTest;
 import fractalzoomer.bailout_tests.SquareBailoutTest;
 import fractalzoomer.fractal_options.DefaultInitialValue;
+import fractalzoomer.planes.UserPlane;
 import fractalzoomer.planes.fold.FoldInPlane;
 import fractalzoomer.planes.fold.FoldOutPlane;
 import fractalzoomer.planes.fold.FoldRightPlane;
@@ -97,7 +98,7 @@ public abstract class Fractal {
   protected Complex period;
 
 
-    public Fractal(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center) {
+    public Fractal(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane) {
 
         this.xCenter = xCenter;
         this.yCenter = yCenter;
@@ -248,6 +249,9 @@ public abstract class Fractal {
             case MainWindow.NEWTONGENERALIZED8_PLANE:
                 plane = new NewtonGeneralized8Plane();
                 break;
+            case MainWindow.USER_PLANE:
+                plane = new UserPlane(user_plane);
+                break;
                 
         }
         
@@ -280,7 +284,7 @@ public abstract class Fractal {
     }
 
     //orbit
-    public Fractal(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center) {
+    public Fractal(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane) {
 
         this.xCenter = xCenter;
         this.yCenter = yCenter;
@@ -429,6 +433,9 @@ public abstract class Fractal {
                 break;
             case MainWindow.NEWTONGENERALIZED8_PLANE:
                 plane = new NewtonGeneralized8Plane();
+                break;
+            case MainWindow.USER_PLANE:
+                plane = new UserPlane(user_plane);
                 break;
        
         }

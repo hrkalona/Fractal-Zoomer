@@ -33,11 +33,11 @@ public class Palette extends ThreadDraw {
   private static final int[] hotcold_palette = {-1, -1905153, -3744513, -5649409, -7488769, -9393665, -11233025, -13137921, -14977281, -15044107, -15110676, -15177502, -15244071, -15310640, -15377466, -15444035, -15510604, -15380311, -15184482, -15053933, -14858103, -14662274, -14531725, -14335896, -14139810, -13747364, -13289381, -12831399, -12373160, -11980713, -11522731, -11064748, -10606509, -9951909, -9231773, -8511381, -7791245, -7136645, -6416253, -5696117, -4975725, -4385638, -3795550, -3139926, -2549838, -1959751, -1304127, -714039, -58415, -51242, -43812, -36638, -29208, -22035, -14605, -7431};
   private static final int[] hotcold2_palette = {-51200, -49916, -48375, -47090, -45549, -44008, -42723, -41182, -39642, -38357, -36816, -35275, -33990, -32449, -31164, -29624, -28083, -26798, -25257, -23716, -22431, -20890, -19349, -18833, -18316, -17800, -17283, -16767, -15994, -15478, -14961, -14445, -13928, -13156, -12639, -12123, -11606, -11090, -10573, -9801, -9284, -8768, -8252, -7735, -6962, -72496, -72238, -137516, -137514, -202791, -202533, -268067, -267809, -333086, -333084, -332826, -398104, -398102, -463379, -463121, -528655, -528397, -593674, -593672, -658950, -658692, -658433, -789761, -855553, -986881, -1052673, -1184001, -1249537, -1315329, -1446657, -1512449, -1643777, -1709313, -1775105, -1906433, -1972225, -2103553, -2169345, -2234881, -2366209, -2432001, -2563329, -2629121, -2694657, -2825985, -2891777, -2957569, -3088897, -3154433, -3220225, -3286017, -3417345, -3482881, -3548673, -3614465, -3745793, -3811585, -3877121, -4008449, -4074241, -4140033, -4205569, -4336897, -4402689, -4468481, -4534017, -4665345, -4731137, -4862465, -4928257, -5059585, -5125377, -5191169, -5322497, -5388289, -5519617, -5585153, -5650945, -5782273, -5848065, -5979393, -6045185, -6110977, -6242305, -6308097, -6439425, -6505217, -6570753, -6310157, -5984025, -5723428, -5397296, -5136699, -4810567, -4549971, -4223838, -3963242, -3637365, -3311233, -3050637, -2724248, -2463652, -2137519, -1876923, -1550791, -1290194, -964062, -703465, -377333};
   private static final int[] fire_palette = {-16777216, -15073280, -13303808, -11534336, -9764864, -8060928, -6291456, -4521984, -2752512, -2423552, -2094336, -1765376, -1436160, -1106944, -777984, -448768, -54016, -52480, -50688, -48896, -47104, -45312, -43520, -41728, -39936, -38400, -36608, -34816, -33024, -31232, -29440, -27648, -25856, -24320, -22528, -20736, -18944, -17152, -15360, -13568, -11776, -10491, -8950, -7665, -6124, -4583, -3298, -1757, -215, -2105565, -4210914, -6316263, -8421612, -10526961, -12632310, -14737659};
-  
+  private static final int[] jet_palette = {-16777027, -16777022, -16777016, -16777011, -16777005, -16777000, -16776994, -16776989, -16776983, -16776978, -16776972, -16776967, -16776961, -16775681, -16774145, -16772865, -16771329, -16770049, -16768769, -16767233, -16765697, -16764417, -16762881, -16761601, -16760065, -16758785, -16757249, -16755969, -16754433, -16753153, -16751617, -16750337, -16748801, -16747521, -16745985, -16744705, -16743169, -16742145, -16740865, -16739585, -16738305, -16737281, -16736001, -16734721, -16733441, -16732417, -16731137, -16729857, -16728577, -16727297, -16725761, -16724481, -16722945, -16721665, -16720129, -16718849, -16717313, -16716033, -16714497, -16713217, -16711681, -16384007, -15990796, -15663122, -15269911, -14942237, -14614562, -14221352, -13828141, -13500467, -13107256, -12779582, -12386371, -12058696, -11665485, -11337810, -10944598, -10616923, -10223712, -9896037, -9502825, -9175150, -8781939, -8454264, -8061052, -7798914, -7471239, -7143565, -6815890, -6553752, -6226077, -5898403, -5570728, -5308590, -4980915, -4653241, -4325566, -3997892, -3604681, -3277007, -2883796, -2556122, -2162911, -1835237, -1442026, -1114352, -721141, -393467, -256, -1792, -3072, -4608, -5888, -7424, -8704, -10240, -11520, -13056, -14336, -15872, -17152, -18432, -19712, -20992, -22016, -23296, -24576, -25856, -26880, -28160, -29440, -30720, -31744, -33280, -34560, -36096, -37376, -38912, -40192, -41728, -43008, -44544, -45824, -47360, -48640, -50176, -51456, -52992, -54272, -55808, -57088, -58624, -59904, -61440, -62720, -64256, -65536, -458752, -786432, -1179648, -1507328, -1900544, -2228224, -2621440, -2949120, -3342336, -3670016, -4063232, -4390912, -4718592, -5046272, -5373952, -5636096, -5963776, -6291456, -6619136, -6881280, -7208960, -7536640, -7864320, -8126464, -8847345, -9568225, -10289105, -11009985, -11730866, -12451746, -13172626, -13893506, -14614387, -15335267, -16121683, };
      
-     public Palette(int color_choice, int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, boolean d3, int detail, double fiX, double fiY, MainWindow ptr, Color fractal_color, BufferedImage image, boolean[] filters, int[] filters_options_vals, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, boolean boundary_tracing, boolean periodicity_checking, int plane_type, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean init_val, double[] initial_vals, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method) {
+     public Palette(int color_choice, int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, boolean d3, int d3_draw_method, int detail, double fiX, double fiY, MainWindow ptr, Color fractal_color, BufferedImage image, boolean[] filters, int[] filters_options_vals, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, boolean boundary_tracing, boolean periodicity_checking, int plane_type, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean init_val, double[] initial_vals, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, int bail_technique, String user_plane) {
 
-        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, d3, detail, fiX, fiY, ptr, fractal_color, image, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, boundary_tracing, periodicity_checking, plane_type,  burning_ship, mandel_grass, mandel_grass_vals,  function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, coefficients, z_exponent_nova, relaxation, nova_method);
+        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, d3, d3_draw_method, detail, fiX, fiY, ptr, fractal_color, image, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, boundary_tracing, periodicity_checking, plane_type,  burning_ship, mandel_grass, mandel_grass_vals,  function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, coefficients, z_exponent_nova, relaxation, nova_method, user_formula, bail_technique, user_plane);
 
         switch (color_choice) {
             
@@ -177,14 +177,22 @@ public class Palette extends ThreadDraw {
                     palette_color = new PaletteColorSmooth(fire_palette);
                 }
                 break;
+            case 17:
+               if(!smoothing) {
+                    palette_color = new PaletteColorNormal(jet_palette);
+                }
+                else {
+                    palette_color = new PaletteColorSmooth(jet_palette);
+                }
+                break;
                 
         }
 
     }
 
-    public Palette(int color_choice, int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, boolean d3, int detail, double fiX, double fiY, MainWindow ptr, Color fractal_color, BufferedImage image, boolean[] filters, int[] filters_options_vals, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing,  boolean boundary_tracing, boolean periodicity_checking, int plane_type, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] rotation_vals, double[] rotation_center, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method,  double xJuliaCenter, double yJuliaCenter) {
+    public Palette(int color_choice, int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, boolean d3, int d3_draw_method, int detail, double fiX, double fiY, MainWindow ptr, Color fractal_color, BufferedImage image, boolean[] filters, int[] filters_options_vals, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing,  boolean boundary_tracing, boolean periodicity_checking, int plane_type, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] rotation_vals, double[] rotation_center, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, int bail_technique, String user_plane,  double xJuliaCenter, double yJuliaCenter) {
 
-       super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, d3, detail, fiX, fiY, ptr, fractal_color, image, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, boundary_tracing, periodicity_checking, plane_type,  burning_ship, mandel_grass, mandel_grass_vals,  function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, coefficients, z_exponent_nova, relaxation, nova_method, xJuliaCenter, yJuliaCenter);
+       super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, d3, d3_draw_method, detail, fiX, fiY, ptr, fractal_color, image, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, boundary_tracing, periodicity_checking, plane_type,  burning_ship, mandel_grass, mandel_grass_vals,  function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, coefficients, z_exponent_nova, relaxation, nova_method, user_formula, bail_technique, user_plane, xJuliaCenter, yJuliaCenter);
 
        switch (color_choice) {
             
@@ -324,15 +332,23 @@ public class Palette extends ThreadDraw {
                     palette_color = new PaletteColorSmooth(fire_palette);
                 }
                 break;
+            case 17:
+               if(!smoothing) {
+                    palette_color = new PaletteColorNormal(jet_palette);
+                }
+                else {
+                    palette_color = new PaletteColorSmooth(jet_palette);
+                }
+                break;
                 
         }
 
 
     }
     
-    public Palette(int color_choice, int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, MainWindow ptr, Color fractal_color, BufferedImage image, boolean[] filters, int[] filters_options_vals, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing,  boolean periodicity_checking, int plane_type, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] rotation_vals, double[] rotation_center, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method) {
+    public Palette(int color_choice, int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, MainWindow ptr, Color fractal_color, BufferedImage image, boolean[] filters, int[] filters_options_vals, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing,  boolean periodicity_checking, int plane_type, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] rotation_vals, double[] rotation_center, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, int bail_technique, String user_plane) {
 
-        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, ptr, fractal_color, image, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type,  burning_ship, mandel_grass, mandel_grass_vals,  function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, coefficients, z_exponent_nova, relaxation, nova_method);
+        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, ptr, fractal_color, image, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type,  burning_ship, mandel_grass, mandel_grass_vals,  function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, coefficients, z_exponent_nova, relaxation, nova_method, user_formula, bail_technique, user_plane);
         
        switch (color_choice) {
             
@@ -472,15 +488,23 @@ public class Palette extends ThreadDraw {
                     palette_color = new PaletteColorSmooth(fire_palette);
                 }
                 break;
+            case 17:
+               if(!smoothing) {
+                    palette_color = new PaletteColorNormal(jet_palette);
+                }
+                else {
+                    palette_color = new PaletteColorSmooth(jet_palette);
+                }
+                break;
                 
         }
 
 
     }
 
-    public Palette(int color_choice, int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, MainWindow ptr, Color fractal_color, boolean fast_julia_filters, BufferedImage image, boolean boundary_tracing, boolean periodicity_checking, int plane_type, boolean[] filters, int[] filters_options_vals, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing,  boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double [] rotation_vals, double[] rotation_center, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, double xJuliaCenter, double yJuliaCenter) {
+    public Palette(int color_choice, int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, MainWindow ptr, Color fractal_color, boolean fast_julia_filters, BufferedImage image, boolean boundary_tracing, boolean periodicity_checking, int plane_type, boolean[] filters, int[] filters_options_vals, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing,  boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double [] rotation_vals, double[] rotation_center, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, int bail_technique, String user_plane, double xJuliaCenter, double yJuliaCenter) {
 
-        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, ptr, fractal_color, fast_julia_filters, image, boundary_tracing, periodicity_checking, plane_type, out_coloring_algorithm, in_coloring_algorithm, smoothing, filters, filters_options_vals,  burning_ship, mandel_grass, mandel_grass_vals,  function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, coefficients, z_exponent_nova, relaxation, nova_method, xJuliaCenter, yJuliaCenter);
+        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, ptr, fractal_color, fast_julia_filters, image, boundary_tracing, periodicity_checking, plane_type, out_coloring_algorithm, in_coloring_algorithm, smoothing, filters, filters_options_vals,  burning_ship, mandel_grass, mandel_grass_vals,  function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, coefficients, z_exponent_nova, relaxation, nova_method, user_formula, bail_technique, user_plane, xJuliaCenter, yJuliaCenter);
 
         switch (color_choice) {
             
@@ -618,6 +642,14 @@ public class Palette extends ThreadDraw {
                 }
                 else {
                     palette_color = new PaletteColorSmooth(fire_palette);
+                }
+                break;
+            case 17:
+               if(!smoothing) {
+                    palette_color = new PaletteColorNormal(jet_palette);
+                }
+                else {
+                    palette_color = new PaletteColorSmooth(jet_palette);
                 }
                 break;
                 
@@ -768,6 +800,14 @@ public class Palette extends ThreadDraw {
                     palette_color = new PaletteColorSmooth(fire_palette);
                 }
                 break;
+            case 17:
+               if(!smoothing) {
+                    palette_color = new PaletteColorNormal(jet_palette);
+                }
+                else {
+                    palette_color = new PaletteColorSmooth(jet_palette);
+                }
+                break;
                 
         }
 
@@ -916,15 +956,23 @@ public class Palette extends ThreadDraw {
                     palette_color = new PaletteColorSmooth(fire_palette);
                 }
                 break;
+            case 17:
+               if(!smoothing) {
+                    palette_color = new PaletteColorNormal(jet_palette);
+                }
+                else {
+                    palette_color = new PaletteColorSmooth(jet_palette);
+                }
+                break;
                 
         }
 
 
     }
     
-    public Palette(int FROMx, int TOx, int FROMy, int TOy, int detail, double fiX, double fiY,  MainWindow ptr, BufferedImage image, boolean[] filters, int[] filters_options_vals) {
+    public Palette(int FROMx, int TOx, int FROMy, int TOy, int detail, double fiX, double fiY, int d3_draw_method,  MainWindow ptr, BufferedImage image, boolean[] filters, int[] filters_options_vals) {
         
-        super(FROMx, TOx, FROMy, TOy, detail, fiX, fiY,  ptr, image, filters, filters_options_vals);
+        super(FROMx, TOx, FROMy, TOy, detail, fiX, fiY, d3_draw_method,  ptr, image, filters, filters_options_vals);
         
     }
 

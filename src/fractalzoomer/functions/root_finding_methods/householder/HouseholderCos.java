@@ -38,9 +38,9 @@ import java.util.ArrayList;
  */
 public class HouseholderCos extends RootFindingMethods {
 
-    public HouseholderCos(double xCenter, double yCenter, double size, int max_iterations, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center) {
+    public HouseholderCos(double xCenter, double yCenter, double size, int max_iterations, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane) {
 
-        super(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, plane_type, rotation_vals, rotation_center);
+        super(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, plane_type, rotation_vals, rotation_center, user_plane);
 
         switch (out_coloring_algorithm) {
 
@@ -130,9 +130,9 @@ public class HouseholderCos extends RootFindingMethods {
     }
 
     //orbit
-    public HouseholderCos(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center) {
+    public HouseholderCos(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane) {
 
-        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center);
+        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane);
  
     }
    

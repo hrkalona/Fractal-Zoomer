@@ -49,8 +49,11 @@ public class SettingsFractals implements Serializable {
   private double[] perturbation_vals;
   private boolean init_val;
   private double[] initial_vals;
+  private String user_formula;
+  private String user_plane;
+  private int bail_technique;
 
-    public SettingsFractals(double xCenter, double yCenter, double size, int max_iterations, int color_choice, Color fractal_color, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, int function, int bailout_test_algorithm, double bailout, double n_norm, int plane_type, boolean burning_ship, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] coefficients, int[][] custom_palette, int color_interpolation, int color_space, boolean reversed_palette, double rotation, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean init_val, double[] initial_vals, boolean mandel_grass, double[] mandel_grass_vals, double[] z_exponent_nova, double[] relaxation, int nova_method) {
+    public SettingsFractals(double xCenter, double yCenter, double size, int max_iterations, int color_choice, Color fractal_color, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, int function, int bailout_test_algorithm, double bailout, double n_norm, int plane_type, boolean burning_ship, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] coefficients, int[][] custom_palette, int color_interpolation, int color_space, boolean reversed_palette, double rotation, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean init_val, double[] initial_vals, boolean mandel_grass, double[] mandel_grass_vals, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, int bail_technique, String user_plane) {
 
         this.xCenter = xCenter;
         this.yCenter = yCenter;
@@ -86,6 +89,9 @@ public class SettingsFractals implements Serializable {
         this.z_exponent_nova = z_exponent_nova;
         this.relaxation = relaxation;
         this.nova_method = nova_method;
+        this.user_formula = user_formula;
+        this.bail_technique = bail_technique;
+        this.user_plane = user_plane;
         
     }
   
@@ -290,6 +296,24 @@ public class SettingsFractals implements Serializable {
     public boolean getReveresedPalette() {
         
         return reversed_palette;
+        
+    }
+    
+    public String getUserFormula() {
+        
+        return user_formula;
+        
+    }
+    
+    public String getUserPlane() {
+        
+        return user_plane;
+        
+    }
+    
+    public int getBailTechnique() {
+        
+        return bail_technique;
         
     }
 
