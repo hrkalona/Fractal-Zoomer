@@ -54,15 +54,13 @@ import java.util.ArrayList;
  *
  * @author hrkalona2
  */
-public class UserFormulaConverging extends Julia {
+public class UserFormulaIterationBasedConverging extends Julia {
   protected double convergent_bailout;
-  private ExpressionNode expr;
-  private Parser parser;
-  private ExpressionNode expr2;
-  private Parser parser2;
+  private ExpressionNode[] expr;
+  private Parser[] parser;
   int iterations;
 
-    public UserFormulaConverging(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean init_value, double[] initial_vals, String user_formula,  String user_formula2, String user_plane) {
+    public UserFormulaIterationBasedConverging(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean init_value, double[] initial_vals, String[] user_formula, String user_plane) {
 
         super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, false, plane_type, rotation_vals, rotation_center, user_plane);
 
@@ -215,17 +213,19 @@ public class UserFormulaConverging extends Julia {
                 
         }
         
-        parser = new Parser();
-        expr = parser.parse(user_formula);
+        parser = new Parser[4];
+        expr = new ExpressionNode[4];
         
-        parser2 = new Parser();
-        expr2 = parser2.parse(user_formula2); 
+        for(int i = 0; i < parser.length; i++) {
+            parser[i] = new Parser();
+            expr[i] = parser[i].parse(user_formula[i]);   
+        }    
 
     }
 
     
 
-     public UserFormulaConverging(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, String user_formula,  String user_formula2, String user_plane, double xJuliaCenter, double yJuliaCenter) {
+     public UserFormulaIterationBasedConverging(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, String[] user_formula, String user_plane, double xJuliaCenter, double yJuliaCenter) {
 
         super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, false, plane_type, rotation_vals, rotation_center, user_plane, xJuliaCenter, yJuliaCenter);
 
@@ -366,16 +366,18 @@ public class UserFormulaConverging extends Julia {
                 
         }
         
-        parser = new Parser();
-        expr = parser.parse(user_formula);
+        parser = new Parser[4];
+        expr = new ExpressionNode[4];
         
-        parser2 = new Parser();
-        expr2 = parser2.parse(user_formula2); 
+        for(int i = 0; i < parser.length; i++) {
+            parser[i] = new Parser();
+            expr[i] = parser[i].parse(user_formula[i]);   
+        }   
 
     }
 
     //orbit
-    public UserFormulaConverging(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean init_value, double[] initial_vals, String user_formula,  String user_formula2, String user_plane) {
+    public UserFormulaIterationBasedConverging(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean init_value, double[] initial_vals, String[] user_formula, String user_plane) {
 
         super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane);
         
@@ -393,23 +395,27 @@ public class UserFormulaConverging extends Julia {
             init_val = new DefaultInitialValue(initial_vals[0], initial_vals[1]);
         }
         
-        parser = new Parser();
-        expr = parser.parse(user_formula);
+        parser = new Parser[4];
+        expr = new ExpressionNode[4];
         
-        parser2 = new Parser();
-        expr2 = parser2.parse(user_formula2); 
+        for(int i = 0; i < parser.length; i++) {
+            parser[i] = new Parser();
+            expr[i] = parser[i].parse(user_formula[i]);   
+        }   
 
     }
 
-    public UserFormulaConverging(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, String user_formula,  String user_formula2, String user_plane, double xJuliaCenter, double yJuliaCenter) {
+    public UserFormulaIterationBasedConverging(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, String[] user_formula, String user_plane, double xJuliaCenter, double yJuliaCenter) {
 
         super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, xJuliaCenter, yJuliaCenter);
         
-        parser = new Parser();
-        expr = parser.parse(user_formula);
+        parser = new Parser[4];
+        expr = new ExpressionNode[4];
         
-        parser2 = new Parser();
-        expr2 = parser2.parse(user_formula2); 
+        for(int i = 0; i < parser.length; i++) {
+            parser[i] = new Parser();
+            expr[i] = parser[i].parse(user_formula[i]);   
+        }   
         
     }
 
@@ -418,37 +424,54 @@ public class UserFormulaConverging extends Julia {
     @Override
     protected void function(Complex[] complex) {
         
-        /** Z= **/
-        if(parser.foundN()) {
-            parser.setNvalue(new Complex(iterations, 0));
+         if(iterations % 4 == 0) {
+            if(parser[0].foundN()) {
+                parser[0].setNvalue(new Complex(iterations, 0));
+            }
+            parser[0].setZvalue(complex[0]);
+
+            if(parser[0].foundC()) {
+                parser[0].setCvalue(complex[1]);
+            }
+            
+            complex[0] = expr[0].getValue();
         }
-        
-        //expr.accept(new SetVariable("z", complex[0]));
-        parser.setZvalue(complex[0]);
-        
-        if(parser.foundC()) {
-            //expr.accept(new SetVariable("c", complex[1]));
-            parser.setCvalue(complex[1]);
+        else if(iterations % 4 == 1) {
+            if(parser[1].foundN()) {
+                parser[1].setNvalue(new Complex(iterations, 0));
+            }
+            parser[1].setZvalue(complex[0]);
+
+            if(parser[1].foundC()) {
+                parser[1].setCvalue(complex[1]);
+            }
+            
+            complex[0] = expr[1].getValue();
         }
-        
-        complex[0] = expr.getValue();
-        /****/
-        
-        /** C= **/
-        if(parser2.foundN()) {
-            parser2.setNvalue(new Complex(iterations, 0));
+        else if(iterations % 4 == 2) {
+            if(parser[2].foundN()) {
+                parser[2].setNvalue(new Complex(iterations, 0));
+            }
+            parser[2].setZvalue(complex[0]);
+
+            if(parser[2].foundC()) {
+                parser[2].setCvalue(complex[1]);
+            }
+            
+            complex[0] = expr[2].getValue();
         }
-        
-        if(parser2.foundZ()) {
-            parser2.setZvalue(complex[0]);
+        else  {
+            if(parser[3].foundN()) {
+                parser[3].setNvalue(new Complex(iterations, 0));
+            }
+            parser[3].setZvalue(complex[0]);
+
+            if(parser[3].foundC()) {
+                parser[3].setCvalue(complex[1]);
+            }
+            
+            complex[0] = expr[3].getValue();
         }
-        
-        if(parser2.foundC()) {
-            parser2.setCvalue(complex[1]);
-        }
-        
-        complex[1] = expr2.getValue();
-        /****/
         
     }
     
@@ -467,12 +490,8 @@ public class UserFormulaConverging extends Julia {
         Complex zold = new Complex();
         Complex zold2 = new Complex();
         
-        if(parser.foundP()) {
-            parser.setPvalue(new Complex());
-        }
-        
-        if(parser2.foundP()) {
-            parser2.setPvalue(new Complex());
+        if(parser[0].foundP()) {
+            parser[0].setPvalue(new Complex());
         }
 
         for (; iterations < max_iterations; iterations++) {
@@ -484,12 +503,20 @@ public class UserFormulaConverging extends Julia {
             zold.assign(complex[0]);
             function(complex);
             
-            if(parser.foundP()) {
-                parser.setPvalue(new Complex(zold));
+            if(parser[0].foundP()) {
+                parser[0].setPvalue(new Complex(zold));
             }
             
-            if(parser2.foundP()) {
-                parser2.setPvalue(new Complex(zold));
+            if(parser[1].foundP()) {
+                parser[1].setPvalue(new Complex(zold));
+            }
+            
+            if(parser[2].foundP()) {
+                parser[2].setPvalue(new Complex(zold));
+            }
+            
+            if(parser[3].foundP()) {
+                parser[3].setPvalue(new Complex(zold));
             }
  
         }
@@ -512,12 +539,8 @@ public class UserFormulaConverging extends Julia {
         Complex zold = new Complex();
         Complex zold2 = new Complex();
         
-        if(parser.foundP()) {
-            parser.setPvalue(new Complex());
-        }
-        
-        if(parser2.foundP()) {
-            parser2.setPvalue(new Complex());
+        if(parser[0].foundP()) {
+            parser[0].setPvalue(new Complex());
         }
 
         for (; iterations < max_iterations; iterations++) {
@@ -529,12 +552,20 @@ public class UserFormulaConverging extends Julia {
             zold.assign(complex[0]);
             function(complex);
             
-            if(parser.foundP()) {
-                parser.setPvalue(new Complex(zold));
+            if(parser[0].foundP()) {
+                parser[0].setPvalue(new Complex(zold));
             }
             
-            if(parser2.foundP()) {
-                parser2.setPvalue(new Complex(zold));
+            if(parser[1].foundP()) {
+                parser[1].setPvalue(new Complex(zold));
+            }
+            
+            if(parser[2].foundP()) {
+                parser[2].setPvalue(new Complex(zold));
+            }
+            
+            if(parser[3].foundP()) {
+                parser[3].setPvalue(new Complex(zold));
             }
  
         }
@@ -558,12 +589,8 @@ public class UserFormulaConverging extends Julia {
         Complex zold = new Complex();
         Complex zold2 = new Complex();
         
-        if(parser.foundP()) {
-            parser.setPvalue(new Complex());
-        }
-        
-        if(parser2.foundP()) {
-            parser2.setPvalue(new Complex());
+        if(parser[0].foundP()) {
+            parser[0].setPvalue(new Complex());
         }
 
         double temp2;
@@ -578,12 +605,20 @@ public class UserFormulaConverging extends Julia {
             zold.assign(complex[0]);
             function(complex);
             
-            if(parser.foundP()) {
-                parser.setPvalue(new Complex(zold));
+            if(parser[0].foundP()) {
+                parser[0].setPvalue(new Complex(zold));
             }
             
-            if(parser2.foundP()) {
-                parser2.setPvalue(new Complex(zold));
+            if(parser[1].foundP()) {
+                parser[1].setPvalue(new Complex(zold));
+            }
+            
+            if(parser[2].foundP()) {
+                parser[2].setPvalue(new Complex(zold));
+            }
+            
+            if(parser[3].foundP()) {
+                parser[3].setPvalue(new Complex(zold));
             }
  
         }
@@ -608,12 +643,8 @@ public class UserFormulaConverging extends Julia {
         Complex zold = new Complex();
         Complex zold2 = new Complex();
         
-        if(parser.foundP()) {
-            parser.setPvalue(new Complex());
-        }
-        
-        if(parser2.foundP()) {
-            parser2.setPvalue(new Complex());
+        if(parser[0].foundP()) {
+            parser[0].setPvalue(new Complex());
         }
 
         for (; iterations < max_iterations; iterations++) {
@@ -626,12 +657,20 @@ public class UserFormulaConverging extends Julia {
             zold.assign(complex[0]);
             function(complex);
             
-            if(parser.foundP()) {
-                parser.setPvalue(new Complex(zold));
+            if(parser[0].foundP()) {
+                parser[0].setPvalue(new Complex(zold));
             }
             
-            if(parser2.foundP()) {
-                parser2.setPvalue(new Complex(zold));
+            if(parser[1].foundP()) {
+                parser[1].setPvalue(new Complex(zold));
+            }
+            
+            if(parser[2].foundP()) {
+                parser[2].setPvalue(new Complex(zold));
+            }
+            
+            if(parser[3].foundP()) {
+                parser[3].setPvalue(new Complex(zold));
             }
  
         }
@@ -657,25 +696,29 @@ public class UserFormulaConverging extends Julia {
         
         Complex zold = new Complex();
         
-        if(parser.foundP()) {
-            parser.setPvalue(new Complex());
-        }
-        
-        if(parser2.foundP()) {
-            parser2.setPvalue(new Complex());
+        if(parser[0].foundP()) {
+            parser[0].setPvalue(new Complex());
         }
         
         for (; iterations < max_iterations; iterations++) {
            zold.assign(complex[0]);
            function(complex);
            
-           if(parser.foundP()) {
-                parser.setPvalue(new Complex(zold));
-           }
-           
-           if(parser2.foundP()) {
-                parser2.setPvalue(new Complex(zold));
-           }
+           if(parser[0].foundP()) {
+                parser[0].setPvalue(new Complex(zold));
+            }
+            
+            if(parser[1].foundP()) {
+                parser[1].setPvalue(new Complex(zold));
+            }
+            
+            if(parser[2].foundP()) {
+                parser[2].setPvalue(new Complex(zold));
+            }
+            
+            if(parser[3].foundP()) {
+                parser[3].setPvalue(new Complex(zold));
+            }
            
            temp = rotation.getPixel(complex[0], true);
            
@@ -700,24 +743,28 @@ public class UserFormulaConverging extends Julia {
         
         Complex zold = new Complex();
         
-        if(parser.foundP()) {
-            parser.setPvalue(new Complex());
-        }
-        
-        if(parser2.foundP()) {
-            parser2.setPvalue(new Complex());
+        if(parser[0].foundP()) {
+            parser[0].setPvalue(new Complex());
         }
         
         for (; iterations < max_iterations; iterations++) {
            zold.assign(complex[0]);
            function(complex);
            
-           if(parser.foundP()) {
-                parser.setPvalue(new Complex(zold));
-           }
-           
-           if(parser2.foundP()) {
-                parser2.setPvalue(new Complex(zold));
+           if(parser[0].foundP()) {
+                parser[0].setPvalue(new Complex(zold));
+            }
+            
+            if(parser[1].foundP()) {
+                parser[1].setPvalue(new Complex(zold));
+            }
+            
+            if(parser[2].foundP()) {
+                parser[2].setPvalue(new Complex(zold));
+            }
+            
+            if(parser[3].foundP()) {
+                parser[3].setPvalue(new Complex(zold));
             }
            
            temp = rotation.getPixel(complex[0], true);
@@ -732,5 +779,3 @@ public class UserFormulaConverging extends Julia {
     }
     
 }
-
-        

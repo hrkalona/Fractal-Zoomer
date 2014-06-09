@@ -87,6 +87,7 @@ public class Halley4 extends RootFindingMethods {
                 }
                 break;
             case MainWindow.ESCAPE_TIME_ALGORITHM:
+                convergent_bailout = 1E-4;
                 out_color_algorithm = new EscapeTimeAlgorithm1(3);
                 break;
 

@@ -24,6 +24,8 @@ import fractalzoomer.palettes.Palette;
 import fractalzoomer.parser.EvaluationException;
 import fractalzoomer.parser.Parser;
 import fractalzoomer.parser.ParserException;
+import fractalzoomer.settings.SettingsFractals1049;
+import fractalzoomer.settings.SettingsJulia1049;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Desktop;
@@ -178,6 +180,8 @@ public class MainWindow extends JFrame {
   private Color grid_color;
   private Parser parser;
   private String user_formula;
+  private String user_formula2;
+  private String[] user_formula_iteration_based;
   private boolean user_formula_c;
   private String user_plane;
   private int bail_technique;
@@ -466,6 +470,7 @@ public class MainWindow extends JFrame {
   public static final int FORMULA38 = 111;
   public static final int FORMULA39 = 112;
   public static final int USER_FORMULA = 113;
+  public static final int USER_FORMULA_ITERATION_BASED = 114;
   public static final int NOVA_NEWTON = 0;
   public static final int NOVA_HALLEY = 1;
   public static final int NOVA_SCHRODER = 2;
@@ -492,6 +497,7 @@ public class MainWindow extends JFrame {
   public static final int DISTANCE_ESTIMATOR = 17;
   public static final int ESCAPE_TIME_ESCAPE_RADIUS = 18;
   public static final int ESCAPE_TIME_GRID = 19;
+  public static final int DISTANCE_ESTIMATOR2 = 20;
   public static final int MAXIMUM_ITERATIONS = 0;
   public static final int Z_MAG = 1;
   public static final int DECOMPOSITION_LIKE = 2;
@@ -697,6 +703,16 @@ public class MainWindow extends JFrame {
         in_coloring_algorithm = MAXIMUM_ITERATIONS;
         
         detail = 0;
+        
+        user_formula = "z^2 + c";
+        user_formula2 = "c";
+        user_plane = "z";
+        
+        user_formula_iteration_based = new String[4];
+        user_formula_iteration_based[0] = "z^2 + c";
+        user_formula_iteration_based[1] = "z^3 + c";
+        user_formula_iteration_based[2] = "z^4 + c";
+        user_formula_iteration_based[3] = "z^5 + c";
         
         d3 = false;
         orbit = false;
@@ -1358,7 +1374,7 @@ public class MainWindow extends JFrame {
 
         });
 
-        fractal_functions = new JRadioButtonMenuItem[114];
+        fractal_functions = new JRadioButtonMenuItem[115];
         
         fractal_functions[0] = new JRadioButtonMenuItem("Mandelbrot z = z^2 + c");
         fractal_functions[0].addActionListener(new ActionListener() {
@@ -2341,6 +2357,19 @@ public class MainWindow extends JFrame {
                 }
         });
         fractal_functions_menu.add(fractal_functions[USER_FORMULA]);
+        
+        fractal_functions_menu.addSeparator();
+        
+        fractal_functions[USER_FORMULA_ITERATION_BASED] = new JRadioButtonMenuItem("User Formula Iteration Based");
+        fractal_functions[USER_FORMULA_ITERATION_BASED].addActionListener(new ActionListener() {
+      
+                public void actionPerformed(ActionEvent e) {
+
+                    setFunction(USER_FORMULA_ITERATION_BASED);
+
+                }
+        });
+        fractal_functions_menu.add(fractal_functions[USER_FORMULA_ITERATION_BASED]);
  
 
         fractal_functions[HALLEY3] = new JRadioButtonMenuItem("Halley 3");
@@ -3289,7 +3318,7 @@ public class MainWindow extends JFrame {
         planes[plane_type].setEnabled(false);
         
         
-        out_coloring_modes = new JRadioButtonMenuItem[20];
+        out_coloring_modes = new JRadioButtonMenuItem[21];
         
         out_coloring_modes[ESCAPE_TIME] = new JRadioButtonMenuItem("Escape Time");
         out_coloring_modes[ESCAPE_TIME].setToolTipText("Sets the out-coloring method, using the iterations.");
@@ -3530,8 +3559,19 @@ public class MainWindow extends JFrame {
         });
         out_coloring_mode_menu.add(out_coloring_modes[ESCAPE_TIME_GRID]);
         
-    
         
+        out_coloring_modes[DISTANCE_ESTIMATOR2] = new JRadioButtonMenuItem("Distance Estimator 2");
+        out_coloring_modes[DISTANCE_ESTIMATOR2].setToolTipText("Sets the out-coloring method, using Distance Estimator 2.");
+        out_coloring_modes[DISTANCE_ESTIMATOR2].addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+
+                    setOutColoringMode(DISTANCE_ESTIMATOR2);
+
+                }
+        });
+        out_coloring_mode_menu.add(out_coloring_modes[DISTANCE_ESTIMATOR2]);
+        
+     
         out_coloring_modes[out_coloring_algorithm].setSelected(true);
         out_coloring_modes[out_coloring_algorithm].setEnabled(false);
         
@@ -4399,7 +4439,7 @@ public class MainWindow extends JFrame {
                 if(!color_cycling) {
                     main_panel.repaint();
                 }
-                JOptionPane.showMessageDialog(scroll_pane, "<html><center><font size='5' face='arial' color='blue'><b><u>Fractal Zoomer</u></b></font><br><br><font size='4'><img src=\"" + getClass().getResource("/fractalzoomer/icons/mandel2.png") + "\"><br><br>Version: <b>1.0.4.8</b><br><br>Author: <b>Christos Kalonakis</b><br><br>Contact: <a href=\"mailto:hrkalona@gmail.com\">hrkalona@gmail.com</a><br><br></font></center></html>", "About", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(scroll_pane, "<html><center><font size='5' face='arial' color='blue'><b><u>Fractal Zoomer</u></b></font><br><br><font size='4'><img src=\"" + getClass().getResource("/fractalzoomer/icons/mandel2.png") + "\"><br><br>Version: <b>1.0.4.9</b><br><br>Author: <b>Christos Kalonakis</b><br><br>Contact: <a href=\"mailto:hrkalona@gmail.com\">hrkalona@gmail.com</a><br><br></font></center></html>", "About", JOptionPane.INFORMATION_MESSAGE);
 
             }
 
@@ -4821,16 +4861,18 @@ public class MainWindow extends JFrame {
         file_menu.addSeparator();
         file_menu.add(exit);
 
+        
+        colors_menu.add(out_coloring_mode_menu);
+        colors_menu.add(in_coloring_mode_menu);
+        colors_menu.add(smoothing_opt);
+        colors_menu.addSeparator();
         colors_menu.add(fract_color);
         colors_menu.addSeparator();
         colors_menu.add(palette_menu);
         colors_menu.add(random_palette);
         colors_menu.add(roll_palette_menu);
-        colors_menu.addSeparator();
-        colors_menu.add(out_coloring_mode_menu);
-        colors_menu.add(in_coloring_mode_menu);
-        colors_menu.add(smoothing_opt);
-
+ 
+        
         tools_options_menu.add(orbit_menu);
         tools_options_menu.addSeparator();
         tools_options_menu.add(fast_julia_filters_opt);
@@ -5804,9 +5846,12 @@ public class MainWindow extends JFrame {
             case FORMULA39:
                 temp += "   z = (z^2)exp(1/z) + c";
                 break;
-             case USER_FORMULA:
+            case USER_FORMULA:
                 temp += "   User Formula";
-                break;            
+                break;
+            case USER_FORMULA_ITERATION_BASED:
+                temp += "   User Formula Iteration Based";
+                break; 
             case SZEGEDI_BUTTERFLY1:
                 temp += "   Szegedi Butterfly 1";
                 break;
@@ -5879,37 +5924,37 @@ public class MainWindow extends JFrame {
                if(color_choice != palette.length - 1) {
                    if(julia) {
                        if(d3) {
-                           threads[i][j] = new Palette(color_choice, j * detail / n, (j + 1) * detail / n, i * detail / n, (i + 1) * detail / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, d3, d3_draw_method, detail, fiX, fiY, ptr, fractal_color, image, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, boundary_tracing, periodicity_checking, plane_type,  burning_ship, mandel_grass, mandel_grass_vals,  function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, coefficients, z_exponent_nova, relaxation, nova_method, user_formula, bail_technique, user_plane, xJuliaCenter, yJuliaCenter);
+                           threads[i][j] = new Palette(color_choice, j * detail / n, (j + 1) * detail / n, i * detail / n, (i + 1) * detail / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, d3, d3_draw_method, detail, fiX, fiY, ptr, fractal_color, image, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, boundary_tracing, periodicity_checking, plane_type,  burning_ship, mandel_grass, mandel_grass_vals,  function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, coefficients, z_exponent_nova, relaxation, nova_method, user_formula,  user_formula2, bail_technique, user_plane, user_formula_iteration_based, xJuliaCenter, yJuliaCenter);
                        }
                        else {
-                           threads[i][j] = new Palette(color_choice, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, d3, d3_draw_method, detail, fiX, fiY, ptr, fractal_color, image, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, boundary_tracing, periodicity_checking, plane_type,  burning_ship, mandel_grass, mandel_grass_vals,  function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, coefficients, z_exponent_nova, relaxation, nova_method, user_formula, bail_technique, user_plane, xJuliaCenter, yJuliaCenter);
+                           threads[i][j] = new Palette(color_choice, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, d3, d3_draw_method, detail, fiX, fiY, ptr, fractal_color, image, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, boundary_tracing, periodicity_checking, plane_type,  burning_ship, mandel_grass, mandel_grass_vals,  function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, coefficients, z_exponent_nova, relaxation, nova_method, user_formula,  user_formula2, bail_technique, user_plane, user_formula_iteration_based, xJuliaCenter, yJuliaCenter);
                        }
                    }
                    else {
                        if(d3) {
-                           threads[i][j] = new Palette(color_choice, j * detail / n, (j + 1) * detail / n, i * detail / n, (i + 1) * detail / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, d3, d3_draw_method, detail, fiX, fiY, ptr, fractal_color, image, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, boundary_tracing, periodicity_checking, plane_type,  burning_ship, mandel_grass, mandel_grass_vals,  function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, coefficients, z_exponent_nova, relaxation, nova_method, user_formula, bail_technique, user_plane);
+                           threads[i][j] = new Palette(color_choice, j * detail / n, (j + 1) * detail / n, i * detail / n, (i + 1) * detail / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, d3, d3_draw_method, detail, fiX, fiY, ptr, fractal_color, image, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, boundary_tracing, periodicity_checking, plane_type,  burning_ship, mandel_grass, mandel_grass_vals,  function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, coefficients, z_exponent_nova, relaxation, nova_method, user_formula,  user_formula2, bail_technique, user_plane, user_formula_iteration_based);
                        }
                        else {
-                           threads[i][j] = new Palette(color_choice, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, d3, d3_draw_method, detail, fiX, fiY, ptr, fractal_color, image, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, boundary_tracing, periodicity_checking, plane_type,  burning_ship, mandel_grass, mandel_grass_vals,  function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, coefficients, z_exponent_nova, relaxation, nova_method, user_formula, bail_technique, user_plane);
+                           threads[i][j] = new Palette(color_choice, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, d3, d3_draw_method, detail, fiX, fiY, ptr, fractal_color, image, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, boundary_tracing, periodicity_checking, plane_type,  burning_ship, mandel_grass, mandel_grass_vals,  function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, coefficients, z_exponent_nova, relaxation, nova_method, user_formula,  user_formula2, bail_technique, user_plane, user_formula_iteration_based);
                        }   
                    }
                }
                else {
                    if(julia) {
                        if(d3) {
-                           threads[i][j] = new CustomPalette(custom_palette, color_interpolation, color_space, reversed_palette, j * detail / n, (j + 1) * detail / n, i * detail / n, (i + 1) * detail / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, d3, d3_draw_method, detail, fiX, fiY, ptr, fractal_color, image, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, boundary_tracing, periodicity_checking, plane_type,  burning_ship, mandel_grass, mandel_grass_vals,  function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, coefficients, z_exponent_nova, relaxation, nova_method, user_formula, bail_technique, user_plane, xJuliaCenter, yJuliaCenter);
+                           threads[i][j] = new CustomPalette(custom_palette, color_interpolation, color_space, reversed_palette, j * detail / n, (j + 1) * detail / n, i * detail / n, (i + 1) * detail / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, d3, d3_draw_method, detail, fiX, fiY, ptr, fractal_color, image, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, boundary_tracing, periodicity_checking, plane_type,  burning_ship, mandel_grass, mandel_grass_vals,  function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, coefficients, z_exponent_nova, relaxation, nova_method, user_formula,  user_formula2, bail_technique, user_plane, user_formula_iteration_based, xJuliaCenter, yJuliaCenter);
                        }
                        else {
-                           threads[i][j] = new CustomPalette(custom_palette, color_interpolation, color_space, reversed_palette, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, d3, d3_draw_method, detail, fiX, fiY, ptr, fractal_color, image, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, boundary_tracing, periodicity_checking, plane_type,  burning_ship, mandel_grass, mandel_grass_vals,  function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, coefficients, z_exponent_nova, relaxation, nova_method, user_formula, bail_technique, user_plane, xJuliaCenter, yJuliaCenter);
+                           threads[i][j] = new CustomPalette(custom_palette, color_interpolation, color_space, reversed_palette, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, d3, d3_draw_method, detail, fiX, fiY, ptr, fractal_color, image, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, boundary_tracing, periodicity_checking, plane_type,  burning_ship, mandel_grass, mandel_grass_vals,  function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, coefficients, z_exponent_nova, relaxation, nova_method, user_formula,  user_formula2, bail_technique, user_plane, user_formula_iteration_based, xJuliaCenter, yJuliaCenter);
                        }  
                    }
                    else {
                        if(d3) {
-                           threads[i][j] = new CustomPalette(custom_palette, color_interpolation, color_space, reversed_palette, j * detail / n, (j + 1) * detail / n, i * detail / n, (i + 1) * detail / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm,  bailout, n_norm, d3, d3_draw_method, detail, fiX, fiY, ptr, fractal_color, image, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, boundary_tracing, periodicity_checking, plane_type,  burning_ship, mandel_grass, mandel_grass_vals,  function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, coefficients, z_exponent_nova, relaxation, nova_method, user_formula, bail_technique, user_plane);
+                           threads[i][j] = new CustomPalette(custom_palette, color_interpolation, color_space, reversed_palette, j * detail / n, (j + 1) * detail / n, i * detail / n, (i + 1) * detail / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm,  bailout, n_norm, d3, d3_draw_method, detail, fiX, fiY, ptr, fractal_color, image, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, boundary_tracing, periodicity_checking, plane_type,  burning_ship, mandel_grass, mandel_grass_vals,  function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, coefficients, z_exponent_nova, relaxation, nova_method, user_formula,  user_formula2, bail_technique, user_plane, user_formula_iteration_based);
                    
                        }
                        else {
-                           threads[i][j] = new CustomPalette(custom_palette, color_interpolation, color_space, reversed_palette, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm,  bailout, n_norm, d3, d3_draw_method, detail, fiX, fiY, ptr, fractal_color, image, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, boundary_tracing, periodicity_checking, plane_type,  burning_ship, mandel_grass, mandel_grass_vals,  function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, coefficients, z_exponent_nova, relaxation, nova_method, user_formula, bail_technique, user_plane);
+                           threads[i][j] = new CustomPalette(custom_palette, color_interpolation, color_space, reversed_palette, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm,  bailout, n_norm, d3, d3_draw_method, detail, fiX, fiY, ptr, fractal_color, image, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, boundary_tracing, periodicity_checking, plane_type,  burning_ship, mandel_grass, mandel_grass_vals,  function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, coefficients, z_exponent_nova, relaxation, nova_method, user_formula,  user_formula2, bail_technique, user_plane, user_formula_iteration_based);
                        }
                    }
                }
@@ -5952,16 +5997,16 @@ public class MainWindow extends JFrame {
                file_temp = new ObjectOutputStream(new FileOutputStream(file.toString()));
                SettingsFractals settings;
                if(julia) {
-                   settings = new SettingsJulia(xCenter, yCenter, size, max_iterations, color_choice, fractal_color, out_coloring_algorithm, in_coloring_algorithm, smoothing, function, bailout_test_algorithm, bailout, n_norm, plane_type, burning_ship, z_exponent, z_exponent_complex, color_cycling_location, coefficients, custom_palette, color_interpolation, color_space, reversed_palette, rotation, rotation_center, mandel_grass, mandel_grass_vals, z_exponent_nova, relaxation, nova_method, user_formula, bail_technique, user_plane, xJuliaCenter, yJuliaCenter);
+                   settings = new SettingsJulia1049(xCenter, yCenter, size, max_iterations, color_choice, fractal_color, out_coloring_algorithm, in_coloring_algorithm, smoothing, function, bailout_test_algorithm, bailout, n_norm, plane_type, burning_ship, z_exponent, z_exponent_complex, color_cycling_location, coefficients, custom_palette, color_interpolation, color_space, reversed_palette, rotation, rotation_center, mandel_grass, mandel_grass_vals, z_exponent_nova, relaxation, nova_method, user_formula, user_formula2, bail_technique, user_plane, user_formula_iteration_based, xJuliaCenter, yJuliaCenter);
                }
                else {
                    int temp_bailout_test_algorithm = 0;
                    
-                   if(function != NEWTON3 && function != NEWTON4 && function != NEWTONGENERALIZED3 && function != NEWTONGENERALIZED8 && function != NEWTONSIN && function != NEWTONCOS && function != NEWTONPOLY && function != HALLEY3 && function != HALLEY4 && function != HALLEYGENERALIZED3 && function != HALLEYGENERALIZED8 && function != HALLEYSIN && function != HALLEYCOS && function != HALLEYPOLY && function != SCHRODER3 && function != SCHRODER4 && function != SCHRODERGENERALIZED3 && function != SCHRODERGENERALIZED8 && function != SCHRODERSIN && function != SCHRODERCOS && function != SCHRODERPOLY && function != HOUSEHOLDER3 && function != HOUSEHOLDER4 && function != HOUSEHOLDERGENERALIZED3 && function != HOUSEHOLDERGENERALIZED8 && function != HOUSEHOLDERSIN && function != HOUSEHOLDERCOS && function != HOUSEHOLDERPOLY && function != NOVA && function != SECANT3 && function != SECANT4 && function != SECANTGENERALIZED3 && function != SECANTGENERALIZED8 && function != SECANTCOS && function != SECANTPOLY && function != STEFFENSEN3 && function != STEFFENSEN4 && function != STEFFENSENGENERALIZED3 && (function != USER_FORMULA || (function == USER_FORMULA && bail_technique == 0))) {
+                   if(function != NEWTON3 && function != NEWTON4 && function != NEWTONGENERALIZED3 && function != NEWTONGENERALIZED8 && function != NEWTONSIN && function != NEWTONCOS && function != NEWTONPOLY && function != HALLEY3 && function != HALLEY4 && function != HALLEYGENERALIZED3 && function != HALLEYGENERALIZED8 && function != HALLEYSIN && function != HALLEYCOS && function != HALLEYPOLY && function != SCHRODER3 && function != SCHRODER4 && function != SCHRODERGENERALIZED3 && function != SCHRODERGENERALIZED8 && function != SCHRODERSIN && function != SCHRODERCOS && function != SCHRODERPOLY && function != HOUSEHOLDER3 && function != HOUSEHOLDER4 && function != HOUSEHOLDERGENERALIZED3 && function != HOUSEHOLDERGENERALIZED8 && function != HOUSEHOLDERSIN && function != HOUSEHOLDERCOS && function != HOUSEHOLDERPOLY && function != NOVA && function != SECANT3 && function != SECANT4 && function != SECANTGENERALIZED3 && function != SECANTGENERALIZED8 && function != SECANTCOS && function != SECANTPOLY && function != STEFFENSEN3 && function != STEFFENSEN4 && function != STEFFENSENGENERALIZED3 && (function != USER_FORMULA || (function == USER_FORMULA && bail_technique == 0)) && (function != USER_FORMULA_ITERATION_BASED || (function == USER_FORMULA_ITERATION_BASED && bail_technique == 0))) {
                        temp_bailout_test_algorithm = bailout_test_algorithm;
                    }
                    
-                   settings = new SettingsFractals(xCenter, yCenter, size, max_iterations, color_choice, fractal_color, out_coloring_algorithm, in_coloring_algorithm, smoothing, function, temp_bailout_test_algorithm, bailout, n_norm, plane_type, burning_ship, z_exponent, z_exponent_complex, color_cycling_location, coefficients, custom_palette, color_interpolation, color_space, reversed_palette, rotation, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, mandel_grass, mandel_grass_vals, z_exponent_nova, relaxation, nova_method, user_formula, bail_technique, user_plane);
+                   settings = new SettingsFractals1049(xCenter, yCenter, size, max_iterations, color_choice, fractal_color, out_coloring_algorithm, in_coloring_algorithm, smoothing, function, temp_bailout_test_algorithm, bailout, n_norm, plane_type, burning_ship, z_exponent, z_exponent_complex, color_cycling_location, coefficients, custom_palette, color_interpolation, color_space, reversed_palette, rotation, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, mandel_grass, mandel_grass_vals, z_exponent_nova, relaxation, nova_method, user_formula, user_formula2, bail_technique, user_plane, user_formula_iteration_based);
                }
                file_temp.writeObject(settings);
                file_temp.flush();
@@ -5976,6 +6021,31 @@ public class MainWindow extends JFrame {
 
        main_panel.repaint();
 
+   }
+   
+   private boolean isSettingsJulia(String class_name) {
+       
+       String temp = class_name;
+       temp = temp.substring(29, temp.length()); 
+       
+       return temp.equals("SettingsJulia") || temp.equals("SettingsJulia1049");
+               
+   }
+   
+   private String getSettingsVersion(String class_name) {
+       
+       String temp = class_name;
+       temp = temp.substring(29, temp.length()); 
+       
+       if(temp.equals("SettingsJulia") || temp.equals("SettingsFractals")) {
+           return "1.0.4.8";
+       }
+       else if(temp.equals("SettingsJulia1049") || temp.equals("SettingsFractals1049")) {
+           return "1.0.4.9";
+       }
+       
+       return "";
+               
    }
 
    private void loadSettings() {
@@ -5996,10 +6066,7 @@ public class MainWindow extends JFrame {
            try {
                file_temp = new ObjectInputStream(new FileInputStream(file.toString()));
                SettingsFractals settings = (SettingsFractals) file_temp.readObject();
-               
-               String temp = "" + settings.getClass();
-               temp = temp.substring(29, temp.length()); 
-                            
+                         
                palette[color_choice].setSelected(false);
                palette[color_choice].setEnabled(true);
 
@@ -6021,9 +6088,15 @@ public class MainWindow extends JFrame {
                julia_map = false;
                julia_map_opt.setSelected(false);
                
-               if(temp.equals("SettingsJulia")) {                  
-                   xJuliaCenter = ((SettingsJulia) settings).getXJuliaCenter();
-                   yJuliaCenter = ((SettingsJulia) settings).getYJuliaCenter();
+               if(isSettingsJulia("" + settings.getClass())) {
+                   if(getSettingsVersion("" + settings.getClass()).equals("1.0.4.8")) {
+                       xJuliaCenter = ((SettingsJulia) settings).getXJuliaCenter();
+                       yJuliaCenter = ((SettingsJulia) settings).getYJuliaCenter();
+                   }
+                   else {
+                       xJuliaCenter = ((SettingsJulia1049) settings).getXJuliaCenter();
+                       yJuliaCenter = ((SettingsJulia1049) settings).getYJuliaCenter();
+                   }
                    
                    julia = true;
                    first_seed = false;
@@ -6256,7 +6329,7 @@ public class MainWindow extends JFrame {
                }
                
                 for(int k = 0; k < fractal_functions.length; k++) {
-                   if(function != k) {
+                   //if(function != k) {
                        if(k != SIERPINSKI_GASKET && k != NEWTON3 && k != NEWTON4 && k != NEWTONGENERALIZED3 && k != NEWTONGENERALIZED8 && k != NEWTONSIN && k != NEWTONCOS && k != NEWTONPOLY
                                && k != HALLEY3 && k != HALLEY4 && k != HALLEYGENERALIZED3 && k != HALLEYGENERALIZED8 && k != HALLEYSIN && k != HALLEYCOS && k != HALLEYPOLY
                                && k != SCHRODER3 && k != SCHRODER4 && k != SCHRODERGENERALIZED3 && k != SCHRODERGENERALIZED8 && k != SCHRODERSIN && k != SCHRODERCOS && k != SCHRODERPOLY
@@ -6269,7 +6342,7 @@ public class MainWindow extends JFrame {
                        if(k == SIERPINSKI_GASKET && !julia && !perturbation && !init_val) {
                            fractal_functions[k].setEnabled(true);
                        }
-                   }
+                  // }
                }
   
 
@@ -6312,7 +6385,7 @@ public class MainWindow extends JFrame {
                    fractal_functions[STEFFENSEN4].setEnabled(false);
                    fractal_functions[STEFFENSENGENERALIZED3].setEnabled(false);
                }
-               else if(out_coloring_algorithm == DISTANCE_ESTIMATOR) {
+               else if(out_coloring_algorithm == DISTANCE_ESTIMATOR || out_coloring_algorithm == DISTANCE_ESTIMATOR2) {
                    for(int k = 1; k < fractal_functions.length; k++) {
                        fractal_functions[k].setEnabled(false);
                    }
@@ -6376,6 +6449,7 @@ public class MainWindow extends JFrame {
                    case MANDELBROTNTH:
                        z_exponent = settings.getZExponent();
                        out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+                       out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
                        fractal_functions[function].setSelected(true);
                        if(out_coloring_algorithm != BIOMORPH) {
                            out_coloring_modes[BIOMORPH].setEnabled(true);
@@ -6420,6 +6494,7 @@ public class MainWindow extends JFrame {
                    case MANDELBROTWTH:
                        z_exponent_complex = settings.getZExponentComplex();
                        out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+                       out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
                        fractal_functions[function].setSelected(true);
                        if(out_coloring_algorithm != BIOMORPH) {
                            out_coloring_modes[BIOMORPH].setEnabled(true);
@@ -6502,6 +6577,7 @@ public class MainWindow extends JFrame {
                        }
                        
                        out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+                       out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
                        if(out_coloring_algorithm != BIOMORPH) {
                            out_coloring_modes[BIOMORPH].setEnabled(true);
                        }
@@ -6542,141 +6618,10 @@ public class MainWindow extends JFrame {
                            out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
                        }
                        fractal_functions[function].setSelected(true);
-                       break;
-                   case LAMBDA:
-                       out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-                       if(out_coloring_algorithm != BIOMORPH) {
-                           out_coloring_modes[BIOMORPH].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                           out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                           out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                           out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                       }
-                       fractal_functions[function].setSelected(true);
-                       fractal_functions[function].setEnabled(false);
-                       break;
-                   case MAGNET1:
-                       out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-                       if(out_coloring_algorithm != BIOMORPH) {
-                           out_coloring_modes[BIOMORPH].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                           out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                           out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                           out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                       }
-                       fractal_functions[function].setSelected(true);
-                       fractal_functions[function].setEnabled(false);
-                       break;
-                   case MAGNET2:
-                       out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-                       if(out_coloring_algorithm != BIOMORPH) {
-                           out_coloring_modes[BIOMORPH].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                           out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                           out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                           out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                       }
-                       fractal_functions[function].setSelected(true);
-                       fractal_functions[function].setEnabled(false);
                        break;
                    case NEWTON3:
                        out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+                       out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
                        fractal_functions[function].setSelected(true);
                        fractal_functions[function].setEnabled(false);
                        julia_opt.setEnabled(false);
@@ -6704,6 +6649,7 @@ public class MainWindow extends JFrame {
                    case NEWTON4:
                        fractal_functions[function].setSelected(true);
                        out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+                       out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
                        fractal_functions[function].setEnabled(false);
                        julia_opt.setEnabled(false);
                        julia_button.setEnabled(false);
@@ -6730,6 +6676,7 @@ public class MainWindow extends JFrame {
                    case NEWTONGENERALIZED3:
                        fractal_functions[function].setSelected(true);
                        out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+                       out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
                        fractal_functions[function].setEnabled(false);
                        julia_opt.setEnabled(false);
                        julia_button.setEnabled(false);
@@ -6756,6 +6703,7 @@ public class MainWindow extends JFrame {
                    case NEWTONGENERALIZED8:
                        fractal_functions[function].setSelected(true);
                        out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+                       out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
                        fractal_functions[function].setEnabled(false);
                        julia_opt.setEnabled(false);
                        julia_button.setEnabled(false);
@@ -6782,6 +6730,7 @@ public class MainWindow extends JFrame {
                    case NEWTONSIN:
                        fractal_functions[function].setSelected(true);
                        out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+                       out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
                        fractal_functions[function].setEnabled(false);
                        julia_opt.setEnabled(false);
                        julia_button.setEnabled(false);
@@ -6808,6 +6757,7 @@ public class MainWindow extends JFrame {
                    case NEWTONCOS:
                        fractal_functions[function].setSelected(true);
                        out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+                       out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
                        fractal_functions[function].setEnabled(false);
                        julia_opt.setEnabled(false);
                        julia_button.setEnabled(false);
@@ -6871,6 +6821,7 @@ public class MainWindow extends JFrame {
                        
                        fractal_functions[function].setSelected(true);
                        out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+                       out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
                        julia_opt.setEnabled(false);
                        julia_button.setEnabled(false);
                        julia_map_opt.setEnabled(false);
@@ -6896,6 +6847,7 @@ public class MainWindow extends JFrame {
                     case HALLEY3:
                        fractal_functions[function].setSelected(true);
                        out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+                       out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
                        fractal_functions[function].setEnabled(false);
                        julia_opt.setEnabled(false);
                        julia_button.setEnabled(false);
@@ -6922,6 +6874,7 @@ public class MainWindow extends JFrame {
                    case HALLEY4:
                        fractal_functions[function].setSelected(true);
                        out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+                       out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
                        fractal_functions[function].setEnabled(false);
                        julia_opt.setEnabled(false);
                        julia_button.setEnabled(false);
@@ -6948,6 +6901,7 @@ public class MainWindow extends JFrame {
                    case HALLEYGENERALIZED3:
                        fractal_functions[function].setSelected(true);
                        out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+                       out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
                        fractal_functions[function].setEnabled(false);
                        julia_opt.setEnabled(false);
                        julia_button.setEnabled(false);
@@ -6974,6 +6928,7 @@ public class MainWindow extends JFrame {
                    case HALLEYGENERALIZED8:
                        fractal_functions[function].setSelected(true);
                        out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+                       out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
                        fractal_functions[function].setEnabled(false);
                        julia_opt.setEnabled(false);
                        julia_button.setEnabled(false);
@@ -7000,6 +6955,7 @@ public class MainWindow extends JFrame {
                    case HALLEYSIN:
                        fractal_functions[function].setSelected(true);
                        out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+                       out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
                        fractal_functions[function].setEnabled(false);
                        julia_opt.setEnabled(false);
                        julia_button.setEnabled(false);
@@ -7026,6 +6982,7 @@ public class MainWindow extends JFrame {
                    case HALLEYCOS:
                        fractal_functions[function].setSelected(true);
                        out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+                       out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
                        fractal_functions[function].setEnabled(false);
                        julia_opt.setEnabled(false);
                        julia_button.setEnabled(false);
@@ -7089,6 +7046,7 @@ public class MainWindow extends JFrame {
                        
                        fractal_functions[function].setSelected(true);
                        out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+                       out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
                        julia_opt.setEnabled(false);
                        julia_button.setEnabled(false);
                        julia_map_opt.setEnabled(false);
@@ -7114,6 +7072,7 @@ public class MainWindow extends JFrame {
                    case SCHRODER3:
                        fractal_functions[function].setSelected(true);
                        out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+                       out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
                        fractal_functions[function].setEnabled(false);
                        julia_opt.setEnabled(false);
                        julia_button.setEnabled(false);
@@ -7140,6 +7099,7 @@ public class MainWindow extends JFrame {
                    case SCHRODER4:
                        fractal_functions[function].setSelected(true);
                        out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+                       out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
                        fractal_functions[function].setEnabled(false);
                        julia_opt.setEnabled(false);
                        julia_button.setEnabled(false);
@@ -7166,6 +7126,7 @@ public class MainWindow extends JFrame {
                    case SCHRODERGENERALIZED3:
                        fractal_functions[function].setSelected(true);
                        out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+                       out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
                        fractal_functions[function].setEnabled(false);
                        julia_opt.setEnabled(false);
                        julia_button.setEnabled(false);
@@ -7192,6 +7153,7 @@ public class MainWindow extends JFrame {
                    case SCHRODERGENERALIZED8:
                        fractal_functions[function].setSelected(true);
                        out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+                       out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
                        fractal_functions[function].setEnabled(false);
                        julia_opt.setEnabled(false);
                        julia_button.setEnabled(false);
@@ -7218,6 +7180,7 @@ public class MainWindow extends JFrame {
                    case SCHRODERSIN:
                        fractal_functions[function].setSelected(true);
                        out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+                       out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
                        fractal_functions[function].setEnabled(false);
                        julia_opt.setEnabled(false);
                        julia_button.setEnabled(false);
@@ -7244,6 +7207,7 @@ public class MainWindow extends JFrame {
                    case SCHRODERCOS:
                        fractal_functions[function].setSelected(true);
                        out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+                       out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
                        fractal_functions[function].setEnabled(false);
                        julia_opt.setEnabled(false);
                        julia_button.setEnabled(false);
@@ -7307,6 +7271,7 @@ public class MainWindow extends JFrame {
                        
                        fractal_functions[function].setSelected(true);
                        out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+                       out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
                        julia_opt.setEnabled(false);
                        julia_button.setEnabled(false);
                        julia_map_opt.setEnabled(false);
@@ -7332,6 +7297,7 @@ public class MainWindow extends JFrame {
                    case HOUSEHOLDER3:
                        fractal_functions[function].setSelected(true);
                        out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+                       out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
                        fractal_functions[function].setEnabled(false);
                        julia_opt.setEnabled(false);
                        julia_button.setEnabled(false);
@@ -7358,6 +7324,7 @@ public class MainWindow extends JFrame {
                    case HOUSEHOLDER4:
                        fractal_functions[function].setSelected(true);
                        out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+                       out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
                        fractal_functions[function].setEnabled(false);
                        julia_opt.setEnabled(false);
                        julia_button.setEnabled(false);
@@ -7384,6 +7351,7 @@ public class MainWindow extends JFrame {
                    case HOUSEHOLDERGENERALIZED3:
                        fractal_functions[function].setSelected(true);
                        out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+                       out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
                        fractal_functions[function].setEnabled(false);
                        julia_opt.setEnabled(false);
                        julia_button.setEnabled(false);
@@ -7410,6 +7378,7 @@ public class MainWindow extends JFrame {
                    case HOUSEHOLDERGENERALIZED8:
                        fractal_functions[function].setSelected(true);
                        out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+                       out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
                        fractal_functions[function].setEnabled(false);
                        julia_opt.setEnabled(false);
                        julia_button.setEnabled(false);
@@ -7436,6 +7405,7 @@ public class MainWindow extends JFrame {
                    case HOUSEHOLDERSIN:
                        fractal_functions[function].setSelected(true);
                        out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+                       out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
                        fractal_functions[function].setEnabled(false);
                        julia_opt.setEnabled(false);
                        julia_button.setEnabled(false);
@@ -7462,6 +7432,7 @@ public class MainWindow extends JFrame {
                    case HOUSEHOLDERCOS:
                        fractal_functions[function].setSelected(true);
                        out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+                       out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
                        fractal_functions[function].setEnabled(false);
                        julia_opt.setEnabled(false);
                        julia_button.setEnabled(false);
@@ -7525,6 +7496,7 @@ public class MainWindow extends JFrame {
                        
                        fractal_functions[function].setSelected(true);
                        out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+                       out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
                        julia_opt.setEnabled(false);
                        julia_button.setEnabled(false);
                        julia_map_opt.setEnabled(false);
@@ -7550,6 +7522,7 @@ public class MainWindow extends JFrame {
                    case SECANT3:
                        fractal_functions[function].setSelected(true);
                        out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+                       out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
                        fractal_functions[function].setEnabled(false);
                        julia_opt.setEnabled(false);
                        julia_button.setEnabled(false);
@@ -7576,6 +7549,7 @@ public class MainWindow extends JFrame {
                    case SECANT4:
                        fractal_functions[function].setSelected(true);
                        out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+                       out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
                        fractal_functions[function].setEnabled(false);
                        julia_opt.setEnabled(false);
                        julia_button.setEnabled(false);
@@ -7602,6 +7576,7 @@ public class MainWindow extends JFrame {
                    case SECANTGENERALIZED3:
                        fractal_functions[function].setSelected(true);
                        out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+                       out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
                        fractal_functions[function].setEnabled(false);
                        julia_opt.setEnabled(false);
                        julia_button.setEnabled(false);
@@ -7628,6 +7603,7 @@ public class MainWindow extends JFrame {
                    case SECANTGENERALIZED8:
                        fractal_functions[function].setSelected(true);
                        out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+                       out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
                        fractal_functions[function].setEnabled(false);
                        julia_opt.setEnabled(false);
                        julia_button.setEnabled(false);
@@ -7654,6 +7630,7 @@ public class MainWindow extends JFrame {
                    case SECANTCOS:
                        fractal_functions[function].setSelected(true);
                        out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+                       out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
                        fractal_functions[function].setEnabled(false);
                        julia_opt.setEnabled(false);
                        julia_button.setEnabled(false);
@@ -7717,6 +7694,7 @@ public class MainWindow extends JFrame {
                        
                        fractal_functions[function].setSelected(true);
                        out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+                       out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
                        julia_opt.setEnabled(false);
                        julia_button.setEnabled(false);
                        julia_map_opt.setEnabled(false);
@@ -7742,6 +7720,7 @@ public class MainWindow extends JFrame {
                    case STEFFENSEN3:
                        fractal_functions[function].setSelected(true);
                        out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+                       out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
                        fractal_functions[function].setEnabled(false);
                        julia_opt.setEnabled(false);
                        julia_button.setEnabled(false);
@@ -7768,6 +7747,7 @@ public class MainWindow extends JFrame {
                    case STEFFENSEN4:
                        fractal_functions[function].setSelected(true);
                        out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+                       out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
                        fractal_functions[function].setEnabled(false);
                        julia_opt.setEnabled(false);
                        julia_button.setEnabled(false);
@@ -7794,6 +7774,7 @@ public class MainWindow extends JFrame {
                    case STEFFENSENGENERALIZED3:
                        fractal_functions[function].setSelected(true);
                        out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+                       out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
                        fractal_functions[function].setEnabled(false);
                        julia_opt.setEnabled(false);
                        julia_button.setEnabled(false);
@@ -7820,6 +7801,7 @@ public class MainWindow extends JFrame {
                    case NOVA:
                        z_exponent_nova = settings.getZExponentNova();
                        out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+                       out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
                        relaxation = settings.getRelaxation();
                        nova_method = settings.getNovaMethod();
                        fractal_functions[function].setSelected(true);
@@ -7866,316 +7848,9 @@ public class MainWindow extends JFrame {
                            out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
                        }
                        break;
-                   case BARNSLEY1:
-                       out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-                       if(out_coloring_algorithm != BIOMORPH) {
-                           out_coloring_modes[BIOMORPH].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                           out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                           out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                           out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                       }
-                       fractal_functions[function].setSelected(true);
-                       fractal_functions[function].setEnabled(false);
-                       break;
-                   case BARNSLEY2:
-                       out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-                       if(out_coloring_algorithm != BIOMORPH) {
-                           out_coloring_modes[BIOMORPH].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                           out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                           out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                           out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                       }
-                       fractal_functions[function].setSelected(true);
-                       fractal_functions[function].setEnabled(false);
-                       break;
-                   case BARNSLEY3:
-                       out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-                       if(out_coloring_algorithm != BIOMORPH) {
-                           out_coloring_modes[BIOMORPH].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                           out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                           out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                           out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                       }
-                       fractal_functions[function].setSelected(true);
-                       fractal_functions[function].setEnabled(false);
-                       break;
-                   case MANDELBAR:
-                       out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-                       if(out_coloring_algorithm != BIOMORPH) {
-                           out_coloring_modes[BIOMORPH].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                           out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                           out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                           out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                       }
-                       fractal_functions[function].setSelected(true);
-                       fractal_functions[function].setEnabled(false);
-                       break;
-                   case SPIDER:
-                       out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-                       if(out_coloring_algorithm != BIOMORPH) {
-                           out_coloring_modes[BIOMORPH].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                           out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                           out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                           out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                       }
-                       fractal_functions[function].setSelected(true);
-                       fractal_functions[function].setEnabled(false);
-                       break;
-                   case MANOWAR:
-                       out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-                       if(out_coloring_algorithm != BIOMORPH) {
-                           out_coloring_modes[BIOMORPH].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                           out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                           out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                           out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                       }
-                       fractal_functions[function].setSelected(true);
-                       fractal_functions[function].setEnabled(false);
-                       break;
-                   case PHOENIX:
-                       out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-                       if(out_coloring_algorithm != BIOMORPH) {
-                           out_coloring_modes[BIOMORPH].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                           out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                           out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                           out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                       }
-                       fractal_functions[function].setSelected(true);
-                       fractal_functions[function].setEnabled(false);
-                       break;
                    case SIERPINSKI_GASKET:
                        out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+                       out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
                        if(out_coloring_algorithm != BIOMORPH) {
                            out_coloring_modes[BIOMORPH].setEnabled(true);
                        }
@@ -8223,2298 +7898,13 @@ public class MainWindow extends JFrame {
                        periodicity_checking_opt.setEnabled(false);
                        perturbation_opt.setEnabled(false);
                        init_val_opt.setEnabled(false);
-                       break;
-                   case EXP:
-                       out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-                       if(out_coloring_algorithm != BIOMORPH) {
-                           out_coloring_modes[BIOMORPH].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                           out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                           out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                           out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                       }
-                       fractal_functions[function].setSelected(true);
-                       fractal_functions[function].setEnabled(false);
-                       break;
-                   case LOG:
-                       out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-                       if(out_coloring_algorithm != BIOMORPH) {
-                           out_coloring_modes[BIOMORPH].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                           out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                           out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                           out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                       }
-                       fractal_functions[function].setSelected(true);
-                       fractal_functions[function].setEnabled(false);
-                       break;
-                   case SIN:
-                       out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-                       if(out_coloring_algorithm != BIOMORPH) {
-                           out_coloring_modes[BIOMORPH].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                           out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                           out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                           out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                       }
-                       fractal_functions[function].setSelected(true);
-                       fractal_functions[function].setEnabled(false);
-                       break;
-                   case COS:
-                       out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-                       if(out_coloring_algorithm != BIOMORPH) {
-                           out_coloring_modes[BIOMORPH].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                           out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                           out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                           out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                       }
-                       fractal_functions[function].setSelected(true);
-                       fractal_functions[function].setEnabled(false);
-                       break;
-                   case TAN:
-                       out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-                       if(out_coloring_algorithm != BIOMORPH) {
-                           out_coloring_modes[BIOMORPH].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                           out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                           out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                           out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                       }
-                       fractal_functions[function].setSelected(true);
-                       fractal_functions[function].setEnabled(false);
-                       break;
-                   case COT:
-                       out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-                       if(out_coloring_algorithm != BIOMORPH) {
-                           out_coloring_modes[BIOMORPH].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                           out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                           out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                           out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                       }
-                       fractal_functions[function].setSelected(true);
-                       fractal_functions[function].setEnabled(false);
-                       break;
-                   case SINH:
-                       out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-                       if(out_coloring_algorithm != BIOMORPH) {
-                           out_coloring_modes[BIOMORPH].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                           out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                           out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                           out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                       }
-                       fractal_functions[function].setSelected(true);
-                       fractal_functions[function].setEnabled(false);
-                       break;
-                   case COSH:
-                       out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-                       if(out_coloring_algorithm != BIOMORPH) {
-                           out_coloring_modes[BIOMORPH].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                           out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                           out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                           out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                       }
-                       fractal_functions[function].setSelected(true);
-                       fractal_functions[function].setEnabled(false);
-                       break;
-                   case TANH:
-                       out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-                       if(out_coloring_algorithm != BIOMORPH) {
-                           out_coloring_modes[BIOMORPH].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                           out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                           out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                           out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                       }
-                       fractal_functions[function].setSelected(true);
-                       fractal_functions[function].setEnabled(false);
-                       break;
-                   case COTH:
-                       out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-                       if(out_coloring_algorithm != BIOMORPH) {
-                           out_coloring_modes[BIOMORPH].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                           out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                           out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                           out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                       }
-                       fractal_functions[function].setSelected(true);
-                       fractal_functions[function].setEnabled(false);
-                       break;
-                   case FORMULA30:
-                       out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-                       if(out_coloring_algorithm != BIOMORPH) {
-                           out_coloring_modes[BIOMORPH].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                           out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                           out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                           out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                       }
-                       fractal_functions[function].setSelected(true);
-                       fractal_functions[function].setEnabled(false);
-                       break;
-                   case FORMULA31:
-                       out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-                       if(out_coloring_algorithm != BIOMORPH) {
-                           out_coloring_modes[BIOMORPH].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                           out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                           out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                           out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                       }
-                       fractal_functions[function].setSelected(true);
-                       fractal_functions[function].setEnabled(false);
-                       break;
-                   case FORMULA1:
-                       out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-                       if(out_coloring_algorithm != BIOMORPH) {
-                           out_coloring_modes[BIOMORPH].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                           out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                           out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                           out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                       }
-                       fractal_functions[function].setSelected(true);
-                       fractal_functions[function].setEnabled(false);
-                       break;
-                   case FORMULA2:
-                       out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-                       if(out_coloring_algorithm != BIOMORPH) {
-                           out_coloring_modes[BIOMORPH].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                           out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                           out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                           out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                       }
-                       fractal_functions[function].setSelected(true);
-                       fractal_functions[function].setEnabled(false);
-                       break;
-                   case FORMULA3:
-                       out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-                       if(out_coloring_algorithm != BIOMORPH) {
-                           out_coloring_modes[BIOMORPH].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                           out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                           out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                           out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                       }
-                       fractal_functions[function].setSelected(true);
-                       fractal_functions[function].setEnabled(false);
-                       break;
-                   case FORMULA4:
-                       out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-                       if(out_coloring_algorithm != BIOMORPH) {
-                           out_coloring_modes[BIOMORPH].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                           out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                           out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                           out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                       }
-                       fractal_functions[function].setSelected(true);
-                       fractal_functions[function].setEnabled(false);
-                       break;
-                   case FORMULA5:
-                       out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-                       if(out_coloring_algorithm != BIOMORPH) {
-                           out_coloring_modes[BIOMORPH].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                           out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                           out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                           out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                       }
-                       fractal_functions[function].setSelected(true);
-                       fractal_functions[function].setEnabled(false);
-                       break;
-                   case FORMULA6:
-                       out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-                       if(out_coloring_algorithm != BIOMORPH) {
-                           out_coloring_modes[BIOMORPH].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                           out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                           out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                           out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                       }
-                       fractal_functions[function].setSelected(true);
-                       fractal_functions[function].setEnabled(false);
-                       break;
-                   case FORMULA7:
-                       out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-                       if(out_coloring_algorithm != BIOMORPH) {
-                           out_coloring_modes[BIOMORPH].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                           out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                           out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                           out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                       }
-                       fractal_functions[function].setSelected(true);
-                       fractal_functions[function].setEnabled(false);
-                       break;
-                   case FORMULA8:
-                       out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-                       if(out_coloring_algorithm != BIOMORPH) {
-                           out_coloring_modes[BIOMORPH].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                           out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                           out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                           out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                       }
-                       fractal_functions[function].setSelected(true);
-                       fractal_functions[function].setEnabled(false);
-                       break;
-                   case FORMULA9:
-                       out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-                       if(out_coloring_algorithm != BIOMORPH) {
-                           out_coloring_modes[BIOMORPH].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                           out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                           out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                           out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                       }
-                       fractal_functions[function].setSelected(true);
-                       fractal_functions[function].setEnabled(false);
-                       break;
-                   case FORMULA10:
-                       out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-                       if(out_coloring_algorithm != BIOMORPH) {
-                           out_coloring_modes[BIOMORPH].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                           out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                           out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                           out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                       }
-                       fractal_functions[function].setSelected(true);
-                       fractal_functions[function].setEnabled(false);
-                       break;
-                   case FORMULA11:
-                       out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-                       if(out_coloring_algorithm != BIOMORPH) {
-                           out_coloring_modes[BIOMORPH].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                           out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                           out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                           out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                       }
-                       fractal_functions[function].setSelected(true);
-                       fractal_functions[function].setEnabled(false);
-                       break;
-                   case FORMULA12:
-                       out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-                       if(out_coloring_algorithm != BIOMORPH) {
-                           out_coloring_modes[BIOMORPH].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                           out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                           out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                           out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                       }
-                       fractal_functions[function].setSelected(true);
-                       fractal_functions[function].setEnabled(false);
-                       break;
-                   case FORMULA13:
-                       out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-                       if(out_coloring_algorithm != BIOMORPH) {
-                           out_coloring_modes[BIOMORPH].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                           out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                           out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                           out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                       }
-                       fractal_functions[function].setSelected(true);
-                       fractal_functions[function].setEnabled(false);
-                       break;
-                   case FORMULA14:
-                       out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-                       if(out_coloring_algorithm != BIOMORPH) {
-                           out_coloring_modes[BIOMORPH].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                           out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                           out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                           out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                       }
-                       fractal_functions[function].setSelected(true);
-                       fractal_functions[function].setEnabled(false);
-                       break;
-                   case FORMULA15:
-                       out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-                       if(out_coloring_algorithm != BIOMORPH) {
-                           out_coloring_modes[BIOMORPH].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                           out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                           out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                           out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                       }
-                       fractal_functions[function].setSelected(true);
-                       fractal_functions[function].setEnabled(false);
-                       break;
-                   case FORMULA16:
-                       out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-                       if(out_coloring_algorithm != BIOMORPH) {
-                           out_coloring_modes[BIOMORPH].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                           out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                           out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                           out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                       }
-                       fractal_functions[function].setSelected(true);
-                       fractal_functions[function].setEnabled(false);
-                       break;
-                   case FORMULA17:
-                       out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-                       if(out_coloring_algorithm != BIOMORPH) {
-                           out_coloring_modes[BIOMORPH].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                           out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                           out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                           out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                       }
-                       fractal_functions[function].setSelected(true);
-                       fractal_functions[function].setEnabled(false);
-                       break;
-                   case FORMULA18:
-                       out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-                       if(out_coloring_algorithm != BIOMORPH) {
-                           out_coloring_modes[BIOMORPH].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                           out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                           out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                           out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                       }
-                       fractal_functions[function].setSelected(true);
-                       fractal_functions[function].setEnabled(false);
-                       break;
-                   case FORMULA19:
-                       out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-                       if(out_coloring_algorithm != BIOMORPH) {
-                           out_coloring_modes[BIOMORPH].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                           out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                           out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                           out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                       }
-                       fractal_functions[function].setSelected(true);
-                       fractal_functions[function].setEnabled(false);
-                       break;
-                   case FORMULA20:
-                       out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-                       if(out_coloring_algorithm != BIOMORPH) {
-                           out_coloring_modes[BIOMORPH].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                           out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                           out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                           out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                       }
-                       fractal_functions[function].setSelected(true);
-                       fractal_functions[function].setEnabled(false);
-                       break;
-                   case FORMULA21:
-                       out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-                       if(out_coloring_algorithm != BIOMORPH) {
-                           out_coloring_modes[BIOMORPH].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                           out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                           out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                           out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                       }
-                       fractal_functions[function].setSelected(true);
-                       fractal_functions[function].setEnabled(false);
-                       break;
-                   case FORMULA22:
-                       out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-                       if(out_coloring_algorithm != BIOMORPH) {
-                           out_coloring_modes[BIOMORPH].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                           out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                           out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                           out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                       }
-                       fractal_functions[function].setSelected(true);
-                       fractal_functions[function].setEnabled(false);
-                       break;
-                   case FORMULA23:
-                       out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-                       if(out_coloring_algorithm != BIOMORPH) {
-                           out_coloring_modes[BIOMORPH].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                           out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                           out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                           out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                       }
-                       fractal_functions[function].setSelected(true);
-                       fractal_functions[function].setEnabled(false);
-                       break;
-                   case FORMULA24:
-                       out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-                       if(out_coloring_algorithm != BIOMORPH) {
-                           out_coloring_modes[BIOMORPH].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                           out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                           out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                           out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                       }
-                       fractal_functions[function].setSelected(true);
-                       fractal_functions[function].setEnabled(false);
-                       break;
-                   case FORMULA25:
-                       out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-                       if(out_coloring_algorithm != BIOMORPH) {
-                           out_coloring_modes[BIOMORPH].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                           out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                           out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                           out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                       }
-                       fractal_functions[function].setSelected(true);
-                       fractal_functions[function].setEnabled(false);
-                       break;
-                   case FORMULA26:
-                       out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-                       if(out_coloring_algorithm != BIOMORPH) {
-                           out_coloring_modes[BIOMORPH].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                           out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                           out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                           out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                       }
-                       fractal_functions[function].setSelected(true);
-                       fractal_functions[function].setEnabled(false);
-                       break;
-                   case FORMULA27:
-                       out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-                       if(out_coloring_algorithm != BIOMORPH) {
-                           out_coloring_modes[BIOMORPH].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                           out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                           out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                           out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                       }
-                       fractal_functions[function].setSelected(true);
-                       fractal_functions[function].setEnabled(false);
-                       break;
-                   case FORMULA28:
-                       out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-                       if(out_coloring_algorithm != BIOMORPH) {
-                           out_coloring_modes[BIOMORPH].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                           out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                           out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                           out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                       }
-                       fractal_functions[function].setSelected(true);
-                       fractal_functions[function].setEnabled(false);
-                       break;
-                   case FORMULA29:
-                       out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-                       if(out_coloring_algorithm != BIOMORPH) {
-                           out_coloring_modes[BIOMORPH].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                           out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                           out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                           out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                       }
-                       fractal_functions[function].setSelected(true);
-                       fractal_functions[function].setEnabled(false);
-                       break;
-                   case FORMULA32:
-                       out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-                       if(out_coloring_algorithm != BIOMORPH) {
-                           out_coloring_modes[BIOMORPH].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                           out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                           out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                           out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                       }
-                       fractal_functions[function].setSelected(true);
-                       fractal_functions[function].setEnabled(false);
-                       break;
-                   case FORMULA33:
-                       out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-                       if(out_coloring_algorithm != BIOMORPH) {
-                           out_coloring_modes[BIOMORPH].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                           out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                           out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                           out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                       }
-                       fractal_functions[function].setSelected(true);
-                       fractal_functions[function].setEnabled(false);
-                       break;
-                   case FORMULA34:
-                       out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-                       if(out_coloring_algorithm != BIOMORPH) {
-                           out_coloring_modes[BIOMORPH].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                           out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                           out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                           out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                       }
-                       fractal_functions[function].setSelected(true);
-                       fractal_functions[function].setEnabled(false);
-                       break;
-                   case FORMULA35:
-                       out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-                       if(out_coloring_algorithm != BIOMORPH) {
-                           out_coloring_modes[BIOMORPH].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                           out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                           out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                           out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                       }
-                       fractal_functions[function].setSelected(true);
-                       fractal_functions[function].setEnabled(false);
-                       break;
-                   case FORMULA36:
-                       out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-                       if(out_coloring_algorithm != BIOMORPH) {
-                           out_coloring_modes[BIOMORPH].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                           out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                           out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                           out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                       }
-                       fractal_functions[function].setSelected(true);
-                       fractal_functions[function].setEnabled(false);
-                       break;
-                   case FORMULA37:
-                       out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-                       if(out_coloring_algorithm != BIOMORPH) {
-                           out_coloring_modes[BIOMORPH].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                           out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                           out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                           out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                       }
-                       fractal_functions[function].setSelected(true);
-                       fractal_functions[function].setEnabled(false);
-                       break;
-                    case FORMULA38:
-                       out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-                       if(out_coloring_algorithm != BIOMORPH) {
-                           out_coloring_modes[BIOMORPH].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                           out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                           out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                           out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                       }
-                       fractal_functions[function].setSelected(true);
-                       fractal_functions[function].setEnabled(false);
-                       break;
-                   case FORMULA39:
-                       out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-                       if(out_coloring_algorithm != BIOMORPH) {
-                           out_coloring_modes[BIOMORPH].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                           out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                           out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                           out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                       }
-                       fractal_functions[function].setSelected(true);
-                       fractal_functions[function].setEnabled(false);
-                       break;
-                   case FROTHY_BASIN:
-                       out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-                       if(out_coloring_algorithm != BIOMORPH) {
-                           out_coloring_modes[BIOMORPH].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                           out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                           out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                           out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                       }
-                       fractal_functions[function].setSelected(true);
-                       fractal_functions[function].setEnabled(false);
-                       break;   
-                   case SZEGEDI_BUTTERFLY1:
-                       out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-                       if(out_coloring_algorithm != BIOMORPH) {
-                           out_coloring_modes[BIOMORPH].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                           out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                           out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                           out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                       }
-                       fractal_functions[function].setSelected(true);
-                       fractal_functions[function].setEnabled(false);
-                       break;   
-                   case SZEGEDI_BUTTERFLY2:
-                       out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-                       if(out_coloring_algorithm != BIOMORPH) {
-                           out_coloring_modes[BIOMORPH].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                           out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                           out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                           out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                       }
-                       fractal_functions[function].setSelected(true);
-                       fractal_functions[function].setEnabled(false);
-                       break; 
+                       break;            
                    case 0:
                        if(out_coloring_algorithm != DISTANCE_ESTIMATOR) {
                            out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != DISTANCE_ESTIMATOR2) {
+                           out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(true);
                        }
                        if(out_coloring_algorithm != BIOMORPH) {
                            out_coloring_modes[BIOMORPH].setEnabled(true);
@@ -10562,98 +7952,23 @@ public class MainWindow extends JFrame {
                        user_formula = settings.getUserFormula();
                        bail_technique = settings.getBailTechnique();
                        
+                       if(getSettingsVersion("" + settings.getClass()).equals("1.0.4.8")) {
+                           user_formula2 = "c";
+                       }
+                       else {
+                           user_formula2 = ((SettingsFractals1049)settings).getUserFormula2();
+                       }
+                       
                        parser.parse(user_formula);
                        
                        user_formula_c = parser.foundC();
                                
                        if(!user_formula_c) {
-                          out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-                         if(out_coloring_algorithm != BIOMORPH) {
-                             out_coloring_modes[BIOMORPH].setEnabled(true);
-                         }
-                         if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                             out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                         }
-                         if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                             out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                         }
-                         if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                             out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                         }
-                         if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                             out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                         }
-                         if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                             out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                         }
-                         if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                             out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                         }
-                         if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                             out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                         }
-                         if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                             out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                         }
-                         if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                             out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                         }
-                         if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                             out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                         }
-                         if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                             out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                         }
-                         if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                             out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                         }
                          julia_opt.setEnabled(false);
                          julia_button.setEnabled(false);
                          julia_map_opt.setEnabled(false);
                          perturbation_opt.setEnabled(false);
                          init_val_opt.setEnabled(false);
-                      }
-                      else {
-                         out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-                         if(out_coloring_algorithm != BIOMORPH) {
-                             out_coloring_modes[BIOMORPH].setEnabled(true);
-                         }
-                         if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                             out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                         }
-                         if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                             out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                         }
-                         if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                             out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                         }
-                         if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                             out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                         }
-                         if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                             out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                         }
-                         if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                             out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                         }
-                         if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                             out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                         }
-                         if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                             out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                         }
-                         if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                             out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                         }
-                         if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                             out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                         }
-                         if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                             out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                         }
-                         if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                             out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                         }
                       }
                     
                       if(bail_technique == 1) {
@@ -10662,10 +7977,124 @@ public class MainWindow extends JFrame {
                           periodicity_checking_opt.setEnabled(false);
                       }
                       
+                         out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+                         out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false); 
+                         if(out_coloring_algorithm != BIOMORPH) {
+                             out_coloring_modes[BIOMORPH].setEnabled(true);
+                         }
+                         if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+                             out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+                         }
+                         if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+                             out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+                         }
+                         if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+                             out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+                         }
+                         if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+                             out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+                         }
+                         if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+                             out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
+                         }
+                         if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
+                             out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
+                         }
+                         if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
+                             out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
+                         }
+                         if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
+                             out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
+                         }
+                         if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
+                             out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
+                         }
+                         if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
+                             out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
+                         }
+                         if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
+                             out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
+                         }
+                         if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
+                             out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
+                         }
+                      
+                       fractal_functions[function].setSelected(true);                      
+                       break;                      
+                   case USER_FORMULA_ITERATION_BASED:
+                       user_formula_iteration_based = ((SettingsFractals1049)settings).getUserFormulaIterationBased();
+                       bail_technique = settings.getBailTechnique();
+                       
+                       boolean temp_bool = false;
+                       
+                       for(int m = 0; m < user_formula_iteration_based.length; m++) {
+                           parser.parse(user_formula_iteration_based[m]);
+                           temp_bool = temp_bool | parser.foundC();
+                       }
+
+                       user_formula_c = temp_bool;
+                               
+                       if(!user_formula_c) {
+                         julia_opt.setEnabled(false);
+                         julia_button.setEnabled(false);
+                         julia_map_opt.setEnabled(false);
+                         perturbation_opt.setEnabled(false);
+                         init_val_opt.setEnabled(false);
+                      }
+                    
+                      if(bail_technique == 1) {
+                          bailout_number.setEnabled(false); 
+                          bailout_test_menu.setEnabled(false);
+                          periodicity_checking_opt.setEnabled(false);
+                      }
+                      
+                         out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+                         out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false); 
+                         if(out_coloring_algorithm != BIOMORPH) {
+                             out_coloring_modes[BIOMORPH].setEnabled(true);
+                         }
+                         if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+                             out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+                         }
+                         if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+                             out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+                         }
+                         if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+                             out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+                         }
+                         if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+                             out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+                         }
+                         if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+                             out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
+                         }
+                         if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
+                             out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
+                         }
+                         if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
+                             out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
+                         }
+                         if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
+                             out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
+                         }
+                         if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
+                             out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
+                         }
+                         if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
+                             out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
+                         }
+                         if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
+                             out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
+                         }
+                         if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
+                             out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
+                         }
+                      
                        fractal_functions[function].setSelected(true);                      
                        break;
                    default:
                        out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+                       out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false); 
                        if(out_coloring_algorithm != BIOMORPH) {
                            out_coloring_modes[BIOMORPH].setEnabled(true);
                        }
@@ -11562,6 +8991,20 @@ public class MainWindow extends JFrame {
                 }
                 break;
             case USER_FORMULA:
+                if(julia) {
+                    xCenter = 0;
+                    yCenter = 0;
+                    size = 6;
+                    bailout = 2;
+                }
+                else {
+                    xCenter = 0;
+                    yCenter = 0;
+                    size = 6;
+                    bailout = 2;
+                }
+                break;
+            case USER_FORMULA_ITERATION_BASED:
                 if(julia) {
                     xCenter = 0;
                     yCenter = 0;
@@ -13399,7 +10842,7 @@ public class MainWindow extends JFrame {
            julia = false;
            julia_button.setSelected(false);
            fast_julia_image = null;
-           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS && out_coloring_algorithm != ESCAPE_TIME_GRID && out_coloring_algorithm != BIOMORPH && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5 && out_coloring_algorithm != ITERATIONS_PLUS_RE && out_coloring_algorithm != ITERATIONS_PLUS_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM  && out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && out_coloring_algorithm != DISTANCE_ESTIMATOR) {
+           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS && out_coloring_algorithm != ESCAPE_TIME_GRID && out_coloring_algorithm != BIOMORPH && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5 && out_coloring_algorithm != ITERATIONS_PLUS_RE && out_coloring_algorithm != ITERATIONS_PLUS_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM  && out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && out_coloring_algorithm != DISTANCE_ESTIMATOR && out_coloring_algorithm != DISTANCE_ESTIMATOR2) {
                fractal_functions[NEWTON3].setEnabled(true);
                fractal_functions[NEWTON4].setEnabled(true);
                fractal_functions[NEWTONGENERALIZED3].setEnabled(true);
@@ -13438,7 +10881,7 @@ public class MainWindow extends JFrame {
                fractal_functions[STEFFENSEN4].setEnabled(true);
                fractal_functions[STEFFENSENGENERALIZED3].setEnabled(true);
            }
-           if(out_coloring_algorithm != DISTANCE_ESTIMATOR) {
+           if(out_coloring_algorithm != DISTANCE_ESTIMATOR && out_coloring_algorithm != DISTANCE_ESTIMATOR2) {
                fractal_functions[SIERPINSKI_GASKET].setEnabled(true);
            }
            if(!first_seed) {
@@ -13509,7 +10952,7 @@ public class MainWindow extends JFrame {
        if(!orbit_opt.isSelected()) {
            orbit = false;
            orbit_button.setSelected(false);
-           if(function != NEWTON3 && function != NEWTON4 && function != NEWTONGENERALIZED3 && function != NEWTONGENERALIZED8 && function != NEWTONSIN && function != NEWTONCOS && function != NEWTONPOLY && function != HALLEY3 && function != HALLEY4 && function != HALLEYGENERALIZED3 && function != HALLEYGENERALIZED8 && function != HALLEYSIN && function != HALLEYCOS && function != HALLEYPOLY && function != SCHRODER3 && function != SCHRODER4 && function != SCHRODERGENERALIZED3 && function != SCHRODERGENERALIZED8 && function != SCHRODERSIN && function != SCHRODERCOS && function != SCHRODERPOLY && function != HOUSEHOLDER3 && function != HOUSEHOLDER4 && function != HOUSEHOLDERGENERALIZED3 && function != HOUSEHOLDERGENERALIZED8 && function != HOUSEHOLDERSIN && function != HOUSEHOLDERCOS && function != HOUSEHOLDERPOLY && function != SIERPINSKI_GASKET && function != SECANT3 && function != SECANT4 && function != SECANTGENERALIZED3 && function != SECANTGENERALIZED8 && function != SECANTCOS && function != SECANTPOLY && function != STEFFENSEN3 && function != STEFFENSEN4 && function != STEFFENSENGENERALIZED3 && !init_val && !perturbation && (function != USER_FORMULA || (function == USER_FORMULA && user_formula_c == true))) {
+           if(function != NEWTON3 && function != NEWTON4 && function != NEWTONGENERALIZED3 && function != NEWTONGENERALIZED8 && function != NEWTONSIN && function != NEWTONCOS && function != NEWTONPOLY && function != HALLEY3 && function != HALLEY4 && function != HALLEYGENERALIZED3 && function != HALLEYGENERALIZED8 && function != HALLEYSIN && function != HALLEYCOS && function != HALLEYPOLY && function != SCHRODER3 && function != SCHRODER4 && function != SCHRODERGENERALIZED3 && function != SCHRODERGENERALIZED8 && function != SCHRODERSIN && function != SCHRODERCOS && function != SCHRODERPOLY && function != HOUSEHOLDER3 && function != HOUSEHOLDER4 && function != HOUSEHOLDERGENERALIZED3 && function != HOUSEHOLDERGENERALIZED8 && function != HOUSEHOLDERSIN && function != HOUSEHOLDERCOS && function != HOUSEHOLDERPOLY && function != SIERPINSKI_GASKET && function != SECANT3 && function != SECANT4 && function != SECANTGENERALIZED3 && function != SECANTGENERALIZED8 && function != SECANTCOS && function != SECANTPOLY && function != STEFFENSEN3 && function != STEFFENSEN4 && function != STEFFENSENGENERALIZED3 && !init_val && !perturbation && (function != USER_FORMULA || (function == USER_FORMULA && user_formula_c == true)) && (function != USER_FORMULA_ITERATION_BASED || (function == USER_FORMULA_ITERATION_BASED && user_formula_c == true))) {
                julia_opt.setEnabled(true);
                julia_button.setEnabled(true);
                if(!julia) {
@@ -13616,11 +11059,11 @@ public class MainWindow extends JFrame {
            }
            try {
                if(julia) {
-                   pixels_orbit = new DrawOrbit(xCenter, yCenter, size, max_iterations > 400 ? 400 : max_iterations, (int)main_panel.getMousePosition().getX(), (int)main_panel.getMousePosition().getY(), image_size, image, ptr, orbit_color, orbit_style, plane_type, burning_ship, mandel_grass, mandel_grass_vals, grid, function, z_exponent, z_exponent_complex, rotation_vals, rotation_center, coefficients, z_exponent_nova, relaxation, nova_method, user_formula, bail_technique, user_plane, xJuliaCenter, yJuliaCenter);
+                   pixels_orbit = new DrawOrbit(xCenter, yCenter, size, max_iterations > 400 ? 400 : max_iterations, (int)main_panel.getMousePosition().getX(), (int)main_panel.getMousePosition().getY(), image_size, image, ptr, orbit_color, orbit_style, plane_type, burning_ship, mandel_grass, mandel_grass_vals, grid, function, z_exponent, z_exponent_complex, rotation_vals, rotation_center, coefficients, z_exponent_nova, relaxation, nova_method, user_formula,  user_formula2, bail_technique, user_plane, user_formula_iteration_based, xJuliaCenter, yJuliaCenter);
                    pixels_orbit.start();
                }
                else {
-                   pixels_orbit = new DrawOrbit(xCenter, yCenter, size, max_iterations > 400 ? 400 : max_iterations, (int)main_panel.getMousePosition().getX(), (int)main_panel.getMousePosition().getY(), image_size, image, ptr, orbit_color, orbit_style, plane_type, burning_ship, mandel_grass, mandel_grass_vals, grid, function, z_exponent, z_exponent_complex, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, coefficients, z_exponent_nova, relaxation, nova_method, user_formula, bail_technique, user_plane);
+                   pixels_orbit = new DrawOrbit(xCenter, yCenter, size, max_iterations > 400 ? 400 : max_iterations, (int)main_panel.getMousePosition().getX(), (int)main_panel.getMousePosition().getY(), image_size, image, ptr, orbit_color, orbit_style, plane_type, burning_ship, mandel_grass, mandel_grass_vals, grid, function, z_exponent, z_exponent_complex, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, coefficients, z_exponent_nova, relaxation, nova_method, user_formula,  user_formula2, bail_technique, user_plane, user_formula_iteration_based);
                    pixels_orbit.start();
                }            
            }
@@ -13783,19 +11226,19 @@ public class MainWindow extends JFrame {
        save_image_button.setEnabled(option);
 
        
-       if(function != NEWTON3 && function != NEWTON4 && function != NEWTONGENERALIZED3 && function != NEWTONGENERALIZED8 && function != NEWTONSIN && function != NEWTONCOS && function != NEWTONPOLY && function != HALLEY3 && function != HALLEY4 && function != HALLEYGENERALIZED3 && function != HALLEYGENERALIZED8 && function != HALLEYSIN && function != HALLEYCOS && function != HALLEYPOLY && function != SCHRODER3 && function != SCHRODER4 && function != SCHRODERGENERALIZED3 && function != SCHRODERGENERALIZED8 && function != SCHRODERSIN && function != SCHRODERCOS && function != SCHRODERPOLY && function != HOUSEHOLDER3 && function != HOUSEHOLDER4 && function != HOUSEHOLDERGENERALIZED3 && function != HOUSEHOLDERGENERALIZED8 && function != HOUSEHOLDERSIN && function != HOUSEHOLDERCOS && function != HOUSEHOLDERPOLY && function != NOVA && function != SECANT3 && function != SECANT4 && function != SECANTGENERALIZED3 && function != SECANTGENERALIZED8 && function != SECANTCOS && function != SECANTPOLY && function != STEFFENSEN3 && function != STEFFENSEN4 && function != STEFFENSENGENERALIZED3 && (function != USER_FORMULA || (function == USER_FORMULA && bail_technique == 0))) {
+       if(function != NEWTON3 && function != NEWTON4 && function != NEWTONGENERALIZED3 && function != NEWTONGENERALIZED8 && function != NEWTONSIN && function != NEWTONCOS && function != NEWTONPOLY && function != HALLEY3 && function != HALLEY4 && function != HALLEYGENERALIZED3 && function != HALLEYGENERALIZED8 && function != HALLEYSIN && function != HALLEYCOS && function != HALLEYPOLY && function != SCHRODER3 && function != SCHRODER4 && function != SCHRODERGENERALIZED3 && function != SCHRODERGENERALIZED8 && function != SCHRODERSIN && function != SCHRODERCOS && function != SCHRODERPOLY && function != HOUSEHOLDER3 && function != HOUSEHOLDER4 && function != HOUSEHOLDERGENERALIZED3 && function != HOUSEHOLDERGENERALIZED8 && function != HOUSEHOLDERSIN && function != HOUSEHOLDERCOS && function != HOUSEHOLDERPOLY && function != NOVA && function != SECANT3 && function != SECANT4 && function != SECANTGENERALIZED3 && function != SECANTGENERALIZED8 && function != SECANTCOS && function != SECANTPOLY && function != STEFFENSEN3 && function != STEFFENSEN4 && function != STEFFENSENGENERALIZED3 && (function != USER_FORMULA || (function == USER_FORMULA && bail_technique == 0)) && (function != USER_FORMULA_ITERATION_BASED || (function == USER_FORMULA_ITERATION_BASED && bail_technique == 0))) {
            bailout_number.setEnabled(option); 
            bailout_test_menu.setEnabled(option);
        }
        
        optimizations_menu.setEnabled(option);
        
-       if(function != NEWTON3 && function != NEWTON4 && function != NEWTONGENERALIZED3 && function != NEWTONGENERALIZED8 && function != NEWTONSIN && function != NEWTONCOS && function != NEWTONPOLY && function != HALLEY3 && function != HALLEY4 && function != HALLEYGENERALIZED3 && function != HALLEYGENERALIZED8 && function != HALLEYSIN && function != HALLEYCOS && function != HALLEYPOLY && function != SCHRODER3 && function != SCHRODER4 && function != SCHRODERGENERALIZED3 && function != SCHRODERGENERALIZED8 && function != SCHRODERSIN && function != SCHRODERCOS && function != SCHRODERPOLY && function != HOUSEHOLDER3 && function != HOUSEHOLDER4 && function != HOUSEHOLDERGENERALIZED3 && function != HOUSEHOLDERGENERALIZED8 && function != HOUSEHOLDERSIN && function != HOUSEHOLDERCOS && function != HOUSEHOLDERPOLY && function != SIERPINSKI_GASKET && function != NOVA && function != SECANT3 && function != SECANT4 && function != SECANTGENERALIZED3 && function != SECANTGENERALIZED8 && function != SECANTCOS && function != SECANTPOLY && function != STEFFENSEN3 && function != STEFFENSEN4 && function != STEFFENSENGENERALIZED3 && in_coloring_algorithm == MAXIMUM_ITERATIONS && (function != USER_FORMULA || (function == USER_FORMULA && bail_technique == 0))) {
+       if(function != NEWTON3 && function != NEWTON4 && function != NEWTONGENERALIZED3 && function != NEWTONGENERALIZED8 && function != NEWTONSIN && function != NEWTONCOS && function != NEWTONPOLY && function != HALLEY3 && function != HALLEY4 && function != HALLEYGENERALIZED3 && function != HALLEYGENERALIZED8 && function != HALLEYSIN && function != HALLEYCOS && function != HALLEYPOLY && function != SCHRODER3 && function != SCHRODER4 && function != SCHRODERGENERALIZED3 && function != SCHRODERGENERALIZED8 && function != SCHRODERSIN && function != SCHRODERCOS && function != SCHRODERPOLY && function != HOUSEHOLDER3 && function != HOUSEHOLDER4 && function != HOUSEHOLDERGENERALIZED3 && function != HOUSEHOLDERGENERALIZED8 && function != HOUSEHOLDERSIN && function != HOUSEHOLDERCOS && function != HOUSEHOLDERPOLY && function != SIERPINSKI_GASKET && function != NOVA && function != SECANT3 && function != SECANT4 && function != SECANTGENERALIZED3 && function != SECANTGENERALIZED8 && function != SECANTCOS && function != SECANTPOLY && function != STEFFENSEN3 && function != STEFFENSEN4 && function != STEFFENSENGENERALIZED3 && in_coloring_algorithm == MAXIMUM_ITERATIONS && (function != USER_FORMULA || (function == USER_FORMULA && bail_technique == 0)) && (function != USER_FORMULA_ITERATION_BASED || (function == USER_FORMULA_ITERATION_BASED && bail_technique == 0))) {
            periodicity_checking_opt.setEnabled(option); 
        }
 
    
-       if(((!julia && !orbit) || (!first_seed && !orbit)) && !julia_map && !d3 && !perturbation && !init_val && (function != NEWTON3 && function != NEWTON4 && function != NEWTONGENERALIZED3 && function != NEWTONGENERALIZED8 && function != NEWTONSIN && function != NEWTONCOS && function != NEWTONPOLY && function != HALLEY3 && function != HALLEY4 && function != HALLEYGENERALIZED3 && function != HALLEYGENERALIZED8 && function != HALLEYSIN && function != HALLEYCOS && function != HALLEYPOLY && function != SCHRODER3 && function != SCHRODER4 && function != SCHRODERGENERALIZED3 && function != SCHRODERGENERALIZED8 && function != SCHRODERSIN && function != SCHRODERCOS && function != SCHRODERPOLY && function != HOUSEHOLDER3 && function != HOUSEHOLDER4 && function != HOUSEHOLDERGENERALIZED3 && function != HOUSEHOLDERGENERALIZED8 && function != HOUSEHOLDERSIN && function != HOUSEHOLDERCOS && function != HOUSEHOLDERPOLY && function != SIERPINSKI_GASKET && function != SECANT3 && function != SECANT4 && function != SECANTGENERALIZED3 && function != SECANTGENERALIZED8 && function != SECANTCOS && function != SECANTPOLY && function != STEFFENSEN3 && function != STEFFENSEN4 && function != STEFFENSENGENERALIZED3) && (function != USER_FORMULA || (function == USER_FORMULA && user_formula_c == true))) {
+       if(((!julia && !orbit) || (!first_seed && !orbit)) && !julia_map && !d3 && !perturbation && !init_val && (function != NEWTON3 && function != NEWTON4 && function != NEWTONGENERALIZED3 && function != NEWTONGENERALIZED8 && function != NEWTONSIN && function != NEWTONCOS && function != NEWTONPOLY && function != HALLEY3 && function != HALLEY4 && function != HALLEYGENERALIZED3 && function != HALLEYGENERALIZED8 && function != HALLEYSIN && function != HALLEYCOS && function != HALLEYPOLY && function != SCHRODER3 && function != SCHRODER4 && function != SCHRODERGENERALIZED3 && function != SCHRODERGENERALIZED8 && function != SCHRODERSIN && function != SCHRODERCOS && function != SCHRODERPOLY && function != HOUSEHOLDER3 && function != HOUSEHOLDER4 && function != HOUSEHOLDERGENERALIZED3 && function != HOUSEHOLDERGENERALIZED8 && function != HOUSEHOLDERSIN && function != HOUSEHOLDERCOS && function != HOUSEHOLDERPOLY && function != SIERPINSKI_GASKET && function != SECANT3 && function != SECANT4 && function != SECANTGENERALIZED3 && function != SECANTGENERALIZED8 && function != SECANTCOS && function != SECANTPOLY && function != STEFFENSEN3 && function != STEFFENSEN4 && function != STEFFENSENGENERALIZED3) && (function != USER_FORMULA || (function == USER_FORMULA && user_formula_c == true)) && (function != USER_FORMULA_ITERATION_BASED || (function == USER_FORMULA_ITERATION_BASED && user_formula_c == true))) {
            julia_opt.setEnabled(option);
            julia_button.setEnabled(option);
        }
@@ -13839,7 +11282,7 @@ public class MainWindow extends JFrame {
        }
        planes_menu.setEnabled(option);
        
-       if(!julia && !perturbation && !init_val && !orbit && !d3 && (function != NEWTON3 && function != NEWTON4 && function != NEWTONGENERALIZED3 && function != NEWTONGENERALIZED8 && function != NEWTONSIN && function != NEWTONCOS && function != NEWTONPOLY && function != HALLEY3 && function != HALLEY4 && function != HALLEYGENERALIZED3 && function != HALLEYGENERALIZED8 && function != HALLEYSIN && function != HALLEYCOS && function != HALLEYPOLY && function != SCHRODER3 && function != SCHRODER4 && function != SCHRODERGENERALIZED3 && function != SCHRODERGENERALIZED8 && function != SCHRODERSIN && function != SCHRODERCOS && function != SCHRODERPOLY && function != HOUSEHOLDER3 && function != HOUSEHOLDER4 && function != HOUSEHOLDERGENERALIZED3 && function != HOUSEHOLDERGENERALIZED8 && function != HOUSEHOLDERSIN && function != HOUSEHOLDERCOS && function != HOUSEHOLDERPOLY && function != SIERPINSKI_GASKET && function != SECANT3 && function != SECANT4 && function != SECANTGENERALIZED3 && function != SECANTGENERALIZED8 && function != SECANTCOS && function != SECANTPOLY && function != STEFFENSEN3 && function != STEFFENSEN4 && function != STEFFENSENGENERALIZED3) && (function != USER_FORMULA || (function == USER_FORMULA && user_formula_c == true))) {
+       if(!julia && !perturbation && !init_val && !orbit && !d3 && (function != NEWTON3 && function != NEWTON4 && function != NEWTONGENERALIZED3 && function != NEWTONGENERALIZED8 && function != NEWTONSIN && function != NEWTONCOS && function != NEWTONPOLY && function != HALLEY3 && function != HALLEY4 && function != HALLEYGENERALIZED3 && function != HALLEYGENERALIZED8 && function != HALLEYSIN && function != HALLEYCOS && function != HALLEYPOLY && function != SCHRODER3 && function != SCHRODER4 && function != SCHRODERGENERALIZED3 && function != SCHRODERGENERALIZED8 && function != SCHRODERSIN && function != SCHRODERCOS && function != SCHRODERPOLY && function != HOUSEHOLDER3 && function != HOUSEHOLDER4 && function != HOUSEHOLDERGENERALIZED3 && function != HOUSEHOLDERGENERALIZED8 && function != HOUSEHOLDERSIN && function != HOUSEHOLDERCOS && function != HOUSEHOLDERPOLY && function != SIERPINSKI_GASKET && function != SECANT3 && function != SECANT4 && function != SECANTGENERALIZED3 && function != SECANTGENERALIZED8 && function != SECANTCOS && function != SECANTPOLY && function != STEFFENSEN3 && function != STEFFENSEN4 && function != STEFFENSENGENERALIZED3) && (function != USER_FORMULA || (function == USER_FORMULA && user_formula_c == true)) && (function != USER_FORMULA_ITERATION_BASED || (function == USER_FORMULA_ITERATION_BASED && user_formula_c == true))) {
            julia_map_opt.setEnabled(option);
        }
        
@@ -13850,7 +11293,7 @@ public class MainWindow extends JFrame {
        
        rotation_menu.setEnabled(option);
        
-       if(!julia && !julia_map && (function != NEWTON3 && function != NEWTON4 && function != NEWTONGENERALIZED3 && function != NEWTONGENERALIZED8 && function != NEWTONSIN && function != NEWTONCOS && function != NEWTONPOLY && function != HALLEY3 && function != HALLEY4 && function != HALLEYGENERALIZED3 && function != HALLEYGENERALIZED8 && function != HALLEYSIN && function != HALLEYCOS && function != HALLEYPOLY && function != SCHRODER3 && function != SCHRODER4 && function != SCHRODERGENERALIZED3 && function != SCHRODERGENERALIZED8 && function != SCHRODERSIN && function != SCHRODERCOS && function != SCHRODERPOLY && function != HOUSEHOLDER3 && function != HOUSEHOLDER4 && function != HOUSEHOLDERGENERALIZED3 && function != HOUSEHOLDERGENERALIZED8 && function != HOUSEHOLDERSIN && function != HOUSEHOLDERCOS && function != HOUSEHOLDERPOLY && function != SIERPINSKI_GASKET && function != SECANT3 && function != SECANT4 && function != SECANTGENERALIZED3 && function != SECANTGENERALIZED8 && function != SECANTCOS && function != SECANTPOLY && function != STEFFENSEN3 && function != STEFFENSEN4 && function != STEFFENSENGENERALIZED3) && (function != USER_FORMULA || (function == USER_FORMULA && user_formula_c == true))) {
+       if(!julia && !julia_map && (function != NEWTON3 && function != NEWTON4 && function != NEWTONGENERALIZED3 && function != NEWTONGENERALIZED8 && function != NEWTONSIN && function != NEWTONCOS && function != NEWTONPOLY && function != HALLEY3 && function != HALLEY4 && function != HALLEYGENERALIZED3 && function != HALLEYGENERALIZED8 && function != HALLEYSIN && function != HALLEYCOS && function != HALLEYPOLY && function != SCHRODER3 && function != SCHRODER4 && function != SCHRODERGENERALIZED3 && function != SCHRODERGENERALIZED8 && function != SCHRODERSIN && function != SCHRODERCOS && function != SCHRODERPOLY && function != HOUSEHOLDER3 && function != HOUSEHOLDER4 && function != HOUSEHOLDERGENERALIZED3 && function != HOUSEHOLDERGENERALIZED8 && function != HOUSEHOLDERSIN && function != HOUSEHOLDERCOS && function != HOUSEHOLDERPOLY && function != SIERPINSKI_GASKET && function != SECANT3 && function != SECANT4 && function != SECANTGENERALIZED3 && function != SECANTGENERALIZED8 && function != SECANTCOS && function != SECANTPOLY && function != STEFFENSEN3 && function != STEFFENSEN4 && function != STEFFENSENGENERALIZED3) && (function != USER_FORMULA || (function == USER_FORMULA && user_formula_c == true)) && (function != USER_FORMULA_ITERATION_BASED || (function == USER_FORMULA_ITERATION_BASED && user_formula_c == true))) {
            perturbation_opt.setEnabled(option);
            init_val_opt.setEnabled(option);
        }
@@ -14044,7 +11487,7 @@ public class MainWindow extends JFrame {
                    fractal_functions[function].setSelected(false);
 
                    if(function != temp2) {
-                       if(temp2 == USER_FORMULA || temp2 == SECANTPOLY || temp2 == NOVA || temp2 == MANDELBROTWTH || temp2 == NEWTONPOLY || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == MANDELPOLY) {
+                       if(temp2 == USER_FORMULA_ITERATION_BASED || temp2 == USER_FORMULA || temp2 == SECANTPOLY || temp2 == NOVA || temp2 == MANDELBROTWTH || temp2 == NEWTONPOLY || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == MANDELPOLY) {
                            fractal_functions[temp2].setSelected(true);
                            fractal_functions[temp2].setEnabled(true);
                        }
@@ -14063,6 +11506,7 @@ public class MainWindow extends JFrame {
                }
            fractal_functions[function].setSelected(true);
            out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+           out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
            if(out_coloring_algorithm != BIOMORPH) {
                out_coloring_modes[BIOMORPH].setEnabled(true);
            }
@@ -14143,7 +11587,7 @@ public class MainWindow extends JFrame {
                     fractal_functions[function].setSelected(false);
 
                     if(function != temp2) {
-                        if(temp2 == USER_FORMULA || temp2 == SECANTPOLY || temp2 == NOVA || temp2 == MANDELBROTNTH || temp2 == NEWTONPOLY || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == MANDELPOLY) {
+                        if(temp2 == USER_FORMULA_ITERATION_BASED || temp2 == USER_FORMULA || temp2 == SECANTPOLY || temp2 == NOVA || temp2 == MANDELBROTNTH || temp2 == NEWTONPOLY || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == MANDELPOLY) {
                             fractal_functions[temp2].setSelected(true);
                             fractal_functions[temp2].setEnabled(true);
                         }
@@ -14166,7 +11610,7 @@ public class MainWindow extends JFrame {
                 fractal_functions[function].setSelected(false);
 
                     if(function != temp2) {
-                        if(temp2 == USER_FORMULA || temp2 == SECANTPOLY || temp2 == NOVA || temp2 == MANDELBROTNTH || temp2 == NEWTONPOLY || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == MANDELPOLY) {
+                        if(temp2 == USER_FORMULA_ITERATION_BASED || temp2 == USER_FORMULA || temp2 == SECANTPOLY || temp2 == NOVA || temp2 == MANDELBROTNTH || temp2 == NEWTONPOLY || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == MANDELPOLY) {
                             fractal_functions[temp2].setSelected(true);
                             fractal_functions[temp2].setEnabled(true);
                         }
@@ -14189,6 +11633,7 @@ public class MainWindow extends JFrame {
                         
            fractal_functions[function].setSelected(true);
            out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+           out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
            if(out_coloring_algorithm != BIOMORPH) {
                out_coloring_modes[BIOMORPH].setEnabled(true);
            }
@@ -14426,7 +11871,7 @@ public class MainWindow extends JFrame {
                     fractal_functions[function].setSelected(false);
 
                     if(function != temp2) {
-                       if(temp2 == USER_FORMULA || temp2 == SECANTPOLY || temp2 == NOVA || temp2 == MANDELBROTWTH || temp2 == MANDELBROTNTH || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == NEWTONPOLY) {
+                       if(temp2 == USER_FORMULA_ITERATION_BASED || temp2 == USER_FORMULA || temp2 == SECANTPOLY || temp2 == NOVA || temp2 == MANDELBROTWTH || temp2 == MANDELBROTNTH || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == NEWTONPOLY) {
                            fractal_functions[temp2].setSelected(true);
                            fractal_functions[temp2].setEnabled(true);
                        }
@@ -14449,7 +11894,7 @@ public class MainWindow extends JFrame {
                 fractal_functions[function].setSelected(false);
 
                 if(function != temp2) {
-                   if(temp2 == USER_FORMULA || temp2 == SECANTPOLY || temp2 == NOVA || temp2 == MANDELBROTWTH || temp2 == MANDELBROTNTH || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == NEWTONPOLY) {
+                   if(temp2 == USER_FORMULA_ITERATION_BASED || temp2 == USER_FORMULA || temp2 == SECANTPOLY || temp2 == NOVA || temp2 == MANDELBROTWTH || temp2 == MANDELBROTNTH || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == NEWTONPOLY) {
                        fractal_functions[temp2].setSelected(true);
                        fractal_functions[temp2].setEnabled(true);
                    }
@@ -14481,7 +11926,7 @@ public class MainWindow extends JFrame {
                fractal_functions[function].setSelected(false);
 
                if(function != temp2) {
-                   if(temp2 == USER_FORMULA || temp2 == SECANTPOLY || temp2 == NOVA || temp2 == MANDELBROTWTH || temp2 == MANDELBROTNTH || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == NEWTONPOLY) {
+                   if(temp2 == USER_FORMULA_ITERATION_BASED || temp2 == USER_FORMULA || temp2 == SECANTPOLY || temp2 == NOVA || temp2 == MANDELBROTWTH || temp2 == MANDELBROTNTH || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == NEWTONPOLY) {
                        fractal_functions[temp2].setSelected(true);
                        fractal_functions[temp2].setEnabled(true);
                    }
@@ -14542,136 +11987,8 @@ public class MainWindow extends JFrame {
            
            fractal_functions[function].setSelected(true);
            out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+           out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
  
-           if(out_coloring_algorithm != BIOMORPH) {
-               out_coloring_modes[BIOMORPH].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-               out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-               out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-               out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-               out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-           }
-           break;
-       case LAMBDA:
-           fractal_functions[function].setEnabled(false);
-           out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-           if(out_coloring_algorithm != BIOMORPH) {
-               out_coloring_modes[BIOMORPH].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-               out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-               out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-               out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-               out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-           }
-           break;
-       case MAGNET1:         
-           fractal_functions[function].setEnabled(false);
-           out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-           if(out_coloring_algorithm != BIOMORPH) {
-               out_coloring_modes[BIOMORPH].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-               out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-               out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-               out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-               out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-           }
-           break;
-       case MAGNET2:
-           fractal_functions[function].setEnabled(false);
-           out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
            if(out_coloring_algorithm != BIOMORPH) {
                out_coloring_modes[BIOMORPH].setEnabled(true);
            }
@@ -14715,6 +12032,7 @@ public class MainWindow extends JFrame {
        case NEWTON3:
            fractal_functions[function].setEnabled(false);
            out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+           out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
            julia_opt.setEnabled(false);
            julia_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
@@ -14740,6 +12058,7 @@ public class MainWindow extends JFrame {
        case NEWTON4:
            fractal_functions[function].setEnabled(false);
            out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+           out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
            julia_opt.setEnabled(false);
            julia_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
@@ -14765,6 +12084,7 @@ public class MainWindow extends JFrame {
        case NEWTONGENERALIZED3:
            fractal_functions[function].setEnabled(false);
            out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+           out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
            julia_opt.setEnabled(false);
            julia_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
@@ -14790,6 +12110,7 @@ public class MainWindow extends JFrame {
        case NEWTONGENERALIZED8:
            fractal_functions[function].setEnabled(false);
            out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+           out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
            julia_opt.setEnabled(false);
            julia_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
@@ -14815,6 +12136,7 @@ public class MainWindow extends JFrame {
        case NEWTONSIN:
            fractal_functions[function].setEnabled(false);
            out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+           out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
            julia_opt.setEnabled(false);
            julia_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
@@ -14840,6 +12162,7 @@ public class MainWindow extends JFrame {
        case NEWTONCOS:
            fractal_functions[function].setEnabled(false);
            out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+           out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
            julia_opt.setEnabled(false);
            julia_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
@@ -15059,7 +12382,7 @@ public class MainWindow extends JFrame {
                     fractal_functions[function].setSelected(false);
 
                     if(function != temp2) {
-                       if(temp2 == USER_FORMULA || temp2 == SECANTPOLY || temp2 == NOVA || temp2 == MANDELBROTWTH || temp2 == MANDELBROTNTH || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == MANDELPOLY) {
+                       if(temp2 == USER_FORMULA_ITERATION_BASED || temp2 == USER_FORMULA || temp2 == SECANTPOLY || temp2 == NOVA || temp2 == MANDELBROTWTH || temp2 == MANDELBROTNTH || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == MANDELPOLY) {
                            fractal_functions[temp2].setSelected(true);
                            fractal_functions[temp2].setEnabled(true);
                        }
@@ -15082,7 +12405,7 @@ public class MainWindow extends JFrame {
                 fractal_functions[function].setSelected(false);
 
                 if(function != temp2) {
-                   if(temp2 == USER_FORMULA || temp2 == SECANTPOLY || temp2 == NOVA || temp2 == MANDELBROTWTH || temp2 == MANDELBROTNTH || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == MANDELPOLY) {
+                   if(temp2 == USER_FORMULA_ITERATION_BASED || temp2 == USER_FORMULA || temp2 == SECANTPOLY || temp2 == NOVA || temp2 == MANDELBROTWTH || temp2 == MANDELBROTNTH || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == MANDELPOLY) {
                        fractal_functions[temp2].setSelected(true);
                        fractal_functions[temp2].setEnabled(true);
                    }
@@ -15114,7 +12437,7 @@ public class MainWindow extends JFrame {
                fractal_functions[function].setSelected(false);
 
                if(function != temp2) {
-                   if(temp2 == USER_FORMULA || temp2 == SECANTPOLY || temp2 == NOVA || temp2 == MANDELBROTWTH || temp2 == MANDELBROTNTH || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == MANDELPOLY) {
+                   if(temp2 == USER_FORMULA_ITERATION_BASED || temp2 == USER_FORMULA || temp2 == SECANTPOLY || temp2 == NOVA || temp2 == MANDELBROTWTH || temp2 == MANDELBROTNTH || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == MANDELPOLY) {
                        fractal_functions[temp2].setSelected(true);
                        fractal_functions[temp2].setEnabled(true);
                    }
@@ -15177,6 +12500,7 @@ public class MainWindow extends JFrame {
            julia_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
            out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+           out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
            out_coloring_modes[BIOMORPH].setEnabled(false);
            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(false);
            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(false);
@@ -15200,6 +12524,7 @@ public class MainWindow extends JFrame {
        case HALLEY3:
            fractal_functions[function].setEnabled(false);
            out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+           out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
            julia_opt.setEnabled(false);
            julia_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
@@ -15225,6 +12550,7 @@ public class MainWindow extends JFrame {
        case HALLEY4:
            fractal_functions[function].setEnabled(false);
            out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+           out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
            julia_opt.setEnabled(false);
            julia_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
@@ -15250,6 +12576,7 @@ public class MainWindow extends JFrame {
        case HALLEYGENERALIZED3:
            fractal_functions[function].setEnabled(false);
            out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+           out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
            julia_opt.setEnabled(false);
            julia_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
@@ -15275,6 +12602,7 @@ public class MainWindow extends JFrame {
        case HALLEYGENERALIZED8:
            fractal_functions[function].setEnabled(false);
            out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+           out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
            julia_opt.setEnabled(false);
            julia_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
@@ -15300,6 +12628,7 @@ public class MainWindow extends JFrame {
        case HALLEYSIN:
            fractal_functions[function].setEnabled(false);
            out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+           out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
            julia_opt.setEnabled(false);
            julia_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
@@ -15325,6 +12654,7 @@ public class MainWindow extends JFrame {
        case HALLEYCOS:
            fractal_functions[function].setEnabled(false);
            out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+           out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
            julia_opt.setEnabled(false);
            julia_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
@@ -15544,7 +12874,7 @@ public class MainWindow extends JFrame {
                     fractal_functions[function].setSelected(false);
 
                     if(function != temp2) {
-                       if(temp2 == USER_FORMULA || temp2 == SECANTPOLY || temp2 == NOVA || temp2 == MANDELBROTWTH || temp2 == MANDELBROTNTH || temp2 == NEWTONPOLY || temp2 == SCHRODERPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == MANDELPOLY) {
+                       if(temp2 == USER_FORMULA_ITERATION_BASED || temp2 == USER_FORMULA || temp2 == SECANTPOLY || temp2 == NOVA || temp2 == MANDELBROTWTH || temp2 == MANDELBROTNTH || temp2 == NEWTONPOLY || temp2 == SCHRODERPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == MANDELPOLY) {
                            fractal_functions[temp2].setSelected(true);
                            fractal_functions[temp2].setEnabled(true);
                        }
@@ -15567,7 +12897,7 @@ public class MainWindow extends JFrame {
                 fractal_functions[function].setSelected(false);
 
                 if(function != temp2) {
-                   if(temp2 == USER_FORMULA || temp2 == SECANTPOLY || temp2 == NOVA || temp2 == MANDELBROTWTH || temp2 == MANDELBROTNTH || temp2 == NEWTONPOLY || temp2 == SCHRODERPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == MANDELPOLY) {
+                   if(temp2 == USER_FORMULA_ITERATION_BASED || temp2 == USER_FORMULA || temp2 == SECANTPOLY || temp2 == NOVA || temp2 == MANDELBROTWTH || temp2 == MANDELBROTNTH || temp2 == NEWTONPOLY || temp2 == SCHRODERPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == MANDELPOLY) {
                        fractal_functions[temp2].setSelected(true);
                        fractal_functions[temp2].setEnabled(true);
                    }
@@ -15599,7 +12929,7 @@ public class MainWindow extends JFrame {
                fractal_functions[function].setSelected(false);
 
                if(function != temp2) {
-                   if(temp2 == USER_FORMULA || temp2 == SECANTPOLY || temp2 == NOVA || temp2 == MANDELBROTWTH || temp2 == MANDELBROTNTH || temp2 == NEWTONPOLY || temp2 == SCHRODERPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == MANDELPOLY) {
+                   if(temp2 == USER_FORMULA_ITERATION_BASED || temp2 == USER_FORMULA || temp2 == SECANTPOLY || temp2 == NOVA || temp2 == MANDELBROTWTH || temp2 == MANDELBROTNTH || temp2 == NEWTONPOLY || temp2 == SCHRODERPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == MANDELPOLY) {
                        fractal_functions[temp2].setSelected(true);
                        fractal_functions[temp2].setEnabled(true);
                    }
@@ -15663,6 +12993,7 @@ public class MainWindow extends JFrame {
            julia_map_opt.setEnabled(false);
            out_coloring_modes[BIOMORPH].setEnabled(false);
            out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+           out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(false);
            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(false);
            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(false);
@@ -15685,6 +13016,7 @@ public class MainWindow extends JFrame {
        case SCHRODER3:
            fractal_functions[function].setEnabled(false);
            out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+           out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
            julia_opt.setEnabled(false);
            julia_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
@@ -15710,6 +13042,7 @@ public class MainWindow extends JFrame {
        case SCHRODER4:
            fractal_functions[function].setEnabled(false);
            out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+           out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
            julia_opt.setEnabled(false);
            julia_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
@@ -15735,6 +13068,7 @@ public class MainWindow extends JFrame {
        case SCHRODERGENERALIZED3:
            fractal_functions[function].setEnabled(false);
            out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+           out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
            julia_opt.setEnabled(false);
            julia_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
@@ -15760,6 +13094,7 @@ public class MainWindow extends JFrame {
        case SCHRODERGENERALIZED8:
            fractal_functions[function].setEnabled(false);
            out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+           out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
            julia_opt.setEnabled(false);
            julia_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
@@ -15785,6 +13120,7 @@ public class MainWindow extends JFrame {
        case SCHRODERSIN:
            fractal_functions[function].setEnabled(false);
            out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+           out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
            julia_opt.setEnabled(false);
            julia_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
@@ -15810,6 +13146,7 @@ public class MainWindow extends JFrame {
        case SCHRODERCOS:
            fractal_functions[function].setEnabled(false);
            out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+           out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
            julia_opt.setEnabled(false);
            julia_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
@@ -16029,7 +13366,7 @@ public class MainWindow extends JFrame {
                     fractal_functions[function].setSelected(false);
 
                     if(function != temp2) {
-                       if(temp2 == USER_FORMULA || temp2 == SECANTPOLY || temp2 == NOVA || temp2 == MANDELBROTWTH || temp2 == MANDELBROTNTH || temp2 == NEWTONPOLY || temp2 == HALLEYPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == MANDELPOLY) {
+                       if(temp2 == USER_FORMULA_ITERATION_BASED || temp2 == USER_FORMULA || temp2 == SECANTPOLY || temp2 == NOVA || temp2 == MANDELBROTWTH || temp2 == MANDELBROTNTH || temp2 == NEWTONPOLY || temp2 == HALLEYPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == MANDELPOLY) {
                            fractal_functions[temp2].setSelected(true);
                            fractal_functions[temp2].setEnabled(true);
                        }
@@ -16052,7 +13389,7 @@ public class MainWindow extends JFrame {
                 fractal_functions[function].setSelected(false);
 
                 if(function != temp2) {
-                   if(temp2 == USER_FORMULA || temp2 == SECANTPOLY || temp2 == NOVA || temp2 == MANDELBROTWTH || temp2 == MANDELBROTNTH || temp2 == NEWTONPOLY || temp2 == HALLEYPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == MANDELPOLY) {
+                   if(temp2 == USER_FORMULA_ITERATION_BASED || temp2 == USER_FORMULA || temp2 == SECANTPOLY || temp2 == NOVA || temp2 == MANDELBROTWTH || temp2 == MANDELBROTNTH || temp2 == NEWTONPOLY || temp2 == HALLEYPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == MANDELPOLY) {
                        fractal_functions[temp2].setSelected(true);
                        fractal_functions[temp2].setEnabled(true);
                    }
@@ -16084,7 +13421,7 @@ public class MainWindow extends JFrame {
                fractal_functions[function].setSelected(false);
 
                if(function != temp2) {
-                   if(temp2 == USER_FORMULA || temp2 == SECANTPOLY || temp2 == NOVA || temp2 == MANDELBROTWTH || temp2 == MANDELBROTNTH || temp2 == NEWTONPOLY || temp2 == HALLEYPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == MANDELPOLY) {
+                   if(temp2 == USER_FORMULA_ITERATION_BASED || temp2 == USER_FORMULA || temp2 == SECANTPOLY || temp2 == NOVA || temp2 == MANDELBROTWTH || temp2 == MANDELBROTNTH || temp2 == NEWTONPOLY || temp2 == HALLEYPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == MANDELPOLY) {
                        fractal_functions[temp2].setSelected(true);
                        fractal_functions[temp2].setEnabled(true);
                    }
@@ -16145,6 +13482,7 @@ public class MainWindow extends JFrame {
            
            julia_opt.setEnabled(false);
            out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+           out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
            julia_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
            out_coloring_modes[BIOMORPH].setEnabled(false);
@@ -16170,6 +13508,7 @@ public class MainWindow extends JFrame {
        case HOUSEHOLDER3:
            fractal_functions[function].setEnabled(false);
            out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+           out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
            julia_opt.setEnabled(false);
            julia_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
@@ -16195,6 +13534,7 @@ public class MainWindow extends JFrame {
        case HOUSEHOLDER4:
            fractal_functions[function].setEnabled(false);
            out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+           out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
            julia_opt.setEnabled(false);
            julia_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
@@ -16220,6 +13560,7 @@ public class MainWindow extends JFrame {
        case HOUSEHOLDERGENERALIZED3:
            fractal_functions[function].setEnabled(false);
            out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+           out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
            julia_opt.setEnabled(false);
            julia_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
@@ -16245,6 +13586,7 @@ public class MainWindow extends JFrame {
        case HOUSEHOLDERGENERALIZED8:
            fractal_functions[function].setEnabled(false);
            out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+           out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
            julia_opt.setEnabled(false);
            julia_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
@@ -16270,6 +13612,7 @@ public class MainWindow extends JFrame {
        case HOUSEHOLDERSIN:
            fractal_functions[function].setEnabled(false);
            out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+           out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
            julia_opt.setEnabled(false);
            julia_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
@@ -16295,6 +13638,7 @@ public class MainWindow extends JFrame {
        case HOUSEHOLDERCOS:
            fractal_functions[function].setEnabled(false);
            out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+           out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
            julia_opt.setEnabled(false);
            julia_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
@@ -16514,7 +13858,7 @@ public class MainWindow extends JFrame {
                     fractal_functions[function].setSelected(false);
 
                     if(function != temp2) {
-                       if(temp2 == USER_FORMULA || temp2 == SECANTPOLY || temp2 == NOVA || temp2 == MANDELBROTWTH || temp2 == MANDELBROTNTH || temp2 == NEWTONPOLY || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == MANDELPOLY) {
+                       if(temp2 == USER_FORMULA_ITERATION_BASED || temp2 == USER_FORMULA || temp2 == SECANTPOLY || temp2 == NOVA || temp2 == MANDELBROTWTH || temp2 == MANDELBROTNTH || temp2 == NEWTONPOLY || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == MANDELPOLY) {
                            fractal_functions[temp2].setSelected(true);
                            fractal_functions[temp2].setEnabled(true);
                        }
@@ -16537,7 +13881,7 @@ public class MainWindow extends JFrame {
                 fractal_functions[function].setSelected(false);
 
                 if(function != temp2) {
-                   if(temp2 == USER_FORMULA || temp2 == SECANTPOLY || temp2 == NOVA || temp2 == MANDELBROTWTH || temp2 == MANDELBROTNTH || temp2 == NEWTONPOLY || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == MANDELPOLY) {
+                   if(temp2 == USER_FORMULA_ITERATION_BASED || temp2 == USER_FORMULA || temp2 == SECANTPOLY || temp2 == NOVA || temp2 == MANDELBROTWTH || temp2 == MANDELBROTNTH || temp2 == NEWTONPOLY || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == MANDELPOLY) {
                        fractal_functions[temp2].setSelected(true);
                        fractal_functions[temp2].setEnabled(true);
                    }
@@ -16569,7 +13913,7 @@ public class MainWindow extends JFrame {
                fractal_functions[function].setSelected(false);
 
                if(function != temp2) {
-                   if(temp2 == USER_FORMULA || temp2 == SECANTPOLY || temp2 == NOVA || temp2 == MANDELBROTWTH || temp2 == MANDELBROTNTH || temp2 == NEWTONPOLY || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == MANDELPOLY) {
+                   if(temp2 == USER_FORMULA_ITERATION_BASED || temp2 == USER_FORMULA || temp2 == SECANTPOLY || temp2 == NOVA || temp2 == MANDELBROTWTH || temp2 == MANDELBROTNTH || temp2 == NEWTONPOLY || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == MANDELPOLY) {
                        fractal_functions[temp2].setSelected(true);
                        fractal_functions[temp2].setEnabled(true);
                    }
@@ -16632,6 +13976,7 @@ public class MainWindow extends JFrame {
            julia_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
            out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+           out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
            out_coloring_modes[BIOMORPH].setEnabled(false);
            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(false);
            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(false);
@@ -16655,6 +14000,7 @@ public class MainWindow extends JFrame {
        case SECANT3:
            fractal_functions[function].setEnabled(false);
            out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+           out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
            julia_opt.setEnabled(false);
            julia_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
@@ -16680,6 +14026,7 @@ public class MainWindow extends JFrame {
        case SECANT4:
            fractal_functions[function].setEnabled(false);
            out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+           out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
            julia_opt.setEnabled(false);
            julia_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
@@ -16705,6 +14052,7 @@ public class MainWindow extends JFrame {
        case SECANTGENERALIZED3:
            fractal_functions[function].setEnabled(false);
            out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+           out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
            julia_opt.setEnabled(false);
            julia_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
@@ -16731,6 +14079,7 @@ public class MainWindow extends JFrame {
            fractal_functions[function].setEnabled(false);
            julia_opt.setEnabled(false);
            out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+           out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
            julia_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
            out_coloring_modes[BIOMORPH].setEnabled(false);
@@ -16756,6 +14105,7 @@ public class MainWindow extends JFrame {
            fractal_functions[function].setEnabled(false);
            julia_opt.setEnabled(false);
            out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+           out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
            julia_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
            out_coloring_modes[BIOMORPH].setEnabled(false);
@@ -16974,7 +14324,7 @@ public class MainWindow extends JFrame {
                     fractal_functions[function].setSelected(false);
 
                     if(function != temp2) {
-                       if(temp2 == USER_FORMULA || temp2 == HOUSEHOLDERPOLY || temp2 == NOVA || temp2 == MANDELBROTWTH || temp2 == MANDELBROTNTH || temp2 == NEWTONPOLY || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == MANDELPOLY) {
+                       if(temp2 == USER_FORMULA_ITERATION_BASED || temp2 == USER_FORMULA || temp2 == HOUSEHOLDERPOLY || temp2 == NOVA || temp2 == MANDELBROTWTH || temp2 == MANDELBROTNTH || temp2 == NEWTONPOLY || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == MANDELPOLY) {
                            fractal_functions[temp2].setSelected(true);
                            fractal_functions[temp2].setEnabled(true);
                        }
@@ -16997,7 +14347,7 @@ public class MainWindow extends JFrame {
                 fractal_functions[function].setSelected(false);
 
                 if(function != temp2) {
-                   if(temp2 == USER_FORMULA || temp2 == HOUSEHOLDERPOLY || temp2 == NOVA || temp2 == MANDELBROTWTH || temp2 == MANDELBROTNTH || temp2 == NEWTONPOLY || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == MANDELPOLY) {
+                   if(temp2 == USER_FORMULA_ITERATION_BASED || temp2 == USER_FORMULA || temp2 == HOUSEHOLDERPOLY || temp2 == NOVA || temp2 == MANDELBROTWTH || temp2 == MANDELBROTNTH || temp2 == NEWTONPOLY || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == MANDELPOLY) {
                        fractal_functions[temp2].setSelected(true);
                        fractal_functions[temp2].setEnabled(true);
                    }
@@ -17029,7 +14379,7 @@ public class MainWindow extends JFrame {
                fractal_functions[function].setSelected(false);
 
                if(function != temp2) {
-                   if(temp2 == USER_FORMULA || temp2 == HOUSEHOLDERPOLY || temp2 == NOVA || temp2 == MANDELBROTWTH || temp2 == MANDELBROTNTH || temp2 == NEWTONPOLY || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == MANDELPOLY) {
+                   if(temp2 == USER_FORMULA_ITERATION_BASED || temp2 == USER_FORMULA || temp2 == HOUSEHOLDERPOLY || temp2 == NOVA || temp2 == MANDELBROTWTH || temp2 == MANDELBROTNTH || temp2 == NEWTONPOLY || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == MANDELPOLY) {
                        fractal_functions[temp2].setSelected(true);
                        fractal_functions[temp2].setEnabled(true);
                    }
@@ -17090,6 +14440,7 @@ public class MainWindow extends JFrame {
            
            julia_opt.setEnabled(false);
            out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+           out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
            julia_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
            out_coloring_modes[BIOMORPH].setEnabled(false);
@@ -17115,6 +14466,7 @@ public class MainWindow extends JFrame {
        case STEFFENSEN3:
            fractal_functions[function].setEnabled(false);
            out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+           out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
            julia_opt.setEnabled(false);
            julia_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
@@ -17140,6 +14492,7 @@ public class MainWindow extends JFrame {
        case STEFFENSEN4:
            fractal_functions[function].setEnabled(false);
            out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+           out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
            julia_opt.setEnabled(false);
            julia_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
@@ -17165,6 +14518,7 @@ public class MainWindow extends JFrame {
        case STEFFENSENGENERALIZED3:
            fractal_functions[function].setEnabled(false);
            out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+           out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
            julia_opt.setEnabled(false);
            julia_button.setEnabled(false);
            julia_map_opt.setEnabled(false);
@@ -17251,7 +14605,7 @@ public class MainWindow extends JFrame {
                     fractal_functions[function].setSelected(false);
 
                     if(function != temp2) {
-                        if(temp2 == USER_FORMULA || temp2 == SECANTPOLY || temp2 == MANDELBROTWTH || temp2 == MANDELBROTNTH || temp2 == NEWTONPOLY || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == MANDELPOLY) {
+                        if(temp2 == USER_FORMULA_ITERATION_BASED || temp2 == USER_FORMULA || temp2 == SECANTPOLY || temp2 == MANDELBROTWTH || temp2 == MANDELBROTNTH || temp2 == NEWTONPOLY || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == MANDELPOLY) {
                             fractal_functions[temp2].setSelected(true);
                             fractal_functions[temp2].setEnabled(true);
                         }
@@ -17274,7 +14628,7 @@ public class MainWindow extends JFrame {
                 fractal_functions[function].setSelected(false);
 
                     if(function != temp2) {
-                        if(temp2 == USER_FORMULA || temp2 == SECANTPOLY || temp2 == MANDELBROTWTH || temp2 == MANDELBROTNTH || temp2 == NEWTONPOLY || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == MANDELPOLY) {
+                        if(temp2 == USER_FORMULA_ITERATION_BASED || temp2 == USER_FORMULA || temp2 == SECANTPOLY || temp2 == MANDELBROTWTH || temp2 == MANDELBROTNTH || temp2 == NEWTONPOLY || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == MANDELPOLY) {
                             fractal_functions[temp2].setSelected(true);
                             fractal_functions[temp2].setEnabled(true);
                         }
@@ -17301,6 +14655,7 @@ public class MainWindow extends JFrame {
            nova_method = temp7;
            
            out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+           out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
            
            if(out_coloring_algorithm != BIOMORPH) {
                out_coloring_modes[BIOMORPH].setEnabled(true);
@@ -17347,310 +14702,10 @@ public class MainWindow extends JFrame {
            bailout_test_menu.setEnabled(false);
            fractal_functions[function].setSelected(true);
            break;
-       case BARNSLEY1:
-           fractal_functions[function].setEnabled(false);
-           out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-           if(out_coloring_algorithm != BIOMORPH) {
-               out_coloring_modes[BIOMORPH].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-               out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-               out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-               out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-               out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-           }
-           break;
-       case BARNSLEY2:
-           fractal_functions[function].setEnabled(false);
-           out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-           if(out_coloring_algorithm != BIOMORPH) {
-               out_coloring_modes[BIOMORPH].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-               out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-               out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-               out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-               out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-           }
-           break;
-       case BARNSLEY3:
-           fractal_functions[function].setEnabled(false);
-           out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-           if(out_coloring_algorithm != BIOMORPH) {
-               out_coloring_modes[BIOMORPH].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-               out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-               out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-               out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-               out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-           }
-           break;
-       case MANDELBAR:
-           fractal_functions[function].setEnabled(false);
-           out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-           if(out_coloring_algorithm != BIOMORPH) {
-               out_coloring_modes[BIOMORPH].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-               out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-               out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-               out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-               out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-           }
-           break;
-       case SPIDER:
-           fractal_functions[function].setEnabled(false);
-           out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-           if(out_coloring_algorithm != BIOMORPH) {
-               out_coloring_modes[BIOMORPH].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-               out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-               out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-               out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-               out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-           }
-           break;
-       case MANOWAR:
-           fractal_functions[function].setEnabled(false);
-           out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-           if(out_coloring_algorithm != BIOMORPH) {
-               out_coloring_modes[BIOMORPH].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-               out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-               out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-               out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-               out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-           }
-           break;
-       case PHOENIX:
-           fractal_functions[function].setEnabled(false);
-           out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-           if(out_coloring_algorithm != BIOMORPH) {
-               out_coloring_modes[BIOMORPH].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-               out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-               out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-               out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-               out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-           }
-           break;
        case SIERPINSKI_GASKET:
            fractal_functions[function].setEnabled(false);
            out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+           out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
            if(out_coloring_algorithm != BIOMORPH) {
                out_coloring_modes[BIOMORPH].setEnabled(true);
            }
@@ -17697,2202 +14752,545 @@ public class MainWindow extends JFrame {
            perturbation_opt.setEnabled(false);
            init_val_opt.setEnabled(false);
            break;
-       case EXP:
-           fractal_functions[function].setEnabled(false);
+        case USER_FORMULA_ITERATION_BASED:
+
+            JTextField field_formula_it_based1 = new JTextField(35);
+            field_formula_it_based1.setText(user_formula_iteration_based[0]);
+            field_formula_it_based1.addAncestorListener(new RequestFocusListener());
+            
+            JTextField field_formula_it_based2 = new JTextField(35);
+            field_formula_it_based2.setText(user_formula_iteration_based[1]);
+            
+            JTextField field_formula_it_based3 = new JTextField(35);
+            field_formula_it_based3.setText(user_formula_iteration_based[2]);
+            
+            JTextField field_formula_it_based4 = new JTextField(35);
+            field_formula_it_based4.setText(user_formula_iteration_based[3]);
+            
+            JPanel formula_panel_it1 = new JPanel();
+            
+            formula_panel_it1.add(new JLabel("Every 1st iteration, z ="));
+            formula_panel_it1.add(field_formula_it_based1);
+            
+            JPanel formula_panel_it2 = new JPanel();
+            
+            formula_panel_it2.add(new JLabel("Every 2nd iteration, z ="));
+            formula_panel_it2.add(field_formula_it_based2);
+            
+            JPanel formula_panel_it3 = new JPanel();
+            
+            formula_panel_it3.add(new JLabel("Every 3rd iteration, z ="));
+            formula_panel_it3.add(field_formula_it_based3);
+            
+            JPanel formula_panel_it4 = new JPanel();
+            
+            formula_panel_it4.add(new JLabel("Every 4th iteration, z ="));
+            formula_panel_it4.add(field_formula_it_based4);
+            
+            
+            JLabel variables2 = new JLabel("Variables:");
+            variables2.setFont(new Font("default", Font.BOLD , 11 ));
+            
+            JLabel operations2 = new JLabel("Operations:");
+            operations2.setFont(new Font("default", Font.BOLD , 11 ));
+            
+            JLabel complex_numbers2 = new JLabel("Complex numbers:");
+            complex_numbers2.setFont(new Font("default", Font.BOLD , 11 ));
+            
+            JLabel exp_log2 = new JLabel("Exponential and logarithmic functions:");
+            exp_log2.setFont(new Font("default", Font.BOLD , 11 ));
+            
+            JLabel trig2 = new JLabel("Trigonometric functions:");
+            trig2.setFont(new Font("default", Font.BOLD , 11 ));
+
+ 
+            JLabel other2 = new JLabel("Other functions:");
+            other2.setFont(new Font("default", Font.BOLD , 11 ));
+            
+            String[] method42 = {"Escape Algorithm", "Converging Algorithm"};
+       
+            JComboBox method42_choice = new JComboBox(method42);
+            method42_choice.setSelectedIndex(bail_technique);
+            method42_choice.setToolTipText("Selects the bailout technique.");
+  
+
+            Object[] message32 = { 
+                " ",
+                variables2,
+                "z (current sequence point), c (plane point),",
+                "p (previous sequence point), n (current iteration)",
+                operations2,
+                "+, -, *, /, ^",
+                complex_numbers2,
+                "a + bi",
+                exp_log2,
+                "exp, log, log10, log2",
+                trig2,
+                "sin, cos, tan, cot, sec, csc",
+                "sinh, cosh, tanh, coth, sech, csch",
+                "asin, acos, atan, acot, asec, acsc",
+                "asinh, acosh, atanh, acoth, asech, acsch",
+                other2,
+                "sqrt, abs, conj, re, im, norm, arg",
+                " ",
+                "Bailout technique:",
+                method42_choice,
+                " ",
+                "Insert your formulas. Different formula will be evaluated in every iteration.",
+                formula_panel_it1,
+                formula_panel_it2,
+                formula_panel_it3,
+                formula_panel_it4,
+            };
+            
+
+            res = JOptionPane.showConfirmDialog(scroll_pane, message32, "User Formula Iteration Based", JOptionPane.OK_CANCEL_OPTION);
+                
+   
+            if(res == JOptionPane.OK_OPTION) {
+                
+                boolean temp_bool = false;
+                
+                try {
+                    parser.parse(field_formula_it_based1.getText());
+                    if(!parser.foundZ()) {
+                        JOptionPane.showMessageDialog(scroll_pane, "Every expression must contain at least the variable z.", "Error!", JOptionPane.ERROR_MESSAGE);
+                        main_panel.repaint();
+                        fractal_functions[function].setSelected(false);
+
+                         if(function != temp2) {
+                            if(temp2 == USER_FORMULA || temp2 == SECANTPOLY || temp2 == MANDELBROTWTH  || temp2 == NOVA || temp2 == MANDELBROTNTH || temp2 == NEWTONPOLY || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == MANDELPOLY) {
+                                fractal_functions[temp2].setSelected(true);
+                                fractal_functions[temp2].setEnabled(true);
+                            }
+                            else {
+                                fractal_functions[temp2].setSelected(true);
+                                fractal_functions[temp2].setEnabled(false);
+                            }
+                            function = temp2;
+                        }
+                        else {
+                            fractal_functions[function].setSelected(true);
+                            fractal_functions[function].setEnabled(true);
+                        }
+
+                        return;
+                    }
+                    
+                    temp_bool = temp_bool | parser.foundC();
+                    
+                    parser.parse(field_formula_it_based2.getText());
+                    if(!parser.foundZ()) {
+                        JOptionPane.showMessageDialog(scroll_pane, "Every expression must contain at least the variable z.", "Error!", JOptionPane.ERROR_MESSAGE);
+                        main_panel.repaint();
+                        fractal_functions[function].setSelected(false);
+
+                         if(function != temp2) {
+                            if(temp2 == USER_FORMULA || temp2 == SECANTPOLY || temp2 == MANDELBROTWTH  || temp2 == NOVA || temp2 == MANDELBROTNTH || temp2 == NEWTONPOLY || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == MANDELPOLY) {
+                                fractal_functions[temp2].setSelected(true);
+                                fractal_functions[temp2].setEnabled(true);
+                            }
+                            else {
+                                fractal_functions[temp2].setSelected(true);
+                                fractal_functions[temp2].setEnabled(false);
+                            }
+                            function = temp2;
+                        }
+                        else {
+                            fractal_functions[function].setSelected(true);
+                            fractal_functions[function].setEnabled(true);
+                        }
+
+                        return;
+                    }
+                    
+                    temp_bool = temp_bool | parser.foundC();
+                    
+                    parser.parse(field_formula_it_based3.getText());
+                    if(!parser.foundZ()) {
+                        JOptionPane.showMessageDialog(scroll_pane, "Every expression must contain at least the variable z.", "Error!", JOptionPane.ERROR_MESSAGE);
+                        main_panel.repaint();
+                        fractal_functions[function].setSelected(false);
+
+                         if(function != temp2) {
+                            if(temp2 == USER_FORMULA || temp2 == SECANTPOLY || temp2 == MANDELBROTWTH  || temp2 == NOVA || temp2 == 
+                                MANDELBROTNTH || temp2 == NEWTONPOLY || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == MANDELPOLY) {
+                                fractal_functions[temp2].setSelected(true);
+                                fractal_functions[temp2].setEnabled(true);
+                            }
+                            else {
+                                fractal_functions[temp2].setSelected(true);
+                                fractal_functions[temp2].setEnabled(false);
+                            }
+                            function = temp2;
+                        }
+                        else {
+                            fractal_functions[function].setSelected(true);
+                            fractal_functions[function].setEnabled(true);
+                        }
+
+                        return;
+                    }
+                    
+                    temp_bool = temp_bool | parser.foundC();
+                    
+                    parser.parse(field_formula_it_based4.getText());
+                    if(!parser.foundZ()) {
+                        JOptionPane.showMessageDialog(scroll_pane, "Every expression must contain at least the variable z.", "Error!",  JOptionPane.ERROR_MESSAGE);
+                        main_panel.repaint();
+                        fractal_functions[function].setSelected(false);
+
+                         if(function != temp2) {
+                            if(temp2 == USER_FORMULA || temp2 == SECANTPOLY || temp2 == MANDELBROTWTH  || temp2 == NOVA || temp2 == 
+                                MANDELBROTNTH || temp2 == NEWTONPOLY || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == MANDELPOLY) {
+                                fractal_functions[temp2].setSelected(true);
+                                fractal_functions[temp2].setEnabled(true);
+                            }
+                            else {
+                                fractal_functions[temp2].setSelected(true);
+                                fractal_functions[temp2].setEnabled(false);
+                            }
+                            function = temp2;
+                        }
+                        else {
+                            fractal_functions[function].setSelected(true);
+                            fractal_functions[function].setEnabled(true);
+                        }
+
+                        return;
+                    }
+                    
+                    temp_bool = temp_bool | parser.foundC();
+                    
+                    user_formula_iteration_based[0] = field_formula_it_based1.getText();
+                    user_formula_iteration_based[1] = field_formula_it_based2.getText();
+                    user_formula_iteration_based[2] = field_formula_it_based3.getText();
+                    user_formula_iteration_based[3] = field_formula_it_based4.getText();
+                    user_formula_c = temp_bool;
+                    bail_technique = method42_choice.getSelectedIndex();
+                    
+                    if(julia) {
+                       julia = false;
+                       julia_button.setSelected(false);
+                       julia_opt.setSelected(false);
+                       fast_julia_image = null;
+                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS && out_coloring_algorithm != ESCAPE_TIME_GRID && 
+                                out_coloring_algorithm != BIOMORPH && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER && out_coloring_algorithm != 
+                                ESCAPE_TIME_GAUSSIAN_INTEGER2 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3 && out_coloring_algorithm != 
+                                ESCAPE_TIME_GAUSSIAN_INTEGER4 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5 && out_coloring_algorithm != ITERATIONS_PLUS_RE && 
+                                out_coloring_algorithm != ITERATIONS_PLUS_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != 
+                                ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM  && out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && out_coloring_algorithm != 
+                                DISTANCE_ESTIMATOR && out_coloring_algorithm != DISTANCE_ESTIMATOR2) {
+                           fractal_functions[NEWTON3].setEnabled(true);
+                           fractal_functions[NEWTON4].setEnabled(true);
+                           fractal_functions[NEWTONGENERALIZED3].setEnabled(true);
+                           fractal_functions[NEWTONGENERALIZED8].setEnabled(true);
+                           fractal_functions[NEWTONSIN].setEnabled(true);
+                           fractal_functions[NEWTONCOS].setEnabled(true);
+                           fractal_functions[NEWTONPOLY].setEnabled(true);
+                           fractal_functions[HALLEY3].setEnabled(true);
+                           fractal_functions[HALLEY4].setEnabled(true);
+                           fractal_functions[HALLEYGENERALIZED3].setEnabled(true);
+                           fractal_functions[HALLEYGENERALIZED8].setEnabled(true);
+                           fractal_functions[HALLEYSIN].setEnabled(true);
+                           fractal_functions[HALLEYCOS].setEnabled(true);
+                           fractal_functions[HALLEYPOLY].setEnabled(true);
+                           fractal_functions[SCHRODER3].setEnabled(true);
+                           fractal_functions[SCHRODER4].setEnabled(true);
+                           fractal_functions[SCHRODERGENERALIZED3].setEnabled(true);
+                           fractal_functions[SCHRODERGENERALIZED8].setEnabled(true);
+                           fractal_functions[SCHRODERSIN].setEnabled(true);
+                           fractal_functions[SCHRODERCOS].setEnabled(true);
+                           fractal_functions[SCHRODERPOLY].setEnabled(true);
+                           fractal_functions[HOUSEHOLDER3].setEnabled(true);
+                           fractal_functions[HOUSEHOLDER4].setEnabled(true);
+                           fractal_functions[HOUSEHOLDERGENERALIZED3].setEnabled(true);
+                           fractal_functions[HOUSEHOLDERGENERALIZED8].setEnabled(true);
+                           fractal_functions[HOUSEHOLDERSIN].setEnabled(true);
+                           fractal_functions[HOUSEHOLDERCOS].setEnabled(true);
+                           fractal_functions[HOUSEHOLDERPOLY].setEnabled(true); 
+                           fractal_functions[SECANT3].setEnabled(true);
+                           fractal_functions[SECANT4].setEnabled(true);
+                           fractal_functions[SECANTGENERALIZED3].setEnabled(true);
+                           fractal_functions[SECANTGENERALIZED8].setEnabled(true);
+                           fractal_functions[SECANTCOS].setEnabled(true);
+                           fractal_functions[SECANTPOLY].setEnabled(true); 
+                           fractal_functions[STEFFENSEN3].setEnabled(true);
+                           fractal_functions[STEFFENSEN4].setEnabled(true);
+                           fractal_functions[STEFFENSENGENERALIZED3].setEnabled(true);
+                       }
+                       if(out_coloring_algorithm != DISTANCE_ESTIMATOR && out_coloring_algorithm != DISTANCE_ESTIMATOR2) {
+                           fractal_functions[SIERPINSKI_GASKET].setEnabled(true);
+                       }
+                       if(!first_seed) {
+                           mode.setText("Normal mode");
+                           main_panel.repaint();
+                       }
+                    }
+                    
+                    if(init_val) {
+                        init_val = false;
+                        init_val_opt.setSelected(false);
+           
+                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS && out_coloring_algorithm != ESCAPE_TIME_GRID && 
+                            out_coloring_algorithm != DISTANCE_ESTIMATOR && out_coloring_algorithm != DISTANCE_ESTIMATOR2 && out_coloring_algorithm != BIOMORPH && 
+                            out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && out_coloring_algorithm 
+                            != ESCAPE_TIME_GAUSSIAN_INTEGER3 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && out_coloring_algorithm != 
+                            ESCAPE_TIME_GAUSSIAN_INTEGER5 && out_coloring_algorithm != ITERATIONS_PLUS_RE && out_coloring_algorithm != ITERATIONS_PLUS_IM && 
+                            out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM  && 
+                            out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && !perturbation) {
+                           fractal_functions[NEWTON3].setEnabled(true);
+                           fractal_functions[NEWTON4].setEnabled(true);
+                           fractal_functions[NEWTONGENERALIZED3].setEnabled(true);
+                           fractal_functions[NEWTONGENERALIZED8].setEnabled(true);
+                           fractal_functions[NEWTONSIN].setEnabled(true);
+                           fractal_functions[NEWTONCOS].setEnabled(true);
+                           fractal_functions[NEWTONPOLY].setEnabled(true);
+                           fractal_functions[HALLEY3].setEnabled(true);
+                           fractal_functions[HALLEY4].setEnabled(true);
+                           fractal_functions[HALLEYGENERALIZED3].setEnabled(true);
+                           fractal_functions[HALLEYGENERALIZED8].setEnabled(true);
+                           fractal_functions[HALLEYSIN].setEnabled(true);
+                           fractal_functions[HALLEYCOS].setEnabled(true);
+                           fractal_functions[HALLEYPOLY].setEnabled(true);
+                           fractal_functions[SCHRODER3].setEnabled(true);
+                           fractal_functions[SCHRODER4].setEnabled(true);
+                           fractal_functions[SCHRODERGENERALIZED3].setEnabled(true);
+                           fractal_functions[SCHRODERGENERALIZED8].setEnabled(true);
+                           fractal_functions[SCHRODERSIN].setEnabled(true);
+                           fractal_functions[SCHRODERCOS].setEnabled(true);
+                           fractal_functions[SCHRODERPOLY].setEnabled(true);
+                           fractal_functions[HOUSEHOLDER3].setEnabled(true);
+                           fractal_functions[HOUSEHOLDER4].setEnabled(true);
+                           fractal_functions[HOUSEHOLDERGENERALIZED3].setEnabled(true);
+                           fractal_functions[HOUSEHOLDERGENERALIZED8].setEnabled(true);
+                           fractal_functions[HOUSEHOLDERSIN].setEnabled(true);
+                           fractal_functions[HOUSEHOLDERCOS].setEnabled(true);
+                           fractal_functions[HOUSEHOLDERPOLY].setEnabled(true); 
+                           fractal_functions[SECANT3].setEnabled(true);
+                           fractal_functions[SECANT4].setEnabled(true);
+                           fractal_functions[SECANTGENERALIZED3].setEnabled(true);
+                           fractal_functions[SECANTGENERALIZED8].setEnabled(true);
+                           fractal_functions[SECANTCOS].setEnabled(true);
+                           fractal_functions[SECANTPOLY].setEnabled(true);
+                           fractal_functions[STEFFENSEN3].setEnabled(true);
+                           fractal_functions[STEFFENSEN4].setEnabled(true);
+                           fractal_functions[STEFFENSENGENERALIZED3].setEnabled(true);
+                       }
+
+                       if(!perturbation && out_coloring_algorithm != DISTANCE_ESTIMATOR && out_coloring_algorithm != DISTANCE_ESTIMATOR2) {
+                           fractal_functions[SIERPINSKI_GASKET].setEnabled(true);
+                       }           
+                    }
+                    
+                    if(perturbation) {
+                        perturbation = false;
+                        perturbation_opt.setSelected(false);
+
+                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS && out_coloring_algorithm != ESCAPE_TIME_GRID && 
+                            out_coloring_algorithm != DISTANCE_ESTIMATOR && out_coloring_algorithm != DISTANCE_ESTIMATOR2 && out_coloring_algorithm != BIOMORPH && 
+                            out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER  && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && out_coloring_algorithm 
+                            != ESCAPE_TIME_GAUSSIAN_INTEGER3  && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && out_coloring_algorithm != 
+                            ESCAPE_TIME_GAUSSIAN_INTEGER5 && out_coloring_algorithm != ITERATIONS_PLUS_RE && out_coloring_algorithm != ITERATIONS_PLUS_IM && 
+                            out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM  && 
+                            out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && !init_val) {
+                           fractal_functions[NEWTON3].setEnabled(true);
+                           fractal_functions[NEWTON4].setEnabled(true);
+                           fractal_functions[NEWTONGENERALIZED3].setEnabled(true);
+                           fractal_functions[NEWTONGENERALIZED8].setEnabled(true);
+                           fractal_functions[NEWTONSIN].setEnabled(true);
+                           fractal_functions[NEWTONCOS].setEnabled(true);
+                           fractal_functions[NEWTONPOLY].setEnabled(true);
+                           fractal_functions[HALLEY3].setEnabled(true);
+                           fractal_functions[HALLEY4].setEnabled(true);
+                           fractal_functions[HALLEYGENERALIZED3].setEnabled(true);
+                           fractal_functions[HALLEYGENERALIZED8].setEnabled(true);
+                           fractal_functions[HALLEYSIN].setEnabled(true);
+                           fractal_functions[HALLEYCOS].setEnabled(true);
+                           fractal_functions[HALLEYPOLY].setEnabled(true);
+                           fractal_functions[SCHRODER3].setEnabled(true);
+                           fractal_functions[SCHRODER4].setEnabled(true);
+                           fractal_functions[SCHRODERGENERALIZED3].setEnabled(true);
+                           fractal_functions[SCHRODERGENERALIZED8].setEnabled(true);
+                           fractal_functions[SCHRODERSIN].setEnabled(true);
+                           fractal_functions[SCHRODERCOS].setEnabled(true);
+                           fractal_functions[SCHRODERPOLY].setEnabled(true);
+                           fractal_functions[HOUSEHOLDER3].setEnabled(true);
+                           fractal_functions[HOUSEHOLDER4].setEnabled(true);
+                           fractal_functions[HOUSEHOLDERGENERALIZED3].setEnabled(true);
+                           fractal_functions[HOUSEHOLDERGENERALIZED8].setEnabled(true);
+                           fractal_functions[HOUSEHOLDERSIN].setEnabled(true);
+                           fractal_functions[HOUSEHOLDERCOS].setEnabled(true);
+                           fractal_functions[HOUSEHOLDERPOLY].setEnabled(true); 
+                           fractal_functions[SECANT3].setEnabled(true);
+                           fractal_functions[SECANT4].setEnabled(true);
+                           fractal_functions[SECANTGENERALIZED3].setEnabled(true);
+                           fractal_functions[SECANTGENERALIZED8].setEnabled(true);
+                           fractal_functions[SECANTCOS].setEnabled(true);
+                           fractal_functions[SECANTPOLY].setEnabled(true);
+                           fractal_functions[STEFFENSEN3].setEnabled(true);
+                           fractal_functions[STEFFENSEN4].setEnabled(true);
+                           fractal_functions[STEFFENSENGENERALIZED3].setEnabled(true);
+                       }
+
+                       if(!init_val && out_coloring_algorithm != DISTANCE_ESTIMATOR && out_coloring_algorithm != DISTANCE_ESTIMATOR2) {
+                           fractal_functions[SIERPINSKI_GASKET].setEnabled(true);
+                       }              
+                    }
+                    
+                    if(julia_map) {
+                        julia_map = false;
+                        julia_map_opt.setSelected(false);
+                       setOptions(false);
+
+                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS && out_coloring_algorithm != ESCAPE_TIME_GRID && 
+                            out_coloring_algorithm != DISTANCE_ESTIMATOR && out_coloring_algorithm != DISTANCE_ESTIMATOR2 && out_coloring_algorithm != BIOMORPH && 
+                            out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && out_coloring_algorithm 
+                            != ESCAPE_TIME_GAUSSIAN_INTEGER3 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && out_coloring_algorithm != 
+                            ESCAPE_TIME_GAUSSIAN_INTEGER5 && out_coloring_algorithm != ITERATIONS_PLUS_RE && out_coloring_algorithm != ITERATIONS_PLUS_IM && 
+                            out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM  && 
+                                out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
+                           fractal_functions[NEWTON3].setEnabled(true);
+                           fractal_functions[NEWTON4].setEnabled(true);
+                           fractal_functions[NEWTONGENERALIZED3].setEnabled(true);
+                           fractal_functions[NEWTONGENERALIZED8].setEnabled(true);
+                           fractal_functions[NEWTONSIN].setEnabled(true);
+                           fractal_functions[NEWTONCOS].setEnabled(true);
+                           fractal_functions[NEWTONPOLY].setEnabled(true);
+                           fractal_functions[HALLEY3].setEnabled(true);
+                           fractal_functions[HALLEY4].setEnabled(true);
+                           fractal_functions[HALLEYGENERALIZED3].setEnabled(true);
+                           fractal_functions[HALLEYGENERALIZED8].setEnabled(true);
+                           fractal_functions[HALLEYSIN].setEnabled(true);
+                           fractal_functions[HALLEYCOS].setEnabled(true);
+                           fractal_functions[HALLEYPOLY].setEnabled(true);
+                           fractal_functions[SCHRODER3].setEnabled(true);
+                           fractal_functions[SCHRODER4].setEnabled(true);
+                           fractal_functions[SCHRODERGENERALIZED3].setEnabled(true);
+                           fractal_functions[SCHRODERGENERALIZED8].setEnabled(true);
+                           fractal_functions[SCHRODERSIN].setEnabled(true);
+                           fractal_functions[SCHRODERCOS].setEnabled(true);
+                           fractal_functions[SCHRODERPOLY].setEnabled(true);
+                           fractal_functions[HOUSEHOLDER3].setEnabled(true);
+                           fractal_functions[HOUSEHOLDER4].setEnabled(true);
+                           fractal_functions[HOUSEHOLDERGENERALIZED3].setEnabled(true);
+                           fractal_functions[HOUSEHOLDERGENERALIZED8].setEnabled(true);
+                           fractal_functions[HOUSEHOLDERSIN].setEnabled(true);
+                           fractal_functions[HOUSEHOLDERCOS].setEnabled(true);
+                           fractal_functions[HOUSEHOLDERPOLY].setEnabled(true); 
+                           fractal_functions[SECANT3].setEnabled(true);
+                           fractal_functions[SECANT4].setEnabled(true);
+                           fractal_functions[SECANTGENERALIZED3].setEnabled(true);
+                           fractal_functions[SECANTGENERALIZED8].setEnabled(true);
+                           fractal_functions[SECANTCOS].setEnabled(true);
+                           fractal_functions[SECANTPOLY].setEnabled(true); 
+                           fractal_functions[STEFFENSEN3].setEnabled(true);
+                           fractal_functions[STEFFENSEN4].setEnabled(true);
+                           fractal_functions[STEFFENSENGENERALIZED3].setEnabled(true);
+                       }
+
+                       if(out_coloring_algorithm != DISTANCE_ESTIMATOR && out_coloring_algorithm != DISTANCE_ESTIMATOR2) {
+                           fractal_functions[SIERPINSKI_GASKET].setEnabled(true);
+                       }
+
+                       boundary_tracing_opt.setEnabled(true);
+
+                       mode.setText("Normal mode");
+                    }
+                    
+                    if(!user_formula_c) {
+                       julia_opt.setEnabled(false);
+                       julia_button.setEnabled(false);
+                       julia_map_opt.setEnabled(false);
+                       perturbation_opt.setEnabled(false);
+                       init_val_opt.setEnabled(false);
+                    }
+                    
+                    if(bail_technique == 1) {
+                        bailout_number.setEnabled(false); 
+                        bailout_test_menu.setEnabled(false);
+                        periodicity_checking_opt.setEnabled(false);
+                    }
+                }
+                catch (ParserException e)
+                {
+                    JOptionPane.showMessageDialog(scroll_pane, e.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
+                    main_panel.repaint();
+                    fractal_functions[function].setSelected(false);
+                    
+                     if(function != temp2) {
+                        if(temp2 == USER_FORMULA || temp2 == SECANTPOLY || temp2 == MANDELBROTWTH  || temp2 == NOVA || temp2 == MANDELBROTNTH 
+                        || temp2 == NEWTONPOLY || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == MANDELPOLY) {
+                            fractal_functions[temp2].setSelected(true);
+                            fractal_functions[temp2].setEnabled(true);
+                        }
+                        else {
+                            fractal_functions[temp2].setSelected(true);
+                            fractal_functions[temp2].setEnabled(false);
+                        }
+                        function = temp2;
+                    }
+                    else {
+                        fractal_functions[function].setSelected(true);
+                        fractal_functions[function].setEnabled(true);
+                    }
+                    
+                    return;
+                }
+                catch (EvaluationException e)
+                {
+                    JOptionPane.showMessageDialog(scroll_pane, e.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
+                    main_panel.repaint();
+                    fractal_functions[function].setSelected(false);
+                    
+                     if(function != temp2) {
+                        if(temp2 == USER_FORMULA || temp2 == SECANTPOLY || temp2 == MANDELBROTWTH  || temp2 == NOVA || temp2 == MANDELBROTNTH 
+                        || temp2 == NEWTONPOLY || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == MANDELPOLY) {
+                            fractal_functions[temp2].setSelected(true);
+                            fractal_functions[temp2].setEnabled(true);
+                        }
+                        else {
+                            fractal_functions[temp2].setSelected(true);
+                            fractal_functions[temp2].setEnabled(false);
+                        }
+                        function = temp2;
+                    }
+                    else {
+                        fractal_functions[function].setSelected(true);
+                        fractal_functions[function].setEnabled(true);
+                    }
+                    
+                    return;
+                }
+            }
+            else {
+                main_panel.repaint();
+                fractal_functions[function].setSelected(false);
+
+                    if(function != temp2) {
+                        if(temp2 == USER_FORMULA || temp2 == SECANTPOLY || temp2 == MANDELBROTWTH  || temp2 == NOVA || temp2 == MANDELBROTNTH 
+                        || temp2 == NEWTONPOLY || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == MANDELPOLY) {
+                            fractal_functions[temp2].setSelected(true);
+                            fractal_functions[temp2].setEnabled(true);
+                        }
+                        else {
+                            fractal_functions[temp2].setSelected(true);
+                            fractal_functions[temp2].setEnabled(false);
+                        }
+                        function = temp2;
+                    }
+                    else {
+                        fractal_functions[function].setSelected(true);
+                        fractal_functions[function].setEnabled(true);
+                    }
+                          
+                    return;
+            }
+
+                        
+           fractal_functions[function].setSelected(true);
            out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-           if(out_coloring_algorithm != BIOMORPH) {
-               out_coloring_modes[BIOMORPH].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-               out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-               out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-               out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-               out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-           }
-           break;   
-       case LOG:
-           fractal_functions[function].setEnabled(false);
-           out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-           if(out_coloring_algorithm != BIOMORPH) {
-               out_coloring_modes[BIOMORPH].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-               out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-               out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-               out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-               out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-           }
-           break; 
-       case SIN:
-           fractal_functions[function].setEnabled(false);
-           out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-           if(out_coloring_algorithm != BIOMORPH) {
-               out_coloring_modes[BIOMORPH].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-               out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-               out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-               out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-               out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-           }
-           break; 
-       case COS:
-           fractal_functions[function].setEnabled(false);
-           out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-           if(out_coloring_algorithm != BIOMORPH) {
-               out_coloring_modes[BIOMORPH].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-               out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-               out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-               out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-               out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-           }
-           break; 
-       case TAN:
-           fractal_functions[function].setEnabled(false);
-           out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-           if(out_coloring_algorithm != BIOMORPH) {
-               out_coloring_modes[BIOMORPH].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-               out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-               out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-               out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-               out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-           }
-           break; 
-       case COT:
-           fractal_functions[function].setEnabled(false);
-           out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-           if(out_coloring_algorithm != BIOMORPH) {
-               out_coloring_modes[BIOMORPH].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-               out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-               out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-               out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-               out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-           }
-           break; 
-       case SINH:
-           fractal_functions[function].setEnabled(false);
-           out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-           if(out_coloring_algorithm != BIOMORPH) {
-               out_coloring_modes[BIOMORPH].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-               out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-               out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-               out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-               out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-           }
-           break; 
-       case COSH:
-           fractal_functions[function].setEnabled(false);
-           out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-           if(out_coloring_algorithm != BIOMORPH) {
-               out_coloring_modes[BIOMORPH].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-               out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-               out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-               out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-               out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-           }
-           break; 
-       case TANH:
-           fractal_functions[function].setEnabled(false);
-           out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-           if(out_coloring_algorithm != BIOMORPH) {
-               out_coloring_modes[BIOMORPH].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-               out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-               out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-               out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-               out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-           }
-           break; 
-       case COTH:
-           fractal_functions[function].setEnabled(false);
-           out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-           if(out_coloring_algorithm != BIOMORPH) {
-               out_coloring_modes[BIOMORPH].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-               out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-               out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-               out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-               out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-           }
-           break;
-       case FORMULA30:
-           fractal_functions[function].setEnabled(false);
-           out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-           if(out_coloring_algorithm != BIOMORPH) {
-               out_coloring_modes[BIOMORPH].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-               out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-               out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-               out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-               out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-           }
-           break;
-       case FORMULA31:
-           fractal_functions[function].setEnabled(false);
-           out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-           if(out_coloring_algorithm != BIOMORPH) {
-               out_coloring_modes[BIOMORPH].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-               out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-               out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-               out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-               out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-           }
-           break;
-       case FORMULA1:
-           fractal_functions[function].setEnabled(false);
-           out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-           if(out_coloring_algorithm != BIOMORPH) {
-               out_coloring_modes[BIOMORPH].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-               out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-               out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-               out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-               out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-           }
-           break;
-       case FORMULA2:
-           fractal_functions[function].setEnabled(false);
-           out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-           if(out_coloring_algorithm != BIOMORPH) {
-               out_coloring_modes[BIOMORPH].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-               out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-               out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-               out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-               out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-           }
-           break;
-       case FORMULA3:
-           fractal_functions[function].setEnabled(false);
-           out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-           if(out_coloring_algorithm != BIOMORPH) {
-               out_coloring_modes[BIOMORPH].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-               out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-               out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-               out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-               out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-           }
-           break;
-       case FORMULA4:
-           fractal_functions[function].setEnabled(false);
-           out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-           if(out_coloring_algorithm != BIOMORPH) {
-               out_coloring_modes[BIOMORPH].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-               out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-               out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-               out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-               out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-           }
-           break;
-       case FORMULA5:
-           fractal_functions[function].setEnabled(false);
-           out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-           if(out_coloring_algorithm != BIOMORPH) {
-               out_coloring_modes[BIOMORPH].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-               out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-               out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-               out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-               out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-           }
-           break;
-       case FORMULA6:
-           fractal_functions[function].setEnabled(false);
-           out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-           if(out_coloring_algorithm != BIOMORPH) {
-               out_coloring_modes[BIOMORPH].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-               out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-               out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-               out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-               out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-           }
-           break;
-       case FORMULA7:
-           fractal_functions[function].setEnabled(false);
-           out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-           if(out_coloring_algorithm != BIOMORPH) {
-               out_coloring_modes[BIOMORPH].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-               out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-               out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-               out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-               out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-           }
-           break;
-       case FORMULA8:
-           fractal_functions[function].setEnabled(false);
-           out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-           if(out_coloring_algorithm != BIOMORPH) {
-               out_coloring_modes[BIOMORPH].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-               out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-               out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-               out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-               out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-           }
-           break;
-       case FORMULA9:
-           fractal_functions[function].setEnabled(false);
-           out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-           if(out_coloring_algorithm != BIOMORPH) {
-               out_coloring_modes[BIOMORPH].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-               out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-               out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-               out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-               out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-           }
-           break;
-       case FORMULA10:
-           fractal_functions[function].setEnabled(false);
-           out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-           if(out_coloring_algorithm != BIOMORPH) {
-               out_coloring_modes[BIOMORPH].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-               out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-               out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-               out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-               out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-           }
-           break;
-       case FORMULA11:
-           fractal_functions[function].setEnabled(false);
-           out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-           if(out_coloring_algorithm != BIOMORPH) {
-               out_coloring_modes[BIOMORPH].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-               out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-               out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-               out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-               out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-           }
-           break;
-       case FORMULA12:
-           fractal_functions[function].setEnabled(false);
-           out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-           if(out_coloring_algorithm != BIOMORPH) {
-               out_coloring_modes[BIOMORPH].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-               out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-               out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-               out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-               out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-           }
-           break;
-       case FORMULA13:
-           fractal_functions[function].setEnabled(false);
-           out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-           if(out_coloring_algorithm != BIOMORPH) {
-               out_coloring_modes[BIOMORPH].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-               out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-               out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-               out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-               out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-           }
-           break;
-       case FORMULA14:
-           fractal_functions[function].setEnabled(false);
-           out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-           if(out_coloring_algorithm != BIOMORPH) {
-               out_coloring_modes[BIOMORPH].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-               out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-               out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-               out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-               out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-           }
-           break;
-       case FORMULA15:
-           fractal_functions[function].setEnabled(false);
-           out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-           if(out_coloring_algorithm != BIOMORPH) {
-               out_coloring_modes[BIOMORPH].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-               out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-               out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-               out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-               out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-           }
-           break;
-       case FORMULA16:
-           fractal_functions[function].setEnabled(false);
-           out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-           if(out_coloring_algorithm != BIOMORPH) {
-               out_coloring_modes[BIOMORPH].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-               out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-               out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-               out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-               out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-           }
-           break;
-       case FORMULA17:
-           fractal_functions[function].setEnabled(false);
-           out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-           if(out_coloring_algorithm != BIOMORPH) {
-               out_coloring_modes[BIOMORPH].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-               out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-               out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-               out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-               out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-           }
-           break;
-       case FORMULA18:
-           fractal_functions[function].setEnabled(false);
-           out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-           if(out_coloring_algorithm != BIOMORPH) {
-               out_coloring_modes[BIOMORPH].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-               out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-               out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-               out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-               out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-           }
-           break;
-       case FORMULA19:
-           fractal_functions[function].setEnabled(false);
-           out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-           if(out_coloring_algorithm != BIOMORPH) {
-               out_coloring_modes[BIOMORPH].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-               out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-               out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-               out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-               out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-           }
-           break;
-       case FORMULA20:
-           fractal_functions[function].setEnabled(false);
-           out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-           if(out_coloring_algorithm != BIOMORPH) {
-               out_coloring_modes[BIOMORPH].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-               out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-               out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-               out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-               out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-           }
-           break;
-       case FORMULA21:
-           fractal_functions[function].setEnabled(false);
-           out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-           if(out_coloring_algorithm != BIOMORPH) {
-               out_coloring_modes[BIOMORPH].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-               out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-               out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-               out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-               out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-           }
-           break;
-       case FORMULA22:
-           fractal_functions[function].setEnabled(false);
-           out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-           if(out_coloring_algorithm != BIOMORPH) {
-               out_coloring_modes[BIOMORPH].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-               out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-               out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-               out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-               out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-           }
-           break;
-       case FORMULA23:
-           fractal_functions[function].setEnabled(false);
-           out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-           if(out_coloring_algorithm != BIOMORPH) {
-               out_coloring_modes[BIOMORPH].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-               out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-               out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-               out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-               out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-           }
-           break;
-       case FORMULA24:
-           fractal_functions[function].setEnabled(false);
-           out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-           if(out_coloring_algorithm != BIOMORPH) {
-               out_coloring_modes[BIOMORPH].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-               out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-               out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-               out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-               out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-           }
-           break;
-       case FORMULA25:
-           fractal_functions[function].setEnabled(false);
-           out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-           if(out_coloring_algorithm != BIOMORPH) {
-               out_coloring_modes[BIOMORPH].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-               out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-               out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-               out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-               out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-           }
-           break;
-       case FORMULA26:
-           fractal_functions[function].setEnabled(false);
-           out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-           if(out_coloring_algorithm != BIOMORPH) {
-               out_coloring_modes[BIOMORPH].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-               out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-               out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-               out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-               out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-           }
-           break;
-       case FORMULA27:
-           fractal_functions[function].setEnabled(false);
-           out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-           if(out_coloring_algorithm != BIOMORPH) {
-               out_coloring_modes[BIOMORPH].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-               out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-               out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-               out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-               out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-           }
-           break;
-       case FORMULA28:
-           fractal_functions[function].setEnabled(false);
-           out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-           if(out_coloring_algorithm != BIOMORPH) {
-               out_coloring_modes[BIOMORPH].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-               out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-               out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-               out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-               out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-           }
-           break;
-       case FORMULA29:
-           fractal_functions[function].setEnabled(false);
-           out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-           if(out_coloring_algorithm != BIOMORPH) {
-               out_coloring_modes[BIOMORPH].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-               out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-               out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-               out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-               out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-           }
-           break;
-       case FORMULA32:
-           fractal_functions[function].setEnabled(false);
-           out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-           if(out_coloring_algorithm != BIOMORPH) {
-               out_coloring_modes[BIOMORPH].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-               out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-               out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-               out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-               out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-           }
-           break;
-       case FORMULA33:
-           fractal_functions[function].setEnabled(false);
-           out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-           if(out_coloring_algorithm != BIOMORPH) {
-               out_coloring_modes[BIOMORPH].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-               out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-               out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-               out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-               out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-           }
-           break;
-       case FORMULA34:
-           fractal_functions[function].setEnabled(false);
-           out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-           if(out_coloring_algorithm != BIOMORPH) {
-               out_coloring_modes[BIOMORPH].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-               out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-               out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-               out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-               out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-           }
-           break;
-       case FORMULA35:
-           fractal_functions[function].setEnabled(false);
-           out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-           if(out_coloring_algorithm != BIOMORPH) {
-               out_coloring_modes[BIOMORPH].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-               out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-               out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-               out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-               out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-           }
-           break;
-       case FORMULA36:
-           fractal_functions[function].setEnabled(false);
-           out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-           if(out_coloring_algorithm != BIOMORPH) {
-               out_coloring_modes[BIOMORPH].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-               out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-               out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-               out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-               out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-           }
-           break;
-       case FORMULA37:
-           fractal_functions[function].setEnabled(false);
-           out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-           if(out_coloring_algorithm != BIOMORPH) {
-               out_coloring_modes[BIOMORPH].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-               out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-               out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-               out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-               out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-           }
-           break;
-       case FORMULA38:
-           fractal_functions[function].setEnabled(false);
-           out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-           if(out_coloring_algorithm != BIOMORPH) {
-               out_coloring_modes[BIOMORPH].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-               out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-               out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-               out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-               out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-           }
-           break;
-       case FORMULA39:
-           fractal_functions[function].setEnabled(false);
-           out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-           if(out_coloring_algorithm != BIOMORPH) {
-               out_coloring_modes[BIOMORPH].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-               out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-               out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-               out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-               out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-           }
-           break;
-       case FROTHY_BASIN:
-           fractal_functions[function].setEnabled(false);
-           out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-           if(out_coloring_algorithm != BIOMORPH) {
-               out_coloring_modes[BIOMORPH].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-               out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-               out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-               out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-               out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-           }
-           break;
-       case SZEGEDI_BUTTERFLY1:
-           fractal_functions[function].setEnabled(false);
-           out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-           if(out_coloring_algorithm != BIOMORPH) {
-               out_coloring_modes[BIOMORPH].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-               out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-               out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-               out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-               out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-               out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-           }
-           if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-               out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-           }
-           break;
-       case SZEGEDI_BUTTERFLY2:
-           fractal_functions[function].setEnabled(false);
-           out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+           out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
            if(out_coloring_algorithm != BIOMORPH) {
                out_coloring_modes[BIOMORPH].setEnabled(true);
            }
@@ -19937,6 +15335,9 @@ public class MainWindow extends JFrame {
            fractal_functions[function].setEnabled(false);
            if(out_coloring_algorithm != DISTANCE_ESTIMATOR) {
                out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(true);
+           }
+           if(out_coloring_algorithm != DISTANCE_ESTIMATOR2) {
+               out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(true);
            }
            if(out_coloring_algorithm != BIOMORPH) {
                out_coloring_modes[BIOMORPH].setEnabled(true);
@@ -19984,10 +15385,19 @@ public class MainWindow extends JFrame {
             field_formula.setText(user_formula);
             field_formula.addAncestorListener(new RequestFocusListener());
             
+            JTextField field_formula2 = new JTextField(35);
+            field_formula2.setText(user_formula2);
+            
             JPanel formula_panel = new JPanel();
             
             formula_panel.add(new JLabel("z ="));
             formula_panel.add(field_formula);
+            
+            JPanel formula_panel2 = new JPanel();
+            
+            formula_panel2.add(new JLabel("c ="));
+            formula_panel2.add(field_formula2);
+            
             
             JLabel variables = new JLabel("Variables:");
             variables.setFont(new Font("default", Font.BOLD , 11 ));
@@ -20016,32 +15426,28 @@ public class MainWindow extends JFrame {
             Object[] message3 = { 
                 " ",
                 variables,
-                "z, c",
-                " ",
+                "z (current sequence point), c (plane point),",
+                "p (previous sequence point), n (current iteration)",
                 operations,
                 "+, -, *, /, ^",
-                " ",
                 complex_numbers,
                 "a + bi",
-                " ",
                 exp_log,
                 "exp, log, log10, log2",
-                " ",
                 trig,
                 "sin, cos, tan, cot, sec, csc",
                 "sinh, cosh, tanh, coth, sech, csch",
                 "asin, acos, atan, acot, asec, acsc",
                 "asinh, acosh, atanh, acoth, asech, acsch",
-                " ",
                 other,
                 "sqrt, abs, conj, re, im, norm, arg",
                 " ",
                 "Bailout technique:",
                 method4_choice,
                 " ",
-                "Insert your formula.",
-                formula_panel, 
-                " ",
+                "Insert your formula, that will be evaluated in every iteration.",
+                formula_panel,
+                formula_panel2,
             };
             
 
@@ -20057,7 +15463,7 @@ public class MainWindow extends JFrame {
                         fractal_functions[function].setSelected(false);
 
                          if(function != temp2) {
-                            if(temp2 == SECANTPOLY || temp2 == MANDELBROTWTH  || temp2 == NOVA || temp2 == MANDELBROTNTH || temp2 == NEWTONPOLY || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == MANDELPOLY) {
+                            if(temp2 == USER_FORMULA_ITERATION_BASED || temp2 == SECANTPOLY || temp2 == MANDELBROTWTH  || temp2 == NOVA || temp2 == MANDELBROTNTH || temp2 == NEWTONPOLY || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == MANDELPOLY) {
                                 fractal_functions[temp2].setSelected(true);
                                 fractal_functions[temp2].setEnabled(true);
                             }
@@ -20074,8 +15480,13 @@ public class MainWindow extends JFrame {
 
                         return;
                     }
+                    boolean temp_bool = parser.foundC();
+                    
+                    parser.parse(field_formula2.getText());
+                    
                     user_formula = field_formula.getText();
-                    user_formula_c = parser.foundC();
+                    user_formula2 = field_formula2.getText();
+                    user_formula_c = temp_bool;
                     bail_technique = method4_choice.getSelectedIndex();
                     
                     if(julia) {
@@ -20083,7 +15494,7 @@ public class MainWindow extends JFrame {
                        julia_button.setSelected(false);
                        julia_opt.setSelected(false);
                        fast_julia_image = null;
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS && out_coloring_algorithm != ESCAPE_TIME_GRID && out_coloring_algorithm != BIOMORPH && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5 && out_coloring_algorithm != ITERATIONS_PLUS_RE && out_coloring_algorithm != ITERATIONS_PLUS_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM  && out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && out_coloring_algorithm != DISTANCE_ESTIMATOR) {
+                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS && out_coloring_algorithm != ESCAPE_TIME_GRID && out_coloring_algorithm != BIOMORPH && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5 && out_coloring_algorithm != ITERATIONS_PLUS_RE && out_coloring_algorithm != ITERATIONS_PLUS_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM  && out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && out_coloring_algorithm != DISTANCE_ESTIMATOR && out_coloring_algorithm != DISTANCE_ESTIMATOR2) {
                            fractal_functions[NEWTON3].setEnabled(true);
                            fractal_functions[NEWTON4].setEnabled(true);
                            fractal_functions[NEWTONGENERALIZED3].setEnabled(true);
@@ -20122,7 +15533,7 @@ public class MainWindow extends JFrame {
                            fractal_functions[STEFFENSEN4].setEnabled(true);
                            fractal_functions[STEFFENSENGENERALIZED3].setEnabled(true);
                        }
-                       if(out_coloring_algorithm != DISTANCE_ESTIMATOR) {
+                       if(out_coloring_algorithm != DISTANCE_ESTIMATOR && out_coloring_algorithm != DISTANCE_ESTIMATOR2) {
                            fractal_functions[SIERPINSKI_GASKET].setEnabled(true);
                        }
                        if(!first_seed) {
@@ -20135,7 +15546,7 @@ public class MainWindow extends JFrame {
                         init_val = false;
                         init_val_opt.setSelected(false);
            
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS && out_coloring_algorithm != ESCAPE_TIME_GRID && out_coloring_algorithm != DISTANCE_ESTIMATOR && out_coloring_algorithm != BIOMORPH && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5 && out_coloring_algorithm != ITERATIONS_PLUS_RE && out_coloring_algorithm != ITERATIONS_PLUS_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM  && out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && !perturbation) {
+                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS && out_coloring_algorithm != ESCAPE_TIME_GRID && out_coloring_algorithm != DISTANCE_ESTIMATOR && out_coloring_algorithm != DISTANCE_ESTIMATOR2 && out_coloring_algorithm != BIOMORPH && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5 && out_coloring_algorithm != ITERATIONS_PLUS_RE && out_coloring_algorithm != ITERATIONS_PLUS_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM  && out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && !perturbation) {
                            fractal_functions[NEWTON3].setEnabled(true);
                            fractal_functions[NEWTON4].setEnabled(true);
                            fractal_functions[NEWTONGENERALIZED3].setEnabled(true);
@@ -20175,7 +15586,7 @@ public class MainWindow extends JFrame {
                            fractal_functions[STEFFENSENGENERALIZED3].setEnabled(true);
                        }
 
-                       if(!perturbation && out_coloring_algorithm != DISTANCE_ESTIMATOR) {
+                       if(!perturbation && out_coloring_algorithm != DISTANCE_ESTIMATOR && out_coloring_algorithm != DISTANCE_ESTIMATOR2) {
                            fractal_functions[SIERPINSKI_GASKET].setEnabled(true);
                        }           
                     }
@@ -20184,7 +15595,7 @@ public class MainWindow extends JFrame {
                         perturbation = false;
                         perturbation_opt.setSelected(false);
 
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS && out_coloring_algorithm != ESCAPE_TIME_GRID && out_coloring_algorithm != DISTANCE_ESTIMATOR && out_coloring_algorithm != BIOMORPH && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER  && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3  && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5 && out_coloring_algorithm != ITERATIONS_PLUS_RE && out_coloring_algorithm != ITERATIONS_PLUS_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM  && out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && !init_val) {
+                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS && out_coloring_algorithm != ESCAPE_TIME_GRID && out_coloring_algorithm != DISTANCE_ESTIMATOR && out_coloring_algorithm != DISTANCE_ESTIMATOR2 && out_coloring_algorithm != BIOMORPH && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER  && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3  && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5 && out_coloring_algorithm != ITERATIONS_PLUS_RE && out_coloring_algorithm != ITERATIONS_PLUS_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM  && out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && !init_val) {
                            fractal_functions[NEWTON3].setEnabled(true);
                            fractal_functions[NEWTON4].setEnabled(true);
                            fractal_functions[NEWTONGENERALIZED3].setEnabled(true);
@@ -20224,7 +15635,7 @@ public class MainWindow extends JFrame {
                            fractal_functions[STEFFENSENGENERALIZED3].setEnabled(true);
                        }
 
-                       if(!init_val && out_coloring_algorithm != DISTANCE_ESTIMATOR) {
+                       if(!init_val && out_coloring_algorithm != DISTANCE_ESTIMATOR && out_coloring_algorithm != DISTANCE_ESTIMATOR2) {
                            fractal_functions[SIERPINSKI_GASKET].setEnabled(true);
                        }              
                     }
@@ -20234,7 +15645,7 @@ public class MainWindow extends JFrame {
                         julia_map_opt.setSelected(false);
                        setOptions(false);
 
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS && out_coloring_algorithm != ESCAPE_TIME_GRID && out_coloring_algorithm != DISTANCE_ESTIMATOR && out_coloring_algorithm != BIOMORPH && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5 && out_coloring_algorithm != ITERATIONS_PLUS_RE && out_coloring_algorithm != ITERATIONS_PLUS_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM  && out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
+                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS && out_coloring_algorithm != ESCAPE_TIME_GRID && out_coloring_algorithm != DISTANCE_ESTIMATOR && out_coloring_algorithm != DISTANCE_ESTIMATOR2 && out_coloring_algorithm != BIOMORPH && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5 && out_coloring_algorithm != ITERATIONS_PLUS_RE && out_coloring_algorithm != ITERATIONS_PLUS_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM  && out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
                            fractal_functions[NEWTON3].setEnabled(true);
                            fractal_functions[NEWTON4].setEnabled(true);
                            fractal_functions[NEWTONGENERALIZED3].setEnabled(true);
@@ -20274,7 +15685,7 @@ public class MainWindow extends JFrame {
                            fractal_functions[STEFFENSENGENERALIZED3].setEnabled(true);
                        }
 
-                       if(out_coloring_algorithm != DISTANCE_ESTIMATOR) {
+                       if(out_coloring_algorithm != DISTANCE_ESTIMATOR && out_coloring_algorithm != DISTANCE_ESTIMATOR2) {
                            fractal_functions[SIERPINSKI_GASKET].setEnabled(true);
                        }
 
@@ -20284,93 +15695,11 @@ public class MainWindow extends JFrame {
                     }
                     
                     if(!user_formula_c) {
-                        out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-                       if(out_coloring_algorithm != BIOMORPH) {
-                           out_coloring_modes[BIOMORPH].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                           out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                           out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                           out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                       }
                        julia_opt.setEnabled(false);
                        julia_button.setEnabled(false);
                        julia_map_opt.setEnabled(false);
                        perturbation_opt.setEnabled(false);
                        init_val_opt.setEnabled(false);
-                    }
-                    else {
-                       out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
-                       if(out_coloring_algorithm != BIOMORPH) {
-                           out_coloring_modes[BIOMORPH].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                           out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                           out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                           out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                           out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                       }
-                       if(out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                           out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                       }
                     }
                     
                     if(bail_technique == 1) {
@@ -20386,7 +15715,7 @@ public class MainWindow extends JFrame {
                     fractal_functions[function].setSelected(false);
                     
                      if(function != temp2) {
-                        if(temp2 == SECANTPOLY || temp2 == MANDELBROTWTH  || temp2 == NOVA || temp2 == MANDELBROTNTH || temp2 == NEWTONPOLY || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == MANDELPOLY) {
+                        if(temp2 == USER_FORMULA_ITERATION_BASED || temp2 == SECANTPOLY || temp2 == MANDELBROTWTH  || temp2 == NOVA || temp2 == MANDELBROTNTH || temp2 == NEWTONPOLY || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == MANDELPOLY) {
                             fractal_functions[temp2].setSelected(true);
                             fractal_functions[temp2].setEnabled(true);
                         }
@@ -20410,7 +15739,7 @@ public class MainWindow extends JFrame {
                     fractal_functions[function].setSelected(false);
                     
                      if(function != temp2) {
-                        if(temp2 == SECANTPOLY || temp2 == MANDELBROTWTH  || temp2 == NOVA || temp2 == MANDELBROTNTH || temp2 == NEWTONPOLY || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == MANDELPOLY) {
+                        if(temp2 == USER_FORMULA_ITERATION_BASED || temp2 == SECANTPOLY || temp2 == MANDELBROTWTH  || temp2 == NOVA || temp2 == MANDELBROTNTH || temp2 == NEWTONPOLY || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == MANDELPOLY) {
                             fractal_functions[temp2].setSelected(true);
                             fractal_functions[temp2].setEnabled(true);
                         }
@@ -20433,7 +15762,7 @@ public class MainWindow extends JFrame {
                 fractal_functions[function].setSelected(false);
 
                     if(function != temp2) {
-                        if(temp2 == SECANTPOLY || temp2 == MANDELBROTWTH  || temp2 == NOVA || temp2 == MANDELBROTNTH || temp2 == NEWTONPOLY || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == MANDELPOLY) {
+                        if(temp2 == USER_FORMULA_ITERATION_BASED || temp2 == SECANTPOLY || temp2 == MANDELBROTWTH  || temp2 == NOVA || temp2 == MANDELBROTNTH || temp2 == NEWTONPOLY || temp2 == HALLEYPOLY || temp2 == SCHRODERPOLY || temp2 == HOUSEHOLDERPOLY || temp2 == MANDELPOLY) {
                             fractal_functions[temp2].setSelected(true);
                             fractal_functions[temp2].setEnabled(true);
                         }
@@ -20454,6 +15783,7 @@ public class MainWindow extends JFrame {
                         
            fractal_functions[function].setSelected(true);
            out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+           out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
            if(out_coloring_algorithm != BIOMORPH) {
                out_coloring_modes[BIOMORPH].setEnabled(true);
            }
@@ -20497,6 +15827,7 @@ public class MainWindow extends JFrame {
        default:
            fractal_functions[function].setEnabled(false);
            out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
+           out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
            if(out_coloring_algorithm != BIOMORPH) {
                out_coloring_modes[BIOMORPH].setEnabled(true);
            }
@@ -21570,6 +16901,18 @@ public class MainWindow extends JFrame {
                     size = 6;
                 }
                 break;
+            case USER_FORMULA_ITERATION_BASED:
+                if(julia) {
+                    xCenter = 0;
+                    yCenter = 0;
+                    size = 6;
+                }
+                else {
+                    xCenter = 0;
+                    yCenter = 0;
+                    size = 6;
+                }
+                break;
             case FROTHY_BASIN:
                 xCenter = 0;
                 yCenter = 0;
@@ -22177,6 +17520,12 @@ public class MainWindow extends JFrame {
                 temp_size = 6;
                 temp_bailout = 2;
                 break;
+            case USER_FORMULA_ITERATION_BASED:
+                temp_xCenter = 0;
+                temp_yCenter = 0;
+                temp_size = 6;
+                temp_bailout = 2;
+                break;
             case FROTHY_BASIN:
                 temp_xCenter = 0;
                 temp_yCenter = 0;
@@ -22208,10 +17557,10 @@ public class MainWindow extends JFrame {
         for(int i = 0; i < n; i++) {
            for(int j = 0; j < n; j++) {
                if(color_choice != palette.length - 1) {
-                   threads[i][j] = new Palette(color_choice, j * FAST_JULIA_IMAGE_SIZE / n, (j + 1) * FAST_JULIA_IMAGE_SIZE / n, i * FAST_JULIA_IMAGE_SIZE / n, (i + 1) * FAST_JULIA_IMAGE_SIZE / n, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, bailout_test_algorithm, temp_bailout, n_norm, ptr, fractal_color, fast_julia_filters, fast_julia_image, boundary_tracing, periodicity_checking, plane_type, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, burning_ship, mandel_grass, mandel_grass_vals,  function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, coefficients, z_exponent_nova, relaxation, nova_method, user_formula, bail_technique, user_plane, temp_xJuliaCenter, temp_yJuliaCenter);
+                   threads[i][j] = new Palette(color_choice, j * FAST_JULIA_IMAGE_SIZE / n, (j + 1) * FAST_JULIA_IMAGE_SIZE / n, i * FAST_JULIA_IMAGE_SIZE / n, (i + 1) * FAST_JULIA_IMAGE_SIZE / n, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, bailout_test_algorithm, temp_bailout, n_norm, ptr, fractal_color, fast_julia_filters, fast_julia_image, boundary_tracing, periodicity_checking, plane_type, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, burning_ship, mandel_grass, mandel_grass_vals,  function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, coefficients, z_exponent_nova, relaxation, nova_method, user_formula,  user_formula2, bail_technique, user_plane, user_formula_iteration_based, temp_xJuliaCenter, temp_yJuliaCenter);
                }
                else {
-                   threads[i][j] = new CustomPalette(custom_palette, color_interpolation, color_space, reversed_palette, j * FAST_JULIA_IMAGE_SIZE / n, (j + 1) * FAST_JULIA_IMAGE_SIZE / n, i * FAST_JULIA_IMAGE_SIZE / n, (i + 1) * FAST_JULIA_IMAGE_SIZE / n, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, bailout_test_algorithm, temp_bailout, n_norm, ptr, fractal_color, fast_julia_filters, fast_julia_image, boundary_tracing, periodicity_checking, plane_type, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, burning_ship, mandel_grass, mandel_grass_vals,  function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, coefficients, z_exponent_nova, relaxation, nova_method, user_formula, bail_technique, user_plane, temp_xJuliaCenter, temp_yJuliaCenter);
+                   threads[i][j] = new CustomPalette(custom_palette, color_interpolation, color_space, reversed_palette, j * FAST_JULIA_IMAGE_SIZE / n, (j + 1) * FAST_JULIA_IMAGE_SIZE / n, i * FAST_JULIA_IMAGE_SIZE / n, (i + 1) * FAST_JULIA_IMAGE_SIZE / n, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, bailout_test_algorithm, temp_bailout, n_norm, ptr, fractal_color, fast_julia_filters, fast_julia_image, boundary_tracing, periodicity_checking, plane_type, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, burning_ship, mandel_grass, mandel_grass_vals,  function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, coefficients, z_exponent_nova, relaxation, nova_method, user_formula,  user_formula2, bail_technique, user_plane, user_formula_iteration_based, temp_xJuliaCenter, temp_yJuliaCenter);
                }
            }
        }
@@ -22464,32 +17813,26 @@ public class MainWindow extends JFrame {
             JLabel other = new JLabel("Other functions:");
             other.setFont(new Font("default", Font.BOLD , 11 ));;
 
-            Object[] message3 = { 
+            Object[] message3 = {
                 " ",
                 variables,
-                "z",
-                " ",
+                "z (current sequence point)",
                 operations,
                 "+, -, *, /, ^",
-                " ",
                 complex_numbers,
                 "a + bi",
-                " ",
                 exp_log,
                 "exp, log, log10, log2",
-                " ",
                 trig,
                 "sin, cos, tan, cot, sec, csc",
                 "sinh, cosh, tanh, coth, sech, csch",
                 "asin, acos, atan, acot, asec, acsc",
                 "asinh, acosh, atanh, acoth, asech, acsch",
-                " ",
                 other,
                 "sqrt, abs, conj, re, im, norm, arg",
                 " ",
                 "Insert your plane transformation.",
                 formula_panel, 
-                " ",
             };
             
 
@@ -22499,8 +17842,8 @@ public class MainWindow extends JFrame {
             if(res == JOptionPane.OK_OPTION) {
                 try {
                     parser.parse(field_formula.getText());
-                    if(!parser.foundZ()) {
-                        JOptionPane.showMessageDialog(scroll_pane, "The expression must contain the variable z.", "Error!", JOptionPane.ERROR_MESSAGE);
+                    if(!parser.foundZ() || parser.foundC() || parser.foundN() || parser.foundP()) {
+                        JOptionPane.showMessageDialog(scroll_pane, "The expression must only contain the variable z.", "Error!", JOptionPane.ERROR_MESSAGE);
                         main_panel.repaint();
                         
                          planes[plane_type].setSelected(false);
@@ -22516,25 +17859,7 @@ public class MainWindow extends JFrame {
                         }
                         return;
                     }
-                    
-                    if(parser.foundC()) {
-                        JOptionPane.showMessageDialog(scroll_pane, "The expression must not contain the variable c.", "Error!", JOptionPane.ERROR_MESSAGE);
-                        main_panel.repaint();
-                        
-                        planes[plane_type].setSelected(false);
-                    
-                        if(plane_type != temp2) {                       
-                           planes[temp2].setSelected(true);
-                           planes[temp2].setEnabled(false);                      
-                           plane_type = temp2;
-                        }
-                        else {
-                           planes[plane_type].setSelected(true);
-                           planes[plane_type].setEnabled(true);
-                        }
-                        return;
-                    }
-                    
+
                     user_plane = field_formula.getText();
                     
                     planes[plane_type].setSelected(true);
@@ -22760,7 +18085,7 @@ public class MainWindow extends JFrame {
            fractal_functions[STEFFENSEN4].setEnabled(false);
            fractal_functions[STEFFENSENGENERALIZED3].setEnabled(false);
        }
-       else if(out_coloring_algorithm == DISTANCE_ESTIMATOR) {
+       else if(out_coloring_algorithm == DISTANCE_ESTIMATOR || out_coloring_algorithm == DISTANCE_ESTIMATOR2) {
            for(int k = 1; k < fractal_functions.length; k++) {
                fractal_functions[k].setEnabled(false);
            }
@@ -22884,7 +18209,7 @@ public class MainWindow extends JFrame {
        
        
        if(in_coloring_algorithm == MAXIMUM_ITERATIONS) {
-           if(function != NEWTON3 && function != NEWTON4 && function != NEWTONGENERALIZED3 && function != NEWTONGENERALIZED8 && function != NEWTONSIN && function != NEWTONCOS && function != NEWTONPOLY && function != HALLEY3 && function != HALLEY4 && function != HALLEYGENERALIZED3 && function != HALLEYGENERALIZED8 && function != HALLEYSIN && function != HALLEYCOS && function != HALLEYPOLY && function != SCHRODER3 && function != SCHRODER4 && function != SCHRODERGENERALIZED3 && function != SCHRODERGENERALIZED8 && function != SCHRODERSIN && function != SCHRODERCOS && function != SCHRODERPOLY && function != HOUSEHOLDER3 && function != HOUSEHOLDER4 && function != HOUSEHOLDERGENERALIZED3 && function != HOUSEHOLDERGENERALIZED8 && function != HOUSEHOLDERSIN && function != HOUSEHOLDERCOS && function != HOUSEHOLDERPOLY && function != SIERPINSKI_GASKET && function != NOVA && function != SECANT3 && function != SECANT4 && function != SECANTGENERALIZED3 && function != SECANTGENERALIZED8 && function != SECANTCOS && function != SECANTPOLY && function != STEFFENSEN3 && function != STEFFENSEN4 && function != STEFFENSENGENERALIZED3 && (function != USER_FORMULA || (function == USER_FORMULA && bail_technique == 0))) {
+           if(function != NEWTON3 && function != NEWTON4 && function != NEWTONGENERALIZED3 && function != NEWTONGENERALIZED8 && function != NEWTONSIN && function != NEWTONCOS && function != NEWTONPOLY && function != HALLEY3 && function != HALLEY4 && function != HALLEYGENERALIZED3 && function != HALLEYGENERALIZED8 && function != HALLEYSIN && function != HALLEYCOS && function != HALLEYPOLY && function != SCHRODER3 && function != SCHRODER4 && function != SCHRODERGENERALIZED3 && function != SCHRODERGENERALIZED8 && function != SCHRODERSIN && function != SCHRODERCOS && function != SCHRODERPOLY && function != HOUSEHOLDER3 && function != HOUSEHOLDER4 && function != HOUSEHOLDERGENERALIZED3 && function != HOUSEHOLDERGENERALIZED8 && function != HOUSEHOLDERSIN && function != HOUSEHOLDERCOS && function != HOUSEHOLDERPOLY && function != SIERPINSKI_GASKET && function != NOVA && function != SECANT3 && function != SECANT4 && function != SECANTGENERALIZED3 && function != SECANTGENERALIZED8 && function != SECANTCOS && function != SECANTPOLY && function != STEFFENSEN3 && function != STEFFENSEN4 && function != STEFFENSENGENERALIZED3 && (function != USER_FORMULA || (function == USER_FORMULA && bail_technique == 0)) && (function != USER_FORMULA_ITERATION_BASED || (function == USER_FORMULA_ITERATION_BASED && bail_technique == 0))) {
                periodicity_checking_opt.setEnabled(true); 
            }
        }
@@ -22978,7 +18303,7 @@ public class MainWindow extends JFrame {
            julia_map = false;
            setOptions(false);
            
-           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS && out_coloring_algorithm != ESCAPE_TIME_GRID && out_coloring_algorithm != DISTANCE_ESTIMATOR && out_coloring_algorithm != BIOMORPH && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5 && out_coloring_algorithm != ITERATIONS_PLUS_RE && out_coloring_algorithm != ITERATIONS_PLUS_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM  && out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
+           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS && out_coloring_algorithm != ESCAPE_TIME_GRID && out_coloring_algorithm != DISTANCE_ESTIMATOR && out_coloring_algorithm != DISTANCE_ESTIMATOR2 && out_coloring_algorithm != BIOMORPH && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5 && out_coloring_algorithm != ITERATIONS_PLUS_RE && out_coloring_algorithm != ITERATIONS_PLUS_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM  && out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
                fractal_functions[NEWTON3].setEnabled(true);
                fractal_functions[NEWTON4].setEnabled(true);
                fractal_functions[NEWTONGENERALIZED3].setEnabled(true);
@@ -23018,7 +18343,7 @@ public class MainWindow extends JFrame {
                fractal_functions[STEFFENSENGENERALIZED3].setEnabled(true);
            }
            
-           if(out_coloring_algorithm != DISTANCE_ESTIMATOR) {
+           if(out_coloring_algorithm != DISTANCE_ESTIMATOR && out_coloring_algorithm != DISTANCE_ESTIMATOR2) {
                fractal_functions[SIERPINSKI_GASKET].setEnabled(true);
            }
            
@@ -24478,10 +19803,10 @@ public class MainWindow extends JFrame {
            for(int i = 0; i < n; i++) {
                for(int j = 0; j < n; j++) {
                    if(color_choice != palette.length - 1) {
-                       threads[i][j] = new Palette(color_choice, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, ptr, fractal_color, image, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type,  burning_ship, mandel_grass, mandel_grass_vals,  function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, coefficients, z_exponent_nova, relaxation, nova_method, user_formula, bail_technique, user_plane);
+                       threads[i][j] = new Palette(color_choice, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, ptr, fractal_color, image, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type,  burning_ship, mandel_grass, mandel_grass_vals,  function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, coefficients, z_exponent_nova, relaxation, nova_method, user_formula,  user_formula2, bail_technique, user_plane, user_formula_iteration_based);
                    }
                    else {
-                       threads[i][j] = new CustomPalette(custom_palette, color_interpolation, color_space, reversed_palette, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm,  ptr, fractal_color, image, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type,  burning_ship, mandel_grass, mandel_grass_vals,  function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, coefficients, z_exponent_nova, relaxation, nova_method, user_formula, bail_technique, user_plane);
+                       threads[i][j] = new CustomPalette(custom_palette, color_interpolation, color_space, reversed_palette, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm,  ptr, fractal_color, image, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type,  burning_ship, mandel_grass, mandel_grass_vals,  function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, coefficients, z_exponent_nova, relaxation, nova_method, user_formula,  user_formula2, bail_technique, user_plane, user_formula_iteration_based);
                    }
                }
            }
@@ -24701,7 +20026,7 @@ public class MainWindow extends JFrame {
        if(!perturbation_opt.isSelected()) {
            perturbation = false;
            
-           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS && out_coloring_algorithm != ESCAPE_TIME_GRID && out_coloring_algorithm != DISTANCE_ESTIMATOR && out_coloring_algorithm != BIOMORPH && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER  && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3  && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5 && out_coloring_algorithm != ITERATIONS_PLUS_RE && out_coloring_algorithm != ITERATIONS_PLUS_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM  && out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && !init_val) {
+           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS && out_coloring_algorithm != ESCAPE_TIME_GRID && out_coloring_algorithm != DISTANCE_ESTIMATOR && out_coloring_algorithm != DISTANCE_ESTIMATOR2 && out_coloring_algorithm != BIOMORPH && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER  && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3  && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5 && out_coloring_algorithm != ITERATIONS_PLUS_RE && out_coloring_algorithm != ITERATIONS_PLUS_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM  && out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && !init_val) {
                fractal_functions[NEWTON3].setEnabled(true);
                fractal_functions[NEWTON4].setEnabled(true);
                fractal_functions[NEWTONGENERALIZED3].setEnabled(true);
@@ -24741,7 +20066,7 @@ public class MainWindow extends JFrame {
                fractal_functions[STEFFENSENGENERALIZED3].setEnabled(true);
            }
            
-           if(!init_val && out_coloring_algorithm != DISTANCE_ESTIMATOR) {
+           if(!init_val && out_coloring_algorithm != DISTANCE_ESTIMATOR && out_coloring_algorithm != DISTANCE_ESTIMATOR2) {
                fractal_functions[SIERPINSKI_GASKET].setEnabled(true);
            }          
        }
@@ -24847,7 +20172,7 @@ public class MainWindow extends JFrame {
        if(!init_val_opt.isSelected()) {
            init_val = false;
            
-           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS && out_coloring_algorithm != ESCAPE_TIME_GRID && out_coloring_algorithm != DISTANCE_ESTIMATOR && out_coloring_algorithm != BIOMORPH && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5 && out_coloring_algorithm != ITERATIONS_PLUS_RE && out_coloring_algorithm != ITERATIONS_PLUS_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM  && out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && !perturbation) {
+           if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS && out_coloring_algorithm != ESCAPE_TIME_GRID && out_coloring_algorithm != DISTANCE_ESTIMATOR && out_coloring_algorithm != DISTANCE_ESTIMATOR2 && out_coloring_algorithm != BIOMORPH && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5 && out_coloring_algorithm != ITERATIONS_PLUS_RE && out_coloring_algorithm != ITERATIONS_PLUS_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM  && out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && !perturbation) {
                fractal_functions[NEWTON3].setEnabled(true);
                fractal_functions[NEWTON4].setEnabled(true);
                fractal_functions[NEWTONGENERALIZED3].setEnabled(true);
@@ -24887,7 +20212,7 @@ public class MainWindow extends JFrame {
                fractal_functions[STEFFENSENGENERALIZED3].setEnabled(true);
            }
            
-           if(!perturbation && out_coloring_algorithm != DISTANCE_ESTIMATOR) {
+           if(!perturbation && out_coloring_algorithm != DISTANCE_ESTIMATOR && out_coloring_algorithm != DISTANCE_ESTIMATOR2) {
                fractal_functions[SIERPINSKI_GASKET].setEnabled(true);
            }           
        }
@@ -25600,6 +20925,7 @@ public class MainWindow extends JFrame {
        
             JTextField field = new JTextField();
             field.addAncestorListener(new RequestFocusListener());
+            field.setText("" + detail);
             
             String[] method = {"Normal", "Wireframe", "Grid"};
             

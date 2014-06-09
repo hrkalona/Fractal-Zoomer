@@ -36,19 +36,19 @@ import fractalzoomer.out_coloring_algorithms.EscapeTimeGaussianInteger4;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeGaussianInteger5;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeGridMagnet;
 import fractalzoomer.out_coloring_algorithms.EscapeTimePlusReDivideIm;
-import fractalzoomer.out_coloring_algorithms.SmoothBinaryDecomposition2Magnet2;
-import fractalzoomer.out_coloring_algorithms.SmoothBinaryDecompositionMagnet2;
-import fractalzoomer.out_coloring_algorithms.SmoothBiomorphsMagnet2;
-import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeAlgorithm2Magnet2;
-import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeColorDecompositionMagnet2;
-import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeEscapeRadiusMagnet2;
-import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeGaussianInteger3Magnet2;
-import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeGaussianInteger4Magnet2;
-import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeGaussianIntegerMagnet2;
-import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeGridMagnet2;
-import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeMagnet2;
-import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimePlusImMagnet2;
-import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimePlusReMagnet2;
+import fractalzoomer.out_coloring_algorithms.SmoothBinaryDecomposition2Magnet;
+import fractalzoomer.out_coloring_algorithms.SmoothBinaryDecompositionMagnet;
+import fractalzoomer.out_coloring_algorithms.SmoothBiomorphsMagnet;
+import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeAlgorithm2Magnet;
+import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeColorDecompositionMagnet;
+import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeEscapeRadiusMagnet;
+import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeGaussianInteger3Magnet;
+import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeGaussianInteger4Magnet;
+import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeGaussianIntegerMagnet;
+import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeGridMagnet;
+import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeMagnet;
+import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimePlusImMagnet;
+import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimePlusReMagnet;
 import java.util.ArrayList;
 
 /*
@@ -90,7 +90,7 @@ public class Magnet2 extends Julia {
                     out_color_algorithm = new EscapeTimeMagnet();
                 }
                 else {
-                    out_color_algorithm = new SmoothEscapeTimeMagnet2(Math.log(bailout_squared), Math.log(convergent_bailout));
+                    out_color_algorithm = new SmoothEscapeTimeMagnet(Math.log(bailout_squared), Math.log(convergent_bailout));
                 }
                 break;
             case MainWindow.BINARY_DECOMPOSITION:
@@ -98,7 +98,7 @@ public class Magnet2 extends Julia {
                     out_color_algorithm = new BinaryDecompositionMagnet();
                 }
                 else {
-                    out_color_algorithm = new SmoothBinaryDecompositionMagnet2(Math.log(bailout_squared), Math.log(convergent_bailout));
+                    out_color_algorithm = new SmoothBinaryDecompositionMagnet(Math.log(bailout_squared), Math.log(convergent_bailout));
                 }
                 break;
             case MainWindow.BINARY_DECOMPOSITION2:
@@ -106,7 +106,7 @@ public class Magnet2 extends Julia {
                     out_color_algorithm = new BinaryDecomposition2Magnet();
                 }
                 else {
-                    out_color_algorithm = new SmoothBinaryDecomposition2Magnet2(Math.log(bailout_squared), Math.log(convergent_bailout));
+                    out_color_algorithm = new SmoothBinaryDecomposition2Magnet(Math.log(bailout_squared), Math.log(convergent_bailout));
                 }
                 break;
             case MainWindow.ITERATIONS_PLUS_RE:
@@ -114,7 +114,7 @@ public class Magnet2 extends Julia {
                     out_color_algorithm = new EscapeTimePlusRe();
                 }
                 else {
-                    out_color_algorithm = new SmoothEscapeTimePlusReMagnet2(Math.log(convergent_bailout));
+                    out_color_algorithm = new SmoothEscapeTimePlusReMagnet(Math.log(convergent_bailout));
                 }
                 break;
             case MainWindow.ITERATIONS_PLUS_IM:
@@ -122,7 +122,7 @@ public class Magnet2 extends Julia {
                     out_color_algorithm = new EscapeTimePlusIm();
                 }
                 else {
-                    out_color_algorithm = new SmoothEscapeTimePlusImMagnet2(Math.log(convergent_bailout));
+                    out_color_algorithm = new SmoothEscapeTimePlusImMagnet(Math.log(convergent_bailout));
                 }
                 break;
             case MainWindow.ITERATIONS_PLUS_RE_DIVIDE_IM:
@@ -138,7 +138,7 @@ public class Magnet2 extends Julia {
                     out_color_algorithm = new BiomorphsMagnet(bailout);
                 }
                 else {
-                    out_color_algorithm = new SmoothBiomorphsMagnet2(Math.log(bailout_squared), Math.log(convergent_bailout), bailout);
+                    out_color_algorithm = new SmoothBiomorphsMagnet(Math.log(bailout_squared), Math.log(convergent_bailout), bailout);
                 }
                 break;
             case MainWindow.COLOR_DECOMPOSITION:
@@ -149,7 +149,7 @@ public class Magnet2 extends Julia {
                     out_color_algorithm = new EscapeTimeColorDecomposition();
                 }
                 else {
-                    out_color_algorithm = new SmoothEscapeTimeColorDecompositionMagnet2(Math.log(convergent_bailout));   
+                    out_color_algorithm = new SmoothEscapeTimeColorDecompositionMagnet(Math.log(convergent_bailout));   
                 }
                 break;
             case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER:
@@ -157,7 +157,7 @@ public class Magnet2 extends Julia {
                     out_color_algorithm = new EscapeTimeGaussianInteger();
                 }
                 else {
-                    out_color_algorithm = new SmoothEscapeTimeGaussianIntegerMagnet2(Math.log(convergent_bailout));  
+                    out_color_algorithm = new SmoothEscapeTimeGaussianIntegerMagnet(Math.log(convergent_bailout));  
                 }
                 break;
             case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER2:
@@ -168,7 +168,7 @@ public class Magnet2 extends Julia {
                     out_color_algorithm = new EscapeTimeGaussianInteger3();
                 }
                 else {
-                    out_color_algorithm = new SmoothEscapeTimeGaussianInteger3Magnet2(Math.log(convergent_bailout));  
+                    out_color_algorithm = new SmoothEscapeTimeGaussianInteger3Magnet(Math.log(convergent_bailout));  
                 }
                 break;
             case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER4:
@@ -176,7 +176,7 @@ public class Magnet2 extends Julia {
                     out_color_algorithm = new EscapeTimeGaussianInteger4();
                 }
                 else {
-                    out_color_algorithm = new SmoothEscapeTimeGaussianInteger4Magnet2(Math.log(convergent_bailout));  
+                    out_color_algorithm = new SmoothEscapeTimeGaussianInteger4Magnet(Math.log(convergent_bailout));  
                 }
                 break;
             case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER5:
@@ -190,7 +190,7 @@ public class Magnet2 extends Julia {
                     out_color_algorithm = new EscapeTimeAlgorithm2();
                 }
                 else {
-                    out_color_algorithm = new SmoothEscapeTimeAlgorithm2Magnet2(Math.log(convergent_bailout));  
+                    out_color_algorithm = new SmoothEscapeTimeAlgorithm2Magnet(Math.log(convergent_bailout));  
                 }
                 break;
             case MainWindow.ESCAPE_TIME_ESCAPE_RADIUS:
@@ -198,7 +198,7 @@ public class Magnet2 extends Julia {
                     out_color_algorithm = new EscapeTimeEscapeRadiusMagnet(Math.log(bailout_squared));
                 }
                 else {
-                    out_color_algorithm = new SmoothEscapeTimeEscapeRadiusMagnet2(Math.log(bailout_squared), Math.log(convergent_bailout));
+                    out_color_algorithm = new SmoothEscapeTimeEscapeRadiusMagnet(Math.log(bailout_squared), Math.log(convergent_bailout));
                 }
                 break;
             case MainWindow.ESCAPE_TIME_GRID:
@@ -206,7 +206,7 @@ public class Magnet2 extends Julia {
                     out_color_algorithm = new EscapeTimeGridMagnet(Math.log(bailout_squared));
                 }
                 else {
-                    out_color_algorithm = new SmoothEscapeTimeGridMagnet2(Math.log(bailout_squared), Math.log(convergent_bailout));
+                    out_color_algorithm = new SmoothEscapeTimeGridMagnet(Math.log(bailout_squared), Math.log(convergent_bailout));
                 }
                 break;
 
@@ -263,7 +263,7 @@ public class Magnet2 extends Julia {
                     out_color_algorithm = new EscapeTimeMagnet();
                 }
                 else {
-                    out_color_algorithm = new SmoothEscapeTimeMagnet2(Math.log(bailout_squared), Math.log(convergent_bailout));
+                    out_color_algorithm = new SmoothEscapeTimeMagnet(Math.log(bailout_squared), Math.log(convergent_bailout));
                 }
                 break;
             case MainWindow.BINARY_DECOMPOSITION:
@@ -271,7 +271,7 @@ public class Magnet2 extends Julia {
                     out_color_algorithm = new BinaryDecompositionMagnet();
                 }
                 else {
-                    out_color_algorithm = new SmoothBinaryDecompositionMagnet2(Math.log(bailout_squared), Math.log(convergent_bailout));
+                    out_color_algorithm = new SmoothBinaryDecompositionMagnet(Math.log(bailout_squared), Math.log(convergent_bailout));
                 }
                 break;
             case MainWindow.BINARY_DECOMPOSITION2:
@@ -279,7 +279,7 @@ public class Magnet2 extends Julia {
                     out_color_algorithm = new BinaryDecomposition2Magnet();
                 }
                 else {
-                    out_color_algorithm = new SmoothBinaryDecomposition2Magnet2(Math.log(bailout_squared), Math.log(convergent_bailout));
+                    out_color_algorithm = new SmoothBinaryDecomposition2Magnet(Math.log(bailout_squared), Math.log(convergent_bailout));
                 }
                 break;
             case MainWindow.ITERATIONS_PLUS_RE:
@@ -287,7 +287,7 @@ public class Magnet2 extends Julia {
                     out_color_algorithm = new EscapeTimePlusRe();
                 }
                 else {
-                    out_color_algorithm = new SmoothEscapeTimePlusReMagnet2(Math.log(convergent_bailout));
+                    out_color_algorithm = new SmoothEscapeTimePlusReMagnet(Math.log(convergent_bailout));
                 }
                 break;
             case MainWindow.ITERATIONS_PLUS_IM:
@@ -295,7 +295,7 @@ public class Magnet2 extends Julia {
                     out_color_algorithm = new EscapeTimePlusIm();
                 }
                 else {
-                    out_color_algorithm = new SmoothEscapeTimePlusImMagnet2(Math.log(convergent_bailout));
+                    out_color_algorithm = new SmoothEscapeTimePlusImMagnet(Math.log(convergent_bailout));
                 }
                 break;
             case MainWindow.ITERATIONS_PLUS_RE_DIVIDE_IM:
@@ -311,7 +311,7 @@ public class Magnet2 extends Julia {
                     out_color_algorithm = new BiomorphsMagnet(bailout);
                 }
                 else {
-                    out_color_algorithm = new SmoothBiomorphsMagnet2(Math.log(bailout_squared), Math.log(convergent_bailout), bailout);
+                    out_color_algorithm = new SmoothBiomorphsMagnet(Math.log(bailout_squared), Math.log(convergent_bailout), bailout);
                 }
                 break;
             case MainWindow.COLOR_DECOMPOSITION:
@@ -322,7 +322,7 @@ public class Magnet2 extends Julia {
                     out_color_algorithm = new EscapeTimeColorDecomposition();
                 }
                 else {
-                    out_color_algorithm = new SmoothEscapeTimeColorDecompositionMagnet2(Math.log(convergent_bailout));   
+                    out_color_algorithm = new SmoothEscapeTimeColorDecompositionMagnet(Math.log(convergent_bailout));   
                 }
                 break;
             case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER:
@@ -330,7 +330,7 @@ public class Magnet2 extends Julia {
                     out_color_algorithm = new EscapeTimeGaussianInteger();
                 }
                 else {
-                    out_color_algorithm = new SmoothEscapeTimeGaussianIntegerMagnet2(Math.log(convergent_bailout));  
+                    out_color_algorithm = new SmoothEscapeTimeGaussianIntegerMagnet(Math.log(convergent_bailout));  
                 }
                 break;
             case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER2:
@@ -341,7 +341,7 @@ public class Magnet2 extends Julia {
                     out_color_algorithm = new EscapeTimeGaussianInteger3();
                 }
                 else {
-                    out_color_algorithm = new SmoothEscapeTimeGaussianInteger3Magnet2(Math.log(convergent_bailout));  
+                    out_color_algorithm = new SmoothEscapeTimeGaussianInteger3Magnet(Math.log(convergent_bailout));  
                 }
                 break;
             case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER4:
@@ -349,7 +349,7 @@ public class Magnet2 extends Julia {
                     out_color_algorithm = new EscapeTimeGaussianInteger4();
                 }
                 else {
-                    out_color_algorithm = new SmoothEscapeTimeGaussianInteger4Magnet2(Math.log(convergent_bailout));  
+                    out_color_algorithm = new SmoothEscapeTimeGaussianInteger4Magnet(Math.log(convergent_bailout));  
                 }
                 break;
             case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER5:
@@ -363,7 +363,7 @@ public class Magnet2 extends Julia {
                     out_color_algorithm = new EscapeTimeAlgorithm2();
                 }
                 else {
-                    out_color_algorithm = new SmoothEscapeTimeAlgorithm2Magnet2(Math.log(convergent_bailout));  
+                    out_color_algorithm = new SmoothEscapeTimeAlgorithm2Magnet(Math.log(convergent_bailout));  
                 }
                 break;
             case MainWindow.ESCAPE_TIME_ESCAPE_RADIUS:
@@ -371,7 +371,7 @@ public class Magnet2 extends Julia {
                     out_color_algorithm = new EscapeTimeEscapeRadiusMagnet(Math.log(bailout_squared));
                 }
                 else {
-                    out_color_algorithm = new SmoothEscapeTimeEscapeRadiusMagnet2(Math.log(bailout_squared), Math.log(convergent_bailout));
+                    out_color_algorithm = new SmoothEscapeTimeEscapeRadiusMagnet(Math.log(bailout_squared), Math.log(convergent_bailout));
                 }
                 break;
             case MainWindow.ESCAPE_TIME_GRID:
@@ -379,7 +379,7 @@ public class Magnet2 extends Julia {
                     out_color_algorithm = new EscapeTimeGridMagnet(Math.log(bailout_squared));
                 }
                 else {
-                    out_color_algorithm = new SmoothEscapeTimeGridMagnet2(Math.log(bailout_squared), Math.log(convergent_bailout));
+                    out_color_algorithm = new SmoothEscapeTimeGridMagnet(Math.log(bailout_squared), Math.log(convergent_bailout));
                 }
                 break;
 
@@ -492,23 +492,21 @@ public class Magnet2 extends Julia {
         complex[1] = pixel;//c
 
         Complex zold = new Complex();
-        Complex zold2 = new Complex();
 
         for (; iterations < max_iterations; iterations++) {
-            temp1 = (temp4 = complex[0].distance_squared(1)) <= convergent_bailout;
-            temp2 = bailout_algorithm.escaped(complex[0]);
-            if(temp1 || temp2) {
-                Object[] object = {iterations, complex[0], temp2, temp4, zold, zold2};
-                return out_color_algorithm.getResult(object);
-            }
-            zold2 = zold;
-            zold = complex[0];
-            function(complex);
+           temp1 = (temp4 = complex[0].distance_squared(1)) <= convergent_bailout;
+           temp2 = bailout_algorithm.escaped(complex[0]);
+           if(temp1 || temp2) {
+               Object[] object = {iterations, complex[0], temp2, temp4, zold};
+               return out_color_algorithm.getResult(object);   
+           }
+           zold = complex[0];
+           function(complex);
 
-            if(periodicityCheck(complex[0])) {
-                return max_iterations;
-            }
-            
+           if(periodicityCheck(complex[0])) {
+               return max_iterations;
+           }
+
         }
 
         return max_iterations;
@@ -527,26 +525,23 @@ public class Magnet2 extends Julia {
         complex[1] = pixel;//c
 
         Complex zold = new Complex();
-        Complex zold2 = new Complex();
-   
+        
         for (; iterations < max_iterations; iterations++) {
-            temp1 = (temp4 = complex[0].distance_squared(1)) <= convergent_bailout;
-            temp2 = bailout_algorithm.escaped(complex[0]);
-            if(temp1 || temp2) {
-                Object[] object = {iterations, complex[0], temp2, temp4, zold, zold2};
-                return out_color_algorithm.getResult(object);
-            }
-            zold2 = zold;
-            zold = complex[0];
-            function(complex);
-
+           temp1 = (temp4 = complex[0].distance_squared(1)) <= convergent_bailout;
+           temp2 = bailout_algorithm.escaped(complex[0]);
+           if(temp1 || temp2) {
+               Object[] object = {iterations, complex[0], temp2, temp4, zold};
+               return out_color_algorithm.getResult(object); 
+           }
+           zold = complex[0];
+           function(complex);
+ 
         }
 
         Object[] object = {max_iterations, complex[0]};
         return in_color_algorithm.getResult(object);
         
     }
-
 
     @Override
     public double calculateJuliaWithPeriodicity(Complex pixel) {
@@ -561,29 +556,28 @@ public class Magnet2 extends Julia {
         update_counter = 0;
 
         period = new Complex();
+        
 
         Complex[] complex = new Complex[2];
         complex[0] = pixel;//z
         complex[1] = seed;//c
 
         Complex zold = new Complex();
-        Complex zold2 = new Complex();
 
         for (; iterations < max_iterations; iterations++) {
-            temp1 = (temp4 = complex[0].distance_squared(1)) <= convergent_bailout;
-            temp2 = bailout_algorithm.escaped(complex[0]);
-            if(temp1 || temp2) {
-                Object[] object = {iterations, complex[0], temp2, temp4, zold, zold2};
-                return out_color_algorithm.getResult(object);
-            }
-            zold2 = zold;
-            zold = complex[0];
-            function(complex);
+           temp1 = (temp4 = complex[0].distance_squared(1)) <= convergent_bailout;
+           temp2 = bailout_algorithm.escaped(complex[0]);
+           if(temp1 ||  temp2) {
+               Object[] object = {iterations, complex[0], temp2, temp4, zold};
+               return out_color_algorithm.getResult(object); 
+           }
+           zold = complex[0];
+           function(complex);
 
-            if(periodicityCheck(complex[0])) {
-                return max_iterations;
-            }
-            
+           if(periodicityCheck(complex[0])) {
+               return max_iterations;
+           }
+
         }
 
         return max_iterations;
@@ -600,19 +594,17 @@ public class Magnet2 extends Julia {
         complex[1] = seed;//c
 
         Complex zold = new Complex();
-        Complex zold2 = new Complex();
 
         for (; iterations < max_iterations; iterations++) {
-            temp1 = (temp4 = complex[0].distance_squared(1)) <= convergent_bailout;
-            temp2 = bailout_algorithm.escaped(complex[0]);
-            if(temp1 || temp2) {
-                Object[] object = {iterations, complex[0], temp2, temp4, zold, zold2};
-                return out_color_algorithm.getResult(object);
-            }
-            zold2 = zold;
-            zold = complex[0];
-            function(complex);
-            
+           temp1 = (temp4 = complex[0].distance_squared(1)) <= convergent_bailout;
+           temp2 = bailout_algorithm.escaped(complex[0]);
+           if(temp1 ||  temp2) {
+               Object[] object = {iterations, complex[0], temp2, temp4, zold};
+               return out_color_algorithm.getResult(object); 
+           }
+           zold = complex[0];
+           function(complex);
+
         }
 
         Object[] object = {max_iterations, complex[0]};
@@ -641,28 +633,26 @@ public class Magnet2 extends Julia {
         complex[1] = pixel;//c
 
         Complex zold = new Complex();
-        Complex zold2 = new Complex();
-
-        double temp3;
         
-        for (; iterations < max_iterations; iterations++) {
-            temp1 = (temp4 = complex[0].distance_squared(1)) <= convergent_bailout;
-            temp2 = bailout_algorithm.escaped(complex[0]);
-            if(temp1 || temp2) {
-                Object[] object = {iterations, complex[0], temp2, temp4, zold, zold2};
-                temp3 = out_color_algorithm.getResult(object);
-                double[] array = {25 * Math.log(temp3 - 100799) + 15 * Math.log(iterations + 1) - 100, temp3};
-                return array;
-            }
-            zold2 = zold;
-            zold = complex[0];
-            function(complex);
+        double temp3;
 
-            if(periodicityCheck(complex[0])) {
+        for (; iterations < max_iterations; iterations++) {
+           temp1 = (temp4 = complex[0].distance_squared(1)) <= convergent_bailout;
+           temp2 = bailout_algorithm.escaped(complex[0]);
+           if(temp1 || temp2) {
+               Object[] object = {iterations, complex[0], temp2, temp4, zold};
+               temp3 = out_color_algorithm.getResult(object);
+               double[] array = {25 * Math.log(temp3 - 100799) + 15 * Math.log(iterations + 1) - 100, temp3};
+               return array;  
+           }
+           zold = complex[0];
+           function(complex);
+
+           if(periodicityCheck(complex[0])) {
                 double[] array = {25 * Math.log(max_iterations + 1) + 15 * Math.log(max_iterations + 1) - 100, max_iterations};
                 return array;
-            }
-            
+           }
+
         }
 
         double[] array = {25 * Math.log(max_iterations + 1) + 15 * Math.log(max_iterations + 1) - 100, max_iterations};
@@ -683,23 +673,21 @@ public class Magnet2 extends Julia {
         complex[1] = pixel;//c
 
         Complex zold = new Complex();
-        Complex zold2 = new Complex();
-   
+        
         double temp3;
         
         for (; iterations < max_iterations; iterations++) {
-            temp1 = (temp4 = complex[0].distance_squared(1)) <= convergent_bailout;
-            temp2 = bailout_algorithm.escaped(complex[0]);
-            if(temp1 || temp2) {
-                Object[] object = {iterations, complex[0], temp2, temp4, zold, zold2};
-                temp3 = out_color_algorithm.getResult(object);
-                double[] array = {25 * Math.log(temp3 - 100799) + 15 * Math.log(iterations + 1) - 100, temp3};
-                return array;
-            }
-            zold2 = zold;
-            zold = complex[0];
-            function(complex);
-
+           temp1 = (temp4 = complex[0].distance_squared(1)) <= convergent_bailout;
+           temp2 = bailout_algorithm.escaped(complex[0]);
+           if(temp1 || temp2) {
+               Object[] object = {iterations, complex[0], temp2, temp4, zold};
+               temp3 = out_color_algorithm.getResult(object);
+               double[] array = {25 * Math.log(temp3 - 100799) + 15 * Math.log(iterations + 1) - 100, temp3};
+               return array;   
+           }
+           zold = complex[0];
+           function(complex);
+ 
         }
 
         Object[] object = {max_iterations, complex[0]};
@@ -709,7 +697,6 @@ public class Magnet2 extends Julia {
         return array;
         
     }
-
 
     @Override
     public double[] calculateJulia3DWithPeriodicity(Complex pixel) {
@@ -724,39 +711,38 @@ public class Magnet2 extends Julia {
         update_counter = 0;
 
         period = new Complex();
+        
 
         Complex[] complex = new Complex[2];
         complex[0] = pixel;//z
         complex[1] = seed;//c
 
         Complex zold = new Complex();
-        Complex zold2 = new Complex();
 
         double temp3;
         
         for (; iterations < max_iterations; iterations++) {
-            temp1 = (temp4 = complex[0].distance_squared(1)) <= convergent_bailout;
-            temp2 = bailout_algorithm.escaped(complex[0]);
-            if(temp1 || temp2) {
-                Object[] object = {iterations, complex[0], temp2, temp4, zold, zold2};
-                temp3 = out_color_algorithm.getResult(object);
-                double[] array = {25 * Math.log(temp3 - 100799) + 15 * Math.log(iterations + 1) - 100, temp3};
-                return array;
-            }
-            zold2 = zold;
-            zold = complex[0];
-            function(complex);
+           temp1 = (temp4 = complex[0].distance_squared(1)) <= convergent_bailout;
+           temp2 = bailout_algorithm.escaped(complex[0]);
+           if(temp1 ||  temp2) {
+               Object[] object = {iterations, complex[0], temp2, temp4, zold};
+               temp3 = out_color_algorithm.getResult(object);
+               double[] array = {25 * Math.log(temp3 - 100799) + 15 * Math.log(iterations + 1) - 100, temp3};
+               return array;    
+           }
+           zold = complex[0];
+           function(complex);
 
-            if(periodicityCheck(complex[0])) {
-                double[] array = {25 * Math.log(max_iterations + 1) + 15 * Math.log(max_iterations + 1) - 100, max_iterations};
-                return array;
-            }
-            
+           if(periodicityCheck(complex[0])) {
+               double[] array = {25 * Math.log(max_iterations + 1) + 15 * Math.log(max_iterations + 1) - 100, max_iterations};
+               return array;
+           }
+
         }
 
         double[] array = {25 * Math.log(max_iterations + 1) + 15 * Math.log(max_iterations + 1) - 100, max_iterations};
         return array;
-        
+                
     }
 
     @Override
@@ -770,23 +756,21 @@ public class Magnet2 extends Julia {
         complex[1] = seed;//c
 
         Complex zold = new Complex();
-        Complex zold2 = new Complex();
-
-        double temp3;
         
+        double temp3;
+
         for (; iterations < max_iterations; iterations++) {
-            temp1 = (temp4 = complex[0].distance_squared(1)) <= convergent_bailout;
-            temp2 = bailout_algorithm.escaped(complex[0]);
-            if(temp1 || temp2) {
-                Object[] object = {iterations, complex[0], temp2, temp4, zold, zold2};
-                temp3 = out_color_algorithm.getResult(object);
-                double[] array = {25 * Math.log(temp3 - 100799) + 15 * Math.log(iterations + 1) - 100, temp3};
-                return array; 
-            }
-            zold2 = zold;
-            zold = complex[0];
-            function(complex);
-            
+           temp1 = (temp4 = complex[0].distance_squared(1)) <= convergent_bailout;
+           temp2 = bailout_algorithm.escaped(complex[0]);
+           if(temp1 ||  temp2) {
+               Object[] object = {iterations, complex[0], temp2, temp4, zold};
+               temp3 = out_color_algorithm.getResult(object);
+               double[] array = {25 * Math.log(temp3 - 100799) + 15 * Math.log(iterations + 1) - 100, temp3};
+               return array;  
+           }
+           zold = complex[0];
+           function(complex);
+
         }
 
         Object[] object = {max_iterations, complex[0]};

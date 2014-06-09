@@ -10,12 +10,12 @@ import fractalzoomer.core.Complex;
  *
  * @author hrkalona2
  */
-public class SmoothEscapeTimeEscapeRadiusMagnet2 extends OutColorAlgorithm {
+public class SmoothEscapeTimeEscapeRadiusMagnet extends OutColorAlgorithm {
   private double log_convergent_bailout;
   private double log_bailout_squared;
   protected double pi2;
     
-    public SmoothEscapeTimeEscapeRadiusMagnet2(double log_bailout_squared, double log_convergent_bailout) {
+    public SmoothEscapeTimeEscapeRadiusMagnet(double log_bailout_squared, double log_convergent_bailout) {
 
         super();
         
@@ -29,7 +29,7 @@ public class SmoothEscapeTimeEscapeRadiusMagnet2 extends OutColorAlgorithm {
     public double getResult(Object[] object) {
         
         double temp2 = Math.log(((Complex)object[1]).norm_squared());
-        double zabs = temp2 / log_bailout_squared - 1.0f;
+        double zabs =  temp2 / log_bailout_squared - 1.0f;
         double zarg = (((Complex)object[1]).arg() / (pi2) + 1.0f) % 1.0;
         
         double temp3 = (Integer)object[0] + zabs + zarg;
@@ -41,8 +41,8 @@ public class SmoothEscapeTimeEscapeRadiusMagnet2 extends OutColorAlgorithm {
             return temp3 + (log_bailout_squared - temp) / (temp2 - temp) + 100906;
         }
         else {
-            double temp = Math.log(((Complex)object[4]).distance_squared((Complex)object[5]));
-            return temp3 + (log_convergent_bailout - temp) / (Math.log((Double)object[3]) - temp) + 100800;  
+            double temp = Math.log(((Complex)object[4]).distance_squared(1));
+            return temp3 + (log_convergent_bailout - temp) / (Math.log((Double)object[3]) - temp) + 100800;
         }
 
     }

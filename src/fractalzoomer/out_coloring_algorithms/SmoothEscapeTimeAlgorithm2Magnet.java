@@ -10,11 +10,11 @@ import fractalzoomer.core.Complex;
  *
  * @author hrkalona2
  */
-public class SmoothEscapeTimePlusReMagnet1 extends OutColorAlgorithm {
+public class SmoothEscapeTimeAlgorithm2Magnet extends OutColorAlgorithm {
   protected double log_convergent_bailout;
 
     
-    public SmoothEscapeTimePlusReMagnet1(double log_convergent_bailout) {
+    public SmoothEscapeTimeAlgorithm2Magnet(double log_convergent_bailout) {
         
         super();
         this.log_convergent_bailout = log_convergent_bailout;
@@ -27,10 +27,13 @@ public class SmoothEscapeTimePlusReMagnet1 extends OutColorAlgorithm {
         
         double temp3 = 0;
         if(!(Boolean)object[2]) {
-            temp3 = -(log_convergent_bailout - (Double)object[3]) / ((Double)object[3] - Math.log(((Complex)object[1]).distance_squared((Complex)object[4])));
+            double temp = Math.log(((Complex)object[4]).distance_squared(1));
+            temp3 = (log_convergent_bailout - temp) / (Math.log((Double)object[3]) - temp); 
         }
         
-        return Math.abs(((Integer)object[0]) + ((Complex)object[1]).getRe() + temp3) + 100800;
+        Complex temp = ((Complex)object[1]).sub(((Complex)object[1]).sin());
+        
+        return (Integer)object[0] +  Math.abs(Math.atan(temp.getIm() / temp.getRe())) * 8  + temp3 + 100800; 
 
     }
     

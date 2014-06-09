@@ -67,12 +67,18 @@ public class Parser
   /* Implement for fractal zoomer purposes */
   boolean found_z;
   boolean found_c;
+  boolean found_n;
+  boolean found_p;
   
   ArrayList<VariableExpressionNode> z_var;
   ArrayList<VariableExpressionNode> c_var;
+  ArrayList<VariableExpressionNode> n_var;
+  ArrayList<VariableExpressionNode> p_var;
   
   VariableExpressionNode[] z_var_arr;
   VariableExpressionNode[] c_var_arr;
+  VariableExpressionNode[] n_var_arr;
+  VariableExpressionNode[] p_var_arr;
   /***************************************/
   
   /**
@@ -91,9 +97,13 @@ public class Parser
   {
     found_z = false;
     found_c = false;
+    found_n = false;
+    found_p = false;
     
     z_var = new ArrayList<VariableExpressionNode>();
     c_var = new ArrayList<VariableExpressionNode>();
+    n_var = new ArrayList<VariableExpressionNode>();
+    p_var = new ArrayList<VariableExpressionNode>();
     
     Tokenizer tokenizer = Tokenizer.getExpressionTokenizer();
     tokenizer.tokenize(expression);
@@ -130,9 +140,13 @@ public class Parser
     
     z_var_arr = new VariableExpressionNode[z_var.size()];
     c_var_arr = new VariableExpressionNode[c_var.size()];
+    n_var_arr = new VariableExpressionNode[n_var.size()];
+    p_var_arr = new VariableExpressionNode[p_var.size()];
   
     z_var_arr = z_var.toArray(z_var_arr);
     c_var_arr = c_var.toArray(c_var_arr);
+    n_var_arr = n_var.toArray(n_var_arr);
+    p_var_arr = p_var.toArray(p_var_arr);
     
     return expr;
   }
@@ -321,7 +335,17 @@ public class Parser
            temp = "c";
       }
       
-      if(!temp.equals("z") && !temp.equals("c")) {
+      if(temp.equals("N"))
+      {
+           temp = "n";
+      }
+      
+      if(temp.equals("P"))
+      {
+           temp = "p";
+      }
+      
+      if(!temp.equals("z") && !temp.equals("c") && !temp.equals("n") && !temp.equals("p")) {
          throw new ParserException("Unrecognized variable %s found.", lookahead);
       }
           
@@ -335,6 +359,16 @@ public class Parser
       if(temp.equals("c")) {
           found_c = true;
           c_var.add((VariableExpressionNode)expr);
+      }
+      
+      if(temp.equals("n")) {
+          found_n = true;
+          n_var.add((VariableExpressionNode)expr);
+      }
+      
+      if(temp.equals("p")) {
+          found_p = true;
+          p_var.add((VariableExpressionNode)expr);
       }
       
       nextToken();
@@ -370,6 +404,16 @@ public class Parser
       return found_c;
   }
   
+  public boolean foundN()
+  {
+      return found_n;
+  }
+  
+  public boolean foundP()
+  {
+      return found_p;
+  }
+  
   public void setZvalue(Complex value) {
       
       for(int i = 0; i < z_var_arr.length; i++) {
@@ -383,8 +427,23 @@ public class Parser
       for(int i = 0; i < c_var_arr.length; i++) {
           c_var_arr[i].setValue(value);
       }  
-
+ 
+  }
+  
+  public void setNvalue(Complex value) {
       
+      for(int i = 0; i < n_var_arr.length; i++) {
+          n_var_arr[i].setValue(value);
+      }  
+ 
+  }
+  
+  public void setPvalue(Complex value) {
+      
+      for(int i = 0; i < p_var_arr.length; i++) {
+          p_var_arr[i].setValue(value);
+      }  
+ 
   }
   
 }

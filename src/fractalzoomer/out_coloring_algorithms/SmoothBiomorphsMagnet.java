@@ -10,10 +10,10 @@ import fractalzoomer.core.Complex;
  *
  * @author hrkalona2
  */
-public class SmoothBiomorphsMagnet1 extends SmoothBiomorphs {
+public class SmoothBiomorphsMagnet extends SmoothBiomorphs {
   protected double log_convergent_bailout;
   
-    public SmoothBiomorphsMagnet1(double log_bailout_squared, double log_convergent_bailout, double bailout) {
+    public SmoothBiomorphsMagnet(double log_bailout_squared, double log_convergent_bailout, double bailout) {
         
         super(log_bailout_squared, bailout);
         this.log_convergent_bailout = log_convergent_bailout;
@@ -32,7 +32,8 @@ public class SmoothBiomorphsMagnet1 extends SmoothBiomorphs {
             temp3 = (Integer)object[0] + (log_bailout_squared - temp) / (Math.log(temp2) - temp);
         }
         else {
-            temp3 = (Integer)object[0] - (log_convergent_bailout - (Double)object[3]) / ((Double)object[3] - Math.log(((Complex)object[1]).distance_squared((Complex)object[4])));
+            double temp = Math.log(((Complex)object[4]).distance_squared(1));
+            temp3 = (Integer)object[0] + (log_convergent_bailout - temp) / (Math.log((Double)object[3]) - temp); 
         }
         
         double temp = ((Complex)object[1]).getRe();

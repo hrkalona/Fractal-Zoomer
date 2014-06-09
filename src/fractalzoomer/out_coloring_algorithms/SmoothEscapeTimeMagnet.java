@@ -15,10 +15,10 @@ import fractalzoomer.core.Complex;
  *
  * @author hrkalona
  */
-public class SmoothEscapeTimeMagnet1 extends SmoothEscapeTime {
+public class SmoothEscapeTimeMagnet extends SmoothEscapeTime {
   private double log_convergent_bailout;
     
-    public SmoothEscapeTimeMagnet1(double log_bailout_squared, double log_convergent_bailout) {
+    public SmoothEscapeTimeMagnet(double log_bailout_squared, double log_convergent_bailout) {
         
         super(log_bailout_squared);
         this.log_convergent_bailout = log_convergent_bailout;
@@ -36,7 +36,9 @@ public class SmoothEscapeTimeMagnet1 extends SmoothEscapeTime {
             return (Integer)object[0] + (log_bailout_squared - temp) / (Math.log(temp2) - temp) + 100906;
         }
         else {
-            return (Integer)object[0] - (log_convergent_bailout - (Double)object[3]) / ((Double)object[3] - Math.log(((Complex)object[1]).distance_squared((Complex)object[4]))) + 100800;
+            //return (Integer)object[0] - (log_convergent_bailout - (Double)object[3]) / ((Double)object[3] - Math.log(((Complex)object[4]).distance_squared(1))) + 100800;
+            double temp = Math.log(((Complex)object[4]).distance_squared(1));
+            return (Integer)object[0] + (log_convergent_bailout - temp) / (Math.log((Double)object[3]) - temp) + 100800; 
         }
 
     }

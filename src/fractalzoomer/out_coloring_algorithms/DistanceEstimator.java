@@ -21,6 +21,7 @@ public class DistanceEstimator  extends OutColorAlgorithm {
 
          double temp2 = (((Complex)object[1]).norm_squared());
          double temp = -4.*(Math.log(Math.log(temp2)*Math.sqrt(temp2 /(((Complex)object[2]).norm_squared())))-(Integer)object[0]*.693);
+         
          return temp < 0 ? 100800 : temp + 100800;
 
     }

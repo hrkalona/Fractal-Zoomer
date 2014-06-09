@@ -10,10 +10,10 @@ import fractalzoomer.core.Complex;
  *
  * @author hrkalona2
  */
-public class SmoothBinaryDecompositionMagnet2 extends SmoothBinaryDecomposition {
-   double log_convergent_bailout;
+public class SmoothBinaryDecompositionMagnet extends SmoothBinaryDecomposition {
+  protected double log_convergent_bailout;
 
-    public SmoothBinaryDecompositionMagnet2(double log_bailout_squared, double log_convergent_bailout) {
+    public SmoothBinaryDecompositionMagnet(double log_bailout_squared, double log_convergent_bailout) {
 
         super(log_bailout_squared);
         this.log_convergent_bailout = log_convergent_bailout;
@@ -32,8 +32,8 @@ public class SmoothBinaryDecompositionMagnet2 extends SmoothBinaryDecomposition 
             temp3 = (Integer)object[0] + (log_bailout_squared - temp) / (Math.log(temp2) - temp);
         }
         else {
-            double temp = Math.log(((Complex)object[4]).distance_squared((Complex)object[5]));
-            temp3 = (Integer)object[0] + (log_convergent_bailout - temp) / (Math.log((Double)object[3]) - temp);  
+            double temp = Math.log(((Complex)object[4]).distance_squared(1));
+            temp3 = (Integer)object[0] + (log_convergent_bailout - temp) / (Math.log((Double)object[3]) - temp); 
         }
         
         return ((Boolean)object[2] ? (((Complex)object[1]).getIm() < 0 ? temp3 + 100850 : temp3 + 100906) : ((Complex)object[1]).getIm() < 0 ? temp3 + 100850 : temp3 + 100800);
