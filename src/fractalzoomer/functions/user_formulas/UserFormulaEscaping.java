@@ -2,13 +2,14 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package fractalzoomer.functions;
+package fractalzoomer.functions.user_formulas;
 
 import fractalzoomer.core.Complex;
 import fractalzoomer.fractal_options.DefaultInitialValue;
 import fractalzoomer.fractal_options.DefaultPerturbation;
 import fractalzoomer.fractal_options.InitialValue;
 import fractalzoomer.fractal_options.Perturbation;
+import fractalzoomer.functions.Julia;
 import fractalzoomer.in_coloring_algorithms.AtanReTimesImTimesAbsReTimesAbsIm;
 import fractalzoomer.in_coloring_algorithms.CosMag;
 import fractalzoomer.in_coloring_algorithms.DecompositionLike;

@@ -1373,6 +1373,28 @@ public final class Complex {
          
      }
      
+     
+     /*
+      *  lexicographical comparison between two complex numbers
+      */
+     public final int compare(Complex z2) {
+         
+         if(re > z2.re) {
+             return -1;
+         }
+         else if(re < z2.re) {
+             return 1;
+         }
+         else if(im > z2.im) {
+             return -1;
+         }
+         else if(z2. im > im) {
+             return 1;
+         }
+         
+         return 0;
+     }
+     
      @Override
      public final String toString() {
          

@@ -105,10 +105,13 @@ import fractalzoomer.functions.formulas.general.Formula36;
 import fractalzoomer.functions.formulas.general.Formula37;
 import fractalzoomer.functions.formulas.m_like_generalization.Formula38;
 import fractalzoomer.functions.formulas.m_like_generalization.Formula39;
-import fractalzoomer.functions.UserFormulaConverging;
-import fractalzoomer.functions.UserFormulaEscaping;
-import fractalzoomer.functions.UserFormulaIterationBasedConverging;
-import fractalzoomer.functions.UserFormulaIterationBasedEscaping;
+import fractalzoomer.functions.formulas.m_like_generalization.zab_zde_fg.Formula40;
+import fractalzoomer.functions.formulas.m_like_generalization.zab_zde_fg.Formula41;
+import fractalzoomer.functions.formulas.m_like_generalization.zab_zde_fg.Formula41;
+import fractalzoomer.functions.user_formulas.UserFormulaConverging;
+import fractalzoomer.functions.user_formulas.UserFormulaEscaping;
+import fractalzoomer.functions.user_formulas.UserFormulaIterationBasedConverging;
+import fractalzoomer.functions.user_formulas.UserFormulaIterationBasedEscaping;
 import fractalzoomer.functions.root_finding_methods.secant.Secant3;
 import fractalzoomer.functions.root_finding_methods.secant.Secant4;
 import fractalzoomer.functions.root_finding_methods.secant.SecantCos;
@@ -120,6 +123,8 @@ import fractalzoomer.functions.root_finding_methods.steffensen.Steffensen4;
 import fractalzoomer.functions.root_finding_methods.steffensen.SteffensenGeneralized3;
 import fractalzoomer.functions.szegedi_butterfly.SzegediButterfly1;
 import fractalzoomer.functions.szegedi_butterfly.SzegediButterfly2;
+import fractalzoomer.functions.user_formulas.UserFormulaConditionalConverging;
+import fractalzoomer.functions.user_formulas.UserFormulaConditionalEscaping;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
@@ -214,7 +219,7 @@ public abstract class ThreadDraw extends Thread {
     }
 
     //Fractal
-        public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter,  double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, boolean d3, int d3_draw_method, int detail, double fiX, double fiY, MainWindow ptr, Color fractal_color, BufferedImage image, boolean[] filters, int[] filters_options_vals, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, boolean boundary_tracing, boolean periodicity_checking, int plane_type, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean init_val, double[] initial_vals, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, String[] user_formula_iteration_based) {
+        public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter,  double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, boolean d3, int d3_draw_method, int detail, double fiX, double fiY, MainWindow ptr, Color fractal_color, BufferedImage image, boolean[] filters, int[] filters_options_vals, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, boolean boundary_tracing, boolean periodicity_checking, int plane_type, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean init_val, double[] initial_vals, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula) {
 
         this.FROMx = FROMx;
         this.TOx = TOx;
@@ -593,6 +598,12 @@ public abstract class ThreadDraw extends Thread {
             case MainWindow.FORMULA39:
                 fractal = new Formula39(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane);
                 break;
+            case MainWindow.FORMULA40:
+                fractal = new Formula40(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane);
+                break;
+            case MainWindow.FORMULA41:
+                fractal = new Formula41(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane);
+                break;
             case MainWindow.USER_FORMULA:
                 if(bail_technique == 0) {
                     fractal = new UserFormulaEscaping(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_formula, user_formula2, user_plane);
@@ -607,6 +618,14 @@ public abstract class ThreadDraw extends Thread {
                 }
                 else {
                     fractal = new UserFormulaIterationBasedConverging(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_formula_iteration_based, user_plane);
+                }
+                break;
+            case MainWindow.USER_FORMULA_CONDITIONAL:
+                if(bail_technique == 0) {
+                    fractal = new UserFormulaConditionalEscaping(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_formula_conditions, user_formula_condition_formula, user_plane);
+                }
+                else {
+                    fractal = new UserFormulaConditionalConverging(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_formula_conditions, user_formula_condition_formula, user_plane);
                 }
                 break;
             case MainWindow.FROTHY_BASIN:
@@ -627,7 +646,7 @@ public abstract class ThreadDraw extends Thread {
     }
 
     //Julia
-    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter,  double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, boolean d3, int d3_draw_method, int detail, double fiX, double fiY, MainWindow ptr, Color fractal_color, BufferedImage image, boolean[] filters, int[] filters_options_vals, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, boolean boundary_tracing, boolean periodicity_checking, int plane_type, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] rotation_vals, double[] rotation_center, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, String[] user_formula_iteration_based, double xJuliaCenter, double yJuliaCenter) {
+    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter,  double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, boolean d3, int d3_draw_method, int detail, double fiX, double fiY, MainWindow ptr, Color fractal_color, BufferedImage image, boolean[] filters, int[] filters_options_vals, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, boolean boundary_tracing, boolean periodicity_checking, int plane_type, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] rotation_vals, double[] rotation_center, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, double xJuliaCenter, double yJuliaCenter) {
 
         this.FROMx = FROMx;
         this.TOx = TOx;
@@ -877,6 +896,12 @@ public abstract class ThreadDraw extends Thread {
             case MainWindow.FORMULA39:
                 fractal = new Formula39(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, xJuliaCenter, yJuliaCenter);
                 break;
+            case MainWindow.FORMULA40:
+                fractal = new Formula40(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.FORMULA41:
+                fractal = new Formula41(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, xJuliaCenter, yJuliaCenter);
+                break;
             case MainWindow.USER_FORMULA:
                 if(bail_technique == 0) {
                     fractal = new UserFormulaEscaping(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_formula, user_formula2, user_plane, xJuliaCenter, yJuliaCenter);
@@ -891,6 +916,14 @@ public abstract class ThreadDraw extends Thread {
                 }
                 else {
                     fractal = new UserFormulaIterationBasedConverging(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_formula_iteration_based, user_plane, xJuliaCenter, yJuliaCenter);
+                }
+                break;
+            case MainWindow.USER_FORMULA_CONDITIONAL:
+                if(bail_technique == 0) {
+                    fractal = new UserFormulaConditionalEscaping(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_formula_conditions, user_formula_condition_formula, user_plane, xJuliaCenter, yJuliaCenter);
+                }
+                else {
+                    fractal = new UserFormulaConditionalConverging(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_formula_conditions, user_formula_condition_formula, user_plane, xJuliaCenter, yJuliaCenter);
                 }
                 break;
             case MainWindow.FROTHY_BASIN:
@@ -911,7 +944,7 @@ public abstract class ThreadDraw extends Thread {
     }
     
     //Julia Map
-    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter,  double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, MainWindow ptr, Color fractal_color, BufferedImage image, boolean[] filters, int[] filters_options_vals, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, boolean periodicity_checking, int plane_type, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] rotation_vals, double[] rotation_center, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, String[] user_formula_iteration_based) {
+    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter,  double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, MainWindow ptr, Color fractal_color, BufferedImage image, boolean[] filters, int[] filters_options_vals, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, boolean periodicity_checking, int plane_type, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] rotation_vals, double[] rotation_center, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula) {
         
         this.FROMx = FROMx;
         this.TOx = TOx;
@@ -1163,6 +1196,12 @@ public abstract class ThreadDraw extends Thread {
             case MainWindow.FORMULA39:
                 fractal = new Formula39(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, xJuliaCenter, yJuliaCenter);
                 break;
+            case MainWindow.FORMULA40:
+                fractal = new Formula40(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.FORMULA41:
+                fractal = new Formula41(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, xJuliaCenter, yJuliaCenter);
+                break;
             case MainWindow.USER_FORMULA:
                 if(bail_technique == 0) {
                     fractal = new UserFormulaEscaping(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_formula, user_formula2, user_plane, xJuliaCenter, yJuliaCenter);
@@ -1177,6 +1216,14 @@ public abstract class ThreadDraw extends Thread {
                 }
                 else {
                     fractal = new UserFormulaIterationBasedConverging(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_formula_iteration_based, user_plane, xJuliaCenter, yJuliaCenter);
+                }
+                break;
+            case MainWindow.USER_FORMULA_CONDITIONAL:
+                if(bail_technique == 0) {
+                    fractal = new UserFormulaConditionalEscaping(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_formula_conditions, user_formula_condition_formula, user_plane, xJuliaCenter, yJuliaCenter);
+                }
+                else {
+                    fractal = new UserFormulaConditionalConverging(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_formula_conditions, user_formula_condition_formula, user_plane, xJuliaCenter, yJuliaCenter);
                 }
                 break;
             case MainWindow.FROTHY_BASIN:
@@ -1196,7 +1243,7 @@ public abstract class ThreadDraw extends Thread {
     }
 
     //Julia Preview
-    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, MainWindow ptr, Color fractal_color, boolean fast_julia_filters, BufferedImage image, boolean boundary_tracing, boolean periodicity_checking, int plane_type, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, boolean[] filters, int[] filters_options_vals, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] rotation_vals, double[] rotation_center, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, String[] user_formula_iteration_based, double xJuliaCenter, double yJuliaCenter) {
+    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, MainWindow ptr, Color fractal_color, boolean fast_julia_filters, BufferedImage image, boolean boundary_tracing, boolean periodicity_checking, int plane_type, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, boolean[] filters, int[] filters_options_vals, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] rotation_vals, double[] rotation_center, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, double xJuliaCenter, double yJuliaCenter) {
 
         this.FROMx = FROMx;
         this.TOx = TOx;
@@ -1441,6 +1488,12 @@ public abstract class ThreadDraw extends Thread {
             case MainWindow.FORMULA39:
                 fractal = new Formula39(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, xJuliaCenter, yJuliaCenter);
                 break;
+            case MainWindow.FORMULA40:
+                fractal = new Formula40(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.FORMULA41:
+                fractal = new Formula41(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, xJuliaCenter, yJuliaCenter);
+                break;
             case MainWindow.USER_FORMULA:
                 if(bail_technique == 0)
                 {
@@ -1457,6 +1510,15 @@ public abstract class ThreadDraw extends Thread {
                 }
                 else {
                     fractal = new UserFormulaIterationBasedConverging(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_formula_iteration_based, user_plane, xJuliaCenter, yJuliaCenter);
+                }
+                break;
+            case MainWindow.USER_FORMULA_CONDITIONAL:
+                if(bail_technique == 0)
+                {
+                    fractal = new UserFormulaConditionalEscaping(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_formula_conditions, user_formula_condition_formula, user_plane, xJuliaCenter, yJuliaCenter);
+                }
+                else {
+                    fractal = new UserFormulaConditionalConverging(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_formula_conditions, user_formula_condition_formula, user_plane, xJuliaCenter, yJuliaCenter);
                 }
                 break;
             case MainWindow.FROTHY_BASIN:
