@@ -1,22 +1,19 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package fractalzoomer.planes.general;
 
 import fractalzoomer.core.Complex;
 import fractalzoomer.planes.Plane;
 
-
-
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /**
  *
  * @author hrkalona2
  */
-public class MuPlane extends Plane {
+public class BipolarPlane extends Plane {
     
-    public MuPlane() {
+    public BipolarPlane() {
         
         super();
         
@@ -25,7 +22,7 @@ public class MuPlane extends Plane {
     @Override
     public Complex getPixel(Complex pixel) {
         
-        return pixel;
+        return pixel.toBiPolar(2);
         
     }
     

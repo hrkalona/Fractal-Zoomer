@@ -36,8 +36,12 @@ import fractalzoomer.planes.fold.FoldInPlane;
 import fractalzoomer.planes.fold.FoldOutPlane;
 import fractalzoomer.planes.fold.FoldRightPlane;
 import fractalzoomer.planes.fold.FoldUpPlane;
+import fractalzoomer.planes.general.BipolarPlane;
+import fractalzoomer.planes.general.InversedBipolarPlane;
 import fractalzoomer.planes.general.InversedLambda2Plane;
 import fractalzoomer.planes.general.MuSquaredImaginaryPlane;
+import fractalzoomer.planes.math.FactorialPlane;
+import fractalzoomer.planes.math.GammaFunctionPlane;
 import fractalzoomer.planes.math.inverse_trigonometric.ACosPlane;
 import fractalzoomer.planes.math.inverse_trigonometric.ACoshPlane;
 import fractalzoomer.planes.math.inverse_trigonometric.ACotPlane;
@@ -252,6 +256,18 @@ public abstract class Fractal {
             case MainWindow.USER_PLANE:
                 plane = new UserPlane(user_plane);
                 break;
+            case MainWindow.GAMMA_PLANE:
+                plane = new GammaFunctionPlane();
+                break;
+            case MainWindow.FACT_PLANE:
+                plane = new FactorialPlane();
+                break;
+            case MainWindow.BIPOLAR_PLANE:
+                plane = new BipolarPlane();
+                break;
+            case MainWindow.INVERSED_BIPOLAR_PLANE:
+                plane = new InversedBipolarPlane();
+                break;
                 
         }
         
@@ -436,6 +452,18 @@ public abstract class Fractal {
                 break;
             case MainWindow.USER_PLANE:
                 plane = new UserPlane(user_plane);
+                break;
+            case MainWindow.GAMMA_PLANE:
+                plane = new GammaFunctionPlane();
+                break;
+            case MainWindow.FACT_PLANE:
+                plane = new FactorialPlane();
+                break;
+            case MainWindow.BIPOLAR_PLANE:
+                plane = new BipolarPlane();
+                break;
+            case MainWindow.INVERSED_BIPOLAR_PLANE:
+                plane = new InversedBipolarPlane();
                 break;
        
         }

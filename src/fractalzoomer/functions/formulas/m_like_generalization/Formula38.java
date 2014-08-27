@@ -444,7 +444,7 @@ public class Formula38 extends Julia {
 
 
         Complex[] complex = new Complex[2];
-        complex[0] = pixel;//z
+        complex[0] = new Complex(pixel);//z
         complex[1] = new Complex(seed);//c
 
         Complex zold = new Complex();
@@ -471,7 +471,7 @@ public class Formula38 extends Julia {
       int iterations = 0;
 
         Complex[] complex = new Complex[2];
-        complex[0] = pixel;//z
+        complex[0] = new Complex(pixel);//z
         complex[1] = new Complex(seed);//c
 
         Complex zold = new Complex();

@@ -325,50 +325,48 @@ public class Parser
     {
       
       String temp = lookahead.sequence;
-      if(temp.equals("Z"))
-      {
-           temp = "z";
-      }
+ 
       
-      if(temp.equals("C"))
-      {
-           temp = "c";
-      }
-      
-      if(temp.equals("N"))
-      {
-           temp = "n";
-      }
-      
-      if(temp.equals("P"))
-      {
-           temp = "p";
-      }
-      
-      if(!temp.equals("z") && !temp.equals("c") && !temp.equals("n") && !temp.equals("p")) {
+      if(!temp.equalsIgnoreCase("z") && !temp.equalsIgnoreCase("c") && !temp.equalsIgnoreCase("n") && !temp.equalsIgnoreCase("p") && !temp.equalsIgnoreCase("pi") && !temp.equalsIgnoreCase("e") && !temp.equalsIgnoreCase("c10") && !temp.equalsIgnoreCase("phi")) {
          throw new ParserException("Unrecognized variable %s found.", lookahead);
       }
           
       ExpressionNode expr = new VariableExpressionNode(temp);
       
-      if(temp.equals("z")) {
+      if(temp.equalsIgnoreCase("z")) {
           found_z = true;
           z_var.add((VariableExpressionNode)expr);
       }
       
-      if(temp.equals("c")) {
+      if(temp.equalsIgnoreCase("c")) {
           found_c = true;
           c_var.add((VariableExpressionNode)expr);
       }
       
-      if(temp.equals("n")) {
+      if(temp.equalsIgnoreCase("n")) {
           found_n = true;
           n_var.add((VariableExpressionNode)expr);
       }
       
-      if(temp.equals("p")) {
+      if(temp.equalsIgnoreCase("p")) {
           found_p = true;
           p_var.add((VariableExpressionNode)expr);
+      }
+      
+      if(temp.equalsIgnoreCase("pi")) {
+          ((VariableExpressionNode)expr).setValue(new Complex(Math.PI, 0));
+      }
+      
+      if(temp.equalsIgnoreCase("e")) {
+          ((VariableExpressionNode)expr).setValue(new Complex(Math.E, 0));
+      }
+      
+      if(temp.equalsIgnoreCase("c10")) {
+          ((VariableExpressionNode)expr).setValue(new Complex(0.1234567891011121314, 0));
+      }
+      
+      if(temp.equalsIgnoreCase("phi")) {
+          ((VariableExpressionNode)expr).setValue(new Complex(1.618033988749895, 0));
       }
       
       nextToken();

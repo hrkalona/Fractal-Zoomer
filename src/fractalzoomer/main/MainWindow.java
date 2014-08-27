@@ -12,9 +12,10 @@ package fractalzoomer.main;
 /* Many of the ideas in this project come from XaoS, Fractal Extreme, FractInt, fractalforums.com and ofcourse from alot of google search */
 /* Sorry for the absence of comments, this project was never supposed to reach this level! */
 /* Also forgive me for the huge-packed main class, read above! */
+import fractalzoomer.utils.ColorGenerator;
 import fractalzoomer.core.DrawOrbit;
-import fractalzoomer.core.MainPanel;
-import fractalzoomer.core.RequestFocusListener;
+import fractalzoomer.utils.MainPanel;
+import fractalzoomer.utils.RequestFocusListener;
 import fractalzoomer.core.ThreadDraw;
 import fractalzoomer.palettes.CustomPalette;
 import fractalzoomer.settings.SettingsPalette;
@@ -64,6 +65,7 @@ import java.io.ObjectOutputStream;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.Random;
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
@@ -193,6 +195,7 @@ public class MainWindow extends JFrame {
   private BufferedImage backup_orbit;
   private BufferedImage last_used;
   private BufferedImage colors;
+  private BufferedImage colors2;
   private MainWindow ptr;
   private MainPanel main_panel;
   private JLabel mode;
@@ -347,6 +350,7 @@ public class MainWindow extends JFrame {
   private JLabel[] labels;
   private JTextField[] textfields;
   private JLabel gradient;
+  private JLabel graph;
   private int[][] temp_custom_palette;
   private int temp_color_cycling_location;
   private int[][] custom_palette = {{12, 255, 0, 0}, {12, 255, 127, 0}, {12, 255, 255, 0}, {12, 0, 255, 0}, {12, 0, 0, 255}, {12, 75, 0, 130}, {12, 143, 0, 255}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}};
@@ -563,6 +567,10 @@ public class MainWindow extends JFrame {
   public static final int NEWTONGENERALIZED3_PLANE = 44;
   public static final int NEWTONGENERALIZED8_PLANE = 45;
   public static final int USER_PLANE = 46;
+  public static final int GAMMA_PLANE = 47;
+  public static final int FACT_PLANE = 48;
+  public static final int BIPOLAR_PLANE = 49;
+  public static final int INVERSED_BIPOLAR_PLANE = 50;
   public static final int BAILOUT_TEST_CIRCLE = 0;
   public static final int BAILOUT_TEST_SQUARE = 1;
   public static final int BAILOUT_TEST_RHOMBUS = 2;
@@ -587,6 +595,10 @@ public class MainWindow extends JFrame {
   public static final int COLOR_SPACE_EXP = 2;
   public static final int COLOR_SPACE_SQUARE = 3;
   public static final int COLOR_SPACE_SQRT = 4;
+  public static final int COLOR_SPACE_RYB = 5;
+  public static final int COLOR_SPACE_LAB = 6;
+  public static final int COLOR_SPACE_XYZ = 7;
+  public static final int COLOR_SPACE_LCH = 8;
   public static final int INTERPOLATION_LINEAR = 0;
   public static final int INTERPOLATION_COSINE = 1;
   public static final int INTERPOLATION_ACCELERATION = 2;
@@ -2660,7 +2672,7 @@ public class MainWindow extends JFrame {
         planes_menu.add(planes_math_menu);
 
         
-        planes = new JRadioButtonMenuItem[47];
+        planes = new JRadioButtonMenuItem[51];
         
         planes[MU_PLANE] = new JRadioButtonMenuItem("mu");
         planes[MU_PLANE].setToolTipText("The default plane.");
@@ -2776,6 +2788,28 @@ public class MainWindow extends JFrame {
                 }
         });
         planes_general_menu.add(planes[INVERSED_LAMBDA2_PLANE]);
+        
+        planes[BIPOLAR_PLANE] = new JRadioButtonMenuItem("Bipolar");
+        planes[BIPOLAR_PLANE].setToolTipText("An bipolar plane variation.");
+        planes[BIPOLAR_PLANE].addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+
+                    setPlane(BIPOLAR_PLANE);
+
+                }
+        });
+        planes_general_menu.add(planes[BIPOLAR_PLANE]);
+        
+        planes[INVERSED_BIPOLAR_PLANE] = new JRadioButtonMenuItem("Inversed Bipolar");
+        planes[INVERSED_BIPOLAR_PLANE].setToolTipText("An inversed bipolar plane variation.");
+        planes[INVERSED_BIPOLAR_PLANE].addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+
+                    setPlane(INVERSED_BIPOLAR_PLANE);
+
+                }
+        });
+        planes_general_menu.add(planes[INVERSED_BIPOLAR_PLANE]);
         
         
         planes[FOLDUP_PLANE] = new JRadioButtonMenuItem("fold up");
@@ -2922,6 +2956,28 @@ public class MainWindow extends JFrame {
                 }
         });
         planes_math_menu.add(planes[ABS_PLANE]);
+        
+        planes[GAMMA_PLANE] = new JRadioButtonMenuItem("gamma");
+        planes[GAMMA_PLANE].setToolTipText("The gamma function plane.");
+        planes[GAMMA_PLANE].addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+
+                    setPlane(GAMMA_PLANE);
+
+                }
+        });
+        planes_math_menu.add(planes[GAMMA_PLANE]);
+        
+        planes[FACT_PLANE] = new JRadioButtonMenuItem("factorial");
+        planes[FACT_PLANE].setToolTipText("The factorial plane.");
+        planes[FACT_PLANE].addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+
+                    setPlane(FACT_PLANE);
+
+                }
+        });
+        planes_math_menu.add(planes[FACT_PLANE]);
         
         
         planes[SIN_PLANE] = new JRadioButtonMenuItem("sin");
@@ -4355,7 +4411,7 @@ public class MainWindow extends JFrame {
                 if(!color_cycling) {
                     main_panel.repaint();
                 }
-                JOptionPane.showMessageDialog(scroll_pane, "<html><center><font size='5' face='arial' color='blue'><b><u>Fractal Zoomer</u></b></font><br><br><font size='4'><img src=\"" + getClass().getResource("/fractalzoomer/icons/mandel2.png") + "\"><br><br>Version: <b>1.0.5.0</b><br><br>Author: <b>Christos Kalonakis</b><br><br>Contact: <a href=\"mailto:hrkalona@gmail.com\">hrkalona@gmail.com</a><br><br></font></center></html>", "About", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(scroll_pane, "<html><center><font size='5' face='arial' color='blue'><b><u>Fractal Zoomer</u></b></font><br><br><font size='4'><img src=\"" + getClass().getResource("/fractalzoomer/icons/mandel2.png") + "\"><br><br>Version: <b>1.0.5.1</b><br><br>Author: <b>Christos Kalonakis</b><br><br>Contact: <a href=\"mailto:hrkalona@gmail.com\">hrkalona@gmail.com</a><br><br></font></center></html>", "About", JOptionPane.INFORMATION_MESSAGE);
 
             }
 
@@ -4862,13 +4918,6 @@ public class MainWindow extends JFrame {
         menubar.add(tools_menu);
         menubar.add(filters_menu);
         menubar.add(help_menu);
-        //menubar.add(new JLabel(" "));
-        //menubar.add(real);
-        //menubar.add(new JLabel("  "));
-        //menubar.add(imaginary);
-        //menubar.add(new JLabel(" i   "));
-        //menubar.add(progress);
-        //menubar.add(new JLabel(" "));
         
 
         setJMenuBar(menubar);
@@ -10760,8 +10809,15 @@ public class MainWindow extends JFrame {
            return;
        }
 
-       int x1 = (int)main_panel.getMousePosition().getX();  
-       int y1 = (int)main_panel.getMousePosition().getY();
+       int x1, y1;
+       
+       try {
+           x1 = (int)main_panel.getMousePosition().getX();  
+           y1 = (int)main_panel.getMousePosition().getY();
+       }
+       catch(Exception ex) {
+           return;
+       }
        
        if(x1 < 0 ||  x1 > image_size || y1 < 0 ||  y1 > image_size) {
            return;
@@ -14291,6 +14347,9 @@ public class MainWindow extends JFrame {
             JLabel operations2 = new JLabel("Operations:");
             operations2.setFont(new Font("default", Font.BOLD , 11 ));
             
+            JLabel constants2 = new JLabel("Constants:");
+            constants2.setFont(new Font("default", Font.BOLD , 11 ));
+            
             JLabel complex_numbers2 = new JLabel("Complex numbers:");
             complex_numbers2.setFont(new Font("default", Font.BOLD , 11 ));
             
@@ -14312,23 +14371,22 @@ public class MainWindow extends JFrame {
   
 
             Object[] message32 = { 
-                " ",
                 variables2,
                 "z (current sequence point), c (plane point),",
                 "p (previous sequence point), n (current iteration)",
                 operations2,
                 "+, -, *, /, ^",
+                constants2,
+                "pi, e, phi, c10",
                 complex_numbers2,
                 "a + bi",
                 exp_log2,
                 "exp, log, log10, log2",
                 trig2,
-                "sin, cos, tan, cot, sec, csc",
-                "sinh, cosh, tanh, coth, sech, csch",
-                "asin, acos, atan, acot, asec, acsc",
-                "asinh, acosh, atanh, acoth, asech, acsch",
+                "sin, cos, tan, cot, sec, csc, sinh, cosh, tanh, coth, sech, csch",
+                "asin, acos, atan, acot, asec, acsc, asinh, acosh, atanh, acoth, asech, acsch",
                 other2,
-                "sqrt, abs, conj, re, im, norm, arg",
+                "sqrt, abs, conj, re, im, norm, arg, gamma, fact, bipol, ibipol",
                 " ",
                 "Bailout technique:",
                 method42_choice,
@@ -14734,6 +14792,9 @@ public class MainWindow extends JFrame {
             JLabel operations3 = new JLabel("Operations:");
             operations3.setFont(new Font("default", Font.BOLD , 11 ));
             
+            JLabel constants3 = new JLabel("Constants:");
+            constants3.setFont(new Font("default", Font.BOLD , 11 ));
+            
             JLabel complex_numbers3 = new JLabel("Complex numbers:");
             complex_numbers3.setFont(new Font("default", Font.BOLD , 11 ));
             
@@ -14755,23 +14816,22 @@ public class MainWindow extends JFrame {
   
 
             Object[] message33 = { 
-                " ",
                 variables3,
                 "z (current sequence point), c (plane point),",
                 "p (previous sequence point), n (current iteration)",
                 operations3,
                 "+, -, *, /, ^",
+                constants3,
+                "pi, e, phi, c10",
                 complex_numbers3,
                 "a + bi",
                 exp_log3,
                 "exp, log, log10, log2",
                 trig3,
-                "sin, cos, tan, cot, sec, csc",
-                "sinh, cosh, tanh, coth, sech, csch",
-                "asin, acos, atan, acot, asec, acsc",
-                "asinh, acosh, atanh, acoth, asech, acsch",
+                "sin, cos, tan, cot, sec, csc, sinh, cosh, tanh, coth, sech, csch",
+                "asin, acos, atan, acot, asec, acsc, asinh, acosh, atanh, acoth, asech, acsch",
                 other3,
-                "sqrt, abs, conj, re, im, norm, arg",
+                "sqrt, abs, conj, re, im, norm, arg, gamma, fact, bipol, ibipol",
                 " ",
                 "Bailout technique:",
                 method43_choice,
@@ -15177,6 +15237,9 @@ public class MainWindow extends JFrame {
             JLabel operations = new JLabel("Operations:");
             operations.setFont(new Font("default", Font.BOLD , 11 ));
             
+            JLabel constants = new JLabel("Constants:");
+            constants.setFont(new Font("default", Font.BOLD , 11 ));
+            
             JLabel complex_numbers = new JLabel("Complex numbers:");
             complex_numbers.setFont(new Font("default", Font.BOLD , 11 ));
             
@@ -15196,23 +15259,22 @@ public class MainWindow extends JFrame {
             method4_choice.setToolTipText("Selects the bailout technique.");
 
             Object[] message3 = { 
-                " ",
                 variables,
                 "z (current sequence point), c (plane point),",
                 "p (previous sequence point), n (current iteration)",
                 operations,
                 "+, -, *, /, ^",
+                constants,
+                "pi, e, phi, c10",
                 complex_numbers,
                 "a + bi",
                 exp_log,
                 "exp, log, log10, log2",
                 trig,
-                "sin, cos, tan, cot, sec, csc",
-                "sinh, cosh, tanh, coth, sech, csch",
-                "asin, acos, atan, acot, asec, acsc",
-                "asinh, acosh, atanh, acoth, asech, acsch",
+                "sin, cos, tan, cot, sec, csc, sinh, cosh, tanh, coth, sech, csch",
+                "asin, acos, atan, acot, asec, acsc, asinh, acosh, atanh, acoth, asech, acsch",
                 other,
-                "sqrt, abs, conj, re, im, norm, arg",
+                "sqrt, abs, conj, re, im, norm, arg, gamma, fact, bipol, ibipol",
                 " ",
                 "Bailout technique:",
                 method4_choice,
@@ -17483,6 +17545,9 @@ public class MainWindow extends JFrame {
             JLabel operations = new JLabel("Operations:");
             operations.setFont(new Font("default", Font.BOLD , 11 ));
             
+            JLabel constants = new JLabel("Constants:");
+            constants.setFont(new Font("default", Font.BOLD , 11 ));
+            
             JLabel complex_numbers = new JLabel("Complex numbers:");
             complex_numbers.setFont(new Font("default", Font.BOLD , 11 ));
             
@@ -17493,25 +17558,24 @@ public class MainWindow extends JFrame {
             trig.setFont(new Font("default", Font.BOLD , 11 ));
             
             JLabel other = new JLabel("Other functions:");
-            other.setFont(new Font("default", Font.BOLD , 11 ));;
+            other.setFont(new Font("default", Font.BOLD , 11 ));
 
             Object[] message3 = {
-                " ",
                 variables,
                 "z (current sequence point)",
                 operations,
                 "+, -, *, /, ^",
+                constants,
+                "pi, e, phi, c10",
                 complex_numbers,
                 "a + bi",
                 exp_log,
                 "exp, log, log10, log2",
                 trig,
-                "sin, cos, tan, cot, sec, csc",
-                "sinh, cosh, tanh, coth, sech, csch",
-                "asin, acos, atan, acot, asec, acsc",
-                "asinh, acosh, atanh, acoth, asech, acsch",
+                "sin, cos, tan, cot, sec, csc, sinh, cosh, tanh, coth, sech, csch",
+                "asin, acos, atan, acot, asec, acsc, asinh, acosh, atanh, acoth, asech, acsch",
                 other,
-                "sqrt, abs, conj, re, im, norm, arg",
+                "sqrt, abs, conj, re, im, norm, arg, gamma, fact, bipol, ibipol",
                 " ",
                 "Insert your plane transformation.",
                 formula_panel, 
@@ -18124,7 +18188,7 @@ public class MainWindow extends JFrame {
        
        setEnabled(false);
        int custom_palette_window_width = 800;
-       int custom_palette_window_height = 418;
+       int custom_palette_window_height = 508;
        custom_palette_editor = new JFrame("Custom Palette Editor");
        custom_palette_editor.setIconImage(getIcon("/fractalzoomer/icons/palette.png").getImage());
        custom_palette_editor.setLayout(new FlowLayout());
@@ -18164,7 +18228,7 @@ public class MainWindow extends JFrame {
         JPanel hues = new JPanel();
         JPanel buttons = new JPanel();
 
-        editor_panel.setPreferredSize(new Dimension(780, 318));
+        editor_panel.setPreferredSize(new Dimension(780, 408));
         editor_panel.setLayout(new FlowLayout());
         palette_colors.setLayout(new FlowLayout());
         palette_colors.setPreferredSize(new Dimension(760, 60));
@@ -18228,20 +18292,7 @@ public class MainWindow extends JFrame {
                             
                             Color[] c = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location);
                           
-                            try {                                
-                                Graphics2D g = colors.createGraphics();
-                                for(int i = 0; i < c.length; i++) {
-                                    g.setColor(c[i]);
-                                    g.fillRect(i * colors.getWidth() / c.length, 0, (i + 1) * colors.getWidth() / c.length - i * colors.getWidth() / c.length, colors.getHeight()); 
-                                }
-                             }
-                             catch(Exception ex) {
-                                 Graphics2D g = colors.createGraphics();
-                                 g.setColor(Color.LIGHT_GRAY);
-                                 g.fillRect(0, 0, colors.getWidth(), colors.getHeight());  
-                             }
- 
-                            gradient.repaint();
+                            paintGradientAndGraph(c);
 
                         }
                     });
@@ -18297,6 +18348,11 @@ public class MainWindow extends JFrame {
                             g.setColor(Color.LIGHT_GRAY);
                             g.fillRect(0, 0, colors.getWidth(), colors.getHeight());    
                             gradient.repaint();
+                            
+                            Graphics2D g2 = colors2.createGraphics();
+                            g2.setColor(Color.WHITE);
+                            g2.fillRect(0, 0, colors2.getWidth(), colors2.getHeight());  
+                            graph.repaint();
                             return;
                         }
                         
@@ -18309,32 +18365,29 @@ public class MainWindow extends JFrame {
                         
                         Color[] c = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location);
        
-                        try {                                
-                            Graphics2D g = colors.createGraphics();
-                            for(int i = 0; i < c.length; i++) {
-                                g.setColor(c[i]);
-                                g.fillRect(i * colors.getWidth() / c.length, 0, (i + 1) * colors.getWidth() / c.length - i * colors.getWidth() / c.length, colors.getHeight()); 
-                            }
-                         }
-                         catch(Exception ex) {
-                             Graphics2D g = colors.createGraphics();
-                             g.setColor(Color.LIGHT_GRAY);
-                             g.fillRect(0, 0, colors.getWidth(), colors.getHeight());  
-                         }
-                            
-                        gradient.repaint();
+                        paintGradientAndGraph(c);
                    }
                    catch(ArithmeticException ex) {
                         Graphics2D g = colors.createGraphics();
                         g.setColor(Color.LIGHT_GRAY);
                         g.fillRect(0, 0, colors.getWidth(), colors.getHeight());    
                         gradient.repaint();
+                        
+                        Graphics2D g2 = colors2.createGraphics();
+                        g2.setColor(Color.WHITE);
+                        g2.fillRect(0, 0, colors2.getWidth(), colors2.getHeight());  
+                        graph.repaint();
                    }
                    catch(NumberFormatException ex) {
                         Graphics2D g = colors.createGraphics();
                         g.setColor(Color.LIGHT_GRAY);
                         g.fillRect(0, 0, colors.getWidth(), colors.getHeight());    
                         gradient.repaint();
+                        
+                        Graphics2D g2 = colors2.createGraphics();
+                        g2.setColor(Color.WHITE);
+                        g2.fillRect(0, 0, colors2.getWidth(), colors2.getHeight());  
+                        graph.repaint();
                    }
                 }
 
@@ -18349,6 +18402,11 @@ public class MainWindow extends JFrame {
                             g.setColor(Color.LIGHT_GRAY);
                             g.fillRect(0, 0, colors.getWidth(), colors.getHeight());    
                             gradient.repaint();
+                            
+                            Graphics2D g2 = colors2.createGraphics();
+                            g2.setColor(Color.WHITE);
+                            g2.fillRect(0, 0, colors2.getWidth(), colors2.getHeight());  
+                            graph.repaint();
                             return;
                         }
                         
@@ -18360,32 +18418,29 @@ public class MainWindow extends JFrame {
                         
                         Color[] c = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location);
        
-                        try {                                
-                            Graphics2D g = colors.createGraphics();
-                            for(int i = 0; i < c.length; i++) {
-                                g.setColor(c[i]);
-                                g.fillRect(i * colors.getWidth() / c.length, 0, (i + 1) * colors.getWidth() / c.length - i * colors.getWidth() / c.length, colors.getHeight()); 
-                            }
-                         }
-                         catch(Exception ex) {
-                             Graphics2D g = colors.createGraphics();
-                             g.setColor(Color.LIGHT_GRAY);
-                             g.fillRect(0, 0, colors.getWidth(), colors.getHeight());  
-                         }
-                            
-                        gradient.repaint();
+                        paintGradientAndGraph(c);
                    }
                    catch(ArithmeticException ex) {
                         Graphics2D g = colors.createGraphics();
                         g.setColor(Color.LIGHT_GRAY);
                         g.fillRect(0, 0, colors.getWidth(), colors.getHeight());    
                         gradient.repaint();
+                        
+                        Graphics2D g2 = colors2.createGraphics();
+                        g2.setColor(Color.WHITE);
+                        g2.fillRect(0, 0, colors2.getWidth(), colors2.getHeight());  
+                        graph.repaint();
                    }
                    catch(NumberFormatException ex) {
                         Graphics2D g = colors.createGraphics();
                         g.setColor(Color.LIGHT_GRAY);
                         g.fillRect(0, 0, colors.getWidth(), colors.getHeight());    
                         gradient.repaint();
+                        
+                        Graphics2D g2 = colors2.createGraphics();
+                        g2.setColor(Color.WHITE);
+                        g2.fillRect(0, 0, colors2.getWidth(), colors2.getHeight());  
+                        graph.repaint();
                    }
                 }
 
@@ -18534,20 +18589,7 @@ public class MainWindow extends JFrame {
                 
                 Color[] c = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location);
         
-                try {                                
-                    Graphics2D g = colors.createGraphics();
-                    for(int i = 0; i < c.length; i++) {
-                        g.setColor(c[i]);
-                        g.fillRect(i * colors.getWidth() / c.length, 0, (i + 1) * colors.getWidth() / c.length - i * colors.getWidth() / c.length, colors.getHeight()); 
-                    }
-                 }
-                 catch(Exception ex) {
-                     Graphics2D g = colors.createGraphics();
-                     g.setColor(Color.LIGHT_GRAY);
-                     g.fillRect(0, 0, colors.getWidth(), colors.getHeight());  
-                 }
-                            
-                gradient.repaint();
+                paintGradientAndGraph(c);
             }
         
         });
@@ -18602,16 +18644,16 @@ public class MainWindow extends JFrame {
                         counter++;
                     } while(same_colors);
                 }               
-                else {
+                else if(combo_box_random_palette_alg.getSelectedIndex() == 1) {
                     int counter = 0;
 
                     double random_red = generator.nextDouble() * 1000;
                     double random_green = generator.nextDouble() * 1000;
                     double random_blue = generator.nextDouble() * 1000;
 
-                    double red_coeff = generator.nextDouble() * 4 + 1;
-                    double green_coeff = generator.nextDouble() * 4 + 1;
-                    double blue_coeff = generator.nextDouble() * 4 + 1;
+                    double red_coeff = generator.nextInt(10) + generator.nextDouble() + 1;
+                    double green_coeff = generator.nextInt(10) + generator.nextDouble() + 1;
+                    double blue_coeff = generator.nextInt(10) + generator.nextDouble() + 1;
 
 
                     do {
@@ -18640,26 +18682,44 @@ public class MainWindow extends JFrame {
                         counter++;
                     } while(same_colors);
                 }
+                else {
+                    int counter = 0;
+
+                    do {
+
+                        List<Color> list = ColorGenerator.generate(600, generator.nextInt(600), 0);
+                        for(int m = 0; m < temp_custom_palette.length; m++) {
+                            temp_custom_palette[m][0] = generator.nextInt(12) + 7;
+                            temp_custom_palette[m][1] = list.get(m).getRed();
+                            temp_custom_palette[m][2] = list.get(m).getGreen();
+                            temp_custom_palette[m][3] = list.get(m).getBlue();
+                        }
+
+                        same_colors = false;
+
+                        c = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location);
+
+                        for(int m = 0; m < c.length; m++) {
+                            if(c[m].getRGB() == c[(m + 1) % c.length].getRGB()) {
+                                same_colors = true;
+                                break;
+                            }
+                        }
+
+                        if(counter == 5500) {
+                            break;
+                        }
+
+                        counter++;
+                    } while(same_colors);
+                }
                 
                 for(int m = 0; m < labels.length; m++) {
                     labels[m].setBackground(new Color(temp_custom_palette[m][1], temp_custom_palette[m][2], temp_custom_palette[m][3]));
                     textfields[m].setText("" + temp_custom_palette[m][0]);
                 }
         
-                try {                                
-                    Graphics2D g = colors.createGraphics();
-                    for(int i = 0; i < c.length; i++) {
-                        g.setColor(c[i]);
-                        g.fillRect(i * colors.getWidth() / c.length, 0, (i + 1) * colors.getWidth() / c.length - i * colors.getWidth() / c.length, colors.getHeight()); 
-                    }
-                 }
-                 catch(Exception ex) {
-                     Graphics2D g = colors.createGraphics();
-                     g.setColor(Color.LIGHT_GRAY);
-                     g.fillRect(0, 0, colors.getWidth(), colors.getHeight());  
-                 }
-                            
-                gradient.repaint();
+                paintGradientAndGraph(c);
             }
         
         });
@@ -18705,20 +18765,7 @@ public class MainWindow extends JFrame {
                 
                 Color[] c = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location);
         
-                try {                                
-                    Graphics2D g = colors.createGraphics();
-                    for(int i = 0; i < c.length; i++) {
-                        g.setColor(c[i]);
-                        g.fillRect(i * colors.getWidth() / c.length, 0, (i + 1) * colors.getWidth() / c.length - i * colors.getWidth() / c.length, colors.getHeight()); 
-                    }
-                 }
-                 catch(Exception ex) {
-                     Graphics2D g = colors.createGraphics();
-                     g.setColor(Color.LIGHT_GRAY);
-                     g.fillRect(0, 0, colors.getWidth(), colors.getHeight());  
-                 }
-                            
-                gradient.repaint();
+                paintGradientAndGraph(c);
                 
             }
         
@@ -18744,20 +18791,7 @@ public class MainWindow extends JFrame {
 
                     Color[] c = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location);
 
-                    try {                                
-                        Graphics2D g = colors.createGraphics();
-                        for(int i = 0; i < c.length; i++) {
-                            g.setColor(c[i]);
-                            g.fillRect(i * colors.getWidth() / c.length, 0, (i + 1) * colors.getWidth() / c.length - i * colors.getWidth() / c.length, colors.getHeight()); 
-                        }
-                     }
-                     catch(Exception ex) {
-                         Graphics2D g = colors.createGraphics();
-                         g.setColor(Color.LIGHT_GRAY);
-                         g.fillRect(0, 0, colors.getWidth(), colors.getHeight());  
-                     }
-
-                    gradient.repaint();
+                    paintGradientAndGraph(c);
 
                 }
             });
@@ -18789,6 +18823,30 @@ public class MainWindow extends JFrame {
              g.setColor(Color.LIGHT_GRAY);
              g.fillRect(0, 0, colors.getWidth(), colors.getHeight());  
          }
+               
+        colors2 = new BufferedImage(732, 100, BufferedImage.TYPE_INT_ARGB);
+        
+        try {                                
+            Graphics2D g = colors2.createGraphics();
+            g.setColor(Color.WHITE);
+            g.fillRect(0, 0, colors2.getWidth(), colors2.getHeight());
+            g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            for(int i = 0; i < c.length; i++) {
+                g.setColor(Color.RED);
+                g.drawLine(1 + i * colors2.getWidth() / c.length, 10 + colors2.getHeight() / 5 - (int)(((colors2.getHeight() / 5) / 255.0) * c[i].getRed()), (i + 1) * colors2.getWidth() / c.length, 10 + colors2.getHeight() / 5 - (int)(((colors2.getHeight() / 5) / 255.0) * c[(i + 1) % c.length].getRed()));
+               
+                g.setColor(Color.GREEN);
+                g.drawLine(1 + i * colors2.getWidth() / c.length, 20 + 2 * colors2.getHeight() / 5 - (int)(((colors2.getHeight() / 5) / 255.0) * c[i].getGreen()), (i + 1) * colors2.getWidth() / c.length, 20 + 2 * colors2.getHeight() / 5 - (int)(((colors2.getHeight() / 5) / 255.0) * c[(i + 1) % c.length].getGreen()));
+                
+                g.setColor(Color.BLUE);
+                g.drawLine(1 + i * colors2.getWidth() / c.length, 30 + 3 * colors2.getHeight() / 5 - (int)(((colors2.getHeight() / 5) / 255.0) * c[i].getBlue()), (i + 1) * colors2.getWidth() / c.length, 30 + 3 * colors2.getHeight() / 5 - (int)(((colors2.getHeight() / 5) / 255.0) * c[(i + 1) % c.length].getBlue()));
+            }
+         }
+         catch(Exception ex) {
+             Graphics2D g = colors2.createGraphics();
+             g.setColor(Color.WHITE);
+             g.fillRect(0, 0, colors2.getWidth(), colors2.getHeight());  
+         }
  
                 
         JPanel options_panel = new JPanel();
@@ -18806,20 +18864,7 @@ public class MainWindow extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 Color[] c = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location);
         
-                try {                                
-                    Graphics2D g = colors.createGraphics();
-                    for(int i = 0; i < c.length; i++) {
-                        g.setColor(c[i]);
-                        g.fillRect(i * colors.getWidth() / c.length, 0, (i + 1) * colors.getWidth() / c.length - i * colors.getWidth() / c.length, colors.getHeight()); 
-                    }
-                 }
-                 catch(Exception ex) {
-                     Graphics2D g = colors.createGraphics();
-                     g.setColor(Color.LIGHT_GRAY);
-                     g.fillRect(0, 0, colors.getWidth(), colors.getHeight());  
-                 }
-                            
-                gradient.repaint();
+                paintGradientAndGraph(c);
             }
             
         });
@@ -18849,6 +18894,11 @@ public class MainWindow extends JFrame {
                         g.setColor(Color.LIGHT_GRAY);
                         g.fillRect(0, 0, colors.getWidth(), colors.getHeight());    
                         gradient.repaint();
+                        
+                        Graphics2D g2 = colors2.createGraphics();
+                        g2.setColor(Color.WHITE);
+                        g2.fillRect(0, 0, colors2.getWidth(), colors2.getHeight());  
+                        graph.repaint();
                         return;
                     }
                         
@@ -18856,32 +18906,29 @@ public class MainWindow extends JFrame {
                         
                     Color[] c = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location);
        
-                    try {                                
-                        Graphics2D g = colors.createGraphics();
-                        for(int i = 0; i < c.length; i++) {
-                            g.setColor(c[i]);
-                            g.fillRect(i * colors.getWidth() / c.length, 0, (i + 1) * colors.getWidth() / c.length - i * colors.getWidth() / c.length, colors.getHeight()); 
-                        }
-                     }
-                     catch(Exception ex) {
-                         Graphics2D g = colors.createGraphics();
-                         g.setColor(Color.LIGHT_GRAY);
-                         g.fillRect(0, 0, colors.getWidth(), colors.getHeight());  
-                     }
-                            
-                    gradient.repaint();
+                    paintGradientAndGraph(c);
                }
                catch(ArithmeticException ex) {
                     Graphics2D g = colors.createGraphics();
                     g.setColor(Color.LIGHT_GRAY);
                     g.fillRect(0, 0, colors.getWidth(), colors.getHeight());    
                     gradient.repaint();
+                    
+                    Graphics2D g2 = colors2.createGraphics();
+                    g2.setColor(Color.WHITE);
+                    g2.fillRect(0, 0, colors2.getWidth(), colors2.getHeight());  
+                    graph.repaint();
                }
                catch(NumberFormatException ex) {
                     Graphics2D g = colors.createGraphics();
                     g.setColor(Color.LIGHT_GRAY);
                     g.fillRect(0, 0, colors.getWidth(), colors.getHeight());    
                     gradient.repaint();
+                    
+                    Graphics2D g2 = colors2.createGraphics();
+                    g2.setColor(Color.WHITE);
+                    g2.fillRect(0, 0, colors2.getWidth(), colors2.getHeight());  
+                    graph.repaint();        
                }
             }
 
@@ -18896,6 +18943,11 @@ public class MainWindow extends JFrame {
                         g.setColor(Color.LIGHT_GRAY);
                         g.fillRect(0, 0, colors.getWidth(), colors.getHeight());    
                         gradient.repaint();
+                        
+                        Graphics2D g2 = colors2.createGraphics();
+                        g2.setColor(Color.WHITE);
+                        g2.fillRect(0, 0, colors2.getWidth(), colors2.getHeight());  
+                        graph.repaint();
                         return;
                     }
                         
@@ -18903,32 +18955,29 @@ public class MainWindow extends JFrame {
                         
                     Color[] c = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location);
        
-                    try {                                
-                        Graphics2D g = colors.createGraphics();
-                        for(int i = 0; i < c.length; i++) {
-                            g.setColor(c[i]);
-                            g.fillRect(i * colors.getWidth() / c.length, 0, (i + 1) * colors.getWidth() / c.length - i * colors.getWidth() / c.length, colors.getHeight()); 
-                        }
-                     }
-                     catch(Exception ex) {
-                         Graphics2D g = colors.createGraphics();
-                         g.setColor(Color.LIGHT_GRAY);
-                         g.fillRect(0, 0, colors.getWidth(), colors.getHeight());  
-                     }
-                            
-                    gradient.repaint();
+                    paintGradientAndGraph(c);
                }
                catch(ArithmeticException ex) {
                     Graphics2D g = colors.createGraphics();
                     g.setColor(Color.LIGHT_GRAY);
                     g.fillRect(0, 0, colors.getWidth(), colors.getHeight());    
                     gradient.repaint();
+                    
+                    Graphics2D g2 = colors2.createGraphics();
+                    g2.setColor(Color.WHITE);
+                    g2.fillRect(0, 0, colors2.getWidth(), colors2.getHeight());  
+                    graph.repaint();
                }
                catch(NumberFormatException ex) {
                     Graphics2D g = colors.createGraphics();
                     g.setColor(Color.LIGHT_GRAY);
                     g.fillRect(0, 0, colors.getWidth(), colors.getHeight());    
                     gradient.repaint();  
+                    
+                    Graphics2D g2 = colors2.createGraphics();
+                    g2.setColor(Color.WHITE);
+                    g2.fillRect(0, 0, colors2.getWidth(), colors2.getHeight());  
+                    graph.repaint();
                }
             }
 
@@ -18946,7 +18995,7 @@ public class MainWindow extends JFrame {
         color_space_panel.setLayout(new FlowLayout());
         
         
-        String[] color_space_str = {"RGB", "HSB", "Exp", "Square", "Sqrt"};
+        String[] color_space_str = {"RGB", "HSB", "Exp", "Square", "Sqrt", "RYB", "LAB", "XYZ", "LCH"};
        
         combo_box_color_space = new JComboBox(color_space_str);
         combo_box_color_space.setSelectedIndex(color_space);
@@ -18959,20 +19008,7 @@ public class MainWindow extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 Color[] c = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location);
         
-                try {                                
-                    Graphics2D g = colors.createGraphics();
-                    for(int i = 0; i < c.length; i++) {
-                        g.setColor(c[i]);
-                        g.fillRect(i * colors.getWidth() / c.length, 0, (i + 1) * colors.getWidth() / c.length - i * colors.getWidth() / c.length, colors.getHeight()); 
-                    }
-                 }
-                 catch(Exception ex) {
-                     Graphics2D g = colors.createGraphics();
-                     g.setColor(Color.LIGHT_GRAY);
-                     g.fillRect(0, 0, colors.getWidth(), colors.getHeight());  
-                 }
-                            
-                gradient.repaint();
+                paintGradientAndGraph(c);
             }
             
         });
@@ -18997,20 +19033,7 @@ public class MainWindow extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 Color[] c = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location);
         
-                try {                                
-                    Graphics2D g = colors.createGraphics();
-                    for(int i = 0; i < c.length; i++) {
-                        g.setColor(c[i]);
-                        g.fillRect(i * colors.getWidth() / c.length, 0, (i + 1) * colors.getWidth() / c.length - i * colors.getWidth() / c.length, colors.getHeight()); 
-                    }
-                 }
-                 catch(Exception ex) {
-                     Graphics2D g = colors.createGraphics();
-                     g.setColor(Color.LIGHT_GRAY);
-                     g.fillRect(0, 0, colors.getWidth(), colors.getHeight());  
-                 }
-                            
-                gradient.repaint();
+                paintGradientAndGraph(c);
             }
             
         });
@@ -19019,10 +19042,10 @@ public class MainWindow extends JFrame {
         
         
         JPanel random_palette_alg = new JPanel();
-        random_palette_alg.setPreferredSize(new Dimension(138, 60));
+        random_palette_alg.setPreferredSize(new Dimension(162, 60));
         random_palette_alg.setLayout(new FlowLayout());
  
-        String[] random_palette_alg_str = {"Golden Ratio", "Waves"};
+        String[] random_palette_alg_str = {"Golden Ratio", "Waves", "Euclidean Distance"};
        
         combo_box_random_palette_alg = new JComboBox(random_palette_alg_str);
         combo_box_random_palette_alg.setSelectedIndex(random_palette_algorithm);
@@ -19037,10 +19060,46 @@ public class MainWindow extends JFrame {
         gradient.setPreferredSize(new Dimension(colors.getWidth(), colors.getHeight()));
         gradient.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
         
+        gradient.addMouseMotionListener(new MouseMotionListener() {
+
+            @Override
+            public void mouseDragged(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                try {
+                    Color temp_color = new Color(colors.getRGB((int)gradient.getMousePosition().getX(), (int)gradient.getMousePosition().getY()));
+                    String rr = Integer.toHexString(temp_color.getRed());
+                    String bb = Integer.toHexString(temp_color.getBlue());
+                    String gg = Integer.toHexString(temp_color.getGreen());
+                    
+                    rr = rr.length() == 1 ? "0" + rr : rr;
+                    gg = gg.length() == 1 ? "0" + gg : gg;
+                    bb = bb.length() == 1 ? "0" + bb : bb;
+                    
+                    
+                    gradient.setToolTipText("<html>R: " + temp_color.getRed() + " G: " + temp_color.getGreen() + " B: " + temp_color.getBlue() + "<br>" +
+                            "#" + rr + gg + bb + "</html>");
+                    
+
+                }
+                catch(Exception ex) {}
+            }
+           
+        });
+
+  
+        graph = new JLabel(new ImageIcon(colors2));
+        graph.setPreferredSize(new Dimension(colors2.getWidth(), colors2.getHeight()));
+        graph.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
+        
         JPanel palette_panel = new JPanel();
-        palette_panel.setPreferredSize(new Dimension(760, 80));
+        palette_panel.setPreferredSize(new Dimension(760, 178));
         
         palette_panel.add(gradient);
+        palette_panel.add(graph);
 
         editor_panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Custom Palette Editor",TitledBorder.CENTER,TitledBorder.CENTER));
         palette_colors.setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Colors",TitledBorder.DEFAULT_POSITION,TitledBorder.DEFAULT_POSITION));
@@ -19149,6 +19208,48 @@ public class MainWindow extends JFrame {
            catch(Exception ex) {}
        }
        
+   }
+   
+   private void paintGradientAndGraph(Color[] c) {
+       
+       try {                                
+           Graphics2D g = colors.createGraphics();
+           for(int i = 0; i < c.length; i++) {
+               g.setColor(c[i]);
+               g.fillRect(i * colors.getWidth() / c.length, 0, (i + 1) * colors.getWidth() / c.length - i * colors.getWidth() / c.length, colors.getHeight()); 
+           }
+       }
+       catch(Exception ex) {
+           Graphics2D g = colors.createGraphics();
+           g.setColor(Color.LIGHT_GRAY);
+           g.fillRect(0, 0, colors.getWidth(), colors.getHeight());  
+       }
+                            
+       gradient.repaint();
+                
+       try {                                
+           Graphics2D g = colors2.createGraphics();
+           g.setColor(Color.WHITE);
+           g.fillRect(0, 0, colors2.getWidth(), colors2.getHeight());
+           g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+           for(int i = 0; i < c.length; i++) {
+              g.setColor(Color.RED);
+              g.drawLine(1 + i * colors2.getWidth() / c.length, 10 + colors2.getHeight() / 5 - (int)(((colors2.getHeight() / 5) / 255.0) * c[i].getRed()), (i + 1) * colors2.getWidth() / c.length, 10 + colors2.getHeight() / 5 - (int)(((colors2.getHeight() / 5) / 255.0) * c[(i + 1) % c.length].getRed()));
+
+              g.setColor(Color.GREEN);
+              g.drawLine(1 + i * colors2.getWidth() / c.length, 20 + 2 * colors2.getHeight() / 5 - (int)(((colors2.getHeight() / 5) / 255.0) * c[i].getGreen()), (i + 1) * colors2.getWidth() / c.length, 20 + 2 * colors2.getHeight() / 5 - (int)(((colors2.getHeight() / 5) / 255.0) * c[(i + 1) % c.length].getGreen()));
+
+              g.setColor(Color.BLUE);
+              g.drawLine(1 + i * colors2.getWidth() / c.length, 30 + 3 * colors2.getHeight() / 5 - (int)(((colors2.getHeight() / 5) / 255.0) * c[i].getBlue()), (i + 1) * colors2.getWidth() / c.length, 30 + 3 * colors2.getHeight() / 5 - (int)(((colors2.getHeight() / 5) / 255.0) * c[(i + 1) % c.length].getBlue()));
+           }
+       }
+       catch(Exception ex) {
+           Graphics2D g = colors2.createGraphics();
+           g.setColor(Color.WHITE);
+           g.fillRect(0, 0, colors2.getWidth(), colors2.getHeight());  
+       }
+
+       graph.repaint();
    }
    
    public boolean getJuliaMap() {
@@ -19600,19 +19701,19 @@ public class MainWindow extends JFrame {
                 counter++;
             } while(same_colors);
         }
-        else {
+        else if(random_palette_algorithm == 1) {
             int counter = 0;
         
             double random_red = generator.nextDouble() * 1000;
             double random_green = generator.nextDouble() * 1000;
             double random_blue = generator.nextDouble() * 1000;
 
-            double red_coeff = generator.nextDouble() * 4 + 1;
-            double green_coeff = generator.nextDouble() * 4 + 1;
-            double blue_coeff = generator.nextDouble() * 4 + 1;
+            double red_coeff = generator.nextInt(10) + generator.nextDouble() + 1;
+            double green_coeff = generator.nextInt(10) + generator.nextDouble() + 1;
+            double blue_coeff = generator.nextInt(10) + generator.nextDouble() + 1;
 
 
-            do {
+            do {       
                 for(int m = 0; m < custom_palette.length; m++) {
                     custom_palette[m][0] = generator.nextInt(12) + 7;
                     custom_palette[m][1] = (int)(127.5 * (Math.sin(Math.PI / red_coeff * (m + 1) * golden_ratio_conjugate + random_red) + 1));
@@ -19638,11 +19739,42 @@ public class MainWindow extends JFrame {
                 counter++;
             } while(same_colors);
         }
+        else {
+            int counter = 0;
+
+            do {
+                
+                List<Color> list = ColorGenerator.generate(600, generator.nextInt(600), 0);
+                for(int m = 0; m < custom_palette.length; m++) {
+                    custom_palette[m][0] = generator.nextInt(12) + 7;
+                    custom_palette[m][1] = list.get(m).getRed();
+                    custom_palette[m][2] = list.get(m).getGreen();
+                    custom_palette[m][3] = list.get(m).getBlue();
+                }
+
+                same_colors = false;
+
+                c = CustomPalette.getPalette(custom_palette, color_interpolation, color_space, reversed_palette, color_cycling_location);
+
+                for(int m = 0; m < c.length; m++) {
+                    if(c[m].getRGB() == c[(m + 1) % c.length].getRGB()) {
+                        same_colors = true;
+                        break;
+                    }
+                }
+
+                if(counter == 5500) {
+                    break;
+                }
+
+                counter++;
+            } while(same_colors);
+        }
    
         setPalette(palette.length - 1);
               
    }
-   
+
    private void setToolbar() {
        
        if(!toolbar_opt.isSelected()) {
@@ -20323,7 +20455,7 @@ public class MainWindow extends JFrame {
        MainWindow fractals = new MainWindow();
        Thread.currentThread().sleep(1300);
        fractals.setVisible(true); 
-       
+
    }
 
 }

@@ -3,6 +3,7 @@ package fractalzoomer.palettes;
 
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.core.ThreadDraw;
+import fractalzoomer.utils.ColorSpaceConverter;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 
@@ -90,20 +91,19 @@ public class CustomPalette extends ThreadDraw {
                     }
 
                     if(color_space == MainWindow.COLOR_SPACE_HSB) {
-                        float[] c1_hsb = new float[3];
-                        float[] c2_hsb = new float[3];
+                        ColorSpaceConverter con = new ColorSpaceConverter();
 
-                        Color.RGBtoHSB(c1[1], c1[2], c1[3], c1_hsb);
-                        Color.RGBtoHSB(c2[1], c2[2], c2[3], c2_hsb);
+                        double[] c1_hsb = con.RGBtoHSB(c1[1], c1[2], c1[3]);
+                        double[] c2_hsb = con.RGBtoHSB(c2[1], c2[2], c2[3]);
 
-                        float h;
-                        float s = (float)(c1_hsb[1] + (c2_hsb[1] - c1_hsb[1]) * coef);
-                        float b = (float)(c1_hsb[2] + (c2_hsb[2] - c1_hsb[2]) * coef);
+                        double h;
+                        double s = (c1_hsb[1] + (c2_hsb[1] - c1_hsb[1]) * coef);
+                        double b = (c1_hsb[2] + (c2_hsb[2] - c1_hsb[2]) * coef);
+
+                        double d = c2_hsb[0] - c1_hsb[0];
 
 
-                        float d = c2_hsb[0] - c1_hsb[0];
-
-                        float temp;
+                        double temp;
                         if (c1_hsb[0] > c2_hsb[0])  {
                             temp = c1_hsb[0];
                             c1_hsb[0] = c2_hsb[0];
@@ -112,15 +112,17 @@ public class CustomPalette extends ThreadDraw {
                             coef = 1 - coef;
                         }
 
-                        if(d > 0.5)  {
+                        if(d > 0.5)  {                      
                            c1_hsb[0] += 1; 
-                           h = ((float)(c1_hsb[0] + (c2_hsb[0] -  c1_hsb[0]) * coef)) % 1;
+                           h = ((c1_hsb[0] + (c2_hsb[0] -  c1_hsb[0]) * coef)) % 1;
                         } 
                         else {
-                           h = ((float)(c1_hsb[0] + coef * d));
+                           h = ((c1_hsb[0] + coef * d));
                         }
 
-                        palette[n + k] = Color.getHSBColor(h, s, b).getRGB();
+                        int [] res = con.HSBtoRGB(h, s, b);
+
+                        palette[n + k] = 0xff000000 | (res[0] << 16) | (res[1] << 8) | res[2];
                     }
                     else if(color_space == MainWindow.COLOR_SPACE_RGB) {         
                         red = (int)(c1[1] + (c2[1] - c1[1]) * coef);
@@ -131,22 +133,22 @@ public class CustomPalette extends ThreadDraw {
                         //System.out.print((0xff000000 | (red << 16) | (green << 8) | blue) + ", ");
                     }
                     else if(color_space == MainWindow.COLOR_SPACE_EXP) {
-                        c2[1] = c2[1] == 0 ? c2[1] + 1 : c2[1];
-                        c2[2] = c2[2] == 0 ? c2[2] + 1 : c2[2];
-                        c2[3] = c2[3] == 0 ? c2[3] + 1 : c2[3];
-                     
-                        c1[1] = c1[1] == 0 ? c1[1] + 1 : c1[1];
-                        c1[2] = c1[2] == 0 ? c1[2] + 1 : c1[2];
-                        c1[3] = c1[3] == 0 ? c1[3] + 1 : c1[3];
-                     
-                        double to_r = Math.log(c2[1]);
-                        double from_r = Math.log(c1[1]);
-                        
-                        double to_g = Math.log(c2[2]);
-                        double from_g = Math.log(c1[2]);
-                        
-                        double to_b = Math.log(c2[3]);
-                        double from_b = Math.log(c1[3]);
+                         double c2_1 = c2[1] == 0 ? c2[1] + 1 : c2[1];
+                         double c2_2 = c2[2] == 0 ? c2[2] + 1 : c2[2];
+                         double c2_3 = c2[3] == 0 ? c2[3] + 1 : c2[3];
+
+                         double c1_1 = c1[1] == 0 ? c1[1] + 1 : c1[1];
+                         double c1_2 = c1[2] == 0 ? c1[2] + 1 : c1[2];
+                         double c1_3 = c1[3] == 0 ? c1[3] + 1 : c1[3];
+
+                         double to_r = Math.log(c2_1);
+                         double from_r = Math.log(c1_1);
+
+                         double to_g = Math.log(c2_2);
+                         double from_g = Math.log(c1_2);
+
+                         double to_b = Math.log(c2_3);
+                         double from_b = Math.log(c1_3);
                         
                         red = (int)(Math.exp(from_r + (to_r - from_r) * coef));
                         green = (int)(Math.exp(from_g + (to_g - from_g) * coef));
@@ -185,6 +187,98 @@ public class CustomPalette extends ThreadDraw {
                         blue = (int)(Math.sqrt(from_b + (to_b - from_b) * coef));
 
                         palette[n + k] = 0xff000000 | (red << 16) | (green << 8) | blue;
+                    }
+                    else if(color_space == MainWindow.COLOR_SPACE_RYB) {
+                        ColorSpaceConverter con = new ColorSpaceConverter();
+                    
+                        double[] ryb_from = con.RGBtoRYB(c1[1], c1[2], c1[3]);
+                        double[] ryb_to = con.RGBtoRYB(c2[1], c2[2], c2[3]);
+
+                        double r = (ryb_from[0] + (ryb_to[0] - ryb_from[0]) * coef);
+                        double y = (ryb_from[1] + (ryb_to[1] - ryb_from[1]) * coef);
+                        double b = (ryb_from[2] + (ryb_to[2] - ryb_from[2]) * coef);
+
+                        int[] rgb = con.RYBtoRGB(r, y, b);
+
+                        palette[n + k] = 0xff000000 | ((int)(rgb[0]) << 16) | ((int)(rgb[1]) << 8) | (int)(rgb[2]);
+                    }
+                    else if(color_space == MainWindow.COLOR_SPACE_LAB) {
+                        ColorSpaceConverter con = new ColorSpaceConverter();
+
+                        double [] from = con.RGBtoLAB(c1[1], c1[2], c1[3]);
+
+                        double [] to = con.RGBtoLAB(c2[1], c2[2], c2[3]);
+
+
+                        double L = (from[0] + (to[0] - from[0]) * coef);
+                        double a = (from[1] + (to[1] - from[1]) * coef);
+                        double b = (from[2] + (to[2] - from[2]) * coef);
+
+                        int [] res = con.LABtoRGB(L, a, b);
+
+                        res[0] = clamp(res[0]);
+                        res[1] = clamp(res[1]);
+                        res[2] = clamp(res[2]);
+
+                        palette[n + k] = 0xff000000 | ((int)(res[0]) << 16) | ((int)(res[1]) << 8) | (int)(res[2]);
+                    }               
+                    else if(color_space == MainWindow.COLOR_SPACE_XYZ) {
+                        ColorSpaceConverter con = new ColorSpaceConverter();
+
+                        double [] from = con.RGBtoXYZ(c1[1], c1[2], c1[3]);
+
+                        double [] to = con.RGBtoXYZ(c2[1], c2[2], c2[3]);
+
+
+                        double X = (from[0] + (to[0] - from[0]) * coef);
+                        double Y = (from[1] + (to[1] - from[1]) * coef);
+                        double Z = (from[2] + (to[2] - from[2]) * coef);
+
+                        int [] res = con.XYZtoRGB(X, Y, Z);
+
+                        res[0] = clamp(res[0]);
+                        res[1] = clamp(res[1]);
+                        res[2] = clamp(res[2]);
+
+                        palette[n + k] = 0xff000000 | ((int)(res[0]) << 16) | ((int)(res[1]) << 8) | (int)(res[2]);
+                    }
+                    else if(color_space == MainWindow.COLOR_SPACE_LCH) {
+                        ColorSpaceConverter con = new ColorSpaceConverter();
+
+                        double [] from = con.RGBtoLCH(c1[1], c1[2], c1[3]);
+
+                        double [] to = con.RGBtoLCH(c2[1], c2[2], c2[3]);
+
+                        double L = (from[0] + (to[0] - from[0]) * coef);
+                        double C = (from[1] + (to[1] - from[1]) * coef);
+                        double H;
+
+                        double d = to[2] - from[2];
+
+                        double temp;
+                        if (from[2] > to[2])  {
+                            temp = from[2];
+                            from[2] = to[2];
+                            to[2] = temp;
+                            d = -d;
+                            coef = 1 - coef;
+                        }
+
+                        if(d > 180)  {
+                           from[2] += 360; 
+                           H = ((from[2] + (to[2] -  from[2]) * coef)) % 360.0;                   
+                        } 
+                        else {
+                           H = ((from[2] + coef * d));
+                        }
+
+                        int [] res = con.LCHtoRGB(L, C, H);
+
+                        res[0] = clamp(res[0]);
+                        res[1] = clamp(res[1]);
+                        res[2] = clamp(res[2]);
+
+                        palette[n + k] = 0xff000000 | ((int)(res[0]) << 16) | ((int)(res[1]) << 8) | (int)(res[2]);
                     }
                     //System.out.println(red + " " + green + " " + blue);
                     //System.out.print("new Color(" +red + ", " + green + ", " + blue + "),");
@@ -273,20 +367,19 @@ public class CustomPalette extends ThreadDraw {
                 }
                 
                 if(color_space == MainWindow.COLOR_SPACE_HSB) {
-                    float[] c1_hsb = new float[3];
-                    float[] c2_hsb = new float[3];
+                    ColorSpaceConverter con = new ColorSpaceConverter();
                     
-                    Color.RGBtoHSB(c1[1], c1[2], c1[3], c1_hsb);
-                    Color.RGBtoHSB(c2[1], c2[2], c2[3], c2_hsb);
+                    double[] c1_hsb = con.RGBtoHSB(c1[1], c1[2], c1[3]);
+                    double[] c2_hsb = con.RGBtoHSB(c2[1], c2[2], c2[3]);
+                    
+                    double h;
+                    double s = (c1_hsb[1] + (c2_hsb[1] - c1_hsb[1]) * coef);
+                    double b = (c1_hsb[2] + (c2_hsb[2] - c1_hsb[2]) * coef);
 
-                    float h;
-                    float s = (float)(c1_hsb[1] + (c2_hsb[1] - c1_hsb[1]) * coef);
-                    float b = (float)(c1_hsb[2] + (c2_hsb[2] - c1_hsb[2]) * coef);
+                    double d = c2_hsb[0] - c1_hsb[0];
+  
 
-
-                    float d = c2_hsb[0] - c1_hsb[0];
-
-                    float temp;
+                    double temp;
                     if (c1_hsb[0] > c2_hsb[0])  {
                         temp = c1_hsb[0];
                         c1_hsb[0] = c2_hsb[0];
@@ -295,15 +388,17 @@ public class CustomPalette extends ThreadDraw {
                         coef = 1 - coef;
                     }
 
-                    if(d > 0.5)  {
+                    if(d > 0.5)  {                      
                        c1_hsb[0] += 1; 
-                       h = ((float)(c1_hsb[0] + (c2_hsb[0] -  c1_hsb[0]) * coef)) % 1;
+                       h = ((c1_hsb[0] + (c2_hsb[0] -  c1_hsb[0]) * coef)) % 1;
                     } 
                     else {
-                       h = ((float)(c1_hsb[0] + coef * d));
+                       h = ((c1_hsb[0] + coef * d));
                     }
+                    
+                    int [] res = con.HSBtoRGB(h, s, b);
 
-                    palette[n + k] = Color.getHSBColor(h, s, b).getRGB();
+                    palette[n + k] = 0xff000000 | (res[0] << 16) | (res[1] << 8) | res[2];
                 }
                 else if(color_space == MainWindow.COLOR_SPACE_RGB) {         
                      red = (int)(c1[1] + (c2[1] - c1[1]) * coef);
@@ -313,22 +408,22 @@ public class CustomPalette extends ThreadDraw {
                      palette[n + k] = 0xff000000 | (red << 16) | (green << 8) | blue;
                 }
                 else if(color_space == MainWindow.COLOR_SPACE_EXP) {                   
-                     c2[1] = c2[1] == 0 ? c2[1] + 1 : c2[1];
-                     c2[2] = c2[2] == 0 ? c2[2] + 1 : c2[2];
-                     c2[3] = c2[3] == 0 ? c2[3] + 1 : c2[3];
+                     double c2_1 = c2[1] == 0 ? c2[1] + 1 : c2[1];
+                     double c2_2 = c2[2] == 0 ? c2[2] + 1 : c2[2];
+                     double c2_3 = c2[3] == 0 ? c2[3] + 1 : c2[3];
                      
-                     c1[1] = c1[1] == 0 ? c1[1] + 1 : c1[1];
-                     c1[2] = c1[2] == 0 ? c1[2] + 1 : c1[2];
-                     c1[3] = c1[3] == 0 ? c1[3] + 1 : c1[3];
+                     double c1_1 = c1[1] == 0 ? c1[1] + 1 : c1[1];
+                     double c1_2 = c1[2] == 0 ? c1[2] + 1 : c1[2];
+                     double c1_3 = c1[3] == 0 ? c1[3] + 1 : c1[3];
                      
-                     double to_r = Math.log(c2[1]);
-                     double from_r = Math.log(c1[1]);
+                     double to_r = Math.log(c2_1);
+                     double from_r = Math.log(c1_1);
                         
-                     double to_g = Math.log(c2[2]);
-                     double from_g = Math.log(c1[2]);
+                     double to_g = Math.log(c2_2);
+                     double from_g = Math.log(c1_2);
                         
-                     double to_b = Math.log(c2[3]);
-                     double from_b = Math.log(c1[3]);
+                     double to_b = Math.log(c2_3);
+                     double from_b = Math.log(c1_3);
                         
                      red = (int)(Math.exp(from_r + (to_r - from_r) * coef));
                      green = (int)(Math.exp(from_g + (to_g - from_g) * coef));
@@ -367,6 +462,98 @@ public class CustomPalette extends ThreadDraw {
                     blue = (int)(Math.sqrt(from_b + (to_b - from_b) * coef));
 
                     palette[n + k] = 0xff000000 | (red << 16) | (green << 8) | blue;
+                }
+                else if(color_space == MainWindow.COLOR_SPACE_RYB) {
+                    ColorSpaceConverter con = new ColorSpaceConverter();
+                    
+                    double[] ryb_from = con.RGBtoRYB(c1[1], c1[2], c1[3]);
+                    double[] ryb_to = con.RGBtoRYB(c2[1], c2[2], c2[3]);
+                    
+                    double r = (ryb_from[0] + (ryb_to[0] - ryb_from[0]) * coef);
+                    double y = (ryb_from[1] + (ryb_to[1] - ryb_from[1]) * coef);
+                    double b = (ryb_from[2] + (ryb_to[2] - ryb_from[2]) * coef);
+                    
+                    int[] rgb = con.RYBtoRGB(r, y, b);
+                    
+                    palette[n + k] = 0xff000000 | ((int)(rgb[0]) << 16) | ((int)(rgb[1]) << 8) | (int)(rgb[2]);
+                }
+                else if(color_space == MainWindow.COLOR_SPACE_LAB) {
+                    ColorSpaceConverter con = new ColorSpaceConverter();
+                     
+                    double [] from = con.RGBtoLAB(c1[1], c1[2], c1[3]);
+                     
+                    double [] to = con.RGBtoLAB(c2[1], c2[2], c2[3]);
+                     
+           
+                    double L = (from[0] + (to[0] - from[0]) * coef);
+                    double a = (from[1] + (to[1] - from[1]) * coef);
+                    double b = (from[2] + (to[2] - from[2]) * coef);
+              
+                    int [] res = con.LABtoRGB(L, a, b);
+                    
+                    res[0] = clamp(res[0]);
+                    res[1] = clamp(res[1]);
+                    res[2] = clamp(res[2]);
+
+                    palette[n + k] = 0xff000000 | ((int)(res[0]) << 16) | ((int)(res[1]) << 8) | (int)(res[2]);
+                }               
+                else if(color_space == MainWindow.COLOR_SPACE_XYZ) {
+                    ColorSpaceConverter con = new ColorSpaceConverter();
+                     
+                    double [] from = con.RGBtoXYZ(c1[1], c1[2], c1[3]);
+                     
+                    double [] to = con.RGBtoXYZ(c2[1], c2[2], c2[3]);
+                     
+           
+                    double X = (from[0] + (to[0] - from[0]) * coef);
+                    double Y = (from[1] + (to[1] - from[1]) * coef);
+                    double Z = (from[2] + (to[2] - from[2]) * coef);
+              
+                    int [] res = con.XYZtoRGB(X, Y, Z);
+                                       
+                    res[0] = clamp(res[0]);
+                    res[1] = clamp(res[1]);
+                    res[2] = clamp(res[2]);
+                          
+                    palette[n + k] = 0xff000000 | ((int)(res[0]) << 16) | ((int)(res[1]) << 8) | (int)(res[2]);
+                }
+                else if(color_space == MainWindow.COLOR_SPACE_LCH) {
+                    ColorSpaceConverter con = new ColorSpaceConverter();
+                     
+                    double [] from = con.RGBtoLCH(c1[1], c1[2], c1[3]);
+                     
+                    double [] to = con.RGBtoLCH(c2[1], c2[2], c2[3]);
+                               
+                    double L = (from[0] + (to[0] - from[0]) * coef);
+                    double C = (from[1] + (to[1] - from[1]) * coef);
+                    double H;
+                    
+                    double d = to[2] - from[2];
+
+                    double temp;
+                    if (from[2] > to[2])  {
+                        temp = from[2];
+                        from[2] = to[2];
+                        to[2] = temp;
+                        d = -d;
+                        coef = 1 - coef;
+                    }
+
+                    if(d > 180)  {
+                       from[2] += 360; 
+                       H = ((from[2] + (to[2] -  from[2]) * coef)) % 360.0;                   
+                    } 
+                    else {
+                       H = ((from[2] + coef * d));
+                    }
+              
+                    int [] res = con.LCHtoRGB(L, C, H);
+                                       
+                    res[0] = clamp(res[0]);
+                    res[1] = clamp(res[1]);
+                    res[2] = clamp(res[2]);
+                          
+                    palette[n + k] = 0xff000000 | ((int)(res[0]) << 16) | ((int)(res[1]) << 8) | (int)(res[2]);
                 }
                 
             }
@@ -450,20 +637,19 @@ public class CustomPalette extends ThreadDraw {
                 }
                 
                 if(color_space == MainWindow.COLOR_SPACE_HSB) {
-                    float[] c1_hsb = new float[3];
-                    float[] c2_hsb = new float[3];
+                    ColorSpaceConverter con = new ColorSpaceConverter();
                     
-                    Color.RGBtoHSB(c1[1], c1[2], c1[3], c1_hsb);
-                    Color.RGBtoHSB(c2[1], c2[2], c2[3], c2_hsb);
+                    double[] c1_hsb = con.RGBtoHSB(c1[1], c1[2], c1[3]);
+                    double[] c2_hsb = con.RGBtoHSB(c2[1], c2[2], c2[3]);
+                    
+                    double h;
+                    double s = (c1_hsb[1] + (c2_hsb[1] - c1_hsb[1]) * coef);
+                    double b = (c1_hsb[2] + (c2_hsb[2] - c1_hsb[2]) * coef);
 
-                    float h;
-                    float s = (float)(c1_hsb[1] + (c2_hsb[1] - c1_hsb[1]) * coef);
-                    float b = (float)(c1_hsb[2] + (c2_hsb[2] - c1_hsb[2]) * coef);
+                    double d = c2_hsb[0] - c1_hsb[0];
+  
 
-
-                    float d = c2_hsb[0] - c1_hsb[0];
-
-                    float temp;
+                    double temp;
                     if (c1_hsb[0] > c2_hsb[0])  {
                         temp = c1_hsb[0];
                         c1_hsb[0] = c2_hsb[0];
@@ -472,15 +658,17 @@ public class CustomPalette extends ThreadDraw {
                         coef = 1 - coef;
                     }
 
-                    if(d > 0.5)  {
+                    if(d > 0.5)  {                      
                        c1_hsb[0] += 1; 
-                       h = ((float)(c1_hsb[0] + (c2_hsb[0] -  c1_hsb[0]) * coef)) % 1;
+                       h = ((c1_hsb[0] + (c2_hsb[0] -  c1_hsb[0]) * coef)) % 1;
                     } 
                     else {
-                       h = ((float)(c1_hsb[0] + coef * d));
+                       h = ((c1_hsb[0] + coef * d));
                     }
+                    
+                    int [] res = con.HSBtoRGB(h, s, b);
 
-                    palette[n + k] = Color.getHSBColor(h, s, b).getRGB();
+                    palette[n + k] = 0xff000000 | (res[0] << 16) | (res[1] << 8) | res[2];
                 }
                 else if(color_space == MainWindow.COLOR_SPACE_RGB) {         
                      red = (int)(c1[1] + (c2[1] - c1[1]) * coef);
@@ -490,22 +678,22 @@ public class CustomPalette extends ThreadDraw {
                      palette[n + k] = 0xff000000 | (red << 16) | (green << 8) | blue;
                 }
                 else if(color_space == MainWindow.COLOR_SPACE_EXP) {
-                     c2[1] = c2[1] == 0 ? c2[1] + 1 : c2[1];
-                     c2[2] = c2[2] == 0 ? c2[2] + 1 : c2[2];
-                     c2[3] = c2[3] == 0 ? c2[3] + 1 : c2[3];
+                     double c2_1 = c2[1] == 0 ? c2[1] + 1 : c2[1];
+                     double c2_2 = c2[2] == 0 ? c2[2] + 1 : c2[2];
+                     double c2_3 = c2[3] == 0 ? c2[3] + 1 : c2[3];
                      
-                     c1[1] = c1[1] == 0 ? c1[1] + 1 : c1[1];
-                     c1[2] = c1[2] == 0 ? c1[2] + 1 : c1[2];
-                     c1[3] = c1[3] == 0 ? c1[3] + 1 : c1[3];
+                     double c1_1 = c1[1] == 0 ? c1[1] + 1 : c1[1];
+                     double c1_2 = c1[2] == 0 ? c1[2] + 1 : c1[2];
+                     double c1_3 = c1[3] == 0 ? c1[3] + 1 : c1[3];
                      
-                     double to_r = Math.log(c2[1]);
-                     double from_r = Math.log(c1[1]);
+                     double to_r = Math.log(c2_1);
+                     double from_r = Math.log(c1_1);
                         
-                     double to_g = Math.log(c2[2]);
-                     double from_g = Math.log(c1[2]);
+                     double to_g = Math.log(c2_2);
+                     double from_g = Math.log(c1_2);
                         
-                     double to_b = Math.log(c2[3]);
-                     double from_b = Math.log(c1[3]);
+                     double to_b = Math.log(c2_3);
+                     double from_b = Math.log(c1_3);
                         
                      red = (int)(Math.exp(from_r + (to_r - from_r) * coef));
                      green = (int)(Math.exp(from_g + (to_g - from_g) * coef));
@@ -544,6 +732,98 @@ public class CustomPalette extends ThreadDraw {
                     blue = (int)(Math.sqrt(from_b + (to_b - from_b) * coef));
 
                     palette[n + k] = 0xff000000 | (red << 16) | (green << 8) | blue;
+                }
+                else if(color_space == MainWindow.COLOR_SPACE_RYB) {
+                    ColorSpaceConverter con = new ColorSpaceConverter();
+                    
+                    double[] ryb_from = con.RGBtoRYB(c1[1], c1[2], c1[3]);
+                    double[] ryb_to = con.RGBtoRYB(c2[1], c2[2], c2[3]);
+                    
+                    double r = (ryb_from[0] + (ryb_to[0] - ryb_from[0]) * coef);
+                    double y = (ryb_from[1] + (ryb_to[1] - ryb_from[1]) * coef);
+                    double b = (ryb_from[2] + (ryb_to[2] - ryb_from[2]) * coef);
+                    
+                    int[] rgb = con.RYBtoRGB(r, y, b);
+                    
+                    palette[n + k] = 0xff000000 | ((int)(rgb[0]) << 16) | ((int)(rgb[1]) << 8) | (int)(rgb[2]);
+                }
+                else if(color_space == MainWindow.COLOR_SPACE_LAB) {
+                    ColorSpaceConverter con = new ColorSpaceConverter();
+                     
+                    double [] from = con.RGBtoLAB(c1[1], c1[2], c1[3]);
+                     
+                    double [] to = con.RGBtoLAB(c2[1], c2[2], c2[3]);
+                     
+           
+                    double L = (from[0] + (to[0] - from[0]) * coef);
+                    double a = (from[1] + (to[1] - from[1]) * coef);
+                    double b = (from[2] + (to[2] - from[2]) * coef);
+              
+                    int [] res = con.LABtoRGB(L, a, b);
+                    
+                    res[0] = clamp(res[0]);
+                    res[1] = clamp(res[1]);
+                    res[2] = clamp(res[2]);
+
+                    palette[n + k] = 0xff000000 | ((int)(res[0]) << 16) | ((int)(res[1]) << 8) | (int)(res[2]);
+                }               
+                else if(color_space == MainWindow.COLOR_SPACE_XYZ) {
+                    ColorSpaceConverter con = new ColorSpaceConverter();
+                     
+                    double [] from = con.RGBtoXYZ(c1[1], c1[2], c1[3]);
+                     
+                    double [] to = con.RGBtoXYZ(c2[1], c2[2], c2[3]);
+                     
+           
+                    double X = (from[0] + (to[0] - from[0]) * coef);
+                    double Y = (from[1] + (to[1] - from[1]) * coef);
+                    double Z = (from[2] + (to[2] - from[2]) * coef);
+              
+                    int [] res = con.XYZtoRGB(X, Y, Z);
+                                       
+                    res[0] = clamp(res[0]);
+                    res[1] = clamp(res[1]);
+                    res[2] = clamp(res[2]);
+                          
+                    palette[n + k] = 0xff000000 | ((int)(res[0]) << 16) | ((int)(res[1]) << 8) | (int)(res[2]);
+                }
+                else if(color_space == MainWindow.COLOR_SPACE_LCH) {
+                    ColorSpaceConverter con = new ColorSpaceConverter();
+                     
+                    double [] from = con.RGBtoLCH(c1[1], c1[2], c1[3]);
+                     
+                    double [] to = con.RGBtoLCH(c2[1], c2[2], c2[3]);
+                               
+                    double L = (from[0] + (to[0] - from[0]) * coef);
+                    double C = (from[1] + (to[1] - from[1]) * coef);
+                    double H;
+                    
+                    double d = to[2] - from[2];
+
+                    double temp;
+                    if (from[2] > to[2])  {
+                        temp = from[2];
+                        from[2] = to[2];
+                        to[2] = temp;
+                        d = -d;
+                        coef = 1 - coef;
+                    }
+
+                    if(d > 180)  {
+                       from[2] += 360; 
+                       H = ((from[2] + (to[2] -  from[2]) * coef)) % 360.0;                   
+                    } 
+                    else {
+                       H = ((from[2] + coef * d));
+                    }
+              
+                    int [] res = con.LCHtoRGB(L, C, H);
+                                       
+                    res[0] = clamp(res[0]);
+                    res[1] = clamp(res[1]);
+                    res[2] = clamp(res[2]);
+                          
+                    palette[n + k] = 0xff000000 | ((int)(res[0]) << 16) | ((int)(res[1]) << 8) | (int)(res[2]);
                 }
             }
             n += c1[0];
@@ -625,20 +905,19 @@ public class CustomPalette extends ThreadDraw {
                 }
                 
                 if(color_space == MainWindow.COLOR_SPACE_HSB) {
-                    float[] c1_hsb = new float[3];
-                    float[] c2_hsb = new float[3];
+                    ColorSpaceConverter con = new ColorSpaceConverter();
                     
-                    Color.RGBtoHSB(c1[1], c1[2], c1[3], c1_hsb);
-                    Color.RGBtoHSB(c2[1], c2[2], c2[3], c2_hsb);
+                    double[] c1_hsb = con.RGBtoHSB(c1[1], c1[2], c1[3]);
+                    double[] c2_hsb = con.RGBtoHSB(c2[1], c2[2], c2[3]);
+                    
+                    double h;
+                    double s = (c1_hsb[1] + (c2_hsb[1] - c1_hsb[1]) * coef);
+                    double b = (c1_hsb[2] + (c2_hsb[2] - c1_hsb[2]) * coef);
 
-                    float h;
-                    float s = (float)(c1_hsb[1] + (c2_hsb[1] - c1_hsb[1]) * coef);
-                    float b = (float)(c1_hsb[2] + (c2_hsb[2] - c1_hsb[2]) * coef);
+                    double d = c2_hsb[0] - c1_hsb[0];
+  
 
-
-                    float d = c2_hsb[0] - c1_hsb[0];
-
-                    float temp;
+                    double temp;
                     if (c1_hsb[0] > c2_hsb[0])  {
                         temp = c1_hsb[0];
                         c1_hsb[0] = c2_hsb[0];
@@ -647,15 +926,17 @@ public class CustomPalette extends ThreadDraw {
                         coef = 1 - coef;
                     }
 
-                    if(d > 0.5)  {
+                    if(d > 0.5)  {                      
                        c1_hsb[0] += 1; 
-                       h = ((float)(c1_hsb[0] + (c2_hsb[0] -  c1_hsb[0]) * coef)) % 1;
+                       h = ((c1_hsb[0] + (c2_hsb[0] -  c1_hsb[0]) * coef)) % 1;
                     } 
                     else {
-                       h = ((float)(c1_hsb[0] + coef * d));
+                       h = ((c1_hsb[0] + coef * d));
                     }
+                    
+                    int [] res = con.HSBtoRGB(h, s, b);
 
-                    palette[n + k] = Color.getHSBColor(h, s, b).getRGB();
+                    palette[n + k] = 0xff000000 | (res[0] << 16) | (res[1] << 8) | res[2];
                 }
                 else if(color_space == MainWindow.COLOR_SPACE_RGB) {         
                      red = (int)(c1[1] + (c2[1] - c1[1]) * coef);
@@ -665,22 +946,22 @@ public class CustomPalette extends ThreadDraw {
                      palette[n + k] = 0xff000000 | (red << 16) | (green << 8) | blue;
                 }
                 else if(color_space == MainWindow.COLOR_SPACE_EXP) {
-                     c2[1] = c2[1] == 0 ? c2[1] + 1 : c2[1];
-                     c2[2] = c2[2] == 0 ? c2[2] + 1 : c2[2];
-                     c2[3] = c2[3] == 0 ? c2[3] + 1 : c2[3];
+                     double c2_1 = c2[1] == 0 ? c2[1] + 1 : c2[1];
+                     double c2_2 = c2[2] == 0 ? c2[2] + 1 : c2[2];
+                     double c2_3 = c2[3] == 0 ? c2[3] + 1 : c2[3];
                      
-                     c1[1] = c1[1] == 0 ? c1[1] + 1 : c1[1];
-                     c1[2] = c1[2] == 0 ? c1[2] + 1 : c1[2];
-                     c1[3] = c1[3] == 0 ? c1[3] + 1 : c1[3];
+                     double c1_1 = c1[1] == 0 ? c1[1] + 1 : c1[1];
+                     double c1_2 = c1[2] == 0 ? c1[2] + 1 : c1[2];
+                     double c1_3 = c1[3] == 0 ? c1[3] + 1 : c1[3];
                      
-                     double to_r = Math.log(c2[1]);
-                     double from_r = Math.log(c1[1]);
+                     double to_r = Math.log(c2_1);
+                     double from_r = Math.log(c1_1);
                         
-                     double to_g = Math.log(c2[2]);
-                     double from_g = Math.log(c1[2]);
+                     double to_g = Math.log(c2_2);
+                     double from_g = Math.log(c1_2);
                         
-                     double to_b = Math.log(c2[3]);
-                     double from_b = Math.log(c1[3]);
+                     double to_b = Math.log(c2_3);
+                     double from_b = Math.log(c1_3);
                         
                      red = (int)(Math.exp(from_r + (to_r - from_r) * coef));
                      green = (int)(Math.exp(from_g + (to_g - from_g) * coef));
@@ -719,6 +1000,98 @@ public class CustomPalette extends ThreadDraw {
                     blue = (int)(Math.sqrt(from_b + (to_b - from_b) * coef));
 
                     palette[n + k] = 0xff000000 | (red << 16) | (green << 8) | blue;
+                }
+                else if(color_space == MainWindow.COLOR_SPACE_RYB) {
+                    ColorSpaceConverter con = new ColorSpaceConverter();
+                    
+                    double[] ryb_from = con.RGBtoRYB(c1[1], c1[2], c1[3]);
+                    double[] ryb_to = con.RGBtoRYB(c2[1], c2[2], c2[3]);
+                    
+                    double r = (ryb_from[0] + (ryb_to[0] - ryb_from[0]) * coef);
+                    double y = (ryb_from[1] + (ryb_to[1] - ryb_from[1]) * coef);
+                    double b = (ryb_from[2] + (ryb_to[2] - ryb_from[2]) * coef);
+                    
+                    int[] rgb = con.RYBtoRGB(r, y, b);
+                    
+                    palette[n + k] = 0xff000000 | ((int)(rgb[0]) << 16) | ((int)(rgb[1]) << 8) | (int)(rgb[2]);
+                }
+                else if(color_space == MainWindow.COLOR_SPACE_LAB) {
+                    ColorSpaceConverter con = new ColorSpaceConverter();
+                     
+                    double [] from = con.RGBtoLAB(c1[1], c1[2], c1[3]);
+                     
+                    double [] to = con.RGBtoLAB(c2[1], c2[2], c2[3]);
+                     
+           
+                    double L = (from[0] + (to[0] - from[0]) * coef);
+                    double a = (from[1] + (to[1] - from[1]) * coef);
+                    double b = (from[2] + (to[2] - from[2]) * coef);
+              
+                    int [] res = con.LABtoRGB(L, a, b);
+                    
+                    res[0] = clamp(res[0]);
+                    res[1] = clamp(res[1]);
+                    res[2] = clamp(res[2]);
+
+                    palette[n + k] = 0xff000000 | ((int)(res[0]) << 16) | ((int)(res[1]) << 8) | (int)(res[2]);
+                }               
+                else if(color_space == MainWindow.COLOR_SPACE_XYZ) {
+                    ColorSpaceConverter con = new ColorSpaceConverter();
+                     
+                    double [] from = con.RGBtoXYZ(c1[1], c1[2], c1[3]);
+                     
+                    double [] to = con.RGBtoXYZ(c2[1], c2[2], c2[3]);
+                     
+           
+                    double X = (from[0] + (to[0] - from[0]) * coef);
+                    double Y = (from[1] + (to[1] - from[1]) * coef);
+                    double Z = (from[2] + (to[2] - from[2]) * coef);
+              
+                    int [] res = con.XYZtoRGB(X, Y, Z);
+                                       
+                    res[0] = clamp(res[0]);
+                    res[1] = clamp(res[1]);
+                    res[2] = clamp(res[2]);
+                          
+                    palette[n + k] = 0xff000000 | ((int)(res[0]) << 16) | ((int)(res[1]) << 8) | (int)(res[2]);
+                }
+                else if(color_space == MainWindow.COLOR_SPACE_LCH) {
+                    ColorSpaceConverter con = new ColorSpaceConverter();
+                     
+                    double [] from = con.RGBtoLCH(c1[1], c1[2], c1[3]);
+                     
+                    double [] to = con.RGBtoLCH(c2[1], c2[2], c2[3]);
+                               
+                    double L = (from[0] + (to[0] - from[0]) * coef);
+                    double C = (from[1] + (to[1] - from[1]) * coef);
+                    double H;
+                    
+                    double d = to[2] - from[2];
+
+                    double temp;
+                    if (from[2] > to[2])  {
+                        temp = from[2];
+                        from[2] = to[2];
+                        to[2] = temp;
+                        d = -d;
+                        coef = 1 - coef;
+                    }
+
+                    if(d > 180)  {
+                       from[2] += 360; 
+                       H = ((from[2] + (to[2] -  from[2]) * coef)) % 360.0;                   
+                    } 
+                    else {
+                       H = ((from[2] + coef * d));
+                    }
+              
+                    int [] res = con.LCHtoRGB(L, C, H);
+                                       
+                    res[0] = clamp(res[0]);
+                    res[1] = clamp(res[1]);
+                    res[2] = clamp(res[2]);
+                          
+                    palette[n + k] = 0xff000000 | ((int)(res[0]) << 16) | ((int)(res[1]) << 8) | (int)(res[2]);
                 }
             }
             n += c1[0];
@@ -800,20 +1173,19 @@ public class CustomPalette extends ThreadDraw {
                 }
                 
                 if(color_space == MainWindow.COLOR_SPACE_HSB) {
-                    float[] c1_hsb = new float[3];
-                    float[] c2_hsb = new float[3];
+                    ColorSpaceConverter con = new ColorSpaceConverter();
                     
-                    Color.RGBtoHSB(c1[1], c1[2], c1[3], c1_hsb);
-                    Color.RGBtoHSB(c2[1], c2[2], c2[3], c2_hsb);
+                    double[] c1_hsb = con.RGBtoHSB(c1[1], c1[2], c1[3]);
+                    double[] c2_hsb = con.RGBtoHSB(c2[1], c2[2], c2[3]);
+                    
+                    double h;
+                    double s = (c1_hsb[1] + (c2_hsb[1] - c1_hsb[1]) * coef);
+                    double b = (c1_hsb[2] + (c2_hsb[2] - c1_hsb[2]) * coef);
 
-                    float h;
-                    float s = (float)(c1_hsb[1] + (c2_hsb[1] - c1_hsb[1]) * coef);
-                    float b = (float)(c1_hsb[2] + (c2_hsb[2] - c1_hsb[2]) * coef);
+                    double d = c2_hsb[0] - c1_hsb[0];
+  
 
-
-                    float d = c2_hsb[0] - c1_hsb[0];
-
-                    float temp;
+                    double temp;
                     if (c1_hsb[0] > c2_hsb[0])  {
                         temp = c1_hsb[0];
                         c1_hsb[0] = c2_hsb[0];
@@ -822,15 +1194,17 @@ public class CustomPalette extends ThreadDraw {
                         coef = 1 - coef;
                     }
 
-                    if(d > 0.5)  {
+                    if(d > 0.5)  {                      
                        c1_hsb[0] += 1; 
-                       h = ((float)(c1_hsb[0] + (c2_hsb[0] -  c1_hsb[0]) * coef)) % 1;
+                       h = ((c1_hsb[0] + (c2_hsb[0] -  c1_hsb[0]) * coef)) % 1;
                     } 
                     else {
-                       h = ((float)(c1_hsb[0] + coef * d));
+                       h = ((c1_hsb[0] + coef * d));
                     }
+                    
+                    int [] res = con.HSBtoRGB(h, s, b);
 
-                    palette[n + k] = Color.getHSBColor(h, s, b).getRGB();
+                    palette[n + k] = 0xff000000 | (res[0] << 16) | (res[1] << 8) | res[2];
                 }
                 else if(color_space == MainWindow.COLOR_SPACE_RGB) {         
                      red = (int)(c1[1] + (c2[1] - c1[1]) * coef);
@@ -840,22 +1214,22 @@ public class CustomPalette extends ThreadDraw {
                      palette[n + k] = 0xff000000 | (red << 16) | (green << 8) | blue;
                 }
                 else if(color_space == MainWindow.COLOR_SPACE_EXP) {
-                     c2[1] = c2[1] == 0 ? c2[1] + 1 : c2[1];
-                     c2[2] = c2[2] == 0 ? c2[2] + 1 : c2[2];
-                     c2[3] = c2[3] == 0 ? c2[3] + 1 : c2[3];
+                     double c2_1 = c2[1] == 0 ? c2[1] + 1 : c2[1];
+                     double c2_2 = c2[2] == 0 ? c2[2] + 1 : c2[2];
+                     double c2_3 = c2[3] == 0 ? c2[3] + 1 : c2[3];
                      
-                     c1[1] = c1[1] == 0 ? c1[1] + 1 : c1[1];
-                     c1[2] = c1[2] == 0 ? c1[2] + 1 : c1[2];
-                     c1[3] = c1[3] == 0 ? c1[3] + 1 : c1[3];
+                     double c1_1 = c1[1] == 0 ? c1[1] + 1 : c1[1];
+                     double c1_2 = c1[2] == 0 ? c1[2] + 1 : c1[2];
+                     double c1_3 = c1[3] == 0 ? c1[3] + 1 : c1[3];
                      
-                     double to_r = Math.log(c2[1]);
-                     double from_r = Math.log(c1[1]);
+                     double to_r = Math.log(c2_1);
+                     double from_r = Math.log(c1_1);
                         
-                     double to_g = Math.log(c2[2]);
-                     double from_g = Math.log(c1[2]);
+                     double to_g = Math.log(c2_2);
+                     double from_g = Math.log(c1_2);
                         
-                     double to_b = Math.log(c2[3]);
-                     double from_b = Math.log(c1[3]);
+                     double to_b = Math.log(c2_3);
+                     double from_b = Math.log(c1_3);
                         
                      red = (int)(Math.exp(from_r + (to_r - from_r) * coef));
                      green = (int)(Math.exp(from_g + (to_g - from_g) * coef));
@@ -894,6 +1268,98 @@ public class CustomPalette extends ThreadDraw {
                     blue = (int)(Math.sqrt(from_b + (to_b - from_b) * coef));
 
                     palette[n + k] = 0xff000000 | (red << 16) | (green << 8) | blue;
+                }
+                else if(color_space == MainWindow.COLOR_SPACE_RYB) {
+                    ColorSpaceConverter con = new ColorSpaceConverter();
+                    
+                    double[] ryb_from = con.RGBtoRYB(c1[1], c1[2], c1[3]);
+                    double[] ryb_to = con.RGBtoRYB(c2[1], c2[2], c2[3]);
+                    
+                    double r = (ryb_from[0] + (ryb_to[0] - ryb_from[0]) * coef);
+                    double y = (ryb_from[1] + (ryb_to[1] - ryb_from[1]) * coef);
+                    double b = (ryb_from[2] + (ryb_to[2] - ryb_from[2]) * coef);
+                    
+                    int[] rgb = con.RYBtoRGB(r, y, b);
+                    
+                    palette[n + k] = 0xff000000 | ((int)(rgb[0]) << 16) | ((int)(rgb[1]) << 8) | (int)(rgb[2]);
+                }
+                else if(color_space == MainWindow.COLOR_SPACE_LAB) {
+                    ColorSpaceConverter con = new ColorSpaceConverter();
+                     
+                    double [] from = con.RGBtoLAB(c1[1], c1[2], c1[3]);
+                     
+                    double [] to = con.RGBtoLAB(c2[1], c2[2], c2[3]);
+                     
+           
+                    double L = (from[0] + (to[0] - from[0]) * coef);
+                    double a = (from[1] + (to[1] - from[1]) * coef);
+                    double b = (from[2] + (to[2] - from[2]) * coef);
+              
+                    int [] res = con.LABtoRGB(L, a, b);
+                    
+                    res[0] = clamp(res[0]);
+                    res[1] = clamp(res[1]);
+                    res[2] = clamp(res[2]);
+
+                    palette[n + k] = 0xff000000 | ((int)(res[0]) << 16) | ((int)(res[1]) << 8) | (int)(res[2]);
+                }               
+                else if(color_space == MainWindow.COLOR_SPACE_XYZ) {
+                    ColorSpaceConverter con = new ColorSpaceConverter();
+                     
+                    double [] from = con.RGBtoXYZ(c1[1], c1[2], c1[3]);
+                     
+                    double [] to = con.RGBtoXYZ(c2[1], c2[2], c2[3]);
+                     
+           
+                    double X = (from[0] + (to[0] - from[0]) * coef);
+                    double Y = (from[1] + (to[1] - from[1]) * coef);
+                    double Z = (from[2] + (to[2] - from[2]) * coef);
+              
+                    int [] res = con.XYZtoRGB(X, Y, Z);
+                                       
+                    res[0] = clamp(res[0]);
+                    res[1] = clamp(res[1]);
+                    res[2] = clamp(res[2]);
+                          
+                    palette[n + k] = 0xff000000 | ((int)(res[0]) << 16) | ((int)(res[1]) << 8) | (int)(res[2]);
+                }
+                else if(color_space == MainWindow.COLOR_SPACE_LCH) {
+                    ColorSpaceConverter con = new ColorSpaceConverter();
+                     
+                    double [] from = con.RGBtoLCH(c1[1], c1[2], c1[3]);
+                     
+                    double [] to = con.RGBtoLCH(c2[1], c2[2], c2[3]);
+                               
+                    double L = (from[0] + (to[0] - from[0]) * coef);
+                    double C = (from[1] + (to[1] - from[1]) * coef);
+                    double H;
+                    
+                    double d = to[2] - from[2];
+
+                    double temp;
+                    if (from[2] > to[2])  {
+                        temp = from[2];
+                        from[2] = to[2];
+                        to[2] = temp;
+                        d = -d;
+                        coef = 1 - coef;
+                    }
+
+                    if(d > 180)  {
+                       from[2] += 360; 
+                       H = ((from[2] + (to[2] -  from[2]) * coef)) % 360.0;                   
+                    } 
+                    else {
+                       H = ((from[2] + coef * d));
+                    }
+              
+                    int [] res = con.LCHtoRGB(L, C, H);
+                                       
+                    res[0] = clamp(res[0]);
+                    res[1] = clamp(res[1]);
+                    res[2] = clamp(res[2]);
+                          
+                    palette[n + k] = 0xff000000 | ((int)(res[0]) << 16) | ((int)(res[1]) << 8) | (int)(res[2]);
                 }
             }
             n += c1[0];
@@ -975,20 +1441,19 @@ public class CustomPalette extends ThreadDraw {
                 }
                 
                 if(color_space == MainWindow.COLOR_SPACE_HSB) {
-                    float[] c1_hsb = new float[3];
-                    float[] c2_hsb = new float[3];
+                    ColorSpaceConverter con = new ColorSpaceConverter();
                     
-                    Color.RGBtoHSB(c1[1], c1[2], c1[3], c1_hsb);
-                    Color.RGBtoHSB(c2[1], c2[2], c2[3], c2_hsb);
+                    double[] c1_hsb = con.RGBtoHSB(c1[1], c1[2], c1[3]);
+                    double[] c2_hsb = con.RGBtoHSB(c2[1], c2[2], c2[3]);
+                    
+                    double h;
+                    double s = (c1_hsb[1] + (c2_hsb[1] - c1_hsb[1]) * coef);
+                    double b = (c1_hsb[2] + (c2_hsb[2] - c1_hsb[2]) * coef);
 
-                    float h;
-                    float s = (float)(c1_hsb[1] + (c2_hsb[1] - c1_hsb[1]) * coef);
-                    float b = (float)(c1_hsb[2] + (c2_hsb[2] - c1_hsb[2]) * coef);
+                    double d = c2_hsb[0] - c1_hsb[0];
+  
 
-
-                    float d = c2_hsb[0] - c1_hsb[0];
-
-                    float temp;
+                    double temp;
                     if (c1_hsb[0] > c2_hsb[0])  {
                         temp = c1_hsb[0];
                         c1_hsb[0] = c2_hsb[0];
@@ -997,15 +1462,17 @@ public class CustomPalette extends ThreadDraw {
                         coef = 1 - coef;
                     }
 
-                    if(d > 0.5)  {
+                    if(d > 0.5)  {                      
                        c1_hsb[0] += 1; 
-                       h = ((float)(c1_hsb[0] + (c2_hsb[0] -  c1_hsb[0]) * coef)) % 1;
+                       h = ((c1_hsb[0] + (c2_hsb[0] -  c1_hsb[0]) * coef)) % 1;
                     } 
                     else {
-                       h = ((float)(c1_hsb[0] + coef * d));
+                       h = ((c1_hsb[0] + coef * d));
                     }
+                    
+                    int [] res = con.HSBtoRGB(h, s, b);
 
-                    palette[n + k] = Color.getHSBColor(h, s, b).getRGB();
+                    palette[n + k] = 0xff000000 | (res[0] << 16) | (res[1] << 8) | res[2];
                 }
                 else if(color_space == MainWindow.COLOR_SPACE_RGB) {         
                      red = (int)(c1[1] + (c2[1] - c1[1]) * coef);
@@ -1015,22 +1482,22 @@ public class CustomPalette extends ThreadDraw {
                      palette[n + k] = 0xff000000 | (red << 16) | (green << 8) | blue;
                 }
                 else if(color_space == MainWindow.COLOR_SPACE_EXP) {
-                     c2[1] = c2[1] == 0 ? c2[1] + 1 : c2[1];
-                     c2[2] = c2[2] == 0 ? c2[2] + 1 : c2[2];
-                     c2[3] = c2[3] == 0 ? c2[3] + 1 : c2[3];
+                     double c2_1 = c2[1] == 0 ? c2[1] + 1 : c2[1];
+                     double c2_2 = c2[2] == 0 ? c2[2] + 1 : c2[2];
+                     double c2_3 = c2[3] == 0 ? c2[3] + 1 : c2[3];
                      
-                     c1[1] = c1[1] == 0 ? c1[1] + 1 : c1[1];
-                     c1[2] = c1[2] == 0 ? c1[2] + 1 : c1[2];
-                     c1[3] = c1[3] == 0 ? c1[3] + 1 : c1[3];
+                     double c1_1 = c1[1] == 0 ? c1[1] + 1 : c1[1];
+                     double c1_2 = c1[2] == 0 ? c1[2] + 1 : c1[2];
+                     double c1_3 = c1[3] == 0 ? c1[3] + 1 : c1[3];
                      
-                     double to_r = Math.log(c2[1]);
-                     double from_r = Math.log(c1[1]);
+                     double to_r = Math.log(c2_1);
+                     double from_r = Math.log(c1_1);
                         
-                     double to_g = Math.log(c2[2]);
-                     double from_g = Math.log(c1[2]);
+                     double to_g = Math.log(c2_2);
+                     double from_g = Math.log(c1_2);
                         
-                     double to_b = Math.log(c2[3]);
-                     double from_b = Math.log(c1[3]);
+                     double to_b = Math.log(c2_3);
+                     double from_b = Math.log(c1_3);
                         
                      red = (int)(Math.exp(from_r + (to_r - from_r) * coef));
                      green = (int)(Math.exp(from_g + (to_g - from_g) * coef));
@@ -1069,7 +1536,99 @@ public class CustomPalette extends ThreadDraw {
                     blue = (int)(Math.sqrt(from_b + (to_b - from_b) * coef));
 
                     palette[n + k] = 0xff000000 | (red << 16) | (green << 8) | blue;
-                }         
+                }
+                else if(color_space == MainWindow.COLOR_SPACE_RYB) {
+                    ColorSpaceConverter con = new ColorSpaceConverter();
+                    
+                    double[] ryb_from = con.RGBtoRYB(c1[1], c1[2], c1[3]);
+                    double[] ryb_to = con.RGBtoRYB(c2[1], c2[2], c2[3]);
+                    
+                    double r = (ryb_from[0] + (ryb_to[0] - ryb_from[0]) * coef);
+                    double y = (ryb_from[1] + (ryb_to[1] - ryb_from[1]) * coef);
+                    double b = (ryb_from[2] + (ryb_to[2] - ryb_from[2]) * coef);
+                    
+                    int[] rgb = con.RYBtoRGB(r, y, b);
+                    
+                    palette[n + k] = 0xff000000 | ((int)(rgb[0]) << 16) | ((int)(rgb[1]) << 8) | (int)(rgb[2]);
+                }
+                else if(color_space == MainWindow.COLOR_SPACE_LAB) {
+                    ColorSpaceConverter con = new ColorSpaceConverter();
+                     
+                    double [] from = con.RGBtoLAB(c1[1], c1[2], c1[3]);
+                     
+                    double [] to = con.RGBtoLAB(c2[1], c2[2], c2[3]);
+                     
+           
+                    double L = (from[0] + (to[0] - from[0]) * coef);
+                    double a = (from[1] + (to[1] - from[1]) * coef);
+                    double b = (from[2] + (to[2] - from[2]) * coef);
+              
+                    int [] res = con.LABtoRGB(L, a, b);
+                    
+                    res[0] = clamp(res[0]);
+                    res[1] = clamp(res[1]);
+                    res[2] = clamp(res[2]);
+
+                    palette[n + k] = 0xff000000 | ((int)(res[0]) << 16) | ((int)(res[1]) << 8) | (int)(res[2]);
+                }               
+                else if(color_space == MainWindow.COLOR_SPACE_XYZ) {
+                    ColorSpaceConverter con = new ColorSpaceConverter();
+                     
+                    double [] from = con.RGBtoXYZ(c1[1], c1[2], c1[3]);
+                     
+                    double [] to = con.RGBtoXYZ(c2[1], c2[2], c2[3]);
+                     
+           
+                    double X = (from[0] + (to[0] - from[0]) * coef);
+                    double Y = (from[1] + (to[1] - from[1]) * coef);
+                    double Z = (from[2] + (to[2] - from[2]) * coef);
+              
+                    int [] res = con.XYZtoRGB(X, Y, Z);
+                                       
+                    res[0] = clamp(res[0]);
+                    res[1] = clamp(res[1]);
+                    res[2] = clamp(res[2]);
+                          
+                    palette[n + k] = 0xff000000 | ((int)(res[0]) << 16) | ((int)(res[1]) << 8) | (int)(res[2]);
+                }
+                else if(color_space == MainWindow.COLOR_SPACE_LCH) {
+                    ColorSpaceConverter con = new ColorSpaceConverter();
+                     
+                    double [] from = con.RGBtoLCH(c1[1], c1[2], c1[3]);
+                     
+                    double [] to = con.RGBtoLCH(c2[1], c2[2], c2[3]);
+                               
+                    double L = (from[0] + (to[0] - from[0]) * coef);
+                    double C = (from[1] + (to[1] - from[1]) * coef);
+                    double H;
+                    
+                    double d = to[2] - from[2];
+
+                    double temp;
+                    if (from[2] > to[2])  {
+                        temp = from[2];
+                        from[2] = to[2];
+                        to[2] = temp;
+                        d = -d;
+                        coef = 1 - coef;
+                    }
+
+                    if(d > 180)  {
+                       from[2] += 360; 
+                       H = ((from[2] + (to[2] -  from[2]) * coef)) % 360.0;                   
+                    } 
+                    else {
+                       H = ((from[2] + coef * d));
+                    }
+              
+                    int [] res = con.LCHtoRGB(L, C, H);
+                                       
+                    res[0] = clamp(res[0]);
+                    res[1] = clamp(res[1]);
+                    res[2] = clamp(res[2]);
+                          
+                    palette[n + k] = 0xff000000 | ((int)(res[0]) << 16) | ((int)(res[1]) << 8) | (int)(res[2]);
+                }
             }
             n += c1[0];
         }
@@ -1088,8 +1647,7 @@ public class CustomPalette extends ThreadDraw {
         super(FROMx, TOx, FROMy, TOy, detail, fiX, fiY, d3_draw_method, ptr, image, filters, filters_options_vals);
         
     }
-    
-    
+      
      public static Color[] getPalette(int[][] custom_palette, int color_interpolation, int color_space, boolean reverse, int color_cycling_location) {
 
         int n = 0, counter = 0;
@@ -1158,19 +1716,19 @@ public class CustomPalette extends ThreadDraw {
                 }
                 
                 if(color_space == MainWindow.COLOR_SPACE_HSB) {
-                    float[] c1_hsb = new float[3];
-                    float[] c2_hsb = new float[3];
+                    ColorSpaceConverter con = new ColorSpaceConverter();
                     
-                    Color.RGBtoHSB(c1[1], c1[2], c1[3], c1_hsb);
-                    Color.RGBtoHSB(c2[1], c2[2], c2[3], c2_hsb);
+                    double[] c1_hsb = con.RGBtoHSB(c1[1], c1[2], c1[3]);
+                    double[] c2_hsb = con.RGBtoHSB(c2[1], c2[2], c2[3]);
+                    
+                    double h;
+                    double s = (c1_hsb[1] + (c2_hsb[1] - c1_hsb[1]) * coef);
+                    double b = (c1_hsb[2] + (c2_hsb[2] - c1_hsb[2]) * coef);
 
-                    float h;
-                    float s = (float)(c1_hsb[1] + (c2_hsb[1] - c1_hsb[1]) * coef);
-                    float b = (float)(c1_hsb[2] + (c2_hsb[2] - c1_hsb[2]) * coef);
+                    double d = c2_hsb[0] - c1_hsb[0];
+  
 
-                    float d = c2_hsb[0] - c1_hsb[0];
-
-                    float temp;
+                    double temp;
                     if (c1_hsb[0] > c2_hsb[0])  {
                         temp = c1_hsb[0];
                         c1_hsb[0] = c2_hsb[0];
@@ -1179,18 +1737,19 @@ public class CustomPalette extends ThreadDraw {
                         coef = 1 - coef;
                     }
 
-                    if(d > 0.5)  {
+                    if(d > 0.5)  {                      
                        c1_hsb[0] += 1; 
-                       h = ((float)(c1_hsb[0] + (c2_hsb[0] -  c1_hsb[0]) * coef)) % 1;
+                       h = ((c1_hsb[0] + (c2_hsb[0] -  c1_hsb[0]) * coef)) % 1;
                     } 
                     else {
-                       h = ((float)(c1_hsb[0] + coef * d));
+                       h = ((c1_hsb[0] + coef * d));
                     }
-
-                    palette[(n + k) % palette.length] = Color.getHSBColor(h, s, b);
-   
+                    
+                    int [] res = con.HSBtoRGB(h, s, b);
+                          
+                    palette[(n + k) % palette.length] = new Color(res[0], res[1], res[2]);
                 }
-                else if(color_space == MainWindow.COLOR_SPACE_RGB) {         
+                else if(color_space == MainWindow.COLOR_SPACE_RGB) {    
                      red = (int)(c1[1] + (c2[1] - c1[1]) * coef);
                      green = (int)(c1[2] + (c2[2] - c1[2]) * coef);
                      blue = (int)(c1[3] + (c2[3] - c1[3]) * coef);
@@ -1198,28 +1757,29 @@ public class CustomPalette extends ThreadDraw {
                      palette[(n + k) % palette.length] = new Color(red, green, blue);
                 }
                 else if(color_space == MainWindow.COLOR_SPACE_EXP) {
-                     c2[1] = c2[1] == 0 ? c2[1] + 1 : c2[1];
-                     c2[2] = c2[2] == 0 ? c2[2] + 1 : c2[2];
-                     c2[3] = c2[3] == 0 ? c2[3] + 1 : c2[3];
+                     double c2_1 = c2[1] == 0 ? c2[1] + 1 : c2[1];
+                     double c2_2 = c2[2] == 0 ? c2[2] + 1 : c2[2];
+                     double c2_3 = c2[3] == 0 ? c2[3] + 1 : c2[3];
                      
-                     c1[1] = c1[1] == 0 ? c1[1] + 1 : c1[1];
-                     c1[2] = c1[2] == 0 ? c1[2] + 1 : c1[2];
-                     c1[3] = c1[3] == 0 ? c1[3] + 1 : c1[3];
+                     double c1_1 = c1[1] == 0 ? c1[1] + 1 : c1[1];
+                     double c1_2 = c1[2] == 0 ? c1[2] + 1 : c1[2];
+                     double c1_3 = c1[3] == 0 ? c1[3] + 1 : c1[3];
                      
-                     double to_r = Math.log(c2[1]);
-                     double from_r = Math.log(c1[1]);
+                     double to_r = Math.log(c2_1);
+                     double from_r = Math.log(c1_1);
                         
-                     double to_g = Math.log(c2[2]);
-                     double from_g = Math.log(c1[2]);
+                     double to_g = Math.log(c2_2);
+                     double from_g = Math.log(c1_2);
                         
-                     double to_b = Math.log(c2[3]);
-                     double from_b = Math.log(c1[3]);
+                     double to_b = Math.log(c2_3);
+                     double from_b = Math.log(c1_3);
                         
                      red = (int)(Math.exp(from_r + (to_r - from_r) * coef));
                      green = (int)(Math.exp(from_g + (to_g - from_g) * coef));
                      blue = (int)(Math.exp(from_b + (to_b - from_b) * coef));
-
+                    
                      palette[(n + k) % palette.length] = new Color(red, green, blue);
+                     
                 }
                 else if(color_space == MainWindow.COLOR_SPACE_SQUARE) {
                     double to_r = Math.sqrt(c2[1]);
@@ -1253,14 +1813,118 @@ public class CustomPalette extends ThreadDraw {
 
                     palette[(n + k) % palette.length] = new Color(red, green, blue);
                 }
+                else if(color_space == MainWindow.COLOR_SPACE_RYB) {
+                    ColorSpaceConverter con = new ColorSpaceConverter();
+                    
+                    double[] ryb_from = con.RGBtoRYB(c1[1], c1[2], c1[3]);
+                    double[] ryb_to = con.RGBtoRYB(c2[1], c2[2], c2[3]);
+                    
+                    double r = (ryb_from[0] + (ryb_to[0] - ryb_from[0]) * coef);
+                    double y = (ryb_from[1] + (ryb_to[1] - ryb_from[1]) * coef);
+                    double b = (ryb_from[2] + (ryb_to[2] - ryb_from[2]) * coef);
+                    
+                    int[] rgb = con.RYBtoRGB(r, y, b);
+                    
+                    palette[(n + k) % palette.length] = new Color(rgb[0], rgb[1], rgb[2]);
+                }
+                else if(color_space == MainWindow.COLOR_SPACE_LAB) {
+                    ColorSpaceConverter con = new ColorSpaceConverter();
+                     
+                    double [] from = con.RGBtoLAB(c1[1], c1[2], c1[3]);
+                     
+                    double [] to = con.RGBtoLAB(c2[1], c2[2], c2[3]);
+                     
+           
+                    double L = (from[0] + (to[0] - from[0]) * coef);
+                    double a = (from[1] + (to[1] - from[1]) * coef);
+                    double b = (from[2] + (to[2] - from[2]) * coef);
+              
+                    int [] res = con.LABtoRGB(L, a, b);
+                    
+                    res[0] = clamp(res[0]);
+                    res[1] = clamp(res[1]);
+                    res[2] = clamp(res[2]);
+
+                    palette[(n + k) % palette.length] = new Color(res[0], res[1], res[2]);
+                }               
+                else if(color_space == MainWindow.COLOR_SPACE_XYZ) {
+                    ColorSpaceConverter con = new ColorSpaceConverter();
+                     
+                    double [] from = con.RGBtoXYZ(c1[1], c1[2], c1[3]);
+                     
+                    double [] to = con.RGBtoXYZ(c2[1], c2[2], c2[3]);
+                     
+           
+                    double X = (from[0] + (to[0] - from[0]) * coef);
+                    double Y = (from[1] + (to[1] - from[1]) * coef);
+                    double Z = (from[2] + (to[2] - from[2]) * coef);
+              
+                    int [] res = con.XYZtoRGB(X, Y, Z);
+                                       
+                    res[0] = clamp(res[0]);
+                    res[1] = clamp(res[1]);
+                    res[2] = clamp(res[2]);
+                          
+                    palette[(n + k) % palette.length] = new Color(res[0], res[1], res[2]);
+                }
+                else if(color_space == MainWindow.COLOR_SPACE_LCH) {
+                    ColorSpaceConverter con = new ColorSpaceConverter();
+                     
+                    double [] from = con.RGBtoLCH(c1[1], c1[2], c1[3]);
+                     
+                    double [] to = con.RGBtoLCH(c2[1], c2[2], c2[3]);
+                               
+                    double L = (from[0] + (to[0] - from[0]) * coef);
+                    double C = (from[1] + (to[1] - from[1]) * coef);
+                    double H;
+                    
+                    double d = to[2] - from[2];
+
+                    double temp;
+                    if (from[2] > to[2])  {
+                        temp = from[2];
+                        from[2] = to[2];
+                        to[2] = temp;
+                        d = -d;
+                        coef = 1 - coef;
+                    }
+
+                    if(d > 180)  {
+                       from[2] += 360; 
+                       H = ((from[2] + (to[2] -  from[2]) * coef)) % 360.0;                   
+                    } 
+                    else {
+                       H = ((from[2] + coef * d));
+                    }
+              
+                    int [] res = con.LCHtoRGB(L, C, H);
+                                       
+                    res[0] = clamp(res[0]);
+                    res[1] = clamp(res[1]);
+                    res[2] = clamp(res[2]);
+                          
+                    palette[(n + k) % palette.length] = new Color(res[0], res[1], res[2]);
+                }  
             }
             
             n += c1[0];
         }
-        
+
 
         return palette;
 
+    }
+     
+    private static int clamp(int c) {
+        
+        if(c < 0) {
+            return 0;
+        }
+	if(c > 255) {
+            return 255;
+        }
+	return c;
+                
     }
  
 

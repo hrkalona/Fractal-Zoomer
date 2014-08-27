@@ -155,7 +155,7 @@ public class Secant3 extends RootFindingMethods {
       double temp = 0;
 
         Complex[] complex = new Complex[3];
-        complex[0] = pixel;//z
+        complex[0] = new Complex(pixel);//z
         complex[1] = new Complex(); //zold
         complex[2] = new Complex(-1, 0); 
         
@@ -184,7 +184,7 @@ public class Secant3 extends RootFindingMethods {
       double temp = 0;
 
         Complex[] complex = new Complex[3];
-        complex[0] = pixel;//z
+        complex[0] = new Complex(pixel);//z
         complex[1] = new Complex(); //zold
         complex[2] = new Complex(-1, 0); 
         
@@ -216,7 +216,7 @@ public class Secant3 extends RootFindingMethods {
       int iterations = 0;
 
         Complex[] complex = new Complex[3];
-        complex[0] = pixel_orbit;//z
+        complex[0] = new Complex(pixel_orbit);//z
         complex[1] = new Complex();
         complex[2] = new Complex(-1, 0);
     

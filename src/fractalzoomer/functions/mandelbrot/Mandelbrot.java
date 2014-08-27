@@ -685,7 +685,7 @@ public class Mandelbrot extends Julia {
 
 
                 Complex[] complex = new Complex[2];
-                complex[0] = pixel;//z
+                complex[0] = new Complex(pixel);//z
                 complex[1] = new Complex(seed);//c
 
                 Complex de = new Complex(1, 0);
@@ -722,7 +722,7 @@ public class Mandelbrot extends Julia {
 
 
                 Complex[] complex = new Complex[2];
-                complex[0] = pixel;//z
+                complex[0] = new Complex(pixel);//z
                 complex[1] = new Complex(seed);//c
 
                 Complex de = new Complex(0.7, 0.7);
@@ -756,7 +756,7 @@ public class Mandelbrot extends Julia {
 
 
             Complex[] complex = new Complex[2];
-            complex[0] = pixel;//z
+            complex[0] = new Complex(pixel);//z
             complex[1] = new Complex(seed);//c
 
             Complex zold = new Complex();
@@ -787,7 +787,7 @@ public class Mandelbrot extends Julia {
                 int iterations = 0;
 
                 Complex[] complex = new Complex[2];
-                complex[0] = pixel;//z
+                complex[0] = new Complex(pixel);//z
                 complex[1] = new Complex(seed);//c
 
                 Complex de = new Complex(1, 0);
@@ -812,7 +812,7 @@ public class Mandelbrot extends Julia {
                 int iterations = 0;
 
                 Complex[] complex = new Complex[2];
-                complex[0] = pixel;//z
+                complex[0] = new Complex(pixel);//z
                 complex[1] = new Complex(seed);//c
 
                 Complex de = new Complex(0.7, 0.7);
@@ -835,7 +835,7 @@ public class Mandelbrot extends Julia {
             int iterations = 0;
 
             Complex[] complex = new Complex[2];
-            complex[0] = pixel;//z
+            complex[0] = new Complex(pixel);//z
             complex[1] = new Complex(seed);//c
 
             Complex zold = new Complex();
@@ -1122,7 +1122,7 @@ public class Mandelbrot extends Julia {
 
 
                 Complex[] complex = new Complex[2];
-                complex[0] = pixel;//z
+                complex[0] = new Complex(pixel);//z
                 complex[1] = new Complex(seed);//c
 
                 Complex de = new Complex(1, 0);
@@ -1165,7 +1165,7 @@ public class Mandelbrot extends Julia {
 
 
                 Complex[] complex = new Complex[2];
-                complex[0] = pixel;//z
+                complex[0] = new Complex(pixel);//z
                 complex[1] = new Complex(seed);//c
 
                 Complex de = new Complex(0.7, 0.7);
@@ -1205,7 +1205,7 @@ public class Mandelbrot extends Julia {
 
 
             Complex[] complex = new Complex[2];
-            complex[0] = pixel;//z
+            complex[0] = new Complex(pixel);//z
             complex[1] = new Complex(seed);//c
 
             Complex zold = new Complex();
@@ -1243,7 +1243,7 @@ public class Mandelbrot extends Julia {
                 int iterations = 0;
 
                 Complex[] complex = new Complex[2];
-                complex[0] = pixel;//z
+                complex[0] = new Complex(pixel);//z
                 complex[1] = new Complex(seed);//c
 
                 Complex de = new Complex(1, 0);
@@ -1276,7 +1276,7 @@ public class Mandelbrot extends Julia {
                 int iterations = 0;
 
                 Complex[] complex = new Complex[2];
-                complex[0] = pixel;//z
+                complex[0] = new Complex(pixel);//z
                 complex[1] = new Complex(seed);//c
 
                 Complex de = new Complex(0.7, 0.7);
@@ -1306,7 +1306,7 @@ public class Mandelbrot extends Julia {
             int iterations = 0;
 
             Complex[] complex = new Complex[2];
-            complex[0] = pixel;//z
+            complex[0] = new Complex(pixel);//z
             complex[1] = new Complex(seed);//c
 
             Complex zold = new Complex();

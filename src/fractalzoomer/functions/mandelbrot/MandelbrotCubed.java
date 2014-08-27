@@ -422,7 +422,7 @@ public class MandelbrotCubed extends Julia {
         type.getPixel(complex[0]);
         complex[0].cube_mutable().plus_mutable(complex[1]);
         type2.getPixel(complex[0]);
-         
+        
     }
     
 }

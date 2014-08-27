@@ -107,7 +107,6 @@ import fractalzoomer.functions.formulas.m_like_generalization.Formula38;
 import fractalzoomer.functions.formulas.m_like_generalization.Formula39;
 import fractalzoomer.functions.formulas.m_like_generalization.zab_zde_fg.Formula40;
 import fractalzoomer.functions.formulas.m_like_generalization.zab_zde_fg.Formula41;
-import fractalzoomer.functions.formulas.m_like_generalization.zab_zde_fg.Formula41;
 import fractalzoomer.functions.user_formulas.UserFormulaConverging;
 import fractalzoomer.functions.user_formulas.UserFormulaEscaping;
 import fractalzoomer.functions.user_formulas.UserFormulaIterationBasedConverging;

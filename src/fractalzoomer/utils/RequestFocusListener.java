@@ -1,4 +1,4 @@
-package fractalzoomer.core;
+package fractalzoomer.utils;
 
 import javax.swing.*;
 import javax.swing.event.*;

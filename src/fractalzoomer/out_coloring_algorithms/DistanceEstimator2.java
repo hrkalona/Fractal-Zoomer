@@ -23,9 +23,10 @@ public class DistanceEstimator2 extends OutColorAlgorithm {
     @Override
     public double getResult(Object[] object) {
 
-        double temp2 = (((Complex)object[1]).norm());
+        double temp2 = (((Complex)object[1]).norm_squared());
         
-        return (temp2 * Math.log(temp2) / ((Complex)object[2]).norm()) > limit ? (Integer)object[0] + 100800 : max_iterations;
+        double temp3 = 0.5 * Math.log(temp2);
+        return (temp2 *  temp3 * temp3) / ((Complex)object[2]).norm_squared() > (limit * limit) ? (Integer)object[0] + 100800 : max_iterations;
 
     }
     

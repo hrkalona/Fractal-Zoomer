@@ -1395,6 +1395,64 @@ public final class Complex {
          return 0;
      }
      
+     /*
+      * Gamma function with lancos aproximation
+      */
+     public final Complex gamma_la() {
+         double[] p = {0.99999999999980993, 676.5203681218851, -1259.1392167224028,
+			     	  771.32342877765313, -176.61502916214059, 12.507343278686905,
+			     	  -0.13857109526572012, 9.9843695780195716e-6, 1.5056327351493116e-7};
+	 int g = 7;
+	 if(re < 0.5) {
+             Complex pi = new Complex(Math.PI, 0);
+             return pi.divide((this.times(pi)).sin().times((this.r_sub(1.0)).gamma_la()));         
+         }
+ 
+         this.sub_mutable(1.0);
+	 Complex a = new Complex(p[0], 0);
+	 Complex t = this.plus(g + 0.5);
+	 for(int i = 1; i < p.length; i++){
+             a.plus_mutable(new Complex(p[i], 0).divide(this.plus(i)));
+	 }
+
+         return new Complex(Math.sqrt(2*Math.PI), 0).times(t.pow(this.plus(0.5))).times((t.negative()).exp()).times(a);
+     }
+     
+     /*
+      * Gamma function with stirling aproximation
+      */
+     public final Complex gamma_st() {
+         
+         return (this.r_divide(2 * Math.PI)).sqrt().times((this.divide(Math.E)).pow(this));
+         
+     }
+     
+     /*
+      *  Factorial of z is Gamma(z + 1)
+      */
+     public final Complex factorial() {
+         
+         return (this.plus(1)).gamma_la();
+         
+     }
+     
+     
+     public final Complex toBiPolar(double a) {
+	double d1_2,d2_2;
+        
+        d1_2 = this.distance_squared(-a);
+        d2_2 = this.distance_squared(a);
+
+        return new Complex(0.5 * Math.log(d1_2 / d2_2), Math.acos((d1_2 + d2_2 - 4 * a * a)/(2 * Math.sqrt(d1_2 * d2_2))));
+        
+     }
+     
+     public final Complex fromBiPolar(double a) {
+
+         return this.times_i(0.5).cot().times_i(a);
+        
+     }
+     
      @Override
      public final String toString() {
          

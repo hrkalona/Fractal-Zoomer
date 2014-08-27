@@ -653,7 +653,7 @@ public class Nova extends Julia {
       double temp = 0;
 
         Complex[] complex = new Complex[4];
-        complex[0] = pixel;
+        complex[0] = new Complex(pixel);
         complex[1] = new Complex(seed);//c
         complex[2] = new Complex();
         complex[3] = new Complex(-1, 0);
@@ -722,7 +722,7 @@ public class Nova extends Julia {
       double temp = 0;
 
         Complex[] complex = new Complex[4];
-        complex[0] = pixel;
+        complex[0] = new Complex(pixel);
         complex[1] = new Complex(seed);//c
         complex[2] = new Complex();
         complex[3] = new Complex(-1, 0);
@@ -780,8 +780,8 @@ public class Nova extends Julia {
       int iterations = 0;
 
         Complex[] complex = new Complex[4];
-        complex[0] = pixel_orbit;//z
-        complex[1] = seed;//c
+        complex[0] = new Complex(pixel_orbit);//z
+        complex[1] = new Complex(seed);//c
         complex[2] = new Complex();
         complex[3] = new Complex(-1, 0);
 

@@ -551,8 +551,8 @@ public class Magnet1 extends Julia {
         
 
         Complex[] complex = new Complex[2];
-        complex[0] = pixel;//z
-        complex[1] = seed;//c
+        complex[0] = new Complex(pixel);//z
+        complex[1] = new Complex(seed);//c
 
         Complex zold = new Complex();
 
@@ -582,8 +582,8 @@ public class Magnet1 extends Julia {
       double temp4;
 
         Complex[] complex = new Complex[2];
-        complex[0] = pixel;//z
-        complex[1] = seed;//c
+        complex[0] = new Complex(pixel);//z
+        complex[1] = new Complex(seed);//c
 
         Complex zold = new Complex();
 
@@ -706,8 +706,8 @@ public class Magnet1 extends Julia {
         
 
         Complex[] complex = new Complex[2];
-        complex[0] = pixel;//z
-        complex[1] = seed;//c
+        complex[0] = new Complex(pixel);//z
+        complex[1] = new Complex(seed);//c
 
         Complex zold = new Complex();
 
@@ -744,8 +744,8 @@ public class Magnet1 extends Julia {
       double temp4;
 
         Complex[] complex = new Complex[2];
-        complex[0] = pixel;//z
-        complex[1] = seed;//c
+        complex[0] = new Complex(pixel);//z
+        complex[1] = new Complex(seed);//c
 
         Complex zold = new Complex();
         

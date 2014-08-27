@@ -444,7 +444,7 @@ public class Phoenix extends Julia {
         period = new Complex();
 
         Complex[] complex = new Complex[3];
-        complex[0] = pixel;//z
+        complex[0] = new Complex(pixel);//z
         complex[1] = new Complex(seed);//c
         complex[2] = new Complex();//s
         
@@ -472,7 +472,7 @@ public class Phoenix extends Julia {
       int iterations = 0;
 
         Complex[] complex = new Complex[3];
-        complex[0] = pixel;//z
+        complex[0] = new Complex(pixel);//z
         complex[1] = new Complex(seed);//c
         complex[2] = new Complex();//s
         
@@ -586,7 +586,7 @@ public class Phoenix extends Julia {
         period = new Complex();
 
         Complex[] complex = new Complex[3];
-        complex[0] = pixel;//z
+        complex[0] = new Complex(pixel);//z
         complex[1] = new Complex(seed);//c
         complex[2] = new Complex();//s
         
@@ -620,7 +620,7 @@ public class Phoenix extends Julia {
       int iterations = 0;
 
         Complex[] complex = new Complex[3];
-        complex[0] = pixel;//z
+        complex[0] = new Complex(pixel);//z
         complex[1] = new Complex(seed);//c
         complex[2] = new Complex();//s
         
@@ -677,8 +677,8 @@ public class Phoenix extends Julia {
       int iterations = 0;
 
         Complex[] complex = new Complex[3];
-        complex[0] = pixel_orbit;//z
-        complex[1] = seed;//c
+        complex[0] = new Complex(pixel_orbit);//z
+        complex[1] = new Complex(seed);//c
         complex[2] = new Complex();//s
 
         Complex temp = null;

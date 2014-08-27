@@ -209,7 +209,7 @@ public class SierpinskiGasket extends Fractal {
       int iterations = 0;
 
         Complex[] complex = new Complex[1];
-        complex[0] = pixel;//z
+        complex[0] = new Complex(pixel);//z
         
         Complex zold = new Complex();
             
@@ -234,7 +234,7 @@ public class SierpinskiGasket extends Fractal {
       int iterations = 0;
 
         Complex[] complex = new Complex[1];
-        complex[0] = pixel;//z
+        complex[0] = new Complex(pixel);//z
         
         Complex zold = new Complex();
             
@@ -266,7 +266,7 @@ public class SierpinskiGasket extends Fractal {
       int iterations = 0;
 
         Complex[] complex = new Complex[1];
-        complex[0] = pixel_orbit;//z
+        complex[0] = new Complex(pixel_orbit);//z
         
         Complex temp = null;
         

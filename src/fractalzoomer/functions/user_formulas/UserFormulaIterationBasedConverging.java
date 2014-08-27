@@ -534,7 +534,7 @@ public class UserFormulaIterationBasedConverging extends Julia {
       double temp = 0;
 
         Complex[] complex = new Complex[2];
-        complex[0] = pixel;
+        complex[0] = new Complex(pixel);
         complex[1] = new Complex(seed);//c
 
         Complex zold = new Complex();
@@ -638,7 +638,7 @@ public class UserFormulaIterationBasedConverging extends Julia {
       double temp = 0;
 
         Complex[] complex = new Complex[2];
-        complex[0] = pixel;
+        complex[0] = new Complex(pixel);
         complex[1] = new Complex(seed);//c
 
         Complex zold = new Complex();
@@ -737,8 +737,8 @@ public class UserFormulaIterationBasedConverging extends Julia {
         iterations = 0;
 
         Complex[] complex = new Complex[2];
-        complex[0] = pixel_orbit;//z
-        complex[1] = seed;//c
+        complex[0] = new Complex(pixel_orbit);//z
+        complex[1] = new Complex(seed);//c
 
         Complex temp = null;
         
