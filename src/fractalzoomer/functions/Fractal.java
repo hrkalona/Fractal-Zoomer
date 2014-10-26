@@ -807,5 +807,4 @@ public abstract class Fractal {
 
     }
  
-
 }

@@ -131,6 +131,12 @@ public class FunctionExpressionNode implements ExpressionNode
   
   /** function id for the inversed bipolar function */
   public static final int FROM_BIPOLAR = 39;
+  
+  /** function id for the absolute value real function */
+  public static final int ABSRE = 40;
+  
+  /** function id for the absolute value imaginary function */
+  public static final int ABSIM = 41;
 
   /** the id of the function to apply to the argument */
   private int function;
@@ -264,6 +270,12 @@ public class FunctionExpressionNode implements ExpressionNode
      
     if (str.equals("ibipol"))
       return FunctionExpressionNode.FROM_BIPOLAR;
+    
+    if (str.equals("absre"))
+      return FunctionExpressionNode.ABSRE;
+     
+    if (str.equals("absim"))
+      return FunctionExpressionNode.ABSIM;
 
     throw new ParserException("Unexpected Function " + str + " found.");
   }
@@ -278,7 +290,7 @@ public class FunctionExpressionNode implements ExpressionNode
    */
   public static String getAllFunctions()
   {
-      return "sin|sinh|asin|asinh|cos|cosh|acos|acosh|tan|tanh|atan|atanh|cot|coth|acot|acoth|sec|sech|asec|asech|csc|csch|acsc|acsch|sqrt|exp|log|log10|log2|abs|conj|re|im|norm|arg|gamma|fact|bipol|ibipol";
+      return "sin|sinh|asin|asinh|cos|cosh|acos|acosh|tan|tanh|atan|atanh|cot|coth|acot|acoth|sec|sech|asec|asech|csc|csch|acsc|acsch|sqrt|exp|log|log10|log2|abs|conj|re|im|norm|arg|gamma|fact|bipol|ibipol|absre|absim";
   }
 
   /**
@@ -385,6 +397,12 @@ public class FunctionExpressionNode implements ExpressionNode
           
       case FROM_BIPOLAR:
         return argument.getValue().fromBiPolar(2);
+          
+      case ABSRE:
+        return argument.getValue().absre();
+          
+       case ABSIM:
+        return argument.getValue().absim();
           
     }
 

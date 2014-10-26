@@ -1,8 +1,5 @@
 package fractalzoomer.in_coloring_algorithms;
 
-import fractalzoomer.in_coloring_algorithms.options.InColorOption;
-import fractalzoomer.in_coloring_algorithms.options.InColorOptionDouble;
-import fractalzoomer.in_coloring_algorithms.options.InColorOptionInt;
 import fractalzoomer.core.Complex;
 
 /*
@@ -15,18 +12,11 @@ import fractalzoomer.core.Complex;
  * @author hrkalona2
  */
 public class SinReSquaredMinusImSquared extends InColorAlgorithm {
-  private InColorOption option;
 
-    public SinReSquaredMinusImSquared(boolean smoothing) { 
+    public SinReSquaredMinusImSquared() { 
+       
         super();
-        
-        if(!smoothing) {
-            option = new InColorOptionInt();
-        }
-        else {
-            option = new InColorOptionDouble();
-        }
-    
+
     }
     
     @Override
@@ -35,7 +25,7 @@ public class SinReSquaredMinusImSquared extends InColorAlgorithm {
         double re = ((Complex)object[1]).getRe();
         double im = ((Complex)object[1]).getIm();
         
-        return option.getFinalResult(Math.abs(Math.sin(re * re - im * im)) * 400 + 100820);
+        return Math.abs(Math.sin(re * re - im * im)) * 400 + 100820;
              
     }
     

@@ -22,7 +22,7 @@ public class StripBailoutTest extends BailoutTest {
      @Override
      public boolean escaped(Complex z) {
 
-        return z.absRe() >= bound;
+        return z.getAbsRe() >= bound;
          
      }
     

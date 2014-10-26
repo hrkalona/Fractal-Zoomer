@@ -216,9 +216,9 @@ public class CustomPalette extends ThreadDraw {
 
                         int [] res = con.LABtoRGB(L, a, b);
 
-                        res[0] = clamp(res[0]);
-                        res[1] = clamp(res[1]);
-                        res[2] = clamp(res[2]);
+                        res[0] = ColorSpaceConverter.clamp(res[0]);
+                        res[1] = ColorSpaceConverter.clamp(res[1]);
+                        res[2] = ColorSpaceConverter.clamp(res[2]);
 
                         palette[n + k] = 0xff000000 | ((int)(res[0]) << 16) | ((int)(res[1]) << 8) | (int)(res[2]);
                     }               
@@ -236,9 +236,9 @@ public class CustomPalette extends ThreadDraw {
 
                         int [] res = con.XYZtoRGB(X, Y, Z);
 
-                        res[0] = clamp(res[0]);
-                        res[1] = clamp(res[1]);
-                        res[2] = clamp(res[2]);
+                        res[0] = ColorSpaceConverter.clamp(res[0]);
+                        res[1] = ColorSpaceConverter.clamp(res[1]);
+                        res[2] = ColorSpaceConverter.clamp(res[2]);
 
                         palette[n + k] = 0xff000000 | ((int)(res[0]) << 16) | ((int)(res[1]) << 8) | (int)(res[2]);
                     }
@@ -274,9 +274,9 @@ public class CustomPalette extends ThreadDraw {
 
                         int [] res = con.LCHtoRGB(L, C, H);
 
-                        res[0] = clamp(res[0]);
-                        res[1] = clamp(res[1]);
-                        res[2] = clamp(res[2]);
+                        res[0] = ColorSpaceConverter.clamp(res[0]);
+                        res[1] = ColorSpaceConverter.clamp(res[1]);
+                        res[2] = ColorSpaceConverter.clamp(res[2]);
 
                         palette[n + k] = 0xff000000 | ((int)(res[0]) << 16) | ((int)(res[1]) << 8) | (int)(res[2]);
                     }
@@ -491,9 +491,9 @@ public class CustomPalette extends ThreadDraw {
               
                     int [] res = con.LABtoRGB(L, a, b);
                     
-                    res[0] = clamp(res[0]);
-                    res[1] = clamp(res[1]);
-                    res[2] = clamp(res[2]);
+                    res[0] = ColorSpaceConverter.clamp(res[0]);
+                    res[1] = ColorSpaceConverter.clamp(res[1]);
+                    res[2] = ColorSpaceConverter.clamp(res[2]);
 
                     palette[n + k] = 0xff000000 | ((int)(res[0]) << 16) | ((int)(res[1]) << 8) | (int)(res[2]);
                 }               
@@ -511,9 +511,9 @@ public class CustomPalette extends ThreadDraw {
               
                     int [] res = con.XYZtoRGB(X, Y, Z);
                                        
-                    res[0] = clamp(res[0]);
-                    res[1] = clamp(res[1]);
-                    res[2] = clamp(res[2]);
+                    res[0] = ColorSpaceConverter.clamp(res[0]);
+                    res[1] = ColorSpaceConverter.clamp(res[1]);
+                    res[2] = ColorSpaceConverter.clamp(res[2]);
                           
                     palette[n + k] = 0xff000000 | ((int)(res[0]) << 16) | ((int)(res[1]) << 8) | (int)(res[2]);
                 }
@@ -549,9 +549,9 @@ public class CustomPalette extends ThreadDraw {
               
                     int [] res = con.LCHtoRGB(L, C, H);
                                        
-                    res[0] = clamp(res[0]);
-                    res[1] = clamp(res[1]);
-                    res[2] = clamp(res[2]);
+                    res[0] = ColorSpaceConverter.clamp(res[0]);
+                    res[1] = ColorSpaceConverter.clamp(res[1]);
+                    res[2] = ColorSpaceConverter.clamp(res[2]);
                           
                     palette[n + k] = 0xff000000 | ((int)(res[0]) << 16) | ((int)(res[1]) << 8) | (int)(res[2]);
                 }
@@ -761,9 +761,9 @@ public class CustomPalette extends ThreadDraw {
               
                     int [] res = con.LABtoRGB(L, a, b);
                     
-                    res[0] = clamp(res[0]);
-                    res[1] = clamp(res[1]);
-                    res[2] = clamp(res[2]);
+                    res[0] = ColorSpaceConverter.clamp(res[0]);
+                    res[1] = ColorSpaceConverter.clamp(res[1]);
+                    res[2] = ColorSpaceConverter.clamp(res[2]);
 
                     palette[n + k] = 0xff000000 | ((int)(res[0]) << 16) | ((int)(res[1]) << 8) | (int)(res[2]);
                 }               
@@ -781,9 +781,9 @@ public class CustomPalette extends ThreadDraw {
               
                     int [] res = con.XYZtoRGB(X, Y, Z);
                                        
-                    res[0] = clamp(res[0]);
-                    res[1] = clamp(res[1]);
-                    res[2] = clamp(res[2]);
+                    res[0] = ColorSpaceConverter.clamp(res[0]);
+                    res[1] = ColorSpaceConverter.clamp(res[1]);
+                    res[2] = ColorSpaceConverter.clamp(res[2]);
                           
                     palette[n + k] = 0xff000000 | ((int)(res[0]) << 16) | ((int)(res[1]) << 8) | (int)(res[2]);
                 }
@@ -819,9 +819,9 @@ public class CustomPalette extends ThreadDraw {
               
                     int [] res = con.LCHtoRGB(L, C, H);
                                        
-                    res[0] = clamp(res[0]);
-                    res[1] = clamp(res[1]);
-                    res[2] = clamp(res[2]);
+                    res[0] = ColorSpaceConverter.clamp(res[0]);
+                    res[1] = ColorSpaceConverter.clamp(res[1]);
+                    res[2] = ColorSpaceConverter.clamp(res[2]);
                           
                     palette[n + k] = 0xff000000 | ((int)(res[0]) << 16) | ((int)(res[1]) << 8) | (int)(res[2]);
                 }
@@ -1029,9 +1029,9 @@ public class CustomPalette extends ThreadDraw {
               
                     int [] res = con.LABtoRGB(L, a, b);
                     
-                    res[0] = clamp(res[0]);
-                    res[1] = clamp(res[1]);
-                    res[2] = clamp(res[2]);
+                    res[0] = ColorSpaceConverter.clamp(res[0]);
+                    res[1] = ColorSpaceConverter.clamp(res[1]);
+                    res[2] = ColorSpaceConverter.clamp(res[2]);
 
                     palette[n + k] = 0xff000000 | ((int)(res[0]) << 16) | ((int)(res[1]) << 8) | (int)(res[2]);
                 }               
@@ -1049,9 +1049,9 @@ public class CustomPalette extends ThreadDraw {
               
                     int [] res = con.XYZtoRGB(X, Y, Z);
                                        
-                    res[0] = clamp(res[0]);
-                    res[1] = clamp(res[1]);
-                    res[2] = clamp(res[2]);
+                    res[0] = ColorSpaceConverter.clamp(res[0]);
+                    res[1] = ColorSpaceConverter.clamp(res[1]);
+                    res[2] = ColorSpaceConverter.clamp(res[2]);
                           
                     palette[n + k] = 0xff000000 | ((int)(res[0]) << 16) | ((int)(res[1]) << 8) | (int)(res[2]);
                 }
@@ -1087,9 +1087,9 @@ public class CustomPalette extends ThreadDraw {
               
                     int [] res = con.LCHtoRGB(L, C, H);
                                        
-                    res[0] = clamp(res[0]);
-                    res[1] = clamp(res[1]);
-                    res[2] = clamp(res[2]);
+                    res[0] = ColorSpaceConverter.clamp(res[0]);
+                    res[1] = ColorSpaceConverter.clamp(res[1]);
+                    res[2] = ColorSpaceConverter.clamp(res[2]);
                           
                     palette[n + k] = 0xff000000 | ((int)(res[0]) << 16) | ((int)(res[1]) << 8) | (int)(res[2]);
                 }
@@ -1297,9 +1297,9 @@ public class CustomPalette extends ThreadDraw {
               
                     int [] res = con.LABtoRGB(L, a, b);
                     
-                    res[0] = clamp(res[0]);
-                    res[1] = clamp(res[1]);
-                    res[2] = clamp(res[2]);
+                    res[0] = ColorSpaceConverter.clamp(res[0]);
+                    res[1] = ColorSpaceConverter.clamp(res[1]);
+                    res[2] = ColorSpaceConverter.clamp(res[2]);
 
                     palette[n + k] = 0xff000000 | ((int)(res[0]) << 16) | ((int)(res[1]) << 8) | (int)(res[2]);
                 }               
@@ -1317,9 +1317,9 @@ public class CustomPalette extends ThreadDraw {
               
                     int [] res = con.XYZtoRGB(X, Y, Z);
                                        
-                    res[0] = clamp(res[0]);
-                    res[1] = clamp(res[1]);
-                    res[2] = clamp(res[2]);
+                    res[0] = ColorSpaceConverter.clamp(res[0]);
+                    res[1] = ColorSpaceConverter.clamp(res[1]);
+                    res[2] = ColorSpaceConverter.clamp(res[2]);
                           
                     palette[n + k] = 0xff000000 | ((int)(res[0]) << 16) | ((int)(res[1]) << 8) | (int)(res[2]);
                 }
@@ -1355,9 +1355,9 @@ public class CustomPalette extends ThreadDraw {
               
                     int [] res = con.LCHtoRGB(L, C, H);
                                        
-                    res[0] = clamp(res[0]);
-                    res[1] = clamp(res[1]);
-                    res[2] = clamp(res[2]);
+                    res[0] = ColorSpaceConverter.clamp(res[0]);
+                    res[1] = ColorSpaceConverter.clamp(res[1]);
+                    res[2] = ColorSpaceConverter.clamp(res[2]);
                           
                     palette[n + k] = 0xff000000 | ((int)(res[0]) << 16) | ((int)(res[1]) << 8) | (int)(res[2]);
                 }
@@ -1565,9 +1565,9 @@ public class CustomPalette extends ThreadDraw {
               
                     int [] res = con.LABtoRGB(L, a, b);
                     
-                    res[0] = clamp(res[0]);
-                    res[1] = clamp(res[1]);
-                    res[2] = clamp(res[2]);
+                    res[0] = ColorSpaceConverter.clamp(res[0]);
+                    res[1] = ColorSpaceConverter.clamp(res[1]);
+                    res[2] = ColorSpaceConverter.clamp(res[2]);
 
                     palette[n + k] = 0xff000000 | ((int)(res[0]) << 16) | ((int)(res[1]) << 8) | (int)(res[2]);
                 }               
@@ -1585,9 +1585,9 @@ public class CustomPalette extends ThreadDraw {
               
                     int [] res = con.XYZtoRGB(X, Y, Z);
                                        
-                    res[0] = clamp(res[0]);
-                    res[1] = clamp(res[1]);
-                    res[2] = clamp(res[2]);
+                    res[0] = ColorSpaceConverter.clamp(res[0]);
+                    res[1] = ColorSpaceConverter.clamp(res[1]);
+                    res[2] = ColorSpaceConverter.clamp(res[2]);
                           
                     palette[n + k] = 0xff000000 | ((int)(res[0]) << 16) | ((int)(res[1]) << 8) | (int)(res[2]);
                 }
@@ -1623,9 +1623,9 @@ public class CustomPalette extends ThreadDraw {
               
                     int [] res = con.LCHtoRGB(L, C, H);
                                        
-                    res[0] = clamp(res[0]);
-                    res[1] = clamp(res[1]);
-                    res[2] = clamp(res[2]);
+                    res[0] = ColorSpaceConverter.clamp(res[0]);
+                    res[1] = ColorSpaceConverter.clamp(res[1]);
+                    res[2] = ColorSpaceConverter.clamp(res[2]);
                           
                     palette[n + k] = 0xff000000 | ((int)(res[0]) << 16) | ((int)(res[1]) << 8) | (int)(res[2]);
                 }
@@ -1841,9 +1841,9 @@ public class CustomPalette extends ThreadDraw {
               
                     int [] res = con.LABtoRGB(L, a, b);
                     
-                    res[0] = clamp(res[0]);
-                    res[1] = clamp(res[1]);
-                    res[2] = clamp(res[2]);
+                    res[0] = ColorSpaceConverter.clamp(res[0]);
+                    res[1] = ColorSpaceConverter.clamp(res[1]);
+                    res[2] = ColorSpaceConverter.clamp(res[2]);
 
                     palette[(n + k) % palette.length] = new Color(res[0], res[1], res[2]);
                 }               
@@ -1861,9 +1861,9 @@ public class CustomPalette extends ThreadDraw {
               
                     int [] res = con.XYZtoRGB(X, Y, Z);
                                        
-                    res[0] = clamp(res[0]);
-                    res[1] = clamp(res[1]);
-                    res[2] = clamp(res[2]);
+                    res[0] = ColorSpaceConverter.clamp(res[0]);
+                    res[1] = ColorSpaceConverter.clamp(res[1]);
+                    res[2] = ColorSpaceConverter.clamp(res[2]);
                           
                     palette[(n + k) % palette.length] = new Color(res[0], res[1], res[2]);
                 }
@@ -1899,9 +1899,9 @@ public class CustomPalette extends ThreadDraw {
               
                     int [] res = con.LCHtoRGB(L, C, H);
                                        
-                    res[0] = clamp(res[0]);
-                    res[1] = clamp(res[1]);
-                    res[2] = clamp(res[2]);
+                    res[0] = ColorSpaceConverter.clamp(res[0]);
+                    res[1] = ColorSpaceConverter.clamp(res[1]);
+                    res[2] = ColorSpaceConverter.clamp(res[2]);
                           
                     palette[(n + k) % palette.length] = new Color(res[0], res[1], res[2]);
                 }  
@@ -1914,18 +1914,5 @@ public class CustomPalette extends ThreadDraw {
         return palette;
 
     }
-     
-    private static int clamp(int c) {
-        
-        if(c < 0) {
-            return 0;
-        }
-	if(c > 255) {
-            return 255;
-        }
-	return c;
-                
-    }
- 
 
 }

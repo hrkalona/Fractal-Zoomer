@@ -95,14 +95,18 @@ import fractalzoomer.functions.math.Sin;
 import fractalzoomer.functions.math.Tan;
 import fractalzoomer.functions.math.Tanh;
 import fractalzoomer.functions.general.Nova;
-import fractalzoomer.functions.formulas.general.Formula31;
-import fractalzoomer.functions.formulas.general.Formula30;
-import fractalzoomer.functions.formulas.general.Formula32;
-import fractalzoomer.functions.formulas.general.Formula33;
-import fractalzoomer.functions.formulas.general.Formula34;
-import fractalzoomer.functions.formulas.general.Formula35;
-import fractalzoomer.functions.formulas.general.Formula36;
-import fractalzoomer.functions.formulas.general.Formula37;
+import fractalzoomer.functions.formulas.general.mathtype.Formula31;
+import fractalzoomer.functions.formulas.general.mathtype.Formula30;
+import fractalzoomer.functions.formulas.general.mathtype.Formula32;
+import fractalzoomer.functions.formulas.general.mathtype.Formula33;
+import fractalzoomer.functions.formulas.general.mathtype.Formula34;
+import fractalzoomer.functions.formulas.general.mathtype.Formula35;
+import fractalzoomer.functions.formulas.general.mathtype.Formula36;
+import fractalzoomer.functions.formulas.general.mathtype.Formula37;
+import fractalzoomer.functions.formulas.general.newtonvariant.Formula42;
+import fractalzoomer.functions.formulas.general.newtonvariant.Formula43;
+import fractalzoomer.functions.formulas.general.newtonvariant.Formula44;
+import fractalzoomer.functions.formulas.general.newtonvariant.Formula45;
 import fractalzoomer.functions.formulas.m_like_generalization.Formula38;
 import fractalzoomer.functions.formulas.m_like_generalization.Formula39;
 import fractalzoomer.functions.formulas.m_like_generalization.zab_zde_fg.Formula40;
@@ -604,6 +608,18 @@ public abstract class ThreadDraw extends Thread {
             case MainWindow.FORMULA41:
                 fractal = new Formula41(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane);
                 break;
+            case MainWindow.FORMULA42:
+                fractal = new Formula42(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane);
+                break;
+            case MainWindow.FORMULA43:
+                fractal = new Formula43(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane);
+                break;
+            case MainWindow.FORMULA44:
+                fractal = new Formula44(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane);
+                break;
+            case MainWindow.FORMULA45:
+                fractal = new Formula45(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane);
+                break;
             case MainWindow.USER_FORMULA:
                 if(bail_technique == 0) {
                     fractal = new UserFormulaEscaping(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_formula, user_formula2, user_plane);
@@ -901,6 +917,18 @@ public abstract class ThreadDraw extends Thread {
                 break;
             case MainWindow.FORMULA41:
                 fractal = new Formula41(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.FORMULA42:
+                fractal = new Formula42(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.FORMULA43:
+                fractal = new Formula43(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.FORMULA44:
+                fractal = new Formula44(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.FORMULA45:
+                fractal = new Formula45(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.USER_FORMULA:
                 if(bail_technique == 0) {
@@ -1202,6 +1230,18 @@ public abstract class ThreadDraw extends Thread {
             case MainWindow.FORMULA41:
                 fractal = new Formula41(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, xJuliaCenter, yJuliaCenter);
                 break;
+            case MainWindow.FORMULA42:
+                fractal = new Formula42(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.FORMULA43:
+                fractal = new Formula43(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.FORMULA44:
+                fractal = new Formula44(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.FORMULA45:
+                fractal = new Formula45(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, xJuliaCenter, yJuliaCenter);
+                break;
             case MainWindow.USER_FORMULA:
                 if(bail_technique == 0) {
                     fractal = new UserFormulaEscaping(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_formula, user_formula2, user_plane, xJuliaCenter, yJuliaCenter);
@@ -1493,6 +1533,18 @@ public abstract class ThreadDraw extends Thread {
                 break;
             case MainWindow.FORMULA41:
                 fractal = new Formula41(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.FORMULA42:
+                fractal = new Formula42(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.FORMULA43:
+                fractal = new Formula43(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.FORMULA44:
+                fractal = new Formula44(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.FORMULA45:
+                fractal = new Formula45(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.USER_FORMULA:
                 if(bail_technique == 0)

@@ -22,7 +22,7 @@ public class SquareBailoutTest extends BailoutTest {
      @Override //infinity norm   
      public boolean escaped(Complex z) {
          
-        return z.absRe() >= bound || z.absIm() >= bound;
+        return z.getAbsRe() >= bound || z.getAbsIm() >= bound;
          
      }
     

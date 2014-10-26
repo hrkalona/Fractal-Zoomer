@@ -207,6 +207,11 @@ import java.awt.Color;
     /**
      * @param RGB
      * @return Lab values
+     * 
+     * D65
+     * L : 0, 100
+     * a : -86.17, 98.26
+     * b : -107.85, 94.48
      */
     public double[] RGBtoLAB(int[] RGB) {
       return XYZtoLAB(RGBtoXYZ(RGB));
@@ -218,6 +223,11 @@ import java.awt.Color;
      * @param G
      * @param B
      * @return XYZ in double array.
+     * 
+     * D65
+     * X : 0, 95.05
+     * Y : 0, 100
+     * Z : 0, 108.8
      */
     public double[] RGBtoXYZ(int R, int G, int B) {
       double[] result = new double[3];
@@ -442,6 +452,12 @@ import java.awt.Color;
   
     }
     
+    /*
+     * D65
+     * L : 0, 100
+     * C : 0, 133.81
+     * H : 0, 360
+     */
     public double[] RGBtoLCH(int R, int G, int B) {
         
         double[] temp = RGBtoLAB(R, G, B);
@@ -498,6 +514,9 @@ import java.awt.Color;
     }
     /**
     * Convert a red-green-blue system to a red-yellow-blue system.
+     * R : 0, 1
+     * Y : 0, 1
+     * B : 0, 1
     */
     public double[] RGBtoRYB(int R, int G, int B) {
         
@@ -622,6 +641,18 @@ import java.awt.Color;
         
         return result;
     } 
+    
+    public static int clamp(int c) {
+        
+        if(c < 0) {
+            return 0;
+        }
+	if(c > 255) {
+            return 255;
+        }
+	return c;
+                
+    }
 
   }
 

@@ -18,7 +18,7 @@ import javax.swing.JPanel;
  */
 public class MainPanel extends JPanel {
   private MainWindow ptr;
-    
+   
     public MainPanel(MainWindow ptr) {
         this.ptr = ptr;
     }
@@ -38,24 +38,50 @@ public class MainPanel extends JPanel {
         if(!ptr.threadsAvailable()) {
            if(ptr.getWholeImageDone()) {
                 g.drawImage(ptr.getImage(), 0, 0, null);
+                
+                if(ptr.getBoundaries()) {
+                    ptr.drawBoundaries((Graphics2D)g, true);
+                }
+                
                 if(ptr.getGrid()) {
-                    ptr.drawGrid((Graphics2D)g);
+                    ptr.drawGrid((Graphics2D)g, true);
+                }
+                
+                if(ptr.getZoomWindow()) {
+                   ptr.drawZoomWindow((Graphics2D)g);
                 }
            }
            else {
                if(!ptr.getColorCycling()) {
                     g.drawImage(ptr.getLastUsed(), 0, 0, null);
+                    
+                    if(ptr.getBoundaries() && ptr.getLastUsed() != null) {
+                        ptr.drawBoundaries((Graphics2D)g, true);
+                    }
+                    
                     if(ptr.getGrid() && ptr.getLastUsed() != null) {
-                        ptr.drawGrid((Graphics2D)g);
+                        ptr.drawGrid((Graphics2D)g, true);
+                    }
+                    
+                    if(ptr.getZoomWindow() && ptr.getLastUsed() != null) {
+                       ptr.drawZoomWindow((Graphics2D)g);
                     }
                }
            }
        }
        else {
            g.drawImage(ptr.getImage(), 0, 0, null);
+           if(ptr.getBoundaries()) {
+               ptr.drawBoundaries((Graphics2D)g, true);
+           }
+           
            if(ptr.getGrid()) {
-               ptr.drawGrid((Graphics2D)g);
+               ptr.drawGrid((Graphics2D)g, true);
            } 
+           
+           if(ptr.getZoomWindow()) {
+               ptr.drawZoomWindow((Graphics2D)g);
+           }
        }      
    
     }

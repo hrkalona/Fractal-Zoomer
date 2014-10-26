@@ -776,7 +776,7 @@ public final class Complex {
      /*
      *  |Real|
      */
-    public final double absRe() {
+    public final double getAbsRe() {
 
         return re >= 0 ? re : -re;
 
@@ -785,7 +785,7 @@ public final class Complex {
      /*
      *  |Imaginary|
      */
-    public final double absIm() {
+    public final double getAbsIm() {
 
         return im >= 0 ? im : -im;
 
@@ -806,6 +806,46 @@ public final class Complex {
     public final Complex abs_mutable() {
         
         re = re >= 0 ? re : -re;
+        im = im >= 0 ? im : -im;
+        
+        return this;
+        
+    }
+    
+    /*
+     *  |Re(z)| + Im(z)i
+     */
+    public final Complex absre() {
+        
+        return new Complex(re >= 0 ? re : -re, im);
+        
+    }
+    
+    /*
+     *  z = |Re(z)| + Im(z)i
+     */
+    public final Complex absre_mutable() {
+        
+        re = re >= 0 ? re : -re;
+        
+        return this;
+        
+    }
+    
+    /*
+     *  Re(z) + |Im(z)|i
+     */
+    public final Complex absim() {
+        
+        return new Complex(re, im >= 0 ? im : -im);
+        
+    }
+    
+    /*
+     *  z = Re(z) + |Im(z)|i
+     */
+    public final Complex absim_mutable() {
+        
         im = im >= 0 ? im : -im;
         
         return this;

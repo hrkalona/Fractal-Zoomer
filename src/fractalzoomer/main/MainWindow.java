@@ -29,6 +29,8 @@ import fractalzoomer.settings.SettingsFractals1049;
 import fractalzoomer.settings.SettingsFractals1050;
 import fractalzoomer.settings.SettingsJulia1049;
 import fractalzoomer.settings.SettingsJulia1050;
+import fractalzoomer.utils.ColorSpaceConverter;
+import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Desktop;
@@ -55,6 +57,8 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowStateListener;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -66,6 +70,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.List;
+import java.util.Locale;
 import java.util.Random;
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
@@ -97,6 +102,8 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.plaf.basic.BasicFileChooserUI;
 
 
 /*
@@ -117,6 +124,7 @@ public class MainWindow extends JFrame {
   private boolean smoothing;
   private int plane_type;
   private boolean orbit_style;
+  private boolean zoom_window_style;
   private boolean burning_ship;
   private boolean mandel_grass;
   private boolean whole_image_done;
@@ -124,6 +132,8 @@ public class MainWindow extends JFrame {
   private boolean periodicity_checking;
   private boolean color_cycling;
   private boolean grid;
+  private boolean boundaries;
+  private boolean zoom_window;
   private boolean julia_map;
   private boolean d3;
   private boolean perturbation;
@@ -141,6 +151,7 @@ public class MainWindow extends JFrame {
   private double yJuliaCenter;
   private double rotation;
   private int grid_tiles;
+  private int boundaries_num;
   private double[] rotation_vals;
   private double[] rotation_center;
   private double[] mandel_grass_vals;
@@ -150,6 +161,8 @@ public class MainWindow extends JFrame {
   private int mx0;
   private int my0;
   private int d3_draw_method;
+  private int boundaries_spacing_method;
+  private int boundaries_type;
   private int detail;
   private int function;
   private int nova_method;
@@ -181,6 +194,8 @@ public class MainWindow extends JFrame {
   private Color fractal_color;
   private Color orbit_color;
   private Color grid_color;
+  private Color boundaries_color;
+  private Color zoom_window_color;
   private Parser parser;
   private String user_formula;
   private String user_formula2;
@@ -196,6 +211,7 @@ public class MainWindow extends JFrame {
   private BufferedImage last_used;
   private BufferedImage colors;
   private BufferedImage colors2;
+  private JFileChooser file_chooser;
   private MainWindow ptr;
   private MainPanel main_panel;
   private JLabel mode;
@@ -231,7 +247,10 @@ public class MainWindow extends JFrame {
   private JMenu window_menu;
   private JMenu orbit_menu;
   private JMenu orbit_style_menu;
+  private JMenu zoom_window_menu;
+  private JMenu zoom_window_style_menu;
   private JMenu tools_menu;
+  private JMenu boundaries_menu;
   private JMenu out_coloring_mode_menu;
   private JMenu in_coloring_mode_menu;
   private JMenu help_menu;
@@ -251,6 +270,8 @@ public class MainWindow extends JFrame {
   private JMenu formulas_type_functions;
   private JMenu kaliset_type_functions;
   private JMenu general_type_functions;
+  private JMenu general_math_type_functions;
+  private JMenu general_newton_variant_functions;
   private JMenu m_like_generalizations_type_functions;
   private JMenu c_azb_dze_type_functions;
   private JMenu c_azb_dze_f_g_type_functions;
@@ -285,6 +306,9 @@ public class MainWindow extends JFrame {
   private JMenuItem orbit_color_opt;
   private JMenuItem grid_tiles_opt;
   private JMenuItem grid_color_opt;
+  private JMenuItem boundaries_number_opt;
+  private JMenuItem boundaries_color_opt;
+  private JMenuItem zoom_window_color_opt;
   private JMenuItem d3_details_opt;
   private JCheckBoxMenuItem d3_opt;
   private JCheckBoxMenuItem boundary_tracing_opt;
@@ -310,6 +334,8 @@ public class MainWindow extends JFrame {
   private JCheckBoxMenuItem color_cycling_opt;
   private JCheckBoxMenuItem julia_map_opt;
   private JCheckBoxMenuItem grid_opt;
+  private JCheckBoxMenuItem boundaries_opt;
+  private JCheckBoxMenuItem zoom_window_opt;
   private JCheckBoxMenuItem perturbation_opt; 
   private JCheckBoxMenuItem init_val_opt;
   private JCheckBoxMenuItem toolbar_opt;
@@ -317,6 +343,8 @@ public class MainWindow extends JFrame {
   private JCheckBoxMenuItem smoothing_opt;
   private JRadioButtonMenuItem line;
   private JRadioButtonMenuItem dot;
+  private JRadioButtonMenuItem zoom_window_dashed_line;
+  private JRadioButtonMenuItem zoom_window_line;
   private JRadioButtonMenuItem fractal_functions[];
   private JRadioButtonMenuItem[] palette;
   private JRadioButtonMenuItem[] planes;
@@ -340,6 +368,8 @@ public class MainWindow extends JFrame {
   private JFrame fract_color_frame;
   private JFrame orbit_color_frame;
   private JFrame grid_color_frame;
+  private JFrame zoom_window_color_frame;
+  private JFrame boundaries_color_frame;
   private JFrame custom_palette_editor;
   private JFrame choose_color_frame;
   private JFrame filters_options_frame;
@@ -483,6 +513,10 @@ public class MainWindow extends JFrame {
   public static final int USER_FORMULA_CONDITIONAL = 115;
   public static final int FORMULA40 = 116;
   public static final int FORMULA41 = 117;
+  public static final int FORMULA42 = 118;
+  public static final int FORMULA43 = 119;
+  public static final int FORMULA44 = 120;
+  public static final int FORMULA45 = 121;
   public static final int NOVA_NEWTON = 0;
   public static final int NOVA_HALLEY = 1;
   public static final int NOVA_SCHRODER = 2;
@@ -622,6 +656,7 @@ public class MainWindow extends JFrame {
         max_iterations = 500;
         
         grid_tiles = 6;
+        boundaries_num = 6;
         
         n_norm = 0;
         
@@ -660,6 +695,8 @@ public class MainWindow extends JFrame {
         dfi = 0.01;
         
         d3_draw_method = 0;
+        boundaries_spacing_method = 0;
+        boundaries_type = 0;
        
         color_choice = 0;
         
@@ -747,6 +784,7 @@ public class MainWindow extends JFrame {
         d3 = false;
         orbit = false;
         orbit_style = true;
+        zoom_window_style = true;
         first_seed = true;
         julia = false;
         burning_ship = false;
@@ -756,13 +794,17 @@ public class MainWindow extends JFrame {
         whole_image_done = false;
         color_cycling = false;
         grid = false;
+        boundaries = false;
         julia_map = false;
+        zoom_window = false;
         
         smoothing = false;
 
         fractal_color = Color.BLACK;
         orbit_color = Color.WHITE;
         grid_color = Color.WHITE;
+        boundaries_color = new Color(0, 204, 102);
+        zoom_window_color = Color.WHITE;
         
         parser = new Parser();
         user_formula_c = true;
@@ -779,6 +821,8 @@ public class MainWindow extends JFrame {
         for(int k = 0; k < combo_box_choices_filters.length; k++) {
             combo_box_choices_filters[k] = 0;
         }
+        
+        Locale.setDefault(Locale.US);
               
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -891,6 +935,8 @@ public class MainWindow extends JFrame {
         kaliset_type_functions = new JMenu("Kaliset Type");
         m_like_generalizations_type_functions = new JMenu("M-Like Type");
         general_type_functions = new JMenu("General Type");
+        general_math_type_functions = new JMenu("Math Library Type");
+        general_newton_variant_functions = new JMenu("z = z - (z^n + c)/(nz^(n - 2))");
         c_azb_dze_type_functions = new JMenu("z = c(az^b + dz^e)");
         c_azb_dze_f_g_type_functions = new JMenu("z = (c(az^b + dz^e) + f)^g");
         
@@ -970,6 +1016,9 @@ public class MainWindow extends JFrame {
         grid_menu = new JMenu("Grid");
         grid_menu.setIcon(getIcon("/fractalzoomer/icons/grid_options.png"));
         
+        boundaries_menu = new JMenu("Boundaries");
+        boundaries_menu.setIcon(getIcon("/fractalzoomer/icons/boundaries_options.png"));
+        
         orbit_color_opt = new JMenuItem("Orbit Color", getIcon("/fractalzoomer/icons/color.png"));
         
         orbit_style_menu = new JMenu("Orbit Style");
@@ -978,6 +1027,18 @@ public class MainWindow extends JFrame {
         grid_color_opt = new JMenuItem("Grid Color", getIcon("/fractalzoomer/icons/color.png"));
         
         grid_tiles_opt = new JMenuItem("Grid Tiles", getIcon("/fractalzoomer/icons/grid.png"));
+        
+        zoom_window_color_opt = new JMenuItem("Zoom Window Color", getIcon("/fractalzoomer/icons/color.png"));
+          
+        zoom_window_menu = new JMenu("Zoom Window");
+        zoom_window_menu.setIcon(getIcon("/fractalzoomer/icons/zoom_window_options.png"));
+        
+        zoom_window_style_menu = new JMenu("Zoom Window Style");
+        zoom_window_style_menu.setIcon(getIcon("/fractalzoomer/icons/orbit_style.png"));
+        
+        boundaries_color_opt = new JMenuItem("Boundaries Color", getIcon("/fractalzoomer/icons/color.png"));
+        
+        boundaries_number_opt = new JMenuItem("Boundaries Options", getIcon("/fractalzoomer/icons/boundaries.png"));
         
         
         fast_julia_filters_opt = new JCheckBoxMenuItem("Julia Preview Image Filters");
@@ -1031,8 +1092,10 @@ public class MainWindow extends JFrame {
         julia_opt = new JCheckBoxMenuItem("Julia");
         color_cycling_opt = new JCheckBoxMenuItem("Color Cycling");
         d3_opt = new JCheckBoxMenuItem("3D");
-        julia_map_opt = new JCheckBoxMenuItem("Julia Map...");
+        julia_map_opt = new JCheckBoxMenuItem("Julia Map");
         grid_opt = new JCheckBoxMenuItem("Show Grid");
+        zoom_window_opt = new JCheckBoxMenuItem("Show Zoom Window");
+        boundaries_opt = new JCheckBoxMenuItem("Show Boundaries");
         
 
         filters_menu = new JMenu("Filters");
@@ -1049,8 +1112,8 @@ public class MainWindow extends JFrame {
         go_to.setToolTipText("Sets the center and size of the fractal, or the julia seed.");
         zoom_in.setToolTipText("Zooms in with a fixed rate to the current center.");
         zoom_out.setToolTipText("Zooms out with a fixed rate to the current center.");
-        save_settings.setToolTipText("Saves the function, plane, center, size, color options, iterations, rotation, perturbation, initial value, and bailout of the fractal.");
-        load_settings.setToolTipText("Loads the function, plane, center, size, color options, iterations, rotation, perturbation, initial value, and bailout of the fractal.");
+        save_settings.setToolTipText("<html>Saves the function, plane, center, size, color options, iterations,<br> rotation, perturbation, initial value, and bailout of the fractal.</html>");
+        load_settings.setToolTipText("<html>Loads the function, plane, center, size, color options, iterations,<br> rotation, perturbation, initial value, and bailout of the fractal.</html>");
         save_image.setToolTipText("Saves a bmp, jpg, or png image.");
         exit.setToolTipText("Exits the application.");
         
@@ -1075,9 +1138,13 @@ public class MainWindow extends JFrame {
         smoothing_opt.setToolTipText("Smooths the image's color transitions.");
 
         grid_color_opt.setToolTipText("Sets the color of the grid.");
+        grid_tiles_opt.setToolTipText("Sets the number of the grid tiles.");
+        boundaries_color_opt.setToolTipText("Sets the color of the boundaries.");
+        boundaries_number_opt.setToolTipText("Sets the boundaries options.");
         toolbar_opt.setToolTipText("Activates the tool bar.");
         statusbar_opt.setToolTipText("Activates the status bar.");
         orbit_color_opt.setToolTipText("Sets the color of the orbit.");
+        zoom_window_color_opt.setToolTipText("Sets the color of zooming window.");
 
         fract_color.setToolTipText("Sets a color corresponding to the maximum iterations.");
         random_palette.setToolTipText("Randomizes the palette.");
@@ -1095,6 +1162,8 @@ public class MainWindow extends JFrame {
         d3_opt.setToolTipText("Creates a 3D version of the image.");
         color_cycling_opt.setToolTipText("Animates the image, cycling through the palette.");
         grid_opt.setToolTipText("Draws a cordinated grid.");
+        zoom_window_opt.setToolTipText("Displays the zooming window.");
+        boundaries_opt.setToolTipText("Draws the plane boundaries.");
 
         anti_aliasing_opt.setToolTipText("Smooths the image.");
         edges_opt.setToolTipText("Detects the edges of the image (Thick Edges).");
@@ -1158,6 +1227,8 @@ public class MainWindow extends JFrame {
         d3_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, ActionEvent.SHIFT_MASK));
         color_cycling_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y, ActionEvent.CTRL_MASK));
         grid_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, ActionEvent.ALT_MASK));
+        zoom_window_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Z, ActionEvent.SHIFT_MASK));
+        boundaries_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, ActionEvent.SHIFT_MASK));
                     
         anti_aliasing_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G, ActionEvent.CTRL_MASK));
         edges_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, ActionEvent.CTRL_MASK));
@@ -1259,7 +1330,7 @@ public class MainWindow extends JFrame {
 
         });
 
-        fractal_functions = new JRadioButtonMenuItem[118];
+        fractal_functions = new JRadioButtonMenuItem[122];
         
         fractal_functions[0] = new JRadioButtonMenuItem("Mandelbrot z = z^2 + c");
         fractal_functions[0].addActionListener(new ActionListener() {
@@ -1745,6 +1816,10 @@ public class MainWindow extends JFrame {
         formulas_type_functions.add(kaliset_type_functions);
         formulas_type_functions.addSeparator();
         formulas_type_functions.add(general_type_functions);
+        
+        general_type_functions.add(general_math_type_functions);
+        general_type_functions.addSeparator();
+        general_type_functions.add(general_newton_variant_functions);
  
         
         fractal_functions_menu.add(formulas_type_functions);
@@ -2175,7 +2250,7 @@ public class MainWindow extends JFrame {
 
                 }
         });
-        general_type_functions.add(fractal_functions[FORMULA30]);
+        general_math_type_functions.add(fractal_functions[FORMULA30]);
         
         
         fractal_functions[FORMULA31] = new JRadioButtonMenuItem("z = cos(z)c");
@@ -2187,7 +2262,7 @@ public class MainWindow extends JFrame {
 
                 }
         });
-        general_type_functions.add(fractal_functions[FORMULA31]);
+        general_math_type_functions.add(fractal_functions[FORMULA31]);
         
         fractal_functions[FORMULA32] = new JRadioButtonMenuItem("z = zlog(z + 1) + c");
         fractal_functions[FORMULA32].addActionListener(new ActionListener() {
@@ -2198,7 +2273,7 @@ public class MainWindow extends JFrame {
 
                 }
         });
-        general_type_functions.add(fractal_functions[FORMULA32]);
+        general_math_type_functions.add(fractal_functions[FORMULA32]);
         
         fractal_functions[FORMULA33] = new JRadioButtonMenuItem("z = zsin(z) + c");
         fractal_functions[FORMULA33].addActionListener(new ActionListener() {
@@ -2209,7 +2284,7 @@ public class MainWindow extends JFrame {
 
                 }
         });
-        general_type_functions.add(fractal_functions[FORMULA33]);
+        general_math_type_functions.add(fractal_functions[FORMULA33]);
         
         fractal_functions[FORMULA34] = new JRadioButtonMenuItem("z = zsinh(z) + c");
         fractal_functions[FORMULA34].addActionListener(new ActionListener() {
@@ -2220,7 +2295,7 @@ public class MainWindow extends JFrame {
 
                 }
         });
-        general_type_functions.add(fractal_functions[FORMULA34]);
+        general_math_type_functions.add(fractal_functions[FORMULA34]);
         
         
         fractal_functions[FORMULA35] = new JRadioButtonMenuItem("z = 2 - 2cos(z) + c");
@@ -2232,7 +2307,7 @@ public class MainWindow extends JFrame {
 
                 }
         });
-        general_type_functions.add(fractal_functions[FORMULA35]);
+        general_math_type_functions.add(fractal_functions[FORMULA35]);
         
         fractal_functions[FORMULA36] = new JRadioButtonMenuItem("z = 2cosh(z) - 2 + c");
         fractal_functions[FORMULA36].addActionListener(new ActionListener() {
@@ -2243,7 +2318,7 @@ public class MainWindow extends JFrame {
 
                 }
         });
-        general_type_functions.add(fractal_functions[FORMULA36]);
+        general_math_type_functions.add(fractal_functions[FORMULA36]);
         
         fractal_functions[FORMULA37] = new JRadioButtonMenuItem("z = zsin(z) - c^2");
         fractal_functions[FORMULA37].addActionListener(new ActionListener() {
@@ -2254,7 +2329,54 @@ public class MainWindow extends JFrame {
 
                 }
         });
-        general_type_functions.add(fractal_functions[FORMULA37]);
+        general_math_type_functions.add(fractal_functions[FORMULA37]);
+        
+        
+        
+        fractal_functions[FORMULA42] = new JRadioButtonMenuItem("z = z - (z^3 + c)/(3z)");
+        fractal_functions[FORMULA42].addActionListener(new ActionListener() {
+      
+                public void actionPerformed(ActionEvent e) {
+
+                    setFunction(FORMULA42);
+
+                }
+        });
+        general_newton_variant_functions.add(fractal_functions[FORMULA42]);
+        
+        fractal_functions[FORMULA43] = new JRadioButtonMenuItem("z = z - (z^4 + c)/(4z^2)");
+        fractal_functions[FORMULA43].addActionListener(new ActionListener() {
+      
+                public void actionPerformed(ActionEvent e) {
+
+                    setFunction(FORMULA43);
+
+                }
+        });
+        general_newton_variant_functions.add(fractal_functions[FORMULA43]);
+        
+        fractal_functions[FORMULA44] = new JRadioButtonMenuItem("z = z - (z^5 + c)/(5z^3)");
+        fractal_functions[FORMULA44].addActionListener(new ActionListener() {
+      
+                public void actionPerformed(ActionEvent e) {
+
+                    setFunction(FORMULA44);
+
+                }
+        });
+        general_newton_variant_functions.add(fractal_functions[FORMULA44]);
+        
+        fractal_functions[FORMULA45] = new JRadioButtonMenuItem("z = z - (z^8 + c)/(8z^6)");
+        fractal_functions[FORMULA45].addActionListener(new ActionListener() {
+      
+                public void actionPerformed(ActionEvent e) {
+
+                    setFunction(FORMULA45);
+
+                }
+        });
+        general_newton_variant_functions.add(fractal_functions[FORMULA45]);
+        
         
         fractal_functions_menu.add(math_type_functions);
         fractal_functions_menu.addSeparator();
@@ -4249,10 +4371,43 @@ public class MainWindow extends JFrame {
         toolbar_opt.setSelected(true);
         statusbar_opt.setSelected(true);
         
+        zoom_window_dashed_line = new JRadioButtonMenuItem("Dashed Line");
+        zoom_window_dashed_line.setToolTipText("Sets the zooming window style to dashed line.");
+        
+        zoom_window_line = new JRadioButtonMenuItem("Solid Line");
+        zoom_window_line.setToolTipText("Sets the zooming window style to solid line.");
+        
+        zoom_window_dashed_line.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                setZoomWindowDashedLine();
+
+            }
+        });
+        
+        zoom_window_line.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                setZoomWindowLine();
+
+            }
+        });
+        
+        zoom_window_dashed_line.setSelected(true);
+        zoom_window_dashed_line.setEnabled(false);
+
+        zoom_window_style_menu.add(zoom_window_dashed_line);
+        zoom_window_style_menu.add(zoom_window_line);
+        
+        
         line = new JRadioButtonMenuItem("Line");
-        line.setToolTipText("Sets the Orbit style to line.");
+        line.setToolTipText("Sets the orbit style to line.");
         dot = new JRadioButtonMenuItem("Dot");
-        dot.setToolTipText("Sets the Orbit style to dot.");
+        dot.setToolTipText("Sets the orbit style to dot.");
 
         line.addActionListener(new ActionListener() {
 
@@ -4263,6 +4418,7 @@ public class MainWindow extends JFrame {
 
             }
         });
+        
 
         dot.addActionListener(new ActionListener() {
 
@@ -4288,6 +4444,14 @@ public class MainWindow extends JFrame {
         grid_menu.add(grid_color_opt);
         grid_menu.addSeparator();
         grid_menu.add(grid_tiles_opt);
+        
+        zoom_window_menu.add(zoom_window_color_opt);
+        zoom_window_menu.addSeparator();
+        zoom_window_menu.add(zoom_window_style_menu);
+               
+        boundaries_menu.add(boundaries_color_opt);
+        boundaries_menu.addSeparator();
+        boundaries_menu.add(boundaries_number_opt);
 
         grid_color_opt.addActionListener(new ActionListener() {
 
@@ -4295,6 +4459,36 @@ public class MainWindow extends JFrame {
             public void actionPerformed(ActionEvent e) {
 
                 setGridColor();
+
+            }
+        });
+        
+        zoom_window_color_opt.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                setZoomWindowColor();
+
+            }
+        });
+        
+        boundaries_color_opt.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                setBoundariesColor();
+
+            }
+        });
+        
+        boundaries_number_opt.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                setBoundariesNumber();
 
             }
         });
@@ -4371,6 +4565,26 @@ public class MainWindow extends JFrame {
             }
         });
         
+        zoom_window_opt.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                setZoomWindow();
+
+            }
+        });
+        
+        boundaries_opt.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                setBoundaries();
+
+            }
+        });
+        
         julia_map_opt.addActionListener(new ActionListener() {
 
             @Override
@@ -4411,7 +4625,7 @@ public class MainWindow extends JFrame {
                 if(!color_cycling) {
                     main_panel.repaint();
                 }
-                JOptionPane.showMessageDialog(scroll_pane, "<html><center><font size='5' face='arial' color='blue'><b><u>Fractal Zoomer</u></b></font><br><br><font size='4'><img src=\"" + getClass().getResource("/fractalzoomer/icons/mandel2.png") + "\"><br><br>Version: <b>1.0.5.1</b><br><br>Author: <b>Christos Kalonakis</b><br><br>Contact: <a href=\"mailto:hrkalona@gmail.com\">hrkalona@gmail.com</a><br><br></font></center></html>", "About", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(scroll_pane, "<html><center><font size='5' face='arial' color='blue'><b><u>Fractal Zoomer</u></b></font><br><br><font size='4'><img src=\"" + getClass().getResource("/fractalzoomer/icons/mandel2.png") + "\"><br><br>Version: <b>1.0.5.2</b><br><br>Author: <b>Christos Kalonakis</b><br><br>Contact: <a href=\"mailto:hrkalona@gmail.com\">hrkalona@gmail.com</a><br><br></font></center></html>", "About", JOptionPane.INFORMATION_MESSAGE);
 
             }
 
@@ -4813,6 +5027,10 @@ public class MainWindow extends JFrame {
         tools_options_menu.add(d3_details_opt);
         tools_options_menu.addSeparator();
         tools_options_menu.add(grid_menu);
+        tools_options_menu.addSeparator();
+        tools_options_menu.add(zoom_window_menu);
+        tools_options_menu.addSeparator();
+        tools_options_menu.add(boundaries_menu);
         
 
    
@@ -4877,6 +5095,10 @@ public class MainWindow extends JFrame {
         tools_menu.add(color_cycling_opt);
         tools_menu.addSeparator();
         tools_menu.add(grid_opt);
+        tools_menu.addSeparator();
+        tools_menu.add(zoom_window_opt);
+        tools_menu.addSeparator();
+        tools_menu.add(boundaries_opt);
         
         
         filters_menu.add(anti_aliasing_opt);
@@ -4969,7 +5191,7 @@ public class MainWindow extends JFrame {
                     System.arraycopy(((DataBufferInt)backup_orbit.getRaster().getDataBuffer()).getData(), 0, ((DataBufferInt)image.getRaster().getDataBuffer()).getData(), 0, image_size * image_size);
                }
                 
-               if(!grid || orbit) {
+               if(!grid || orbit || !boundaries) {
                     if(orbit) {
                         while(pixels_orbit.isAlive()) {}
                         main_panel.repaint();
@@ -5093,6 +5315,9 @@ public class MainWindow extends JFrame {
 
                 boolean temp2 = grid;
                 grid = false;
+                
+                boolean temp3 = boundaries;
+                boundaries = false;
 
                 if(!d3) {
                     ThreadDraw.setArrays(image_size);
@@ -5127,6 +5352,7 @@ public class MainWindow extends JFrame {
                 }
 
                 grid = temp2;
+                boundaries = temp3;
 
                 if(julia && first_seed) {
                     julia = false;
@@ -5252,6 +5478,10 @@ public class MainWindow extends JFrame {
 
                 if(julia && first_seed) {
                     fastJulia();
+                }
+                
+                if(zoom_window) {
+                    main_panel.repaint();
                 }
 
             }
@@ -5742,6 +5972,18 @@ public class MainWindow extends JFrame {
             case FORMULA41:
                 temp += "   z = (z^16 - 10)/(z^14 - c) + c - 6";
                 break;
+            case FORMULA42:
+                temp += "   z = z - (z^3 + c)/(3z)";
+                break;
+            case FORMULA43:
+                temp += "   z = z - (z^4 + c)/(4z^2)";
+                break;
+            case FORMULA44:
+                temp += "   z = z - (z^5 + c)/(5z^3)";
+                break;
+            case FORMULA45:
+                temp += "   z = z - (z^8 + c)/(8z^6)";
+                break;
             case USER_FORMULA:
                 temp += "   User Formula";
                 break;
@@ -5880,12 +6122,37 @@ public class MainWindow extends JFrame {
        }
        main_panel.repaint();
 
-       JFileChooser file_chooser = new JFileChooser(".");
+       file_chooser = new JFileChooser(".");
+       
+       file_chooser.setAcceptAllFileFilterUsed(false);
+       file_chooser.setDialogType(JFileChooser.SAVE_DIALOG);
+
+       file_chooser.addChoosableFileFilter(new FileNameExtensionFilter("Fractal Zoomer Settings (*.fzs)", "fzs")); 
 
        Calendar calendar = new GregorianCalendar();
        file_chooser.setSelectedFile(new File("fractal " + String.format("%02d", calendar.get(Calendar.DAY_OF_MONTH)) + "-" + String.format("%02d", calendar.get(Calendar.MONTH) + 1) + "-" + calendar.get(Calendar.YEAR) + " " + String.format("%02d", calendar.get(Calendar.HOUR_OF_DAY)) + ";" + String.format("%02d", calendar.get(Calendar.MINUTE)) + ";" + String.format("%02d", calendar.get(Calendar.SECOND)) + ".fzs"));
 
-       int returnVal = file_chooser.showDialog(ptr, "Save");
+       file_chooser.addPropertyChangeListener(JFileChooser.FILE_FILTER_CHANGED_PROPERTY, new PropertyChangeListener() {
+           
+           @Override
+          public void propertyChange(PropertyChangeEvent evt) {
+            FileNameExtensionFilter filter = (FileNameExtensionFilter)evt.getNewValue();
+
+            String extension = filter.getExtensions()[0];
+            
+            String file_name = ((BasicFileChooserUI)file_chooser.getUI()).getFileName();
+   
+            int index = file_name.lastIndexOf(".");
+            
+            if(index != -1) {
+                file_name = file_name.substring(0, index);
+            }   
+
+            file_chooser.setSelectedFile(new File(file_name + "." + extension));
+          }
+        });
+       
+       int returnVal = file_chooser.showDialog(ptr, "Save Settings");
 
        if(returnVal == JFileChooser.APPROVE_OPTION) {
            File file = file_chooser.getSelectedFile();
@@ -5958,9 +6225,34 @@ public class MainWindow extends JFrame {
        }
        main_panel.repaint();
 
-       JFileChooser file_chooser = new JFileChooser(".");
+       file_chooser = new JFileChooser(".");
+       
+       file_chooser.setAcceptAllFileFilterUsed(false);
+       file_chooser.setDialogType(JFileChooser.OPEN_DIALOG);
 
-       int returnVal = file_chooser.showDialog(ptr, "Load");
+       file_chooser.addChoosableFileFilter(new FileNameExtensionFilter("Fractal Zoomer Settings (*.fzs)", "fzs")); 
+       
+       file_chooser.addPropertyChangeListener(JFileChooser.FILE_FILTER_CHANGED_PROPERTY, new PropertyChangeListener() {
+           
+           @Override
+          public void propertyChange(PropertyChangeEvent evt) {
+            FileNameExtensionFilter filter = (FileNameExtensionFilter)evt.getNewValue();
+
+            String extension = filter.getExtensions()[0];
+            
+            String file_name = ((BasicFileChooserUI)file_chooser.getUI()).getFileName();
+   
+            int index = file_name.lastIndexOf(".");
+            
+            if(index != -1) {
+                file_name = file_name.substring(0, index);
+            }   
+
+            file_chooser.setSelectedFile(new File(file_name + "." + extension));
+          }
+        });
+
+       int returnVal = file_chooser.showDialog(ptr, "Load Settings");
 
        if(returnVal == JFileChooser.APPROVE_OPTION) {
            File file = file_chooser.getSelectedFile();
@@ -5989,6 +6281,9 @@ public class MainWindow extends JFrame {
                
                julia_map = false;
                julia_map_opt.setSelected(false);
+               
+               zoom_window = false;
+               zoom_window_opt.setSelected(false);
                
                if(isSettingsJulia("" + settings.getClass())) {
                    if(getSettingsVersion("" + settings.getClass()).equals("1.0.4.8")) {
@@ -6078,10 +6373,16 @@ public class MainWindow extends JFrame {
                color_cycling_location = settings.getColorCyclingLocation();
                plane_type = settings.getPlaneType();
                
+                if(size < 0.05) {
+                    boundaries_opt.setSelected(false);
+                    setBoundaries();
+                    boundaries_opt.setEnabled(false);
+                }
+               
                if(plane_type == USER_PLANE) {
                    user_plane = settings.getUserPlane();
                }
-               
+                            
                if(color_choice == palette.length - 1) {
                    custom_palette = settings.getCustomPalette();
                    color_interpolation = settings.getColorInterpolation();
@@ -6106,6 +6407,10 @@ public class MainWindow extends JFrame {
                    grid_opt.setEnabled(false);
                    grid = false;
                    grid_opt.setSelected(false);
+                   
+                   boundaries_opt.setEnabled(false);
+                   boundaries = false;
+                   boundaries_opt.setSelected(false);
                }
 
                out_coloring_algorithm = settings.getOutColoringAlgorithm();
@@ -6142,6 +6447,9 @@ public class MainWindow extends JFrame {
                        }
                   // }
                }
+                
+               burning_ship_opt.setEnabled(true);
+               mandel_grass_opt.setEnabled(true);
   
 
                if(out_coloring_algorithm == ESCAPE_TIME_ESCAPE_RADIUS || out_coloring_algorithm == ESCAPE_TIME_GRID || out_coloring_algorithm == BIOMORPH || out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER || out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER2 || out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER3 || out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER4 || out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER5 || out_coloring_algorithm == ITERATIONS_PLUS_RE || out_coloring_algorithm == ITERATIONS_PLUS_IM || out_coloring_algorithm == ITERATIONS_PLUS_RE_DIVIDE_IM || out_coloring_algorithm == ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM  || out_coloring_algorithm == ESCAPE_TIME_ALGORITHM2) {
@@ -6150,6 +6458,11 @@ public class MainWindow extends JFrame {
                else if(out_coloring_algorithm == DISTANCE_ESTIMATOR || out_coloring_algorithm == DISTANCE_ESTIMATOR2) {
                    for(int k = 1; k < fractal_functions.length; k++) {
                        fractal_functions[k].setEnabled(false);
+                   }
+                   
+                   if(out_coloring_algorithm == DISTANCE_ESTIMATOR2) {
+                       burning_ship_opt.setEnabled(false);
+                       mandel_grass_opt.setEnabled(false);
                    }
                }
                else {
@@ -6170,6 +6483,10 @@ public class MainWindow extends JFrame {
                }
                
                smoothing_opt.setSelected(smoothing);
+               
+               if(burning_ship || mandel_grass) {
+                   out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
+               }
 
                switch (function) {
                    case MANDELBROTNTH:
@@ -7629,7 +7946,7 @@ public class MainWindow extends JFrame {
                        if(out_coloring_algorithm != DISTANCE_ESTIMATOR) {
                            out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(true);
                        }
-                       if(out_coloring_algorithm != DISTANCE_ESTIMATOR2) {
+                       if(out_coloring_algorithm != DISTANCE_ESTIMATOR2 && !mandel_grass && !burning_ship) {
                            out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(true);
                        }
                        if(out_coloring_algorithm != BIOMORPH) {
@@ -7953,7 +8270,7 @@ public class MainWindow extends JFrame {
                     planes[plane_type].setSelected(true);
                     planes[plane_type].setEnabled(false);
                }
-
+           
 
                setOptions(false);
 
@@ -8010,78 +8327,71 @@ public class MainWindow extends JFrame {
 
        main_panel.repaint();
 
-       JFileChooser file_chooser = new JFileChooser(".");
-
+       file_chooser = new JFileChooser(".");
+       file_chooser.setAcceptAllFileFilterUsed(false);
+       file_chooser.setDialogType(JFileChooser.SAVE_DIALOG);
+       
+       file_chooser.addChoosableFileFilter(new FileNameExtensionFilter("24-bit Bitmap (*.bmp)", "bmp")); 
+       file_chooser.addChoosableFileFilter(new FileNameExtensionFilter("JPEG (*.jpg)", "jpg"));
+       file_chooser.addChoosableFileFilter(new FileNameExtensionFilter("PNG (*.png)", "png"));
+       
        Calendar calendar = new GregorianCalendar();
        file_chooser.setSelectedFile(new File("fractal " + String.format("%02d", calendar.get(Calendar.DAY_OF_MONTH)) + "-" + String.format("%02d", calendar.get(Calendar.MONTH) + 1) + "-" + calendar.get(Calendar.YEAR) + " " + String.format("%02d", calendar.get(Calendar.HOUR_OF_DAY)) + ";" + String.format("%02d", calendar.get(Calendar.MINUTE)) + ";" + String.format("%02d", calendar.get(Calendar.SECOND)) + ".bmp"));
+   
+      
+       file_chooser.addPropertyChangeListener(JFileChooser.FILE_FILTER_CHANGED_PROPERTY, new PropertyChangeListener() {
+           
+           @Override
+          public void propertyChange(PropertyChangeEvent evt) {
+            FileNameExtensionFilter filter = (FileNameExtensionFilter)evt.getNewValue();
 
+            String extension = filter.getExtensions()[0];
+            
+            String file_name = ((BasicFileChooserUI)file_chooser.getUI()).getFileName();
+   
+            int index = file_name.lastIndexOf(".");
+            
+            if(index != -1) {
+                file_name = file_name.substring(0, index);
+            }          
+
+            file_chooser.setSelectedFile(new File(file_name + "." + extension));
+          }
+        });
+
+      
        int returnVal = file_chooser.showDialog(ptr, "Save Image");
 
        last_used = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_RGB);
        Graphics2D graphics = last_used.createGraphics();
        graphics.drawImage(image, 0, 0, null);
+       
+       if(boundaries && !orbit) {
+           drawBoundaries(graphics, false);
+       }
 
-       if(grid && !orbit) {
-           double size_2 = size * 0.5;
-           double temp_xcenter_size = xCenter - size_2;
-           double temp_ycenter_size = yCenter - size_2;
-           double temp_size_image_size = size / image_size;
-
-            graphics.setColor(grid_color);
-            graphics.setFont(new Font("Arial", Font.BOLD , 9));
-            graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-
-            double temp, temp2;
-            for(int i = 1; i < grid_tiles; i++) {
-               graphics.drawLine(i * image_size / grid_tiles, 0, i * image_size / grid_tiles, image_size);
-               graphics.drawLine(0, i * image_size / grid_tiles, image_size, i * image_size / grid_tiles);
-
-
-               temp = temp_xcenter_size + temp_size_image_size * i * image_size / grid_tiles;
-               temp2 = temp_ycenter_size + temp_size_image_size * i * image_size / grid_tiles;
-
-               if(temp >= 1e-8) {
-                  temp = Math.floor(1000000000 * temp + 0.5) / 1000000000;
-               }
-               else if(Math.abs(temp) < 1e-15) {
-                   temp = 0;
-               }
-
-               if(temp2 >= 1e-8) {
-                  temp2 = Math.floor(1000000000 * temp2 + 0.5) / 1000000000;
-               }
-               else if(Math.abs(temp2) < 1e-15) {
-                   temp2 = 0;
-               }
-
-               temp2 = temp2 == 0 ? temp2 : -temp2;
-
-               graphics.drawString("" + temp, i * image_size / grid_tiles + 6, 12);
-               graphics.drawString("" + temp2, 6, i * image_size / grid_tiles + 12);
-           }
-
-
-          
+       if(grid && !orbit) {        
+           drawGrid(graphics, false);
        }
 
        if(returnVal == JFileChooser.APPROVE_OPTION) {
            try {
                File file = file_chooser.getSelectedFile();
-               String temp = file.getName();
+               
+               FileNameExtensionFilter filter = (FileNameExtensionFilter)file_chooser.getFileFilter();
 
-               temp = temp.substring(temp.lastIndexOf('.') + 1, temp.length());      
+               String extension = filter.getExtensions()[0];   
 
-               if(temp.equalsIgnoreCase("bmp")) {
+               if(extension.equalsIgnoreCase("bmp")) {
                    ImageIO.write(last_used, "bmp", file);
                }
-               else if(temp.equalsIgnoreCase("png")) {
+               else if(extension.equalsIgnoreCase("png")) {
                    ImageIO.write(last_used, "png", file);
                }
-               else if(temp.equalsIgnoreCase("jpg")) {
+               else if(extension.equalsIgnoreCase("jpg")) {
                    ImageIO.write(last_used, "jpg", file);
                }
-               else if(temp.equalsIgnoreCase("jpeg")) {
+               else if(extension.equalsIgnoreCase("jpeg")) {
                    ImageIO.write(last_used, "jpeg", file);
                }
                else {
@@ -8816,6 +9126,62 @@ public class MainWindow extends JFrame {
                     bailout = 8;
                 }
                 break;
+            case FORMULA42:
+                if(julia) {
+                    xCenter = 0;
+                    yCenter = 0;
+                    size = 12;
+                    bailout = 12;
+                }
+                else {
+                    xCenter = 0;
+                    yCenter = 0;
+                    size = 12;
+                    bailout = 12;
+                }
+                break;
+            case FORMULA43:
+                if(julia) {
+                    xCenter = 0;
+                    yCenter = 0;
+                    size = 24;
+                    bailout = 12;
+                }
+                else {
+                    xCenter = 0;
+                    yCenter = 0;
+                    size = 24;
+                    bailout = 12;
+                }
+                break;
+            case FORMULA44:
+                if(julia) {
+                    xCenter = 0;
+                    yCenter = 0;
+                    size = 24;
+                    bailout = 16;
+                }
+                else {
+                    xCenter = 0;
+                    yCenter = 0;
+                    size = 24;
+                    bailout = 16;
+                }
+                break;
+            case FORMULA45:
+                if(julia) {
+                    xCenter = 0;
+                    yCenter = 0;
+                    size = 24;
+                    bailout = 16;
+                }
+                else {
+                    xCenter = 0;
+                    yCenter = 0;
+                    size = 24;
+                    bailout = 16;
+                }
+                break;
             case USER_FORMULA:
                 if(julia) {
                     xCenter = 0;
@@ -8882,9 +9248,14 @@ public class MainWindow extends JFrame {
                 size = 6;
                 bailout = 2;
                 break;
-        } 
+        }
         
-               
+        if(size < 0.05) {
+            boundaries_opt.setSelected(false);
+            setBoundaries();
+            boundaries_opt.setEnabled(false);
+        }
+       
         reloadTitle();
 
         progress.setValue(0);
@@ -9001,7 +9372,12 @@ public class MainWindow extends JFrame {
             main_panel.repaint();
             return;
         }
-                
+        
+        if(size < 0.05) {
+            boundaries_opt.setSelected(false);
+            setBoundaries();
+            boundaries_opt.setEnabled(false);
+        }
             
         setOptions(false);
 
@@ -9132,26 +9508,41 @@ public class MainWindow extends JFrame {
             field_size.setText("" + size); 
             
             xJuliaCenter = xJuliaCenter == 0.0 ? 0.0 : xJuliaCenter;
-       
-            String seed = "";
+            
+            JTextField real_seed = new JTextField(16);
+            real_seed.setEditable(false);
+            JTextField imag_seed = new JTextField(16);
+            imag_seed.setEditable(false);
 
             if(-yJuliaCenter > 0) {
-               seed = xJuliaCenter + "+" + (-yJuliaCenter) + "i";
+                real_seed.setText("" + xJuliaCenter);
+                imag_seed.setText("" + (-yJuliaCenter));
             }
             else {
                if(yJuliaCenter == 0) {
-                  seed = xJuliaCenter + "+" + (0.0) + "i";
+                   real_seed.setText("" + xJuliaCenter);
+                   imag_seed.setText("" + 0.0);
                }
                else {
-                  seed = xJuliaCenter + "" + (-yJuliaCenter) + "i";
+                   real_seed.setText("" + xJuliaCenter);
+                   imag_seed.setText("" + (-yJuliaCenter));
                }
            }
+            
+            JPanel julia_seed = new JPanel();
+
+            julia_seed.add(real_seed);
+            julia_seed.add(new JLabel(" "));
+            julia_seed.add(imag_seed);
+            julia_seed.add(new JLabel("i"));
 
             Object[] message = { 
                " ",
                "Set the real and imaginary part of the new center",
                "and the new size.",
-               "Julia seed: " + seed,
+               " ",
+               "Julia seed:",
+               julia_seed,
                " ",
                "Real:", field_real,
                "Imaginary:", field_imaginary,
@@ -9183,6 +9574,12 @@ public class MainWindow extends JFrame {
                 return;
             }
             
+            if(size < 0.05) {
+                boundaries_opt.setSelected(false);
+                setBoundaries();
+                boundaries_opt.setEnabled(false);
+            }
+        
             setOptions(false);
 
             reloadTitle();
@@ -10460,7 +10857,7 @@ public class MainWindow extends JFrame {
 
        if(!grid_opt.isSelected()) {
            grid = false;
-           if(!julia_map && !orbit && image_size < 2001) {
+           if(!zoom_window && !julia_map && !orbit && image_size < 2001 && !boundaries) {
                d3_opt.setEnabled(true);
                d3_button.setEnabled(true);
            }
@@ -10470,6 +10867,67 @@ public class MainWindow extends JFrame {
            grid = true;
            d3_opt.setEnabled(false);
            d3_button.setEnabled(false);
+           main_panel.repaint();         
+       }
+
+   }
+   
+   private void setBoundaries() {
+
+       if(!boundaries_opt.isSelected()) {
+           boundaries = false;
+           if(!zoom_window && !julia_map && !orbit && image_size < 2001 && !grid) {
+               d3_opt.setEnabled(true);
+               d3_button.setEnabled(true);
+           }
+           main_panel.repaint();
+       }
+       else {
+           boundaries = true;
+           d3_opt.setEnabled(false);
+           d3_button.setEnabled(false);
+           main_panel.repaint();         
+       }
+
+   }
+   
+   private void setZoomWindow() {
+
+       if(!zoom_window_opt.isSelected()) {
+           zoom_window = false;
+           if(function != NEWTON3 && function != NEWTON4 && function != NEWTONGENERALIZED3 && function != NEWTONGENERALIZED8 && function != NEWTONSIN && function != NEWTONCOS && function != NEWTONPOLY && function != HALLEY3 && function != HALLEY4 && function != HALLEYGENERALIZED3 && function != HALLEYGENERALIZED8 && function != HALLEYSIN && function != HALLEYCOS && function != HALLEYPOLY && function != SCHRODER3 && function != SCHRODER4 && function != SCHRODERGENERALIZED3 && function != SCHRODERGENERALIZED8 && function != SCHRODERSIN && function != SCHRODERCOS && function != SCHRODERPOLY && function != HOUSEHOLDER3 && function != HOUSEHOLDER4 && function != HOUSEHOLDERGENERALIZED3 && function != HOUSEHOLDERGENERALIZED8 && function != HOUSEHOLDERSIN && function != HOUSEHOLDERCOS && function != HOUSEHOLDERPOLY && function != SIERPINSKI_GASKET && function != SECANT3 && function != SECANT4 && function != SECANTGENERALIZED3 && function != SECANTGENERALIZED8 && function != SECANTCOS && function != SECANTPOLY && function != STEFFENSEN3 && function != STEFFENSEN4 && function != STEFFENSENGENERALIZED3 && !init_val && !perturbation && (function != USER_FORMULA || (function == USER_FORMULA && user_formula_c == true)) && (function != USER_FORMULA_ITERATION_BASED || (function == USER_FORMULA_ITERATION_BASED && user_formula_c == true)) && (function != USER_FORMULA_CONDITIONAL || (function == USER_FORMULA_CONDITIONAL && user_formula_c == true))) {
+               julia_opt.setEnabled(true);
+               julia_button.setEnabled(true);
+               if(!julia) {
+                   julia_map_opt.setEnabled(true);
+               }
+           }
+           
+           if(image_size < 2001 && !grid && !boundaries) {
+               d3_opt.setEnabled(true);
+               d3_button.setEnabled(true);
+           }
+           
+           if(image_size < 4001) {
+                orbit_opt.setEnabled(true);
+                orbit_button.setEnabled(true);
+           }
+
+           color_cycling_opt.setEnabled(true);
+           color_cycling_button.setEnabled(true);
+           main_panel.repaint();
+       }
+       else {
+           zoom_window = true;
+           d3_opt.setEnabled(false);
+           d3_button.setEnabled(false);
+           julia_opt.setEnabled(false);
+           julia_button.setEnabled(false);
+           julia_map_opt.setEnabled(false);
+           orbit_opt.setEnabled(false);
+           orbit_button.setEnabled(false);
+           color_cycling_opt.setEnabled(false);
+           color_cycling_button.setEnabled(false);
            main_panel.repaint();         
        }
 
@@ -10565,6 +11023,12 @@ public class MainWindow extends JFrame {
                break;
            }
        }
+       
+       if(size < 0.05) {
+            boundaries_opt.setSelected(false);
+            setBoundaries();
+            boundaries_opt.setEnabled(false);
+        }
 
        setOptions(false);
     
@@ -10648,6 +11112,12 @@ public class MainWindow extends JFrame {
                    size *= zoom_factor;
                    break;
            }
+           
+            if(size < 0.05) {
+                boundaries_opt.setSelected(false);
+                setBoundaries();
+                boundaries_opt.setEnabled(false);
+            }
        
            reloadTitle();
 
@@ -10728,10 +11198,11 @@ public class MainWindow extends JFrame {
                }
            }
            
-           if(image_size < 2001 && !grid) {
+           if(image_size < 2001 && !grid && !boundaries) {
                d3_opt.setEnabled(true);
                d3_button.setEnabled(true);
            }
+           zoom_window_opt.setEnabled(true);
            color_cycling_opt.setEnabled(true);
            color_cycling_button.setEnabled(true);
            if(backup_orbit != null) {
@@ -10751,6 +11222,7 @@ public class MainWindow extends JFrame {
            d3_button.setEnabled(false);
            color_cycling_opt.setEnabled(false);
            color_cycling_button.setEnabled(false);
+           zoom_window_opt.setEnabled(false);
            backup_orbit = null;
            last_used = null;
        }
@@ -10834,11 +11306,11 @@ public class MainWindow extends JFrame {
            }
            try {
                if(julia) {
-                   pixels_orbit = new DrawOrbit(xCenter, yCenter, size, max_iterations > 400 ? 400 : max_iterations, (int)main_panel.getMousePosition().getX(), (int)main_panel.getMousePosition().getY(), image_size, image, ptr, orbit_color, orbit_style, plane_type, burning_ship, mandel_grass, mandel_grass_vals, grid, function, z_exponent, z_exponent_complex, rotation_vals, rotation_center, coefficients, z_exponent_nova, relaxation, nova_method, user_formula,  user_formula2, bail_technique, user_plane, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, xJuliaCenter, yJuliaCenter);
+                   pixels_orbit = new DrawOrbit(xCenter, yCenter, size, max_iterations > 400 ? 400 : max_iterations, x1, y1, image_size, image, ptr, orbit_color, orbit_style, plane_type, burning_ship, mandel_grass, mandel_grass_vals, grid, boundaries, function, z_exponent, z_exponent_complex, rotation_vals, rotation_center, coefficients, z_exponent_nova, relaxation, nova_method, user_formula,  user_formula2, bail_technique, user_plane, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, xJuliaCenter, yJuliaCenter);
                    pixels_orbit.start();
                }
                else {
-                   pixels_orbit = new DrawOrbit(xCenter, yCenter, size, max_iterations > 400 ? 400 : max_iterations, (int)main_panel.getMousePosition().getX(), (int)main_panel.getMousePosition().getY(), image_size, image, ptr, orbit_color, orbit_style, plane_type, burning_ship, mandel_grass, mandel_grass_vals, grid, function, z_exponent, z_exponent_complex, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, coefficients, z_exponent_nova, relaxation, nova_method, user_formula,  user_formula2, bail_technique, user_plane, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula);
+                   pixels_orbit = new DrawOrbit(xCenter, yCenter, size, max_iterations > 400 ? 400 : max_iterations, x1, y1, image_size, image, ptr, orbit_color, orbit_style, plane_type, burning_ship, mandel_grass, mandel_grass_vals, grid, boundaries, function, z_exponent, z_exponent_complex, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, coefficients, z_exponent_nova, relaxation, nova_method, user_formula,  user_formula2, bail_technique, user_plane, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula);
                    pixels_orbit.start();
                }            
            }
@@ -10916,6 +11388,12 @@ public class MainWindow extends JFrame {
    private void zoomIn() {
        
        size /= zoom_factor;
+       
+       if(size < 0.05) {
+            boundaries_opt.setSelected(false);
+            setBoundaries();
+            boundaries_opt.setEnabled(false);
+       }
  
        setOptions(false);
 
@@ -10947,6 +11425,12 @@ public class MainWindow extends JFrame {
    private void zoomOut() {
       
        size *= zoom_factor;
+       
+       if(size < 0.05) {
+            boundaries_opt.setSelected(false);
+            setBoundaries();
+            boundaries_opt.setEnabled(false);
+       }
 
        setOptions(false);
 
@@ -11013,12 +11497,12 @@ public class MainWindow extends JFrame {
        }
 
    
-       if(((!julia && !orbit) || (!first_seed && !orbit)) && !julia_map && !d3 && !perturbation && !init_val && (function != NEWTON3 && function != NEWTON4 && function != NEWTONGENERALIZED3 && function != NEWTONGENERALIZED8 && function != NEWTONSIN && function != NEWTONCOS && function != NEWTONPOLY && function != HALLEY3 && function != HALLEY4 && function != HALLEYGENERALIZED3 && function != HALLEYGENERALIZED8 && function != HALLEYSIN && function != HALLEYCOS && function != HALLEYPOLY && function != SCHRODER3 && function != SCHRODER4 && function != SCHRODERGENERALIZED3 && function != SCHRODERGENERALIZED8 && function != SCHRODERSIN && function != SCHRODERCOS && function != SCHRODERPOLY && function != HOUSEHOLDER3 && function != HOUSEHOLDER4 && function != HOUSEHOLDERGENERALIZED3 && function != HOUSEHOLDERGENERALIZED8 && function != HOUSEHOLDERSIN && function != HOUSEHOLDERCOS && function != HOUSEHOLDERPOLY && function != SIERPINSKI_GASKET && function != SECANT3 && function != SECANT4 && function != SECANTGENERALIZED3 && function != SECANTGENERALIZED8 && function != SECANTCOS && function != SECANTPOLY && function != STEFFENSEN3 && function != STEFFENSEN4 && function != STEFFENSENGENERALIZED3) && (function != USER_FORMULA || (function == USER_FORMULA && user_formula_c == true)) && (function != USER_FORMULA_ITERATION_BASED || (function == USER_FORMULA_ITERATION_BASED && user_formula_c == true)) && (function != USER_FORMULA_CONDITIONAL || (function == USER_FORMULA_CONDITIONAL && user_formula_c == true))) {
+       if(((!julia && !orbit) || (!first_seed && !orbit)) && !zoom_window && !julia_map && !d3 && !perturbation && !init_val && (function != NEWTON3 && function != NEWTON4 && function != NEWTONGENERALIZED3 && function != NEWTONGENERALIZED8 && function != NEWTONSIN && function != NEWTONCOS && function != NEWTONPOLY && function != HALLEY3 && function != HALLEY4 && function != HALLEYGENERALIZED3 && function != HALLEYGENERALIZED8 && function != HALLEYSIN && function != HALLEYCOS && function != HALLEYPOLY && function != SCHRODER3 && function != SCHRODER4 && function != SCHRODERGENERALIZED3 && function != SCHRODERGENERALIZED8 && function != SCHRODERSIN && function != SCHRODERCOS && function != SCHRODERPOLY && function != HOUSEHOLDER3 && function != HOUSEHOLDER4 && function != HOUSEHOLDERGENERALIZED3 && function != HOUSEHOLDERGENERALIZED8 && function != HOUSEHOLDERSIN && function != HOUSEHOLDERCOS && function != HOUSEHOLDERPOLY && function != SIERPINSKI_GASKET && function != SECANT3 && function != SECANT4 && function != SECANTGENERALIZED3 && function != SECANTGENERALIZED8 && function != SECANTCOS && function != SECANTPOLY && function != STEFFENSEN3 && function != STEFFENSEN4 && function != STEFFENSENGENERALIZED3) && (function != USER_FORMULA || (function == USER_FORMULA && user_formula_c == true)) && (function != USER_FORMULA_ITERATION_BASED || (function == USER_FORMULA_ITERATION_BASED && user_formula_c == true)) && (function != USER_FORMULA_CONDITIONAL || (function == USER_FORMULA_CONDITIONAL && user_formula_c == true))) {
            julia_opt.setEnabled(option);
            julia_button.setEnabled(option);
        }
 
-       if(!orbit && !color_cycling && !d3) {
+       if(!zoom_window && !orbit && !color_cycling && !d3) {
            color_cycling_opt.setEnabled(option);
            color_cycling_button.setEnabled(option);
        }
@@ -11043,6 +11527,14 @@ public class MainWindow extends JFrame {
            grid_opt.setEnabled(option);
        }
        
+       if((rotation == 0 || rotation == 360 || rotation == -360) && !d3 && size >= 0.05) {
+           boundaries_opt.setEnabled(option);
+       }
+       
+       if(!d3 && !orbit && !julia_map) {
+           zoom_window_opt.setEnabled(option);
+       }
+       
        if(!julia_map && !d3) {
            zoom_in.setEnabled(option);
            zoom_in_button.setEnabled(option);
@@ -11051,17 +11543,17 @@ public class MainWindow extends JFrame {
            zoom_out.setEnabled(option);
            zoom_out_button.setEnabled(option);
        }
-       if(!julia_map && !d3 && image_size < 4001) {
+       if(!julia_map && !d3 && image_size < 4001 && !zoom_window) {
            orbit_opt.setEnabled(option);
            orbit_button.setEnabled(option);
        }
        planes_menu.setEnabled(option);
        
-       if(!julia && !perturbation && !init_val && !orbit && !d3 && (function != NEWTON3 && function != NEWTON4 && function != NEWTONGENERALIZED3 && function != NEWTONGENERALIZED8 && function != NEWTONSIN && function != NEWTONCOS && function != NEWTONPOLY && function != HALLEY3 && function != HALLEY4 && function != HALLEYGENERALIZED3 && function != HALLEYGENERALIZED8 && function != HALLEYSIN && function != HALLEYCOS && function != HALLEYPOLY && function != SCHRODER3 && function != SCHRODER4 && function != SCHRODERGENERALIZED3 && function != SCHRODERGENERALIZED8 && function != SCHRODERSIN && function != SCHRODERCOS && function != SCHRODERPOLY && function != HOUSEHOLDER3 && function != HOUSEHOLDER4 && function != HOUSEHOLDERGENERALIZED3 && function != HOUSEHOLDERGENERALIZED8 && function != HOUSEHOLDERSIN && function != HOUSEHOLDERCOS && function != HOUSEHOLDERPOLY && function != SIERPINSKI_GASKET && function != SECANT3 && function != SECANT4 && function != SECANTGENERALIZED3 && function != SECANTGENERALIZED8 && function != SECANTCOS && function != SECANTPOLY && function != STEFFENSEN3 && function != STEFFENSEN4 && function != STEFFENSENGENERALIZED3) && (function != USER_FORMULA || (function == USER_FORMULA && user_formula_c == true)) && (function != USER_FORMULA_ITERATION_BASED || (function == USER_FORMULA_ITERATION_BASED && user_formula_c == true)) && (function != USER_FORMULA_CONDITIONAL || (function == USER_FORMULA_CONDITIONAL && user_formula_c == true))) {
+       if(!zoom_window && !julia && !perturbation && !init_val && !orbit && !d3 && (function != NEWTON3 && function != NEWTON4 && function != NEWTONGENERALIZED3 && function != NEWTONGENERALIZED8 && function != NEWTONSIN && function != NEWTONCOS && function != NEWTONPOLY && function != HALLEY3 && function != HALLEY4 && function != HALLEYGENERALIZED3 && function != HALLEYGENERALIZED8 && function != HALLEYSIN && function != HALLEYCOS && function != HALLEYPOLY && function != SCHRODER3 && function != SCHRODER4 && function != SCHRODERGENERALIZED3 && function != SCHRODERGENERALIZED8 && function != SCHRODERSIN && function != SCHRODERCOS && function != SCHRODERPOLY && function != HOUSEHOLDER3 && function != HOUSEHOLDER4 && function != HOUSEHOLDERGENERALIZED3 && function != HOUSEHOLDERGENERALIZED8 && function != HOUSEHOLDERSIN && function != HOUSEHOLDERCOS && function != HOUSEHOLDERPOLY && function != SIERPINSKI_GASKET && function != SECANT3 && function != SECANT4 && function != SECANTGENERALIZED3 && function != SECANTGENERALIZED8 && function != SECANTCOS && function != SECANTPOLY && function != STEFFENSEN3 && function != STEFFENSEN4 && function != STEFFENSENGENERALIZED3) && (function != USER_FORMULA || (function == USER_FORMULA && user_formula_c == true)) && (function != USER_FORMULA_ITERATION_BASED || (function == USER_FORMULA_ITERATION_BASED && user_formula_c == true)) && (function != USER_FORMULA_CONDITIONAL || (function == USER_FORMULA_CONDITIONAL && user_formula_c == true))) {
            julia_map_opt.setEnabled(option);
        }
        
-       if(!orbit && !julia_map && !grid && image_size < 2001) {
+       if(!zoom_window && !orbit && !julia_map && !grid && image_size < 2001 && !boundaries) {
            d3_opt.setEnabled(option);
            d3_button.setEnabled(option);
        }
@@ -11093,6 +11585,26 @@ public class MainWindow extends JFrame {
        dot.setSelected(true);
        dot.setEnabled(false);
 
+   }
+    
+    private void setZoomWindowDashedLine() {
+
+       zoom_window_style = true;
+       zoom_window_line.setSelected(false);
+       zoom_window_line.setEnabled(true);
+       zoom_window_dashed_line.setSelected(true);
+       zoom_window_dashed_line.setEnabled(false);
+
+   }
+    
+   private void setZoomWindowLine() {
+
+       zoom_window_style = false;
+       zoom_window_dashed_line.setSelected(false);
+       zoom_window_dashed_line.setEnabled(true);
+       zoom_window_line.setSelected(true);
+       zoom_window_line.setEnabled(false);
+ 
    }
 
    private void setOrbitColor() {
@@ -11166,7 +11678,7 @@ public class MainWindow extends JFrame {
        setEnabled(false);
        int color_window_width = 630;
        int color_window_height = 400;
-       grid_color_frame = new JFrame("Orbit Color");
+       grid_color_frame = new JFrame("Grid Color");
        grid_color_frame.setLayout(new FlowLayout());
        grid_color_frame.setSize(color_window_width, color_window_height);
        grid_color_frame.setIconImage(getIcon("/fractalzoomer/icons/color.png").getImage());
@@ -11224,6 +11736,135 @@ public class MainWindow extends JFrame {
        grid_color_frame.setVisible(true);
        main_panel.repaint();
 
+   }
+   
+   private void setZoomWindowColor() {
+
+       setEnabled(false);
+       int color_window_width = 630;
+       int color_window_height = 400;
+       zoom_window_color_frame = new JFrame("Zoom Window Color");
+       zoom_window_color_frame.setLayout(new FlowLayout());
+       zoom_window_color_frame.setSize(color_window_width, color_window_height);
+       zoom_window_color_frame.setIconImage(getIcon("/fractalzoomer/icons/color.png").getImage());
+       zoom_window_color_frame.setLocation((int)(getLocation().getX() + getSize().getWidth() / 2) - (color_window_width / 2), (int)(getLocation().getY() + getSize().getHeight() / 2) - (color_window_height / 2));
+       zoom_window_color_frame.setResizable(false);
+       color_chooser = new JColorChooser();
+
+       color_chooser.setColor(zoom_window_color);
+       color_chooser.setPreferredSize(new Dimension(600, 320));
+       
+       zoom_window_color_frame.add(color_chooser);
+
+       zoom_window_color_frame.addWindowListener(new WindowAdapter() {
+           @Override
+           public void windowClosing(WindowEvent e) {
+
+               setEnabled(true);
+               zoom_window_color_frame.dispose();
+               main_panel.repaint();
+
+           }
+       });
+
+       JButton ok = new JButton("Ok");
+
+       ok.addActionListener(new ActionListener() {
+           public void actionPerformed(ActionEvent e) {
+               zoom_window_color = color_chooser.getColor();
+
+               setEnabled(true);
+               zoom_window_color_frame.dispose();
+
+           }
+       });
+
+       JButton close = new JButton("Cancel");
+       close.addActionListener(new ActionListener() {
+           public void actionPerformed(ActionEvent e) {
+
+               setEnabled(true);
+               zoom_window_color_frame.dispose();
+               main_panel.repaint();
+
+           }
+       });
+
+       
+       JPanel buttons = new JPanel();
+       
+       buttons.add(ok);
+       buttons.add(close);
+
+       zoom_window_color_frame.add(buttons);
+       
+       zoom_window_color_frame.setVisible(true);
+       main_panel.repaint();
+
+   }
+   
+   private void setBoundariesColor() {
+       
+       setEnabled(false);
+       int color_window_width = 630;
+       int color_window_height = 400;
+       boundaries_color_frame = new JFrame("Boundaries Color");
+       boundaries_color_frame.setLayout(new FlowLayout());
+       boundaries_color_frame.setSize(color_window_width, color_window_height);
+       boundaries_color_frame.setIconImage(getIcon("/fractalzoomer/icons/color.png").getImage());
+       boundaries_color_frame.setLocation((int)(getLocation().getX() + getSize().getWidth() / 2) - (color_window_width / 2), (int)(getLocation().getY() + getSize().getHeight() / 2) - (color_window_height / 2));
+       boundaries_color_frame.setResizable(false);
+       color_chooser = new JColorChooser();
+
+       color_chooser.setColor(boundaries_color);
+       color_chooser.setPreferredSize(new Dimension(600, 320));
+       
+       boundaries_color_frame.add(color_chooser);
+
+       boundaries_color_frame.addWindowListener(new WindowAdapter() {
+           @Override
+           public void windowClosing(WindowEvent e) {
+
+               setEnabled(true);
+               boundaries_color_frame.dispose();
+               main_panel.repaint();
+
+           }
+       });
+
+       JButton ok = new JButton("Ok");
+
+       ok.addActionListener(new ActionListener() {
+           public void actionPerformed(ActionEvent e) {
+               boundaries_color = color_chooser.getColor();
+
+               setEnabled(true);
+               boundaries_color_frame.dispose();
+
+           }
+       });
+
+       JButton close = new JButton("Cancel");
+       close.addActionListener(new ActionListener() {
+           public void actionPerformed(ActionEvent e) {
+
+               setEnabled(true);
+               boundaries_color_frame.dispose();
+               main_panel.repaint();
+
+           }
+       });
+
+       
+       JPanel buttons = new JPanel();
+       
+       buttons.add(ok);
+       buttons.add(close);
+
+       boundaries_color_frame.add(buttons);
+       
+       boundaries_color_frame.setVisible(true);
+       main_panel.repaint();
    }
 
    private void setFunction(int temp) {
@@ -14372,12 +15013,12 @@ public class MainWindow extends JFrame {
 
             Object[] message32 = { 
                 variables2,
-                "z (current sequence point), c (plane point),",
-                "p (previous sequence point), n (current iteration)",
+                "z (current sequence point), c (plane point), n (current iteration),",
+                "p (previous sequence point), s (starting sequence point)",
                 operations2,
                 "+, -, *, /, ^",
                 constants2,
-                "pi, e, phi, c10",
+                "pi, e, phi, c10, alpha, delta",
                 complex_numbers2,
                 "a + bi",
                 exp_log2,
@@ -14386,7 +15027,7 @@ public class MainWindow extends JFrame {
                 "sin, cos, tan, cot, sec, csc, sinh, cosh, tanh, coth, sech, csch",
                 "asin, acos, atan, acot, asec, acsc, asinh, acosh, atanh, acoth, asech, acsch",
                 other2,
-                "sqrt, abs, conj, re, im, norm, arg, gamma, fact, bipol, ibipol",
+                "sqrt, abs, absre, absim, conj, re, im, norm, arg, gamma, fact, bipol, ibipol",
                 " ",
                 "Bailout technique:",
                 method42_choice,
@@ -14817,12 +15458,12 @@ public class MainWindow extends JFrame {
 
             Object[] message33 = { 
                 variables3,
-                "z (current sequence point), c (plane point),",
-                "p (previous sequence point), n (current iteration)",
+                "z (current sequence point), c (plane point), n (current iteration),",
+                "p (previous sequence point), s (starting sequence point)",
                 operations3,
                 "+, -, *, /, ^",
                 constants3,
-                "pi, e, phi, c10",
+                "pi, e, phi, c10, alpha, delta",
                 complex_numbers3,
                 "a + bi",
                 exp_log3,
@@ -14831,7 +15472,7 @@ public class MainWindow extends JFrame {
                 "sin, cos, tan, cot, sec, csc, sinh, cosh, tanh, coth, sech, csch",
                 "asin, acos, atan, acot, asec, acsc, asinh, acosh, atanh, acoth, asech, acsch",
                 other3,
-                "sqrt, abs, conj, re, im, norm, arg, gamma, fact, bipol, ibipol",
+                "sqrt, abs, absre, absim, conj, re, im, norm, arg, gamma, fact, bipol, ibipol",
                 " ",
                 "Bailout technique:",
                 method43_choice,
@@ -15168,7 +15809,7 @@ public class MainWindow extends JFrame {
            if(out_coloring_algorithm != DISTANCE_ESTIMATOR) {
                out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(true);
            }
-           if(out_coloring_algorithm != DISTANCE_ESTIMATOR2) {
+           if(out_coloring_algorithm != DISTANCE_ESTIMATOR2 && !burning_ship && !mandel_grass) {
                out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(true);
            }
            if(out_coloring_algorithm != BIOMORPH) {
@@ -15260,12 +15901,12 @@ public class MainWindow extends JFrame {
 
             Object[] message3 = { 
                 variables,
-                "z (current sequence point), c (plane point),",
-                "p (previous sequence point), n (current iteration)",
+                "z (current sequence point), c (plane point), n (current iteration),",
+                "p (previous sequence point), s (starting sequence point)",
                 operations,
                 "+, -, *, /, ^",
                 constants,
-                "pi, e, phi, c10",
+                "pi, e, phi, c10, alpha, delta",
                 complex_numbers,
                 "a + bi",
                 exp_log,
@@ -15274,7 +15915,7 @@ public class MainWindow extends JFrame {
                 "sin, cos, tan, cot, sec, csc, sinh, cosh, tanh, coth, sech, csch",
                 "asin, acos, atan, acot, asec, acsc, asinh, acosh, atanh, acoth, asech, acsch",
                 other,
-                "sqrt, abs, conj, re, im, norm, arg, gamma, fact, bipol, ibipol",
+                "sqrt, abs, absre, absim, conj, re, im, norm, arg, gamma, fact, bipol, ibipol",
                 " ",
                 "Bailout technique:",
                 method4_choice,
@@ -15764,6 +16405,10 @@ public class MainWindow extends JFrame {
           grid_opt.setEnabled(false);
           grid = false;
           grid_opt.setSelected(false);
+          
+          boundaries_opt.setEnabled(false);
+          boundaries = false;
+          boundaries_opt.setSelected(false);
       }
 
       backup_orbit = null;
@@ -15802,6 +16447,10 @@ public class MainWindow extends JFrame {
            grid_opt.setEnabled(false);
            grid = false;
            grid_opt.setSelected(false);
+           
+           boundaries_opt.setEnabled(false);
+           boundaries = false;
+           boundaries_opt.setSelected(false);
        }
 
        setOptions(false);
@@ -15817,6 +16466,10 @@ public class MainWindow extends JFrame {
            grid_opt.setEnabled(false);
            grid = false;
            grid_opt.setSelected(false);
+           
+           boundaries_opt.setEnabled(false);
+           boundaries = false;
+           boundaries_opt.setSelected(false);
        }
 
        image = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
@@ -15870,6 +16523,10 @@ public class MainWindow extends JFrame {
            grid_opt.setEnabled(false);
            grid = false;
            grid_opt.setSelected(false);
+           
+           boundaries_opt.setEnabled(false);
+           boundaries = false;
+           boundaries_opt.setSelected(false);
        }
 
        image = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
@@ -15904,9 +16561,13 @@ public class MainWindow extends JFrame {
 
        if(!burning_ship_opt.isSelected()) {
            burning_ship = false;
+           if(function == 0 && !mandel_grass) {
+               out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(true);
+           }
        }
        else {
            burning_ship = true;
+           out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
        }
        
        if(function <= 9 || function == MANDELPOLY || function == MANDELBROTWTH) {
@@ -15919,6 +16580,9 @@ public class MainWindow extends JFrame {
 
        if(!mandel_grass_opt.isSelected()) {
            mandel_grass = false;
+           if(function == 0 && !burning_ship) {
+               out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(true);
+           }
        }
        else {
    
@@ -15963,6 +16627,7 @@ public class MainWindow extends JFrame {
             mandel_grass_vals[1] = temp2;
             
             mandel_grass = true;
+            out_coloring_modes[DISTANCE_ESTIMATOR2].setEnabled(false);
        }
        
        if(function <= 9 || function == MANDELPOLY || function == MANDELBROTWTH) {
@@ -16603,6 +17268,54 @@ public class MainWindow extends JFrame {
                     size = 6;
                 }
                 break;
+            case FORMULA42:
+                if(julia) {
+                    xCenter = 0;
+                    yCenter = 0;
+                    size = 12;
+                }
+                else {
+                    xCenter = 0;
+                    yCenter = 0;
+                    size = 12;
+                }
+                break;
+            case FORMULA43:
+                if(julia) {
+                    xCenter = 0;
+                    yCenter = 0;
+                    size = 24;
+                }
+                else {
+                    xCenter = 0;
+                    yCenter = 0;
+                    size = 24;
+                }
+                break;
+            case FORMULA44:
+                if(julia) {
+                    xCenter = 0;
+                    yCenter = 0;
+                    size = 24;
+                }
+                else {
+                    xCenter = 0;
+                    yCenter = 0;
+                    size = 24;
+                }
+                break;
+            case FORMULA45:
+                if(julia) {
+                    xCenter = 0;
+                    yCenter = 0;
+                    size = 24;
+                }
+                else {
+                    xCenter = 0;
+                    yCenter = 0;
+                    size = 24;
+                }
+                break;
             case USER_FORMULA:
                 if(julia) {
                     xCenter = 0;
@@ -16661,6 +17374,12 @@ public class MainWindow extends JFrame {
                 break;
         }
         
+        if(size < 0.05) {
+            boundaries_opt.setSelected(false);
+            setBoundaries();
+            boundaries_opt.setEnabled(false);
+        }
+             
 
         reloadTitle();
 
@@ -16722,6 +17441,9 @@ public class MainWindow extends JFrame {
 
            boolean temp2 = grid;
            grid = false;
+           
+           boolean temp3 = boundaries;
+           boundaries = false;
            
            image_size = temp;
 
@@ -16789,6 +17511,7 @@ public class MainWindow extends JFrame {
            backup_orbit = null;
      
            grid = temp2;
+           boundaries = temp3;
            
            if(julia_map) {
                createThreadsJuliaMap();
@@ -17252,6 +17975,30 @@ public class MainWindow extends JFrame {
                 temp_size = 6;
                 temp_bailout = 8;
                 break;
+            case FORMULA42:
+                temp_xCenter = 0;
+                temp_yCenter = 0;
+                temp_size = 12;
+                temp_bailout = 12;
+                break;
+            case FORMULA43:
+                temp_xCenter = 0;
+                temp_yCenter = 0;
+                temp_size = 24;
+                temp_bailout = 12;
+                break;
+            case FORMULA44:
+                temp_xCenter = 0;
+                temp_yCenter = 0;
+                temp_size = 24;
+                temp_bailout = 16;
+                break;
+            case FORMULA45:
+                temp_xCenter = 0;
+                temp_yCenter = 0;
+                temp_size = 24;
+                temp_bailout = 16;
+                break;
             case USER_FORMULA:
                 temp_xCenter = 0;
                 temp_yCenter = 0;
@@ -17566,7 +18313,7 @@ public class MainWindow extends JFrame {
                 operations,
                 "+, -, *, /, ^",
                 constants,
-                "pi, e, phi, c10",
+                "pi, e, phi, c10, alpha, delta",
                 complex_numbers,
                 "a + bi",
                 exp_log,
@@ -17575,7 +18322,7 @@ public class MainWindow extends JFrame {
                 "sin, cos, tan, cot, sec, csc, sinh, cosh, tanh, coth, sech, csch",
                 "asin, acos, atan, acot, asec, acsc, asinh, acosh, atanh, acoth, asech, acsch",
                 other,
-                "sqrt, abs, conj, re, im, norm, arg, gamma, fact, bipol, ibipol",
+                "sqrt, abs, absre, absim, conj, re, im, norm, arg, gamma, fact, bipol, ibipol",
                 " ",
                 "Insert your plane transformation.",
                 formula_panel, 
@@ -17791,6 +18538,9 @@ public class MainWindow extends JFrame {
                }
            }
        }
+       
+       burning_ship_opt.setEnabled(true);
+       mandel_grass_opt.setEnabled(true);
   
        if(out_coloring_algorithm == ESCAPE_TIME_ESCAPE_RADIUS || out_coloring_algorithm == ESCAPE_TIME_GRID || out_coloring_algorithm == BIOMORPH || out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER || out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER2 || out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER3 || out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER4 || out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER5 || out_coloring_algorithm == ITERATIONS_PLUS_RE || out_coloring_algorithm == ITERATIONS_PLUS_IM || out_coloring_algorithm == ITERATIONS_PLUS_RE_DIVIDE_IM || out_coloring_algorithm == ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM  || out_coloring_algorithm == ESCAPE_TIME_ALGORITHM2) {       
            rootFindingMethodsSetEnabled(false);
@@ -17798,6 +18548,11 @@ public class MainWindow extends JFrame {
        else if(out_coloring_algorithm == DISTANCE_ESTIMATOR || out_coloring_algorithm == DISTANCE_ESTIMATOR2) {
            for(int k = 1; k < fractal_functions.length; k++) {
                fractal_functions[k].setEnabled(false);
+           }
+           
+           if(out_coloring_algorithm == DISTANCE_ESTIMATOR2) {
+               burning_ship_opt.setEnabled(false);
+               mandel_grass_opt.setEnabled(false);
            }
        }
        else {
@@ -18092,8 +18847,226 @@ public class MainWindow extends JFrame {
        }
        
    }
+   
+   public void drawZoomWindow(Graphics2D brush) {
+       
 
-   public void drawGrid(Graphics2D brush) {
+       int x1, y1;
+       try {
+           x1 = (int)main_panel.getMousePosition().getX();  
+           y1 = (int)main_panel.getMousePosition().getY();
+       }
+       catch(Exception ex) {
+           return;
+       }
+
+       if(x1 < 0 ||  x1 > image_size || y1 < 0 ||  y1 > image_size) {
+            return;
+       }
+       
+       int new_size = (int)(image_size / zoom_factor);
+       
+       if(zoom_window_style) {
+           BasicStroke old_stroke = (BasicStroke)brush.getStroke();
+
+           float dash1[] = {5.0f};
+           BasicStroke dashed =
+           new BasicStroke(1.0f,BasicStroke.CAP_BUTT,BasicStroke.JOIN_MITER,5.0f, dash1, 0.0f);
+           brush.setStroke(dashed);
+
+           brush.setColor(zoom_window_color);
+           brush.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+           brush.drawRect(x1 - new_size / 2, y1 - new_size / 2, new_size, new_size);
+           brush.setFont(new Font("default", Font.BOLD , 16 ));
+           brush.drawString("x" + String.format("%4.2f",  zoom_factor), x1 - new_size / 2 + 5, y1 - new_size / 2 - 5);
+
+           brush.setStroke(old_stroke); 
+       }
+       else {
+           brush.setColor(zoom_window_color);
+           brush.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+           brush.drawRect(x1 - new_size / 2, y1 - new_size / 2, new_size, new_size);
+           brush.setFont(new Font("default", Font.BOLD , 16 ));
+           brush.drawString("x" + String.format("%4.2f",  zoom_factor), x1 - new_size / 2 + 5, y1 - new_size / 2 - 5);
+       }
+
+   }
+   
+   public void drawBoundaries(Graphics2D brush, boolean mode) {
+       
+        double size_2 = size * 0.5;
+        double temp_xcenter_size = xCenter - size_2;
+        double temp_ycenter_size = yCenter - size_2;
+        double temp_size_image_size = size / image_size;
+
+        brush.setColor(boundaries_color);
+        brush.setFont(new Font("Arial", Font.BOLD , 9));
+        brush.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        
+        int x0 = (int)((0 - temp_xcenter_size) / temp_size_image_size + 0.5);
+        int y0 = (int)((0 - temp_ycenter_size) / temp_size_image_size + 0.5);
+            
+        
+        brush.drawLine(x0, 0, x0, image_size);
+        brush.drawLine(0, y0, image_size, y0);
+        
+        if(mode) {
+            brush.drawString("0.0", x0 + 6, 12 + scroll_pane.getVerticalScrollBar().getValue());
+            brush.drawString("0.0", 6 + scroll_pane.getHorizontalScrollBar().getValue(), y0 + 12);
+        }
+        else {
+            brush.drawString("0.0", x0 + 6, 12);
+            brush.drawString("0.0", 6, y0 + 12);    
+        }
+        
+        
+        if(boundaries_type == 0) {
+            for(int i = 1; i <= boundaries_num; i++) {
+
+                double num;
+                if(boundaries_spacing_method == 0) {
+                    num = Math.pow(2, i - 1);
+                }
+                else {
+                    num = i;
+                }
+
+                if(num == bailout && bailout_number.isEnabled()) {
+                    continue;
+                }
+
+               int radius = Math.abs(x0 - (int)((num - temp_xcenter_size) / temp_size_image_size + 0.5));
+               brush.drawOval(x0 - radius, y0 - radius,  2 * radius,  2 * radius);
+
+               brush.drawString("" + num, (int)(x0 - (radius * Math.sqrt(2.0) / 2.0)) - 15, (int)(y0 - (radius * Math.sqrt(2.0) / 2.0)) - 10);
+            }
+
+            if(bailout_number.isEnabled()) {
+                    int radius = Math.abs(x0 - (int)((bailout - temp_xcenter_size) / temp_size_image_size + 0.5));
+
+                    BasicStroke old_stroke = (BasicStroke)brush.getStroke();
+
+                    float dash1[] = {5.0f};
+                    BasicStroke dashed =
+                    new BasicStroke(1.0f,
+                                    BasicStroke.CAP_BUTT,
+                                    BasicStroke.JOIN_MITER,
+                                    5.0f, dash1, 0.0f);
+                    brush.setStroke(dashed);
+
+                    brush.drawOval(x0 - radius, y0 - radius,  2 * radius,  2 * radius);
+
+                    brush.drawString("" + bailout, (int)(x0 - (radius * Math.sqrt(2.0) / 2.0)) - 15, (int)(y0 - (radius * Math.sqrt(2.0) / 2.0)) - 10);
+
+                    brush.setStroke(old_stroke);
+            }
+            
+        }
+        else if(boundaries_type == 1) {
+            for(int i = 1; i <= boundaries_num; i++) {
+
+                double num;
+                if(boundaries_spacing_method == 0) {
+                    num = Math.pow(2, i - 1);
+                }
+                else {
+                    num = i;
+                }
+
+                if(num == bailout && bailout_number.isEnabled()) {
+                    continue;
+                }
+
+               int radius = Math.abs(x0 - (int)((num - temp_xcenter_size) / temp_size_image_size + 0.5));
+               
+               brush.drawRect(x0 - radius, y0 - radius, 2 * radius, 2 * radius);
+
+               brush.drawString("" + num, x0 - radius - 10, y0 - radius - 5);
+            }
+            
+            if(bailout_number.isEnabled()) {
+
+                    int radius = Math.abs(x0 - (int)((bailout - temp_xcenter_size) / temp_size_image_size + 0.5));
+
+                    BasicStroke old_stroke = (BasicStroke)brush.getStroke();
+
+                    float dash1[] = {5.0f};
+                    BasicStroke dashed =
+                    new BasicStroke(1.0f,
+                                    BasicStroke.CAP_BUTT,
+                                    BasicStroke.JOIN_MITER,
+                                    5.0f, dash1, 0.0f);
+                    brush.setStroke(dashed);
+
+                    brush.drawRect(x0 - radius, y0 - radius, 2 * radius, 2 * radius);
+
+                    brush.drawString("" + bailout, x0 - radius - 10, y0 - radius - 5);
+
+                    brush.setStroke(old_stroke);
+                
+            }
+        }
+        else {
+            for(int i = 1; i <= boundaries_num; i++) {
+
+                double num;
+                if(boundaries_spacing_method == 0) {
+                    num = Math.pow(2, i - 1);
+                }
+                else {
+                    num = i;
+                }
+
+                if(num == bailout && bailout_number.isEnabled()) {
+                    continue;
+                }
+
+               int radius = Math.abs(x0 - (int)((num - temp_xcenter_size) / temp_size_image_size + 0.5));
+               
+               brush.drawLine(x0 - radius,  y0, x0, y0 - radius);
+               
+               brush.drawLine(x0 + radius,  y0, x0, y0 + radius);
+               
+               brush.drawLine(x0 + radius,  y0, x0, y0 - radius);
+               
+               brush.drawLine(x0 - radius,  y0, x0, y0 + radius);
+
+               brush.drawString("" + num, x0 - radius / 2 - 15, y0 - radius / 2 - 10);
+            }
+            
+            if(bailout_number.isEnabled()) {
+
+                    int radius = Math.abs(x0 - (int)((bailout - temp_xcenter_size) / temp_size_image_size + 0.5));
+
+                    BasicStroke old_stroke = (BasicStroke)brush.getStroke();
+
+                    float dash1[] = {5.0f};
+                    BasicStroke dashed =
+                    new BasicStroke(1.0f,
+                                    BasicStroke.CAP_BUTT,
+                                    BasicStroke.JOIN_MITER,
+                                    5.0f, dash1, 0.0f);
+                    brush.setStroke(dashed);
+
+                    brush.drawLine(x0 - radius,  y0, x0, y0 - radius);
+               
+                    brush.drawLine(x0 + radius,  y0, x0, y0 + radius);
+
+                    brush.drawLine(x0 + radius,  y0, x0, y0 - radius);
+
+                    brush.drawLine(x0 - radius,  y0, x0, y0 + radius);
+
+                    brush.drawString("" + bailout, x0 - radius / 2 - 15, y0 - radius / 2 - 10);
+
+                    brush.setStroke(old_stroke);
+                
+            }
+        }
+        
+   }
+   
+
+   public void drawGrid(Graphics2D brush, boolean mode) {
 
         double size_2 = size * 0.5;
         double temp_xcenter_size = xCenter - size_2;
@@ -18130,10 +19103,16 @@ public class MainWindow extends JFrame {
         
            temp2 = temp2 == 0 ? temp2 : -temp2;
            
-           brush.drawString("" + temp, i * image_size / grid_tiles + 6, 12 + scroll_pane.getVerticalScrollBar().getValue());
-           brush.drawString("" + temp2, 6 + scroll_pane.getHorizontalScrollBar().getValue(), i * image_size / grid_tiles + 12);
-       }
-
+           if(mode) {
+               brush.drawString("" + temp, i * image_size / grid_tiles + 6, 12 + scroll_pane.getVerticalScrollBar().getValue());
+               brush.drawString("" + temp2, 6 + scroll_pane.getHorizontalScrollBar().getValue(), i * image_size / grid_tiles + 12);
+           }
+           else {
+               brush.drawString("" + temp, i * image_size / grid_tiles + 6, 12);
+               brush.drawString("" + temp2, 6, i * image_size / grid_tiles + 12);    
+           }
+        }
+  
    }
 
    public long getCalculationTime() {
@@ -18163,6 +19142,18 @@ public class MainWindow extends JFrame {
    public boolean getGrid() {
        
        return grid;
+       
+   }
+   
+   public boolean getBoundaries() {
+       
+       return boundaries;
+       
+   }
+   
+   public boolean getZoomWindow() {
+       
+       return zoom_window;
        
    }
    
@@ -18609,21 +19600,35 @@ public class MainWindow extends JFrame {
         
                 if(combo_box_random_palette_alg.getSelectedIndex() == 0) {
                     //float hue = generator.nextFloat();
-                    float brightness = generator.nextFloat();
+                    double brightness = generator.nextFloat();
 
                     int counter = 0;
 
+                     ColorSpaceConverter con = new ColorSpaceConverter();
+            
                     do {
                         for(int m = 0; m < temp_custom_palette.length; m++) {
                             //hue += golden_ratio_conjugate;
                             //hue %= 1;
                             brightness += golden_ratio_conjugate;
                             brightness %= 1;
-                            Color temp_color = Color.getHSBColor(generator.nextFloat(), generator.nextFloat(), brightness);
+
+                            int[] res = null;
+
+                            if(combo_box_color_space.getSelectedIndex() == COLOR_SPACE_LCH) {  
+                                res = con.LCHtoRGB(brightness * 100.0, generator.nextDouble() * 140.0, generator.nextDouble() * 360.0);
+                            }
+                            else if(combo_box_color_space.getSelectedIndex() == COLOR_SPACE_LAB) {  
+                                res = con.LABtoRGB(brightness * 100.0, (2 * generator.nextDouble() - 1) * 100, (2 * generator.nextDouble() - 1) * 100);
+                            }
+                            else {
+                                res = con.HSBtoRGB(generator.nextDouble(), generator.nextDouble(), brightness);
+                            }
+
                             temp_custom_palette[m][0] = generator.nextInt(12) + 7;
-                            temp_custom_palette[m][1] = temp_color.getRed();
-                            temp_custom_palette[m][2] = temp_color.getGreen();
-                            temp_custom_palette[m][3] = temp_color.getBlue();
+                            temp_custom_palette[m][1] = ColorSpaceConverter.clamp(res[0]);
+                            temp_custom_palette[m][2] = ColorSpaceConverter.clamp(res[1]);
+                            temp_custom_palette[m][3] = ColorSpaceConverter.clamp(res[2]);
                         }
 
                         same_colors = false;
@@ -18637,7 +19642,7 @@ public class MainWindow extends JFrame {
                             }
                         }
 
-                        if(counter == 5500) {
+                        if(counter == 300) {
                             break;
                         }
 
@@ -18646,22 +19651,48 @@ public class MainWindow extends JFrame {
                 }               
                 else if(combo_box_random_palette_alg.getSelectedIndex() == 1) {
                     int counter = 0;
+        
+                    double random_a = generator.nextDouble() * 1000;
+                    double random_b = generator.nextDouble() * 1000;
+                    double random_c = generator.nextDouble() * 1000;
 
-                    double random_red = generator.nextDouble() * 1000;
-                    double random_green = generator.nextDouble() * 1000;
-                    double random_blue = generator.nextDouble() * 1000;
+                    double a_coeff = generator.nextInt(10) + generator.nextDouble() + 1;
+                    double b_coeff = generator.nextInt(10) + generator.nextDouble() + 1;
+                    double c_coeff = generator.nextInt(10) + generator.nextDouble() + 1;
 
-                    double red_coeff = generator.nextInt(10) + generator.nextDouble() + 1;
-                    double green_coeff = generator.nextInt(10) + generator.nextDouble() + 1;
-                    double blue_coeff = generator.nextInt(10) + generator.nextDouble() + 1;
+                    ColorSpaceConverter con = new ColorSpaceConverter();
 
-
-                    do {
+                    do {       
                         for(int m = 0; m < temp_custom_palette.length; m++) {
                             temp_custom_palette[m][0] = generator.nextInt(12) + 7;
-                            temp_custom_palette[m][1] = (int)(127.5 * (Math.sin(Math.PI / red_coeff * (m + 1) * golden_ratio_conjugate + random_red) + 1));
-                            temp_custom_palette[m][2] = (int)(127.5 * (Math.sin(Math.PI / green_coeff * (m + 1) * golden_ratio_conjugate + random_green) + 1));
-                            temp_custom_palette[m][3] = (int)(127.5 * (Math.sin(Math.PI / blue_coeff * (m + 1) * golden_ratio_conjugate + random_blue) + 1));
+
+                            int[] res = null;
+                    
+                            if(combo_box_color_space.getSelectedIndex() == COLOR_SPACE_HSB) {
+                                res = con.HSBtoRGB((0.5 * (Math.sin(Math.PI / a_coeff * (m + 1) * golden_ratio_conjugate + random_a) + 1)), (0.5 * (Math.sin(Math.PI / b_coeff * (m + 1) * golden_ratio_conjugate + random_b) + 1)), (0.5 * (Math.sin(Math.PI / c_coeff * (m + 1) * golden_ratio_conjugate + random_c) + 1)));
+                            }
+                            else if(combo_box_color_space.getSelectedIndex() == COLOR_SPACE_RYB) {
+                                res = con.RYBtoRGB((0.5 * (Math.sin(Math.PI / a_coeff * (m + 1) * golden_ratio_conjugate + random_a) + 1)), (0.5 * (Math.sin(Math.PI / b_coeff * (m + 1) * golden_ratio_conjugate + random_b) + 1)), (0.5 * (Math.sin(Math.PI / c_coeff * (m + 1) * golden_ratio_conjugate + random_c) + 1)));
+                            }
+                            else if(combo_box_color_space.getSelectedIndex() == COLOR_SPACE_LAB) {
+                                res = con.LABtoRGB((50 * (Math.sin(Math.PI / a_coeff * (m + 1) * golden_ratio_conjugate + random_a) + 1)), (100 * (Math.sin(Math.PI / b_coeff * (m + 1) * golden_ratio_conjugate + random_b))), (100 * (Math.sin(Math.PI / c_coeff * (m + 1) * golden_ratio_conjugate + random_c))));
+                            }
+                            else if(combo_box_color_space.getSelectedIndex() == COLOR_SPACE_XYZ) {
+                                res = con.XYZtoRGB((50 * (Math.sin(Math.PI / a_coeff * (m + 1) * golden_ratio_conjugate + random_a) + 1)), (50 * (Math.sin(Math.PI / b_coeff * (m + 1) * golden_ratio_conjugate + random_b) + 1)), (50 * (Math.sin(Math.PI / c_coeff * (m + 1) * golden_ratio_conjugate + random_c) + 1)));
+                            }
+                            else if(combo_box_color_space.getSelectedIndex() == COLOR_SPACE_LCH) {
+                                res = con.LCHtoRGB((50 * (Math.sin(Math.PI / a_coeff * (m + 1) * golden_ratio_conjugate + random_a) + 1)), (70 * (Math.sin(Math.PI / b_coeff * (m + 1) * golden_ratio_conjugate + random_b) + 1)), (180 * (Math.sin(Math.PI / c_coeff * (m + 1) * golden_ratio_conjugate + random_c) + 1)));
+                            }
+                            else {
+                                res = new int[3];
+                                res[0] = (int)(127.5 * (Math.sin(Math.PI / a_coeff * (m + 1) * golden_ratio_conjugate + random_a) + 1));
+                                res[1] = (int)(127.5 * (Math.sin(Math.PI / b_coeff * (m + 1) * golden_ratio_conjugate + random_b) + 1));
+                                res[2] = (int)(127.5 * (Math.sin(Math.PI / c_coeff * (m + 1) * golden_ratio_conjugate + random_c) + 1));
+                            }
+
+                            temp_custom_palette[m][1] = ColorSpaceConverter.clamp(res[0]);
+                            temp_custom_palette[m][2] = ColorSpaceConverter.clamp(res[1]);
+                            temp_custom_palette[m][3] = ColorSpaceConverter.clamp(res[2]);
                         }
 
                         same_colors = false;
@@ -18675,7 +19706,7 @@ public class MainWindow extends JFrame {
                             }
                         }
 
-                        if(counter == 5500) {
+                        if(counter == 300) {
                             break;
                         }
 
@@ -18706,7 +19737,7 @@ public class MainWindow extends JFrame {
                             }
                         }
 
-                        if(counter == 5500) {
+                        if(counter == 300) {
                             break;
                         }
 
@@ -18808,8 +19839,10 @@ public class MainWindow extends JFrame {
         custom_palette_editor.setJMenuBar(menubar2);
         
         colors = new BufferedImage(732, 36, BufferedImage.TYPE_INT_ARGB);
+        
+        colors2 = new BufferedImage(732, 100, BufferedImage.TYPE_INT_ARGB);
 
-        Color[] c = CustomPalette.getPalette(temp_custom_palette, color_interpolation, color_space, reversed_palette, color_cycling_location);
+        Color[] c = CustomPalette.getPalette(temp_custom_palette, color_interpolation, color_space, reversed_palette, temp_color_cycling_location);
         
         try {                                
             Graphics2D g = colors.createGraphics();
@@ -18824,8 +19857,6 @@ public class MainWindow extends JFrame {
              g.fillRect(0, 0, colors.getWidth(), colors.getHeight());  
          }
                
-        colors2 = new BufferedImage(732, 100, BufferedImage.TYPE_INT_ARGB);
-        
         try {                                
             Graphics2D g = colors2.createGraphics();
             g.setColor(Color.WHITE);
@@ -19132,12 +20163,36 @@ public class MainWindow extends JFrame {
        }
        main_panel.repaint();
 
-       JFileChooser file_chooser = new JFileChooser(".");
+       file_chooser = new JFileChooser(".");
+       file_chooser.setAcceptAllFileFilterUsed(false);
+       file_chooser.setDialogType(JFileChooser.SAVE_DIALOG);
+
+       file_chooser.addChoosableFileFilter(new FileNameExtensionFilter("Fractal Zoomer Palette (*.fzp)", "fzp")); 
 
        Calendar calendar = new GregorianCalendar();
        file_chooser.setSelectedFile(new File("palette " + String.format("%02d", calendar.get(Calendar.DAY_OF_MONTH)) + "-" + String.format("%02d", calendar.get(Calendar.MONTH) + 1) + "-" + calendar.get(Calendar.YEAR) + " " + String.format("%02d", calendar.get(Calendar.HOUR_OF_DAY)) + ";" + String.format("%02d", calendar.get(Calendar.MINUTE)) + ";" + String.format("%02d", calendar.get(Calendar.SECOND)) + ".fzp"));
 
-       int returnVal = file_chooser.showDialog(ptr, "Save");
+       file_chooser.addPropertyChangeListener(JFileChooser.FILE_FILTER_CHANGED_PROPERTY, new PropertyChangeListener() {
+           
+           @Override
+          public void propertyChange(PropertyChangeEvent evt) {
+            FileNameExtensionFilter filter = (FileNameExtensionFilter)evt.getNewValue();
+
+            String extension = filter.getExtensions()[0];
+            
+            String file_name = ((BasicFileChooserUI)file_chooser.getUI()).getFileName();
+   
+            int index = file_name.lastIndexOf(".");
+            
+            if(index != -1) {
+                file_name = file_name.substring(0, index);
+            }   
+
+            file_chooser.setSelectedFile(new File(file_name + "." + extension));
+          }
+        });
+       
+       int returnVal = file_chooser.showDialog(ptr, "Save Palette");
 
        if(returnVal == JFileChooser.APPROVE_OPTION) {
            File file = file_chooser.getSelectedFile();
@@ -19171,9 +20226,34 @@ public class MainWindow extends JFrame {
        }
        main_panel.repaint();
 
-       JFileChooser file_chooser = new JFileChooser(".");
+       file_chooser = new JFileChooser(".");
+       
+       file_chooser.setAcceptAllFileFilterUsed(false);
+       file_chooser.setDialogType(JFileChooser.OPEN_DIALOG);
 
-       int returnVal = file_chooser.showDialog(ptr, "Load");
+       file_chooser.addChoosableFileFilter(new FileNameExtensionFilter("Fractal Zoomer Palette (*.fzp)", "fzp")); 
+       
+       file_chooser.addPropertyChangeListener(JFileChooser.FILE_FILTER_CHANGED_PROPERTY, new PropertyChangeListener() {
+           
+           @Override
+          public void propertyChange(PropertyChangeEvent evt) {
+            FileNameExtensionFilter filter = (FileNameExtensionFilter)evt.getNewValue();
+
+            String extension = filter.getExtensions()[0];
+            
+            String file_name = ((BasicFileChooserUI)file_chooser.getUI()).getFileName();
+   
+            int index = file_name.lastIndexOf(".");
+            
+            if(index != -1) {
+                file_name = file_name.substring(0, index);
+            }   
+
+            file_chooser.setSelectedFile(new File(file_name + "." + extension));
+          }
+        });
+
+       int returnVal = file_chooser.showDialog(ptr, "Load Palette");
 
        if(returnVal == JFileChooser.APPROVE_OPTION) {
            File file = file_chooser.getSelectedFile();
@@ -19666,21 +20746,35 @@ public class MainWindow extends JFrame {
         
         if(random_palette_algorithm == 0) {
             //float hue = generator.nextFloat();
-            float brightness = generator.nextFloat();
+            double brightness = generator.nextDouble();
 
             int counter = 0;
 
+            ColorSpaceConverter con = new ColorSpaceConverter();
+            
             do {
                 for(int m = 0; m < custom_palette.length; m++) {
                     //hue += golden_ratio_conjugate;
                     //hue %= 1;
                     brightness += golden_ratio_conjugate;
                     brightness %= 1;
-                    Color temp_color = Color.getHSBColor(generator.nextFloat(), generator.nextFloat(), brightness);
+                    
+                    int[] res = null;
+                    
+                    if(color_space == COLOR_SPACE_LCH) {  
+                        res = con.LCHtoRGB(brightness * 100.0, generator.nextDouble() * 140.0, generator.nextDouble() * 360.0);
+                    }
+                    else if(color_space == COLOR_SPACE_LAB) {  
+                        res = con.LABtoRGB(brightness * 100.0, (2 * generator.nextDouble() - 1) * 100, (2 * generator.nextDouble() - 1) * 100);
+                    }
+                    else {
+                        res = con.HSBtoRGB(generator.nextDouble(), generator.nextDouble(), brightness);
+                    }
+
                     custom_palette[m][0] = generator.nextInt(12) + 7;
-                    custom_palette[m][1] = temp_color.getRed();
-                    custom_palette[m][2] = temp_color.getGreen();
-                    custom_palette[m][3] = temp_color.getBlue();
+                    custom_palette[m][1] = ColorSpaceConverter.clamp(res[0]);
+                    custom_palette[m][2] = ColorSpaceConverter.clamp(res[1]);
+                    custom_palette[m][3] = ColorSpaceConverter.clamp(res[2]);
                 }
 
                 same_colors = false;
@@ -19694,7 +20788,7 @@ public class MainWindow extends JFrame {
                     }
                 }
 
-                if(counter == 5500) {
+                if(counter == 300) {
                     break;
                 }
 
@@ -19704,21 +20798,47 @@ public class MainWindow extends JFrame {
         else if(random_palette_algorithm == 1) {
             int counter = 0;
         
-            double random_red = generator.nextDouble() * 1000;
-            double random_green = generator.nextDouble() * 1000;
-            double random_blue = generator.nextDouble() * 1000;
+            double random_a = generator.nextDouble() * 1000;
+            double random_b = generator.nextDouble() * 1000;
+            double random_c = generator.nextDouble() * 1000;
 
-            double red_coeff = generator.nextInt(10) + generator.nextDouble() + 1;
-            double green_coeff = generator.nextInt(10) + generator.nextDouble() + 1;
-            double blue_coeff = generator.nextInt(10) + generator.nextDouble() + 1;
+            double a_coeff = generator.nextInt(10) + generator.nextDouble() + 1;
+            double b_coeff = generator.nextInt(10) + generator.nextDouble() + 1;
+            double c_coeff = generator.nextInt(10) + generator.nextDouble() + 1;
 
-
+            ColorSpaceConverter con = new ColorSpaceConverter();
+            
             do {       
                 for(int m = 0; m < custom_palette.length; m++) {
                     custom_palette[m][0] = generator.nextInt(12) + 7;
-                    custom_palette[m][1] = (int)(127.5 * (Math.sin(Math.PI / red_coeff * (m + 1) * golden_ratio_conjugate + random_red) + 1));
-                    custom_palette[m][2] = (int)(127.5 * (Math.sin(Math.PI / green_coeff * (m + 1) * golden_ratio_conjugate + random_green) + 1));
-                    custom_palette[m][3] = (int)(127.5 * (Math.sin(Math.PI / blue_coeff * (m + 1) * golden_ratio_conjugate + random_blue) + 1));
+  
+                    int[] res = null;
+                    
+                    if(color_space == COLOR_SPACE_HSB) {
+                        res = con.HSBtoRGB((0.5 * (Math.sin(Math.PI / a_coeff * (m + 1) * golden_ratio_conjugate + random_a) + 1)), (0.5 * (Math.sin(Math.PI / b_coeff * (m + 1) * golden_ratio_conjugate + random_b) + 1)), (0.5 * (Math.sin(Math.PI / c_coeff * (m + 1) * golden_ratio_conjugate + random_c) + 1)));
+                    }
+                    else if(color_space == COLOR_SPACE_RYB) {
+                        res = con.RYBtoRGB((0.5 * (Math.sin(Math.PI / a_coeff * (m + 1) * golden_ratio_conjugate + random_a) + 1)), (0.5 * (Math.sin(Math.PI / b_coeff * (m + 1) * golden_ratio_conjugate + random_b) + 1)), (0.5 * (Math.sin(Math.PI / c_coeff * (m + 1) * golden_ratio_conjugate + random_c) + 1)));
+                    }
+                    else if(color_space == COLOR_SPACE_LAB) {
+                        res = con.LABtoRGB((50 * (Math.sin(Math.PI / a_coeff * (m + 1) * golden_ratio_conjugate + random_a) + 1)), (100 * (Math.sin(Math.PI / b_coeff * (m + 1) * golden_ratio_conjugate + random_b))), (100 * (Math.sin(Math.PI / c_coeff * (m + 1) * golden_ratio_conjugate + random_c))));
+                    }
+                    else if(color_space == COLOR_SPACE_XYZ) {
+                        res = con.XYZtoRGB((50 * (Math.sin(Math.PI / a_coeff * (m + 1) * golden_ratio_conjugate + random_a) + 1)), (50 * (Math.sin(Math.PI / b_coeff * (m + 1) * golden_ratio_conjugate + random_b) + 1)), (50 * (Math.sin(Math.PI / c_coeff * (m + 1) * golden_ratio_conjugate + random_c) + 1)));
+                    }
+                    else if(color_space == COLOR_SPACE_LCH) {
+                        res = con.LCHtoRGB((50 * (Math.sin(Math.PI / a_coeff * (m + 1) * golden_ratio_conjugate + random_a) + 1)), (70 * (Math.sin(Math.PI / b_coeff * (m + 1) * golden_ratio_conjugate + random_b) + 1)), (180 * (Math.sin(Math.PI / c_coeff * (m + 1) * golden_ratio_conjugate + random_c) + 1)));
+                    }
+                    else {
+                        res = new int[3];
+                        res[0] = (int)(127.5 * (Math.sin(Math.PI / a_coeff * (m + 1) * golden_ratio_conjugate + random_a) + 1));
+                        res[1] = (int)(127.5 * (Math.sin(Math.PI / b_coeff * (m + 1) * golden_ratio_conjugate + random_b) + 1));
+                        res[2] = (int)(127.5 * (Math.sin(Math.PI / c_coeff * (m + 1) * golden_ratio_conjugate + random_c) + 1));
+                    }
+                    
+                    custom_palette[m][1] = ColorSpaceConverter.clamp(res[0]);
+                    custom_palette[m][2] = ColorSpaceConverter.clamp(res[1]);
+                    custom_palette[m][3] = ColorSpaceConverter.clamp(res[2]);
                 }
 
                 same_colors = false;
@@ -19732,7 +20852,7 @@ public class MainWindow extends JFrame {
                     }
                 }
 
-                if(counter == 5500) {
+                if(counter == 300) {
                     break;
                 }
 
@@ -19763,7 +20883,7 @@ public class MainWindow extends JFrame {
                     }
                 }
 
-                if(counter == 5500) {
+                if(counter == 300) {
                     break;
                 }
 
@@ -20345,6 +21465,77 @@ public class MainWindow extends JFrame {
                       calculation_time = System.currentTimeMillis();
 
                       startThreads(n);                 
+                }
+                catch (Exception e)
+                {
+                   JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
+                   main_panel.repaint();
+                   return;
+                }
+            }
+            else {
+                main_panel.repaint();
+                return;
+            }
+            
+   }
+   
+   private void setBoundariesNumber() {
+       
+            JTextField field = new JTextField();
+            field.addAncestorListener(new RequestFocusListener());
+            field.setText("" + boundaries_num);
+            
+            String[] method = {"Power of two", "Increment of one"};
+            
+            JComboBox draw_choice = new JComboBox(method);
+            draw_choice.setSelectedIndex(boundaries_spacing_method);
+            draw_choice.setToolTipText("Selects the spacing method.");
+            
+            String[] method2 = {"Circle", "Square", "Rhombus"};
+            
+            JComboBox draw_choice2 = new JComboBox(method2);
+            draw_choice2.setSelectedIndex(boundaries_type);
+            draw_choice2.setToolTipText("Selects the type of boundary.");
+
+            Object[] message3 = { 
+                " ",
+                "You are using " + boundaries_num + " as the number of boundaries.\nEnter the new boundaries number.",
+                field,
+                " ",
+                "Select the spacing method.",
+                draw_choice,
+                " ",
+                "Select the boundary type.",
+                draw_choice2,
+                " ",
+            };
+            
+            int res = JOptionPane.showConfirmDialog(scroll_pane, message3, "Boundaries Number", JOptionPane.OK_CANCEL_OPTION);
+                   
+            if(res == JOptionPane.OK_OPTION) {
+                try {
+                    int temp = Integer.parseInt(field.getText());
+           
+                    if(temp < 1) {
+                       main_panel.repaint();
+                       JOptionPane.showMessageDialog(scroll_pane, "Boundaries number need to be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
+                       return;
+                    }
+                    else {
+                       if(temp > 64) {
+                            main_panel.repaint();
+                           JOptionPane.showMessageDialog(scroll_pane, "Boundaries number need to be lower than 65.", "Error!", JOptionPane.ERROR_MESSAGE);
+                           return;
+                       }
+                   }
+                    
+                   boundaries_num = temp;
+
+                   boundaries_spacing_method = draw_choice.getSelectedIndex();
+                   
+                   boundaries_type = draw_choice2.getSelectedIndex();
+                                     
                 }
                 catch (Exception e)
                 {

@@ -69,16 +69,19 @@ public class Parser
   boolean found_c;
   boolean found_n;
   boolean found_p;
+  boolean found_s;
   
   ArrayList<VariableExpressionNode> z_var;
   ArrayList<VariableExpressionNode> c_var;
   ArrayList<VariableExpressionNode> n_var;
   ArrayList<VariableExpressionNode> p_var;
+  ArrayList<VariableExpressionNode> s_var;
   
   VariableExpressionNode[] z_var_arr;
   VariableExpressionNode[] c_var_arr;
   VariableExpressionNode[] n_var_arr;
   VariableExpressionNode[] p_var_arr;
+  VariableExpressionNode[] s_var_arr;
   /***************************************/
   
   /**
@@ -99,11 +102,13 @@ public class Parser
     found_c = false;
     found_n = false;
     found_p = false;
+    found_s = false;
     
     z_var = new ArrayList<VariableExpressionNode>();
     c_var = new ArrayList<VariableExpressionNode>();
     n_var = new ArrayList<VariableExpressionNode>();
     p_var = new ArrayList<VariableExpressionNode>();
+    s_var = new ArrayList<VariableExpressionNode>();
     
     Tokenizer tokenizer = Tokenizer.getExpressionTokenizer();
     tokenizer.tokenize(expression);
@@ -142,11 +147,13 @@ public class Parser
     c_var_arr = new VariableExpressionNode[c_var.size()];
     n_var_arr = new VariableExpressionNode[n_var.size()];
     p_var_arr = new VariableExpressionNode[p_var.size()];
+    s_var_arr = new VariableExpressionNode[s_var.size()];
   
     z_var_arr = z_var.toArray(z_var_arr);
     c_var_arr = c_var.toArray(c_var_arr);
     n_var_arr = n_var.toArray(n_var_arr);
     p_var_arr = p_var.toArray(p_var_arr);
+    s_var_arr = s_var.toArray(s_var_arr);
     
     return expr;
   }
@@ -327,7 +334,7 @@ public class Parser
       String temp = lookahead.sequence;
  
       
-      if(!temp.equalsIgnoreCase("z") && !temp.equalsIgnoreCase("c") && !temp.equalsIgnoreCase("n") && !temp.equalsIgnoreCase("p") && !temp.equalsIgnoreCase("pi") && !temp.equalsIgnoreCase("e") && !temp.equalsIgnoreCase("c10") && !temp.equalsIgnoreCase("phi")) {
+      if(!temp.equalsIgnoreCase("z") && !temp.equalsIgnoreCase("c") && !temp.equalsIgnoreCase("n") && !temp.equalsIgnoreCase("p") && !temp.equalsIgnoreCase("s") && !temp.equalsIgnoreCase("pi") && !temp.equalsIgnoreCase("e") && !temp.equalsIgnoreCase("c10") && !temp.equalsIgnoreCase("phi") && !temp.equalsIgnoreCase("alpha") && !temp.equalsIgnoreCase("delta")) {
          throw new ParserException("Unrecognized variable %s found.", lookahead);
       }
           
@@ -353,6 +360,11 @@ public class Parser
           p_var.add((VariableExpressionNode)expr);
       }
       
+      if(temp.equalsIgnoreCase("s")) {
+          found_s = true;
+          s_var.add((VariableExpressionNode)expr);
+      }
+      
       if(temp.equalsIgnoreCase("pi")) {
           ((VariableExpressionNode)expr).setValue(new Complex(Math.PI, 0));
       }
@@ -367,6 +379,14 @@ public class Parser
       
       if(temp.equalsIgnoreCase("phi")) {
           ((VariableExpressionNode)expr).setValue(new Complex(1.618033988749895, 0));
+      }
+      
+      if(temp.equalsIgnoreCase("alpha")) {
+          ((VariableExpressionNode)expr).setValue(new Complex(2.5029078750958928, 0));
+      }                                        
+      
+      if(temp.equalsIgnoreCase("delta")) {
+          ((VariableExpressionNode)expr).setValue(new Complex(4.669201609102990, 0));
       }
       
       nextToken();
@@ -412,6 +432,11 @@ public class Parser
       return found_p;
   }
   
+  public boolean foundS()
+  {
+      return found_s;
+  }
+  
   public void setZvalue(Complex value) {
       
       for(int i = 0; i < z_var_arr.length; i++) {
@@ -440,6 +465,14 @@ public class Parser
       
       for(int i = 0; i < p_var_arr.length; i++) {
           p_var_arr[i].setValue(value);
+      }  
+ 
+  }
+  
+  public void setSvalue(Complex value) {
+      
+      for(int i = 0; i < s_var_arr.length; i++) {
+          s_var_arr[i].setValue(value);
       }  
  
   }

@@ -23,7 +23,7 @@ public class NNormBailoutTest extends BailoutTest {
      @Override //N norm
      public boolean escaped(Complex z) {
          
-        return Math.pow(Math.pow(z.absRe(), n_norm) + Math.pow(z.absIm(), n_norm), 1 / n_norm) >= bound;
+        return Math.pow(Math.pow(z.getAbsRe(), n_norm) + Math.pow(z.getAbsIm(), n_norm), 1 / n_norm) >= bound;
          
      }  
 }

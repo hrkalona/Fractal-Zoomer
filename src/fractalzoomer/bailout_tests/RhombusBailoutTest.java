@@ -21,7 +21,7 @@ public class RhombusBailoutTest extends BailoutTest {
     @Override //one norm  
     public boolean escaped(Complex z) {
          
-        return z.absRe() + z.absIm() >= bound;
+        return z.getAbsRe() + z.getAbsIm() >= bound;
          
     }
     

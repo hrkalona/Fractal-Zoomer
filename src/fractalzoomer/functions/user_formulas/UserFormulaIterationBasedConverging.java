@@ -185,28 +185,28 @@ public class UserFormulaIterationBasedConverging extends Julia {
                 in_color_algorithm = new MaximumIterations();
                 break;
             case MainWindow.Z_MAG:
-                in_color_algorithm = new ZMag(smoothing);
+                in_color_algorithm = new ZMag();
                 break;
             case MainWindow.DECOMPOSITION_LIKE:
-                in_color_algorithm = new DecompositionLike(smoothing);       
+                in_color_algorithm = new DecompositionLike();       
                 break;
             case MainWindow.RE_DIVIDE_IM:
-                in_color_algorithm = new ReDivideIm(smoothing);       
+                in_color_algorithm = new ReDivideIm();       
                 break;
             case MainWindow.COS_MAG:
-                in_color_algorithm = new CosMag(smoothing);       
+                in_color_algorithm = new CosMag();       
                 break;
             case MainWindow.MAG_TIMES_COS_RE_SQUARED:
-                in_color_algorithm = new MagTimesCosReSquared(smoothing);       
+                in_color_algorithm = new MagTimesCosReSquared();       
                 break;
             case MainWindow.SIN_RE_SQUARED_MINUS_IM_SQUARED:
-                in_color_algorithm = new SinReSquaredMinusImSquared(smoothing);       
+                in_color_algorithm = new SinReSquaredMinusImSquared();       
                 break;
             case MainWindow.ATAN_RE_TIMES_IM_TIMES_ABS_RE_TIMES_ABS_IM:
-                in_color_algorithm = new AtanReTimesImTimesAbsReTimesAbsIm(smoothing);       
+                in_color_algorithm = new AtanReTimesImTimesAbsReTimesAbsIm();       
                 break;
             case MainWindow.SQUARES:
-                in_color_algorithm = new Squares(smoothing);       
+                in_color_algorithm = new Squares();       
                 break;
             case MainWindow.SQUARES2:
                 in_color_algorithm = new Squares2();       
@@ -338,28 +338,28 @@ public class UserFormulaIterationBasedConverging extends Julia {
                 in_color_algorithm = new MaximumIterations();
                 break;
             case MainWindow.Z_MAG:
-                in_color_algorithm = new ZMag(smoothing);
+                in_color_algorithm = new ZMag();
                 break;
             case MainWindow.DECOMPOSITION_LIKE:
-                in_color_algorithm = new DecompositionLike(smoothing);       
+                in_color_algorithm = new DecompositionLike();       
                 break;
             case MainWindow.RE_DIVIDE_IM:
-                in_color_algorithm = new ReDivideIm(smoothing);       
+                in_color_algorithm = new ReDivideIm();       
                 break;
             case MainWindow.COS_MAG:
-                in_color_algorithm = new CosMag(smoothing);       
+                in_color_algorithm = new CosMag();       
                 break;
             case MainWindow.MAG_TIMES_COS_RE_SQUARED:
-                in_color_algorithm = new MagTimesCosReSquared(smoothing);       
+                in_color_algorithm = new MagTimesCosReSquared();       
                 break;
             case MainWindow.SIN_RE_SQUARED_MINUS_IM_SQUARED:
-                in_color_algorithm = new SinReSquaredMinusImSquared(smoothing);       
+                in_color_algorithm = new SinReSquaredMinusImSquared();       
                 break;
             case MainWindow.ATAN_RE_TIMES_IM_TIMES_ABS_RE_TIMES_ABS_IM:
-                in_color_algorithm = new AtanReTimesImTimesAbsReTimesAbsIm(smoothing);       
+                in_color_algorithm = new AtanReTimesImTimesAbsReTimesAbsIm();       
                 break;
             case MainWindow.SQUARES:
-                in_color_algorithm = new Squares(smoothing);       
+                in_color_algorithm = new Squares();       
                 break;
             case MainWindow.SQUARES2:
                 in_color_algorithm = new Squares2();       
@@ -491,6 +491,22 @@ public class UserFormulaIterationBasedConverging extends Julia {
         Complex zold = new Complex();
         Complex zold2 = new Complex();
         
+        if(parser[0].foundS()) {
+            parser[0].setSvalue(new Complex(complex[0]));
+        }
+            
+        if(parser[1].foundS()) {
+            parser[1].setSvalue(new Complex(complex[0]));
+        }
+            
+        if(parser[2].foundS()) {
+            parser[2].setSvalue(new Complex(complex[0]));
+        }
+            
+        if(parser[3].foundS()) {
+            parser[3].setSvalue(new Complex(complex[0]));
+        }
+        
         if(parser[0].foundP()) {
             parser[0].setPvalue(new Complex());
         }
@@ -539,6 +555,22 @@ public class UserFormulaIterationBasedConverging extends Julia {
 
         Complex zold = new Complex();
         Complex zold2 = new Complex();
+        
+        if(parser[0].foundS()) {
+            parser[0].setSvalue(new Complex(complex[0]));
+        }
+            
+        if(parser[1].foundS()) {
+            parser[1].setSvalue(new Complex(complex[0]));
+        }
+            
+        if(parser[2].foundS()) {
+            parser[2].setSvalue(new Complex(complex[0]));
+        }
+            
+        if(parser[3].foundS()) {
+            parser[3].setSvalue(new Complex(complex[0]));
+        }
         
         if(parser[0].foundP()) {
             parser[0].setPvalue(new Complex());
@@ -589,6 +621,22 @@ public class UserFormulaIterationBasedConverging extends Julia {
 
         Complex zold = new Complex();
         Complex zold2 = new Complex();
+        
+        if(parser[0].foundS()) {
+            parser[0].setSvalue(new Complex(complex[0]));
+        }
+            
+        if(parser[1].foundS()) {
+            parser[1].setSvalue(new Complex(complex[0]));
+        }
+            
+        if(parser[2].foundS()) {
+            parser[2].setSvalue(new Complex(complex[0]));
+        }
+            
+        if(parser[3].foundS()) {
+            parser[3].setSvalue(new Complex(complex[0]));
+        }
         
         if(parser[0].foundP()) {
             parser[0].setPvalue(new Complex());
@@ -644,6 +692,22 @@ public class UserFormulaIterationBasedConverging extends Julia {
         Complex zold = new Complex();
         Complex zold2 = new Complex();
         
+        if(parser[0].foundS()) {
+            parser[0].setSvalue(new Complex(complex[0]));
+        }
+            
+        if(parser[1].foundS()) {
+            parser[1].setSvalue(new Complex(complex[0]));
+        }
+            
+        if(parser[2].foundS()) {
+            parser[2].setSvalue(new Complex(complex[0]));
+        }
+            
+        if(parser[3].foundS()) {
+            parser[3].setSvalue(new Complex(complex[0]));
+        }
+        
         if(parser[0].foundP()) {
             parser[0].setPvalue(new Complex());
         }
@@ -697,6 +761,22 @@ public class UserFormulaIterationBasedConverging extends Julia {
         
         Complex zold = new Complex();
         
+        if(parser[0].foundS()) {
+            parser[0].setSvalue(new Complex(complex[0]));
+        }
+            
+        if(parser[1].foundS()) {
+            parser[1].setSvalue(new Complex(complex[0]));
+        }
+            
+        if(parser[2].foundS()) {
+            parser[2].setSvalue(new Complex(complex[0]));
+        }
+            
+        if(parser[3].foundS()) {
+            parser[3].setSvalue(new Complex(complex[0]));
+        }
+        
         if(parser[0].foundP()) {
             parser[0].setPvalue(new Complex());
         }
@@ -743,6 +823,22 @@ public class UserFormulaIterationBasedConverging extends Julia {
         Complex temp = null;
         
         Complex zold = new Complex();
+        
+        if(parser[0].foundS()) {
+            parser[0].setSvalue(new Complex(complex[0]));
+        }
+            
+        if(parser[1].foundS()) {
+            parser[1].setSvalue(new Complex(complex[0]));
+        }
+            
+        if(parser[2].foundS()) {
+            parser[2].setSvalue(new Complex(complex[0]));
+        }
+            
+        if(parser[3].foundS()) {
+            parser[3].setSvalue(new Complex(complex[0]));
+        }
         
         if(parser[0].foundP()) {
             parser[0].setPvalue(new Complex());

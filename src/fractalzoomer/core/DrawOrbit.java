@@ -95,14 +95,18 @@ import fractalzoomer.functions.math.Sin;
 import fractalzoomer.functions.math.Tan;
 import fractalzoomer.functions.math.Tanh;
 import fractalzoomer.functions.general.Nova;
-import fractalzoomer.functions.formulas.general.Formula31;
-import fractalzoomer.functions.formulas.general.Formula30;
-import fractalzoomer.functions.formulas.general.Formula32;
-import fractalzoomer.functions.formulas.general.Formula33;
-import fractalzoomer.functions.formulas.general.Formula34;
-import fractalzoomer.functions.formulas.general.Formula35;
-import fractalzoomer.functions.formulas.general.Formula36;
-import fractalzoomer.functions.formulas.general.Formula37;
+import fractalzoomer.functions.formulas.general.mathtype.Formula31;
+import fractalzoomer.functions.formulas.general.mathtype.Formula30;
+import fractalzoomer.functions.formulas.general.mathtype.Formula32;
+import fractalzoomer.functions.formulas.general.mathtype.Formula33;
+import fractalzoomer.functions.formulas.general.mathtype.Formula34;
+import fractalzoomer.functions.formulas.general.mathtype.Formula35;
+import fractalzoomer.functions.formulas.general.mathtype.Formula36;
+import fractalzoomer.functions.formulas.general.mathtype.Formula37;
+import fractalzoomer.functions.formulas.general.newtonvariant.Formula42;
+import fractalzoomer.functions.formulas.general.newtonvariant.Formula43;
+import fractalzoomer.functions.formulas.general.newtonvariant.Formula44;
+import fractalzoomer.functions.formulas.general.newtonvariant.Formula45;
 import fractalzoomer.functions.formulas.m_like_generalization.Formula38;
 import fractalzoomer.functions.formulas.m_like_generalization.Formula39;
 import fractalzoomer.functions.formulas.m_like_generalization.zab_zde_fg.Formula40;
@@ -148,10 +152,11 @@ public class DrawOrbit extends Thread {
   protected boolean orbit_style;
   protected boolean julia;
   protected boolean grid;
+  protected boolean boundaries;
   protected int image_size;
   protected Color orbit_color;
 
-    public DrawOrbit(double xCenter, double yCenter, double size, int max_iterations, int pixel_x, int pixel_y, int image_size, BufferedImage image, MainWindow ptr, Color orbit_color, boolean orbit_style, int plane_type, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, boolean grid, int function , double z_exponent, double[] z_exponent_complex, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean init_val, double[] initial_vals, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula,  String user_formula2, int bail_technique, String user_plane, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula) {
+    public DrawOrbit(double xCenter, double yCenter, double size, int max_iterations, int pixel_x, int pixel_y, int image_size, BufferedImage image, MainWindow ptr, Color orbit_color, boolean orbit_style, int plane_type, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, boolean grid, boolean boundaries, int function , double z_exponent, double[] z_exponent_complex, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean init_val, double[] initial_vals, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula,  String user_formula2, int bail_technique, String user_plane, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula) {
 
         this.image_size = image_size;
         
@@ -498,6 +503,18 @@ public class DrawOrbit extends Thread {
             case MainWindow.FORMULA41:
                 pixel_orbit = new Formula41(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane);
                 break;
+            case MainWindow.FORMULA42:
+                pixel_orbit = new Formula42(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane);
+                break;
+            case MainWindow.FORMULA43:
+                pixel_orbit = new Formula43(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane);
+                break;
+            case MainWindow.FORMULA44:
+                pixel_orbit = new Formula44(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane);
+                break;
+            case MainWindow.FORMULA45:
+                pixel_orbit = new Formula45(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane);
+                break;
             case MainWindow.USER_FORMULA:
                 if(bail_technique == 0) {
                     pixel_orbit = new UserFormulaEscaping(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_formula,  user_formula2, user_plane);
@@ -540,11 +557,12 @@ public class DrawOrbit extends Thread {
         this.orbit_style = orbit_style;
         this.orbit_color = orbit_color;
         this.grid = grid;
+        this.boundaries = boundaries;
         julia = false;
 
     }
 
-    public DrawOrbit(double xCenter, double yCenter, double size, int max_iterations, int pixel_x, int pixel_y, int image_size, BufferedImage image, MainWindow ptr, Color orbit_color, boolean orbit_style, int plane_type, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, boolean grid, int function , double z_exponent, double[] z_exponent_complex, double[] rotation_vals, double[] rotation_center, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula,  String user_formula2, int bail_technique, String user_plane, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, double xJuliaCenter, double yJuliaCenter) {
+    public DrawOrbit(double xCenter, double yCenter, double size, int max_iterations, int pixel_x, int pixel_y, int image_size, BufferedImage image, MainWindow ptr, Color orbit_color, boolean orbit_style, int plane_type, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, boolean grid, boolean boundaries, int function , double z_exponent, double[] z_exponent_complex, double[] rotation_vals, double[] rotation_center, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula,  String user_formula2, int bail_technique, String user_plane, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, double xJuliaCenter, double yJuliaCenter) {
 
         this.image_size = image_size;
         
@@ -777,6 +795,18 @@ public class DrawOrbit extends Thread {
             case MainWindow.FORMULA41:
                 pixel_orbit = new Formula41(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, xJuliaCenter, yJuliaCenter);
                 break;
+            case MainWindow.FORMULA42:
+                pixel_orbit = new Formula42(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.FORMULA43:
+                pixel_orbit = new Formula43(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.FORMULA44:
+                pixel_orbit = new Formula44(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.FORMULA45:
+                pixel_orbit = new Formula45(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, xJuliaCenter, yJuliaCenter);
+                break;
             case MainWindow.USER_FORMULA:
                 if(bail_technique == 0) {
                     pixel_orbit = new UserFormulaEscaping(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_formula,  user_formula2, user_plane, xJuliaCenter, yJuliaCenter);
@@ -819,6 +849,7 @@ public class DrawOrbit extends Thread {
         this.orbit_style = orbit_style;
         this.orbit_color = orbit_color;
         this.grid = grid;
+        this.boundaries = boundaries;
         julia = true;
 
     }
@@ -830,8 +861,12 @@ public class DrawOrbit extends Thread {
 
     protected void draw() {
 
+        if(boundaries) {
+            ptr.drawBoundaries(image.createGraphics(), true);
+        }
+        
         if(grid) {
-            ptr.drawGrid(image.createGraphics());
+            ptr.drawGrid(image.createGraphics(), true);
         }
 
         if(julia) {
@@ -885,7 +920,6 @@ public class DrawOrbit extends Thread {
         full_image_g.fillOval(x1, y1, 3, 3);
 
     }
-
  
     private void drawDot() {
       int x0, y0, list_size;
