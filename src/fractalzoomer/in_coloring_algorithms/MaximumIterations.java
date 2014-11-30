@@ -1,5 +1,7 @@
 package fractalzoomer.in_coloring_algorithms;
 
+import fractalzoomer.core.Complex;
+
 /*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
@@ -19,7 +21,7 @@ public class MaximumIterations extends InColorAlgorithm {
     public double getResult(Object[] object) {
   
         return (Integer)object[0];
-        
+ 
     }
     
 }

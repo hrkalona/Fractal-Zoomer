@@ -32,6 +32,8 @@ import fractalzoomer.bailout_tests.StripBailoutTest;
 import fractalzoomer.bailout_tests.SquareBailoutTest;
 import fractalzoomer.fractal_options.DefaultInitialValue;
 import fractalzoomer.planes.UserPlane;
+import fractalzoomer.planes.distort.KaleidoscopePlane;
+import fractalzoomer.planes.distort.PinchPlane;
 import fractalzoomer.planes.fold.FoldInPlane;
 import fractalzoomer.planes.fold.FoldOutPlane;
 import fractalzoomer.planes.fold.FoldRightPlane;
@@ -67,6 +69,11 @@ import fractalzoomer.planes.newton.Newton3Plane;
 import fractalzoomer.planes.newton.Newton4Plane;
 import fractalzoomer.planes.newton.NewtonGeneralized3Plane;
 import fractalzoomer.planes.newton.NewtonGeneralized8Plane;
+import fractalzoomer.planes.distort.ShearPlane;
+import fractalzoomer.planes.distort.TwirlPlane;
+import fractalzoomer.planes.fold.FoldDownPlane;
+import fractalzoomer.planes.fold.FoldLeftPlane;
+import fractalzoomer.planes.general.CircleInversionPlane;
 import java.util.ArrayList;
 
 /*
@@ -102,7 +109,7 @@ public abstract class Fractal {
   protected Complex period;
 
 
-    public Fractal(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane) {
+    public Fractal(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double [] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount) {
 
         this.xCenter = xCenter;
         this.yCenter = yCenter;
@@ -230,16 +237,22 @@ public abstract class Fractal {
                 plane = new AbsPlane();
                 break;
             case MainWindow.FOLDUP_PLANE:
-                plane = new FoldUpPlane();
+                plane = new FoldUpPlane(plane_transform_center);
+                break;
+            case MainWindow.FOLDDOWN_PLANE:
+                plane = new FoldDownPlane(plane_transform_center);
                 break;
             case MainWindow.FOLDRIGHT_PLANE:
-                plane = new FoldRightPlane();
+                plane = new FoldRightPlane(plane_transform_center);
+                break;
+            case MainWindow.FOLDLEFT_PLANE:
+                plane = new FoldLeftPlane(plane_transform_center);
                 break;
             case MainWindow.FOLDIN_PLANE:
-                plane = new FoldInPlane();
+                plane = new FoldInPlane(plane_transform_radius);
                 break;
             case MainWindow.FOLDOUT_PLANE:
-                plane = new FoldOutPlane();
+                plane = new FoldOutPlane(plane_transform_radius);
                 break;
             case MainWindow.NEWTON3_PLANE:
                 plane = new Newton3Plane();
@@ -268,7 +281,21 @@ public abstract class Fractal {
             case MainWindow.INVERSED_BIPOLAR_PLANE:
                 plane = new InversedBipolarPlane();
                 break;
-                
+            case MainWindow.TWIRL_PLANE:
+                plane = new TwirlPlane(plane_transform_center, plane_transform_angle, plane_transform_radius);
+                break;
+            case MainWindow.SHEAR_PLANE:
+                plane = new ShearPlane(plane_transform_scales);
+                break;
+            case MainWindow.KALEIDOSCOPE_PLANE:
+                plane = new KaleidoscopePlane(plane_transform_center, plane_transform_angle, plane_transform_angle2, plane_transform_radius, plane_transform_sides);
+                break;
+            case MainWindow.PINCH_PLANE:
+                plane = new PinchPlane(plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_amount);
+                break;
+            case MainWindow.CIRCLEINVERSION_PLANE:
+                plane = new CircleInversionPlane(plane_transform_center, plane_transform_radius);
+                break;
         }
         
    
@@ -300,7 +327,7 @@ public abstract class Fractal {
     }
 
     //orbit
-    public Fractal(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane) {
+    public Fractal(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double [] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount) {
 
         this.xCenter = xCenter;
         this.yCenter = yCenter;
@@ -427,16 +454,22 @@ public abstract class Fractal {
                 plane = new AbsPlane();
                 break;
             case MainWindow.FOLDUP_PLANE:
-                plane = new FoldUpPlane();
+                plane = new FoldUpPlane(plane_transform_center);
+                break;
+            case MainWindow.FOLDDOWN_PLANE:
+                plane = new FoldDownPlane(plane_transform_center);
                 break;
             case MainWindow.FOLDRIGHT_PLANE:
-                plane = new FoldRightPlane();
+                plane = new FoldRightPlane(plane_transform_center);
+                break;
+            case MainWindow.FOLDLEFT_PLANE:
+                plane = new FoldLeftPlane(plane_transform_center);
                 break;
             case MainWindow.FOLDIN_PLANE:
-                plane = new FoldInPlane();
+                plane = new FoldInPlane(plane_transform_radius);
                 break;
             case MainWindow.FOLDOUT_PLANE:
-                plane = new FoldOutPlane();
+                plane = new FoldOutPlane(plane_transform_radius);
                 break;
             case MainWindow.NEWTON3_PLANE:
                 plane = new Newton3Plane();
@@ -464,6 +497,21 @@ public abstract class Fractal {
                 break;
             case MainWindow.INVERSED_BIPOLAR_PLANE:
                 plane = new InversedBipolarPlane();
+                break;
+            case MainWindow.TWIRL_PLANE:
+                plane = new TwirlPlane(plane_transform_center, plane_transform_angle, plane_transform_radius);
+                break;
+            case MainWindow.SHEAR_PLANE:
+                plane = new ShearPlane(plane_transform_scales);
+                break;
+            case MainWindow.KALEIDOSCOPE_PLANE:
+                plane = new KaleidoscopePlane(plane_transform_center, plane_transform_angle, plane_transform_angle2, plane_transform_radius, plane_transform_sides);
+                break;
+            case MainWindow.PINCH_PLANE:
+                plane = new PinchPlane(plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_amount);
+                break;
+            case MainWindow.CIRCLEINVERSION_PLANE:
+                plane = new CircleInversionPlane(plane_transform_center, plane_transform_radius);
                 break;
        
         }
@@ -805,6 +853,12 @@ public abstract class Fractal {
 
         return max_iterations;
 
+    }
+    
+    public Complex getTransformedNumber(Complex z) {
+        
+        return plane.getPixel(z);
+        
     }
  
 }

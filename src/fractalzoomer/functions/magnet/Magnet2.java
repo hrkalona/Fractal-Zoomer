@@ -63,9 +63,9 @@ import java.util.ArrayList;
 public class Magnet2 extends Julia {
   private double convergent_bailout;
 
-    public Magnet2(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean init_value, double[] initial_vals, String user_plane) {
+    public Magnet2(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean init_value, double[] initial_vals, String user_plane, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double [] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount) {
 
-        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane);
+        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
 
         convergent_bailout = 1E-9;
         
@@ -250,9 +250,9 @@ public class Magnet2 extends Julia {
 
     }
 
-    public Magnet2(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, double xJuliaCenter, double yJuliaCenter) {
+    public Magnet2(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double [] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, double xJuliaCenter, double yJuliaCenter) {
 
-        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, xJuliaCenter, yJuliaCenter);
+        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
 
         convergent_bailout = 1E-8;
 
@@ -424,9 +424,9 @@ public class Magnet2 extends Julia {
     }
 
     //orbit
-    public Magnet2(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean init_value, double[] initial_vals, String user_plane) {
+    public Magnet2(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean init_value, double[] initial_vals, String user_plane, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double [] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount) {
 
-        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane);
+        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
         
         if(perturbation) {
             pertur_val = new Perturbation(perturbation_vals[0], perturbation_vals[1]);
@@ -444,9 +444,9 @@ public class Magnet2 extends Julia {
 
     }
 
-    public Magnet2(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, double xJuliaCenter, double yJuliaCenter) {
+    public Magnet2(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double [] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, double xJuliaCenter, double yJuliaCenter) {
 
-        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, xJuliaCenter, yJuliaCenter);
+        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
 
     }
 
@@ -642,20 +642,20 @@ public class Magnet2 extends Julia {
            if(temp1 || temp2) {
                Object[] object = {iterations, complex[0], temp2, temp4, zold};
                temp3 = out_color_algorithm.getResult(object);
-               double[] array = {25 * Math.log(temp3 - 100799) + 15 * Math.log(iterations + 1) - 100, temp3};
+               double[] array = {40 * Math.log(temp3 - 100799) - 100, temp3};
                return array;  
            }
            zold = complex[0];
            function(complex);
 
            if(periodicityCheck(complex[0])) {
-                double[] array = {25 * Math.log(max_iterations + 1) + 15 * Math.log(max_iterations + 1) - 100, max_iterations};
+                double[] array = {40 * Math.log(max_iterations + 1) - 100, max_iterations};
                 return array;
            }
 
         }
 
-        double[] array = {25 * Math.log(max_iterations + 1) + 15 * Math.log(max_iterations + 1) - 100, max_iterations};
+        double[] array = {40 * Math.log(max_iterations + 1) - 100, max_iterations};
         return array;
         
     }
@@ -682,7 +682,7 @@ public class Magnet2 extends Julia {
            if(temp1 || temp2) {
                Object[] object = {iterations, complex[0], temp2, temp4, zold};
                temp3 = out_color_algorithm.getResult(object);
-               double[] array = {25 * Math.log(temp3 - 100799) + 15 * Math.log(iterations + 1) - 100, temp3};
+               double[] array = {40 * Math.log(temp3 - 100799) - 100, temp3};
                return array;   
            }
            zold = complex[0];
@@ -693,7 +693,7 @@ public class Magnet2 extends Julia {
         Object[] object = {max_iterations, complex[0]};
         temp3 = in_color_algorithm.getResult(object);
         double result = temp3 == max_iterations ? max_iterations : max_iterations + temp3 - 100820;
-        double[] array = {25 * Math.log(result + 1) + 15 * Math.log(max_iterations + 1) - 100, temp3};
+        double[] array = {40 * Math.log(result + 1) - 100, temp3};
         return array;
         
     }
@@ -727,20 +727,20 @@ public class Magnet2 extends Julia {
            if(temp1 ||  temp2) {
                Object[] object = {iterations, complex[0], temp2, temp4, zold};
                temp3 = out_color_algorithm.getResult(object);
-               double[] array = {25 * Math.log(temp3 - 100799) + 15 * Math.log(iterations + 1) - 100, temp3};
+               double[] array = {40 * Math.log(temp3 - 100799) - 100, temp3};
                return array;    
            }
            zold = complex[0];
            function(complex);
 
            if(periodicityCheck(complex[0])) {
-               double[] array = {25 * Math.log(max_iterations + 1) + 15 * Math.log(max_iterations + 1) - 100, max_iterations};
+               double[] array = {40 * Math.log(max_iterations + 1) - 100, max_iterations};
                return array;
            }
 
         }
 
-        double[] array = {25 * Math.log(max_iterations + 1) + 15 * Math.log(max_iterations + 1) - 100, max_iterations};
+        double[] array = {40 * Math.log(max_iterations + 1) - 100, max_iterations};
         return array;
                 
     }
@@ -765,7 +765,7 @@ public class Magnet2 extends Julia {
            if(temp1 ||  temp2) {
                Object[] object = {iterations, complex[0], temp2, temp4, zold};
                temp3 = out_color_algorithm.getResult(object);
-               double[] array = {25 * Math.log(temp3 - 100799) + 15 * Math.log(iterations + 1) - 100, temp3};
+               double[] array = {40 * Math.log(temp3 - 100799) - 100, temp3};
                return array;  
            }
            zold = complex[0];
@@ -776,7 +776,7 @@ public class Magnet2 extends Julia {
         Object[] object = {max_iterations, complex[0]};
         temp3 = in_color_algorithm.getResult(object);
         double result = temp3 == max_iterations ? max_iterations : max_iterations + temp3 - 100820;
-        double[] array = {25 * Math.log(result + 1) + 15 * Math.log(max_iterations + 1) - 100, temp3};
+        double[] array = {40 * Math.log(result + 1) - 100, temp3};
         return array;
         
     }

@@ -12,18 +12,20 @@ import fractalzoomer.planes.Plane;
  * @author hrkalona2
  */
 public class FoldUpPlane extends Plane {
-    
-    public FoldUpPlane() {
-        
+
+    private Complex center;
+
+    public FoldUpPlane(double[] plane_transform_center) {
+
         super();
-        
+        center = new Complex(plane_transform_center[0], plane_transform_center[1]);
+
     }
 
     @Override
     public Complex getPixel(Complex pixel) {
         
-        return pixel.fold_up(-0.25);
-
+        return pixel.fold_up(center);
+   
     }
-    
 }

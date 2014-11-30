@@ -244,12 +244,14 @@ import java.awt.Color;
       else {
         r = Math.pow(((r + 0.055) / 1.055), 2.4);
       }
+      
       if (g <= 0.04045) {
         g = g / 12.92;
       }
       else {
         g = Math.pow(((g + 0.055) / 1.055), 2.4);
       }
+      
       if (b <= 0.04045) {
         b = b / 12.92;
       }
@@ -260,6 +262,7 @@ import java.awt.Color;
       r *= 100.0;
       g *= 100.0;
       b *= 100.0;
+
 
       // [X Y Z] = [r g b][M]
       result[0] = (r * M[0][0]) + (g * M[0][1]) + (b * M[0][2]);
@@ -340,7 +343,7 @@ import java.awt.Color;
       }
 
       double[] result = new double[3];
-
+  
       result[0] = (116.0 * y) - 16.0;
       result[1] = 500.0 * (x - y);
       result[2] = 200.0 * (y - z);
@@ -640,7 +643,7 @@ import java.awt.Color;
         result[2] = (int)b;
         
         return result;
-    } 
+    }
     
     public static int clamp(int c) {
         
@@ -653,6 +656,7 @@ import java.awt.Color;
 	return c;
                 
     }
+      
 
   }
 
