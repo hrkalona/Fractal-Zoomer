@@ -19,6 +19,7 @@ Bailout Tests
 Palette editor
 Julia sets
 Julia map
+Polar coordinates projection
 3D Heightmap
 Many Color Algorithms
 Color Cycling

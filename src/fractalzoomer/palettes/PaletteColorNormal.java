@@ -11,16 +11,16 @@ package fractalzoomer.palettes;
  */
 public class PaletteColorNormal extends PaletteColor {
   
-  public PaletteColorNormal(int[] palette) {
+  public PaletteColorNormal(int[] palette, double color_intensity) {
       
-      super(palette);
+      super(palette, color_intensity);
       
   }
 
     @Override
     public int getPaletteColor(double result) {
         
-        return palette[((int)((result + mod_offset))) % palette.length];
+        return palette[((int)((result + mod_offset) * color_intensity)) % palette.length];
         
     }
   

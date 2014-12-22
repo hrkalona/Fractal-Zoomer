@@ -42,7 +42,7 @@ import java.util.ArrayList;
 public class SecantPoly extends RootFindingMethods {
   private double[] coefficients;
 
-    public SecantPoly(double xCenter, double yCenter, double size, int max_iterations, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, double[] coefficients, String user_plane, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double [] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount) {
+    public SecantPoly(double xCenter, double yCenter, double size, int max_iterations, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, double[] coefficients, String user_plane, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double [] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int converging_smooth_algorithm) {
 
         super(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
   
@@ -55,7 +55,7 @@ public class SecantPoly extends RootFindingMethods {
                     out_color_algorithm = new EscapeTime();
                 }
                 else {
-                    out_color_algorithm = new SmoothEscapeTimeRootFindingMethod(Math.log(convergent_bailout));
+                    out_color_algorithm = new SmoothEscapeTimeRootFindingMethod(Math.log(convergent_bailout), converging_smooth_algorithm);
                 }
                 break;
             case MainWindow.BINARY_DECOMPOSITION:
@@ -63,7 +63,7 @@ public class SecantPoly extends RootFindingMethods {
                     out_color_algorithm = new BinaryDecomposition();
                 }
                 else {
-                    out_color_algorithm = new SmoothBinaryDecompositionRootFindingMethod(Math.log(convergent_bailout));
+                    out_color_algorithm = new SmoothBinaryDecompositionRootFindingMethod(Math.log(convergent_bailout), converging_smooth_algorithm);
                 }
                 break;
             case MainWindow.BINARY_DECOMPOSITION2:
@@ -71,7 +71,7 @@ public class SecantPoly extends RootFindingMethods {
                     out_color_algorithm = new BinaryDecomposition2();
                 }
                 else {
-                    out_color_algorithm = new SmoothBinaryDecomposition2RootFindingMethod(Math.log(convergent_bailout));
+                    out_color_algorithm = new SmoothBinaryDecomposition2RootFindingMethod(Math.log(convergent_bailout), converging_smooth_algorithm);
                 }
                 break;
             case MainWindow.COLOR_DECOMPOSITION:
@@ -79,7 +79,7 @@ public class SecantPoly extends RootFindingMethods {
                     out_color_algorithm = new ColorDecompositionRootFindingMethod();
                 }
                 else {
-                    out_color_algorithm = new SmoothColorDecompositionRootFindingMethod(Math.log(convergent_bailout));
+                    out_color_algorithm = new SmoothColorDecompositionRootFindingMethod(Math.log(convergent_bailout), converging_smooth_algorithm);
                 }
                 break;
             case MainWindow. ESCAPE_TIME_COLOR_DECOMPOSITION:
@@ -87,7 +87,7 @@ public class SecantPoly extends RootFindingMethods {
                     out_color_algorithm = new EscapeTimeColorDecompositionRootFindingMethod();
                 }
                 else {
-                    out_color_algorithm = new SmoothEscapeTimeColorDecompositionRootFindingMethod(Math.log(convergent_bailout));
+                    out_color_algorithm = new SmoothEscapeTimeColorDecompositionRootFindingMethod(Math.log(convergent_bailout), converging_smooth_algorithm);
                 }
                 break;
             case MainWindow.ESCAPE_TIME_ALGORITHM:

@@ -153,6 +153,9 @@ public abstract class ThreadDraw extends Thread {
     public static final int APPLY_PALETTE_AND_FILTER = 3;
     public static final int JULIA_MAP = 4;
     public static final int ROTATE_3D_MODEL = 5;
+    public static final int POLAR = 6;
+    public static final int FAST_JULIA_POLAR = 7;
+    public static final int JULIA_MAP_POLAR = 8;
     public static final float[] thick_edges = {-1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -2.0f, -2.0f, -2.0f, -1.0f, -1.0f, -2.0f, 32.0f, -2.0f, -1.0f, -1.0f, -2.0f, -2.0f, -2.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f};
     public static final float[] thin_edges = {-1.0f, -1.0f, -1.0f, -1.0f, 8.0f, -1.0f, -1.0f, -1.0f, -1.0f};
     public static final float[] sharpness_high = {-0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, 3.4f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f};
@@ -188,7 +191,14 @@ public abstract class ThreadDraw extends Thread {
     protected int color_cycling_location;
     protected int action;
     protected int thread_slices;
+    protected boolean bump_map;
+    protected double bumpMappingStrength;
+    protected double bumpMappingDepth;
+    protected double lightDirectionDegrees;
+    protected static double[] image_iterations_fast_julia;
     protected double height_ratio;
+    protected boolean polar_projection;
+    protected double circle_period;
     protected double x_antialiasing_size;
     protected double x_antialiasing_size_x2;
     protected double y_antialiasing_size;
@@ -196,13 +206,15 @@ public abstract class ThreadDraw extends Thread {
     protected int[] filters_options_vals;
     protected int detail;
     protected double fiX, fiY, scale, m20, m21, m22;
-    protected double  d3_height_scale;
+    protected double d3_height_scale;
     protected double d3_height_offset;
     protected static float vert[][][];
     protected static float vert1[][][];
     protected static float Norm[][][][];
     protected static float Norm1z[][][];
     protected int d3_draw_method;
+    public static final int MAX_BUMP_MAPPING_DEPTH = 100;
+    public static final int DEFAULT_BUMP_MAPPING_STRENGTH = 50;
 
     /*protected double[] AntialiasingData;
     protected double[] FastJuliaData;
@@ -220,11 +232,12 @@ public abstract class ThreadDraw extends Thread {
         total_calculated = new AtomicInteger(0);
         normal_drawing_algorithm_pixel = new AtomicInteger(0);
         image_iterations = new double[MainWindow.image_size * MainWindow.image_size];
+        image_iterations_fast_julia = new double[MainWindow.FAST_JULIA_IMAGE_SIZE * MainWindow.FAST_JULIA_IMAGE_SIZE];
 
     }
 
     //Fractal
-    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, boolean d3, int d3_draw_method, int detail, double fiX, double fiY, MainWindow ptr, Color fractal_color, BufferedImage image, boolean[] filters, int[] filters_options_vals, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, boolean boundary_tracing, boolean periodicity_checking, int plane_type, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean init_val, double[] initial_vals, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, boolean exterior_de, double exterior_de_factor, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double [] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, double  d3_height_scale, double d3_height_offset) {
+    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, boolean d3, int d3_draw_method, int detail, double fiX, double fiY, MainWindow ptr, Color fractal_color, BufferedImage image, boolean[] filters, int[] filters_options_vals, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, boolean boundary_tracing, boolean periodicity_checking, int plane_type, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean init_val, double[] initial_vals, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, boolean exterior_de, double exterior_de_factor, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, double d3_height_scale, double d3_height_offset, int escaping_smooth_algorithm, int converging_smooth_algorithm, boolean bump_map, double lightDirectionDegrees, double bumpMappingDepth, double bumpMappingStrength, boolean polar_projection, double circle_period) {
 
         this.FROMx = FROMx;
         this.TOx = TOx;
@@ -247,15 +260,58 @@ public abstract class ThreadDraw extends Thread {
         this.d3_height_offset = d3_height_offset;
         scale = 1;
 
-        if(filters[MainWindow.ANTIALIASING]) {
-            x_antialiasing_size = (size / image.getHeight()) * 0.25;
-            x_antialiasing_size_x2 = 2 * x_antialiasing_size;
+        this.bump_map = bump_map;
+        this.bumpMappingStrength = bumpMappingStrength;
+        this.bumpMappingDepth = bumpMappingDepth;
+        this.lightDirectionDegrees = lightDirectionDegrees;
 
-            y_antialiasing_size = ((size * height_ratio) / image.getHeight()) * 0.25;
-            y_antialiasing_size_x2 = 2 * y_antialiasing_size;
+        this.polar_projection = polar_projection;
+        this.circle_period = circle_period;
+
+
+        if(filters[MainWindow.ANTIALIASING]) {
+            if(d3 && polar_projection) {
+                int n1 = detail - 1;
+
+                y_antialiasing_size = ((2 * circle_period * Math.PI) / n1) * 0.25;
+                x_antialiasing_size = y_antialiasing_size * height_ratio;
+
+                x_antialiasing_size_x2 = 2 * x_antialiasing_size;
+                y_antialiasing_size_x2 = 2 * y_antialiasing_size;
+            }
+            else if(polar_projection) {
+                y_antialiasing_size = ((2 * circle_period * Math.PI) / image.getHeight()) * 0.25;
+                x_antialiasing_size = y_antialiasing_size * height_ratio;
+
+                x_antialiasing_size_x2 = 2 * x_antialiasing_size;
+                y_antialiasing_size_x2 = 2 * y_antialiasing_size;
+            }
+            else if(d3) {
+                int n1 = detail - 1;
+
+                x_antialiasing_size = (size / n1) * 0.25;
+                x_antialiasing_size_x2 = 2 * x_antialiasing_size;
+
+                y_antialiasing_size = ((size * height_ratio) / n1) * 0.25;
+                y_antialiasing_size_x2 = 2 * y_antialiasing_size;
+            }
+            else {
+                x_antialiasing_size = (size / image.getHeight()) * 0.25;
+                x_antialiasing_size_x2 = 2 * x_antialiasing_size;
+
+                y_antialiasing_size = ((size * height_ratio) / image.getHeight()) * 0.25;
+                y_antialiasing_size_x2 = 2 * y_antialiasing_size;
+            }
         }
         // thread_slices = 10;
-        action = NORMAL;
+
+        if(polar_projection) {
+            action = POLAR;
+        }
+        else {
+            action = NORMAL;
+        }
+
         julia = false;
 
         rgbs = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
@@ -280,385 +336,385 @@ public abstract class ThreadDraw extends Thread {
 
         switch (function) {
             case 0:
-                fractal = new Mandelbrot(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, exterior_de, exterior_de_factor);
+                fractal = new Mandelbrot(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, exterior_de, exterior_de_factor, escaping_smooth_algorithm);
                 break;
             case 1:
-                fractal = new MandelbrotCubed(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new MandelbrotCubed(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case 2:
-                fractal = new MandelbrotFourth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new MandelbrotFourth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case 3:
-                fractal = new MandelbrotFifth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new MandelbrotFifth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case 4:
-                fractal = new MandelbrotSixth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new MandelbrotSixth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case 5:
-                fractal = new MandelbrotSeventh(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new MandelbrotSeventh(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case 6:
-                fractal = new MandelbrotEighth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new MandelbrotEighth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case 7:
-                fractal = new MandelbrotNinth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new MandelbrotNinth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case 8:
-                fractal = new MandelbrotTenth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new MandelbrotTenth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.MANDELBROTNTH:
-                fractal = new MandelbrotNth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, burning_ship, mandel_grass, mandel_grass_vals, z_exponent, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new MandelbrotNth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, burning_ship, mandel_grass, mandel_grass_vals, z_exponent, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.MANDELBROTWTH:
-                fractal = new MandelbrotWth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, burning_ship, mandel_grass, mandel_grass_vals, z_exponent_complex, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new MandelbrotWth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, burning_ship, mandel_grass, mandel_grass_vals, z_exponent_complex, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.MANDELPOLY:
-                fractal = new MandelbrotPoly(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, burning_ship, mandel_grass, mandel_grass_vals, coefficients, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new MandelbrotPoly(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, burning_ship, mandel_grass, mandel_grass_vals, coefficients, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.LAMBDA:
-                fractal = new Lambda(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Lambda(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.MAGNET1:
-                fractal = new Magnet1(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Magnet1(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, converging_smooth_algorithm);
                 break;
             case MainWindow.MAGNET2:
-                fractal = new Magnet2(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Magnet2(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, converging_smooth_algorithm);
                 break;
             case MainWindow.NEWTON3:
-                fractal = new Newton3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Newton3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm);
                 break;
             case MainWindow.NEWTON4:
-                fractal = new Newton4(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Newton4(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm);
                 break;
             case MainWindow.NEWTONGENERALIZED3:
-                fractal = new NewtonGeneralized3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new NewtonGeneralized3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm);
                 break;
             case MainWindow.NEWTONGENERALIZED8:
-                fractal = new NewtonGeneralized8(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new NewtonGeneralized8(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm);
                 break;
             case MainWindow.NEWTONSIN:
-                fractal = new NewtonSin(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new NewtonSin(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm);
                 break;
             case MainWindow.NEWTONCOS:
-                fractal = new NewtonCos(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new NewtonCos(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm);
                 break;
             case MainWindow.NEWTONPOLY:
-                fractal = new NewtonPoly(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, coefficients, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new NewtonPoly(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, coefficients, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm);
                 break;
             case MainWindow.BARNSLEY1:
-                fractal = new Barnsley1(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Barnsley1(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.BARNSLEY2:
-                fractal = new Barnsley2(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Barnsley2(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.BARNSLEY3:
-                fractal = new Barnsley3(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Barnsley3(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.MANDELBAR:
-                fractal = new Mandelbar(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Mandelbar(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.SPIDER:
-                fractal = new Spider(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Spider(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.MANOWAR:
-                fractal = new Manowar(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Manowar(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.PHOENIX:
-                fractal = new Phoenix(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Phoenix(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.SIERPINSKI_GASKET:
-                fractal = new SierpinskiGasket(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new SierpinskiGasket(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.HALLEY3:
-                fractal = new Halley3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Halley3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm);
                 break;
             case MainWindow.HALLEY4:
-                fractal = new Halley4(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Halley4(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm);
                 break;
             case MainWindow.HALLEYGENERALIZED3:
-                fractal = new HalleyGeneralized3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new HalleyGeneralized3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm);
                 break;
             case MainWindow.HALLEYGENERALIZED8:
-                fractal = new HalleyGeneralized8(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new HalleyGeneralized8(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm);
                 break;
             case MainWindow.HALLEYSIN:
-                fractal = new HalleySin(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new HalleySin(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm);
                 break;
             case MainWindow.HALLEYCOS:
-                fractal = new HalleyCos(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new HalleyCos(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm);
                 break;
             case MainWindow.HALLEYPOLY:
-                fractal = new HalleyPoly(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, coefficients, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new HalleyPoly(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, coefficients, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm);
                 break;
             case MainWindow.SCHRODER3:
-                fractal = new Schroder3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Schroder3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm);
                 break;
             case MainWindow.SCHRODER4:
-                fractal = new Schroder4(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Schroder4(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm);
                 break;
             case MainWindow.SCHRODERGENERALIZED3:
-                fractal = new SchroderGeneralized3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new SchroderGeneralized3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm);
                 break;
             case MainWindow.SCHRODERGENERALIZED8:
-                fractal = new SchroderGeneralized8(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new SchroderGeneralized8(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm);
                 break;
             case MainWindow.SCHRODERSIN:
-                fractal = new SchroderSin(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new SchroderSin(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm);
                 break;
             case MainWindow.SCHRODERCOS:
-                fractal = new SchroderCos(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new SchroderCos(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm);
                 break;
             case MainWindow.SCHRODERPOLY:
-                fractal = new SchroderPoly(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, coefficients, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new SchroderPoly(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, coefficients, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm);
                 break;
             case MainWindow.HOUSEHOLDER3:
-                fractal = new Householder3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Householder3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm);
                 break;
             case MainWindow.HOUSEHOLDER4:
-                fractal = new Householder4(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Householder4(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm);
                 break;
             case MainWindow.HOUSEHOLDERGENERALIZED3:
-                fractal = new HouseholderGeneralized3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new HouseholderGeneralized3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm);
                 break;
             case MainWindow.HOUSEHOLDERGENERALIZED8:
-                fractal = new HouseholderGeneralized8(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new HouseholderGeneralized8(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm);
                 break;
             case MainWindow.HOUSEHOLDERSIN:
-                fractal = new HouseholderSin(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new HouseholderSin(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm);
                 break;
             case MainWindow.HOUSEHOLDERCOS:
-                fractal = new HouseholderCos(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new HouseholderCos(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm);
                 break;
             case MainWindow.HOUSEHOLDERPOLY:
-                fractal = new HouseholderPoly(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, coefficients, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new HouseholderPoly(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, coefficients, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm);
                 break;
             case MainWindow.SECANT3:
-                fractal = new Secant3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Secant3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm);
                 break;
             case MainWindow.SECANT4:
-                fractal = new Secant4(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Secant4(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm);
                 break;
             case MainWindow.SECANTGENERALIZED3:
-                fractal = new SecantGeneralized3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new SecantGeneralized3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm);
                 break;
             case MainWindow.SECANTGENERALIZED8:
-                fractal = new SecantGeneralized8(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new SecantGeneralized8(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm);
                 break;
             case MainWindow.SECANTCOS:
-                fractal = new SecantCos(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new SecantCos(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm);
                 break;
             case MainWindow.SECANTPOLY:
-                fractal = new SecantPoly(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, coefficients, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new SecantPoly(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, coefficients, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm);
                 break;
             case MainWindow.STEFFENSEN3:
-                fractal = new Steffensen3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Steffensen3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm);
                 break;
             case MainWindow.STEFFENSEN4:
-                fractal = new Steffensen4(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Steffensen4(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm);
                 break;
             case MainWindow.STEFFENSENGENERALIZED3:
-                fractal = new SteffensenGeneralized3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new SteffensenGeneralized3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm);
                 break;
             case MainWindow.NOVA:
-                fractal = new Nova(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, z_exponent_nova, relaxation, nova_method, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Nova(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, z_exponent_nova, relaxation, nova_method, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm);
                 break;
             case MainWindow.EXP:
-                fractal = new Exp(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Exp(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.LOG:
-                fractal = new Log(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Log(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.SIN:
-                fractal = new Sin(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Sin(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.COS:
-                fractal = new Cos(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Cos(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.TAN:
-                fractal = new Tan(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Tan(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.COT:
-                fractal = new Cot(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Cot(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.SINH:
-                fractal = new Sinh(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Sinh(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.COSH:
-                fractal = new Cosh(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Cosh(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.TANH:
-                fractal = new Tanh(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Tanh(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.COTH:
-                fractal = new Coth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Coth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.FORMULA30:
-                fractal = new Formula30(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Formula30(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.FORMULA31:
-                fractal = new Formula31(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Formula31(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.FORMULA1:
-                fractal = new Formula1(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Formula1(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.FORMULA2:
-                fractal = new Formula2(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Formula2(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.FORMULA3:
-                fractal = new Formula3(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Formula3(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.FORMULA4:
-                fractal = new Formula4(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Formula4(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.FORMULA5:
-                fractal = new Formula5(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Formula5(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.FORMULA6:
-                fractal = new Formula6(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Formula6(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.FORMULA7:
-                fractal = new Formula7(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Formula7(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.FORMULA8:
-                fractal = new Formula8(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Formula8(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.FORMULA9:
-                fractal = new Formula9(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Formula9(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.FORMULA10:
-                fractal = new Formula10(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Formula10(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.FORMULA11:
-                fractal = new Formula11(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Formula11(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.FORMULA12:
-                fractal = new Formula12(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Formula12(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.FORMULA13:
-                fractal = new Formula13(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Formula13(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.FORMULA14:
-                fractal = new Formula14(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Formula14(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.FORMULA15:
-                fractal = new Formula15(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Formula15(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.FORMULA16:
-                fractal = new Formula16(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Formula16(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.FORMULA17:
-                fractal = new Formula17(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Formula17(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.FORMULA18:
-                fractal = new Formula18(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Formula18(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.FORMULA19:
-                fractal = new Formula19(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Formula19(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.FORMULA20:
-                fractal = new Formula20(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Formula20(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.FORMULA21:
-                fractal = new Formula21(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Formula21(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.FORMULA22:
-                fractal = new Formula22(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Formula22(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.FORMULA23:
-                fractal = new Formula23(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Formula23(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.FORMULA24:
-                fractal = new Formula24(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Formula24(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.FORMULA25:
-                fractal = new Formula25(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Formula25(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.FORMULA26:
-                fractal = new Formula26(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Formula26(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.FORMULA27:
-                fractal = new Formula27(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Formula27(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.FORMULA28:
-                fractal = new Formula28(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Formula28(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.FORMULA29:
-                fractal = new Formula29(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Formula29(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.FORMULA32:
-                fractal = new Formula32(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Formula32(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.FORMULA33:
-                fractal = new Formula33(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Formula33(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.FORMULA34:
-                fractal = new Formula34(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Formula34(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.FORMULA35:
-                fractal = new Formula35(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Formula35(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.FORMULA36:
-                fractal = new Formula36(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Formula36(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.FORMULA37:
-                fractal = new Formula37(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Formula37(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.FORMULA38:
-                fractal = new Formula38(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Formula38(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.FORMULA39:
-                fractal = new Formula39(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Formula39(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.FORMULA40:
-                fractal = new Formula40(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Formula40(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.FORMULA41:
-                fractal = new Formula41(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Formula41(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.FORMULA42:
-                fractal = new Formula42(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Formula42(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.FORMULA43:
-                fractal = new Formula43(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Formula43(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.FORMULA44:
-                fractal = new Formula44(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Formula44(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.FORMULA45:
-                fractal = new Formula45(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new Formula45(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.USER_FORMULA:
                 if(bail_technique == 0) {
-                    fractal = new UserFormulaEscaping(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_formula, user_formula2, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                    fractal = new UserFormulaEscaping(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_formula, user_formula2, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 }
                 else {
-                    fractal = new UserFormulaConverging(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_formula, user_formula2, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                    fractal = new UserFormulaConverging(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_formula, user_formula2, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm);
                 }
                 break;
             case MainWindow.USER_FORMULA_ITERATION_BASED:
                 if(bail_technique == 0) {
-                    fractal = new UserFormulaIterationBasedEscaping(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_formula_iteration_based, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                    fractal = new UserFormulaIterationBasedEscaping(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_formula_iteration_based, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 }
                 else {
-                    fractal = new UserFormulaIterationBasedConverging(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_formula_iteration_based, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                    fractal = new UserFormulaIterationBasedConverging(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_formula_iteration_based, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm);
                 }
                 break;
             case MainWindow.USER_FORMULA_CONDITIONAL:
                 if(bail_technique == 0) {
-                    fractal = new UserFormulaConditionalEscaping(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_formula_conditions, user_formula_condition_formula, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                    fractal = new UserFormulaConditionalEscaping(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_formula_conditions, user_formula_condition_formula, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 }
                 else {
-                    fractal = new UserFormulaConditionalConverging(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_formula_conditions, user_formula_condition_formula, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                    fractal = new UserFormulaConditionalConverging(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_formula_conditions, user_formula_condition_formula, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm);
                 }
                 break;
             case MainWindow.FROTHY_BASIN:
-                fractal = new FrothyBasin(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new FrothyBasin(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.SZEGEDI_BUTTERFLY1:
-                fractal = new SzegediButterfly1(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new SzegediButterfly1(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
             case MainWindow.SZEGEDI_BUTTERFLY2:
-                fractal = new SzegediButterfly2(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                fractal = new SzegediButterfly2(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm);
                 break;
 
         }
@@ -669,7 +725,7 @@ public abstract class ThreadDraw extends Thread {
     }
 
     //Julia
-    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, boolean d3, int d3_draw_method, int detail, double fiX, double fiY, MainWindow ptr, Color fractal_color, BufferedImage image, boolean[] filters, int[] filters_options_vals, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, boolean boundary_tracing, boolean periodicity_checking, int plane_type, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] rotation_vals, double[] rotation_center, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, boolean exterior_de, double exterior_de_factor, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double [] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, double  d3_height_scale, double d3_height_offset, double xJuliaCenter, double yJuliaCenter) {
+    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, boolean d3, int d3_draw_method, int detail, double fiX, double fiY, MainWindow ptr, Color fractal_color, BufferedImage image, boolean[] filters, int[] filters_options_vals, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, boolean boundary_tracing, boolean periodicity_checking, int plane_type, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] rotation_vals, double[] rotation_center, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, boolean exterior_de, double exterior_de_factor, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, double d3_height_scale, double d3_height_offset, int escaping_smooth_algorithm, int converging_smooth_algorithm, boolean bump_map, double lightDirectionDegrees, double bumpMappingDepth, double bumpMappingStrength, boolean polar_projection, double circle_period, double xJuliaCenter, double yJuliaCenter) {
 
         this.FROMx = FROMx;
         this.TOx = TOx;
@@ -692,15 +748,57 @@ public abstract class ThreadDraw extends Thread {
         this.d3_height_offset = d3_height_offset;
         scale = 1;
 
-        if(filters[MainWindow.ANTIALIASING]) {
-            x_antialiasing_size = (size / image.getHeight()) * 0.25;
-            x_antialiasing_size_x2 = 2 * x_antialiasing_size;
+        this.bump_map = bump_map;
+        this.bumpMappingStrength = bumpMappingStrength;
+        this.bumpMappingDepth = bumpMappingDepth;
+        this.lightDirectionDegrees = lightDirectionDegrees;
 
-            y_antialiasing_size = ((size * height_ratio) / image.getHeight()) * 0.25;
-            y_antialiasing_size_x2 = 2 * y_antialiasing_size;
+        this.polar_projection = polar_projection;
+        this.circle_period = circle_period;
+
+        if(filters[MainWindow.ANTIALIASING]) {
+            if(d3 && polar_projection) {
+                int n1 = detail - 1;
+
+                y_antialiasing_size = ((2 * circle_period * Math.PI) / n1) * 0.25;
+                x_antialiasing_size = y_antialiasing_size * height_ratio;
+
+                x_antialiasing_size_x2 = 2 * x_antialiasing_size;
+                y_antialiasing_size_x2 = 2 * y_antialiasing_size;
+            }
+            else if(polar_projection) {
+                y_antialiasing_size = ((2 * circle_period * Math.PI) / image.getHeight()) * 0.25;
+                x_antialiasing_size = y_antialiasing_size * height_ratio;
+
+                x_antialiasing_size_x2 = 2 * x_antialiasing_size;
+                y_antialiasing_size_x2 = 2 * y_antialiasing_size;
+            }
+            else if(d3) {
+                int n1 = detail - 1;
+
+                x_antialiasing_size = (size / n1) * 0.25;
+                x_antialiasing_size_x2 = 2 * x_antialiasing_size;
+
+                y_antialiasing_size = ((size * height_ratio) / n1) * 0.25;
+                y_antialiasing_size_x2 = 2 * y_antialiasing_size;
+            }
+            else {
+                x_antialiasing_size = (size / image.getHeight()) * 0.25;
+                x_antialiasing_size_x2 = 2 * x_antialiasing_size;
+
+                y_antialiasing_size = ((size * height_ratio) / image.getHeight()) * 0.25;
+                y_antialiasing_size_x2 = 2 * y_antialiasing_size;
+            }
         }
         //thread_slices = 10;
-        action = NORMAL;
+
+        if(polar_projection) {
+            action = POLAR;
+        }
+        else {
+            action = NORMAL;
+        }
+
         julia = true;
 
         rgbs = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
@@ -710,271 +808,271 @@ public abstract class ThreadDraw extends Thread {
 
         switch (function) {
             case 0:
-                fractal = new Mandelbrot(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, exterior_de, exterior_de_factor, xJuliaCenter, yJuliaCenter);
+                fractal = new Mandelbrot(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, exterior_de, exterior_de_factor, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case 1:
-                fractal = new MandelbrotCubed(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new MandelbrotCubed(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case 2:
-                fractal = new MandelbrotFourth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new MandelbrotFourth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case 3:
-                fractal = new MandelbrotFifth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new MandelbrotFifth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case 4:
-                fractal = new MandelbrotSixth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new MandelbrotSixth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case 5:
-                fractal = new MandelbrotSeventh(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new MandelbrotSeventh(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case 6:
-                fractal = new MandelbrotEighth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new MandelbrotEighth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case 7:
-                fractal = new MandelbrotNinth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new MandelbrotNinth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case 8:
-                fractal = new MandelbrotTenth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new MandelbrotTenth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.MANDELBROTNTH:
-                fractal = new MandelbrotNth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, z_exponent, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new MandelbrotNth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, z_exponent, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.MANDELBROTWTH:
-                fractal = new MandelbrotWth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, z_exponent_complex, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new MandelbrotWth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, z_exponent_complex, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.MANDELPOLY:
-                fractal = new MandelbrotPoly(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, coefficients, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new MandelbrotPoly(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, coefficients, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.LAMBDA:
-                fractal = new Lambda(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Lambda(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.MAGNET1:
-                fractal = new Magnet1(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Magnet1(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, converging_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.MAGNET2:
-                fractal = new Magnet2(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Magnet2(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, converging_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.BARNSLEY1:
-                fractal = new Barnsley1(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Barnsley1(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.BARNSLEY2:
-                fractal = new Barnsley2(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Barnsley2(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.BARNSLEY3:
-                fractal = new Barnsley3(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Barnsley3(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.MANDELBAR:
-                fractal = new Mandelbar(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Mandelbar(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.SPIDER:
-                fractal = new Spider(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Spider(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.MANOWAR:
-                fractal = new Manowar(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Manowar(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.PHOENIX:
-                fractal = new Phoenix(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Phoenix(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.NOVA:
-                fractal = new Nova(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, z_exponent_nova, relaxation, nova_method, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Nova(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, z_exponent_nova, relaxation, nova_method, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.EXP:
-                fractal = new Exp(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Exp(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.LOG:
-                fractal = new Log(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Log(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.SIN:
-                fractal = new Sin(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Sin(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.COS:
-                fractal = new Cos(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Cos(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.TAN:
-                fractal = new Tan(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Tan(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.COT:
-                fractal = new Cot(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Cot(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.SINH:
-                fractal = new Sinh(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Sinh(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.COSH:
-                fractal = new Cosh(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Cosh(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.TANH:
-                fractal = new Tanh(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Tanh(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.COTH:
-                fractal = new Coth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Coth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA30:
-                fractal = new Formula30(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula30(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA31:
-                fractal = new Formula31(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula31(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA1:
-                fractal = new Formula1(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula1(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA2:
-                fractal = new Formula2(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula2(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA3:
-                fractal = new Formula3(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula3(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA4:
-                fractal = new Formula4(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula4(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA5:
-                fractal = new Formula5(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula5(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA6:
-                fractal = new Formula6(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula6(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA7:
-                fractal = new Formula7(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula7(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA8:
-                fractal = new Formula8(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula8(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA9:
-                fractal = new Formula9(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula9(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA10:
-                fractal = new Formula10(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula10(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA11:
-                fractal = new Formula11(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula11(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA12:
-                fractal = new Formula12(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula12(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA13:
-                fractal = new Formula13(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula13(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA14:
-                fractal = new Formula14(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula14(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA15:
-                fractal = new Formula15(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula15(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA16:
-                fractal = new Formula16(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula16(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA17:
-                fractal = new Formula17(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula17(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA18:
-                fractal = new Formula18(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula18(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA19:
-                fractal = new Formula19(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula19(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA20:
-                fractal = new Formula20(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula20(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA21:
-                fractal = new Formula21(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula21(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA22:
-                fractal = new Formula22(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula22(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA23:
-                fractal = new Formula23(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula23(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA24:
-                fractal = new Formula24(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula24(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA25:
-                fractal = new Formula25(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula25(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA26:
-                fractal = new Formula26(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula26(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA27:
-                fractal = new Formula27(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula27(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA28:
-                fractal = new Formula28(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula28(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA29:
-                fractal = new Formula29(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula29(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA32:
-                fractal = new Formula32(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula32(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA33:
-                fractal = new Formula33(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula33(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA34:
-                fractal = new Formula34(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula34(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA35:
-                fractal = new Formula35(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula35(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA36:
-                fractal = new Formula36(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula36(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA37:
-                fractal = new Formula37(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula37(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA38:
-                fractal = new Formula38(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula38(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA39:
-                fractal = new Formula39(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula39(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA40:
-                fractal = new Formula40(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula40(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA41:
-                fractal = new Formula41(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula41(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA42:
-                fractal = new Formula42(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula42(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA43:
-                fractal = new Formula43(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula43(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA44:
-                fractal = new Formula44(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula44(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA45:
-                fractal = new Formula45(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula45(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.USER_FORMULA:
                 if(bail_technique == 0) {
-                    fractal = new UserFormulaEscaping(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_formula, user_formula2, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                    fractal = new UserFormulaEscaping(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_formula, user_formula2, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 }
                 else {
-                    fractal = new UserFormulaConverging(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_formula, user_formula2, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                    fractal = new UserFormulaConverging(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_formula, user_formula2, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 }
                 break;
             case MainWindow.USER_FORMULA_ITERATION_BASED:
                 if(bail_technique == 0) {
-                    fractal = new UserFormulaIterationBasedEscaping(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_formula_iteration_based, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                    fractal = new UserFormulaIterationBasedEscaping(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_formula_iteration_based, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 }
                 else {
-                    fractal = new UserFormulaIterationBasedConverging(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_formula_iteration_based, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                    fractal = new UserFormulaIterationBasedConverging(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_formula_iteration_based, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 }
                 break;
             case MainWindow.USER_FORMULA_CONDITIONAL:
                 if(bail_technique == 0) {
-                    fractal = new UserFormulaConditionalEscaping(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_formula_conditions, user_formula_condition_formula, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                    fractal = new UserFormulaConditionalEscaping(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_formula_conditions, user_formula_condition_formula, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 }
                 else {
-                    fractal = new UserFormulaConditionalConverging(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_formula_conditions, user_formula_condition_formula, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                    fractal = new UserFormulaConditionalConverging(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_formula_conditions, user_formula_condition_formula, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 }
                 break;
             case MainWindow.FROTHY_BASIN:
-                fractal = new FrothyBasin(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new FrothyBasin(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.SZEGEDI_BUTTERFLY1:
-                fractal = new SzegediButterfly1(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new SzegediButterfly1(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.SZEGEDI_BUTTERFLY2:
-                fractal = new SzegediButterfly2(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new SzegediButterfly2(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
 
         }
@@ -985,7 +1083,7 @@ public abstract class ThreadDraw extends Thread {
     }
 
     //Julia Map
-    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, MainWindow ptr, Color fractal_color, BufferedImage image, boolean[] filters, int[] filters_options_vals, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, boolean periodicity_checking, int plane_type, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] rotation_vals, double[] rotation_center, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, boolean exterior_de, double exterior_de_factor, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double [] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount) {
+    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, MainWindow ptr, Color fractal_color, BufferedImage image, boolean[] filters, int[] filters_options_vals, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, boolean periodicity_checking, int plane_type, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] rotation_vals, double[] rotation_center, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, boolean exterior_de, double exterior_de_factor, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, int converging_smooth_algorithm, boolean bump_map, double lightDirectionDegrees, double bumpMappingDepth, double bumpMappingStrength, boolean polar_projection, double circle_period) {
 
         this.FROMx = FROMx;
         this.TOx = TOx;
@@ -1000,301 +1098,351 @@ public abstract class ThreadDraw extends Thread {
         this.filters_options_vals = filters_options_vals;
         this.height_ratio = height_ratio;
 
+        this.bump_map = bump_map;
+        this.bumpMappingStrength = bumpMappingStrength;
+        this.bumpMappingDepth = bumpMappingDepth;
+        this.lightDirectionDegrees = lightDirectionDegrees;
+
+        this.polar_projection = polar_projection;
+        this.circle_period = circle_period;
+
         rgbs = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
 
         if(filters[MainWindow.ANTIALIASING]) {
-            x_antialiasing_size = (size / image.getHeight()) * 0.25;
-            x_antialiasing_size_x2 = 2 * x_antialiasing_size;
+            if(polar_projection) {
+                y_antialiasing_size = ((2 * circle_period * Math.PI) / (TOx - FROMx)) * 0.25;
+                x_antialiasing_size = y_antialiasing_size * height_ratio;
 
-            y_antialiasing_size = ((size * height_ratio) / image.getHeight()) * 0.25;
-            y_antialiasing_size_x2 = 2 * y_antialiasing_size;
+                x_antialiasing_size_x2 = 2 * x_antialiasing_size;
+                y_antialiasing_size_x2 = 2 * y_antialiasing_size;
+            }
+            else {
+                x_antialiasing_size = (size / (TOx - FROMx)) * 0.25;
+                x_antialiasing_size_x2 = 2 * x_antialiasing_size;
+
+                y_antialiasing_size = ((size * height_ratio) / (TOx - FROMx)) * 0.25;
+                y_antialiasing_size_x2 = 2 * y_antialiasing_size;
+            }
         }
 
-        action = JULIA_MAP;
+        if(polar_projection) {
+            action = JULIA_MAP_POLAR;
+        }
+        else {
+            action = JULIA_MAP;
+        }
 
-        double size_2_x = size * 0.5;
-        double size_2_y = (size * height_ratio) * 0.5;
+        double xJuliaCenter, yJuliaCenter;
 
-        double temp_xcenter_size = xCenter - size_2_x;
-        double temp_ycenter_size = yCenter - size_2_y;
-        double temp_size_image_size_x = size / image.getHeight();
-        double temp_size_image_size_y = (size * height_ratio) / image.getHeight();
+        if(polar_projection) {
+            double start;
+            double end = Math.log(size);
 
-        double temp1 = temp_xcenter_size + temp_size_image_size_x * ((TOx + FROMx) * 0.5);
-        double temp2 = temp_ycenter_size + temp_size_image_size_y * ((TOy + FROMy) * 0.5);
+            double f, sf, cf, r;
+            double muly = (2 * circle_period * Math.PI) / image.getHeight();
 
-        double xJuliaCenter = temp1 * rotation_vals[0] - temp2 * rotation_vals[1];
-        double yJuliaCenter = temp1 * rotation_vals[1] + temp2 * rotation_vals[0];
+            double mulx = muly * height_ratio;
+
+            start = -mulx * image.getHeight() + end;
+
+            f = ((TOy + FROMy) * 0.5) * muly;
+            sf = Math.sin(f);
+            cf = Math.cos(f);
+
+            r = Math.exp(((TOx + FROMx) * 0.5) * mulx + start);
+
+            double temp1 = xCenter + r * cf - rotation_center[0];
+            double temp2 = yCenter + r * sf - rotation_center[1];
+
+            xJuliaCenter = temp1 * rotation_vals[0] - temp2 * rotation_vals[1] + rotation_center[0];
+
+            yJuliaCenter = temp1 * rotation_vals[1] + temp2 * rotation_vals[0] + rotation_center[1];
+        }
+        else {
+            double size_2_x = size * 0.5;
+            double size_2_y = (size * height_ratio) * 0.5;
+
+            double temp_xcenter_size = xCenter - size_2_x;
+            double temp_ycenter_size = yCenter - size_2_y;
+            double temp_size_image_size_x = size / image.getHeight();
+            double temp_size_image_size_y = (size * height_ratio) / image.getHeight();
+
+            double temp1 = temp_xcenter_size + temp_size_image_size_x * ((TOx + FROMx) * 0.5) - rotation_center[0];
+            double temp2 = temp_ycenter_size + temp_size_image_size_y * ((TOy + FROMy) * 0.5) - rotation_center[1];
+
+            xJuliaCenter = temp1 * rotation_vals[0] - temp2 * rotation_vals[1] + rotation_center[0];
+            yJuliaCenter = temp1 * rotation_vals[1] + temp2 * rotation_vals[0] + rotation_center[1];
+        }
 
         julia = true;
 
         switch (function) {
             case 0:
-                fractal = new Mandelbrot(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, exterior_de, exterior_de_factor, xJuliaCenter, yJuliaCenter);
+                fractal = new Mandelbrot(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, exterior_de, exterior_de_factor, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case 1:
-                fractal = new MandelbrotCubed(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new MandelbrotCubed(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case 2:
-                fractal = new MandelbrotFourth(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new MandelbrotFourth(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case 3:
-                fractal = new MandelbrotFifth(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new MandelbrotFifth(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case 4:
-                fractal = new MandelbrotSixth(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new MandelbrotSixth(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case 5:
-                fractal = new MandelbrotSeventh(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new MandelbrotSeventh(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case 6:
-                fractal = new MandelbrotEighth(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new MandelbrotEighth(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case 7:
-                fractal = new MandelbrotNinth(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new MandelbrotNinth(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case 8:
-                fractal = new MandelbrotTenth(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new MandelbrotTenth(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.MANDELBROTNTH:
-                fractal = new MandelbrotNth(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, z_exponent, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new MandelbrotNth(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, z_exponent, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.MANDELBROTWTH:
-                fractal = new MandelbrotWth(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, z_exponent_complex, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new MandelbrotWth(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, z_exponent_complex, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.MANDELPOLY:
-                fractal = new MandelbrotPoly(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, coefficients, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new MandelbrotPoly(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, coefficients, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.LAMBDA:
-                fractal = new Lambda(0.5, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Lambda(0.5, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.MAGNET1:
-                fractal = new Magnet1(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Magnet1(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, converging_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.MAGNET2:
-                fractal = new Magnet2(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Magnet2(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, converging_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.BARNSLEY1:
-                fractal = new Barnsley1(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Barnsley1(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.BARNSLEY2:
-                fractal = new Barnsley2(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Barnsley2(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.BARNSLEY3:
-                fractal = new Barnsley3(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Barnsley3(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.MANDELBAR:
-                fractal = new Mandelbar(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Mandelbar(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.SPIDER:
-                fractal = new Spider(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Spider(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.MANOWAR:
-                fractal = new Manowar(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Manowar(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.PHOENIX:
-                fractal = new Phoenix(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Phoenix(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.NOVA:
-                fractal = new Nova(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, z_exponent_nova, relaxation, nova_method, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Nova(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, z_exponent_nova, relaxation, nova_method, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.EXP:
-                fractal = new Exp(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Exp(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.LOG:
-                fractal = new Log(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Log(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.SIN:
-                fractal = new Sin(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Sin(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.COS:
-                fractal = new Cos(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Cos(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.TAN:
-                fractal = new Tan(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Tan(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.COT:
-                fractal = new Cot(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Cot(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.SINH:
-                fractal = new Sinh(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Sinh(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.COSH:
-                fractal = new Cosh(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Cosh(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.TANH:
-                fractal = new Tanh(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Tanh(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.COTH:
-                fractal = new Coth(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Coth(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA30:
-                fractal = new Formula30(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula30(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA31:
-                fractal = new Formula31(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula31(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA1:
-                fractal = new Formula1(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula1(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA2:
-                fractal = new Formula2(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula2(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA3:
-                fractal = new Formula3(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula3(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA4:
-                fractal = new Formula4(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula4(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA5:
-                fractal = new Formula5(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula5(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA6:
-                fractal = new Formula6(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula6(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA7:
-                fractal = new Formula7(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula7(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA8:
-                fractal = new Formula8(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula8(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA9:
-                fractal = new Formula9(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula9(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA10:
-                fractal = new Formula10(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula10(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA11:
-                fractal = new Formula11(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula11(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA12:
-                fractal = new Formula12(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula12(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA13:
-                fractal = new Formula13(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula13(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA14:
-                fractal = new Formula14(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula14(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA15:
-                fractal = new Formula15(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula15(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA16:
-                fractal = new Formula16(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula16(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA17:
-                fractal = new Formula17(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula17(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA18:
-                fractal = new Formula18(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula18(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA19:
-                fractal = new Formula19(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula19(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA20:
-                fractal = new Formula20(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula20(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA21:
-                fractal = new Formula21(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula21(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA22:
-                fractal = new Formula22(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula22(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA23:
-                fractal = new Formula23(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula23(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA24:
-                fractal = new Formula24(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula24(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA25:
-                fractal = new Formula25(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula25(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA26:
-                fractal = new Formula26(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula26(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA27:
-                fractal = new Formula27(-2, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula27(-2, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA28:
-                fractal = new Formula28(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula28(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA29:
-                fractal = new Formula29(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula29(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA32:
-                fractal = new Formula32(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula32(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA33:
-                fractal = new Formula33(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula33(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA34:
-                fractal = new Formula34(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula34(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA35:
-                fractal = new Formula35(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula35(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA36:
-                fractal = new Formula36(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula36(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA37:
-                fractal = new Formula37(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula37(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA38:
-                fractal = new Formula38(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula38(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA39:
-                fractal = new Formula39(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula39(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA40:
-                fractal = new Formula40(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula40(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA41:
-                fractal = new Formula41(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula41(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA42:
-                fractal = new Formula42(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula42(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA43:
-                fractal = new Formula43(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula43(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA44:
-                fractal = new Formula44(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula44(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA45:
-                fractal = new Formula45(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula45(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.USER_FORMULA:
                 if(bail_technique == 0) {
-                    fractal = new UserFormulaEscaping(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_formula, user_formula2, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                    fractal = new UserFormulaEscaping(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_formula, user_formula2, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 }
                 else {
-                    fractal = new UserFormulaConverging(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_formula, user_formula2, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                    fractal = new UserFormulaConverging(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_formula, user_formula2, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 }
                 break;
             case MainWindow.USER_FORMULA_ITERATION_BASED:
                 if(bail_technique == 0) {
-                    fractal = new UserFormulaIterationBasedEscaping(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_formula_iteration_based, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                    fractal = new UserFormulaIterationBasedEscaping(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_formula_iteration_based, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 }
                 else {
-                    fractal = new UserFormulaIterationBasedConverging(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_formula_iteration_based, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                    fractal = new UserFormulaIterationBasedConverging(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_formula_iteration_based, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 }
                 break;
             case MainWindow.USER_FORMULA_CONDITIONAL:
                 if(bail_technique == 0) {
-                    fractal = new UserFormulaConditionalEscaping(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_formula_conditions, user_formula_condition_formula, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                    fractal = new UserFormulaConditionalEscaping(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_formula_conditions, user_formula_condition_formula, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 }
                 else {
-                    fractal = new UserFormulaConditionalConverging(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_formula_conditions, user_formula_condition_formula, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                    fractal = new UserFormulaConditionalConverging(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_formula_conditions, user_formula_condition_formula, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 }
                 break;
             case MainWindow.FROTHY_BASIN:
-                fractal = new FrothyBasin(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new FrothyBasin(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.SZEGEDI_BUTTERFLY1:
-                fractal = new SzegediButterfly1(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new SzegediButterfly1(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.SZEGEDI_BUTTERFLY2:
-                fractal = new SzegediButterfly2(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new SzegediButterfly2(0, 0, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
 
         }
@@ -1304,7 +1452,7 @@ public abstract class ThreadDraw extends Thread {
     }
 
     //Julia Preview
-    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, MainWindow ptr, Color fractal_color, boolean fast_julia_filters, BufferedImage image, boolean boundary_tracing, boolean periodicity_checking, int plane_type, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, boolean[] filters, int[] filters_options_vals, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] rotation_vals, double[] rotation_center, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, boolean exterior_de, double exterior_de_factor, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double [] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, double xJuliaCenter, double yJuliaCenter) {
+    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, MainWindow ptr, Color fractal_color, boolean fast_julia_filters, BufferedImage image, boolean boundary_tracing, boolean periodicity_checking, int plane_type, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, boolean[] filters, int[] filters_options_vals, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] rotation_vals, double[] rotation_center, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, boolean exterior_de, double exterior_de_factor, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, int converging_smooth_algorithm, boolean bump_map, double lightDirectionDegrees, double bumpMappingDepth, double bumpMappingStrength, boolean polar_projection, double circle_period, double xJuliaCenter, double yJuliaCenter) {
 
         this.FROMx = FROMx;
         this.TOx = TOx;
@@ -1320,17 +1468,41 @@ public abstract class ThreadDraw extends Thread {
         this.filters_options_vals = filters_options_vals;
         this.height_ratio = height_ratio;
 
+        this.bump_map = bump_map;
+        this.bumpMappingStrength = bumpMappingStrength;
+        this.bumpMappingDepth = bumpMappingDepth;
+        this.lightDirectionDegrees = lightDirectionDegrees;
+
+        this.polar_projection = polar_projection;
+        this.circle_period = circle_period;
+
         rgbs = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
 
         if(filters[MainWindow.ANTIALIASING]) {
-            x_antialiasing_size = (size / image.getHeight()) * 0.25;
-            x_antialiasing_size_x2 = 2 * x_antialiasing_size;
+            if(polar_projection) {
+                y_antialiasing_size = ((2 * circle_period * Math.PI) / image.getHeight()) * 0.25;
+                x_antialiasing_size = y_antialiasing_size * height_ratio;
 
-            y_antialiasing_size = ((size * height_ratio) / image.getHeight()) * 0.25;
-            y_antialiasing_size_x2 = 2 * y_antialiasing_size;
+                x_antialiasing_size_x2 = 2 * x_antialiasing_size;
+                y_antialiasing_size_x2 = 2 * y_antialiasing_size;
+            }
+            else {
+                x_antialiasing_size = (size / image.getHeight()) * 0.25;
+                x_antialiasing_size_x2 = 2 * x_antialiasing_size;
+
+                y_antialiasing_size = ((size * height_ratio) / image.getHeight()) * 0.25;
+                y_antialiasing_size_x2 = 2 * y_antialiasing_size;
+            }
         }
         //thread_slices = 10;
-        action = FAST_JULIA;
+
+        if(polar_projection) {
+            action = FAST_JULIA_POLAR;
+        }
+        else {
+            action = FAST_JULIA;
+        }
+
         julia = true;
 
         this.boundary_tracing = boundary_tracing;
@@ -1338,271 +1510,271 @@ public abstract class ThreadDraw extends Thread {
 
         switch (function) {
             case 0:
-                fractal = new Mandelbrot(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, exterior_de, exterior_de_factor, xJuliaCenter, yJuliaCenter);
+                fractal = new Mandelbrot(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, exterior_de, exterior_de_factor, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case 1:
-                fractal = new MandelbrotCubed(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new MandelbrotCubed(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case 2:
-                fractal = new MandelbrotFourth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new MandelbrotFourth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case 3:
-                fractal = new MandelbrotFifth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new MandelbrotFifth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case 4:
-                fractal = new MandelbrotSixth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new MandelbrotSixth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case 5:
-                fractal = new MandelbrotSeventh(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new MandelbrotSeventh(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case 6:
-                fractal = new MandelbrotEighth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new MandelbrotEighth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case 7:
-                fractal = new MandelbrotNinth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new MandelbrotNinth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case 8:
-                fractal = new MandelbrotTenth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new MandelbrotTenth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.MANDELBROTNTH:
-                fractal = new MandelbrotNth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, z_exponent, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new MandelbrotNth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, z_exponent, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.MANDELBROTWTH:
-                fractal = new MandelbrotWth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, z_exponent_complex, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new MandelbrotWth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, z_exponent_complex, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.MANDELPOLY:
-                fractal = new MandelbrotPoly(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, coefficients, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new MandelbrotPoly(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, coefficients, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.LAMBDA:
-                fractal = new Lambda(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Lambda(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.MAGNET1:
-                fractal = new Magnet1(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Magnet1(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, converging_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.MAGNET2:
-                fractal = new Magnet2(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Magnet2(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, converging_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.BARNSLEY1:
-                fractal = new Barnsley1(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Barnsley1(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.BARNSLEY2:
-                fractal = new Barnsley2(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Barnsley2(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.BARNSLEY3:
-                fractal = new Barnsley3(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Barnsley3(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.MANDELBAR:
-                fractal = new Mandelbar(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Mandelbar(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.SPIDER:
-                fractal = new Spider(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Spider(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.MANOWAR:
-                fractal = new Manowar(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Manowar(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.PHOENIX:
-                fractal = new Phoenix(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Phoenix(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.NOVA:
-                fractal = new Nova(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, z_exponent_nova, relaxation, nova_method, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Nova(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, z_exponent_nova, relaxation, nova_method, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.EXP:
-                fractal = new Exp(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Exp(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.LOG:
-                fractal = new Log(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Log(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.SIN:
-                fractal = new Sin(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Sin(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.COS:
-                fractal = new Cos(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Cos(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.TAN:
-                fractal = new Tan(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Tan(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.COT:
-                fractal = new Cot(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Cot(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.SINH:
-                fractal = new Sinh(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Sinh(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.COSH:
-                fractal = new Cosh(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Cosh(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.TANH:
-                fractal = new Tanh(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Tanh(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.COTH:
-                fractal = new Coth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Coth(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA30:
-                fractal = new Formula30(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula30(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA31:
-                fractal = new Formula31(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula31(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA1:
-                fractal = new Formula1(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula1(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA2:
-                fractal = new Formula2(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula2(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA3:
-                fractal = new Formula3(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula3(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA4:
-                fractal = new Formula4(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula4(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA5:
-                fractal = new Formula5(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula5(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA6:
-                fractal = new Formula6(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula6(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA7:
-                fractal = new Formula7(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula7(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA8:
-                fractal = new Formula8(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula8(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA9:
-                fractal = new Formula9(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula9(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA10:
-                fractal = new Formula10(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula10(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA11:
-                fractal = new Formula11(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula11(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA12:
-                fractal = new Formula12(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula12(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA13:
-                fractal = new Formula13(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula13(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA14:
-                fractal = new Formula14(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula14(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA15:
-                fractal = new Formula15(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula15(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA16:
-                fractal = new Formula16(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula16(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA17:
-                fractal = new Formula17(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula17(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA18:
-                fractal = new Formula18(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula18(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA19:
-                fractal = new Formula19(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula19(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA20:
-                fractal = new Formula20(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula20(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA21:
-                fractal = new Formula21(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula21(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA22:
-                fractal = new Formula22(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula22(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA23:
-                fractal = new Formula23(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula23(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA24:
-                fractal = new Formula24(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula24(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA25:
-                fractal = new Formula25(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula25(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA26:
-                fractal = new Formula26(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula26(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA27:
-                fractal = new Formula27(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula27(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA28:
-                fractal = new Formula28(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula28(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA29:
-                fractal = new Formula29(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula29(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA32:
-                fractal = new Formula32(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula32(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA33:
-                fractal = new Formula33(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula33(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA34:
-                fractal = new Formula34(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula34(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA35:
-                fractal = new Formula35(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula35(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA36:
-                fractal = new Formula36(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula36(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA37:
-                fractal = new Formula37(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula37(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA38:
-                fractal = new Formula38(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula38(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA39:
-                fractal = new Formula39(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula39(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA40:
-                fractal = new Formula40(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula40(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA41:
-                fractal = new Formula41(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula41(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA42:
-                fractal = new Formula42(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula42(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA43:
-                fractal = new Formula43(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula43(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA44:
-                fractal = new Formula44(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula44(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.FORMULA45:
-                fractal = new Formula45(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new Formula45(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.USER_FORMULA:
                 if(bail_technique == 0) {
-                    fractal = new UserFormulaEscaping(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_formula, user_formula2, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                    fractal = new UserFormulaEscaping(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_formula, user_formula2, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 }
                 else {
-                    fractal = new UserFormulaConverging(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_formula, user_formula2, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                    fractal = new UserFormulaConverging(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_formula, user_formula2, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 }
                 break;
             case MainWindow.USER_FORMULA_ITERATION_BASED:
                 if(bail_technique == 0) {
-                    fractal = new UserFormulaIterationBasedEscaping(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_formula_iteration_based, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                    fractal = new UserFormulaIterationBasedEscaping(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_formula_iteration_based, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 }
                 else {
-                    fractal = new UserFormulaIterationBasedConverging(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_formula_iteration_based, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                    fractal = new UserFormulaIterationBasedConverging(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_formula_iteration_based, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 }
                 break;
             case MainWindow.USER_FORMULA_CONDITIONAL:
                 if(bail_technique == 0) {
-                    fractal = new UserFormulaConditionalEscaping(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_formula_conditions, user_formula_condition_formula, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                    fractal = new UserFormulaConditionalEscaping(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_formula_conditions, user_formula_condition_formula, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 }
                 else {
-                    fractal = new UserFormulaConditionalConverging(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_formula_conditions, user_formula_condition_formula, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                    fractal = new UserFormulaConditionalConverging(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, plane_type, rotation_vals, rotation_center, user_formula_conditions, user_formula_condition_formula, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 }
                 break;
             case MainWindow.FROTHY_BASIN:
-                fractal = new FrothyBasin(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new FrothyBasin(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.SZEGEDI_BUTTERFLY1:
-                fractal = new SzegediButterfly1(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new SzegediButterfly1(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.SZEGEDI_BUTTERFLY2:
-                fractal = new SzegediButterfly2(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+                fractal = new SzegediButterfly2(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, xJuliaCenter, yJuliaCenter);
                 break;
 
         }
@@ -1610,7 +1782,7 @@ public abstract class ThreadDraw extends Thread {
     }
 
     //Color Cycling
-    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, int max_iterations, MainWindow ptr, Color fractal_color, BufferedImage image, int color_cycling_location) {
+    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, int max_iterations, MainWindow ptr, Color fractal_color, BufferedImage image, int color_cycling_location, boolean bump_map, double lightDirectionDegrees, double bumpMappingDepth, double bumpMappingStrength) {
 
         this.FROMx = FROMx;
         this.TOx = TOx;
@@ -1624,12 +1796,17 @@ public abstract class ThreadDraw extends Thread {
         action = COLOR_CYCLING;
         color_cycling = true;
 
+        this.bump_map = bump_map;
+        this.bumpMappingStrength = bumpMappingStrength;
+        this.bumpMappingDepth = bumpMappingDepth;
+        this.lightDirectionDegrees = lightDirectionDegrees;
+
         rgbs = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
 
     }
 
     //Apply Filter
-    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, int max_iterations, MainWindow ptr, BufferedImage image, Color fractal_color, int color_cycling_location, boolean[] filters, int[] filters_options_vals) {
+    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, int max_iterations, MainWindow ptr, BufferedImage image, Color fractal_color, int color_cycling_location, boolean[] filters, int[] filters_options_vals, boolean bump_map, double lightDirectionDegrees, double bumpMappingDepth, double bumpMappingStrength) {
 
         this.FROMx = FROMx;
         this.TOx = TOx;
@@ -1644,6 +1821,11 @@ public abstract class ThreadDraw extends Thread {
         this.filters_options_vals = filters_options_vals;
         thread_slices = 10;
         action = APPLY_PALETTE_AND_FILTER;
+
+        this.bump_map = bump_map;
+        this.bumpMappingStrength = bumpMappingStrength;
+        this.bumpMappingDepth = bumpMappingDepth;
+        this.lightDirectionDegrees = lightDirectionDegrees;
 
         rgbs = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
 
@@ -1698,6 +1880,15 @@ public abstract class ThreadDraw extends Thread {
             case ROTATE_3D_MODEL:
                 rotate3DModel();
                 break;
+            case POLAR:
+                drawPolar();
+                break;
+            case FAST_JULIA_POLAR:
+                fastJuliaDrawPolar();
+                break;
+            case JULIA_MAP_POLAR:
+                drawJuliaMapPolar();
+                break;
 
 
         }
@@ -1715,6 +1906,14 @@ public abstract class ThreadDraw extends Thread {
                 }
                 else {
                     drawJulia3D(image_size);
+                }
+            }
+            else if(bump_map) {
+                if(filters[MainWindow.ANTIALIASING]) {
+                    drawJuliaAntialiasedBumpmap(image_size);
+                }
+                else {
+                    drawJuliaBumpmap(image_size);
                 }
             }
             else {
@@ -1735,12 +1934,166 @@ public abstract class ThreadDraw extends Thread {
                     drawFractal3D(image_size);
                 }
             }
+            else if(bump_map) {
+                if(filters[MainWindow.ANTIALIASING]) {
+                    drawFractalAntialiasedBumpmap(image_size);
+                }
+                else {
+                    drawFractalBumpmap(image_size);
+                }
+            }
             else {
                 if(filters[MainWindow.ANTIALIASING]) {
                     drawFractalAntialiased(image_size);
                 }
                 else {
                     drawFractal(image_size);
+                }
+            }
+        }
+
+
+        if(drawing_done != 0) {
+            update(drawing_done);
+        }
+
+        int done = synchronization.incrementAndGet();
+
+        total_calculated.addAndGet(thread_calculated);
+
+        if(done == ptr.getNumberOfThreads()) {
+
+            if(filters[MainWindow.HISTOGRAM_EQUALIZATION]) {
+                histogramEqualization();
+            }
+
+            if(filters[MainWindow.COLOR_CHANNEL_SWAPPING]) {
+                filterColorChannelSwapping();
+            }
+
+            if(filters[MainWindow.INVERT_COLORS]) {
+                filterInvertColors();
+            }
+
+            if(filters[MainWindow.COLOR_CHANNEL_MIXING]) {
+                filterColorChannelMixing();
+            }
+
+            if(filters[MainWindow.COLOR_CHANNEL_MASKING]) {
+                filterMaskColors();
+            }
+
+            if(filters[MainWindow.COLOR_TEMPERATURE]) {
+                filterColorTemperature();
+            }
+
+            if(filters[MainWindow.CONTRAST_BRIGHTNESS]) {
+                filterContrastBrightness();
+            }
+
+            if(filters[MainWindow.GRAYSCALE]) {
+                filterGrayscale();
+            }
+
+            if(filters[MainWindow.EDGE_DETECTION]) {
+                filterEdgeDetection();
+            }
+
+            if(filters[MainWindow.SHARPNESS]) {
+                filterSharpness();
+            }
+
+            if(filters[MainWindow.EMBOSS]) {
+                filterEmboss();
+            }
+
+            if(filters[MainWindow.FADE_OUT]) {
+                filterFadeOut();
+            }
+
+            if(filters[MainWindow.BLURRING]) {
+                filterBlurring();
+            }
+
+            if(d3) {
+                ptr.updateValues("3D mode");
+            }
+            else if(julia) {
+                ptr.updateValues("Julia mode");
+            }
+            else {
+                ptr.updateValues("Normal mode");
+            }
+
+            ptr.setOptions(true);
+            ptr.setWholeImageDone(true);
+            ptr.reloadTitle();
+            ptr.getMainPanel().repaint();
+            if(d3) {
+                ptr.getProgressBar().setValue((detail * detail) + (detail * detail / 100));
+            }
+            else {
+                ptr.getProgressBar().setValue((image_size * image_size) + (image_size * image_size / 100));
+            }
+
+            double temp = filters[MainWindow.ANTIALIASING] ? filters_options_vals[MainWindow.ANTIALIASING] + 1 : 1;
+            int temp2 = image_size * image_size;
+            ptr.getProgressBar().setToolTipText("<html>Elapsed Time: " + (System.currentTimeMillis() - ptr.getCalculationTime()) + " ms<br>Pixels Calculated: " + String.format("%6.2f", ((double)total_calculated.get()) / (temp2) * 100) + "%<br>Sampled Image: " + String.format("%.1f", (temp2 * temp) / 1000000.0) + " megapixels</html>");
+        }
+    }
+
+    private void drawPolar() {
+        int image_size = image.getHeight();
+
+        if(julia) {
+            if(d3) {
+                if(filters[MainWindow.ANTIALIASING]) {
+                    drawJuliaPolar3DAntialiased(image_size);
+                }
+                else {
+                    drawJuliaPolar3D(image_size);
+                }
+            }
+            else if(bump_map) {
+                if(filters[MainWindow.ANTIALIASING]) {
+                    drawJuliaPolarAntialiasedBumpmap(image_size);
+                }
+                else {
+                    drawJuliaPolarBumpmap(image_size);
+                }
+            }
+            else {
+                if(filters[MainWindow.ANTIALIASING]) {
+                    drawJuliaPolarAntialiased(image_size);
+                }
+                else {
+                    drawJuliaPolar(image_size);
+                }
+            }
+        }
+        else {
+            if(d3) {
+                if(filters[MainWindow.ANTIALIASING]) {
+                    drawFractalPolar3DAntialiased(image_size);
+                }
+                else {
+                    drawFractalPolar3D(image_size);
+                }
+            }
+            else if(bump_map) {
+                if(filters[MainWindow.ANTIALIASING]) {
+                    drawFractalPolarAntialiasedBumpmap(image_size);
+                }
+                else {
+                    drawFractalPolarBumpmap(image_size);
+                }
+            }
+            else {
+                if(filters[MainWindow.ANTIALIASING]) {
+                    drawFractalPolarAntialiased(image_size);
+                }
+                else {
+                    drawFractalPolar(image_size);
                 }
             }
         }
@@ -1918,6 +2271,213 @@ public abstract class ThreadDraw extends Thread {
     }
     
      */
+    private void drawFractalBumpmap(int image_size) {
+
+        if(!boundary_tracing) {
+            drawFractalBruteForceBumpmap(image_size);
+        }
+        else {
+            drawFractalBoundaryTracingBumpmap(image_size);
+        }
+
+    }
+
+    private void drawFractalBruteForceBumpmap(int image_size) {
+
+        drawFractalBruteForce(image_size);
+
+        int sync2 = synchronization2.incrementAndGet();
+
+        while(sync2 != ptr.getNumberOfThreads()) {
+            yield();
+            sync2 = synchronization2.get();
+        }
+
+        applyBumpmapping(image_size);
+
+    }
+
+    private void drawFractalBoundaryTracingBumpmap(int image_size) {
+
+        drawFractalBoundaryTracing(image_size);
+
+        int sync2 = synchronization2.incrementAndGet();
+
+        while(sync2 != ptr.getNumberOfThreads()) {
+            yield();
+            sync2 = synchronization2.get();
+        }
+
+        applyBumpmapping(image_size);
+
+    }
+
+    private void drawFractalAntialiasedBumpmap(int image_size) {
+
+        if(!boundary_tracing) {
+            drawFractalAntialiasedBruteForceBumpmap(image_size);
+        }
+        else {
+            drawFractalAntialiasedBoundaryTracingBumpmap(image_size);
+        }
+
+    }
+
+    private void drawFractalAntialiasedBoundaryTracingBumpmap(int image_size) {
+
+        drawFractalAntialiasedBoundaryTracing(image_size);
+
+        int sync2 = synchronization2.incrementAndGet();
+
+        while(sync2 != ptr.getNumberOfThreads()) {
+            yield();
+            sync2 = synchronization2.get();
+        }
+
+        applyBumpmapping(image_size);
+
+    }
+
+    private void drawFractalPolarAntialiasedBoundaryTracingBumpmap(int image_size) {
+
+        drawFractalPolarAntialiasedBoundaryTracing(image_size);
+
+        int sync2 = synchronization2.incrementAndGet();
+
+        while(sync2 != ptr.getNumberOfThreads()) {
+            yield();
+            sync2 = synchronization2.get();
+        }
+
+        applyBumpmapping(image_size);
+
+    }
+
+    private void drawJuliaPolarAntialiasedBoundaryTracingBumpmap(int image_size) {
+
+        drawJuliaPolarAntialiasedBoundaryTracing(image_size);
+
+        int sync2 = synchronization2.incrementAndGet();
+
+        while(sync2 != ptr.getNumberOfThreads()) {
+            yield();
+            sync2 = synchronization2.get();
+        }
+
+        applyBumpmapping(image_size);
+
+    }
+
+    private void drawFractalAntialiasedBruteForceBumpmap(int image_size) {
+
+
+        drawFractalAntialiasedBruteForce(image_size);
+
+        int sync2 = synchronization2.incrementAndGet();
+
+        while(sync2 != ptr.getNumberOfThreads()) {
+            yield();
+            sync2 = synchronization2.get();
+        }
+
+        applyBumpmapping(image_size);
+
+    }
+
+    private void drawJuliaBumpmap(int image_size) {
+
+        if(!boundary_tracing) {
+            drawJuliaBruteForceBumpmap(image_size);
+        }
+        else {
+            drawJuliaBoundaryTracingBumpmap(image_size);
+        }
+
+    }
+
+    private void drawJuliaBruteForceBumpmap(int image_size) {
+
+        drawJuliaBruteForce(image_size);
+
+        int sync2 = synchronization2.incrementAndGet();
+
+        while(sync2 != ptr.getNumberOfThreads()) {
+            yield();
+            sync2 = synchronization2.get();
+        }
+
+        applyBumpmapping(image_size);
+
+
+    }
+
+    private void drawJuliaBoundaryTracingBumpmap(int image_size) {
+
+        drawJuliaBoundaryTracing(image_size);
+
+        int sync2 = synchronization2.incrementAndGet();
+
+        while(sync2 != ptr.getNumberOfThreads()) {
+            yield();
+            sync2 = synchronization2.get();
+        }
+
+        applyBumpmapping(image_size);
+
+    }
+
+    private void drawJuliaAntialiasedBoundaryTracingBumpmap(int image_size) {
+
+        drawJuliaAntialiasedBoundaryTracing(image_size);
+
+        int sync2 = synchronization2.incrementAndGet();
+
+        while(sync2 != ptr.getNumberOfThreads()) {
+            yield();
+            sync2 = synchronization2.get();
+        }
+
+        applyBumpmapping(image_size);
+
+    }
+
+    private void drawJuliaAntialiasedBruteForceBumpmap(int image_size) {
+
+        drawJuliaAntialiasedBruteForce(image_size);
+
+        int sync2 = synchronization2.incrementAndGet();
+
+        while(sync2 != ptr.getNumberOfThreads()) {
+            yield();
+            sync2 = synchronization2.get();
+        }
+
+        applyBumpmapping(image_size);
+
+    }
+
+    private void drawJuliaAntialiasedBumpmap(int image_size) {
+
+        if(!boundary_tracing) {
+            drawJuliaAntialiasedBruteForceBumpmap(image_size);
+        }
+        else {
+            drawJuliaAntialiasedBoundaryTracingBumpmap(image_size);
+        }
+
+    }
+
+    private void drawFractal(int image_size) {
+        // ptr.setWholeImageDone(true); // demo
+
+        if(!boundary_tracing) {
+            drawFractalBruteForce(image_size);
+        }
+        else {
+            drawFractalBoundaryTracing(image_size);
+        }
+    }
+
     private void drawFractalBruteForce(int image_size) {
 
         double size = fractal.getSize();
@@ -2062,7 +2622,7 @@ public abstract class ThreadDraw extends Thread {
         int pix, y, x, curDir, curPix, startPix, startColor, nextColor, dir, Dir, nextPix, floodPix, floodColor;
         int delPix[] = {1, image_size, -1, -image_size};
         //double curX, curY; 
-        double nextX, nextY, previous_value;
+        double nextX, nextY, start_val;
 
         int ix, iy, next_ix, next_iy, temp_ix, temp_iy, flood_ix;
         int intX[] = {1, 0, -1, 0};
@@ -2083,8 +2643,8 @@ public abstract class ThreadDraw extends Thread {
                     ix = x;
                     iy = y;
 
-                    temp_result = image_iterations[pix] = fractal.calculateFractal(new Complex(temp_x0, temp_y0));
-                    startColor = rgbs[pix] = temp_result == max_iterations ? fractal_color : palette_color.getPaletteColor(temp_result + color_cycling_location);
+                    start_val = image_iterations[pix] = fractal.calculateFractal(new Complex(temp_x0, temp_y0));
+                    startColor = rgbs[pix] = start_val == max_iterations ? fractal_color : palette_color.getPaletteColor(start_val + color_cycling_location);
                     drawing_done++;
                     thread_calculated++;
                     /*ptr.getMainPanel().repaint();
@@ -2175,13 +2735,12 @@ public abstract class ThreadDraw extends Thread {
                                             break;
                                         }
 
-                                        previous_value = image_iterations[floodPix];
                                         floodPix++;
 
                                         if((floodColor = rgbs[floodPix]) == culcColor) {
                                             drawing_done++;
                                             rgbs[floodPix] = startColor;
-                                            image_iterations[floodPix] = previous_value;
+                                            image_iterations[floodPix] = start_val;
                                             /*ptr.getMainPanel().repaint();
                                             try {
                                             Thread.sleep(1); //demo
@@ -2480,16 +3039,1478 @@ public abstract class ThreadDraw extends Thread {
         thread_calculated += drawing_done; */
     }
 
-    private void drawFractal(int image_size) {
-
-        // ptr.setWholeImageDone(true); // demo
+    private void drawFractalPolar(int image_size) {
 
         if(!boundary_tracing) {
-            drawFractalBruteForce(image_size);
+            drawFractalPolarBruteForce(image_size);
         }
         else {
-            drawFractalBoundaryTracing(image_size);
+            drawFractalPolarBoundaryTracing(image_size);
         }
+
+    }
+
+    private void drawFractalPolarAntialiased(int image_size) {
+
+        if(!boundary_tracing) {
+            drawFractalPolarAntialiasedBruteForce(image_size);
+        }
+        else {
+            drawFractalPolarAntialiasedBoundaryTracing(image_size);
+        }
+
+    }
+
+    private void drawJuliaPolarAntialiased(int image_size) {
+
+        if(!boundary_tracing) {
+            drawJuliaPolarAntialiasedBruteForce(image_size);
+        }
+        else {
+            drawJuliaPolarAntialiasedBoundaryTracing(image_size);
+        }
+
+    }
+
+    private void drawJuliaPolar(int image_size) {
+
+        if(!boundary_tracing) {
+            drawJuliaPolarBruteForce(image_size);
+        }
+        else {
+            drawJuliaPolarBoundaryTracing(image_size);
+        }
+
+    }
+
+    private void drawFractalPolarBumpmap(int image_size) {
+
+        if(!boundary_tracing) {
+            drawFractalPolarBruteForceBumpmap(image_size);
+        }
+        else {
+            drawFractalPolarBoundaryTracingBumpmap(image_size);
+        }
+
+    }
+
+    private void drawFractalPolarAntialiasedBumpmap(int image_size) {
+
+        if(!boundary_tracing) {
+            drawFractalPolarAntialiasedBruteForceBumpmap(image_size);
+        }
+        else {
+            drawFractalPolarAntialiasedBoundaryTracingBumpmap(image_size);
+        }
+
+    }
+
+    private void drawJuliaPolarAntialiasedBumpmap(int image_size) {
+
+        if(!boundary_tracing) {
+            drawJuliaPolarAntialiasedBruteForceBumpmap(image_size);
+        }
+        else {
+            drawJuliaPolarAntialiasedBoundaryTracingBumpmap(image_size);
+        }
+
+    }
+
+    private void drawJuliaPolarBumpmap(int image_size) {
+
+        if(!boundary_tracing) {
+            drawJuliaPolarBruteForceBumpmap(image_size);
+        }
+        else {
+            drawJuliaPolarBoundaryTracingBumpmap(image_size);
+        }
+
+    }
+
+    private void drawFractalPolarBruteForceBumpmap(int image_size) {
+
+        drawFractalPolarBruteForce(image_size);
+
+        int sync2 = synchronization2.incrementAndGet();
+
+        while(sync2 != ptr.getNumberOfThreads()) {
+            yield();
+            sync2 = synchronization2.get();
+        }
+
+        applyBumpmapping(image_size);
+
+    }
+
+    private void drawFractalPolarBoundaryTracingBumpmap(int image_size) {
+
+        drawFractalPolarBoundaryTracing(image_size);
+
+        int sync2 = synchronization2.incrementAndGet();
+
+        while(sync2 != ptr.getNumberOfThreads()) {
+            yield();
+            sync2 = synchronization2.get();
+        }
+
+        applyBumpmapping(image_size);
+
+    }
+
+    private void drawJuliaPolarBruteForceBumpmap(int image_size) {
+
+        drawJuliaPolarBruteForce(image_size);
+
+        int sync2 = synchronization2.incrementAndGet();
+
+        while(sync2 != ptr.getNumberOfThreads()) {
+            yield();
+            sync2 = synchronization2.get();
+        }
+
+        applyBumpmapping(image_size);
+
+    }
+
+    private void drawJuliaPolarBoundaryTracingBumpmap(int image_size) {
+
+        drawJuliaPolarBoundaryTracing(image_size);
+
+        int sync2 = synchronization2.incrementAndGet();
+
+        while(sync2 != ptr.getNumberOfThreads()) {
+            yield();
+            sync2 = synchronization2.get();
+        }
+
+        applyBumpmapping(image_size);
+
+    }
+
+    private void drawFractalPolarAntialiasedBruteForceBumpmap(int image_size) {
+
+        drawFractalPolarAntialiasedBruteForce(image_size);
+
+        int sync2 = synchronization2.incrementAndGet();
+
+        while(sync2 != ptr.getNumberOfThreads()) {
+            yield();
+            sync2 = synchronization2.get();
+        }
+
+        applyBumpmapping(image_size);
+
+    }
+
+    private void drawJuliaPolarAntialiasedBruteForceBumpmap(int image_size) {
+
+        drawJuliaPolarAntialiasedBruteForce(image_size);
+
+        int sync2 = synchronization2.incrementAndGet();
+
+        while(sync2 != ptr.getNumberOfThreads()) {
+            yield();
+            sync2 = synchronization2.get();
+        }
+
+        applyBumpmapping(image_size);
+
+    }
+
+    private void drawFractalPolarBoundaryTracing(int image_size) {
+
+        double size = fractal.getSize();
+
+        double xcenter = fractal.getXCenter();
+        double ycenter = fractal.getYCenter();
+
+        double start;
+        double end = Math.log(size);
+
+        double f, sf, cf, r, r2, f2, sf2, cf2;
+        double muly = (2 * circle_period * Math.PI) / image_size;
+
+        double mulx = muly * height_ratio;
+
+        start = -mulx * image_size + end;
+
+        int pixel_percent = image_size * image_size / 100;
+
+        double temp_result;
+
+        final int dirRight = 0, dirUP = 3, maskDir = 3, culcColor = 0;// borderColor = 1;
+
+        double temp_x0, temp_y0;
+        //double delX[] = {temp_size_image_size, 0., -temp_size_image_size, 0.};
+        //double delY[] = {0., temp_size_image_size, 0., -temp_size_image_size};
+
+
+        int pix, y, x, curDir, curPix, startPix, startColor, nextColor, dir, Dir, nextPix, floodPix, floodColor;
+        int delPix[] = {1, image_size, -1, -image_size};
+        //double curX, curY; 
+        double nextX, nextY, start_val;
+
+        int ix, iy, next_ix, next_iy, temp_ix, temp_iy, flood_ix;
+        int intX[] = {1, 0, -1, 0};
+        int intY[] = {0, 1, 0, -1};
+
+
+
+        for(y = FROMy; y < TOy; y++) {
+
+            f = y * muly;
+            sf = Math.sin(f);
+            cf = Math.cos(f);
+
+            for(x = FROMx, pix = y * image_size + x; x < TOx; x++, pix++) {
+
+                if(rgbs[pix] == culcColor) {
+
+                    r = Math.exp(x * mulx + start);
+
+                    temp_x0 = xcenter + r * cf;
+                    temp_y0 = ycenter + r * sf;
+                    //curX = temp_x0;
+                    //curY = temp_y0;
+                    curPix = startPix = pix;
+                    curDir = dirRight;
+                    ix = x;
+                    iy = y;
+
+                    start_val = image_iterations[pix] = fractal.calculateFractal(new Complex(temp_x0, temp_y0));
+                    startColor = rgbs[pix] = start_val == max_iterations ? fractal_color : palette_color.getPaletteColor(start_val + color_cycling_location);
+                    drawing_done++;
+                    thread_calculated++;
+                    /*ptr.getMainPanel().repaint();
+                    try {
+                    Thread.sleep(1); //demo
+                    }
+                    catch (InterruptedException ex) {}*/
+
+                    while(iy - 1 >= FROMy && rgbs[startPix - image_size] == startColor) {   // looking for boundary
+                        curPix = startPix = startPix - image_size;
+                        iy--;
+                        //curY = temp_ycenter_size + iy * temp_size_image_size;
+                    }
+
+                    temp_ix = ix;
+                    temp_iy = iy;
+
+                    do {                                            // tracing cycle
+                        for(Dir = curDir + 3; Dir < curDir + 7; Dir++) {
+                            dir = Dir & maskDir;
+                            nextPix = curPix + delPix[dir];
+
+                            //nextX = curX + delX[dir]; 
+                            //nextY = curY + delY[dir];
+
+                            next_ix = temp_ix + intX[dir];
+                            next_iy = temp_iy + intY[dir];
+
+                            f2 = next_iy * muly;
+                            sf2 = Math.sin(f2);
+                            cf2 = Math.cos(f2);
+
+                            r2 = Math.exp(next_ix * mulx + start);
+
+                            nextX = xcenter + r2 * cf2;
+                            nextY = ycenter + r2 * sf2;
+
+                            if(!(next_ix >= FROMx && next_ix < TOx && next_iy >= FROMy && next_iy < TOy)) {
+                                continue;
+                            }
+
+                            if((nextColor = rgbs[nextPix]) == culcColor) {
+                                temp_result = image_iterations[nextPix] = fractal.calculateFractal(new Complex(nextX, nextY));
+                                nextColor = rgbs[nextPix] = temp_result == max_iterations ? fractal_color : palette_color.getPaletteColor(temp_result + color_cycling_location);
+                                drawing_done++;
+                                thread_calculated++;
+                                /*ptr.getMainPanel().repaint();
+                                try {
+                                Thread.sleep(1); //demo
+                                }
+                                catch (InterruptedException ex) {}*/
+                            }
+
+
+                            if(nextColor == startColor) {
+                                curDir = dir;
+                                curPix = nextPix;
+                                temp_ix = next_ix;
+                                temp_iy = next_iy;
+                                //curX = nextX;  
+                                //curY = nextY;
+                                break;
+                            }
+                        }
+                    } while(curPix != startPix);
+
+
+                    curDir = dirRight;
+
+
+                    do {                                                 // 2nd cycle
+                        for(Dir = curDir + 3; Dir < curDir + 7; Dir++) {
+                            dir = Dir & maskDir;
+                            nextPix = curPix + delPix[dir];
+
+                            next_ix = temp_ix + intX[dir];
+                            next_iy = temp_iy + intY[dir];
+
+
+                            if(!(next_ix >= FROMx && next_ix < TOx && next_iy >= FROMy && next_iy < TOy)) {
+                                continue;
+                            }
+
+                            if(rgbs[nextPix] == startColor) {           // flooding  
+                                curDir = dir;
+                                if(dir == dirUP) {
+                                    floodPix = curPix;
+                                    flood_ix = temp_ix;
+
+                                    while(true) {
+                                        flood_ix++;
+
+                                        if(flood_ix >= TOx) {
+                                            break;
+                                        }
+
+                                        floodPix++;
+
+                                        if((floodColor = rgbs[floodPix]) == culcColor) {
+                                            drawing_done++;
+                                            rgbs[floodPix] = startColor;
+                                            image_iterations[floodPix] = start_val;
+                                            /*ptr.getMainPanel().repaint();
+                                            try {
+                                            Thread.sleep(1); //demo
+                                            }
+                                            catch (InterruptedException ex) {}*/
+                                        }
+                                        else if(floodColor != startColor) {
+                                            break;
+                                        }
+
+                                    }
+
+                                    if(drawing_done / pixel_percent >= 1) {
+                                        update(drawing_done);
+                                        drawing_done = 0;
+                                    }
+                                }
+
+                                curPix = nextPix;
+                                temp_ix = next_ix;
+                                temp_iy = next_iy;
+                                break;
+                            }
+                        }
+                    } while(curPix != startPix);
+
+                }
+            }
+
+            if(drawing_done / pixel_percent >= 1) {
+                update(drawing_done);
+                drawing_done = 0;
+            }
+        }
+    }
+
+    private void drawFractalPolarAntialiasedBoundaryTracing(int image_size) {
+
+        double size = fractal.getSize();
+
+        double xcenter = fractal.getXCenter();
+        double ycenter = fractal.getYCenter();
+
+        double start;
+        double end = Math.log(size);
+
+        double f, sf, cf, r, r2, f2, sf2, cf2;
+        double muly = (2 * circle_period * Math.PI) / image_size;
+
+        double mulx = muly * height_ratio;
+
+        start = -mulx * image_size + end;
+
+        int pixel_percent = image_size * image_size / 100;
+
+        double temp_result;
+
+        final int dirRight = 0, dirUP = 3, maskDir = 3, culcColor = 0;// borderColor = 1;
+
+        double temp_x0, temp_y0;
+
+
+        int pix, y, x, curDir, curPix, startPix, startColor, nextColor, dir, Dir, nextPix, floodPix, floodColor;
+        int delPix[] = {1, image_size, -1, -image_size};
+
+        double nextX, nextY, start_val;
+
+        double sf3, cf3, r3;
+
+        int ix, iy, next_ix, next_iy, temp_ix, temp_iy, flood_ix;
+        int intX[] = {1, 0, -1, 0};
+        int intY[] = {0, 1, 0, -1};
+
+
+        double exp_x_antialiasing_size = Math.exp(x_antialiasing_size);
+        double exp_inv_x_antialiasing_size = 1 / exp_x_antialiasing_size;
+
+        double exp_x_antialiasing_size_x2 = exp_x_antialiasing_size * exp_x_antialiasing_size;
+        double exp_inv_x_antialiasing_size_x2 = 1 / exp_x_antialiasing_size_x2;
+
+        double antialiasing_x[] = {exp_inv_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size, exp_inv_x_antialiasing_size,
+            exp_inv_x_antialiasing_size, exp_x_antialiasing_size, 1, 1,
+            exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size_x2, 1, 1, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x2,
+            exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size, exp_inv_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x2};
+
+
+        double sin_y_antialiasing_size = Math.sin(y_antialiasing_size);
+        double cos_y_antialiasing_size = Math.cos(y_antialiasing_size);
+
+        double sin_inv_y_antialiasing_size = -sin_y_antialiasing_size;
+        double cos_inv_y_antialiasing_size = cos_y_antialiasing_size;
+
+        double sin_y_antialiasing_size_x2 = 2 * sin_y_antialiasing_size * cos_y_antialiasing_size;
+        double cos_y_antialiasing_size_x2 = 2 * cos_y_antialiasing_size * cos_y_antialiasing_size - 1;
+
+        double sin_inv_y_antialiasing_size_x2 = -sin_y_antialiasing_size_x2;
+        double cos_inv_y_antialiasing_size_x2 = cos_y_antialiasing_size_x2;
+
+
+        double antialiasing_y_sin[] = {sin_inv_y_antialiasing_size, sin_inv_y_antialiasing_size, sin_y_antialiasing_size, sin_y_antialiasing_size,
+            0, 0, sin_inv_y_antialiasing_size, sin_y_antialiasing_size,
+            sin_inv_y_antialiasing_size_x2, 0, sin_y_antialiasing_size_x2, sin_inv_y_antialiasing_size_x2, sin_y_antialiasing_size_x2, sin_inv_y_antialiasing_size_x2, 0, sin_y_antialiasing_size_x2,
+            sin_inv_y_antialiasing_size, sin_y_antialiasing_size, sin_inv_y_antialiasing_size_x2, sin_y_antialiasing_size_x2, sin_inv_y_antialiasing_size_x2, sin_y_antialiasing_size_x2, sin_inv_y_antialiasing_size, sin_y_antialiasing_size};
+
+
+        double antialiasing_y_cos[] = {cos_inv_y_antialiasing_size, cos_inv_y_antialiasing_size, cos_y_antialiasing_size, cos_y_antialiasing_size,
+            1, 1, cos_inv_y_antialiasing_size, cos_y_antialiasing_size,
+            cos_inv_y_antialiasing_size_x2, 1, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, 1, cos_y_antialiasing_size_x2,
+            cos_inv_y_antialiasing_size, cos_y_antialiasing_size, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size, cos_y_antialiasing_size};
+
+
+        double temp_samples = filters_options_vals[MainWindow.ANTIALIASING] + 1;
+
+        int red, green, blue, color;
+
+        for(y = FROMy; y < TOy; y++) {
+
+            f = y * muly;
+            sf = Math.sin(f);
+            cf = Math.cos(f);
+
+            for(x = FROMx, pix = y * image_size + x; x < TOx; x++, pix++) {
+
+                if(rgbs[pix] == culcColor) {
+
+                    r = Math.exp(x * mulx + start);
+
+                    temp_x0 = xcenter + r * cf;
+                    temp_y0 = ycenter + r * sf;
+
+                    curPix = startPix = pix;
+                    curDir = dirRight;
+                    ix = x;
+                    iy = y;
+
+                    start_val = image_iterations[pix] = fractal.calculateFractal(new Complex(temp_x0, temp_y0));
+                    color = start_val == max_iterations ? fractal_color : palette_color.getPaletteColor(start_val + color_cycling_location);
+
+                    red = (color >> 16) & 0xff;
+                    green = (color >> 8) & 0xff;
+                    blue = color & 0xff;
+
+                    //Supersampling
+                    for(int i = 0; i < filters_options_vals[MainWindow.ANTIALIASING]; i++) {
+
+                        sf3 = sf * antialiasing_y_cos[i] + cf * antialiasing_y_sin[i];
+                        cf3 = cf * antialiasing_y_cos[i] - sf * antialiasing_y_sin[i];
+
+                        r3 = r * antialiasing_x[i];
+
+                        temp_x0 = xcenter + r3 * cf3;
+                        temp_y0 = ycenter + r3 * sf3;
+
+                        temp_result = fractal.calculateFractal(new Complex(temp_x0, temp_y0));
+                        color = temp_result == max_iterations ? fractal_color : palette_color.getPaletteColor(temp_result + color_cycling_location);
+
+                        red += (color >> 16) & 0xff;
+                        green += (color >> 8) & 0xff;
+                        blue += color & 0xff;
+                    }
+
+                    startColor = rgbs[pix] = 0xff000000 | (((int)(red / temp_samples + 0.5)) << 16) | (((int)(green / temp_samples + 0.5)) << 8) | ((int)(blue / temp_samples + 0.5));
+
+
+                    drawing_done++;
+                    thread_calculated++;
+
+
+                    while(iy - 1 >= FROMy && rgbs[startPix - image_size] == startColor) {   // looking for boundary
+                        curPix = startPix = startPix - image_size;
+                        iy--;
+                    }
+
+                    temp_ix = ix;
+                    temp_iy = iy;
+
+                    do {                                            // tracing cycle
+                        for(Dir = curDir + 3; Dir < curDir + 7; Dir++) {
+                            dir = Dir & maskDir;
+                            nextPix = curPix + delPix[dir];
+
+                            next_ix = temp_ix + intX[dir];
+                            next_iy = temp_iy + intY[dir];
+
+                            f2 = next_iy * muly;
+                            sf2 = Math.sin(f2);
+                            cf2 = Math.cos(f2);
+
+                            r2 = Math.exp(next_ix * mulx + start);
+
+                            nextX = xcenter + r2 * cf2;
+                            nextY = ycenter + r2 * sf2;
+
+                            if(!(next_ix >= FROMx && next_ix < TOx && next_iy >= FROMy && next_iy < TOy)) {
+                                continue;
+                            }
+
+                            if((nextColor = rgbs[nextPix]) == culcColor) {
+                                temp_result = image_iterations[nextPix] = fractal.calculateFractal(new Complex(nextX, nextY));
+                                color = temp_result == max_iterations ? fractal_color : palette_color.getPaletteColor(temp_result + color_cycling_location);
+
+                                red = (color >> 16) & 0xff;
+                                green = (color >> 8) & 0xff;
+                                blue = color & 0xff;
+
+                                //Supersampling
+                                for(int i = 0; i < filters_options_vals[MainWindow.ANTIALIASING]; i++) {
+
+                                    sf3 = sf2 * antialiasing_y_cos[i] + cf2 * antialiasing_y_sin[i];
+                                    cf3 = cf2 * antialiasing_y_cos[i] - sf2 * antialiasing_y_sin[i];
+
+                                    r3 = r2 * antialiasing_x[i];
+
+                                    nextX = xcenter + r3 * cf3;
+                                    nextY = ycenter + r3 * sf3;
+
+                                    temp_result = fractal.calculateFractal(new Complex(nextX, nextY));
+                                    color = temp_result == max_iterations ? fractal_color : palette_color.getPaletteColor(temp_result + color_cycling_location);
+
+                                    red += (color >> 16) & 0xff;
+                                    green += (color >> 8) & 0xff;
+                                    blue += color & 0xff;
+                                }
+
+                                nextColor = rgbs[nextPix] = 0xff000000 | (((int)(red / temp_samples + 0.5)) << 16) | (((int)(green / temp_samples + 0.5)) << 8) | ((int)(blue / temp_samples + 0.5));
+
+                                drawing_done++;
+                                thread_calculated++;
+
+                            }
+
+
+                            if(nextColor == startColor) {
+                                curDir = dir;
+                                curPix = nextPix;
+                                temp_ix = next_ix;
+                                temp_iy = next_iy;
+                                break;
+                            }
+                        }
+                    } while(curPix != startPix);
+
+
+                    curDir = dirRight;
+
+
+                    do {                                                 // 2nd cycle
+                        for(Dir = curDir + 3; Dir < curDir + 7; Dir++) {
+                            dir = Dir & maskDir;
+                            nextPix = curPix + delPix[dir];
+
+                            next_ix = temp_ix + intX[dir];
+                            next_iy = temp_iy + intY[dir];
+
+
+                            if(!(next_ix >= FROMx && next_ix < TOx && next_iy >= FROMy && next_iy < TOy)) {
+                                continue;
+                            }
+
+                            if(rgbs[nextPix] == startColor) {           // flooding  
+                                curDir = dir;
+                                if(dir == dirUP) {
+                                    floodPix = curPix;
+                                    flood_ix = temp_ix;
+
+                                    while(true) {
+                                        flood_ix++;
+
+                                        if(flood_ix >= TOx) {
+                                            break;
+                                        }
+
+                                        floodPix++;
+
+                                        if((floodColor = rgbs[floodPix]) == culcColor) {
+                                            drawing_done++;
+                                            rgbs[floodPix] = startColor;
+                                            image_iterations[floodPix] = start_val;
+                                        }
+                                        else if(floodColor != startColor) {
+                                            break;
+                                        }
+
+                                    }
+
+                                    if(drawing_done / pixel_percent >= 1) {
+                                        update(drawing_done);
+                                        drawing_done = 0;
+                                    }
+                                }
+
+                                curPix = nextPix;
+                                temp_ix = next_ix;
+                                temp_iy = next_iy;
+                                break;
+                            }
+                        }
+                    } while(curPix != startPix);
+
+                }
+            }
+
+            if(drawing_done / pixel_percent >= 1) {
+                update(drawing_done);
+                drawing_done = 0;
+            }
+        }
+    }
+
+    private void drawJuliaPolarAntialiasedBoundaryTracing(int image_size) {
+
+        double size = fractal.getSize();
+
+        double xcenter = fractal.getXCenter();
+        double ycenter = fractal.getYCenter();
+
+        double start;
+        double end = Math.log(size);
+
+        double f, sf, cf, r, r2, f2, sf2, cf2;
+        double muly = (2 * circle_period * Math.PI) / image_size;
+
+        double mulx = muly * height_ratio;
+
+        start = -mulx * image_size + end;
+
+        int pixel_percent = image_size * image_size / 100;
+
+        double temp_result;
+
+        final int dirRight = 0, dirUP = 3, maskDir = 3, culcColor = 0;// borderColor = 1;
+
+        double temp_x0, temp_y0;
+
+
+        int pix, y, x, curDir, curPix, startPix, startColor, nextColor, dir, Dir, nextPix, floodPix, floodColor;
+        int delPix[] = {1, image_size, -1, -image_size};
+
+        double nextX, nextY, start_val;
+
+        double sf3, cf3, r3;
+
+        int ix, iy, next_ix, next_iy, temp_ix, temp_iy, flood_ix;
+        int intX[] = {1, 0, -1, 0};
+        int intY[] = {0, 1, 0, -1};
+
+
+        double exp_x_antialiasing_size = Math.exp(x_antialiasing_size);
+        double exp_inv_x_antialiasing_size = 1 / exp_x_antialiasing_size;
+
+        double exp_x_antialiasing_size_x2 = exp_x_antialiasing_size * exp_x_antialiasing_size;
+        double exp_inv_x_antialiasing_size_x2 = 1 / exp_x_antialiasing_size_x2;
+
+        double antialiasing_x[] = {exp_inv_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size, exp_inv_x_antialiasing_size,
+            exp_inv_x_antialiasing_size, exp_x_antialiasing_size, 1, 1,
+            exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size_x2, 1, 1, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x2,
+            exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size, exp_inv_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x2};
+
+
+        double sin_y_antialiasing_size = Math.sin(y_antialiasing_size);
+        double cos_y_antialiasing_size = Math.cos(y_antialiasing_size);
+
+        double sin_inv_y_antialiasing_size = -sin_y_antialiasing_size;
+        double cos_inv_y_antialiasing_size = cos_y_antialiasing_size;
+
+        double sin_y_antialiasing_size_x2 = 2 * sin_y_antialiasing_size * cos_y_antialiasing_size;
+        double cos_y_antialiasing_size_x2 = 2 * cos_y_antialiasing_size * cos_y_antialiasing_size - 1;
+
+        double sin_inv_y_antialiasing_size_x2 = -sin_y_antialiasing_size_x2;
+        double cos_inv_y_antialiasing_size_x2 = cos_y_antialiasing_size_x2;
+
+
+        double antialiasing_y_sin[] = {sin_inv_y_antialiasing_size, sin_inv_y_antialiasing_size, sin_y_antialiasing_size, sin_y_antialiasing_size,
+            0, 0, sin_inv_y_antialiasing_size, sin_y_antialiasing_size,
+            sin_inv_y_antialiasing_size_x2, 0, sin_y_antialiasing_size_x2, sin_inv_y_antialiasing_size_x2, sin_y_antialiasing_size_x2, sin_inv_y_antialiasing_size_x2, 0, sin_y_antialiasing_size_x2,
+            sin_inv_y_antialiasing_size, sin_y_antialiasing_size, sin_inv_y_antialiasing_size_x2, sin_y_antialiasing_size_x2, sin_inv_y_antialiasing_size_x2, sin_y_antialiasing_size_x2, sin_inv_y_antialiasing_size, sin_y_antialiasing_size};
+
+
+        double antialiasing_y_cos[] = {cos_inv_y_antialiasing_size, cos_inv_y_antialiasing_size, cos_y_antialiasing_size, cos_y_antialiasing_size,
+            1, 1, cos_inv_y_antialiasing_size, cos_y_antialiasing_size,
+            cos_inv_y_antialiasing_size_x2, 1, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, 1, cos_y_antialiasing_size_x2,
+            cos_inv_y_antialiasing_size, cos_y_antialiasing_size, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size, cos_y_antialiasing_size};
+
+
+        double temp_samples = filters_options_vals[MainWindow.ANTIALIASING] + 1;
+
+        int red, green, blue, color;
+
+        for(y = FROMy; y < TOy; y++) {
+
+            f = y * muly;
+            sf = Math.sin(f);
+            cf = Math.cos(f);
+
+            for(x = FROMx, pix = y * image_size + x; x < TOx; x++, pix++) {
+
+                if(rgbs[pix] == culcColor) {
+
+                    r = Math.exp(x * mulx + start);
+
+                    temp_x0 = xcenter + r * cf;
+                    temp_y0 = ycenter + r * sf;
+
+                    curPix = startPix = pix;
+                    curDir = dirRight;
+                    ix = x;
+                    iy = y;
+
+                    start_val = image_iterations[pix] = fractal.calculateJulia(new Complex(temp_x0, temp_y0));
+                    color = start_val == max_iterations ? fractal_color : palette_color.getPaletteColor(start_val + color_cycling_location);
+
+                    red = (color >> 16) & 0xff;
+                    green = (color >> 8) & 0xff;
+                    blue = color & 0xff;
+
+                    //Supersampling
+                    for(int i = 0; i < filters_options_vals[MainWindow.ANTIALIASING]; i++) {
+
+                        sf3 = sf * antialiasing_y_cos[i] + cf * antialiasing_y_sin[i];
+                        cf3 = cf * antialiasing_y_cos[i] - sf * antialiasing_y_sin[i];
+
+                        r3 = r * antialiasing_x[i];
+
+                        temp_x0 = xcenter + r3 * cf3;
+                        temp_y0 = ycenter + r3 * sf3;
+
+                        temp_result = fractal.calculateJulia(new Complex(temp_x0, temp_y0));
+                        color = temp_result == max_iterations ? fractal_color : palette_color.getPaletteColor(temp_result + color_cycling_location);
+
+                        red += (color >> 16) & 0xff;
+                        green += (color >> 8) & 0xff;
+                        blue += color & 0xff;
+                    }
+
+                    startColor = rgbs[pix] = 0xff000000 | (((int)(red / temp_samples + 0.5)) << 16) | (((int)(green / temp_samples + 0.5)) << 8) | ((int)(blue / temp_samples + 0.5));
+
+
+                    drawing_done++;
+                    thread_calculated++;
+
+
+                    while(iy - 1 >= FROMy && rgbs[startPix - image_size] == startColor) {   // looking for boundary
+                        curPix = startPix = startPix - image_size;
+                        iy--;
+                    }
+
+                    temp_ix = ix;
+                    temp_iy = iy;
+
+                    do {                                            // tracing cycle
+                        for(Dir = curDir + 3; Dir < curDir + 7; Dir++) {
+                            dir = Dir & maskDir;
+                            nextPix = curPix + delPix[dir];
+
+                            next_ix = temp_ix + intX[dir];
+                            next_iy = temp_iy + intY[dir];
+
+                            f2 = next_iy * muly;
+                            sf2 = Math.sin(f2);
+                            cf2 = Math.cos(f2);
+
+                            r2 = Math.exp(next_ix * mulx + start);
+
+                            nextX = xcenter + r2 * cf2;
+                            nextY = ycenter + r2 * sf2;
+
+                            if(!(next_ix >= FROMx && next_ix < TOx && next_iy >= FROMy && next_iy < TOy)) {
+                                continue;
+                            }
+
+                            if((nextColor = rgbs[nextPix]) == culcColor) {
+                                temp_result = image_iterations[nextPix] = fractal.calculateJulia(new Complex(nextX, nextY));
+                                color = temp_result == max_iterations ? fractal_color : palette_color.getPaletteColor(temp_result + color_cycling_location);
+
+                                red = (color >> 16) & 0xff;
+                                green = (color >> 8) & 0xff;
+                                blue = color & 0xff;
+
+                                //Supersampling
+                                for(int i = 0; i < filters_options_vals[MainWindow.ANTIALIASING]; i++) {
+
+                                    sf3 = sf2 * antialiasing_y_cos[i] + cf2 * antialiasing_y_sin[i];
+                                    cf3 = cf2 * antialiasing_y_cos[i] - sf2 * antialiasing_y_sin[i];
+
+                                    r3 = r2 * antialiasing_x[i];
+
+                                    nextX = xcenter + r3 * cf3;
+                                    nextY = ycenter + r3 * sf3;
+
+                                    temp_result = fractal.calculateJulia(new Complex(nextX, nextY));
+                                    color = temp_result == max_iterations ? fractal_color : palette_color.getPaletteColor(temp_result + color_cycling_location);
+
+                                    red += (color >> 16) & 0xff;
+                                    green += (color >> 8) & 0xff;
+                                    blue += color & 0xff;
+                                }
+
+                                nextColor = rgbs[nextPix] = 0xff000000 | (((int)(red / temp_samples + 0.5)) << 16) | (((int)(green / temp_samples + 0.5)) << 8) | ((int)(blue / temp_samples + 0.5));
+
+                                drawing_done++;
+                                thread_calculated++;
+
+                            }
+
+
+                            if(nextColor == startColor) {
+                                curDir = dir;
+                                curPix = nextPix;
+                                temp_ix = next_ix;
+                                temp_iy = next_iy;
+                                break;
+                            }
+                        }
+                    } while(curPix != startPix);
+
+
+                    curDir = dirRight;
+
+
+                    do {                                                 // 2nd cycle
+                        for(Dir = curDir + 3; Dir < curDir + 7; Dir++) {
+                            dir = Dir & maskDir;
+                            nextPix = curPix + delPix[dir];
+
+                            next_ix = temp_ix + intX[dir];
+                            next_iy = temp_iy + intY[dir];
+
+
+                            if(!(next_ix >= FROMx && next_ix < TOx && next_iy >= FROMy && next_iy < TOy)) {
+                                continue;
+                            }
+
+                            if(rgbs[nextPix] == startColor) {           // flooding  
+                                curDir = dir;
+                                if(dir == dirUP) {
+                                    floodPix = curPix;
+                                    flood_ix = temp_ix;
+
+                                    while(true) {
+                                        flood_ix++;
+
+                                        if(flood_ix >= TOx) {
+                                            break;
+                                        }
+
+                                        floodPix++;
+
+                                        if((floodColor = rgbs[floodPix]) == culcColor) {
+                                            drawing_done++;
+                                            rgbs[floodPix] = startColor;
+                                            image_iterations[floodPix] = start_val;
+                                        }
+                                        else if(floodColor != startColor) {
+                                            break;
+                                        }
+
+                                    }
+
+                                    if(drawing_done / pixel_percent >= 1) {
+                                        update(drawing_done);
+                                        drawing_done = 0;
+                                    }
+                                }
+
+                                curPix = nextPix;
+                                temp_ix = next_ix;
+                                temp_iy = next_iy;
+                                break;
+                            }
+                        }
+                    } while(curPix != startPix);
+
+                }
+            }
+
+            if(drawing_done / pixel_percent >= 1) {
+                update(drawing_done);
+                drawing_done = 0;
+            }
+        }
+    }
+
+    private void drawJuliaPolarBoundaryTracing(int image_size) {
+
+        double size = fractal.getSize();
+
+        double xcenter = fractal.getXCenter();
+        double ycenter = fractal.getYCenter();
+
+        double start;
+        double end = Math.log(size);
+
+        double f, sf, cf, r, r2, f2, sf2, cf2;
+        double muly = (2 * circle_period * Math.PI) / image_size;
+
+        double mulx = muly * height_ratio;
+
+        start = -mulx * image_size + end;
+
+        int pixel_percent = image_size * image_size / 100;
+
+        double temp_result;
+
+        final int dirRight = 0, dirUP = 3, maskDir = 3, culcColor = 0;// borderColor = 1;
+
+        double temp_x0, temp_y0;
+
+        int pix, y, x, curDir, curPix, startPix, startColor, nextColor, dir, Dir, nextPix, floodPix, floodColor;
+        int delPix[] = {1, image_size, -1, -image_size};
+
+        double nextX, nextY, start_val;
+
+        int ix, iy, next_ix, next_iy, temp_ix, temp_iy, flood_ix;
+        int intX[] = {1, 0, -1, 0};
+        int intY[] = {0, 1, 0, -1};
+
+
+
+        for(y = FROMy; y < TOy; y++) {
+
+            f = y * muly;
+            sf = Math.sin(f);
+            cf = Math.cos(f);
+
+            for(x = FROMx, pix = y * image_size + x; x < TOx; x++, pix++) {
+
+                if(rgbs[pix] == culcColor) {
+
+                    r = Math.exp(x * mulx + start);
+
+                    temp_x0 = xcenter + r * cf;
+                    temp_y0 = ycenter + r * sf;
+
+                    curPix = startPix = pix;
+                    curDir = dirRight;
+                    ix = x;
+                    iy = y;
+
+                    start_val = image_iterations[pix] = fractal.calculateJulia(new Complex(temp_x0, temp_y0));
+                    startColor = rgbs[pix] = start_val == max_iterations ? fractal_color : palette_color.getPaletteColor(start_val + color_cycling_location);
+                    drawing_done++;
+                    thread_calculated++;
+
+
+                    while(iy - 1 >= FROMy && rgbs[startPix - image_size] == startColor) {   // looking for boundary
+                        curPix = startPix = startPix - image_size;
+                        iy--;
+                    }
+
+                    temp_ix = ix;
+                    temp_iy = iy;
+
+                    do {                                            // tracing cycle
+                        for(Dir = curDir + 3; Dir < curDir + 7; Dir++) {
+                            dir = Dir & maskDir;
+                            nextPix = curPix + delPix[dir];
+
+                            next_ix = temp_ix + intX[dir];
+                            next_iy = temp_iy + intY[dir];
+
+                            f2 = next_iy * muly;
+                            sf2 = Math.sin(f2);
+                            cf2 = Math.cos(f2);
+
+                            r2 = Math.exp(next_ix * mulx + start);
+
+                            nextX = xcenter + r2 * cf2;
+                            nextY = ycenter + r2 * sf2;
+
+                            if(!(next_ix >= FROMx && next_ix < TOx && next_iy >= FROMy && next_iy < TOy)) {
+                                continue;
+                            }
+
+                            if((nextColor = rgbs[nextPix]) == culcColor) {
+                                temp_result = image_iterations[nextPix] = fractal.calculateJulia(new Complex(nextX, nextY));
+                                nextColor = rgbs[nextPix] = temp_result == max_iterations ? fractal_color : palette_color.getPaletteColor(temp_result + color_cycling_location);
+                                drawing_done++;
+                                thread_calculated++;
+
+                            }
+
+
+                            if(nextColor == startColor) {
+                                curDir = dir;
+                                curPix = nextPix;
+                                temp_ix = next_ix;
+                                temp_iy = next_iy;
+
+                                break;
+                            }
+                        }
+                    } while(curPix != startPix);
+
+
+                    curDir = dirRight;
+
+
+                    do {                                                 // 2nd cycle
+                        for(Dir = curDir + 3; Dir < curDir + 7; Dir++) {
+                            dir = Dir & maskDir;
+                            nextPix = curPix + delPix[dir];
+
+                            next_ix = temp_ix + intX[dir];
+                            next_iy = temp_iy + intY[dir];
+
+
+                            if(!(next_ix >= FROMx && next_ix < TOx && next_iy >= FROMy && next_iy < TOy)) {
+                                continue;
+                            }
+
+                            if(rgbs[nextPix] == startColor) {           // flooding  
+                                curDir = dir;
+                                if(dir == dirUP) {
+                                    floodPix = curPix;
+                                    flood_ix = temp_ix;
+
+                                    while(true) {
+                                        flood_ix++;
+
+                                        if(flood_ix >= TOx) {
+                                            break;
+                                        }
+
+                                        floodPix++;
+
+                                        if((floodColor = rgbs[floodPix]) == culcColor) {
+                                            drawing_done++;
+                                            rgbs[floodPix] = startColor;
+                                            image_iterations[floodPix] = start_val;
+
+                                        }
+                                        else if(floodColor != startColor) {
+                                            break;
+                                        }
+
+                                    }
+
+                                    if(drawing_done / pixel_percent >= 1) {
+                                        update(drawing_done);
+                                        drawing_done = 0;
+                                    }
+                                }
+
+                                curPix = nextPix;
+                                temp_ix = next_ix;
+                                temp_iy = next_iy;
+                                break;
+                            }
+                        }
+                    } while(curPix != startPix);
+
+                }
+            }
+
+            if(drawing_done / pixel_percent >= 1) {
+                update(drawing_done);
+                drawing_done = 0;
+            }
+        }
+    }
+
+    public void drawFractalPolarBruteForce(int image_size) {
+
+        double size = fractal.getSize();
+
+        double xcenter = fractal.getXCenter();
+        double ycenter = fractal.getYCenter();
+
+        double start;
+        double end = Math.log(size);
+
+        int pixel_percent = image_size * image_size / 100;
+
+        double f, sf, cf, r;
+        double muly = (2 * circle_period * Math.PI) / image_size;
+
+        double mulx = muly * height_ratio;
+
+        start = -mulx * image_size + end;
+
+        double temp_result;
+
+        int x, y, loc, counter = 0;
+
+        int condition = image_size * image_size;
+
+        do {
+
+            loc = normal_drawing_algorithm_pixel.getAndIncrement();
+
+            if(loc >= condition) {
+                break;
+            }
+
+            x = loc % image_size;
+            y = loc / image_size;
+
+            f = y * muly;
+            sf = Math.sin(f);
+            cf = Math.cos(f);
+
+            r = Math.exp(x * mulx + start);
+
+            temp_result = image_iterations[loc] = fractal.calculateFractal(new Complex(xcenter + r * cf, ycenter + r * sf));
+            rgbs[loc] = temp_result == max_iterations ? fractal_color : palette_color.getPaletteColor(temp_result + color_cycling_location);
+
+
+            drawing_done++;
+            counter++;
+
+            if(counter % image_size == 0 && drawing_done / pixel_percent >= 1) {
+                update(drawing_done);
+                thread_calculated += drawing_done;
+                drawing_done = 0;
+            }
+
+        } while(true);
+
+        thread_calculated += drawing_done;
+
+    }
+
+    private void drawFractalPolarAntialiasedBruteForce(int image_size) {
+
+        double size = fractal.getSize();
+
+        double xcenter = fractal.getXCenter();
+        double ycenter = fractal.getYCenter();
+
+        double start;
+        double end = Math.log(size);
+
+        int pixel_percent = image_size * image_size / 100;
+
+        double f, sf, cf, r, sf2, cf2, r2;
+        double muly = (2 * circle_period * Math.PI) / image_size;
+
+        double mulx = muly * height_ratio;
+
+        start = -mulx * image_size + end;
+
+        double temp_result;
+
+        int x, y, loc, counter = 0;
+
+        int condition = image_size * image_size;
+
+        int color;
+
+        int red, green, blue;
+
+        double exp_x_antialiasing_size = Math.exp(x_antialiasing_size);
+        double exp_inv_x_antialiasing_size = 1 / exp_x_antialiasing_size;
+
+        double exp_x_antialiasing_size_x2 = exp_x_antialiasing_size * exp_x_antialiasing_size;
+        double exp_inv_x_antialiasing_size_x2 = 1 / exp_x_antialiasing_size_x2;
+
+        double antialiasing_x[] = {exp_inv_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size, exp_inv_x_antialiasing_size,
+            exp_inv_x_antialiasing_size, exp_x_antialiasing_size, 1, 1,
+            exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size_x2, 1, 1, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x2,
+            exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size, exp_inv_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x2};
+
+
+        double sin_y_antialiasing_size = Math.sin(y_antialiasing_size);
+        double cos_y_antialiasing_size = Math.cos(y_antialiasing_size);
+
+        double sin_inv_y_antialiasing_size = -sin_y_antialiasing_size;
+        double cos_inv_y_antialiasing_size = cos_y_antialiasing_size;
+
+        double sin_y_antialiasing_size_x2 = 2 * sin_y_antialiasing_size * cos_y_antialiasing_size;
+        double cos_y_antialiasing_size_x2 = 2 * cos_y_antialiasing_size * cos_y_antialiasing_size - 1;
+
+        double sin_inv_y_antialiasing_size_x2 = -sin_y_antialiasing_size_x2;
+        double cos_inv_y_antialiasing_size_x2 = cos_y_antialiasing_size_x2;
+
+
+        double antialiasing_y_sin[] = {sin_inv_y_antialiasing_size, sin_inv_y_antialiasing_size, sin_y_antialiasing_size, sin_y_antialiasing_size,
+            0, 0, sin_inv_y_antialiasing_size, sin_y_antialiasing_size,
+            sin_inv_y_antialiasing_size_x2, 0, sin_y_antialiasing_size_x2, sin_inv_y_antialiasing_size_x2, sin_y_antialiasing_size_x2, sin_inv_y_antialiasing_size_x2, 0, sin_y_antialiasing_size_x2,
+            sin_inv_y_antialiasing_size, sin_y_antialiasing_size, sin_inv_y_antialiasing_size_x2, sin_y_antialiasing_size_x2, sin_inv_y_antialiasing_size_x2, sin_y_antialiasing_size_x2, sin_inv_y_antialiasing_size, sin_y_antialiasing_size};
+
+
+        double antialiasing_y_cos[] = {cos_inv_y_antialiasing_size, cos_inv_y_antialiasing_size, cos_y_antialiasing_size, cos_y_antialiasing_size,
+            1, 1, cos_inv_y_antialiasing_size, cos_y_antialiasing_size,
+            cos_inv_y_antialiasing_size_x2, 1, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, 1, cos_y_antialiasing_size_x2,
+            cos_inv_y_antialiasing_size, cos_y_antialiasing_size, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size, cos_y_antialiasing_size};
+
+        double temp_samples = filters_options_vals[MainWindow.ANTIALIASING] + 1;
+
+        do {
+
+            loc = normal_drawing_algorithm_pixel.getAndIncrement();
+
+            if(loc >= condition) {
+                break;
+            }
+
+            x = loc % image_size;
+            y = loc / image_size;
+
+            f = y * muly;
+            sf = Math.sin(f);
+            cf = Math.cos(f);
+
+            r = Math.exp(x * mulx + start);
+
+            temp_result = image_iterations[loc] = fractal.calculateFractal(new Complex(xcenter + r * cf, ycenter + r * sf));
+            color = temp_result == max_iterations ? fractal_color : palette_color.getPaletteColor(temp_result + color_cycling_location);
+
+            red = (color >> 16) & 0xff;
+            green = (color >> 8) & 0xff;
+            blue = color & 0xff;
+
+            //Supersampling
+            for(int i = 0; i < filters_options_vals[MainWindow.ANTIALIASING]; i++) {
+
+                sf2 = sf * antialiasing_y_cos[i] + cf * antialiasing_y_sin[i];
+                cf2 = cf * antialiasing_y_cos[i] - sf * antialiasing_y_sin[i];
+
+                r2 = r * antialiasing_x[i];
+
+                temp_result = fractal.calculateFractal(new Complex(xcenter + r2 * cf2, ycenter + r2 * sf2));
+                color = temp_result == max_iterations ? fractal_color : palette_color.getPaletteColor(temp_result + color_cycling_location);
+
+                red += (color >> 16) & 0xff;
+                green += (color >> 8) & 0xff;
+                blue += color & 0xff;
+            }
+
+            rgbs[loc] = 0xff000000 | (((int)(red / temp_samples + 0.5)) << 16) | (((int)(green / temp_samples + 0.5)) << 8) | ((int)(blue / temp_samples + 0.5));
+
+
+            drawing_done++;
+            counter++;
+
+            if(counter % image_size == 0 && drawing_done / pixel_percent >= 1) {
+                update(drawing_done);
+                thread_calculated += drawing_done;
+                drawing_done = 0;
+            }
+
+        } while(true);
+
+        thread_calculated += drawing_done;
+
+    }
+
+    private void drawJuliaPolarAntialiasedBruteForce(int image_size) {
+
+        double size = fractal.getSize();
+
+        double xcenter = fractal.getXCenter();
+        double ycenter = fractal.getYCenter();
+
+        double start;
+        double end = Math.log(size);
+
+        int pixel_percent = image_size * image_size / 100;
+
+        double f, sf, cf, r, sf2, cf2, r2;
+        double muly = (2 * circle_period * Math.PI) / image_size;
+
+        double mulx = muly * height_ratio;
+
+        start = -mulx * image_size + end;
+
+        double temp_result;
+
+        int x, y, loc, counter = 0;
+
+        int condition = image_size * image_size;
+
+        int color;
+
+        int red, green, blue;
+
+        double exp_x_antialiasing_size = Math.exp(x_antialiasing_size);
+        double exp_inv_x_antialiasing_size = 1 / exp_x_antialiasing_size;
+
+        double exp_x_antialiasing_size_x2 = exp_x_antialiasing_size * exp_x_antialiasing_size;
+        double exp_inv_x_antialiasing_size_x2 = 1 / exp_x_antialiasing_size_x2;
+
+        double antialiasing_x[] = {exp_inv_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size, exp_inv_x_antialiasing_size,
+            exp_inv_x_antialiasing_size, exp_x_antialiasing_size, 1, 1,
+            exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size_x2, 1, 1, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x2,
+            exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size, exp_inv_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x2};
+
+
+        double sin_y_antialiasing_size = Math.sin(y_antialiasing_size);
+        double cos_y_antialiasing_size = Math.cos(y_antialiasing_size);
+
+        double sin_inv_y_antialiasing_size = -sin_y_antialiasing_size;
+        double cos_inv_y_antialiasing_size = cos_y_antialiasing_size;
+
+        double sin_y_antialiasing_size_x2 = 2 * sin_y_antialiasing_size * cos_y_antialiasing_size;
+        double cos_y_antialiasing_size_x2 = 2 * cos_y_antialiasing_size * cos_y_antialiasing_size - 1;
+
+        double sin_inv_y_antialiasing_size_x2 = -sin_y_antialiasing_size_x2;
+        double cos_inv_y_antialiasing_size_x2 = cos_y_antialiasing_size_x2;
+
+
+        double antialiasing_y_sin[] = {sin_inv_y_antialiasing_size, sin_inv_y_antialiasing_size, sin_y_antialiasing_size, sin_y_antialiasing_size,
+            0, 0, sin_inv_y_antialiasing_size, sin_y_antialiasing_size,
+            sin_inv_y_antialiasing_size_x2, 0, sin_y_antialiasing_size_x2, sin_inv_y_antialiasing_size_x2, sin_y_antialiasing_size_x2, sin_inv_y_antialiasing_size_x2, 0, sin_y_antialiasing_size_x2,
+            sin_inv_y_antialiasing_size, sin_y_antialiasing_size, sin_inv_y_antialiasing_size_x2, sin_y_antialiasing_size_x2, sin_inv_y_antialiasing_size_x2, sin_y_antialiasing_size_x2, sin_inv_y_antialiasing_size, sin_y_antialiasing_size};
+
+
+        double antialiasing_y_cos[] = {cos_inv_y_antialiasing_size, cos_inv_y_antialiasing_size, cos_y_antialiasing_size, cos_y_antialiasing_size,
+            1, 1, cos_inv_y_antialiasing_size, cos_y_antialiasing_size,
+            cos_inv_y_antialiasing_size_x2, 1, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, 1, cos_y_antialiasing_size_x2,
+            cos_inv_y_antialiasing_size, cos_y_antialiasing_size, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size, cos_y_antialiasing_size};
+
+        double temp_samples = filters_options_vals[MainWindow.ANTIALIASING] + 1;
+
+        do {
+
+            loc = normal_drawing_algorithm_pixel.getAndIncrement();
+
+            if(loc >= condition) {
+                break;
+            }
+
+            x = loc % image_size;
+            y = loc / image_size;
+
+            f = y * muly;
+            sf = Math.sin(f);
+            cf = Math.cos(f);
+
+            r = Math.exp(x * mulx + start);
+
+            temp_result = image_iterations[loc] = fractal.calculateJulia(new Complex(xcenter + r * cf, ycenter + r * sf));
+            color = temp_result == max_iterations ? fractal_color : palette_color.getPaletteColor(temp_result + color_cycling_location);
+
+            red = (color >> 16) & 0xff;
+            green = (color >> 8) & 0xff;
+            blue = color & 0xff;
+
+            //Supersampling
+            for(int i = 0; i < filters_options_vals[MainWindow.ANTIALIASING]; i++) {
+
+                sf2 = sf * antialiasing_y_cos[i] + cf * antialiasing_y_sin[i];
+                cf2 = cf * antialiasing_y_cos[i] - sf * antialiasing_y_sin[i];
+
+                r2 = r * antialiasing_x[i];
+
+                temp_result = fractal.calculateJulia(new Complex(xcenter + r2 * cf2, ycenter + r2 * sf2));
+                color = temp_result == max_iterations ? fractal_color : palette_color.getPaletteColor(temp_result + color_cycling_location);
+
+                red += (color >> 16) & 0xff;
+                green += (color >> 8) & 0xff;
+                blue += color & 0xff;
+            }
+
+            rgbs[loc] = 0xff000000 | (((int)(red / temp_samples + 0.5)) << 16) | (((int)(green / temp_samples + 0.5)) << 8) | ((int)(blue / temp_samples + 0.5));
+
+
+            drawing_done++;
+            counter++;
+
+            if(counter % image_size == 0 && drawing_done / pixel_percent >= 1) {
+                update(drawing_done);
+                thread_calculated += drawing_done;
+                drawing_done = 0;
+            }
+
+        } while(true);
+
+        thread_calculated += drawing_done;
+
+    }
+
+    private void drawJuliaPolarBruteForce(int image_size) {
+
+        double size = fractal.getSize();
+
+        double xcenter = fractal.getXCenter();
+        double ycenter = fractal.getYCenter();
+
+        double start;
+        double end = Math.log(size);
+
+        int pixel_percent = image_size * image_size / 100;
+
+        double f, sf, cf, r;
+        double muly = (2 * circle_period * Math.PI) / image_size;
+
+        double mulx = muly * height_ratio;
+
+        start = -mulx * image_size + end;
+
+        double temp_result;
+
+        int x, y, loc, counter = 0;
+
+        int condition = image_size * image_size;
+
+        do {
+
+            loc = normal_drawing_algorithm_pixel.getAndIncrement();
+
+            if(loc >= condition) {
+                break;
+            }
+
+            x = loc % image_size;
+            y = loc / image_size;
+
+            f = y * muly;
+            sf = Math.sin(f);
+            cf = Math.cos(f);
+
+            r = Math.exp(x * mulx + start);
+
+            temp_result = image_iterations[loc] = fractal.calculateJulia(new Complex(xcenter + r * cf, ycenter + r * sf));
+            rgbs[loc] = temp_result == max_iterations ? fractal_color : palette_color.getPaletteColor(temp_result + color_cycling_location);
+
+
+            drawing_done++;
+            counter++;
+
+            if(counter % image_size == 0 && drawing_done / pixel_percent >= 1) {
+                update(drawing_done);
+                thread_calculated += drawing_done;
+                drawing_done = 0;
+            }
+
+        } while(true);
+
+        thread_calculated += drawing_done;
 
     }
 
@@ -2785,6 +4806,922 @@ public abstract class ThreadDraw extends Thread {
                         }
                         else {
                             g.setColor(new Color((int)(red + ((colors_3d[(int)Norm1z[i][j][1]] >> 16) & 0xff) * second_color + 0.5), (int)(green + ((colors_3d[(int)Norm1z[i][j][1]] >> 8) & 0xff) * second_color + 0.5), (int)(blue + (colors_3d[(int)Norm1z[i][j][1]] & 0xff) * second_color + 0.5)));
+                            g.fillPolygon(xPol, yPol, 3);
+                            g.setColor(Color.WHITE);
+                            g.drawPolygon(xPol, yPol, 3);
+                        }
+
+                    }
+                }
+            }
+
+            thread_calculated = image_size * image_size;
+        }
+
+    }
+
+    private void drawFractalPolar3D(int image_size) {
+
+        double size = fractal.getSize();
+
+        double xcenter = fractal.getXCenter();
+        double ycenter = fractal.getYCenter();
+
+        int pixel_percent = detail * detail / 100;
+
+        double[] temp;
+
+        int n1 = detail - 1;
+
+        int w2 = image_size / 2;
+        double mod;
+        double dx = image_size / (double)n1;
+
+        double start;
+        double end = Math.log(size);
+
+        double f2, sf2, cf2, r2;
+        double muly = (2 * circle_period * Math.PI) / n1;
+
+        double mulx = muly * height_ratio;
+
+        start = -mulx * n1 + end;
+
+
+        int x, y, loc, counter = 0;
+
+        int condition = detail * detail;
+
+        do {
+
+            loc = normal_drawing_algorithm_pixel.getAndIncrement();
+
+            if(loc >= condition) {
+                break;
+            }
+
+            x = loc % detail;
+            y = loc / detail;
+
+            f2 = y * muly;
+            sf2 = Math.sin(f2);
+            cf2 = Math.cos(f2);
+
+            r2 = Math.exp(x * mulx + start);
+
+            vert[x][y][0] = (float)(dx * x - w2);
+            vert[x][y][2] = (float)(dx * y - w2);
+            temp = fractal.calculateFractal3D(new Complex(xcenter + r2 * cf2, ycenter + r2 * sf2));
+            vert[x][y][1] = (float)(temp[0] * d3_height_scale + d3_height_offset);
+            vert[x][y][3] = temp[1] == max_iterations ? fractal_color : palette_color.getPaletteColor(temp[1] + color_cycling_location);
+
+            drawing_done++;
+            counter++;
+
+            if(counter % detail == 0 && drawing_done / pixel_percent >= 1) {
+                update(drawing_done);
+                drawing_done = 0;
+            }
+
+
+        } while(true);
+
+
+        int sync2 = synchronization2.incrementAndGet();
+
+        while(sync2 != ptr.getNumberOfThreads()) {
+            yield();
+            sync2 = synchronization2.get();
+        }
+
+        double ct = Math.cos(fiX), cf = Math.cos(fiY), st = Math.sin(fiX), sf = Math.sin(fiY);
+        double m00 = scale * cf, m02 = scale * sf, m10 = scale * st * sf, m11 = scale * ct, m12 = -scale * st * cf;
+        m20 = -ct * sf;
+        m21 = st;
+        m22 = ct * cf;
+
+        for(x = FROMx; x < TOx; x++) {
+            for(y = FROMy; y < TOy; y++) {
+                if(x < n1 && y < n1) {
+                    Norm[x][y][0][0] = vert[x][y][1] - vert[x + 1][y][1];
+                    Norm[x][y][0][1] = (float)(dx);
+                    Norm[x][y][0][2] = vert[x + 1][y][1] - vert[x + 1][y + 1][1];
+                    mod = Math.sqrt(Norm[x][y][0][0] * Norm[x][y][0][0] + Norm[x][y][0][1] * Norm[x][y][0][1] + Norm[x][y][0][2] * Norm[x][y][0][2]) / 255.5;
+                    Norm[x][y][0][0] /= mod;
+                    Norm[x][y][0][1] /= mod;
+                    Norm[x][y][0][2] /= mod;
+                    Norm[x][y][1][0] = vert[x][y + 1][1] - vert[x + 1][y + 1][1];
+                    Norm[x][y][1][1] = (float)(dx);
+                    Norm[x][y][1][2] = vert[x][y][1] - vert[x][y + 1][1];
+                    mod = Math.sqrt(Norm[x][y][1][0] * Norm[x][y][1][0] + Norm[x][y][1][1] * Norm[x][y][1][1] + Norm[x][y][1][2] * Norm[x][y][1][2]) / 255.5;
+                    Norm[x][y][1][0] /= mod;
+                    Norm[x][y][1][1] /= mod;
+                    Norm[x][y][1][2] /= mod;
+
+                    Norm1z[x][y][0] = (float)(m20 * Norm[x][y][0][0] + m21 * Norm[x][y][0][1] + m22 * Norm[x][y][0][2]);
+                    Norm1z[x][y][1] = (float)(m20 * Norm[x][y][1][0] + m21 * Norm[x][y][1][1] + m22 * Norm[x][y][1][2]);
+                }
+                vert1[x][y][0] = (float)(m00 * vert[x][y][0] + m02 * vert[x][y][2]);
+                vert1[x][y][1] = (float)(m10 * vert[x][y][0] + m11 * vert[x][y][1] + m12 * vert[x][y][2]);
+            }
+        }
+
+        int sync3 = synchronization3.incrementAndGet();
+
+        if(sync3 == ptr.getNumberOfThreads()) {
+
+            int[] xPol = new int[3];
+            int[] yPol = new int[3];
+
+            Graphics2D g = image.createGraphics();
+
+            int ib = 0, ie = n1, sti = 1, jb = 0, je = n1, stj = 1;
+
+            if(m20 < 0) {
+                ib = n1;
+                ie = -1;
+                sti = -1;
+            }
+
+            if(m22 < 0) {
+                jb = n1;
+                je = -1;
+                stj = -1;
+            }
+
+            double first_color = 0.84;
+            double second_color = 1 - first_color;
+
+            for(int i = ib; i != ie; i += sti) {
+                for(int j = jb; j != je; j += stj) {
+
+
+                    double red = ((((int)vert[i][j][3]) >> 16) & 0xff) * first_color;
+                    double green = ((((int)vert[i][j][3]) >> 8) & 0xff) * first_color;
+                    double blue = (((int)vert[i][j][3]) & 0xff) * first_color;
+
+                    if(Norm1z[i][j][0] > 0) {
+                        xPol[0] = w2 + (int)vert1[i][j][0];
+                        xPol[1] = w2 + (int)vert1[i + 1][j][0];
+                        xPol[2] = w2 + (int)vert1[i + 1][j + 1][0];
+                        yPol[0] = w2 - (int)vert1[i][j][1];
+                        yPol[1] = w2 - (int)vert1[i + 1][j][1];
+                        yPol[2] = w2 - (int)vert1[i + 1][j + 1][1];
+
+                        if(d3_draw_method == 0) {
+                            g.setColor(new Color((int)(red + ((colors_3d[(int)Norm1z[i][j][0]] >> 16) & 0xff) * second_color + 0.5), (int)(green + ((colors_3d[(int)Norm1z[i][j][0]] >> 8) & 0xff) * second_color + 0.5), (int)(blue + (colors_3d[(int)Norm1z[i][j][0]] & 0xff) * second_color + 0.5)));
+                            g.fillPolygon(xPol, yPol, 3);
+                        }
+                        else if(d3_draw_method == 1) {
+                            g.setColor(new Color((int)(red + ((colors_3d[(int)Norm1z[i][j][0]] >> 16) & 0xff) * second_color + 0.5), (int)(green + ((colors_3d[(int)Norm1z[i][j][0]] >> 8) & 0xff) * second_color + 0.5), (int)(blue + (colors_3d[(int)Norm1z[i][j][0]] & 0xff) * second_color + 0.5)));
+                            g.drawPolygon(xPol, yPol, 3);
+                        }
+                        else {
+                            g.setColor(new Color((int)(red + ((colors_3d[(int)Norm1z[i][j][0]] >> 16) & 0xff) * second_color + 0.5), (int)(green + ((colors_3d[(int)Norm1z[i][j][0]] >> 8) & 0xff) * second_color + 0.5), (int)(blue + (colors_3d[(int)Norm1z[i][j][0]] & 0xff) * second_color + 0.5)));
+                            g.fillPolygon(xPol, yPol, 3);
+                            g.setColor(Color.WHITE);
+                            g.drawPolygon(xPol, yPol, 3);
+                        }
+                    }
+
+                    if(Norm1z[i][j][1] > 0) {
+                        xPol[0] = w2 + (int)vert1[i][j][0];
+                        xPol[1] = w2 + (int)vert1[i][j + 1][0];
+                        xPol[2] = w2 + (int)vert1[i + 1][j + 1][0];
+                        yPol[0] = w2 - (int)vert1[i][j][1];
+                        yPol[1] = w2 - (int)vert1[i][j + 1][1];
+                        yPol[2] = w2 - (int)vert1[i + 1][j + 1][1];
+
+                        if(d3_draw_method == 0) {
+                            g.setColor(new Color((int)(red + ((colors_3d[(int)Norm1z[i][j][1]] >> 16) & 0xff) * second_color + 0.5), (int)(green + ((colors_3d[(int)Norm1z[i][j][1]] >> 8) & 0xff) * second_color + 0.5), (int)(blue + (colors_3d[(int)Norm1z[i][j][1]] & 0xff) * second_color + 0.5)));
+                            g.fillPolygon(xPol, yPol, 3);
+                        }
+                        else if(d3_draw_method == 1) {
+                            g.setColor(new Color((int)(red + ((colors_3d[(int)Norm1z[i][j][1]] >> 16) & 0xff) * second_color + 0.5), (int)(green + ((colors_3d[(int)Norm1z[i][j][1]] >> 8) & 0xff) * second_color + 0.5), (int)(blue + (colors_3d[(int)Norm1z[i][j][1]] & 0xff) * second_color + 0.5)));
+                            g.drawPolygon(xPol, yPol, 3);
+                        }
+                        else {
+                            g.setColor(new Color((int)(red + ((colors_3d[(int)Norm1z[i][j][1]] >> 16) & 0xff) * second_color + 0.5), (int)(green + ((colors_3d[(int)Norm1z[i][j][1]] >> 8) & 0xff) * second_color + 0.5), (int)(blue + (colors_3d[(int)Norm1z[i][j][1]] & 0xff) * second_color + 0.5)));
+                            g.fillPolygon(xPol, yPol, 3);
+                            g.setColor(Color.WHITE);
+                            g.drawPolygon(xPol, yPol, 3);
+                        }
+
+                    }
+                }
+            }
+
+            thread_calculated = image_size * image_size;
+        }
+
+    }
+
+    private void drawJuliaPolar3D(int image_size) {
+
+        double size = fractal.getSize();
+
+        double xcenter = fractal.getXCenter();
+        double ycenter = fractal.getYCenter();
+
+        int pixel_percent = detail * detail / 100;
+
+        double[] temp;
+
+        int n1 = detail - 1;
+
+        int w2 = image_size / 2;
+        double mod;
+        double dx = image_size / (double)n1;
+
+        double start;
+        double end = Math.log(size);
+
+        double f2, sf2, cf2, r2;
+        double muly = (2 * circle_period * Math.PI) / n1;
+
+        double mulx = muly * height_ratio;
+
+        start = -mulx * n1 + end;
+
+
+        int x, y, loc, counter = 0;
+
+        int condition = detail * detail;
+
+        do {
+
+            loc = normal_drawing_algorithm_pixel.getAndIncrement();
+
+            if(loc >= condition) {
+                break;
+            }
+
+            x = loc % detail;
+            y = loc / detail;
+
+            f2 = y * muly;
+            sf2 = Math.sin(f2);
+            cf2 = Math.cos(f2);
+
+            r2 = Math.exp(x * mulx + start);
+
+            vert[x][y][0] = (float)(dx * x - w2);
+            vert[x][y][2] = (float)(dx * y - w2);
+            temp = fractal.calculateJulia3D(new Complex(xcenter + r2 * cf2, ycenter + r2 * sf2));
+            vert[x][y][1] = (float)(temp[0] * d3_height_scale + d3_height_offset);
+            vert[x][y][3] = temp[1] == max_iterations ? fractal_color : palette_color.getPaletteColor(temp[1] + color_cycling_location);
+
+            drawing_done++;
+            counter++;
+
+            if(counter % detail == 0 && drawing_done / pixel_percent >= 1) {
+                update(drawing_done);
+                drawing_done = 0;
+            }
+
+
+        } while(true);
+
+
+        int sync2 = synchronization2.incrementAndGet();
+
+        while(sync2 != ptr.getNumberOfThreads()) {
+            yield();
+            sync2 = synchronization2.get();
+        }
+
+        double ct = Math.cos(fiX), cf = Math.cos(fiY), st = Math.sin(fiX), sf = Math.sin(fiY);
+        double m00 = scale * cf, m02 = scale * sf, m10 = scale * st * sf, m11 = scale * ct, m12 = -scale * st * cf;
+        m20 = -ct * sf;
+        m21 = st;
+        m22 = ct * cf;
+
+        for(x = FROMx; x < TOx; x++) {
+            for(y = FROMy; y < TOy; y++) {
+                if(x < n1 && y < n1) {
+                    Norm[x][y][0][0] = vert[x][y][1] - vert[x + 1][y][1];
+                    Norm[x][y][0][1] = (float)(dx);
+                    Norm[x][y][0][2] = vert[x + 1][y][1] - vert[x + 1][y + 1][1];
+                    mod = Math.sqrt(Norm[x][y][0][0] * Norm[x][y][0][0] + Norm[x][y][0][1] * Norm[x][y][0][1] + Norm[x][y][0][2] * Norm[x][y][0][2]) / 255.5;
+                    Norm[x][y][0][0] /= mod;
+                    Norm[x][y][0][1] /= mod;
+                    Norm[x][y][0][2] /= mod;
+                    Norm[x][y][1][0] = vert[x][y + 1][1] - vert[x + 1][y + 1][1];
+                    Norm[x][y][1][1] = (float)(dx);
+                    Norm[x][y][1][2] = vert[x][y][1] - vert[x][y + 1][1];
+                    mod = Math.sqrt(Norm[x][y][1][0] * Norm[x][y][1][0] + Norm[x][y][1][1] * Norm[x][y][1][1] + Norm[x][y][1][2] * Norm[x][y][1][2]) / 255.5;
+                    Norm[x][y][1][0] /= mod;
+                    Norm[x][y][1][1] /= mod;
+                    Norm[x][y][1][2] /= mod;
+
+                    Norm1z[x][y][0] = (float)(m20 * Norm[x][y][0][0] + m21 * Norm[x][y][0][1] + m22 * Norm[x][y][0][2]);
+                    Norm1z[x][y][1] = (float)(m20 * Norm[x][y][1][0] + m21 * Norm[x][y][1][1] + m22 * Norm[x][y][1][2]);
+                }
+                vert1[x][y][0] = (float)(m00 * vert[x][y][0] + m02 * vert[x][y][2]);
+                vert1[x][y][1] = (float)(m10 * vert[x][y][0] + m11 * vert[x][y][1] + m12 * vert[x][y][2]);
+            }
+        }
+
+        int sync3 = synchronization3.incrementAndGet();
+
+        if(sync3 == ptr.getNumberOfThreads()) {
+
+            int[] xPol = new int[3];
+            int[] yPol = new int[3];
+
+            Graphics2D g = image.createGraphics();
+
+            int ib = 0, ie = n1, sti = 1, jb = 0, je = n1, stj = 1;
+
+            if(m20 < 0) {
+                ib = n1;
+                ie = -1;
+                sti = -1;
+            }
+
+            if(m22 < 0) {
+                jb = n1;
+                je = -1;
+                stj = -1;
+            }
+
+            double first_color = 0.84;
+            double second_color = 1 - first_color;
+
+            for(int i = ib; i != ie; i += sti) {
+                for(int j = jb; j != je; j += stj) {
+
+
+                    double red = ((((int)vert[i][j][3]) >> 16) & 0xff) * first_color;
+                    double green = ((((int)vert[i][j][3]) >> 8) & 0xff) * first_color;
+                    double blue = (((int)vert[i][j][3]) & 0xff) * first_color;
+
+                    if(Norm1z[i][j][0] > 0) {
+                        xPol[0] = w2 + (int)vert1[i][j][0];
+                        xPol[1] = w2 + (int)vert1[i + 1][j][0];
+                        xPol[2] = w2 + (int)vert1[i + 1][j + 1][0];
+                        yPol[0] = w2 - (int)vert1[i][j][1];
+                        yPol[1] = w2 - (int)vert1[i + 1][j][1];
+                        yPol[2] = w2 - (int)vert1[i + 1][j + 1][1];
+
+                        if(d3_draw_method == 0) {
+                            g.setColor(new Color((int)(red + ((colors_3d[(int)Norm1z[i][j][0]] >> 16) & 0xff) * second_color + 0.5), (int)(green + ((colors_3d[(int)Norm1z[i][j][0]] >> 8) & 0xff) * second_color + 0.5), (int)(blue + (colors_3d[(int)Norm1z[i][j][0]] & 0xff) * second_color + 0.5)));
+                            g.fillPolygon(xPol, yPol, 3);
+                        }
+                        else if(d3_draw_method == 1) {
+                            g.setColor(new Color((int)(red + ((colors_3d[(int)Norm1z[i][j][0]] >> 16) & 0xff) * second_color + 0.5), (int)(green + ((colors_3d[(int)Norm1z[i][j][0]] >> 8) & 0xff) * second_color + 0.5), (int)(blue + (colors_3d[(int)Norm1z[i][j][0]] & 0xff) * second_color + 0.5)));
+                            g.drawPolygon(xPol, yPol, 3);
+                        }
+                        else {
+                            g.setColor(new Color((int)(red + ((colors_3d[(int)Norm1z[i][j][0]] >> 16) & 0xff) * second_color + 0.5), (int)(green + ((colors_3d[(int)Norm1z[i][j][0]] >> 8) & 0xff) * second_color + 0.5), (int)(blue + (colors_3d[(int)Norm1z[i][j][0]] & 0xff) * second_color + 0.5)));
+                            g.fillPolygon(xPol, yPol, 3);
+                            g.setColor(Color.WHITE);
+                            g.drawPolygon(xPol, yPol, 3);
+                        }
+                    }
+
+                    if(Norm1z[i][j][1] > 0) {
+                        xPol[0] = w2 + (int)vert1[i][j][0];
+                        xPol[1] = w2 + (int)vert1[i][j + 1][0];
+                        xPol[2] = w2 + (int)vert1[i + 1][j + 1][0];
+                        yPol[0] = w2 - (int)vert1[i][j][1];
+                        yPol[1] = w2 - (int)vert1[i][j + 1][1];
+                        yPol[2] = w2 - (int)vert1[i + 1][j + 1][1];
+
+                        if(d3_draw_method == 0) {
+                            g.setColor(new Color((int)(red + ((colors_3d[(int)Norm1z[i][j][1]] >> 16) & 0xff) * second_color + 0.5), (int)(green + ((colors_3d[(int)Norm1z[i][j][1]] >> 8) & 0xff) * second_color + 0.5), (int)(blue + (colors_3d[(int)Norm1z[i][j][1]] & 0xff) * second_color + 0.5)));
+                            g.fillPolygon(xPol, yPol, 3);
+                        }
+                        else if(d3_draw_method == 1) {
+                            g.setColor(new Color((int)(red + ((colors_3d[(int)Norm1z[i][j][1]] >> 16) & 0xff) * second_color + 0.5), (int)(green + ((colors_3d[(int)Norm1z[i][j][1]] >> 8) & 0xff) * second_color + 0.5), (int)(blue + (colors_3d[(int)Norm1z[i][j][1]] & 0xff) * second_color + 0.5)));
+                            g.drawPolygon(xPol, yPol, 3);
+                        }
+                        else {
+                            g.setColor(new Color((int)(red + ((colors_3d[(int)Norm1z[i][j][1]] >> 16) & 0xff) * second_color + 0.5), (int)(green + ((colors_3d[(int)Norm1z[i][j][1]] >> 8) & 0xff) * second_color + 0.5), (int)(blue + (colors_3d[(int)Norm1z[i][j][1]] & 0xff) * second_color + 0.5)));
+                            g.fillPolygon(xPol, yPol, 3);
+                            g.setColor(Color.WHITE);
+                            g.drawPolygon(xPol, yPol, 3);
+                        }
+
+                    }
+                }
+            }
+
+            thread_calculated = image_size * image_size;
+        }
+
+    }
+
+    private void drawFractalPolar3DAntialiased(int image_size) {
+
+        double size = fractal.getSize();
+
+        double xcenter = fractal.getXCenter();
+        double ycenter = fractal.getYCenter();
+
+        int pixel_percent = detail * detail / 100;
+
+        double[] temp;
+
+        int n1 = detail - 1;
+
+        int w2 = image_size / 2;
+        double mod;
+        double dx = image_size / (double)n1;
+
+        double start;
+        double end = Math.log(size);
+
+        double f2, sf2, cf2, r2, sf3, cf3, r3;
+        double muly = (2 * circle_period * Math.PI) / n1;
+
+        double mulx = muly * height_ratio;
+
+        start = -mulx * n1 + end;
+
+
+        int x, y, loc, counter = 0;
+
+        int condition = detail * detail;
+
+        int red, green, blue, color;
+
+        double height;
+
+        double temp_samples = filters_options_vals[MainWindow.ANTIALIASING] + 1;
+
+        double exp_x_antialiasing_size = Math.exp(x_antialiasing_size);
+        double exp_inv_x_antialiasing_size = 1 / exp_x_antialiasing_size;
+
+        double exp_x_antialiasing_size_x2 = exp_x_antialiasing_size * exp_x_antialiasing_size;
+        double exp_inv_x_antialiasing_size_x2 = 1 / exp_x_antialiasing_size_x2;
+
+        double antialiasing_x[] = {exp_inv_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size, exp_inv_x_antialiasing_size,
+            exp_inv_x_antialiasing_size, exp_x_antialiasing_size, 1, 1,
+            exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size_x2, 1, 1, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x2,
+            exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size, exp_inv_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x2};
+
+
+        double sin_y_antialiasing_size = Math.sin(y_antialiasing_size);
+        double cos_y_antialiasing_size = Math.cos(y_antialiasing_size);
+
+        double sin_inv_y_antialiasing_size = -sin_y_antialiasing_size;
+        double cos_inv_y_antialiasing_size = cos_y_antialiasing_size;
+
+        double sin_y_antialiasing_size_x2 = 2 * sin_y_antialiasing_size * cos_y_antialiasing_size;
+        double cos_y_antialiasing_size_x2 = 2 * cos_y_antialiasing_size * cos_y_antialiasing_size - 1;
+
+        double sin_inv_y_antialiasing_size_x2 = -sin_y_antialiasing_size_x2;
+        double cos_inv_y_antialiasing_size_x2 = cos_y_antialiasing_size_x2;
+
+
+        double antialiasing_y_sin[] = {sin_inv_y_antialiasing_size, sin_inv_y_antialiasing_size, sin_y_antialiasing_size, sin_y_antialiasing_size,
+            0, 0, sin_inv_y_antialiasing_size, sin_y_antialiasing_size,
+            sin_inv_y_antialiasing_size_x2, 0, sin_y_antialiasing_size_x2, sin_inv_y_antialiasing_size_x2, sin_y_antialiasing_size_x2, sin_inv_y_antialiasing_size_x2, 0, sin_y_antialiasing_size_x2,
+            sin_inv_y_antialiasing_size, sin_y_antialiasing_size, sin_inv_y_antialiasing_size_x2, sin_y_antialiasing_size_x2, sin_inv_y_antialiasing_size_x2, sin_y_antialiasing_size_x2, sin_inv_y_antialiasing_size, sin_y_antialiasing_size};
+
+
+        double antialiasing_y_cos[] = {cos_inv_y_antialiasing_size, cos_inv_y_antialiasing_size, cos_y_antialiasing_size, cos_y_antialiasing_size,
+            1, 1, cos_inv_y_antialiasing_size, cos_y_antialiasing_size,
+            cos_inv_y_antialiasing_size_x2, 1, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, 1, cos_y_antialiasing_size_x2,
+            cos_inv_y_antialiasing_size, cos_y_antialiasing_size, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size, cos_y_antialiasing_size};
+
+        do {
+
+            loc = normal_drawing_algorithm_pixel.getAndIncrement();
+
+            if(loc >= condition) {
+                break;
+            }
+
+            x = loc % detail;
+            y = loc / detail;
+
+            f2 = y * muly;
+            sf2 = Math.sin(f2);
+            cf2 = Math.cos(f2);
+
+            r2 = Math.exp(x * mulx + start);
+
+            vert[x][y][0] = (float)(dx * x - w2);
+            vert[x][y][2] = (float)(dx * y - w2);
+            temp = fractal.calculateFractal3D(new Complex(xcenter + r2 * cf2, ycenter + r2 * sf2));
+            height = temp[0] * d3_height_scale + d3_height_offset;
+            color = temp[1] == max_iterations ? fractal_color : palette_color.getPaletteColor(temp[1] + color_cycling_location);
+
+            red = (color >> 16) & 0xff;
+            green = (color >> 8) & 0xff;
+            blue = color & 0xff;
+
+            //Supersampling
+            for(int k = 0; k < filters_options_vals[MainWindow.ANTIALIASING]; k++) {
+
+                sf3 = sf2 * antialiasing_y_cos[k] + cf2 * antialiasing_y_sin[k];
+                cf3 = cf2 * antialiasing_y_cos[k] - sf2 * antialiasing_y_sin[k];
+
+                r3 = r2 * antialiasing_x[k];
+
+                temp = fractal.calculateFractal3D(new Complex(xcenter + r3 * cf3, ycenter + r3 * sf3));
+                color = temp[1] == max_iterations ? fractal_color : palette_color.getPaletteColor(temp[1] + color_cycling_location);
+
+                height += temp[0] * d3_height_scale + d3_height_offset;
+                red += (color >> 16) & 0xff;
+                green += (color >> 8) & 0xff;
+                blue += color & 0xff;
+            }
+
+            vert[x][y][1] = (float)(height / temp_samples);
+            vert[x][y][3] = 0xff000000 | (((int)(red / temp_samples + 0.5)) << 16) | (((int)(green / temp_samples + 0.5)) << 8) | ((int)(blue / temp_samples + 0.5));
+
+            drawing_done++;
+            counter++;
+
+            if(counter % detail == 0 && drawing_done / pixel_percent >= 1) {
+                update(drawing_done);
+                drawing_done = 0;
+            }
+
+
+        } while(true);
+
+
+        int sync2 = synchronization2.incrementAndGet();
+
+        while(sync2 != ptr.getNumberOfThreads()) {
+            yield();
+            sync2 = synchronization2.get();
+        }
+
+        double ct = Math.cos(fiX), cf = Math.cos(fiY), st = Math.sin(fiX), sf = Math.sin(fiY);
+        double m00 = scale * cf, m02 = scale * sf, m10 = scale * st * sf, m11 = scale * ct, m12 = -scale * st * cf;
+        m20 = -ct * sf;
+        m21 = st;
+        m22 = ct * cf;
+
+        for(x = FROMx; x < TOx; x++) {
+            for(y = FROMy; y < TOy; y++) {
+                if(x < n1 && y < n1) {
+                    Norm[x][y][0][0] = vert[x][y][1] - vert[x + 1][y][1];
+                    Norm[x][y][0][1] = (float)(dx);
+                    Norm[x][y][0][2] = vert[x + 1][y][1] - vert[x + 1][y + 1][1];
+                    mod = Math.sqrt(Norm[x][y][0][0] * Norm[x][y][0][0] + Norm[x][y][0][1] * Norm[x][y][0][1] + Norm[x][y][0][2] * Norm[x][y][0][2]) / 255.5;
+                    Norm[x][y][0][0] /= mod;
+                    Norm[x][y][0][1] /= mod;
+                    Norm[x][y][0][2] /= mod;
+                    Norm[x][y][1][0] = vert[x][y + 1][1] - vert[x + 1][y + 1][1];
+                    Norm[x][y][1][1] = (float)(dx);
+                    Norm[x][y][1][2] = vert[x][y][1] - vert[x][y + 1][1];
+                    mod = Math.sqrt(Norm[x][y][1][0] * Norm[x][y][1][0] + Norm[x][y][1][1] * Norm[x][y][1][1] + Norm[x][y][1][2] * Norm[x][y][1][2]) / 255.5;
+                    Norm[x][y][1][0] /= mod;
+                    Norm[x][y][1][1] /= mod;
+                    Norm[x][y][1][2] /= mod;
+
+                    Norm1z[x][y][0] = (float)(m20 * Norm[x][y][0][0] + m21 * Norm[x][y][0][1] + m22 * Norm[x][y][0][2]);
+                    Norm1z[x][y][1] = (float)(m20 * Norm[x][y][1][0] + m21 * Norm[x][y][1][1] + m22 * Norm[x][y][1][2]);
+                }
+                vert1[x][y][0] = (float)(m00 * vert[x][y][0] + m02 * vert[x][y][2]);
+                vert1[x][y][1] = (float)(m10 * vert[x][y][0] + m11 * vert[x][y][1] + m12 * vert[x][y][2]);
+            }
+        }
+
+        int sync3 = synchronization3.incrementAndGet();
+
+        if(sync3 == ptr.getNumberOfThreads()) {
+
+            int[] xPol = new int[3];
+            int[] yPol = new int[3];
+
+            Graphics2D g = image.createGraphics();
+
+            int ib = 0, ie = n1, sti = 1, jb = 0, je = n1, stj = 1;
+
+            if(m20 < 0) {
+                ib = n1;
+                ie = -1;
+                sti = -1;
+            }
+
+            if(m22 < 0) {
+                jb = n1;
+                je = -1;
+                stj = -1;
+            }
+
+            double first_color = 0.84;
+            double second_color = 1 - first_color;
+
+            for(int i = ib; i != ie; i += sti) {
+                for(int j = jb; j != je; j += stj) {
+
+
+                    double red2 = ((((int)vert[i][j][3]) >> 16) & 0xff) * first_color;
+                    double green2 = ((((int)vert[i][j][3]) >> 8) & 0xff) * first_color;
+                    double blue2 = (((int)vert[i][j][3]) & 0xff) * first_color;
+
+                    if(Norm1z[i][j][0] > 0) {
+                        xPol[0] = w2 + (int)vert1[i][j][0];
+                        xPol[1] = w2 + (int)vert1[i + 1][j][0];
+                        xPol[2] = w2 + (int)vert1[i + 1][j + 1][0];
+                        yPol[0] = w2 - (int)vert1[i][j][1];
+                        yPol[1] = w2 - (int)vert1[i + 1][j][1];
+                        yPol[2] = w2 - (int)vert1[i + 1][j + 1][1];
+
+                        if(d3_draw_method == 0) {
+                            g.setColor(new Color((int)(red2 + ((colors_3d[(int)Norm1z[i][j][0]] >> 16) & 0xff) * second_color + 0.5), (int)(green2 + ((colors_3d[(int)Norm1z[i][j][0]] >> 8) & 0xff) * second_color + 0.5), (int)(blue2 + (colors_3d[(int)Norm1z[i][j][0]] & 0xff) * second_color + 0.5)));
+                            g.fillPolygon(xPol, yPol, 3);
+                        }
+                        else if(d3_draw_method == 1) {
+                            g.setColor(new Color((int)(red2 + ((colors_3d[(int)Norm1z[i][j][0]] >> 16) & 0xff) * second_color + 0.5), (int)(green2 + ((colors_3d[(int)Norm1z[i][j][0]] >> 8) & 0xff) * second_color + 0.5), (int)(blue2 + (colors_3d[(int)Norm1z[i][j][0]] & 0xff) * second_color + 0.5)));
+                            g.drawPolygon(xPol, yPol, 3);
+                        }
+                        else {
+                            g.setColor(new Color((int)(red2 + ((colors_3d[(int)Norm1z[i][j][0]] >> 16) & 0xff) * second_color + 0.5), (int)(green2 + ((colors_3d[(int)Norm1z[i][j][0]] >> 8) & 0xff) * second_color + 0.5), (int)(blue2 + (colors_3d[(int)Norm1z[i][j][0]] & 0xff) * second_color + 0.5)));
+                            g.fillPolygon(xPol, yPol, 3);
+                            g.setColor(Color.WHITE);
+                            g.drawPolygon(xPol, yPol, 3);
+                        }
+                    }
+
+                    if(Norm1z[i][j][1] > 0) {
+                        xPol[0] = w2 + (int)vert1[i][j][0];
+                        xPol[1] = w2 + (int)vert1[i][j + 1][0];
+                        xPol[2] = w2 + (int)vert1[i + 1][j + 1][0];
+                        yPol[0] = w2 - (int)vert1[i][j][1];
+                        yPol[1] = w2 - (int)vert1[i][j + 1][1];
+                        yPol[2] = w2 - (int)vert1[i + 1][j + 1][1];
+
+                        if(d3_draw_method == 0) {
+                            g.setColor(new Color((int)(red2 + ((colors_3d[(int)Norm1z[i][j][1]] >> 16) & 0xff) * second_color + 0.5), (int)(green2 + ((colors_3d[(int)Norm1z[i][j][1]] >> 8) & 0xff) * second_color + 0.5), (int)(blue2 + (colors_3d[(int)Norm1z[i][j][1]] & 0xff) * second_color + 0.5)));
+                            g.fillPolygon(xPol, yPol, 3);
+                        }
+                        else if(d3_draw_method == 1) {
+                            g.setColor(new Color((int)(red2 + ((colors_3d[(int)Norm1z[i][j][1]] >> 16) & 0xff) * second_color + 0.5), (int)(green2 + ((colors_3d[(int)Norm1z[i][j][1]] >> 8) & 0xff) * second_color + 0.5), (int)(blue2 + (colors_3d[(int)Norm1z[i][j][1]] & 0xff) * second_color + 0.5)));
+                            g.drawPolygon(xPol, yPol, 3);
+                        }
+                        else {
+                            g.setColor(new Color((int)(red2 + ((colors_3d[(int)Norm1z[i][j][1]] >> 16) & 0xff) * second_color + 0.5), (int)(green2 + ((colors_3d[(int)Norm1z[i][j][1]] >> 8) & 0xff) * second_color + 0.5), (int)(blue2 + (colors_3d[(int)Norm1z[i][j][1]] & 0xff) * second_color + 0.5)));
+                            g.fillPolygon(xPol, yPol, 3);
+                            g.setColor(Color.WHITE);
+                            g.drawPolygon(xPol, yPol, 3);
+                        }
+
+                    }
+                }
+            }
+
+            thread_calculated = image_size * image_size;
+        }
+
+    }
+
+    private void drawJuliaPolar3DAntialiased(int image_size) {
+
+        double size = fractal.getSize();
+
+        double xcenter = fractal.getXCenter();
+        double ycenter = fractal.getYCenter();
+
+        int pixel_percent = detail * detail / 100;
+
+        double[] temp;
+
+        int n1 = detail - 1;
+
+        int w2 = image_size / 2;
+        double mod;
+        double dx = image_size / (double)n1;
+
+        double start;
+        double end = Math.log(size);
+
+        double f2, sf2, cf2, r2, sf3, cf3, r3;
+        double muly = (2 * circle_period * Math.PI) / n1;
+
+        double mulx = muly * height_ratio;
+
+        start = -mulx * n1 + end;
+
+
+        int x, y, loc, counter = 0;
+
+        int condition = detail * detail;
+
+        int red, green, blue, color;
+
+        double height;
+
+        double temp_samples = filters_options_vals[MainWindow.ANTIALIASING] + 1;
+
+        double exp_x_antialiasing_size = Math.exp(x_antialiasing_size);
+        double exp_inv_x_antialiasing_size = 1 / exp_x_antialiasing_size;
+
+        double exp_x_antialiasing_size_x2 = exp_x_antialiasing_size * exp_x_antialiasing_size;
+        double exp_inv_x_antialiasing_size_x2 = 1 / exp_x_antialiasing_size_x2;
+
+        double antialiasing_x[] = {exp_inv_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size, exp_inv_x_antialiasing_size,
+            exp_inv_x_antialiasing_size, exp_x_antialiasing_size, 1, 1,
+            exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size_x2, 1, 1, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x2,
+            exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size, exp_inv_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x2};
+
+
+        double sin_y_antialiasing_size = Math.sin(y_antialiasing_size);
+        double cos_y_antialiasing_size = Math.cos(y_antialiasing_size);
+
+        double sin_inv_y_antialiasing_size = -sin_y_antialiasing_size;
+        double cos_inv_y_antialiasing_size = cos_y_antialiasing_size;
+
+        double sin_y_antialiasing_size_x2 = 2 * sin_y_antialiasing_size * cos_y_antialiasing_size;
+        double cos_y_antialiasing_size_x2 = 2 * cos_y_antialiasing_size * cos_y_antialiasing_size - 1;
+
+        double sin_inv_y_antialiasing_size_x2 = -sin_y_antialiasing_size_x2;
+        double cos_inv_y_antialiasing_size_x2 = cos_y_antialiasing_size_x2;
+
+
+        double antialiasing_y_sin[] = {sin_inv_y_antialiasing_size, sin_inv_y_antialiasing_size, sin_y_antialiasing_size, sin_y_antialiasing_size,
+            0, 0, sin_inv_y_antialiasing_size, sin_y_antialiasing_size,
+            sin_inv_y_antialiasing_size_x2, 0, sin_y_antialiasing_size_x2, sin_inv_y_antialiasing_size_x2, sin_y_antialiasing_size_x2, sin_inv_y_antialiasing_size_x2, 0, sin_y_antialiasing_size_x2,
+            sin_inv_y_antialiasing_size, sin_y_antialiasing_size, sin_inv_y_antialiasing_size_x2, sin_y_antialiasing_size_x2, sin_inv_y_antialiasing_size_x2, sin_y_antialiasing_size_x2, sin_inv_y_antialiasing_size, sin_y_antialiasing_size};
+
+
+        double antialiasing_y_cos[] = {cos_inv_y_antialiasing_size, cos_inv_y_antialiasing_size, cos_y_antialiasing_size, cos_y_antialiasing_size,
+            1, 1, cos_inv_y_antialiasing_size, cos_y_antialiasing_size,
+            cos_inv_y_antialiasing_size_x2, 1, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, 1, cos_y_antialiasing_size_x2,
+            cos_inv_y_antialiasing_size, cos_y_antialiasing_size, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size, cos_y_antialiasing_size};
+
+        do {
+
+            loc = normal_drawing_algorithm_pixel.getAndIncrement();
+
+            if(loc >= condition) {
+                break;
+            }
+
+            x = loc % detail;
+            y = loc / detail;
+
+            f2 = y * muly;
+            sf2 = Math.sin(f2);
+            cf2 = Math.cos(f2);
+
+            r2 = Math.exp(x * mulx + start);
+
+            vert[x][y][0] = (float)(dx * x - w2);
+            vert[x][y][2] = (float)(dx * y - w2);
+            temp = fractal.calculateJulia3D(new Complex(xcenter + r2 * cf2, ycenter + r2 * sf2));
+            height = temp[0] * d3_height_scale + d3_height_offset;
+            color = temp[1] == max_iterations ? fractal_color : palette_color.getPaletteColor(temp[1] + color_cycling_location);
+
+            red = (color >> 16) & 0xff;
+            green = (color >> 8) & 0xff;
+            blue = color & 0xff;
+
+            //Supersampling
+            for(int k = 0; k < filters_options_vals[MainWindow.ANTIALIASING]; k++) {
+
+                sf3 = sf2 * antialiasing_y_cos[k] + cf2 * antialiasing_y_sin[k];
+                cf3 = cf2 * antialiasing_y_cos[k] - sf2 * antialiasing_y_sin[k];
+
+                r3 = r2 * antialiasing_x[k];
+
+                temp = fractal.calculateJulia3D(new Complex(xcenter + r3 * cf3, ycenter + r3 * sf3));
+                color = temp[1] == max_iterations ? fractal_color : palette_color.getPaletteColor(temp[1] + color_cycling_location);
+
+                height += temp[0] * d3_height_scale + d3_height_offset;
+                red += (color >> 16) & 0xff;
+                green += (color >> 8) & 0xff;
+                blue += color & 0xff;
+            }
+
+            vert[x][y][1] = (float)(height / temp_samples);
+            vert[x][y][3] = 0xff000000 | (((int)(red / temp_samples + 0.5)) << 16) | (((int)(green / temp_samples + 0.5)) << 8) | ((int)(blue / temp_samples + 0.5));
+
+            drawing_done++;
+            counter++;
+
+            if(counter % detail == 0 && drawing_done / pixel_percent >= 1) {
+                update(drawing_done);
+                drawing_done = 0;
+            }
+
+
+        } while(true);
+
+
+        int sync2 = synchronization2.incrementAndGet();
+
+        while(sync2 != ptr.getNumberOfThreads()) {
+            yield();
+            sync2 = synchronization2.get();
+        }
+
+        double ct = Math.cos(fiX), cf = Math.cos(fiY), st = Math.sin(fiX), sf = Math.sin(fiY);
+        double m00 = scale * cf, m02 = scale * sf, m10 = scale * st * sf, m11 = scale * ct, m12 = -scale * st * cf;
+        m20 = -ct * sf;
+        m21 = st;
+        m22 = ct * cf;
+
+        for(x = FROMx; x < TOx; x++) {
+            for(y = FROMy; y < TOy; y++) {
+                if(x < n1 && y < n1) {
+                    Norm[x][y][0][0] = vert[x][y][1] - vert[x + 1][y][1];
+                    Norm[x][y][0][1] = (float)(dx);
+                    Norm[x][y][0][2] = vert[x + 1][y][1] - vert[x + 1][y + 1][1];
+                    mod = Math.sqrt(Norm[x][y][0][0] * Norm[x][y][0][0] + Norm[x][y][0][1] * Norm[x][y][0][1] + Norm[x][y][0][2] * Norm[x][y][0][2]) / 255.5;
+                    Norm[x][y][0][0] /= mod;
+                    Norm[x][y][0][1] /= mod;
+                    Norm[x][y][0][2] /= mod;
+                    Norm[x][y][1][0] = vert[x][y + 1][1] - vert[x + 1][y + 1][1];
+                    Norm[x][y][1][1] = (float)(dx);
+                    Norm[x][y][1][2] = vert[x][y][1] - vert[x][y + 1][1];
+                    mod = Math.sqrt(Norm[x][y][1][0] * Norm[x][y][1][0] + Norm[x][y][1][1] * Norm[x][y][1][1] + Norm[x][y][1][2] * Norm[x][y][1][2]) / 255.5;
+                    Norm[x][y][1][0] /= mod;
+                    Norm[x][y][1][1] /= mod;
+                    Norm[x][y][1][2] /= mod;
+
+                    Norm1z[x][y][0] = (float)(m20 * Norm[x][y][0][0] + m21 * Norm[x][y][0][1] + m22 * Norm[x][y][0][2]);
+                    Norm1z[x][y][1] = (float)(m20 * Norm[x][y][1][0] + m21 * Norm[x][y][1][1] + m22 * Norm[x][y][1][2]);
+                }
+                vert1[x][y][0] = (float)(m00 * vert[x][y][0] + m02 * vert[x][y][2]);
+                vert1[x][y][1] = (float)(m10 * vert[x][y][0] + m11 * vert[x][y][1] + m12 * vert[x][y][2]);
+            }
+        }
+
+        int sync3 = synchronization3.incrementAndGet();
+
+        if(sync3 == ptr.getNumberOfThreads()) {
+
+            int[] xPol = new int[3];
+            int[] yPol = new int[3];
+
+            Graphics2D g = image.createGraphics();
+
+            int ib = 0, ie = n1, sti = 1, jb = 0, je = n1, stj = 1;
+
+            if(m20 < 0) {
+                ib = n1;
+                ie = -1;
+                sti = -1;
+            }
+
+            if(m22 < 0) {
+                jb = n1;
+                je = -1;
+                stj = -1;
+            }
+
+            double first_color = 0.84;
+            double second_color = 1 - first_color;
+
+            for(int i = ib; i != ie; i += sti) {
+                for(int j = jb; j != je; j += stj) {
+
+
+                    double red2 = ((((int)vert[i][j][3]) >> 16) & 0xff) * first_color;
+                    double green2 = ((((int)vert[i][j][3]) >> 8) & 0xff) * first_color;
+                    double blue2 = (((int)vert[i][j][3]) & 0xff) * first_color;
+
+                    if(Norm1z[i][j][0] > 0) {
+                        xPol[0] = w2 + (int)vert1[i][j][0];
+                        xPol[1] = w2 + (int)vert1[i + 1][j][0];
+                        xPol[2] = w2 + (int)vert1[i + 1][j + 1][0];
+                        yPol[0] = w2 - (int)vert1[i][j][1];
+                        yPol[1] = w2 - (int)vert1[i + 1][j][1];
+                        yPol[2] = w2 - (int)vert1[i + 1][j + 1][1];
+
+                        if(d3_draw_method == 0) {
+                            g.setColor(new Color((int)(red2 + ((colors_3d[(int)Norm1z[i][j][0]] >> 16) & 0xff) * second_color + 0.5), (int)(green2 + ((colors_3d[(int)Norm1z[i][j][0]] >> 8) & 0xff) * second_color + 0.5), (int)(blue2 + (colors_3d[(int)Norm1z[i][j][0]] & 0xff) * second_color + 0.5)));
+                            g.fillPolygon(xPol, yPol, 3);
+                        }
+                        else if(d3_draw_method == 1) {
+                            g.setColor(new Color((int)(red2 + ((colors_3d[(int)Norm1z[i][j][0]] >> 16) & 0xff) * second_color + 0.5), (int)(green2 + ((colors_3d[(int)Norm1z[i][j][0]] >> 8) & 0xff) * second_color + 0.5), (int)(blue2 + (colors_3d[(int)Norm1z[i][j][0]] & 0xff) * second_color + 0.5)));
+                            g.drawPolygon(xPol, yPol, 3);
+                        }
+                        else {
+                            g.setColor(new Color((int)(red2 + ((colors_3d[(int)Norm1z[i][j][0]] >> 16) & 0xff) * second_color + 0.5), (int)(green2 + ((colors_3d[(int)Norm1z[i][j][0]] >> 8) & 0xff) * second_color + 0.5), (int)(blue2 + (colors_3d[(int)Norm1z[i][j][0]] & 0xff) * second_color + 0.5)));
+                            g.fillPolygon(xPol, yPol, 3);
+                            g.setColor(Color.WHITE);
+                            g.drawPolygon(xPol, yPol, 3);
+                        }
+                    }
+
+                    if(Norm1z[i][j][1] > 0) {
+                        xPol[0] = w2 + (int)vert1[i][j][0];
+                        xPol[1] = w2 + (int)vert1[i][j + 1][0];
+                        xPol[2] = w2 + (int)vert1[i + 1][j + 1][0];
+                        yPol[0] = w2 - (int)vert1[i][j][1];
+                        yPol[1] = w2 - (int)vert1[i][j + 1][1];
+                        yPol[2] = w2 - (int)vert1[i + 1][j + 1][1];
+
+                        if(d3_draw_method == 0) {
+                            g.setColor(new Color((int)(red2 + ((colors_3d[(int)Norm1z[i][j][1]] >> 16) & 0xff) * second_color + 0.5), (int)(green2 + ((colors_3d[(int)Norm1z[i][j][1]] >> 8) & 0xff) * second_color + 0.5), (int)(blue2 + (colors_3d[(int)Norm1z[i][j][1]] & 0xff) * second_color + 0.5)));
+                            g.fillPolygon(xPol, yPol, 3);
+                        }
+                        else if(d3_draw_method == 1) {
+                            g.setColor(new Color((int)(red2 + ((colors_3d[(int)Norm1z[i][j][1]] >> 16) & 0xff) * second_color + 0.5), (int)(green2 + ((colors_3d[(int)Norm1z[i][j][1]] >> 8) & 0xff) * second_color + 0.5), (int)(blue2 + (colors_3d[(int)Norm1z[i][j][1]] & 0xff) * second_color + 0.5)));
+                            g.drawPolygon(xPol, yPol, 3);
+                        }
+                        else {
+                            g.setColor(new Color((int)(red2 + ((colors_3d[(int)Norm1z[i][j][1]] >> 16) & 0xff) * second_color + 0.5), (int)(green2 + ((colors_3d[(int)Norm1z[i][j][1]] >> 8) & 0xff) * second_color + 0.5), (int)(blue2 + (colors_3d[(int)Norm1z[i][j][1]] & 0xff) * second_color + 0.5)));
                             g.fillPolygon(xPol, yPol, 3);
                             g.setColor(Color.WHITE);
                             g.drawPolygon(xPol, yPol, 3);
@@ -3127,7 +6064,7 @@ public abstract class ThreadDraw extends Thread {
 
         int pix, y, x, curDir, curPix, startPix, startColor, nextColor, dir, Dir, nextPix, floodPix, floodColor;
         int delPix[] = {1, image_size, -1, -image_size};
-        double nextX, nextY, previous_value;
+        double nextX, nextY, start_val;
 
         int ix, iy, next_ix, next_iy, temp_ix, temp_iy, flood_ix;
         int intX[] = {1, 0, -1, 0};
@@ -3158,8 +6095,8 @@ public abstract class ThreadDraw extends Thread {
                     ix = x;
                     iy = y;
 
-                    temp_result = image_iterations[pix] = fractal.calculateFractal(new Complex(temp_x0, temp_y0));
-                    color = temp_result == max_iterations ? fractal_color : palette_color.getPaletteColor(temp_result + color_cycling_location);
+                    start_val = image_iterations[pix] = fractal.calculateFractal(new Complex(temp_x0, temp_y0));
+                    color = start_val == max_iterations ? fractal_color : palette_color.getPaletteColor(start_val + color_cycling_location);
 
                     red = (color >> 16) & 0xff;
                     green = (color >> 8) & 0xff;
@@ -3278,13 +6215,12 @@ public abstract class ThreadDraw extends Thread {
                                             break;
                                         }
 
-                                        previous_value = image_iterations[floodPix];
                                         floodPix++;
 
                                         if((floodColor = rgbs[floodPix]) == culcColor) {
                                             drawing_done++;
                                             rgbs[floodPix] = startColor;
-                                            image_iterations[floodPix] = previous_value;
+                                            image_iterations[floodPix] = start_val;
                                             /*ptr.getMainPanel().repaint();
                                             try {
                                             Thread.sleep(1); //demo
@@ -3406,7 +6342,7 @@ public abstract class ThreadDraw extends Thread {
         int pix, y, x, curDir, curPix, startPix, startColor, nextColor, dir, Dir, nextPix, floodPix, floodColor;
         int delPix[] = {1, image_size, -1, -image_size};
 
-        double nextX, nextY, previous_value;
+        double nextX, nextY, start_val;
 
         int ix, iy, next_ix, next_iy, temp_ix, temp_iy, flood_ix;
         int intX[] = {1, 0, -1, 0};
@@ -3425,8 +6361,8 @@ public abstract class ThreadDraw extends Thread {
                     ix = x;
                     iy = y;
 
-                    temp_result = image_iterations[pix] = fractal.calculateJulia(new Complex(temp_x0, temp_y0));
-                    startColor = rgbs[pix] = temp_result == max_iterations ? fractal_color : palette_color.getPaletteColor(temp_result + color_cycling_location);
+                    start_val = image_iterations[pix] = fractal.calculateJulia(new Complex(temp_x0, temp_y0));
+                    startColor = rgbs[pix] = start_val == max_iterations ? fractal_color : palette_color.getPaletteColor(start_val + color_cycling_location);
                     drawing_done++;
                     thread_calculated++;
 
@@ -3500,13 +6436,12 @@ public abstract class ThreadDraw extends Thread {
                                             break;
                                         }
 
-                                        previous_value = image_iterations[floodPix];
                                         floodPix++;
 
                                         if((floodColor = rgbs[floodPix]) == culcColor) {
                                             drawing_done++;
                                             rgbs[floodPix] = startColor;
-                                            image_iterations[floodPix] = previous_value;
+                                            image_iterations[floodPix] = start_val;
                                         }
                                         else if(floodColor != startColor) {
                                             break;
@@ -4059,7 +6994,7 @@ public abstract class ThreadDraw extends Thread {
 
         int pix, y, x, curDir, curPix, startPix, startColor, nextColor, dir, Dir, nextPix, floodPix, floodColor;
         int delPix[] = {1, image_size, -1, -image_size};
-        double nextX, nextY, previous_value;
+        double nextX, nextY, start_val;
 
         int ix, iy, next_ix, next_iy, temp_ix, temp_iy, flood_ix;
         int intX[] = {1, 0, -1, 0};
@@ -4088,8 +7023,8 @@ public abstract class ThreadDraw extends Thread {
                     ix = x;
                     iy = y;
 
-                    temp_result = image_iterations[pix] = fractal.calculateJulia(new Complex(temp_x0, temp_y0));
-                    color = temp_result == max_iterations ? fractal_color : palette_color.getPaletteColor(temp_result + color_cycling_location);
+                    start_val = image_iterations[pix] = fractal.calculateJulia(new Complex(temp_x0, temp_y0));
+                    color = start_val == max_iterations ? fractal_color : palette_color.getPaletteColor(start_val + color_cycling_location);
 
                     red = (color >> 16) & 0xff;
                     green = (color >> 8) & 0xff;
@@ -4199,13 +7134,12 @@ public abstract class ThreadDraw extends Thread {
                                             break;
                                         }
 
-                                        previous_value = image_iterations[floodPix];
                                         floodPix++;
 
                                         if((floodColor = rgbs[floodPix]) == culcColor) {
                                             drawing_done++;
                                             rgbs[floodPix] = startColor;
-                                            image_iterations[floodPix] = previous_value;
+                                            image_iterations[floodPix] = start_val;
                                         }
                                         else if(floodColor != startColor) {
                                             break;
@@ -4253,14 +7187,113 @@ public abstract class ThreadDraw extends Thread {
 
         int image_size = image.getHeight();
 
-
-        if(fast_julia_filters && filters[MainWindow.ANTIALIASING]) {
-            drawFastJuliaAntialiased(image_size);
+        if(bump_map) {
+            if(fast_julia_filters && filters[MainWindow.ANTIALIASING]) {
+                drawFastJuliaAntialiasedBumpmap(image_size);
+            }
+            else {
+                drawFastJuliaBumpmap(image_size);
+            }
         }
         else {
-            drawFastJulia(image_size);
+            if(fast_julia_filters && filters[MainWindow.ANTIALIASING]) {
+                drawFastJuliaAntialiased(image_size);
+            }
+            else {
+                drawFastJulia(image_size);
+            }
         }
 
+        int done = synchronization.incrementAndGet();
+
+
+        if(done == ptr.getNumberOfThreads()) {
+
+            if(fast_julia_filters) {
+
+                if(filters[MainWindow.HISTOGRAM_EQUALIZATION]) {
+                    histogramEqualization();
+                }
+
+                if(filters[MainWindow.COLOR_CHANNEL_SWAPPING]) {
+                    filterColorChannelSwapping();
+                }
+
+                if(filters[MainWindow.INVERT_COLORS]) {
+                    filterInvertColors();
+                }
+
+                if(filters[MainWindow.COLOR_CHANNEL_MIXING]) {
+                    filterColorChannelMixing();
+                }
+
+                if(filters[MainWindow.COLOR_CHANNEL_MASKING]) {
+                    filterMaskColors();
+                }
+
+                if(filters[MainWindow.COLOR_TEMPERATURE]) {
+                    filterColorTemperature();
+                }
+
+                if(filters[MainWindow.CONTRAST_BRIGHTNESS]) {
+                    filterContrastBrightness();
+                }
+
+                if(filters[MainWindow.GRAYSCALE]) {
+                    filterGrayscale();
+                }
+
+                if(filters[MainWindow.EDGE_DETECTION]) {
+                    filterEdgeDetection();
+                }
+
+                if(filters[MainWindow.SHARPNESS]) {
+                    filterSharpness();
+                }
+
+                if(filters[MainWindow.EMBOSS]) {
+                    filterEmboss();
+                }
+
+                if(filters[MainWindow.FADE_OUT]) {
+                    filterFadeOut();
+                }
+
+                if(filters[MainWindow.BLURRING]) {
+                    filterBlurring();
+                }
+            }
+
+
+            Graphics2D graphics = image.createGraphics();
+            graphics.setColor(Color.BLACK);
+            graphics.drawRect(0, 0, image_size - 1, image_size - 1);
+            ptr.getMainPanel().getGraphics().drawImage(image, ptr.getScrollPane().getHorizontalScrollBar().getValue(), ptr.getScrollPane().getVerticalScrollBar().getValue(), null);
+
+        }
+
+    }
+
+    private void fastJuliaDrawPolar() {
+
+        int image_size = image.getHeight();
+
+        if(bump_map) {
+            if(fast_julia_filters && filters[MainWindow.ANTIALIASING]) {
+                drawFastJuliaPolarAntialiasedBumpmap(image_size);
+            }
+            else {
+                drawFastJuliaPolarBumpmap(image_size);
+            }
+        }
+        else {
+            if(fast_julia_filters && filters[MainWindow.ANTIALIASING]) {
+                drawFastJuliaPolarAntialiased(image_size);
+            }
+            else {
+                drawFastJuliaPolar(image_size);
+            }
+        }
 
         int done = synchronization.incrementAndGet();
 
@@ -4361,10 +7394,167 @@ public abstract class ThreadDraw extends Thread {
             x = loc % image_size;
             y = loc / image_size;
 
-            temp_result = fractal.calculateJulia(new Complex(temp_xcenter_size + temp_size_image_size_x * x, temp_ycenter_size + temp_size_image_size_y * y));
+            temp_result = image_iterations_fast_julia[loc] = fractal.calculateJulia(new Complex(temp_xcenter_size + temp_size_image_size_x * x, temp_ycenter_size + temp_size_image_size_y * y));
             rgbs[loc] = temp_result == max_iterations ? fractal_color : palette_color.getPaletteColor(temp_result + color_cycling_location);
 
         } while(true);
+
+    }
+
+    private void applyBumpmapping(int image_size) {
+
+        final double gradCorr = Math.pow(2, (bumpMappingStrength - DEFAULT_BUMP_MAPPING_STRENGTH) * 0.05);
+        final double sizeCorr = image_size / Math.pow(2, (MAX_BUMP_MAPPING_DEPTH - bumpMappingDepth) * 0.16);
+        final double lightAngleRadians = Math.toRadians(lightDirectionDegrees);
+        final double lightx = Math.cos(lightAngleRadians) * gradCorr;
+        final double lighty = Math.sin(lightAngleRadians) * gradCorr;
+
+
+        for(int x = FROMx; x < TOx; x++) {
+            for(int y = FROMy; y < TOy; y++) {
+                int index = y * image_size + x;
+                final double gradx = getGradientX(image_iterations, index, image_size);
+                final double grady = getGradientY(image_iterations, index, image_size);
+                final double dotp = gradx * lightx + grady * lighty;
+                if(dotp == 0.0) {
+                    continue;
+                }
+                final double gradAbs = Math.sqrt(gradx * gradx + grady * grady);
+                final double cosAngle = dotp / gradAbs;
+                final double smoothGrad = -2.3562 / (gradAbs * sizeCorr + 1.5) + 1.57;
+                //final double smoothGrad = Math.atan(gradAbs * sizeCorr);
+                final int modified = changeBrightnessOfColor(rgbs[index], cosAngle * smoothGrad);
+                rgbs[index] = modified;
+            }
+        }
+    }
+
+    private void applyBumpmappingFastJulia(int image_size) {
+
+        final double gradCorr = Math.pow(2, (bumpMappingStrength - DEFAULT_BUMP_MAPPING_STRENGTH) * 0.05);
+        final double sizeCorr = image_size / Math.pow(2, (MAX_BUMP_MAPPING_DEPTH - bumpMappingDepth) * 0.16);
+        final double lightAngleRadians = Math.toRadians(lightDirectionDegrees);
+        final double lightx = Math.cos(lightAngleRadians) * gradCorr;
+        final double lighty = Math.sin(lightAngleRadians) * gradCorr;
+
+
+        for(int x = FROMx; x < TOx; x++) {
+            for(int y = FROMy; y < TOy; y++) {
+                int index = y * image_size + x;
+                final double gradx = getGradientX(image_iterations_fast_julia, index, image_size);
+                final double grady = getGradientY(image_iterations_fast_julia, index, image_size);
+                final double dotp = gradx * lightx + grady * lighty;
+                if(dotp == 0.0) {
+                    continue;
+                }
+                final double gradAbs = Math.sqrt(gradx * gradx + grady * grady);
+                final double cosAngle = dotp / gradAbs;
+                final double smoothGrad = -2.3562 / (gradAbs * sizeCorr + 1.5) + 1.57;
+                //final double smoothGrad = Math.atan(gradAbs * sizeCorr);
+                final int modified = changeBrightnessOfColor(rgbs[index], cosAngle * smoothGrad);
+                rgbs[index] = modified;
+            }
+        }
+    }
+
+    private void drawFastJuliaPolarBoundaryTracingBumpmap(int image_size) {
+
+        drawFastJuliaPolarBoundaryTracing(image_size);
+
+        int sync2 = synchronization2.incrementAndGet();
+
+        while(sync2 != ptr.getNumberOfThreads()) {
+            yield();
+            sync2 = synchronization2.get();
+        }
+
+        applyBumpmappingFastJulia(image_size);
+    }
+
+    private void drawFastJuliaPolarBruteForceBumpmap(int image_size) {
+
+        drawFastJuliaPolarBruteForce(image_size);
+
+        int sync2 = synchronization2.incrementAndGet();
+
+        while(sync2 != ptr.getNumberOfThreads()) {
+            yield();
+            sync2 = synchronization2.get();
+        }
+
+        applyBumpmappingFastJulia(image_size);
+
+    }
+
+    private void drawFastJuliaBoundaryTracingBumpmap(int image_size) {
+
+        drawFastJuliaBoundaryTracing(image_size);
+
+        int sync2 = synchronization2.incrementAndGet();
+
+        while(sync2 != ptr.getNumberOfThreads()) {
+            yield();
+            sync2 = synchronization2.get();
+        }
+
+        applyBumpmappingFastJulia(image_size);
+    }
+
+    private void drawFastJuliaBruteForceBumpmap(int image_size) {
+
+        drawFastJuliaBruteForce(image_size);
+
+        int sync2 = synchronization2.incrementAndGet();
+
+        while(sync2 != ptr.getNumberOfThreads()) {
+            yield();
+            sync2 = synchronization2.get();
+        }
+
+        applyBumpmappingFastJulia(image_size);
+
+    }
+
+    private void drawFastJuliaBumpmap(int image_size) {
+
+        if(!boundary_tracing) {
+            drawFastJuliaBruteForceBumpmap(image_size);
+        }
+        else {
+            drawFastJuliaBoundaryTracingBumpmap(image_size);
+        }
+
+    }
+
+    private void drawFastJuliaPolarBumpmap(int image_size) {
+
+        if(!boundary_tracing) {
+            drawFastJuliaPolarBruteForceBumpmap(image_size);
+        }
+        else {
+            drawFastJuliaPolarBoundaryTracingBumpmap(image_size);
+        }
+
+    }
+
+    private void drawFastJuliaAntialiasedBumpmap(int image_size) {
+
+        if(!boundary_tracing) {
+            drawFastJuliaAntialiasedBruteForceBumpmap(image_size);
+        }
+        else {
+            drawFastJuliaAntialiasedBoundaryTracingBumpmap(image_size);
+        }
+    }
+
+    private void drawFastJuliaPolarAntialiasedBumpmap(int image_size) {
+
+        if(!boundary_tracing) {
+            drawFastJuliaPolarAntialiasedBruteForceBumpmap(image_size);
+        }
+        else {
+            drawFastJuliaPolarAntialiasedBoundaryTracingBumpmap(image_size);
+        }
     }
 
     private void drawFastJuliaBoundaryTracing(int image_size) {
@@ -4393,6 +7583,8 @@ public abstract class ThreadDraw extends Thread {
         int intX[] = {1, 0, -1, 0};
         int intY[] = {0, 1, 0, -1};
 
+        double start_val;
+
 
         for(y = FROMy; y < TOy; y++) {
             temp_y0 = temp_ycenter_size + y * temp_size_image_size_y;
@@ -4405,8 +7597,8 @@ public abstract class ThreadDraw extends Thread {
                     ix = x;
                     iy = y;
 
-                    temp_result = fractal.calculateJulia(new Complex(temp_x0, temp_y0));
-                    startColor = rgbs[pix] = temp_result == max_iterations ? fractal_color : palette_color.getPaletteColor(temp_result + color_cycling_location);
+                    start_val = image_iterations_fast_julia[pix] = fractal.calculateJulia(new Complex(temp_x0, temp_y0));
+                    startColor = rgbs[pix] = start_val == max_iterations ? fractal_color : palette_color.getPaletteColor(start_val + color_cycling_location);
 
                     while(iy - 1 >= FROMy && rgbs[startPix - image_size] == startColor) {   // looking for boundary
                         curPix = startPix = startPix - image_size;
@@ -4433,7 +7625,7 @@ public abstract class ThreadDraw extends Thread {
                             }
 
                             if((nextColor = rgbs[nextPix]) == culcColor) {
-                                temp_result = fractal.calculateJulia(new Complex(nextX, nextY));
+                                temp_result = image_iterations_fast_julia[nextPix] = fractal.calculateJulia(new Complex(nextX, nextY));
                                 nextColor = rgbs[nextPix] = temp_result == max_iterations ? fractal_color : palette_color.getPaletteColor(temp_result + color_cycling_location);
                             }
 
@@ -4482,6 +7674,7 @@ public abstract class ThreadDraw extends Thread {
 
                                         if((floodColor = rgbs[floodPix]) == culcColor) {
                                             rgbs[floodPix] = startColor;
+                                            image_iterations_fast_julia[floodPix] = start_val;
                                         }
                                         else if(floodColor != startColor) {
                                             break;
@@ -4514,6 +7707,224 @@ public abstract class ThreadDraw extends Thread {
             drawFastJuliaBoundaryTracing(image_size);
         }
 
+    }
+
+    private void drawFastJuliaPolar(int image_size) {
+
+        if(!boundary_tracing) {
+            drawFastJuliaPolarBruteForce(image_size);
+        }
+        else {
+            drawFastJuliaPolarBoundaryTracing(image_size);
+        }
+
+    }
+
+    private void drawFastJuliaPolarBruteForce(int image_size) {
+
+        double size = fractal.getSize();
+
+        double xcenter = fractal.getXCenter();
+        double ycenter = fractal.getYCenter();
+
+        double start;
+        double end = Math.log(size);
+
+        double f, sf, cf, r;
+        double muly = (2 * circle_period * Math.PI) / image_size;
+
+        double mulx = muly * height_ratio;
+
+        start = -mulx * image_size + end;
+
+        double temp_result;
+
+        int x, y, loc;
+
+        int condition = image_size * image_size;
+
+        do {
+
+            loc = normal_drawing_algorithm_pixel.getAndIncrement();
+
+            if(loc >= condition) {
+                break;
+            }
+
+            x = loc % image_size;
+            y = loc / image_size;
+
+            f = y * muly;
+            sf = Math.sin(f);
+            cf = Math.cos(f);
+
+            r = Math.exp(x * mulx + start);
+
+            temp_result = image_iterations_fast_julia[loc] = fractal.calculateJulia(new Complex(xcenter + r * cf, ycenter + r * sf));
+            rgbs[loc] = temp_result == max_iterations ? fractal_color : palette_color.getPaletteColor(temp_result + color_cycling_location);
+
+        } while(true);
+
+    }
+
+    private void drawFastJuliaPolarBoundaryTracing(int image_size) {
+
+        double size = fractal.getSize();
+
+        double xcenter = fractal.getXCenter();
+        double ycenter = fractal.getYCenter();
+
+        double start;
+        double end = Math.log(size);
+
+        double f, sf, cf, r, r2, f2, sf2, cf2;
+        double muly = (2 * circle_period * Math.PI) / image_size;
+
+        double mulx = muly * height_ratio;
+
+        start = -mulx * image_size + end;
+
+        double temp_result;
+
+        final int dirRight = 0, dirUP = 3, maskDir = 3, culcColor = 0;
+
+        double temp_x0, temp_y0;
+
+        int pix, y, x, curDir, curPix, startPix, startColor, nextColor, dir, Dir, nextPix, floodPix, floodColor;
+        int delPix[] = {1, image_size, -1, -image_size};
+        double nextX, nextY;
+
+        int ix, iy, next_ix, next_iy, temp_ix, temp_iy, flood_ix;
+        int intX[] = {1, 0, -1, 0};
+        int intY[] = {0, 1, 0, -1};
+
+        double start_val;
+
+
+        for(y = FROMy; y < TOy; y++) {
+
+            f = y * muly;
+            sf = Math.sin(f);
+            cf = Math.cos(f);
+
+            for(x = FROMx, pix = y * image_size + x; x < TOx; x++, pix++) {
+
+                if(rgbs[pix] == culcColor) {
+                    r = Math.exp(x * mulx + start);
+
+                    temp_x0 = xcenter + r * cf;
+                    temp_y0 = ycenter + r * sf;
+
+                    curPix = startPix = pix;
+                    curDir = dirRight;
+                    ix = x;
+                    iy = y;
+
+                    start_val = image_iterations_fast_julia[pix] = fractal.calculateJulia(new Complex(temp_x0, temp_y0));
+                    startColor = rgbs[pix] = start_val == max_iterations ? fractal_color : palette_color.getPaletteColor(start_val + color_cycling_location);
+
+                    while(iy - 1 >= FROMy && rgbs[startPix - image_size] == startColor) {   // looking for boundary
+                        curPix = startPix = startPix - image_size;
+                        iy--;
+                    }
+
+                    temp_ix = ix;
+                    temp_iy = iy;
+
+                    do {                                            // tracing cycle
+                        for(Dir = curDir + 3; Dir < curDir + 7; Dir++) {
+                            dir = Dir & maskDir;
+                            nextPix = curPix + delPix[dir];
+
+                            next_ix = temp_ix + intX[dir];
+                            next_iy = temp_iy + intY[dir];
+
+                            f2 = next_iy * muly;
+                            sf2 = Math.sin(f2);
+                            cf2 = Math.cos(f2);
+
+                            r2 = Math.exp(next_ix * mulx + start);
+
+                            nextX = xcenter + r2 * cf2;
+                            nextY = ycenter + r2 * sf2;
+
+
+                            if(!(next_ix >= FROMx && next_ix < TOx && next_iy >= FROMy && next_iy < TOy)) {
+                                continue;
+                            }
+
+                            if((nextColor = rgbs[nextPix]) == culcColor) {
+                                temp_result = image_iterations_fast_julia[nextPix] = fractal.calculateJulia(new Complex(nextX, nextY));
+                                nextColor = rgbs[nextPix] = temp_result == max_iterations ? fractal_color : palette_color.getPaletteColor(temp_result + color_cycling_location);
+                            }
+
+
+                            if(nextColor == startColor) {
+                                curDir = dir;
+                                curPix = nextPix;
+                                temp_ix = next_ix;
+                                temp_iy = next_iy;
+                                break;
+                            }
+                        }
+                    } while(curPix != startPix);
+
+
+                    curDir = dirRight;
+
+
+                    do {                                                 // 2nd cycle
+                        for(Dir = curDir + 3; Dir < curDir + 7; Dir++) {
+                            dir = Dir & maskDir;
+                            nextPix = curPix + delPix[dir];
+
+                            next_ix = temp_ix + intX[dir];
+                            next_iy = temp_iy + intY[dir];
+
+
+                            if(!(next_ix >= FROMx && next_ix < TOx && next_iy >= FROMy && next_iy < TOy)) {
+                                continue;
+                            }
+
+                            if(rgbs[nextPix] == startColor) {           // flooding
+                                curDir = dir;
+                                if(dir == dirUP) {
+                                    floodPix = curPix;
+                                    flood_ix = temp_ix;
+
+                                    while(true) {
+                                        flood_ix++;
+
+                                        if(flood_ix >= TOx) {
+                                            break;
+                                        }
+
+                                        floodPix++;
+
+                                        if((floodColor = rgbs[floodPix]) == culcColor) {
+                                            rgbs[floodPix] = startColor;
+                                            image_iterations_fast_julia[floodPix] = start_val;
+                                        }
+                                        else if(floodColor != startColor) {
+                                            break;
+                                        }
+
+                                    }
+
+                                }
+
+                                curPix = nextPix;
+                                temp_ix = next_ix;
+                                temp_iy = next_iy;
+                                break;
+                            }
+                        }
+                    } while(curPix != startPix);
+
+                }
+            }
+
+        }
     }
 
     private void drawFastJuliaAntialiasedBruteForce(int image_size) {
@@ -4563,7 +7974,7 @@ public abstract class ThreadDraw extends Thread {
             temp_x0 = temp_xcenter_size + temp_size_image_size_x * x;
             temp_y0 = temp_ycenter_size + temp_size_image_size_y * y;
 
-            temp_result = fractal.calculateJulia(new Complex(temp_x0, temp_y0));
+            temp_result = image_iterations_fast_julia[loc] = fractal.calculateJulia(new Complex(temp_x0, temp_y0));
             color = temp_result == max_iterations ? fractal_color : palette_color.getPaletteColor(temp_result + color_cycling_location);
 
             red = (color >> 16) & 0xff;
@@ -4583,6 +7994,64 @@ public abstract class ThreadDraw extends Thread {
             rgbs[loc] = 0xff000000 | (((int)(red / temp_samples + 0.5)) << 16) | (((int)(green / temp_samples + 0.5)) << 8) | ((int)(blue / temp_samples + 0.5));
 
         } while(true);
+    }
+
+    private void drawFastJuliaPolarAntialiasedBruteForceBumpmap(int image_size) {
+
+        drawFastJuliaPolarAntialiasedBruteForce(image_size);
+
+        int sync2 = synchronization2.incrementAndGet();
+
+        while(sync2 != ptr.getNumberOfThreads()) {
+            yield();
+            sync2 = synchronization2.get();
+        }
+
+        applyBumpmappingFastJulia(image_size);
+
+    }
+
+    private void drawFastJuliaPolarAntialiasedBoundaryTracingBumpmap(int image_size) {
+
+        drawFastJuliaPolarAntialiasedBoundaryTracing(image_size);
+
+        int sync2 = synchronization2.incrementAndGet();
+
+        while(sync2 != ptr.getNumberOfThreads()) {
+            yield();
+            sync2 = synchronization2.get();
+        }
+
+        applyBumpmappingFastJulia(image_size);
+    }
+
+    private void drawFastJuliaAntialiasedBruteForceBumpmap(int image_size) {
+
+        drawFastJuliaAntialiasedBruteForce(image_size);
+
+        int sync2 = synchronization2.incrementAndGet();
+
+        while(sync2 != ptr.getNumberOfThreads()) {
+            yield();
+            sync2 = synchronization2.get();
+        }
+
+        applyBumpmappingFastJulia(image_size);
+
+    }
+
+    private void drawFastJuliaAntialiasedBoundaryTracingBumpmap(int image_size) {
+
+        drawFastJuliaAntialiasedBoundaryTracing(image_size);
+
+        int sync2 = synchronization2.incrementAndGet();
+
+        while(sync2 != ptr.getNumberOfThreads()) {
+            yield();
+            sync2 = synchronization2.get();
+        }
+
+        applyBumpmappingFastJulia(image_size);
     }
 
     private void drawFastJuliaAntialiasedBoundaryTracing(int image_size) {
@@ -4615,6 +8084,8 @@ public abstract class ThreadDraw extends Thread {
         int intX[] = {1, 0, -1, 0};
         int intY[] = {0, 1, 0, -1};
 
+        double start_val;
+
         double antialiasing_x[] = {-x_antialiasing_size, x_antialiasing_size, x_antialiasing_size, -x_antialiasing_size,
             -x_antialiasing_size, x_antialiasing_size, 0, 0,
             -x_antialiasing_size_x2, -x_antialiasing_size_x2, -x_antialiasing_size_x2, 0, 0, x_antialiasing_size_x2, x_antialiasing_size_x2, x_antialiasing_size_x2,
@@ -4639,8 +8110,8 @@ public abstract class ThreadDraw extends Thread {
                     ix = x;
                     iy = y;
 
-                    temp_result = fractal.calculateJulia(new Complex(temp_x0, temp_y0));
-                    color = temp_result == max_iterations ? fractal_color : palette_color.getPaletteColor(temp_result + color_cycling_location);
+                    start_val = image_iterations_fast_julia[pix] = fractal.calculateJulia(new Complex(temp_x0, temp_y0));
+                    color = start_val == max_iterations ? fractal_color : palette_color.getPaletteColor(start_val + color_cycling_location);
 
                     red = (color >> 16) & 0xff;
                     green = (color >> 8) & 0xff;
@@ -4682,7 +8153,7 @@ public abstract class ThreadDraw extends Thread {
                             }
 
                             if((nextColor = rgbs[nextPix]) == culcColor) {
-                                temp_result = fractal.calculateJulia(new Complex(nextX, nextY));
+                                temp_result = image_iterations_fast_julia[nextPix] = fractal.calculateJulia(new Complex(nextX, nextY));
                                 color = temp_result == max_iterations ? fractal_color : palette_color.getPaletteColor(temp_result + color_cycling_location);
 
                                 red = (color >> 16) & 0xff;
@@ -4748,6 +8219,7 @@ public abstract class ThreadDraw extends Thread {
 
                                         if((floodColor = rgbs[floodPix]) == culcColor) {
                                             rgbs[floodPix] = startColor;
+                                            image_iterations_fast_julia[floodPix] = start_val;
                                         }
                                         else if(floodColor != startColor) {
                                             break;
@@ -4780,6 +8252,379 @@ public abstract class ThreadDraw extends Thread {
 
     }
 
+    private void drawFastJuliaPolarAntialiased(int image_size) {
+
+        if(!boundary_tracing) {
+            drawFastJuliaPolarAntialiasedBruteForce(image_size);
+        }
+        else {
+            drawFastJuliaPolarAntialiasedBoundaryTracing(image_size);
+        }
+
+    }
+
+    private void drawFastJuliaPolarAntialiasedBruteForce(int image_size) {
+
+        double size = fractal.getSize();
+
+        double xcenter = fractal.getXCenter();
+        double ycenter = fractal.getYCenter();
+
+        double start;
+        double end = Math.log(size);
+
+        double f, sf, cf, r, sf2, cf2, r2;
+        double muly = (2 * circle_period * Math.PI) / image_size;
+
+        double mulx = muly * height_ratio;
+
+        start = -mulx * image_size + end;
+
+        double temp_result;
+
+        int x, y, loc;
+
+        int condition = image_size * image_size;
+
+        int color;
+
+        int red, green, blue;
+
+        double exp_x_antialiasing_size = Math.exp(x_antialiasing_size);
+        double exp_inv_x_antialiasing_size = 1 / exp_x_antialiasing_size;
+
+        double exp_x_antialiasing_size_x2 = exp_x_antialiasing_size * exp_x_antialiasing_size;
+        double exp_inv_x_antialiasing_size_x2 = 1 / exp_x_antialiasing_size_x2;
+
+        double antialiasing_x[] = {exp_inv_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size, exp_inv_x_antialiasing_size,
+            exp_inv_x_antialiasing_size, exp_x_antialiasing_size, 1, 1,
+            exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size_x2, 1, 1, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x2,
+            exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size, exp_inv_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x2};
+
+
+        double sin_y_antialiasing_size = Math.sin(y_antialiasing_size);
+        double cos_y_antialiasing_size = Math.cos(y_antialiasing_size);
+
+        double sin_inv_y_antialiasing_size = -sin_y_antialiasing_size;
+        double cos_inv_y_antialiasing_size = cos_y_antialiasing_size;
+
+        double sin_y_antialiasing_size_x2 = 2 * sin_y_antialiasing_size * cos_y_antialiasing_size;
+        double cos_y_antialiasing_size_x2 = 2 * cos_y_antialiasing_size * cos_y_antialiasing_size - 1;
+
+        double sin_inv_y_antialiasing_size_x2 = -sin_y_antialiasing_size_x2;
+        double cos_inv_y_antialiasing_size_x2 = cos_y_antialiasing_size_x2;
+
+
+        double antialiasing_y_sin[] = {sin_inv_y_antialiasing_size, sin_inv_y_antialiasing_size, sin_y_antialiasing_size, sin_y_antialiasing_size,
+            0, 0, sin_inv_y_antialiasing_size, sin_y_antialiasing_size,
+            sin_inv_y_antialiasing_size_x2, 0, sin_y_antialiasing_size_x2, sin_inv_y_antialiasing_size_x2, sin_y_antialiasing_size_x2, sin_inv_y_antialiasing_size_x2, 0, sin_y_antialiasing_size_x2,
+            sin_inv_y_antialiasing_size, sin_y_antialiasing_size, sin_inv_y_antialiasing_size_x2, sin_y_antialiasing_size_x2, sin_inv_y_antialiasing_size_x2, sin_y_antialiasing_size_x2, sin_inv_y_antialiasing_size, sin_y_antialiasing_size};
+
+
+        double antialiasing_y_cos[] = {cos_inv_y_antialiasing_size, cos_inv_y_antialiasing_size, cos_y_antialiasing_size, cos_y_antialiasing_size,
+            1, 1, cos_inv_y_antialiasing_size, cos_y_antialiasing_size,
+            cos_inv_y_antialiasing_size_x2, 1, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, 1, cos_y_antialiasing_size_x2,
+            cos_inv_y_antialiasing_size, cos_y_antialiasing_size, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size, cos_y_antialiasing_size};
+
+        double temp_samples = filters_options_vals[MainWindow.ANTIALIASING] + 1;
+
+        do {
+
+            loc = normal_drawing_algorithm_pixel.getAndIncrement();
+
+            if(loc >= condition) {
+                break;
+            }
+
+            x = loc % image_size;
+            y = loc / image_size;
+
+            f = y * muly;
+            sf = Math.sin(f);
+            cf = Math.cos(f);
+
+            r = Math.exp(x * mulx + start);
+
+            temp_result = image_iterations_fast_julia[loc] = fractal.calculateJulia(new Complex(xcenter + r * cf, ycenter + r * sf));
+            color = temp_result == max_iterations ? fractal_color : palette_color.getPaletteColor(temp_result + color_cycling_location);
+
+            red = (color >> 16) & 0xff;
+            green = (color >> 8) & 0xff;
+            blue = color & 0xff;
+
+            //Supersampling
+            for(int i = 0; i < filters_options_vals[MainWindow.ANTIALIASING]; i++) {
+
+                sf2 = sf * antialiasing_y_cos[i] + cf * antialiasing_y_sin[i];
+                cf2 = cf * antialiasing_y_cos[i] - sf * antialiasing_y_sin[i];
+
+                r2 = r * antialiasing_x[i];
+
+                temp_result = fractal.calculateJulia(new Complex(xcenter + r2 * cf2, ycenter + r2 * sf2));
+                color = temp_result == max_iterations ? fractal_color : palette_color.getPaletteColor(temp_result + color_cycling_location);
+
+                red += (color >> 16) & 0xff;
+                green += (color >> 8) & 0xff;
+                blue += color & 0xff;
+            }
+
+            rgbs[loc] = 0xff000000 | (((int)(red / temp_samples + 0.5)) << 16) | (((int)(green / temp_samples + 0.5)) << 8) | ((int)(blue / temp_samples + 0.5));
+
+        } while(true);
+    }
+
+    private void drawFastJuliaPolarAntialiasedBoundaryTracing(int image_size) {
+
+        double size = fractal.getSize();
+
+        double xcenter = fractal.getXCenter();
+        double ycenter = fractal.getYCenter();
+
+        double start;
+        double end = Math.log(size);
+
+        double f, sf, cf, r, r2, f2, sf2, cf2;
+        double muly = (2 * circle_period * Math.PI) / image_size;
+
+        double mulx = muly * height_ratio;
+
+        start = -mulx * image_size + end;
+
+        double temp_result;
+
+        final int dirRight = 0, dirUP = 3, maskDir = 3, culcColor = 0;// borderColor = 1;
+
+        double temp_x0, temp_y0;
+
+
+        int pix, y, x, curDir, curPix, startPix, startColor, nextColor, dir, Dir, nextPix, floodPix, floodColor;
+        int delPix[] = {1, image_size, -1, -image_size};
+
+        double nextX, nextY, start_val;
+
+        double sf3, cf3, r3;
+
+        int ix, iy, next_ix, next_iy, temp_ix, temp_iy, flood_ix;
+        int intX[] = {1, 0, -1, 0};
+        int intY[] = {0, 1, 0, -1};
+
+
+        double exp_x_antialiasing_size = Math.exp(x_antialiasing_size);
+        double exp_inv_x_antialiasing_size = 1 / exp_x_antialiasing_size;
+
+        double exp_x_antialiasing_size_x2 = exp_x_antialiasing_size * exp_x_antialiasing_size;
+        double exp_inv_x_antialiasing_size_x2 = 1 / exp_x_antialiasing_size_x2;
+
+        double antialiasing_x[] = {exp_inv_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size, exp_inv_x_antialiasing_size,
+            exp_inv_x_antialiasing_size, exp_x_antialiasing_size, 1, 1,
+            exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size_x2, 1, 1, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x2,
+            exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size, exp_inv_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x2};
+
+
+        double sin_y_antialiasing_size = Math.sin(y_antialiasing_size);
+        double cos_y_antialiasing_size = Math.cos(y_antialiasing_size);
+
+        double sin_inv_y_antialiasing_size = -sin_y_antialiasing_size;
+        double cos_inv_y_antialiasing_size = cos_y_antialiasing_size;
+
+        double sin_y_antialiasing_size_x2 = 2 * sin_y_antialiasing_size * cos_y_antialiasing_size;
+        double cos_y_antialiasing_size_x2 = 2 * cos_y_antialiasing_size * cos_y_antialiasing_size - 1;
+
+        double sin_inv_y_antialiasing_size_x2 = -sin_y_antialiasing_size_x2;
+        double cos_inv_y_antialiasing_size_x2 = cos_y_antialiasing_size_x2;
+
+
+        double antialiasing_y_sin[] = {sin_inv_y_antialiasing_size, sin_inv_y_antialiasing_size, sin_y_antialiasing_size, sin_y_antialiasing_size,
+            0, 0, sin_inv_y_antialiasing_size, sin_y_antialiasing_size,
+            sin_inv_y_antialiasing_size_x2, 0, sin_y_antialiasing_size_x2, sin_inv_y_antialiasing_size_x2, sin_y_antialiasing_size_x2, sin_inv_y_antialiasing_size_x2, 0, sin_y_antialiasing_size_x2,
+            sin_inv_y_antialiasing_size, sin_y_antialiasing_size, sin_inv_y_antialiasing_size_x2, sin_y_antialiasing_size_x2, sin_inv_y_antialiasing_size_x2, sin_y_antialiasing_size_x2, sin_inv_y_antialiasing_size, sin_y_antialiasing_size};
+
+
+        double antialiasing_y_cos[] = {cos_inv_y_antialiasing_size, cos_inv_y_antialiasing_size, cos_y_antialiasing_size, cos_y_antialiasing_size,
+            1, 1, cos_inv_y_antialiasing_size, cos_y_antialiasing_size,
+            cos_inv_y_antialiasing_size_x2, 1, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, 1, cos_y_antialiasing_size_x2,
+            cos_inv_y_antialiasing_size, cos_y_antialiasing_size, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size, cos_y_antialiasing_size};
+
+
+        double temp_samples = filters_options_vals[MainWindow.ANTIALIASING] + 1;
+
+        int red, green, blue, color;
+
+        for(y = FROMy; y < TOy; y++) {
+
+            f = y * muly;
+            sf = Math.sin(f);
+            cf = Math.cos(f);
+
+            for(x = FROMx, pix = y * image_size + x; x < TOx; x++, pix++) {
+
+                if(rgbs[pix] == culcColor) {
+
+                    r = Math.exp(x * mulx + start);
+
+                    temp_x0 = xcenter + r * cf;
+                    temp_y0 = ycenter + r * sf;
+
+                    curPix = startPix = pix;
+                    curDir = dirRight;
+                    ix = x;
+                    iy = y;
+
+                    start_val = image_iterations_fast_julia[pix] = fractal.calculateJulia(new Complex(temp_x0, temp_y0));
+                    color = start_val == max_iterations ? fractal_color : palette_color.getPaletteColor(start_val + color_cycling_location);
+
+                    red = (color >> 16) & 0xff;
+                    green = (color >> 8) & 0xff;
+                    blue = color & 0xff;
+
+                    //Supersampling
+                    for(int i = 0; i < filters_options_vals[MainWindow.ANTIALIASING]; i++) {
+
+                        sf3 = sf * antialiasing_y_cos[i] + cf * antialiasing_y_sin[i];
+                        cf3 = cf * antialiasing_y_cos[i] - sf * antialiasing_y_sin[i];
+
+                        r3 = r * antialiasing_x[i];
+
+                        temp_x0 = xcenter + r3 * cf3;
+                        temp_y0 = ycenter + r3 * sf3;
+
+                        temp_result = fractal.calculateJulia(new Complex(temp_x0, temp_y0));
+                        color = temp_result == max_iterations ? fractal_color : palette_color.getPaletteColor(temp_result + color_cycling_location);
+
+                        red += (color >> 16) & 0xff;
+                        green += (color >> 8) & 0xff;
+                        blue += color & 0xff;
+                    }
+
+                    startColor = rgbs[pix] = 0xff000000 | (((int)(red / temp_samples + 0.5)) << 16) | (((int)(green / temp_samples + 0.5)) << 8) | ((int)(blue / temp_samples + 0.5));
+
+
+                    while(iy - 1 >= FROMy && rgbs[startPix - image_size] == startColor) {   // looking for boundary
+                        curPix = startPix = startPix - image_size;
+                        iy--;
+                    }
+
+                    temp_ix = ix;
+                    temp_iy = iy;
+
+                    do {                                            // tracing cycle
+                        for(Dir = curDir + 3; Dir < curDir + 7; Dir++) {
+                            dir = Dir & maskDir;
+                            nextPix = curPix + delPix[dir];
+
+                            next_ix = temp_ix + intX[dir];
+                            next_iy = temp_iy + intY[dir];
+
+                            f2 = next_iy * muly;
+                            sf2 = Math.sin(f2);
+                            cf2 = Math.cos(f2);
+
+                            r2 = Math.exp(next_ix * mulx + start);
+
+                            nextX = xcenter + r2 * cf2;
+                            nextY = ycenter + r2 * sf2;
+
+                            if(!(next_ix >= FROMx && next_ix < TOx && next_iy >= FROMy && next_iy < TOy)) {
+                                continue;
+                            }
+
+                            if((nextColor = rgbs[nextPix]) == culcColor) {
+                                temp_result = image_iterations_fast_julia[nextPix] = fractal.calculateJulia(new Complex(nextX, nextY));
+                                color = temp_result == max_iterations ? fractal_color : palette_color.getPaletteColor(temp_result + color_cycling_location);
+
+                                red = (color >> 16) & 0xff;
+                                green = (color >> 8) & 0xff;
+                                blue = color & 0xff;
+
+                                //Supersampling
+                                for(int i = 0; i < filters_options_vals[MainWindow.ANTIALIASING]; i++) {
+
+                                    sf3 = sf2 * antialiasing_y_cos[i] + cf2 * antialiasing_y_sin[i];
+                                    cf3 = cf2 * antialiasing_y_cos[i] - sf2 * antialiasing_y_sin[i];
+
+                                    r3 = r2 * antialiasing_x[i];
+
+                                    nextX = xcenter + r3 * cf3;
+                                    nextY = ycenter + r3 * sf3;
+
+                                    temp_result = fractal.calculateJulia(new Complex(nextX, nextY));
+                                    color = temp_result == max_iterations ? fractal_color : palette_color.getPaletteColor(temp_result + color_cycling_location);
+
+                                    red += (color >> 16) & 0xff;
+                                    green += (color >> 8) & 0xff;
+                                    blue += color & 0xff;
+                                }
+
+                                nextColor = rgbs[nextPix] = 0xff000000 | (((int)(red / temp_samples + 0.5)) << 16) | (((int)(green / temp_samples + 0.5)) << 8) | ((int)(blue / temp_samples + 0.5));
+                            }
+
+
+                            if(nextColor == startColor) {
+                                curDir = dir;
+                                curPix = nextPix;
+                                temp_ix = next_ix;
+                                temp_iy = next_iy;
+                                break;
+                            }
+                        }
+                    } while(curPix != startPix);
+
+
+                    curDir = dirRight;
+
+
+                    do {                                                 // 2nd cycle
+                        for(Dir = curDir + 3; Dir < curDir + 7; Dir++) {
+                            dir = Dir & maskDir;
+                            nextPix = curPix + delPix[dir];
+
+                            next_ix = temp_ix + intX[dir];
+                            next_iy = temp_iy + intY[dir];
+
+
+                            if(!(next_ix >= FROMx && next_ix < TOx && next_iy >= FROMy && next_iy < TOy)) {
+                                continue;
+                            }
+
+                            if(rgbs[nextPix] == startColor) {           // flooding  
+                                curDir = dir;
+                                if(dir == dirUP) {
+                                    floodPix = curPix;
+                                    flood_ix = temp_ix;
+
+                                    while(true) {
+                                        flood_ix++;
+
+                                        if(flood_ix >= TOx) {
+                                            break;
+                                        }
+
+                                        floodPix++;
+
+                                        if((floodColor = rgbs[floodPix]) == culcColor) {
+                                            rgbs[floodPix] = startColor;
+                                            image_iterations_fast_julia[floodPix] = start_val;
+                                        }
+                                        else if(floodColor != startColor) {
+                                            break;
+                                        }
+
+                                    }
+                                }
+
+                                curPix = nextPix;
+                                temp_ix = next_ix;
+                                temp_iy = next_iy;
+                                break;
+                            }
+                        }
+                    } while(curPix != startPix);
+                }
+            }
+        }
+
+    }
+
     //1 Thread
     private void colorCycling() {
 
@@ -4804,13 +8649,16 @@ public abstract class ThreadDraw extends Thread {
             rgbs[loc] = temp_result == max_iterations ? fractal_color : palette_color.getPaletteColor(temp_result + color_cycling_location);
         }
 
+        if(bump_map) {
+            applyBumpmapping(image_size);
+        }
 
         ptr.setWholeImageDone(true);
 
         ptr.getMainPanel().repaint();
 
         try {
-            Thread.sleep(200);
+            Thread.sleep(175);
         }
         catch(InterruptedException ex) {
         }
@@ -5122,6 +8970,17 @@ public abstract class ThreadDraw extends Thread {
 
         }
 
+        if(bump_map) {
+            int sync2 = synchronization2.incrementAndGet();
+
+            while(sync2 != ptr.getNumberOfThreads()) {
+                yield();
+                sync2 = synchronization2.get();
+            }
+
+            applyBumpmapping(image_size);
+        }
+
     }
 
     private void drawJuliaMap() {
@@ -5129,12 +8988,119 @@ public abstract class ThreadDraw extends Thread {
         int image_size = image.getHeight();
 
 
-        if(filters[MainWindow.ANTIALIASING]) {
-            juliaMapAntialiased(image_size);
+        if(bump_map) {
+            if(filters[MainWindow.ANTIALIASING]) {
+                juliaMapAntialiasedBumpmap(image_size);
+            }
+            else {
+                juliaMapBumpmap(image_size);
+            }
         }
         else {
-            juliaMap(image_size);
+            if(filters[MainWindow.ANTIALIASING]) {
+                juliaMapAntialiased(image_size);
+            }
+            else {
+                juliaMap(image_size);
+            }
         }
+
+
+
+        if(drawing_done != 0) {
+            update(drawing_done);
+        }
+
+        int done = synchronization.incrementAndGet();
+
+        if(done == ptr.getJuliaMapSlices()) {
+
+            if(filters[MainWindow.HISTOGRAM_EQUALIZATION]) {
+                histogramEqualization();
+            }
+
+            if(filters[MainWindow.COLOR_CHANNEL_SWAPPING]) {
+                filterColorChannelSwapping();
+            }
+
+            if(filters[MainWindow.INVERT_COLORS]) {
+                filterInvertColors();
+            }
+
+            if(filters[MainWindow.COLOR_CHANNEL_MIXING]) {
+                filterColorChannelMixing();
+            }
+
+            if(filters[MainWindow.COLOR_CHANNEL_MASKING]) {
+                filterMaskColors();
+            }
+
+            if(filters[MainWindow.COLOR_TEMPERATURE]) {
+                filterColorTemperature();
+            }
+
+            if(filters[MainWindow.CONTRAST_BRIGHTNESS]) {
+                filterContrastBrightness();
+            }
+
+            if(filters[MainWindow.GRAYSCALE]) {
+                filterGrayscale();
+            }
+
+            if(filters[MainWindow.EDGE_DETECTION]) {
+                filterEdgeDetection();
+            }
+
+            if(filters[MainWindow.SHARPNESS]) {
+                filterSharpness();
+            }
+
+            if(filters[MainWindow.EMBOSS]) {
+                filterEmboss();
+            }
+
+            if(filters[MainWindow.FADE_OUT]) {
+                filterFadeOut();
+            }
+
+            if(filters[MainWindow.BLURRING]) {
+                filterBlurring();
+            }
+
+
+            ptr.updateValues("Julia Map mode");
+            ptr.setOptions(true);
+            ptr.setWholeImageDone(true);
+            ptr.reloadTitle();
+            ptr.getMainPanel().repaint();
+            ptr.getProgressBar().setValue((image_size * image_size) + (image_size * image_size / 100));
+            ptr.getProgressBar().setToolTipText("Elapsed Time: " + (System.currentTimeMillis() - ptr.getCalculationTime()) + " ms");
+        }
+
+    }
+
+    private void drawJuliaMapPolar() {
+
+        int image_size = image.getHeight();
+
+
+        if(bump_map) {
+            if(filters[MainWindow.ANTIALIASING]) {
+                juliaMapPolarAntialiasedBumpmap(image_size);
+            }
+            else {
+                juliaMapPolarBumpmap(image_size);
+            }
+        }
+        else {
+            if(filters[MainWindow.ANTIALIASING]) {
+                juliaMapPolarAntialiased(image_size);
+            }
+            else {
+                juliaMapPolar(image_size);
+            }
+        }
+
 
 
         if(drawing_done != 0) {
@@ -5249,6 +9215,51 @@ public abstract class ThreadDraw extends Thread {
 
     }
 
+    private void juliaMapPolar(int image_size) {
+
+        double size = fractal.getSize();
+
+        double xcenter = fractal.getXCenter();
+        double ycenter = fractal.getYCenter();
+
+        double start;
+        double end = Math.log(size);
+
+        int pixel_percent = image_size * image_size / 100;
+
+        double f, sf, cf, r;
+        double muly = (2 * circle_period * Math.PI) / (TOx - FROMx);
+
+        double mulx = muly * height_ratio;
+
+        start = -mulx * (TOx - FROMx) + end;
+
+        double temp_result;
+
+        for(int y = FROMy, y1 = 0; y < TOy; y++, y1++) {
+            f = y1 * muly;
+            sf = Math.sin(f);
+            cf = Math.cos(f);
+            for(int x = FROMx, x1 = 0, loc = y * image_size + x; x < TOx; x++, loc++, x1++) {
+
+                r = Math.exp(x1 * mulx + start);
+
+                temp_result = image_iterations[loc] = fractal.calculateJulia(new Complex(xcenter + r * cf, ycenter + r * sf));
+                rgbs[loc] = temp_result == max_iterations ? fractal_color : palette_color.getPaletteColor(temp_result + color_cycling_location);
+
+                drawing_done++;
+
+            }
+
+            if(drawing_done / pixel_percent >= 1) {
+                update(drawing_done);
+                drawing_done = 0;
+            }
+
+        }
+
+    }
+
     private void juliaMapAntialiased(int image_size) {
 
         double size = fractal.getSize();
@@ -5318,44 +9329,209 @@ public abstract class ThreadDraw extends Thread {
         }
 
     }
-    
-    /*
-     visualize_planes
-     * 
-     * double size = 6;
+
+    private void juliaMapPolarAntialiased(int image_size) {
+
+        double size = fractal.getSize();
+
+        double xcenter = fractal.getXCenter();
+        double ycenter = fractal.getYCenter();
+
+        double start;
+        double end = Math.log(size);
+
+        int pixel_percent = image_size * image_size / 100;
+
+        double f, sf, cf, r, cf2, sf2, r2;
+        double muly = (2 * circle_period * Math.PI) / (TOx - FROMx);
+
+        double mulx = muly * height_ratio;
+
+        start = -mulx * (TOx - FROMx) + end;
+
+        double temp_result;
+
+        int color;
+
+        int red, green, blue;
+
+        double exp_x_antialiasing_size = Math.exp(x_antialiasing_size);
+        double exp_inv_x_antialiasing_size = 1 / exp_x_antialiasing_size;
+
+        double exp_x_antialiasing_size_x2 = exp_x_antialiasing_size * exp_x_antialiasing_size;
+        double exp_inv_x_antialiasing_size_x2 = 1 / exp_x_antialiasing_size_x2;
+
+        double antialiasing_x[] = {exp_inv_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size, exp_inv_x_antialiasing_size,
+            exp_inv_x_antialiasing_size, exp_x_antialiasing_size, 1, 1,
+            exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size_x2, 1, 1, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x2,
+            exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size_x2, exp_inv_x_antialiasing_size, exp_inv_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size, exp_x_antialiasing_size_x2, exp_x_antialiasing_size_x2};
 
 
-        double size_2 = size * 0.5;
-        double temp_xcenter_size = 0 - size_2;
-        double temp_ycenter_size = 0 - size_2;
-        
-        //double temp_size_image_size = size / image_size;
+        double sin_y_antialiasing_size = Math.sin(y_antialiasing_size);
+        double cos_y_antialiasing_size = Math.cos(y_antialiasing_size);
 
-        double temp_size_image_size = size / (0.6 * image_size);
-        int d = (int)(image_size * 0.2);
+        double sin_inv_y_antialiasing_size = -sin_y_antialiasing_size;
+        double cos_inv_y_antialiasing_size = cos_y_antialiasing_size;
 
-        for(int x = FROMx; x < TOx; x++) {
-            for(int y = FROMy; y < TOy; y++) {
+        double sin_y_antialiasing_size_x2 = 2 * sin_y_antialiasing_size * cos_y_antialiasing_size;
+        double cos_y_antialiasing_size_x2 = 2 * cos_y_antialiasing_size * cos_y_antialiasing_size - 1;
 
-                if(x >= 0.20 * image_size && x < 0.80 * image_size && y >= 0.20 * image_size && y < 0.80 * image_size) {
-                    int new_x = x - d;
-                    int new_y = y - d;
+        double sin_inv_y_antialiasing_size_x2 = -sin_y_antialiasing_size_x2;
+        double cos_inv_y_antialiasing_size_x2 = cos_y_antialiasing_size_x2;
 
-                    Complex new_complex = fractal.getTransformedNumber(new Complex(temp_xcenter_size + new_x * temp_size_image_size, temp_ycenter_size + new_y * temp_size_image_size));
 
-                    int x0 = (int)((new_complex.getRe() - temp_xcenter_size) / temp_size_image_size + 0.5);
-                    int y0 = (int)((new_complex.getIm() - temp_ycenter_size) / temp_size_image_size + 0.5);
+        double antialiasing_y_sin[] = {sin_inv_y_antialiasing_size, sin_inv_y_antialiasing_size, sin_y_antialiasing_size, sin_y_antialiasing_size,
+            0, 0, sin_inv_y_antialiasing_size, sin_y_antialiasing_size,
+            sin_inv_y_antialiasing_size_x2, 0, sin_y_antialiasing_size_x2, sin_inv_y_antialiasing_size_x2, sin_y_antialiasing_size_x2, sin_inv_y_antialiasing_size_x2, 0, sin_y_antialiasing_size_x2,
+            sin_inv_y_antialiasing_size, sin_y_antialiasing_size, sin_inv_y_antialiasing_size_x2, sin_y_antialiasing_size_x2, sin_inv_y_antialiasing_size_x2, sin_y_antialiasing_size_x2, sin_inv_y_antialiasing_size, sin_y_antialiasing_size};
 
-                    if((x0 + d) >= 0 && (x0 + d) < image_size && (y0 + d) >= 0 && (y0 + d) < image_size) {
-                        rgbs[(y0 + d) * image_size + (x0 + d)] = fractal_color;
-                    }
-  
+
+        double antialiasing_y_cos[] = {cos_inv_y_antialiasing_size, cos_inv_y_antialiasing_size, cos_y_antialiasing_size, cos_y_antialiasing_size,
+            1, 1, cos_inv_y_antialiasing_size, cos_y_antialiasing_size,
+            cos_inv_y_antialiasing_size_x2, 1, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, 1, cos_y_antialiasing_size_x2,
+            cos_inv_y_antialiasing_size, cos_y_antialiasing_size, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size, cos_y_antialiasing_size};
+
+        double temp_samples = filters_options_vals[MainWindow.ANTIALIASING] + 1;
+
+        for(int y = FROMy, y1 = 0; y < TOy; y++, y1++) {
+            f = y1 * muly;
+            sf = Math.sin(f);
+            cf = Math.cos(f);
+            for(int x = FROMx, x1 = 0, loc = y * image_size + x; x < TOx; x++, loc++, x1++) {
+                r = Math.exp(x1 * mulx + start);
+
+                temp_result = image_iterations[loc] = fractal.calculateJulia(new Complex(xcenter + r * cf, ycenter + r * sf));
+                color = temp_result == max_iterations ? fractal_color : palette_color.getPaletteColor(temp_result + color_cycling_location);
+
+                red = (color >> 16) & 0xff;
+                green = (color >> 8) & 0xff;
+                blue = color & 0xff;
+
+                //Supersampling
+                for(int i = 0; i < filters_options_vals[MainWindow.ANTIALIASING]; i++) {
+                    sf2 = sf * antialiasing_y_cos[i] + cf * antialiasing_y_sin[i];
+                    cf2 = cf * antialiasing_y_cos[i] - sf * antialiasing_y_sin[i];
+
+                    r2 = r * antialiasing_x[i];
+
+                    temp_result = fractal.calculateJulia(new Complex(xcenter + r2 * cf2, ycenter + r2 * sf2));
+                    color = temp_result == max_iterations ? fractal_color : palette_color.getPaletteColor(temp_result + color_cycling_location);
+
+                    red += (color >> 16) & 0xff;
+                    green += (color >> 8) & 0xff;
+                    blue += color & 0xff;
                 }
+
+                rgbs[loc] = 0xff000000 | (((int)(red / temp_samples + 0.5)) << 16) | (((int)(green / temp_samples + 0.5)) << 8) | ((int)(blue / temp_samples + 0.5));
+
+                drawing_done++;
             }
+
+            if(drawing_done / pixel_percent >= 1) {
+                update(drawing_done);
+                drawing_done = 0;
+            }
+
         }
 
-     */
+    }
 
+    private void juliaMapBumpmap(int image_size) {
+
+        juliaMap(image_size);
+
+        int sync2 = synchronization2.incrementAndGet();
+
+        while(sync2 != ptr.getJuliaMapSlices()) {
+            yield();
+            sync2 = synchronization2.get();
+        }
+
+        applyBumpmapping(image_size);
+
+    }
+
+    private void juliaMapAntialiasedBumpmap(int image_size) {
+
+        juliaMapAntialiased(image_size);
+
+        int sync2 = synchronization2.incrementAndGet();
+
+        while(sync2 != ptr.getJuliaMapSlices()) {
+            yield();
+            sync2 = synchronization2.get();
+        }
+
+        applyBumpmapping(image_size);
+
+    }
+    
+    private void juliaMapPolarBumpmap(int image_size) {
+
+        juliaMapPolar(image_size);
+
+        int sync2 = synchronization2.incrementAndGet();
+
+        while(sync2 != ptr.getJuliaMapSlices()) {
+            yield();
+            sync2 = synchronization2.get();
+        }
+
+        applyBumpmapping(image_size);
+
+    }
+
+    private void juliaMapPolarAntialiasedBumpmap(int image_size) {
+
+        juliaMapPolarAntialiased(image_size);
+
+        int sync2 = synchronization2.incrementAndGet();
+
+        while(sync2 != ptr.getJuliaMapSlices()) {
+            yield();
+            sync2 = synchronization2.get();
+        }
+
+        applyBumpmapping(image_size);
+
+    }
+
+    /*
+    visualize_planes
+     * 
+     * double size = 6;
+    
+    
+    double size_2 = size * 0.5;
+    double temp_xcenter_size = 0 - size_2;
+    double temp_ycenter_size = 0 - size_2;
+    
+    //double temp_size_image_size = size / image_size;
+    
+    double temp_size_image_size = size / (0.6 * image_size);
+    int d = (int)(image_size * 0.2);
+    
+    for(int x = FROMx; x < TOx; x++) {
+    for(int y = FROMy; y < TOy; y++) {
+    
+    if(x >= 0.20 * image_size && x < 0.80 * image_size && y >= 0.20 * image_size && y < 0.80 * image_size) {
+    int new_x = x - d;
+    int new_y = y - d;
+    
+    Complex new_complex = fractal.getTransformedNumber(new Complex(temp_xcenter_size + new_x * temp_size_image_size, temp_ycenter_size + new_y * temp_size_image_size));
+    
+    int x0 = (int)((new_complex.getRe() - temp_xcenter_size) / temp_size_image_size + 0.5);
+    int y0 = (int)((new_complex.getIm() - temp_ycenter_size) / temp_size_image_size + 0.5);
+    
+    if((x0 + d) >= 0 && (x0 + d) < image_size && (y0 + d) >= 0 && (y0 + d) < image_size) {
+    rgbs[(y0 + d) * image_size + (x0 + d)] = fractal_color;
+    }
+    
+    }
+    }
+    }
+    
+     */
     public void update(int new_percent) {
 
         ptr.getProgressBar().setValue(ptr.getProgressBar().getValue() + new_percent);
@@ -5933,8 +10109,8 @@ public abstract class ThreadDraw extends Thread {
             double temp = ((double)(cdf[(int)(res[2] * 100000 + 0.5)] - min)) / d;
 
             raster[p] = Color.HSBtoRGB(res[0], res[1], (float)(temp < 0 ? 0 : temp));
-            
-             
+
+
         }
 
     }
@@ -5971,6 +10147,60 @@ public abstract class ThreadDraw extends Thread {
 
     }
 
+    private double getGradientX(double[] image_iterations, int index, int size) {
+        final int x = index % size;
+        final double it = image_iterations[index];
+        if(x == 0) {
+            return (image_iterations[index + 1] - it) * 2;
+        }
+        else if(x == size - 1) {
+            return (it - image_iterations[index - 1]) * 2;
+        }
+        else {
+            final double diffL = it - image_iterations[index - 1];
+            final double diffR = it - image_iterations[index + 1];
+            return diffL * diffR >= 0 ? 0 : diffL - diffR;
+        }
+    }
+
+    private double getGradientY(double[] image_iterations, int index, int size) {
+        final int y = index / size;
+        final double it = image_iterations[index];
+        if(y == 0) {
+            return (it - image_iterations[index + size]) * 2;
+        }
+        else if(y == size - 1) {
+            return (image_iterations[index - size] - it) * 2;
+        }
+        else {
+            final double diffU = it - image_iterations[index - size];
+            final double diffD = it - image_iterations[index + size];
+            return diffD * diffU >= 0 ? 0 : diffD - diffU;
+        }
+    }
+
+    private int changeBrightnessOfColor(int rgb, double delta) {
+        if(delta > 0) {
+            rgb ^= 0xFFFFFF;
+            int r = rgb & 0xFF0000;
+            int g = rgb & 0x00FF00;
+            int b = rgb & 0x0000FF;
+            double mul = (1.5 / (delta + 1.5));
+            final int ret = (int)(r * mul + 0.5) & 0xFF0000 | (int)(g * mul + 0.5) & 0x00FF00 | (int)(b * mul + 0.5);
+            return 0xff000000 | (ret ^ 0xFFFFFF);
+        }
+        else {
+            int r = rgb & 0xFF0000;
+            int g = rgb & 0x00FF00;
+            int b = rgb & 0x0000FF;
+            double mul = (1.5 / (-delta + 1.5));
+            //	float mul = (float) (Math.atan(-Math.abs(delta))*0.63662+1);
+//			float mul = (float) Math.pow(2, -Math.abs(delta));
+            final int ret = 0xff000000 | (int)(r * mul + 0.5) & 0xFF0000 | (int)(g * mul + 0.5) & 0x00FF00 | (int)(b * mul + 0.5);
+            return ret;
+        }
+    }
+
     public void setColorCycling(boolean temp) {
 
         color_cycling = temp;
@@ -6002,12 +10232,14 @@ public abstract class ThreadDraw extends Thread {
         Norm = null;
         Norm1z = null;
         image_iterations = new double[image_size * image_size];
+        image_iterations_fast_julia = new double[MainWindow.FAST_JULIA_IMAGE_SIZE * MainWindow.FAST_JULIA_IMAGE_SIZE];
 
     }
 
     public static void set3DArrays(int detail) {
 
         image_iterations = null;
+        image_iterations_fast_julia = null;
         vert = new float[detail][detail][4];
         vert1 = new float[detail][detail][2];
         Norm = new float[detail][detail][2][3];

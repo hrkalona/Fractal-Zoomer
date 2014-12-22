@@ -10,23 +10,44 @@ import fractalzoomer.core.Complex;
  *
  * @author hrkalona2
  */
-public class SmoothBinaryDecomposition2RootFindingMethod extends SmoothBinaryDecomposition {
-  protected double log_convergent_bailout;
+public class SmoothBinaryDecomposition2RootFindingMethod extends OutColorAlgorithm {
 
-    public SmoothBinaryDecomposition2RootFindingMethod(double log_convergent_bailout) {
+    protected double log_convergent_bailout;
+    protected int algorithm;
 
-        super(0);
+    public SmoothBinaryDecomposition2RootFindingMethod(double log_convergent_bailout, int algorithm) {
+
+        super();
         this.log_convergent_bailout = log_convergent_bailout;
+        this.algorithm = algorithm;
 
     }
 
     @Override
     public double getResult(Object[] object) {
 
-        double temp = Math.log(((Complex)object[3]).distance_squared((Complex)object[4]));
-        double temp3 = (Integer)object[0] + (log_convergent_bailout - temp) / (Math.log((Double)object[2]) - temp);  
-        
-        return ((Complex)object[1]).getRe() < 0 ? temp3 + 100850 : temp3 + 100800;
+        if(algorithm == 0) {
+            double temp = Math.log(((Complex)object[3]).distance_squared((Complex)object[4]));
+            double temp3 = (Integer)object[0] + (log_convergent_bailout - temp) / (Math.log((Double)object[2]) - temp);
+
+            return ((Complex)object[1]).getRe() < 0 ? temp3 + 100850 : temp3 + 100800;
+        }
+        else {
+            double temp4 = Math.log(((Double)object[2]) + 1e-33);
+
+            double power = temp4 / Math.log(((Complex)object[3]).distance_squared(((Complex)object[4])));
+
+            double temp3 = (Integer)object[0] + Math.log(log_convergent_bailout / temp4) / Math.log(power);
+            
+            return ((Complex)object[1]).getRe() < 0 ? temp3 + 100850 : temp3 + 100800;
+        }
+
+    }
+
+    @Override
+    public double getResult3D(Object[] object) {
+
+        return getResult(object);
 
     }
 }

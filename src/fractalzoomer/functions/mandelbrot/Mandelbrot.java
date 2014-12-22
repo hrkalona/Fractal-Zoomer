@@ -66,7 +66,7 @@ public class Mandelbrot extends Julia {
     private double limit;
     private double atom_factor;
 
-    public Mandelbrot(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean init_value, double[] initial_vals, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, String user_plane, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double [] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, boolean exterior_de, double exterior_de_factor) {
+    public Mandelbrot(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean init_value, double[] initial_vals, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, String user_plane, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double [] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, boolean exterior_de, double exterior_de_factor, int escaping_smooth_algorithm) {
 
         super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
 
@@ -107,7 +107,7 @@ public class Mandelbrot extends Julia {
                     out_color_algorithm = new EscapeTime();
                 }
                 else {
-                    out_color_algorithm = new SmoothEscapeTime(Math.log(bailout_squared));
+                    out_color_algorithm = new SmoothEscapeTime(Math.log(bailout_squared), escaping_smooth_algorithm);
                 }
                 break;
             case MainWindow.BINARY_DECOMPOSITION:
@@ -115,7 +115,7 @@ public class Mandelbrot extends Julia {
                     out_color_algorithm = new BinaryDecomposition();
                 }
                 else {
-                    out_color_algorithm = new SmoothBinaryDecomposition(Math.log(bailout_squared));
+                    out_color_algorithm = new SmoothBinaryDecomposition(Math.log(bailout_squared), escaping_smooth_algorithm);
                 }
                 break;
             case MainWindow.BINARY_DECOMPOSITION2:
@@ -123,7 +123,7 @@ public class Mandelbrot extends Julia {
                     out_color_algorithm = new BinaryDecomposition2();
                 }
                 else {
-                    out_color_algorithm = new SmoothBinaryDecomposition2(Math.log(bailout_squared));
+                    out_color_algorithm = new SmoothBinaryDecomposition2(Math.log(bailout_squared), escaping_smooth_algorithm);
                 }
                 break;
             case MainWindow.ITERATIONS_PLUS_RE:
@@ -143,7 +143,7 @@ public class Mandelbrot extends Julia {
                     out_color_algorithm = new Biomorphs(bailout);
                 }
                 else {
-                    out_color_algorithm = new SmoothBiomorphs(Math.log(bailout_squared), bailout);
+                    out_color_algorithm = new SmoothBiomorphs(Math.log(bailout_squared), bailout, escaping_smooth_algorithm);
                 }
                 break;
             case MainWindow.COLOR_DECOMPOSITION:
@@ -185,7 +185,7 @@ public class Mandelbrot extends Julia {
                     out_color_algorithm = new EscapeTimeGrid(Math.log(bailout_squared));
                 }
                 else {
-                    out_color_algorithm = new SmoothEscapeTimeGrid(Math.log(bailout_squared));
+                    out_color_algorithm = new SmoothEscapeTimeGrid(Math.log(bailout_squared), escaping_smooth_algorithm);
                 }
                 break;
             case MainWindow.ATOM_DOMAIN:
@@ -241,7 +241,7 @@ public class Mandelbrot extends Julia {
 
     }
 
-    public Mandelbrot(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, String user_plane, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double [] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, boolean exterior_de, double exterior_de_factor, double xJuliaCenter, double yJuliaCenter) {
+    public Mandelbrot(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, String user_plane, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double [] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, boolean exterior_de, double exterior_de_factor, int escaping_smooth_algorithm, double xJuliaCenter, double yJuliaCenter) {
 
         super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
 
@@ -268,7 +268,7 @@ public class Mandelbrot extends Julia {
                     out_color_algorithm = new EscapeTime();
                 }
                 else {
-                    out_color_algorithm = new SmoothEscapeTime(Math.log(bailout_squared));
+                    out_color_algorithm = new SmoothEscapeTime(Math.log(bailout_squared), escaping_smooth_algorithm);
                 }
                 break;
             case MainWindow.BINARY_DECOMPOSITION:
@@ -276,7 +276,7 @@ public class Mandelbrot extends Julia {
                     out_color_algorithm = new BinaryDecomposition();
                 }
                 else {
-                    out_color_algorithm = new SmoothBinaryDecomposition(Math.log(bailout_squared));
+                    out_color_algorithm = new SmoothBinaryDecomposition(Math.log(bailout_squared), escaping_smooth_algorithm);
                 }
                 break;
             case MainWindow.BINARY_DECOMPOSITION2:
@@ -284,7 +284,7 @@ public class Mandelbrot extends Julia {
                     out_color_algorithm = new BinaryDecomposition2();
                 }
                 else {
-                    out_color_algorithm = new SmoothBinaryDecomposition2(Math.log(bailout_squared));
+                    out_color_algorithm = new SmoothBinaryDecomposition2(Math.log(bailout_squared), escaping_smooth_algorithm);
                 }
                 break;
             case MainWindow.ITERATIONS_PLUS_RE:
@@ -304,7 +304,7 @@ public class Mandelbrot extends Julia {
                     out_color_algorithm = new Biomorphs(bailout);
                 }
                 else {
-                    out_color_algorithm = new SmoothBiomorphs(Math.log(bailout_squared), bailout);
+                    out_color_algorithm = new SmoothBiomorphs(Math.log(bailout_squared), bailout, escaping_smooth_algorithm);
                 }
                 break;
             case MainWindow.COLOR_DECOMPOSITION:
@@ -346,7 +346,7 @@ public class Mandelbrot extends Julia {
                     out_color_algorithm = new EscapeTimeGrid(Math.log(bailout_squared));
                 }
                 else {
-                    out_color_algorithm = new SmoothEscapeTimeGrid(Math.log(bailout_squared));
+                    out_color_algorithm = new SmoothEscapeTimeGrid(Math.log(bailout_squared), escaping_smooth_algorithm);
                 }
                 break;
             case MainWindow.ATOM_DOMAIN:

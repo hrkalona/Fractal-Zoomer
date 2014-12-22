@@ -21,7 +21,7 @@ public abstract class RootFindingMethods extends Fractal {
 
         super(xCenter, yCenter, size, max_iterations, 0, 0, 0, false, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
 
-        convergent_bailout = 1E-12;
+        convergent_bailout = 1E-11;
 
     }
 

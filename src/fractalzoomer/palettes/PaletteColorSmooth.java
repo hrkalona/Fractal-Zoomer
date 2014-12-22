@@ -11,9 +11,9 @@ package fractalzoomer.palettes;
  */
 public class PaletteColorSmooth extends PaletteColor {
   
-    public PaletteColorSmooth(int[] palette) {
+    public PaletteColorSmooth(int[] palette, double color_intensity) {
       
-        super(palette);
+        super(palette, color_intensity);
   
     }
   
@@ -21,8 +21,8 @@ public class PaletteColorSmooth extends PaletteColor {
     @Override
     public int getPaletteColor(double result) {
       
-        result *= 256;
-        int temp = (int)result / 256 + mod_offset;
+        result *= 256 * color_intensity;
+        int temp = ((int)(result / 256 + mod_offset * color_intensity));
         
         int color = getColor(temp);
         int color2 = getColor(temp - 1);

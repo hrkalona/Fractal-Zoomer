@@ -157,22 +157,57 @@ public class DrawOrbit extends Thread {
     protected int image_size;
     protected Color orbit_color;
     protected double height_ratio;
+    protected boolean polar_projection;
+    protected double circle_period;
+    protected int pixel_x;
+    protected int pixel_y;
 
-    public DrawOrbit(double xCenter, double yCenter, double size, int max_iterations, int pixel_x, int pixel_y, int image_size, BufferedImage image, MainWindow ptr, Color orbit_color, boolean orbit_style, int plane_type, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, boolean grid, boolean boundaries, int function, double z_exponent, double[] z_exponent_complex, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean init_val, double[] initial_vals, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount) {
+    public DrawOrbit(double xCenter, double yCenter, double size, int max_iterations, int pixel_x, int pixel_y, int image_size, BufferedImage image, MainWindow ptr, Color orbit_color, boolean orbit_style, int plane_type, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, boolean grid, boolean boundaries, int function, double z_exponent, double[] z_exponent_complex, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean init_val, double[] initial_vals, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, boolean polar_projection, double circle_period) {
 
         this.image_size = image_size;
         this.height_ratio = height_ratio;
 
-        double size_2_x = size * 0.5;
-        double size_2_y = (size * height_ratio) * 0.5;
-        double temp_size_image_size_x = size / image_size;
-        double temp_size_image_size_y = (size * height_ratio) / image_size;
+        this.polar_projection = polar_projection;
+        this.circle_period = circle_period;
 
-        double xPixel = xCenter - size_2_x + temp_size_image_size_x * pixel_x;
-        double yPixel = yCenter - size_2_y + temp_size_image_size_y * pixel_y;
+        this.pixel_x = pixel_x;
+        this.pixel_y = pixel_y;
 
-        complex_orbit = new ArrayList<Complex>(max_iterations + 1);
-        complex_orbit.add(new Complex(xPixel, yPixel));
+        if(polar_projection) {
+            double start;
+            double end = Math.log(size);
+
+            double f, sf, cf, r;
+            double muly = (2 * circle_period * Math.PI) / image_size;
+
+            double mulx = muly * height_ratio;
+
+            start = -mulx * image_size + end;
+
+            f = pixel_y * muly;
+            sf = Math.sin(f);
+            cf = Math.cos(f);
+
+            r = Math.exp(pixel_x * mulx + start);
+
+            double xPixel = xCenter + r * cf;
+            double yPixel = yCenter + r * sf;
+
+            complex_orbit = new ArrayList<Complex>(max_iterations + 1);
+            complex_orbit.add(new Complex(xPixel, yPixel));
+        }
+        else {
+            double size_2_x = size * 0.5;
+            double size_2_y = (size * height_ratio) * 0.5;
+            double temp_size_image_size_x = size / image_size;
+            double temp_size_image_size_y = (size * height_ratio) / image_size;
+
+            double xPixel = xCenter - size_2_x + temp_size_image_size_x * pixel_x;
+            double yPixel = yCenter - size_2_y + temp_size_image_size_y * pixel_y;
+
+            complex_orbit = new ArrayList<Complex>(max_iterations + 1);
+            complex_orbit.add(new Complex(xPixel, yPixel));
+        }
 
         switch (function) {
             case 0:
@@ -570,10 +605,16 @@ public class DrawOrbit extends Thread {
 
     }
 
-    public DrawOrbit(double xCenter, double yCenter, double size, int max_iterations, double pixel_x, double pixel_y, int image_size, BufferedImage image, MainWindow ptr, Color orbit_color, boolean orbit_style, int plane_type, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, boolean grid, boolean boundaries, int function, double z_exponent, double[] z_exponent_complex, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean init_val, double[] initial_vals, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount) {
+    public DrawOrbit(double xCenter, double yCenter, double size, int max_iterations, double pixel_x, double pixel_y, int image_size, BufferedImage image, MainWindow ptr, Color orbit_color, boolean orbit_style, int plane_type, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, boolean grid, boolean boundaries, int function, double z_exponent, double[] z_exponent_complex, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean init_val, double[] initial_vals, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, boolean polar_projection, double circle_period) {
 
         this.image_size = image_size;
         this.height_ratio = height_ratio;
+
+        this.polar_projection = polar_projection;
+        this.circle_period = circle_period;
+
+        this.pixel_x = -1;
+        this.pixel_y = -1;
 
         complex_orbit = new ArrayList<Complex>(max_iterations + 1);
         complex_orbit.add(new Complex(pixel_x, pixel_y));
@@ -974,21 +1015,52 @@ public class DrawOrbit extends Thread {
 
     }
 
-    public DrawOrbit(double xCenter, double yCenter, double size, int max_iterations, int pixel_x, int pixel_y, int image_size, BufferedImage image, MainWindow ptr, Color orbit_color, boolean orbit_style, int plane_type, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, boolean grid, boolean boundaries, int function, double z_exponent, double[] z_exponent_complex, double[] rotation_vals, double[] rotation_center, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, double xJuliaCenter, double yJuliaCenter) {
+    public DrawOrbit(double xCenter, double yCenter, double size, int max_iterations, int pixel_x, int pixel_y, int image_size, BufferedImage image, MainWindow ptr, Color orbit_color, boolean orbit_style, int plane_type, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, boolean grid, boolean boundaries, int function, double z_exponent, double[] z_exponent_complex, double[] rotation_vals, double[] rotation_center, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, boolean polar_projection, double circle_period, double xJuliaCenter, double yJuliaCenter) {
 
         this.image_size = image_size;
         this.height_ratio = height_ratio;
 
-        double size_2_x = size * 0.5;
-        double size_2_y = (size * height_ratio) * 0.5;
-        double temp_size_image_size_x = size / image_size;
-        double temp_size_image_size_y = (size * height_ratio) / image_size;
+        this.polar_projection = polar_projection;
+        this.circle_period = circle_period;
 
-        double xPixel = xCenter - size_2_x + temp_size_image_size_x * pixel_x;
-        double yPixel = yCenter - size_2_y + temp_size_image_size_y * pixel_y;
+        this.pixel_x = pixel_x;
+        this.pixel_y = pixel_y;
 
-        complex_orbit = new ArrayList<Complex>(max_iterations + 1);
-        complex_orbit.add(new Complex(xPixel, yPixel));
+        if(polar_projection) {
+            double start;
+            double end = Math.log(size);
+
+            double f, sf, cf, r;
+            double muly = (2 * circle_period * Math.PI) / image_size;
+
+            double mulx = muly * height_ratio;
+
+            start = -mulx * image_size + end;
+
+            f = pixel_y * muly;
+            sf = Math.sin(f);
+            cf = Math.cos(f);
+
+            r = Math.exp(pixel_x * mulx + start);
+
+            double xPixel = xCenter + r * cf;
+            double yPixel = yCenter + r * sf;
+
+            complex_orbit = new ArrayList<Complex>(max_iterations + 1);
+            complex_orbit.add(new Complex(xPixel, yPixel));
+        }
+        else {
+            double size_2_x = size * 0.5;
+            double size_2_y = (size * height_ratio) * 0.5;
+            double temp_size_image_size_x = size / image_size;
+            double temp_size_image_size_y = (size * height_ratio) / image_size;
+
+            double xPixel = xCenter - size_2_x + temp_size_image_size_x * pixel_x;
+            double yPixel = yCenter - size_2_y + temp_size_image_size_y * pixel_y;
+
+            complex_orbit = new ArrayList<Complex>(max_iterations + 1);
+            complex_orbit.add(new Complex(xPixel, yPixel));
+        }
 
         switch (function) {
             case 0:
@@ -1272,10 +1344,16 @@ public class DrawOrbit extends Thread {
 
     }
 
-    public DrawOrbit(double xCenter, double yCenter, double size, int max_iterations, double pixel_x, double pixel_y, int image_size, BufferedImage image, MainWindow ptr, Color orbit_color, boolean orbit_style, int plane_type, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, boolean grid, boolean boundaries, int function, double z_exponent, double[] z_exponent_complex, double[] rotation_vals, double[] rotation_center, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, double xJuliaCenter, double yJuliaCenter) {
+    public DrawOrbit(double xCenter, double yCenter, double size, int max_iterations, double pixel_x, double pixel_y, int image_size, BufferedImage image, MainWindow ptr, Color orbit_color, boolean orbit_style, int plane_type, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, boolean grid, boolean boundaries, int function, double z_exponent, double[] z_exponent_complex, double[] rotation_vals, double[] rotation_center, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, boolean polar_projection, double circle_period, double xJuliaCenter, double yJuliaCenter) {
 
         this.image_size = image_size;
         this.height_ratio = height_ratio;
+
+        this.polar_projection = polar_projection;
+        this.circle_period = circle_period;
+
+        this.pixel_x = -1;
+        this.pixel_y = -1;
 
         complex_orbit = new ArrayList<Complex>(max_iterations + 1);
         complex_orbit.add(new Complex(pixel_x, pixel_y));
@@ -1607,12 +1685,32 @@ public class DrawOrbit extends Thread {
 
         double size = pixel_orbit.getSize();
 
-        double size_2_x = size * 0.5;
-        double size_2_y = (size * height_ratio) * 0.5;
-        double temp_xcenter_size = pixel_orbit.getXCenter() - size_2_x;
-        double temp_ycenter_size = pixel_orbit.getYCenter() - size_2_y;
-        double temp_size_image_size_x = size / image_size;
-        double temp_size_image_size_y = (size * height_ratio) / image_size;
+
+        double start = 0, end, f0, r0, f1, r1, xcenter = 0, ycenter = 0, mulx = 0, muly = 0;
+
+        double size_2_x, size_2_y, temp_xcenter_size = 0, temp_ycenter_size = 0, temp_size_image_size_x = 0, temp_size_image_size_y = 0;
+
+        if(polar_projection) {
+            end = Math.log(size);
+
+            xcenter = pixel_orbit.getXCenter();
+            ycenter = pixel_orbit.getYCenter();
+
+            muly = (2 * circle_period * Math.PI) / image_size;
+
+            mulx = muly * height_ratio;
+
+            start = -mulx * image_size + end;
+        }
+        else {
+            size_2_x = size * 0.5;
+            size_2_y = (size * height_ratio) * 0.5;
+            temp_xcenter_size = pixel_orbit.getXCenter() - size_2_x;
+            temp_ycenter_size = pixel_orbit.getYCenter() - size_2_y;
+            temp_size_image_size_x = size / image_size;
+            temp_size_image_size_y = (size * height_ratio) / image_size;
+        }
+
 
         full_image_g.setFont(new Font("default", Font.PLAIN, 15));
         FontMetrics metrics = full_image_g.getFontMetrics();
@@ -1622,10 +1720,30 @@ public class DrawOrbit extends Thread {
         int height = (int)rect.getHeight();
 
         for(int i = 0; i < list_size; i++) {
-            x0 = (int)((complex_orbit.get(i).getRe() - temp_xcenter_size) / temp_size_image_size_x + 0.5);
-            y0 = (int)((complex_orbit.get(i).getIm() - temp_ycenter_size) / temp_size_image_size_y + 0.5);
-            x1 = (int)((complex_orbit.get(i + 1).getRe() - temp_xcenter_size) / temp_size_image_size_x + 0.5);
-            y1 = (int)((complex_orbit.get(i + 1).getIm() - temp_ycenter_size) / temp_size_image_size_y + 0.5);
+
+            if(polar_projection) {
+                Complex n0 = complex_orbit.get(i).sub(new Complex(xcenter, ycenter));
+                r0 = n0.norm();
+                f0 = n0.arg();
+                f0 = f0 < 0 ? f0 + 2 * Math.PI : f0;
+
+                x0 = (int)((Math.log(r0) - start) / mulx + 0.5);
+                y0 = (int)((f0 / muly + 0.5));
+
+                Complex n1 = complex_orbit.get(i + 1).sub(new Complex(xcenter, ycenter));
+                r1 = n1.norm();
+                f1 = n1.arg();
+
+                f1 = f1 < 0 ? f1 + 2 * Math.PI : f1;
+                x1 = (int)((Math.log(r1) - start) / mulx + 0.5);
+                y1 = (int)((f1 / muly + 0.5));
+            }
+            else {
+                x0 = (int)((complex_orbit.get(i).getRe() - temp_xcenter_size) / temp_size_image_size_x + 0.5);
+                y0 = (int)((complex_orbit.get(i).getIm() - temp_ycenter_size) / temp_size_image_size_y + 0.5);
+                x1 = (int)((complex_orbit.get(i + 1).getRe() - temp_xcenter_size) / temp_size_image_size_x + 0.5);
+                y1 = (int)((complex_orbit.get(i + 1).getIm() - temp_ycenter_size) / temp_size_image_size_y + 0.5);
+            }
 
             if(Math.abs(x0) == 2147483647 || Math.abs(y0) == 2147483647 || Math.abs(x1) == 2147483647 || Math.abs(y1) == 2147483647) {
                 return;
@@ -1633,7 +1751,14 @@ public class DrawOrbit extends Thread {
 
             full_image_g.drawLine(x0, y0, x1, y1);
             if(i == 0) {
-                full_image_g.drawString("*", x0 - width / 2, y0 + height / 2);
+                if(polar_projection && circle_period > 1 && pixel_x != -1 && pixel_y != -1 && Math.abs(y0 - pixel_y) != 0) {
+                    full_image_g.drawLine(pixel_x, pixel_y, x0, y0);
+                    full_image_g.drawString("*", pixel_x - width / 2, pixel_y + height / 2);
+                    full_image_g.fillOval(x0, y0, 3, 3);
+                }
+                else {
+                    full_image_g.drawString("*", x0 - width / 2, y0 + height / 2);
+                }
             }
             else {
                 full_image_g.fillOval(x0, y0, 3, 3);
@@ -1659,12 +1784,30 @@ public class DrawOrbit extends Thread {
 
         double size = pixel_orbit.getSize();
 
-        double size_2_x = size * 0.5;
-        double size_2_y = (size * height_ratio) * 0.5;
-        double temp_xcenter_size = pixel_orbit.getXCenter() - size_2_x;
-        double temp_ycenter_size = pixel_orbit.getYCenter() - size_2_y;
-        double temp_size_image_size_x = size / image_size;
-        double temp_size_image_size_y = (size * height_ratio) / image_size;
+        double start = 0, end, f0, r0, xcenter = 0, ycenter = 0, mulx = 0, muly = 0;
+
+        double size_2_x, size_2_y, temp_xcenter_size = 0, temp_ycenter_size = 0, temp_size_image_size_x = 0, temp_size_image_size_y = 0;
+
+        if(polar_projection) {
+            end = Math.log(size);
+
+            xcenter = pixel_orbit.getXCenter();
+            ycenter = pixel_orbit.getYCenter();
+
+            muly = (2 * circle_period * Math.PI) / image_size;
+
+            mulx = muly * height_ratio;
+
+            start = -mulx * image_size + end;
+        }
+        else {
+            size_2_x = size * 0.5;
+            size_2_y = (size * height_ratio) * 0.5;
+            temp_xcenter_size = pixel_orbit.getXCenter() - size_2_x;
+            temp_ycenter_size = pixel_orbit.getYCenter() - size_2_y;
+            temp_size_image_size_x = size / image_size;
+            temp_size_image_size_y = (size * height_ratio) / image_size;
+        }
 
         full_image_g.setFont(new Font("default", Font.PLAIN, 15));
         FontMetrics metrics = full_image_g.getFontMetrics();
@@ -1674,15 +1817,32 @@ public class DrawOrbit extends Thread {
         int height = (int)rect.getHeight();
 
         for(int i = 0; i < list_size; i++) {
-            x0 = (int)((complex_orbit.get(i).getRe() - temp_xcenter_size) / temp_size_image_size_x + 0.5);
-            y0 = (int)((complex_orbit.get(i).getIm() - temp_ycenter_size) / temp_size_image_size_y + 0.5);
+            if(polar_projection) {
+                Complex n0 = complex_orbit.get(i).sub(new Complex(xcenter, ycenter));
+                r0 = n0.norm();
+                f0 = n0.arg();
+                f0 = f0 < 0 ? f0 + 2 * Math.PI : f0;
+
+                x0 = (int)((Math.log(r0) - start) / mulx + 0.5);
+                y0 = (int)((f0 / muly + 0.5));
+            }
+            else {
+                x0 = (int)((complex_orbit.get(i).getRe() - temp_xcenter_size) / temp_size_image_size_x + 0.5);
+                y0 = (int)((complex_orbit.get(i).getIm() - temp_ycenter_size) / temp_size_image_size_y + 0.5);
+            }
 
             if(Math.abs(x0) == 2147483647 || Math.abs(y0) == 2147483647) {
                 return;
             }
 
             if(i == 0) {
-                full_image_g.drawString("*", x0 - width / 2, y0 + height / 2);
+                if(polar_projection && circle_period > 1 && pixel_x != -1 && pixel_y != -1 && Math.abs(y0 - pixel_y) != 0) {
+                    full_image_g.drawString("*", pixel_x - width / 2, pixel_y + height / 2);
+                    full_image_g.fillOval(x0, y0, 3, 3);
+                }
+                else {
+                    full_image_g.drawString("*", x0 - width / 2, y0 + height / 2);
+                }
             }
             else {
                 full_image_g.fillOval(x0, y0, 3, 3);
