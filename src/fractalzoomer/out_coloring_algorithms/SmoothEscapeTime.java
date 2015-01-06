@@ -25,7 +25,7 @@ public class SmoothEscapeTime extends OutColorAlgorithm {
 
     @Override
     public double getResult(Object[] object) {
-
+        
         if(algorithm == 0) {
             double temp = ((Complex)object[2]).norm_squared();
             double temp2 = ((Complex)object[1]).norm_squared();

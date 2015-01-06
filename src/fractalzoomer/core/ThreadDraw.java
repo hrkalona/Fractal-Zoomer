@@ -195,6 +195,8 @@ public abstract class ThreadDraw extends Thread {
     protected double bumpMappingStrength;
     protected double bumpMappingDepth;
     protected double lightDirectionDegrees;
+    protected boolean fake_de;
+    protected double fake_de_factor;
     protected static double[] image_iterations_fast_julia;
     protected double height_ratio;
     protected boolean polar_projection;
@@ -237,7 +239,7 @@ public abstract class ThreadDraw extends Thread {
     }
 
     //Fractal
-    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, boolean d3, int d3_draw_method, int detail, double fiX, double fiY, MainWindow ptr, Color fractal_color, BufferedImage image, boolean[] filters, int[] filters_options_vals, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, boolean boundary_tracing, boolean periodicity_checking, int plane_type, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean init_val, double[] initial_vals, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, boolean exterior_de, double exterior_de_factor, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, double d3_height_scale, double d3_height_offset, int escaping_smooth_algorithm, int converging_smooth_algorithm, boolean bump_map, double lightDirectionDegrees, double bumpMappingDepth, double bumpMappingStrength, boolean polar_projection, double circle_period) {
+    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, boolean d3, int d3_draw_method, int detail, double fiX, double fiY, MainWindow ptr, Color fractal_color, BufferedImage image, boolean[] filters, int[] filters_options_vals, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, boolean boundary_tracing, boolean periodicity_checking, int plane_type, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean init_val, double[] initial_vals, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, boolean exterior_de, double exterior_de_factor, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, double d3_height_scale, double d3_height_offset, int escaping_smooth_algorithm, int converging_smooth_algorithm, boolean bump_map, double lightDirectionDegrees, double bumpMappingDepth, double bumpMappingStrength, boolean polar_projection, double circle_period, boolean fake_de, double fake_de_factor) {
 
         this.FROMx = FROMx;
         this.TOx = TOx;
@@ -264,6 +266,9 @@ public abstract class ThreadDraw extends Thread {
         this.bumpMappingStrength = bumpMappingStrength;
         this.bumpMappingDepth = bumpMappingDepth;
         this.lightDirectionDegrees = lightDirectionDegrees;
+        
+        this.fake_de = fake_de;
+        this.fake_de_factor = fake_de_factor;
 
         this.polar_projection = polar_projection;
         this.circle_period = circle_period;
@@ -725,7 +730,7 @@ public abstract class ThreadDraw extends Thread {
     }
 
     //Julia
-    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, boolean d3, int d3_draw_method, int detail, double fiX, double fiY, MainWindow ptr, Color fractal_color, BufferedImage image, boolean[] filters, int[] filters_options_vals, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, boolean boundary_tracing, boolean periodicity_checking, int plane_type, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] rotation_vals, double[] rotation_center, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, boolean exterior_de, double exterior_de_factor, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, double d3_height_scale, double d3_height_offset, int escaping_smooth_algorithm, int converging_smooth_algorithm, boolean bump_map, double lightDirectionDegrees, double bumpMappingDepth, double bumpMappingStrength, boolean polar_projection, double circle_period, double xJuliaCenter, double yJuliaCenter) {
+    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, boolean d3, int d3_draw_method, int detail, double fiX, double fiY, MainWindow ptr, Color fractal_color, BufferedImage image, boolean[] filters, int[] filters_options_vals, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, boolean boundary_tracing, boolean periodicity_checking, int plane_type, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] rotation_vals, double[] rotation_center, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, boolean exterior_de, double exterior_de_factor, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, double d3_height_scale, double d3_height_offset, int escaping_smooth_algorithm, int converging_smooth_algorithm, boolean bump_map, double lightDirectionDegrees, double bumpMappingDepth, double bumpMappingStrength, boolean polar_projection, double circle_period, boolean fake_de, double fake_de_factor, double xJuliaCenter, double yJuliaCenter) {
 
         this.FROMx = FROMx;
         this.TOx = TOx;
@@ -752,6 +757,9 @@ public abstract class ThreadDraw extends Thread {
         this.bumpMappingStrength = bumpMappingStrength;
         this.bumpMappingDepth = bumpMappingDepth;
         this.lightDirectionDegrees = lightDirectionDegrees;
+        
+        this.fake_de = fake_de;
+        this.fake_de_factor = fake_de_factor;
 
         this.polar_projection = polar_projection;
         this.circle_period = circle_period;
@@ -1083,7 +1091,7 @@ public abstract class ThreadDraw extends Thread {
     }
 
     //Julia Map
-    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, MainWindow ptr, Color fractal_color, BufferedImage image, boolean[] filters, int[] filters_options_vals, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, boolean periodicity_checking, int plane_type, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] rotation_vals, double[] rotation_center, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, boolean exterior_de, double exterior_de_factor, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, int converging_smooth_algorithm, boolean bump_map, double lightDirectionDegrees, double bumpMappingDepth, double bumpMappingStrength, boolean polar_projection, double circle_period) {
+    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, MainWindow ptr, Color fractal_color, BufferedImage image, boolean[] filters, int[] filters_options_vals, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, boolean periodicity_checking, int plane_type, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] rotation_vals, double[] rotation_center, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, boolean exterior_de, double exterior_de_factor, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, int converging_smooth_algorithm, boolean bump_map, double lightDirectionDegrees, double bumpMappingDepth, double bumpMappingStrength, boolean polar_projection, double circle_period, boolean fake_de, double fake_de_factor) {
 
         this.FROMx = FROMx;
         this.TOx = TOx;
@@ -1102,6 +1110,9 @@ public abstract class ThreadDraw extends Thread {
         this.bumpMappingStrength = bumpMappingStrength;
         this.bumpMappingDepth = bumpMappingDepth;
         this.lightDirectionDegrees = lightDirectionDegrees;
+        
+        this.fake_de = fake_de;
+        this.fake_de_factor = fake_de_factor;
 
         this.polar_projection = polar_projection;
         this.circle_period = circle_period;
@@ -1452,7 +1463,7 @@ public abstract class ThreadDraw extends Thread {
     }
 
     //Julia Preview
-    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, MainWindow ptr, Color fractal_color, boolean fast_julia_filters, BufferedImage image, boolean boundary_tracing, boolean periodicity_checking, int plane_type, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, boolean[] filters, int[] filters_options_vals, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] rotation_vals, double[] rotation_center, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, boolean exterior_de, double exterior_de_factor, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, int converging_smooth_algorithm, boolean bump_map, double lightDirectionDegrees, double bumpMappingDepth, double bumpMappingStrength, boolean polar_projection, double circle_period, double xJuliaCenter, double yJuliaCenter) {
+    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, MainWindow ptr, Color fractal_color, boolean fast_julia_filters, BufferedImage image, boolean boundary_tracing, boolean periodicity_checking, int plane_type, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, boolean[] filters, int[] filters_options_vals, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] rotation_vals, double[] rotation_center, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, boolean exterior_de, double exterior_de_factor, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, int converging_smooth_algorithm, boolean bump_map, double lightDirectionDegrees, double bumpMappingDepth, double bumpMappingStrength, boolean polar_projection, double circle_period, boolean fake_de, double fake_de_factor, double xJuliaCenter, double yJuliaCenter) {
 
         this.FROMx = FROMx;
         this.TOx = TOx;
@@ -1472,6 +1483,9 @@ public abstract class ThreadDraw extends Thread {
         this.bumpMappingStrength = bumpMappingStrength;
         this.bumpMappingDepth = bumpMappingDepth;
         this.lightDirectionDegrees = lightDirectionDegrees;
+        
+        this.fake_de = fake_de;
+        this.fake_de_factor = fake_de_factor;
 
         this.polar_projection = polar_projection;
         this.circle_period = circle_period;
@@ -1782,7 +1796,7 @@ public abstract class ThreadDraw extends Thread {
     }
 
     //Color Cycling
-    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, int max_iterations, MainWindow ptr, Color fractal_color, BufferedImage image, int color_cycling_location, boolean bump_map, double lightDirectionDegrees, double bumpMappingDepth, double bumpMappingStrength) {
+    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, int max_iterations, MainWindow ptr, Color fractal_color, BufferedImage image, int color_cycling_location, boolean bump_map, double lightDirectionDegrees, double bumpMappingDepth, double bumpMappingStrength, boolean fake_de, double fake_de_factor) {
 
         this.FROMx = FROMx;
         this.TOx = TOx;
@@ -1800,13 +1814,16 @@ public abstract class ThreadDraw extends Thread {
         this.bumpMappingStrength = bumpMappingStrength;
         this.bumpMappingDepth = bumpMappingDepth;
         this.lightDirectionDegrees = lightDirectionDegrees;
+        
+        this.fake_de = fake_de;
+        this.fake_de_factor = fake_de_factor;
 
         rgbs = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
 
     }
 
     //Apply Filter
-    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, int max_iterations, MainWindow ptr, BufferedImage image, Color fractal_color, int color_cycling_location, boolean[] filters, int[] filters_options_vals, boolean bump_map, double lightDirectionDegrees, double bumpMappingDepth, double bumpMappingStrength) {
+    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, int max_iterations, MainWindow ptr, BufferedImage image, Color fractal_color, int color_cycling_location, boolean[] filters, int[] filters_options_vals, boolean bump_map, double lightDirectionDegrees, double bumpMappingDepth, double bumpMappingStrength, boolean fake_de, double fake_de_factor) {
 
         this.FROMx = FROMx;
         this.TOx = TOx;
@@ -1826,6 +1843,9 @@ public abstract class ThreadDraw extends Thread {
         this.bumpMappingStrength = bumpMappingStrength;
         this.bumpMappingDepth = bumpMappingDepth;
         this.lightDirectionDegrees = lightDirectionDegrees;
+        
+        this.fake_de = fake_de;
+        this.fake_de_factor = fake_de_factor;
 
         rgbs = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
 
@@ -1908,12 +1928,12 @@ public abstract class ThreadDraw extends Thread {
                     drawJulia3D(image_size);
                 }
             }
-            else if(bump_map) {
+            else if(bump_map || fake_de) {
                 if(filters[MainWindow.ANTIALIASING]) {
-                    drawJuliaAntialiasedBumpmap(image_size);
+                    drawJuliaAntialiasedPostProcess(image_size);
                 }
                 else {
-                    drawJuliaBumpmap(image_size);
+                    drawJuliaPostProcess(image_size);
                 }
             }
             else {
@@ -1934,12 +1954,12 @@ public abstract class ThreadDraw extends Thread {
                     drawFractal3D(image_size);
                 }
             }
-            else if(bump_map) {
+            else if(bump_map || fake_de) {
                 if(filters[MainWindow.ANTIALIASING]) {
-                    drawFractalAntialiasedBumpmap(image_size);
+                    drawFractalAntialiasedPostProcess(image_size);
                 }
                 else {
-                    drawFractalBumpmap(image_size);
+                    drawFractalPostProcess(image_size);
                 }
             }
             else {
@@ -1963,57 +1983,7 @@ public abstract class ThreadDraw extends Thread {
 
         if(done == ptr.getNumberOfThreads()) {
 
-            if(filters[MainWindow.HISTOGRAM_EQUALIZATION]) {
-                histogramEqualization();
-            }
-
-            if(filters[MainWindow.COLOR_CHANNEL_SWAPPING]) {
-                filterColorChannelSwapping();
-            }
-
-            if(filters[MainWindow.INVERT_COLORS]) {
-                filterInvertColors();
-            }
-
-            if(filters[MainWindow.COLOR_CHANNEL_MIXING]) {
-                filterColorChannelMixing();
-            }
-
-            if(filters[MainWindow.COLOR_CHANNEL_MASKING]) {
-                filterMaskColors();
-            }
-
-            if(filters[MainWindow.COLOR_TEMPERATURE]) {
-                filterColorTemperature();
-            }
-
-            if(filters[MainWindow.CONTRAST_BRIGHTNESS]) {
-                filterContrastBrightness();
-            }
-
-            if(filters[MainWindow.GRAYSCALE]) {
-                filterGrayscale();
-            }
-
-            if(filters[MainWindow.EDGE_DETECTION]) {
-                filterEdgeDetection();
-            }
-
-            if(filters[MainWindow.SHARPNESS]) {
-                filterSharpness();
-            }
-
-            if(filters[MainWindow.EMBOSS]) {
-                filterEmboss();
-            }
-
-            if(filters[MainWindow.FADE_OUT]) {
-                filterFadeOut();
-            }
-
-            if(filters[MainWindow.BLURRING]) {
-                filterBlurring();
-            }
+            applyFilters();
 
             if(d3) {
                 ptr.updateValues("3D mode");
@@ -2054,12 +2024,12 @@ public abstract class ThreadDraw extends Thread {
                     drawJuliaPolar3D(image_size);
                 }
             }
-            else if(bump_map) {
+            else if(bump_map || fake_de) {
                 if(filters[MainWindow.ANTIALIASING]) {
-                    drawJuliaPolarAntialiasedBumpmap(image_size);
+                    drawJuliaPolarAntialiasedPostProcess(image_size);
                 }
                 else {
-                    drawJuliaPolarBumpmap(image_size);
+                    drawJuliaPolarPostProcess(image_size);
                 }
             }
             else {
@@ -2080,12 +2050,12 @@ public abstract class ThreadDraw extends Thread {
                     drawFractalPolar3D(image_size);
                 }
             }
-            else if(bump_map) {
+            else if(bump_map || fake_de) {
                 if(filters[MainWindow.ANTIALIASING]) {
-                    drawFractalPolarAntialiasedBumpmap(image_size);
+                    drawFractalPolarAntialiasedPostProcess(image_size);
                 }
                 else {
-                    drawFractalPolarBumpmap(image_size);
+                    drawFractalPolarPostProcess(image_size);
                 }
             }
             else {
@@ -2109,57 +2079,7 @@ public abstract class ThreadDraw extends Thread {
 
         if(done == ptr.getNumberOfThreads()) {
 
-            if(filters[MainWindow.HISTOGRAM_EQUALIZATION]) {
-                histogramEqualization();
-            }
-
-            if(filters[MainWindow.COLOR_CHANNEL_SWAPPING]) {
-                filterColorChannelSwapping();
-            }
-
-            if(filters[MainWindow.INVERT_COLORS]) {
-                filterInvertColors();
-            }
-
-            if(filters[MainWindow.COLOR_CHANNEL_MIXING]) {
-                filterColorChannelMixing();
-            }
-
-            if(filters[MainWindow.COLOR_CHANNEL_MASKING]) {
-                filterMaskColors();
-            }
-
-            if(filters[MainWindow.COLOR_TEMPERATURE]) {
-                filterColorTemperature();
-            }
-
-            if(filters[MainWindow.CONTRAST_BRIGHTNESS]) {
-                filterContrastBrightness();
-            }
-
-            if(filters[MainWindow.GRAYSCALE]) {
-                filterGrayscale();
-            }
-
-            if(filters[MainWindow.EDGE_DETECTION]) {
-                filterEdgeDetection();
-            }
-
-            if(filters[MainWindow.SHARPNESS]) {
-                filterSharpness();
-            }
-
-            if(filters[MainWindow.EMBOSS]) {
-                filterEmboss();
-            }
-
-            if(filters[MainWindow.FADE_OUT]) {
-                filterFadeOut();
-            }
-
-            if(filters[MainWindow.BLURRING]) {
-                filterBlurring();
-            }
+            applyFilters();
 
             if(d3) {
                 ptr.updateValues("3D mode");
@@ -2271,18 +2191,18 @@ public abstract class ThreadDraw extends Thread {
     }
     
      */
-    private void drawFractalBumpmap(int image_size) {
+    private void drawFractalPostProcess(int image_size) {
 
         if(!boundary_tracing) {
-            drawFractalBruteForceBumpmap(image_size);
+            drawFractalBruteForcePostProcess(image_size);
         }
         else {
-            drawFractalBoundaryTracingBumpmap(image_size);
+            drawFractalBoundaryTracingPostProcess(image_size);
         }
 
     }
 
-    private void drawFractalBruteForceBumpmap(int image_size) {
+    private void drawFractalBruteForcePostProcess(int image_size) {
 
         drawFractalBruteForce(image_size);
 
@@ -2293,11 +2213,11 @@ public abstract class ThreadDraw extends Thread {
             sync2 = synchronization2.get();
         }
 
-        applyBumpmapping(image_size);
+        applyPostProcessing(image_size);
 
     }
 
-    private void drawFractalBoundaryTracingBumpmap(int image_size) {
+    private void drawFractalBoundaryTracingPostProcess(int image_size) {
 
         drawFractalBoundaryTracing(image_size);
 
@@ -2308,22 +2228,22 @@ public abstract class ThreadDraw extends Thread {
             sync2 = synchronization2.get();
         }
 
-        applyBumpmapping(image_size);
+        applyPostProcessing(image_size);
 
     }
 
-    private void drawFractalAntialiasedBumpmap(int image_size) {
+    private void drawFractalAntialiasedPostProcess(int image_size) {
 
         if(!boundary_tracing) {
-            drawFractalAntialiasedBruteForceBumpmap(image_size);
+            drawFractalAntialiasedBruteForcePostProcess(image_size);
         }
         else {
-            drawFractalAntialiasedBoundaryTracingBumpmap(image_size);
+            drawFractalAntialiasedBoundaryTracingPostProcess(image_size);
         }
 
     }
 
-    private void drawFractalAntialiasedBoundaryTracingBumpmap(int image_size) {
+    private void drawFractalAntialiasedBoundaryTracingPostProcess(int image_size) {
 
         drawFractalAntialiasedBoundaryTracing(image_size);
 
@@ -2334,11 +2254,11 @@ public abstract class ThreadDraw extends Thread {
             sync2 = synchronization2.get();
         }
 
-        applyBumpmapping(image_size);
+        applyPostProcessing(image_size);
 
     }
 
-    private void drawFractalPolarAntialiasedBoundaryTracingBumpmap(int image_size) {
+    private void drawFractalPolarAntialiasedBoundaryTracingPostProcess(int image_size) {
 
         drawFractalPolarAntialiasedBoundaryTracing(image_size);
 
@@ -2349,11 +2269,11 @@ public abstract class ThreadDraw extends Thread {
             sync2 = synchronization2.get();
         }
 
-        applyBumpmapping(image_size);
+        applyPostProcessing(image_size);
 
     }
 
-    private void drawJuliaPolarAntialiasedBoundaryTracingBumpmap(int image_size) {
+    private void drawJuliaPolarAntialiasedBoundaryTracingPostProcess(int image_size) {
 
         drawJuliaPolarAntialiasedBoundaryTracing(image_size);
 
@@ -2364,11 +2284,11 @@ public abstract class ThreadDraw extends Thread {
             sync2 = synchronization2.get();
         }
 
-        applyBumpmapping(image_size);
+        applyPostProcessing(image_size);
 
     }
 
-    private void drawFractalAntialiasedBruteForceBumpmap(int image_size) {
+    private void drawFractalAntialiasedBruteForcePostProcess(int image_size) {
 
 
         drawFractalAntialiasedBruteForce(image_size);
@@ -2380,22 +2300,22 @@ public abstract class ThreadDraw extends Thread {
             sync2 = synchronization2.get();
         }
 
-        applyBumpmapping(image_size);
+        applyPostProcessing(image_size);
 
     }
 
-    private void drawJuliaBumpmap(int image_size) {
+    private void drawJuliaPostProcess(int image_size) {
 
         if(!boundary_tracing) {
-            drawJuliaBruteForceBumpmap(image_size);
+            drawJuliaBruteForcePostProcess(image_size);
         }
         else {
-            drawJuliaBoundaryTracingBumpmap(image_size);
+            drawJuliaBoundaryTracingPostProcess(image_size);
         }
 
     }
 
-    private void drawJuliaBruteForceBumpmap(int image_size) {
+    private void drawJuliaBruteForcePostProcess(int image_size) {
 
         drawJuliaBruteForce(image_size);
 
@@ -2406,12 +2326,12 @@ public abstract class ThreadDraw extends Thread {
             sync2 = synchronization2.get();
         }
 
-        applyBumpmapping(image_size);
+        applyPostProcessing(image_size);
 
 
     }
 
-    private void drawJuliaBoundaryTracingBumpmap(int image_size) {
+    private void drawJuliaBoundaryTracingPostProcess(int image_size) {
 
         drawJuliaBoundaryTracing(image_size);
 
@@ -2422,11 +2342,11 @@ public abstract class ThreadDraw extends Thread {
             sync2 = synchronization2.get();
         }
 
-        applyBumpmapping(image_size);
+        applyPostProcessing(image_size);
 
     }
 
-    private void drawJuliaAntialiasedBoundaryTracingBumpmap(int image_size) {
+    private void drawJuliaAntialiasedBoundaryTracingPostProcess(int image_size) {
 
         drawJuliaAntialiasedBoundaryTracing(image_size);
 
@@ -2437,11 +2357,11 @@ public abstract class ThreadDraw extends Thread {
             sync2 = synchronization2.get();
         }
 
-        applyBumpmapping(image_size);
+        applyPostProcessing(image_size);
 
     }
 
-    private void drawJuliaAntialiasedBruteForceBumpmap(int image_size) {
+    private void drawJuliaAntialiasedBruteForcePostProcess(int image_size) {
 
         drawJuliaAntialiasedBruteForce(image_size);
 
@@ -2452,17 +2372,17 @@ public abstract class ThreadDraw extends Thread {
             sync2 = synchronization2.get();
         }
 
-        applyBumpmapping(image_size);
+        applyPostProcessing(image_size);
 
     }
 
-    private void drawJuliaAntialiasedBumpmap(int image_size) {
+    private void drawJuliaAntialiasedPostProcess(int image_size) {
 
         if(!boundary_tracing) {
-            drawJuliaAntialiasedBruteForceBumpmap(image_size);
+            drawJuliaAntialiasedBruteForcePostProcess(image_size);
         }
         else {
-            drawJuliaAntialiasedBoundaryTracingBumpmap(image_size);
+            drawJuliaAntialiasedBoundaryTracingPostProcess(image_size);
         }
 
     }
@@ -3083,51 +3003,51 @@ public abstract class ThreadDraw extends Thread {
 
     }
 
-    private void drawFractalPolarBumpmap(int image_size) {
+    private void drawFractalPolarPostProcess(int image_size) {
 
         if(!boundary_tracing) {
-            drawFractalPolarBruteForceBumpmap(image_size);
+            drawFractalPolarBruteForcePostProcess(image_size);
         }
         else {
-            drawFractalPolarBoundaryTracingBumpmap(image_size);
+            drawFractalPolarBoundaryTracingPostProcess(image_size);
         }
 
     }
 
-    private void drawFractalPolarAntialiasedBumpmap(int image_size) {
+    private void drawFractalPolarAntialiasedPostProcess(int image_size) {
 
         if(!boundary_tracing) {
-            drawFractalPolarAntialiasedBruteForceBumpmap(image_size);
+            drawFractalPolarAntialiasedBruteForcePostProcess(image_size);
         }
         else {
-            drawFractalPolarAntialiasedBoundaryTracingBumpmap(image_size);
+            drawFractalPolarAntialiasedBoundaryTracingPostProcess(image_size);
         }
 
     }
 
-    private void drawJuliaPolarAntialiasedBumpmap(int image_size) {
+    private void drawJuliaPolarAntialiasedPostProcess(int image_size) {
 
         if(!boundary_tracing) {
-            drawJuliaPolarAntialiasedBruteForceBumpmap(image_size);
+            drawJuliaPolarAntialiasedBruteForcePostProcess(image_size);
         }
         else {
-            drawJuliaPolarAntialiasedBoundaryTracingBumpmap(image_size);
+            drawJuliaPolarAntialiasedBoundaryTracingPostProcess(image_size);
         }
 
     }
 
-    private void drawJuliaPolarBumpmap(int image_size) {
+    private void drawJuliaPolarPostProcess(int image_size) {
 
         if(!boundary_tracing) {
-            drawJuliaPolarBruteForceBumpmap(image_size);
+            drawJuliaPolarBruteForcePostProcess(image_size);
         }
         else {
-            drawJuliaPolarBoundaryTracingBumpmap(image_size);
+            drawJuliaPolarBoundaryTracingPostProcess(image_size);
         }
 
     }
 
-    private void drawFractalPolarBruteForceBumpmap(int image_size) {
+    private void drawFractalPolarBruteForcePostProcess(int image_size) {
 
         drawFractalPolarBruteForce(image_size);
 
@@ -3138,11 +3058,11 @@ public abstract class ThreadDraw extends Thread {
             sync2 = synchronization2.get();
         }
 
-        applyBumpmapping(image_size);
+        applyPostProcessing(image_size);
 
     }
 
-    private void drawFractalPolarBoundaryTracingBumpmap(int image_size) {
+    private void drawFractalPolarBoundaryTracingPostProcess(int image_size) {
 
         drawFractalPolarBoundaryTracing(image_size);
 
@@ -3153,11 +3073,11 @@ public abstract class ThreadDraw extends Thread {
             sync2 = synchronization2.get();
         }
 
-        applyBumpmapping(image_size);
+        applyPostProcessing(image_size);
 
     }
 
-    private void drawJuliaPolarBruteForceBumpmap(int image_size) {
+    private void drawJuliaPolarBruteForcePostProcess(int image_size) {
 
         drawJuliaPolarBruteForce(image_size);
 
@@ -3168,11 +3088,11 @@ public abstract class ThreadDraw extends Thread {
             sync2 = synchronization2.get();
         }
 
-        applyBumpmapping(image_size);
+        applyPostProcessing(image_size);
 
     }
 
-    private void drawJuliaPolarBoundaryTracingBumpmap(int image_size) {
+    private void drawJuliaPolarBoundaryTracingPostProcess(int image_size) {
 
         drawJuliaPolarBoundaryTracing(image_size);
 
@@ -3183,11 +3103,11 @@ public abstract class ThreadDraw extends Thread {
             sync2 = synchronization2.get();
         }
 
-        applyBumpmapping(image_size);
+        applyPostProcessing(image_size);
 
     }
 
-    private void drawFractalPolarAntialiasedBruteForceBumpmap(int image_size) {
+    private void drawFractalPolarAntialiasedBruteForcePostProcess(int image_size) {
 
         drawFractalPolarAntialiasedBruteForce(image_size);
 
@@ -3198,11 +3118,11 @@ public abstract class ThreadDraw extends Thread {
             sync2 = synchronization2.get();
         }
 
-        applyBumpmapping(image_size);
+        applyPostProcessing(image_size);
 
     }
 
-    private void drawJuliaPolarAntialiasedBruteForceBumpmap(int image_size) {
+    private void drawJuliaPolarAntialiasedBruteForcePostProcess(int image_size) {
 
         drawJuliaPolarAntialiasedBruteForce(image_size);
 
@@ -3213,7 +3133,7 @@ public abstract class ThreadDraw extends Thread {
             sync2 = synchronization2.get();
         }
 
-        applyBumpmapping(image_size);
+        applyPostProcessing(image_size);
 
     }
 
@@ -7187,12 +7107,12 @@ public abstract class ThreadDraw extends Thread {
 
         int image_size = image.getHeight();
 
-        if(bump_map) {
+        if(bump_map || fake_de) {
             if(fast_julia_filters && filters[MainWindow.ANTIALIASING]) {
-                drawFastJuliaAntialiasedBumpmap(image_size);
+                drawFastJuliaAntialiasedPostProcess(image_size);
             }
             else {
-                drawFastJuliaBumpmap(image_size);
+                drawFastJuliaPostProcess(image_size);
             }
         }
         else {
@@ -7210,58 +7130,7 @@ public abstract class ThreadDraw extends Thread {
         if(done == ptr.getNumberOfThreads()) {
 
             if(fast_julia_filters) {
-
-                if(filters[MainWindow.HISTOGRAM_EQUALIZATION]) {
-                    histogramEqualization();
-                }
-
-                if(filters[MainWindow.COLOR_CHANNEL_SWAPPING]) {
-                    filterColorChannelSwapping();
-                }
-
-                if(filters[MainWindow.INVERT_COLORS]) {
-                    filterInvertColors();
-                }
-
-                if(filters[MainWindow.COLOR_CHANNEL_MIXING]) {
-                    filterColorChannelMixing();
-                }
-
-                if(filters[MainWindow.COLOR_CHANNEL_MASKING]) {
-                    filterMaskColors();
-                }
-
-                if(filters[MainWindow.COLOR_TEMPERATURE]) {
-                    filterColorTemperature();
-                }
-
-                if(filters[MainWindow.CONTRAST_BRIGHTNESS]) {
-                    filterContrastBrightness();
-                }
-
-                if(filters[MainWindow.GRAYSCALE]) {
-                    filterGrayscale();
-                }
-
-                if(filters[MainWindow.EDGE_DETECTION]) {
-                    filterEdgeDetection();
-                }
-
-                if(filters[MainWindow.SHARPNESS]) {
-                    filterSharpness();
-                }
-
-                if(filters[MainWindow.EMBOSS]) {
-                    filterEmboss();
-                }
-
-                if(filters[MainWindow.FADE_OUT]) {
-                    filterFadeOut();
-                }
-
-                if(filters[MainWindow.BLURRING]) {
-                    filterBlurring();
-                }
+                applyFilters();
             }
 
 
@@ -7278,12 +7147,12 @@ public abstract class ThreadDraw extends Thread {
 
         int image_size = image.getHeight();
 
-        if(bump_map) {
+        if(bump_map || fake_de) {
             if(fast_julia_filters && filters[MainWindow.ANTIALIASING]) {
-                drawFastJuliaPolarAntialiasedBumpmap(image_size);
+                drawFastJuliaPolarAntialiasedPostProcess(image_size);
             }
             else {
-                drawFastJuliaPolarBumpmap(image_size);
+                drawFastJuliaPolarPostProcess(image_size);
             }
         }
         else {
@@ -7301,58 +7170,7 @@ public abstract class ThreadDraw extends Thread {
         if(done == ptr.getNumberOfThreads()) {
 
             if(fast_julia_filters) {
-
-                if(filters[MainWindow.HISTOGRAM_EQUALIZATION]) {
-                    histogramEqualization();
-                }
-
-                if(filters[MainWindow.COLOR_CHANNEL_SWAPPING]) {
-                    filterColorChannelSwapping();
-                }
-
-                if(filters[MainWindow.INVERT_COLORS]) {
-                    filterInvertColors();
-                }
-
-                if(filters[MainWindow.COLOR_CHANNEL_MIXING]) {
-                    filterColorChannelMixing();
-                }
-
-                if(filters[MainWindow.COLOR_CHANNEL_MASKING]) {
-                    filterMaskColors();
-                }
-
-                if(filters[MainWindow.COLOR_TEMPERATURE]) {
-                    filterColorTemperature();
-                }
-
-                if(filters[MainWindow.CONTRAST_BRIGHTNESS]) {
-                    filterContrastBrightness();
-                }
-
-                if(filters[MainWindow.GRAYSCALE]) {
-                    filterGrayscale();
-                }
-
-                if(filters[MainWindow.EDGE_DETECTION]) {
-                    filterEdgeDetection();
-                }
-
-                if(filters[MainWindow.SHARPNESS]) {
-                    filterSharpness();
-                }
-
-                if(filters[MainWindow.EMBOSS]) {
-                    filterEmboss();
-                }
-
-                if(filters[MainWindow.FADE_OUT]) {
-                    filterFadeOut();
-                }
-
-                if(filters[MainWindow.BLURRING]) {
-                    filterBlurring();
-                }
+                applyFilters();
             }
 
 
@@ -7401,63 +7219,154 @@ public abstract class ThreadDraw extends Thread {
 
     }
 
-    private void applyBumpmapping(int image_size) {
+    private int pseudoDistanceEstimation(double[]image_iterations, int color, int i, int j, int image_size) {
+        int i0 = i;
+        int j0 = j;
+        int ix = i + 1;
+        int jx = j;
+        int sx = 1;
+        int iy = i;
+        int jy = j + 1;
+        int sy = 1;
 
-        final double gradCorr = Math.pow(2, (bumpMappingStrength - DEFAULT_BUMP_MAPPING_STRENGTH) * 0.05);
-        final double sizeCorr = image_size / Math.pow(2, (MAX_BUMP_MAPPING_DEPTH - bumpMappingDepth) * 0.16);
-        final double lightAngleRadians = Math.toRadians(lightDirectionDegrees);
-        final double lightx = Math.cos(lightAngleRadians) * gradCorr;
-        final double lighty = Math.sin(lightAngleRadians) * gradCorr;
+        if(ix == image_size) {
+            ix -= 2;
+            sx = -1;
+        }
+        if(jy == image_size) {
+            jy -= 2;
+            sx = -1;
+        }
+        double n0 = image_iterations[i0 * image_size + j0];
+        double coef;
 
+        double zz = 1 / fake_de_factor;
+        double zz2 = zz * zz;
+
+        if(n0 == max_iterations && color == fractal_color) {
+            coef = 1.0;
+        }
+        else if(n0 == max_iterations && color != fractal_color) {
+            coef = 0.15;
+        }
+        else {
+            double nx = image_iterations[ix * image_size + jx];
+            double ny = image_iterations[iy * image_size + jy];
+            double zx = sx * (nx - n0);
+            double zy = sy * (ny - n0);
+            double z = Math.sqrt(zx * zx + zy * zy + zz2);
+            coef = zz / z;
+        }
+
+        int r = color & 0xFF0000;
+        int g = color & 0x00FF00;
+        int b = color & 0x0000FF;
+
+        int fc_red = fractal_color & 0xFF0000;
+        int fc_green = fractal_color & 0x00FF00;
+        int fc_blue = fractal_color & 0x0000FF;
+
+        double inv_coef = 1 - coef;
+
+        final int ret = 0xff000000 | (int)(r * coef + fc_red * inv_coef + 0.5) & 0xFF0000 | (int)(g * coef + fc_green * inv_coef + 0.5) & 0x00FF00 | (int)(b * coef + fc_blue * inv_coef + 0.5);
+
+        return ret;
+
+    }
+
+    private void applyPostProcessing(int image_size) {
+
+        double gradCorr, sizeCorr = 0, lightAngleRadians, lightx = 0, lighty = 0;
+        
+        if(bump_map) {
+            gradCorr = Math.pow(2, (bumpMappingStrength - DEFAULT_BUMP_MAPPING_STRENGTH) * 0.05);
+            sizeCorr = image_size / Math.pow(2, (MAX_BUMP_MAPPING_DEPTH - bumpMappingDepth) * 0.16);
+            lightAngleRadians = Math.toRadians(lightDirectionDegrees);
+            lightx = Math.cos(lightAngleRadians) * gradCorr;
+            lighty = Math.sin(lightAngleRadians) * gradCorr;
+        }
+
+
+        double gradx, grady, dotp, gradAbs, cosAngle, smoothGrad;
+        int modified;
 
         for(int x = FROMx; x < TOx; x++) {
             for(int y = FROMy; y < TOy; y++) {
                 int index = y * image_size + x;
-                final double gradx = getGradientX(image_iterations, index, image_size);
-                final double grady = getGradientY(image_iterations, index, image_size);
-                final double dotp = gradx * lightx + grady * lighty;
-                if(dotp == 0.0) {
-                    continue;
+
+                modified = rgbs[index];
+
+                if(bump_map) {
+                    gradx = getGradientX(image_iterations, index, image_size);
+                    grady = getGradientY(image_iterations, index, image_size);
+
+                    dotp = gradx * lightx + grady * lighty;
+                    if(dotp != 0.0) {
+
+                        gradAbs = Math.sqrt(gradx * gradx + grady * grady);
+                        cosAngle = dotp / gradAbs;
+                        smoothGrad = -2.3562 / (gradAbs * sizeCorr + 1.5) + 1.57;
+                        //final double smoothGrad = Math.atan(gradAbs * sizeCorr);
+                        modified = changeBrightnessOfColor(modified, cosAngle * smoothGrad);
+                    }
                 }
-                final double gradAbs = Math.sqrt(gradx * gradx + grady * grady);
-                final double cosAngle = dotp / gradAbs;
-                final double smoothGrad = -2.3562 / (gradAbs * sizeCorr + 1.5) + 1.57;
-                //final double smoothGrad = Math.atan(gradAbs * sizeCorr);
-                final int modified = changeBrightnessOfColor(rgbs[index], cosAngle * smoothGrad);
+                
+                if(fake_de) {
+                    modified = pseudoDistanceEstimation(image_iterations, modified, y, x, image_size);
+                }
+
                 rgbs[index] = modified;
             }
         }
     }
 
-    private void applyBumpmappingFastJulia(int image_size) {
+    private void applyPostProcessingFastJulia(int image_size) {
 
-        final double gradCorr = Math.pow(2, (bumpMappingStrength - DEFAULT_BUMP_MAPPING_STRENGTH) * 0.05);
-        final double sizeCorr = image_size / Math.pow(2, (MAX_BUMP_MAPPING_DEPTH - bumpMappingDepth) * 0.16);
-        final double lightAngleRadians = Math.toRadians(lightDirectionDegrees);
-        final double lightx = Math.cos(lightAngleRadians) * gradCorr;
-        final double lighty = Math.sin(lightAngleRadians) * gradCorr;
+        double gradCorr, sizeCorr = 0, lightAngleRadians, lightx = 0, lighty = 0;
+        
+        if(bump_map) {
+            gradCorr = Math.pow(2, (bumpMappingStrength - DEFAULT_BUMP_MAPPING_STRENGTH) * 0.05);
+            sizeCorr = image_size / Math.pow(2, (MAX_BUMP_MAPPING_DEPTH - bumpMappingDepth) * 0.16);
+            lightAngleRadians = Math.toRadians(lightDirectionDegrees);
+            lightx = Math.cos(lightAngleRadians) * gradCorr;
+            lighty = Math.sin(lightAngleRadians) * gradCorr;
+        }
 
+
+        double gradx, grady, dotp, gradAbs, cosAngle, smoothGrad;
+        int modified;
 
         for(int x = FROMx; x < TOx; x++) {
             for(int y = FROMy; y < TOy; y++) {
                 int index = y * image_size + x;
-                final double gradx = getGradientX(image_iterations_fast_julia, index, image_size);
-                final double grady = getGradientY(image_iterations_fast_julia, index, image_size);
-                final double dotp = gradx * lightx + grady * lighty;
-                if(dotp == 0.0) {
-                    continue;
+
+                modified = rgbs[index];
+
+                if(bump_map) {
+                    gradx = getGradientX(image_iterations_fast_julia, index, image_size);
+                    grady = getGradientY(image_iterations_fast_julia, index, image_size);
+
+                    dotp = gradx * lightx + grady * lighty;
+                    if(dotp != 0.0) {
+
+                        gradAbs = Math.sqrt(gradx * gradx + grady * grady);
+                        cosAngle = dotp / gradAbs;
+                        smoothGrad = -2.3562 / (gradAbs * sizeCorr + 1.5) + 1.57;
+                        //final double smoothGrad = Math.atan(gradAbs * sizeCorr);
+                        modified = changeBrightnessOfColor(modified, cosAngle * smoothGrad);
+                    }
                 }
-                final double gradAbs = Math.sqrt(gradx * gradx + grady * grady);
-                final double cosAngle = dotp / gradAbs;
-                final double smoothGrad = -2.3562 / (gradAbs * sizeCorr + 1.5) + 1.57;
-                //final double smoothGrad = Math.atan(gradAbs * sizeCorr);
-                final int modified = changeBrightnessOfColor(rgbs[index], cosAngle * smoothGrad);
+                
+                if(fake_de) {
+                    modified = pseudoDistanceEstimation(image_iterations_fast_julia, modified, y, x, image_size);
+                }
+
                 rgbs[index] = modified;
             }
         }
     }
 
-    private void drawFastJuliaPolarBoundaryTracingBumpmap(int image_size) {
+    private void drawFastJuliaPolarBoundaryTracingPostProcess(int image_size) {
 
         drawFastJuliaPolarBoundaryTracing(image_size);
 
@@ -7468,10 +7377,10 @@ public abstract class ThreadDraw extends Thread {
             sync2 = synchronization2.get();
         }
 
-        applyBumpmappingFastJulia(image_size);
+        applyPostProcessingFastJulia(image_size);
     }
 
-    private void drawFastJuliaPolarBruteForceBumpmap(int image_size) {
+    private void drawFastJuliaPolarBruteForcePostProcess(int image_size) {
 
         drawFastJuliaPolarBruteForce(image_size);
 
@@ -7482,11 +7391,11 @@ public abstract class ThreadDraw extends Thread {
             sync2 = synchronization2.get();
         }
 
-        applyBumpmappingFastJulia(image_size);
+        applyPostProcessingFastJulia(image_size);
 
     }
 
-    private void drawFastJuliaBoundaryTracingBumpmap(int image_size) {
+    private void drawFastJuliaBoundaryTracingPostProcess(int image_size) {
 
         drawFastJuliaBoundaryTracing(image_size);
 
@@ -7497,10 +7406,10 @@ public abstract class ThreadDraw extends Thread {
             sync2 = synchronization2.get();
         }
 
-        applyBumpmappingFastJulia(image_size);
+        applyPostProcessingFastJulia(image_size);
     }
 
-    private void drawFastJuliaBruteForceBumpmap(int image_size) {
+    private void drawFastJuliaBruteForcePostProcess(int image_size) {
 
         drawFastJuliaBruteForce(image_size);
 
@@ -7511,49 +7420,49 @@ public abstract class ThreadDraw extends Thread {
             sync2 = synchronization2.get();
         }
 
-        applyBumpmappingFastJulia(image_size);
+        applyPostProcessingFastJulia(image_size);
 
     }
 
-    private void drawFastJuliaBumpmap(int image_size) {
+    private void drawFastJuliaPostProcess(int image_size) {
 
         if(!boundary_tracing) {
-            drawFastJuliaBruteForceBumpmap(image_size);
+            drawFastJuliaBruteForcePostProcess(image_size);
         }
         else {
-            drawFastJuliaBoundaryTracingBumpmap(image_size);
-        }
-
-    }
-
-    private void drawFastJuliaPolarBumpmap(int image_size) {
-
-        if(!boundary_tracing) {
-            drawFastJuliaPolarBruteForceBumpmap(image_size);
-        }
-        else {
-            drawFastJuliaPolarBoundaryTracingBumpmap(image_size);
+            drawFastJuliaBoundaryTracingPostProcess(image_size);
         }
 
     }
 
-    private void drawFastJuliaAntialiasedBumpmap(int image_size) {
+    private void drawFastJuliaPolarPostProcess(int image_size) {
 
         if(!boundary_tracing) {
-            drawFastJuliaAntialiasedBruteForceBumpmap(image_size);
+            drawFastJuliaPolarBruteForcePostProcess(image_size);
         }
         else {
-            drawFastJuliaAntialiasedBoundaryTracingBumpmap(image_size);
+            drawFastJuliaPolarBoundaryTracingPostProcess(image_size);
+        }
+
+    }
+
+    private void drawFastJuliaAntialiasedPostProcess(int image_size) {
+
+        if(!boundary_tracing) {
+            drawFastJuliaAntialiasedBruteForcePostProcess(image_size);
+        }
+        else {
+            drawFastJuliaAntialiasedBoundaryTracingPostProcess(image_size);
         }
     }
 
-    private void drawFastJuliaPolarAntialiasedBumpmap(int image_size) {
+    private void drawFastJuliaPolarAntialiasedPostProcess(int image_size) {
 
         if(!boundary_tracing) {
-            drawFastJuliaPolarAntialiasedBruteForceBumpmap(image_size);
+            drawFastJuliaPolarAntialiasedBruteForcePostProcess(image_size);
         }
         else {
-            drawFastJuliaPolarAntialiasedBoundaryTracingBumpmap(image_size);
+            drawFastJuliaPolarAntialiasedBoundaryTracingPostProcess(image_size);
         }
     }
 
@@ -7996,7 +7905,7 @@ public abstract class ThreadDraw extends Thread {
         } while(true);
     }
 
-    private void drawFastJuliaPolarAntialiasedBruteForceBumpmap(int image_size) {
+    private void drawFastJuliaPolarAntialiasedBruteForcePostProcess(int image_size) {
 
         drawFastJuliaPolarAntialiasedBruteForce(image_size);
 
@@ -8007,11 +7916,11 @@ public abstract class ThreadDraw extends Thread {
             sync2 = synchronization2.get();
         }
 
-        applyBumpmappingFastJulia(image_size);
+        applyPostProcessingFastJulia(image_size);
 
     }
 
-    private void drawFastJuliaPolarAntialiasedBoundaryTracingBumpmap(int image_size) {
+    private void drawFastJuliaPolarAntialiasedBoundaryTracingPostProcess(int image_size) {
 
         drawFastJuliaPolarAntialiasedBoundaryTracing(image_size);
 
@@ -8022,10 +7931,10 @@ public abstract class ThreadDraw extends Thread {
             sync2 = synchronization2.get();
         }
 
-        applyBumpmappingFastJulia(image_size);
+        applyPostProcessingFastJulia(image_size);
     }
 
-    private void drawFastJuliaAntialiasedBruteForceBumpmap(int image_size) {
+    private void drawFastJuliaAntialiasedBruteForcePostProcess(int image_size) {
 
         drawFastJuliaAntialiasedBruteForce(image_size);
 
@@ -8036,11 +7945,11 @@ public abstract class ThreadDraw extends Thread {
             sync2 = synchronization2.get();
         }
 
-        applyBumpmappingFastJulia(image_size);
+        applyPostProcessingFastJulia(image_size);
 
     }
 
-    private void drawFastJuliaAntialiasedBoundaryTracingBumpmap(int image_size) {
+    private void drawFastJuliaAntialiasedBoundaryTracingPostProcess(int image_size) {
 
         drawFastJuliaAntialiasedBoundaryTracing(image_size);
 
@@ -8051,7 +7960,7 @@ public abstract class ThreadDraw extends Thread {
             sync2 = synchronization2.get();
         }
 
-        applyBumpmappingFastJulia(image_size);
+        applyPostProcessingFastJulia(image_size);
     }
 
     private void drawFastJuliaAntialiasedBoundaryTracing(int image_size) {
@@ -8649,8 +8558,8 @@ public abstract class ThreadDraw extends Thread {
             rgbs[loc] = temp_result == max_iterations ? fractal_color : palette_color.getPaletteColor(temp_result + color_cycling_location);
         }
 
-        if(bump_map) {
-            applyBumpmapping(image_size);
+        if(bump_map || fake_de) {
+            applyPostProcessing(image_size);
         }
 
         ptr.setWholeImageDone(true);
@@ -8681,58 +8590,7 @@ public abstract class ThreadDraw extends Thread {
 
 
         if(done == ptr.getNumberOfThreads()) {
-
-            if(filters[MainWindow.HISTOGRAM_EQUALIZATION]) {
-                histogramEqualization();
-            }
-
-            if(filters[MainWindow.COLOR_CHANNEL_SWAPPING]) {
-                filterColorChannelSwapping();
-            }
-
-            if(filters[MainWindow.INVERT_COLORS]) {
-                filterInvertColors();
-            }
-
-            if(filters[MainWindow.COLOR_CHANNEL_MIXING]) {
-                filterColorChannelMixing();
-            }
-
-            if(filters[MainWindow.COLOR_CHANNEL_MASKING]) {
-                filterMaskColors();
-            }
-
-            if(filters[MainWindow.COLOR_TEMPERATURE]) {
-                filterColorTemperature();
-            }
-
-            if(filters[MainWindow.CONTRAST_BRIGHTNESS]) {
-                filterContrastBrightness();
-            }
-
-            if(filters[MainWindow.GRAYSCALE]) {
-                filterGrayscale();
-            }
-
-            if(filters[MainWindow.EDGE_DETECTION]) {
-                filterEdgeDetection();
-            }
-
-            if(filters[MainWindow.SHARPNESS]) {
-                filterSharpness();
-            }
-
-            if(filters[MainWindow.EMBOSS]) {
-                filterEmboss();
-            }
-
-            if(filters[MainWindow.FADE_OUT]) {
-                filterFadeOut();
-            }
-
-            if(filters[MainWindow.BLURRING]) {
-                filterBlurring();
-            }
+            applyFilters();
 
             ptr.setOptions(true);
             ptr.setWholeImageDone(true);
@@ -8760,57 +8618,7 @@ public abstract class ThreadDraw extends Thread {
 
         if(done == ptr.getNumberOfThreads()) {
 
-            if(filters[MainWindow.HISTOGRAM_EQUALIZATION]) {
-                histogramEqualization();
-            }
-
-            if(filters[MainWindow.COLOR_CHANNEL_SWAPPING]) {
-                filterColorChannelSwapping();
-            }
-
-            if(filters[MainWindow.INVERT_COLORS]) {
-                filterInvertColors();
-            }
-
-            if(filters[MainWindow.COLOR_CHANNEL_MIXING]) {
-                filterColorChannelMixing();
-            }
-
-            if(filters[MainWindow.COLOR_CHANNEL_MASKING]) {
-                filterMaskColors();
-            }
-
-            if(filters[MainWindow.COLOR_TEMPERATURE]) {
-                filterColorTemperature();
-            }
-
-            if(filters[MainWindow.CONTRAST_BRIGHTNESS]) {
-                filterContrastBrightness();
-            }
-
-            if(filters[MainWindow.GRAYSCALE]) {
-                filterGrayscale();
-            }
-
-            if(filters[MainWindow.EDGE_DETECTION]) {
-                filterEdgeDetection();
-            }
-
-            if(filters[MainWindow.SHARPNESS]) {
-                filterSharpness();
-            }
-
-            if(filters[MainWindow.EMBOSS]) {
-                filterEmboss();
-            }
-
-            if(filters[MainWindow.FADE_OUT]) {
-                filterFadeOut();
-            }
-
-            if(filters[MainWindow.BLURRING]) {
-                filterBlurring();
-            }
+            applyFilters();
 
             ptr.setOptions(true);
             ptr.setWholeImageDone(true);
@@ -8970,7 +8778,7 @@ public abstract class ThreadDraw extends Thread {
 
         }
 
-        if(bump_map) {
+        if(bump_map || fake_de) {
             int sync2 = synchronization2.incrementAndGet();
 
             while(sync2 != ptr.getNumberOfThreads()) {
@@ -8978,7 +8786,7 @@ public abstract class ThreadDraw extends Thread {
                 sync2 = synchronization2.get();
             }
 
-            applyBumpmapping(image_size);
+            applyPostProcessing(image_size);
         }
 
     }
@@ -8988,12 +8796,12 @@ public abstract class ThreadDraw extends Thread {
         int image_size = image.getHeight();
 
 
-        if(bump_map) {
+        if(bump_map || fake_de) {
             if(filters[MainWindow.ANTIALIASING]) {
-                juliaMapAntialiasedBumpmap(image_size);
+                juliaMapAntialiasedPostProcess(image_size);
             }
             else {
-                juliaMapBumpmap(image_size);
+                juliaMapPostProcess(image_size);
             }
         }
         else {
@@ -9015,57 +8823,7 @@ public abstract class ThreadDraw extends Thread {
 
         if(done == ptr.getJuliaMapSlices()) {
 
-            if(filters[MainWindow.HISTOGRAM_EQUALIZATION]) {
-                histogramEqualization();
-            }
-
-            if(filters[MainWindow.COLOR_CHANNEL_SWAPPING]) {
-                filterColorChannelSwapping();
-            }
-
-            if(filters[MainWindow.INVERT_COLORS]) {
-                filterInvertColors();
-            }
-
-            if(filters[MainWindow.COLOR_CHANNEL_MIXING]) {
-                filterColorChannelMixing();
-            }
-
-            if(filters[MainWindow.COLOR_CHANNEL_MASKING]) {
-                filterMaskColors();
-            }
-
-            if(filters[MainWindow.COLOR_TEMPERATURE]) {
-                filterColorTemperature();
-            }
-
-            if(filters[MainWindow.CONTRAST_BRIGHTNESS]) {
-                filterContrastBrightness();
-            }
-
-            if(filters[MainWindow.GRAYSCALE]) {
-                filterGrayscale();
-            }
-
-            if(filters[MainWindow.EDGE_DETECTION]) {
-                filterEdgeDetection();
-            }
-
-            if(filters[MainWindow.SHARPNESS]) {
-                filterSharpness();
-            }
-
-            if(filters[MainWindow.EMBOSS]) {
-                filterEmboss();
-            }
-
-            if(filters[MainWindow.FADE_OUT]) {
-                filterFadeOut();
-            }
-
-            if(filters[MainWindow.BLURRING]) {
-                filterBlurring();
-            }
+            applyFilters();
 
 
             ptr.updateValues("Julia Map mode");
@@ -9084,12 +8842,12 @@ public abstract class ThreadDraw extends Thread {
         int image_size = image.getHeight();
 
 
-        if(bump_map) {
+        if(bump_map || fake_de) {
             if(filters[MainWindow.ANTIALIASING]) {
-                juliaMapPolarAntialiasedBumpmap(image_size);
+                juliaMapPolarAntialiasedPostProcess(image_size);
             }
             else {
-                juliaMapPolarBumpmap(image_size);
+                juliaMapPolarPostProcess(image_size);
             }
         }
         else {
@@ -9111,58 +8869,7 @@ public abstract class ThreadDraw extends Thread {
 
         if(done == ptr.getJuliaMapSlices()) {
 
-            if(filters[MainWindow.HISTOGRAM_EQUALIZATION]) {
-                histogramEqualization();
-            }
-
-            if(filters[MainWindow.COLOR_CHANNEL_SWAPPING]) {
-                filterColorChannelSwapping();
-            }
-
-            if(filters[MainWindow.INVERT_COLORS]) {
-                filterInvertColors();
-            }
-
-            if(filters[MainWindow.COLOR_CHANNEL_MIXING]) {
-                filterColorChannelMixing();
-            }
-
-            if(filters[MainWindow.COLOR_CHANNEL_MASKING]) {
-                filterMaskColors();
-            }
-
-            if(filters[MainWindow.COLOR_TEMPERATURE]) {
-                filterColorTemperature();
-            }
-
-            if(filters[MainWindow.CONTRAST_BRIGHTNESS]) {
-                filterContrastBrightness();
-            }
-
-            if(filters[MainWindow.GRAYSCALE]) {
-                filterGrayscale();
-            }
-
-            if(filters[MainWindow.EDGE_DETECTION]) {
-                filterEdgeDetection();
-            }
-
-            if(filters[MainWindow.SHARPNESS]) {
-                filterSharpness();
-            }
-
-            if(filters[MainWindow.EMBOSS]) {
-                filterEmboss();
-            }
-
-            if(filters[MainWindow.FADE_OUT]) {
-                filterFadeOut();
-            }
-
-            if(filters[MainWindow.BLURRING]) {
-                filterBlurring();
-            }
-
+            applyFilters();
 
             ptr.updateValues("Julia Map mode");
             ptr.setOptions(true);
@@ -9436,7 +9143,7 @@ public abstract class ThreadDraw extends Thread {
 
     }
 
-    private void juliaMapBumpmap(int image_size) {
+    private void juliaMapPostProcess(int image_size) {
 
         juliaMap(image_size);
 
@@ -9447,11 +9154,11 @@ public abstract class ThreadDraw extends Thread {
             sync2 = synchronization2.get();
         }
 
-        applyBumpmapping(image_size);
+        applyPostProcessing(image_size);
 
     }
 
-    private void juliaMapAntialiasedBumpmap(int image_size) {
+    private void juliaMapAntialiasedPostProcess(int image_size) {
 
         juliaMapAntialiased(image_size);
 
@@ -9462,11 +9169,11 @@ public abstract class ThreadDraw extends Thread {
             sync2 = synchronization2.get();
         }
 
-        applyBumpmapping(image_size);
+        applyPostProcessing(image_size);
 
     }
-    
-    private void juliaMapPolarBumpmap(int image_size) {
+
+    private void juliaMapPolarPostProcess(int image_size) {
 
         juliaMapPolar(image_size);
 
@@ -9477,11 +9184,11 @@ public abstract class ThreadDraw extends Thread {
             sync2 = synchronization2.get();
         }
 
-        applyBumpmapping(image_size);
+        applyPostProcessing(image_size);
 
     }
 
-    private void juliaMapPolarAntialiasedBumpmap(int image_size) {
+    private void juliaMapPolarAntialiasedPostProcess(int image_size) {
 
         juliaMapPolarAntialiased(image_size);
 
@@ -9492,7 +9199,7 @@ public abstract class ThreadDraw extends Thread {
             sync2 = synchronization2.get();
         }
 
-        applyBumpmapping(image_size);
+        applyPostProcessing(image_size);
 
     }
 
@@ -9822,8 +9529,25 @@ public abstract class ThreadDraw extends Thread {
 
         int condition = image_size * image_size;
 
+        int r, g, b;
+
         for(int p = 0; p < condition; p++) {
-            raster[p] = ~(raster[p] & 0x00ffffff);
+
+            if(filters_options_vals[MainWindow.INVERT_COLORS] == 0) {
+                raster[p] = ~(raster[p] & 0x00ffffff);
+            }
+            else {
+                r = (raster[p] >> 16) & 0xff;
+                g = (raster[p] >> 8) & 0xff;
+                b = raster[p] & 0xff;
+
+                float res[] = new float[3];
+
+                Color.RGBtoHSB(r, g, b, res);
+
+                raster[p] = Color.HSBtoRGB(res[0], res[1], 1.0f - res[2]);
+            }
+
         }
 
     }
@@ -10068,51 +9792,309 @@ public abstract class ThreadDraw extends Thread {
 
         int[] raster = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
 
-        int r, g, b;
-
         int condition = image_size * image_size;
 
+        /*int r, g, b;
+        
         int cdf[] = new int[100001];
-
+        
         for(int p = 0; p < condition; p++) {
-            r = (raster[p] >> 16) & 0xff;
-            g = (raster[p] >> 8) & 0xff;
-            b = raster[p] & 0xff;
-
-            float res[] = new float[3];
-
-            Color.RGBtoHSB(r, g, b, res);
-
-            cdf[(int)(res[2] * 100000 + 0.5)]++;
+        r = (raster[p] >> 16) & 0xff;
+        g = (raster[p] >> 8) & 0xff;
+        b = raster[p] & 0xff;
+        
+        float res[] = new float[3];
+        
+        Color.RGBtoHSB(r, g, b, res);
+        
+        cdf[(int)(res[2] * 100000 + 0.5)]++;
         }
-
+        
         int min = 0;
         int j = 0;
         while(min == 0) {
-            min = cdf[j++];
+        min = cdf[j++];
         }
         int d = condition - min;
-
+        
         for(int i = 1; i < cdf.length; i++) {
-            cdf[i] += cdf[i - 1];
+        cdf[i] += cdf[i - 1];
         }
-
+        
         for(int p = 0; p < condition; p++) {
-            r = (raster[p] >> 16) & 0xff;
-            g = (raster[p] >> 8) & 0xff;
-            b = raster[p] & 0xff;
+        r = (raster[p] >> 16) & 0xff;
+        g = (raster[p] >> 8) & 0xff;
+        b = raster[p] & 0xff;
+        
+        float res[] = new float[3];
+        
+        Color.RGBtoHSB(r, g, b, res);
+        
+        double temp = ((double)(cdf[(int)(res[2] * 100000 + 0.5)] - min)) / d;
+        
+        raster[p] = Color.HSBtoRGB(res[0], res[1], (float)(temp < 0 ? 0 : temp));
+        
+        
+        }*/
 
-            float res[] = new float[3];
 
-            Color.RGBtoHSB(r, g, b, res);
+        if(filters_options_vals[MainWindow.HISTOGRAM_EQUALIZATION] == 1) {
 
-            double temp = ((double)(cdf[(int)(res[2] * 100000 + 0.5)] - min)) / d;
+            int hist[][] = new int[3][256];
 
-            raster[p] = Color.HSBtoRGB(res[0], res[1], (float)(temp < 0 ? 0 : temp));
+            int i, c;
+            double mult, count, percentage, next_percentage;
+            int low = 0, high = 0;
 
+            // Fill the histogram by counting the number of pixels with each value
+            for(int p = 0; p < condition; p++) {
+                hist[0][(raster[p] >> 16) & 0xff]++;
+                hist[1][(raster[p] >> 8) & 0xff]++;
+                hist[2][raster[p] & 0xff]++;
+            }
+
+            count = image_size * image_size;
+            // Fore each channel
+            for(c = 0; c < hist.length; c++) {
+                // Determine the low input value
+                next_percentage = hist[c][0] / count;
+                for(i = 0; i < 255; i++) {
+                    percentage = next_percentage;
+                    next_percentage += hist[c][i + 1] / count;
+                    if(Math.abs(percentage - 0.006) < Math.abs(next_percentage - 0.006)) {
+                        //low = i;//i+1; This is a deviation from the way The GIMP does it
+                        low = i + 1;
+                        // that prevents any change in the image if it's
+                        // already optimal
+                        break;
+                    }
+                }
+                // Determine the high input value
+                next_percentage = hist[c][255] / count;
+                for(i = 255; i > 0; i--) {
+                    percentage = next_percentage;
+                    next_percentage += hist[c][i - 1] / count;
+                    if(Math.abs(percentage - 0.006) < Math.abs(next_percentage - 0.006)) {
+                        //high = i;//i-1; This is a deviation from the way The GIMP does it
+                        high = i - 1;
+                        // that prevents any change in the image if it's
+                        // already optimal
+                        break;
+                    }
+                }
+
+                // Turn the histogram into a look up table to stretch the values
+                mult = 255.0 / (high - low);
+
+                for(i = 0; i < low; i++) {
+                    hist[c][i] = 0;
+                }
+
+                for(i = 255; i > high; i--) {
+                    hist[c][i] = 255;
+                }
+
+                double base = 0.0;
+
+                for(i = low; i <= high; i++) {
+                    hist[c][i] = (int)(base + 0.5);
+                    base += mult;
+                }
+            }
+
+            // Now apply the changes (stretch the values)
+
+            int r, g, b;
+
+            for(int p = 0; p < condition; p++) {
+                r = hist[0][(raster[p] >> 16) & 0xff];
+                g = hist[1][(raster[p] >> 8) & 0xff];
+                b = hist[2][raster[p] & 0xff];
+
+                raster[p] = 0xff000000 | (r << 16) | (g << 8) | b;
+            }
+        }
+        else if(filters_options_vals[MainWindow.HISTOGRAM_EQUALIZATION] == 0) {
+            int hist[] = new int[1025];
+
+            int i;
+            double mult, count, percentage, next_percentage;
+            int low = 0, high = 0;
+
+            int hist_len = hist.length - 1;
+
+            int r, g, b;
+
+            // Fill the histogram by counting the number of pixels with each value
+            for(int p = 0; p < condition; p++) {
+                r = (raster[p] >> 16) & 0xff;
+                g = (raster[p] >> 8) & 0xff;
+                b = raster[p] & 0xff;
+
+                float res[] = new float[3];
+
+                Color.RGBtoHSB(r, g, b, res);
+
+                hist[(int)(res[2] * hist_len + 0.5)]++;
+            }
+
+            count = image_size * image_size;
+
+            // Determine the low input value
+            next_percentage = hist[0] / count;
+            for(i = 0; i < hist_len; i++) {
+                percentage = next_percentage;
+                next_percentage += hist[i + 1] / count;
+                if(Math.abs(percentage - 0.006) < Math.abs(next_percentage - 0.006)) {
+                    //low = i;//i+1; This is a deviation from the way The GIMP does it
+                    low = i + 1;
+                    // that prevents any change in the image if it's
+                    // already optimal
+                    break;
+                }
+            }
+            // Determine the high input value
+            next_percentage = hist[hist_len] / count;
+            for(i = hist_len; i > 0; i--) {
+                percentage = next_percentage;
+                next_percentage += hist[i - 1] / count;
+                if(Math.abs(percentage - 0.006) < Math.abs(next_percentage - 0.006)) {
+                    //high = i;//i-1; This is a deviation from the way The GIMP does it
+                    high = i - 1;
+                    // that prevents any change in the image if it's
+                    // already optimal
+                    break;
+                }
+            }
+
+            // Turn the histogram into a look up table to stretch the values
+            mult = ((double)hist_len) / (high - low);
+
+            for(i = 0; i < low; i++) {
+                hist[i] = 0;
+            }
+
+            for(i = hist_len; i > high; i--) {
+                hist[i] = hist_len;
+            }
+
+            double base = 0.0;
+
+            for(i = low; i <= high; i++) {
+                hist[i] = (int)(base + 0.5);
+                base += mult;
+            }
+
+
+            // Now apply the changes (stretch the values)
+
+            for(int p = 0; p < condition; p++) {
+                r = (raster[p] >> 16) & 0xff;
+                g = (raster[p] >> 8) & 0xff;
+                b = raster[p] & 0xff;
+
+                float res[] = new float[3];
+
+                Color.RGBtoHSB(r, g, b, res);
+
+                double temp = hist[(int)(res[2] * hist_len + 0.5)] / ((double)hist_len);
+
+                raster[p] = Color.HSBtoRGB(res[0], res[1], (float)temp);
+            }
 
         }
+        else if(filters_options_vals[MainWindow.HISTOGRAM_EQUALIZATION] == 2 || filters_options_vals[MainWindow.HISTOGRAM_EQUALIZATION] == 3 || filters_options_vals[MainWindow.HISTOGRAM_EQUALIZATION] == 4) {
+            int hist[] = new int[256];
 
+            int i;
+            double mult, count, percentage, next_percentage;
+            int low = 0, high = 0;
+
+            // Fill the histogram by counting the number of pixels with each value
+            for(int p = 0; p < condition; p++) {
+                if(filters_options_vals[MainWindow.HISTOGRAM_EQUALIZATION] == 2) {
+                    hist[(raster[p] >> 16) & 0xff]++;
+                }
+                else if(filters_options_vals[MainWindow.HISTOGRAM_EQUALIZATION] == 3) {
+                    hist[(raster[p] >> 8) & 0xff]++;
+                }
+                else {
+                    hist[raster[p] & 0xff]++;
+                }
+            }
+
+            count = image_size * image_size;
+            // Determine the low input value
+            next_percentage = hist[0] / count;
+            for(i = 0; i < 255; i++) {
+                percentage = next_percentage;
+                next_percentage += hist[i + 1] / count;
+                if(Math.abs(percentage - 0.006) < Math.abs(next_percentage - 0.006)) {
+                    //low = i;//i+1; This is a deviation from the way The GIMP does it
+                    low = i + 1;
+                    // that prevents any change in the image if it's
+                    // already optimal
+                    break;
+                }
+            }
+            // Determine the high input value
+            next_percentage = hist[255] / count;
+            for(i = 255; i > 0; i--) {
+                percentage = next_percentage;
+                next_percentage += hist[i - 1] / count;
+                if(Math.abs(percentage - 0.006) < Math.abs(next_percentage - 0.006)) {
+                    //high = i;//i-1; This is a deviation from the way The GIMP does it
+                    high = i - 1;
+                    // that prevents any change in the image if it's
+                    // already optimal
+                    break;
+                }
+            }
+
+            // Turn the histogram into a look up table to stretch the values
+            mult = 255.0 / (high - low);
+
+            for(i = 0; i < low; i++) {
+                hist[i] = 0;
+            }
+
+            for(i = 255; i > high; i--) {
+                hist[i] = 255;
+            }
+
+            double base = 0.0;
+
+            for(i = low; i <= high; i++) {
+                hist[i] = (int)(base + 0.5);
+                base += mult;
+            }
+
+
+            // Now apply the changes (stretch the values)
+
+            int r, g, b;
+
+            for(int p = 0; p < condition; p++) {
+
+                if(filters_options_vals[MainWindow.HISTOGRAM_EQUALIZATION] == 2) {
+                    r = hist[(raster[p] >> 16) & 0xff];
+                    g = (raster[p] >> 8) & 0xff;
+                    b = raster[p] & 0xff;
+                }
+                else if(filters_options_vals[MainWindow.HISTOGRAM_EQUALIZATION] == 3) {
+                    r = (raster[p] >> 16) & 0xff;
+                    g = hist[(raster[p] >> 8) & 0xff];
+                    b = raster[p] & 0xff;
+                }
+                else {
+                    r = (raster[p] >> 16) & 0xff;
+                    g = (raster[p] >> 8) & 0xff;
+                    b = hist[raster[p] & 0xff];
+                }
+
+                raster[p] = 0xff000000 | (r << 16) | (g << 8) | b;
+            }
+        }
     }
 
     private void filterColorChannelMixing() {
@@ -10145,6 +10127,63 @@ public abstract class ThreadDraw extends Thread {
             raster[p] = 0xff000000 | (r << 16) | (g << 8) | b;
         }
 
+    }
+
+    private void filterPosterize() {
+
+        int image_size = image.getHeight();
+
+        int[] raster = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
+
+        int condition = image_size * image_size;
+
+        int[] levels = new int[256];
+
+        int numLevels = filters_options_vals[MainWindow.POSTERIZE];
+
+        for(int i = 0; i < levels.length; i++) {
+            levels[i] = 255 * (numLevels * i / 256) / (numLevels - 1);
+        }
+
+        int r, g, b;
+
+        for(int p = 0; p < condition; p++) {
+            r = levels[(raster[p] >> 16) & 0xff];
+            g = levels[(raster[p] >> 8) & 0xff];
+            b = levels[raster[p] & 0xff];
+
+            raster[p] = 0xff000000 | (r << 16) | (g << 8) | b;
+        }
+
+    }
+
+    private void filterSolarize() {
+
+        int image_size = image.getHeight();
+
+        int[] raster = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
+
+        int condition = image_size * image_size;
+
+        int[] table = new int[256];
+
+        float f;
+
+        for(int i = 0; i < table.length; i++) {
+            f = i / 255.0f;
+            f = f > 0.5f ? 2 * (f - 0.5f) : 2 * (0.5f - f);
+            table[i] = clamp((int)(255 * f));
+        }
+
+        int r, g, b;
+
+        for(int p = 0; p < condition; p++) {
+            r = (raster[p] >> 16) & 0xff;
+            g = (raster[p] >> 8) & 0xff;
+            b = raster[p] & 0xff;
+
+            raster[p] = 0xff000000 | (table[r] << 16) | (table[g] << 8) | table[b];
+        }
     }
 
     private double getGradientX(double[] image_iterations, int index, int size) {
@@ -10210,6 +10249,70 @@ public abstract class ThreadDraw extends Thread {
     public int getColorCyclingLocation() {
 
         return color_cycling_location;
+
+    }
+
+    private void applyFilters() {
+
+        if(filters[MainWindow.COLOR_CHANNEL_SWAPPING]) {
+            filterColorChannelSwapping();
+        }
+
+        if(filters[MainWindow.COLOR_CHANNEL_MIXING]) {
+            filterColorChannelMixing();
+        }
+
+        if(filters[MainWindow.GRAYSCALE]) {
+            filterGrayscale();
+        }
+
+        if(filters[MainWindow.POSTERIZE]) {
+            filterPosterize();
+        }
+
+        if(filters[MainWindow.INVERT_COLORS]) {
+            filterInvertColors();
+        }
+
+        if(filters[MainWindow.SOLARIZE]) {
+            filterSolarize();
+        }
+
+        if(filters[MainWindow.COLOR_TEMPERATURE]) {
+            filterColorTemperature();
+        }
+
+        if(filters[MainWindow.CONTRAST_BRIGHTNESS]) {
+            filterContrastBrightness();
+        }
+
+        if(filters[MainWindow.HISTOGRAM_EQUALIZATION]) {
+            histogramEqualization();
+        }
+
+        if(filters[MainWindow.COLOR_CHANNEL_MASKING]) {
+            filterMaskColors();
+        }
+
+        if(filters[MainWindow.EDGE_DETECTION]) {
+            filterEdgeDetection();
+        }
+
+        if(filters[MainWindow.SHARPNESS]) {
+            filterSharpness();
+        }
+
+        if(filters[MainWindow.BLURRING]) {
+            filterBlurring();
+        }
+
+        if(filters[MainWindow.EMBOSS]) {
+            filterEmboss();
+        }
+
+        if(filters[MainWindow.FADE_OUT]) {
+            filterFadeOut();
+        }
 
     }
 

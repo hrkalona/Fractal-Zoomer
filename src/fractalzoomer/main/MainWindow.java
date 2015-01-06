@@ -11,6 +11,7 @@ package fractalzoomer.main;
 /* Thanks to Cogpar for parsing the user's formula */
 /* Thanks to Botond Kosa for the bump mapping algorithm */
 /* Thanks to Mika Seppa for the polar plane projection */
+/* Thanks to Jerry Huxtable for many image processing algorithms */
 /* Many of the ideas in this project come from XaoS, Fractal Extreme, FractInt, fractalforums.com and ofcourse from alot of google search */
 /* Sorry for the absence of comments, this project was never supposed to reach this level! */
 /* Also forgive me for the huge-packed main class, read above! */
@@ -31,10 +32,12 @@ import fractalzoomer.settings.SettingsFractals1049;
 import fractalzoomer.settings.SettingsFractals1050;
 import fractalzoomer.settings.SettingsFractals1053;
 import fractalzoomer.settings.SettingsFractals1054;
+import fractalzoomer.settings.SettingsFractals1055;
 import fractalzoomer.settings.SettingsJulia1049;
 import fractalzoomer.settings.SettingsJulia1050;
 import fractalzoomer.settings.SettingsJulia1053;
 import fractalzoomer.settings.SettingsJulia1054;
+import fractalzoomer.settings.SettingsJulia1055;
 import fractalzoomer.utils.ColorSpaceConverter;
 import java.awt.BasicStroke;
 import java.awt.BorderLayout;
@@ -244,6 +247,8 @@ public class MainWindow extends JFrame {
     private double bumpMappingStrength;
     private double bumpMappingDepth;
     private double lightDirectionDegrees;
+    private boolean fake_de;
+    private double fake_de_factor;
     private BufferedImage image;
     private BufferedImage fast_julia_image;
     private BufferedImage backup_orbit;
@@ -354,6 +359,7 @@ public class MainWindow extends JFrame {
     private JMenuItem zoom_window_color_opt;
     private JMenuItem d3_details_opt;
     private JMenuItem bump_map_opt;
+    private JMenuItem fake_de_opt;
     private JCheckBoxMenuItem d3_opt;
     private JCheckBoxMenuItem boundary_tracing_opt;
     private JCheckBoxMenuItem anti_aliasing_opt;
@@ -370,6 +376,8 @@ public class MainWindow extends JFrame {
     private JCheckBoxMenuItem grayscale_opt;
     private JCheckBoxMenuItem color_temperature_opt;
     private JCheckBoxMenuItem color_channel_mixing_opt;
+    private JCheckBoxMenuItem posterize_opt;
+    private JCheckBoxMenuItem solarize_opt;
     private JCheckBoxMenuItem orbit_opt;
     private JCheckBoxMenuItem julia_opt;
     private JCheckBoxMenuItem polar_projection_opt;
@@ -592,6 +600,7 @@ public class MainWindow extends JFrame {
     public static final int ESCAPE_TIME_ESCAPE_RADIUS = 18;
     public static final int ESCAPE_TIME_GRID = 19;
     public static final int ATOM_DOMAIN = 20;
+    public static final int BANDED = 21;
     public static final int MAXIMUM_ITERATIONS = 0;
     public static final int Z_MAG = 1;
     public static final int DECOMPOSITION_LIKE = 2;
@@ -680,6 +689,8 @@ public class MainWindow extends JFrame {
     public static final int COLOR_TEMPERATURE = 11;
     public static final int COLOR_CHANNEL_MIXING = 12;
     public static final int HISTOGRAM_EQUALIZATION = 13;
+    public static final int POSTERIZE = 14;
+    public static final int SOLARIZE = 15;
     public static final int COLOR_SPACE_RGB = 0;
     public static final int COLOR_SPACE_HSB = 1;
     public static final int COLOR_SPACE_EXP = 2;
@@ -724,7 +735,7 @@ public class MainWindow extends JFrame {
 
         n_norm = 0;
 
-        filters = new boolean[14];
+        filters = new boolean[16];
 
         filters[ANTIALIASING] = false;
         filters[EDGE_DETECTION] = false;
@@ -740,6 +751,8 @@ public class MainWindow extends JFrame {
         filters[COLOR_TEMPERATURE] = false;
         filters[COLOR_CHANNEL_MIXING] = false;
         filters[HISTOGRAM_EQUALIZATION] = false;
+        filters[POSTERIZE] = false;
+        filters[SOLARIZE] = false;
 
 
         filters_options_vals = new int[filters.length];
@@ -747,6 +760,7 @@ public class MainWindow extends JFrame {
         filters_options_vals[ANTIALIASING] = 4;
         filters_options_vals[EDGE_DETECTION] = 0;
         filters_options_vals[EMBOSS] = 0;
+        filters_options_vals[HISTOGRAM_EQUALIZATION] = 0;
         filters_options_vals[SHARPNESS] = 0;
         filters_options_vals[COLOR_CHANNEL_MASKING] = 0;
         filters_options_vals[COLOR_CHANNEL_SWAPPING] = 0;
@@ -754,6 +768,9 @@ public class MainWindow extends JFrame {
         filters_options_vals[GRAYSCALE] = 0;
         filters_options_vals[COLOR_TEMPERATURE] = 2000;
         filters_options_vals[COLOR_CHANNEL_MIXING] = 1;
+        filters_options_vals[INVERT_COLORS] = 0;
+        filters_options_vals[POSTERIZE] = 32;
+
 
         fiX = 0.64;
         fiY = 0.82;
@@ -866,6 +883,9 @@ public class MainWindow extends JFrame {
         bumpMappingDepth = 50;
         lightDirectionDegrees = 0;
 
+        fake_de = false;
+        fake_de_factor = 1;
+
         first_paint = false;
 
         plane_type = MU_PLANE;
@@ -937,7 +957,12 @@ public class MainWindow extends JFrame {
         combo_boxes_filters = new JComboBox[combo_box_choices_filters.length];
 
         for(int k = 0; k < combo_box_choices_filters.length; k++) {
-            combo_box_choices_filters[k] = 0;
+            if(k == POSTERIZE) {
+                combo_box_choices_filters[k] = 4;
+            }
+            else {
+                combo_box_choices_filters[k] = 0;
+            }
         }
 
         Locale.setDefault(Locale.US);
@@ -1167,9 +1192,6 @@ public class MainWindow extends JFrame {
         boundaries_number_opt = new JMenuItem("Boundaries Options", getIcon("/fractalzoomer/icons/boundaries.png"));
 
 
-        bump_map_opt = new JMenuItem("Bump Mapping", getIcon("/fractalzoomer/icons/bump_map.png"));
-
-
         fast_julia_filters_opt = new JCheckBoxMenuItem("Julia Preview Image Filters");
 
         d3_details_opt = new JMenuItem("3D Options", getIcon("/fractalzoomer/icons/3d_options.png"));
@@ -1182,6 +1204,8 @@ public class MainWindow extends JFrame {
         histogram_eq_opt = new JCheckBoxMenuItem("Histogram Equalization");
         contrast_brightness_opt = new JCheckBoxMenuItem("Contrast/Brightness");
         color_temperature_opt = new JCheckBoxMenuItem("Color Temperature");
+        posterize_opt = new JCheckBoxMenuItem("Posterization");
+        solarize_opt = new JCheckBoxMenuItem("Solarization");
         fade_out_opt = new JCheckBoxMenuItem("Fade Out");
         invert_colors_opt = new JCheckBoxMenuItem("Inverted Colors");
         mask_color_channel_opt = new JCheckBoxMenuItem("Mask Color Channel");
@@ -1211,6 +1235,8 @@ public class MainWindow extends JFrame {
 
         smoothing_opt = new JMenuItem("Smoothing", getIcon("/fractalzoomer/icons/smoothing.png"));
         exterior_de_opt = new JMenuItem("Distance Estimation", getIcon("/fractalzoomer/icons/distance_estimation.png"));
+        bump_map_opt = new JMenuItem("Bump Mapping", getIcon("/fractalzoomer/icons/bump_map.png"));
+        fake_de_opt = new JMenuItem("Fake Distance Estimation", getIcon("/fractalzoomer/icons/fake_distance_estimation.png"));
 
         roll_palette_menu = new JMenu("Palette Shifting");
         roll_palette_menu.setIcon(getIcon("/fractalzoomer/icons/shift_palette.png"));
@@ -1274,6 +1300,7 @@ public class MainWindow extends JFrame {
         smoothing_opt.setToolTipText("Smooths the image's color transitions.");
         exterior_de_opt.setToolTipText("<html>Sets some points near the boundary of<br>the set to the maximum iterations value.</html>");
         bump_map_opt.setToolTipText("Emulates a light source to create a pseudo 3d image.");
+        fake_de_opt.setToolTipText("Emulates the effect of distance estimation.");
         color_intensity_opt.setToolTipText("Changes the color intensity of the palette.");
 
         grid_color_opt.setToolTipText("Sets the color of the grid.");
@@ -1319,6 +1346,8 @@ public class MainWindow extends JFrame {
         grayscale_opt.setToolTipText("Converts the image to grayscale.");
         color_temperature_opt.setToolTipText("Changes the color temperature of the image.");
         color_channel_mixing_opt.setToolTipText("Mixes the color channels of the image.");
+        posterize_opt.setToolTipText("Changes the color tones of the image.");
+        solarize_opt.setToolTipText("Creates a solarized effect.");
 
         help_contents.setToolTipText("Loads the help file.");
 
@@ -1351,8 +1380,9 @@ public class MainWindow extends JFrame {
         boundary_tracing_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, ActionEvent.CTRL_MASK));
         filters_options.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, ActionEvent.SHIFT_MASK));
         smoothing_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, 0));
-        exterior_de_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, ActionEvent.SHIFT_MASK));
+        exterior_de_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, 0));
         bump_map_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, 0));
+        fake_de_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, 0));
         color_intensity_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, ActionEvent.CTRL_MASK));
 
         fract_color.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T, ActionEvent.CTRL_MASK));
@@ -1365,7 +1395,7 @@ public class MainWindow extends JFrame {
         d3_details_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, ActionEvent.ALT_MASK));
 
         orbit_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, ActionEvent.CTRL_MASK));
-        polar_projection_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, ActionEvent.SHIFT_MASK));
+        polar_projection_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, 0));
         toolbar_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T, ActionEvent.ALT_MASK));
         statusbar_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.ALT_MASK));
         julia_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_J, ActionEvent.CTRL_MASK));
@@ -1390,6 +1420,8 @@ public class MainWindow extends JFrame {
         color_temperature_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, ActionEvent.ALT_MASK));
         color_channel_mixing_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, ActionEvent.ALT_MASK));
         histogram_eq_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.CTRL_MASK));
+        posterize_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, ActionEvent.SHIFT_MASK));
+        solarize_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.SHIFT_MASK));
 
         about.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, ActionEvent.ALT_MASK));
         help_contents.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, 0));
@@ -3699,7 +3731,7 @@ public class MainWindow extends JFrame {
         planes[plane_type].setEnabled(false);
 
 
-        out_coloring_modes = new JRadioButtonMenuItem[21];
+        out_coloring_modes = new JRadioButtonMenuItem[22];
 
         out_coloring_modes[ESCAPE_TIME] = new JRadioButtonMenuItem("Escape Time");
         out_coloring_modes[ESCAPE_TIME].setToolTipText("Sets the out-coloring method, using the iterations.");
@@ -3973,6 +4005,19 @@ public class MainWindow extends JFrame {
         out_coloring_mode_menu.add(out_coloring_modes[ATOM_DOMAIN]);
 
 
+        out_coloring_modes[BANDED] = new JRadioButtonMenuItem("Banded");
+        out_coloring_modes[BANDED].setToolTipText("Sets the out-coloring method, using an iteration based coloring.");
+        out_coloring_modes[BANDED].addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+
+                setOutColoringMode(BANDED);
+
+            }
+        });
+        out_coloring_mode_menu.add(out_coloring_modes[BANDED]);
+
+
         out_coloring_modes[out_coloring_algorithm].setSelected(true);
         out_coloring_modes[out_coloring_algorithm].setEnabled(false);
 
@@ -4132,6 +4177,14 @@ public class MainWindow extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 setBumpMap();
+            }
+        });
+
+        fake_de_opt.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                setFakeDistanceEstimation();
             }
         });
 
@@ -4641,6 +4694,26 @@ public class MainWindow extends JFrame {
             }
         });
 
+        posterize_opt.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                setPosterize();
+
+            }
+        });
+
+        solarize_opt.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                setSolarize();
+
+            }
+        });
+
         boundary_tracing_opt.addActionListener(new ActionListener() {
 
             @Override
@@ -4983,7 +5056,7 @@ public class MainWindow extends JFrame {
                 if(!color_cycling) {
                     main_panel.repaint();
                 }
-                JOptionPane.showMessageDialog(scroll_pane, "<html><center><font size='5' face='arial' color='blue'><b><u>Fractal Zoomer</u></b></font><br><br><font size='4'><img src=\"" + getClass().getResource("/fractalzoomer/icons/mandel2.png") + "\"><br><br>Version: <b>1.0.5.4</b><br><br>Author: <b>Christos Kalonakis</b><br><br>Contact: <a href=\"mailto:hrkalona@gmail.com\">hrkalona@gmail.com</a><br><br></font></center></html>", "About", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(scroll_pane, "<html><center><font size='5' face='arial' color='blue'><b><u>Fractal Zoomer</u></b></font><br><br><font size='4'><img src=\"" + getClass().getResource("/fractalzoomer/icons/mandel2.png") + "\"><br><br>Version: <b>1.0.5.5</b><br><br>Author: <b>Christos Kalonakis</b><br><br>Contact: <a href=\"mailto:hrkalona@gmail.com\">hrkalona@gmail.com</a><br><br></font></center></html>", "About", JOptionPane.INFORMATION_MESSAGE);
 
             }
         });
@@ -5385,6 +5458,7 @@ public class MainWindow extends JFrame {
         colors_menu.addSeparator();
         colors_menu.add(smoothing_opt);
         colors_menu.add(exterior_de_opt);
+        colors_menu.add(fake_de_opt);
         colors_menu.add(bump_map_opt);
         colors_menu.addSeparator();
         colors_menu.add(fract_color);
@@ -5493,13 +5567,15 @@ public class MainWindow extends JFrame {
         filters_menu.addSeparator();
         filters_menu.add(histogram_eq_opt);
         filters_menu.addSeparator();
+        filters_menu.add(posterize_opt);
+        filters_menu.addSeparator();
         filters_menu.add(contrast_brightness_opt);
         filters_menu.addSeparator();
         filters_menu.add(color_temperature_opt);
         filters_menu.addSeparator();
-        filters_menu.add(fade_out_opt);
-        filters_menu.addSeparator();
         filters_menu.add(invert_colors_opt);
+        filters_menu.addSeparator();
+        filters_menu.add(solarize_opt);
         filters_menu.addSeparator();
         filters_menu.add(mask_color_channel_opt);
         filters_menu.addSeparator();
@@ -5508,6 +5584,9 @@ public class MainWindow extends JFrame {
         filters_menu.add(color_channel_mixing_opt);
         filters_menu.addSeparator();
         filters_menu.add(grayscale_opt);
+        filters_menu.addSeparator();
+        filters_menu.add(fade_out_opt);
+
 
 
 
@@ -5744,7 +5823,7 @@ public class MainWindow extends JFrame {
                     julia_button.setSelected(false);
 
 
-                    if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS && out_coloring_algorithm != ESCAPE_TIME_GRID && out_coloring_algorithm != BIOMORPH && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5 && out_coloring_algorithm != ITERATIONS_PLUS_RE && out_coloring_algorithm != ITERATIONS_PLUS_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
+                    if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS && out_coloring_algorithm != ESCAPE_TIME_GRID && out_coloring_algorithm != BIOMORPH && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5 && out_coloring_algorithm != ITERATIONS_PLUS_RE && out_coloring_algorithm != ITERATIONS_PLUS_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && out_coloring_algorithm != BANDED) {
                         rootFindingMethodsSetEnabled(true);
                     }
                     fractal_functions[SIERPINSKI_GASKET].setEnabled(true);
@@ -6538,37 +6617,37 @@ public class MainWindow extends JFrame {
                 if(color_choice != palette.length - 1) {
                     if(julia) {
                         if(d3) {
-                            threads[i][j] = new Palette(color_choice, j * detail / n, (j + 1) * detail / n, i * detail / n, (i + 1) * detail / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, d3, d3_draw_method, detail, fiX, fiY, ptr, fractal_color, image, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, boundary_tracing, periodicity_checking, plane_type, burning_ship, mandel_grass, mandel_grass_vals, function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, coefficients, z_exponent_nova, relaxation, nova_method, user_formula, user_formula2, bail_technique, user_plane, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, d3_height_scale, d3_height_offset, escaping_smooth_algorithm, converging_smooth_algorithm, bump_map, lightDirectionDegrees, bumpMappingDepth, bumpMappingStrength, color_intensity, polar_projection, circle_period, xJuliaCenter, yJuliaCenter);
+                            threads[i][j] = new Palette(color_choice, j * detail / n, (j + 1) * detail / n, i * detail / n, (i + 1) * detail / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, d3, d3_draw_method, detail, fiX, fiY, ptr, fractal_color, image, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, boundary_tracing, periodicity_checking, plane_type, burning_ship, mandel_grass, mandel_grass_vals, function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, coefficients, z_exponent_nova, relaxation, nova_method, user_formula, user_formula2, bail_technique, user_plane, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, d3_height_scale, d3_height_offset, escaping_smooth_algorithm, converging_smooth_algorithm, bump_map, lightDirectionDegrees, bumpMappingDepth, bumpMappingStrength, color_intensity, polar_projection, circle_period, fake_de, fake_de_factor, xJuliaCenter, yJuliaCenter);
                         }
                         else {
-                            threads[i][j] = new Palette(color_choice, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, d3, d3_draw_method, detail, fiX, fiY, ptr, fractal_color, image, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, boundary_tracing, periodicity_checking, plane_type, burning_ship, mandel_grass, mandel_grass_vals, function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, coefficients, z_exponent_nova, relaxation, nova_method, user_formula, user_formula2, bail_technique, user_plane, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, d3_height_scale, d3_height_offset, escaping_smooth_algorithm, converging_smooth_algorithm, bump_map, lightDirectionDegrees, bumpMappingDepth, bumpMappingStrength, color_intensity, polar_projection, circle_period, xJuliaCenter, yJuliaCenter);
+                            threads[i][j] = new Palette(color_choice, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, d3, d3_draw_method, detail, fiX, fiY, ptr, fractal_color, image, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, boundary_tracing, periodicity_checking, plane_type, burning_ship, mandel_grass, mandel_grass_vals, function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, coefficients, z_exponent_nova, relaxation, nova_method, user_formula, user_formula2, bail_technique, user_plane, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, d3_height_scale, d3_height_offset, escaping_smooth_algorithm, converging_smooth_algorithm, bump_map, lightDirectionDegrees, bumpMappingDepth, bumpMappingStrength, color_intensity, polar_projection, circle_period, fake_de, fake_de_factor, xJuliaCenter, yJuliaCenter);
                         }
                     }
                     else {
                         if(d3) {
-                            threads[i][j] = new Palette(color_choice, j * detail / n, (j + 1) * detail / n, i * detail / n, (i + 1) * detail / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, d3, d3_draw_method, detail, fiX, fiY, ptr, fractal_color, image, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, boundary_tracing, periodicity_checking, plane_type, burning_ship, mandel_grass, mandel_grass_vals, function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, coefficients, z_exponent_nova, relaxation, nova_method, user_formula, user_formula2, bail_technique, user_plane, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, d3_height_scale, d3_height_offset, escaping_smooth_algorithm, converging_smooth_algorithm, bump_map, lightDirectionDegrees, bumpMappingDepth, bumpMappingStrength, color_intensity, polar_projection, circle_period);
+                            threads[i][j] = new Palette(color_choice, j * detail / n, (j + 1) * detail / n, i * detail / n, (i + 1) * detail / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, d3, d3_draw_method, detail, fiX, fiY, ptr, fractal_color, image, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, boundary_tracing, periodicity_checking, plane_type, burning_ship, mandel_grass, mandel_grass_vals, function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, coefficients, z_exponent_nova, relaxation, nova_method, user_formula, user_formula2, bail_technique, user_plane, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, d3_height_scale, d3_height_offset, escaping_smooth_algorithm, converging_smooth_algorithm, bump_map, lightDirectionDegrees, bumpMappingDepth, bumpMappingStrength, color_intensity, polar_projection, circle_period, fake_de, fake_de_factor);
                         }
                         else {
-                            threads[i][j] = new Palette(color_choice, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, d3, d3_draw_method, detail, fiX, fiY, ptr, fractal_color, image, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, boundary_tracing, periodicity_checking, plane_type, burning_ship, mandel_grass, mandel_grass_vals, function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, coefficients, z_exponent_nova, relaxation, nova_method, user_formula, user_formula2, bail_technique, user_plane, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, d3_height_scale, d3_height_offset, escaping_smooth_algorithm, converging_smooth_algorithm, bump_map, lightDirectionDegrees, bumpMappingDepth, bumpMappingStrength, color_intensity, polar_projection, circle_period);
+                            threads[i][j] = new Palette(color_choice, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, d3, d3_draw_method, detail, fiX, fiY, ptr, fractal_color, image, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, boundary_tracing, periodicity_checking, plane_type, burning_ship, mandel_grass, mandel_grass_vals, function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, coefficients, z_exponent_nova, relaxation, nova_method, user_formula, user_formula2, bail_technique, user_plane, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, d3_height_scale, d3_height_offset, escaping_smooth_algorithm, converging_smooth_algorithm, bump_map, lightDirectionDegrees, bumpMappingDepth, bumpMappingStrength, color_intensity, polar_projection, circle_period, fake_de, fake_de_factor);
                         }
                     }
                 }
                 else {
                     if(julia) {
                         if(d3) {
-                            threads[i][j] = new CustomPalette(custom_palette, color_interpolation, color_space, reversed_palette, j * detail / n, (j + 1) * detail / n, i * detail / n, (i + 1) * detail / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, d3, d3_draw_method, detail, fiX, fiY, ptr, fractal_color, image, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, boundary_tracing, periodicity_checking, plane_type, burning_ship, mandel_grass, mandel_grass_vals, function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, coefficients, z_exponent_nova, relaxation, nova_method, user_formula, user_formula2, bail_technique, user_plane, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, d3_height_scale, d3_height_offset, escaping_smooth_algorithm, converging_smooth_algorithm, bump_map, lightDirectionDegrees, bumpMappingDepth, bumpMappingStrength, color_intensity, polar_projection, circle_period, xJuliaCenter, yJuliaCenter);
+                            threads[i][j] = new CustomPalette(custom_palette, color_interpolation, color_space, reversed_palette, j * detail / n, (j + 1) * detail / n, i * detail / n, (i + 1) * detail / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, d3, d3_draw_method, detail, fiX, fiY, ptr, fractal_color, image, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, boundary_tracing, periodicity_checking, plane_type, burning_ship, mandel_grass, mandel_grass_vals, function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, coefficients, z_exponent_nova, relaxation, nova_method, user_formula, user_formula2, bail_technique, user_plane, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, d3_height_scale, d3_height_offset, escaping_smooth_algorithm, converging_smooth_algorithm, bump_map, lightDirectionDegrees, bumpMappingDepth, bumpMappingStrength, color_intensity, polar_projection, circle_period, fake_de, fake_de_factor, xJuliaCenter, yJuliaCenter);
                         }
                         else {
-                            threads[i][j] = new CustomPalette(custom_palette, color_interpolation, color_space, reversed_palette, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, d3, d3_draw_method, detail, fiX, fiY, ptr, fractal_color, image, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, boundary_tracing, periodicity_checking, plane_type, burning_ship, mandel_grass, mandel_grass_vals, function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, coefficients, z_exponent_nova, relaxation, nova_method, user_formula, user_formula2, bail_technique, user_plane, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, d3_height_scale, d3_height_offset, escaping_smooth_algorithm, converging_smooth_algorithm, bump_map, lightDirectionDegrees, bumpMappingDepth, bumpMappingStrength, color_intensity, polar_projection, circle_period, xJuliaCenter, yJuliaCenter);
+                            threads[i][j] = new CustomPalette(custom_palette, color_interpolation, color_space, reversed_palette, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, d3, d3_draw_method, detail, fiX, fiY, ptr, fractal_color, image, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, boundary_tracing, periodicity_checking, plane_type, burning_ship, mandel_grass, mandel_grass_vals, function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, coefficients, z_exponent_nova, relaxation, nova_method, user_formula, user_formula2, bail_technique, user_plane, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, d3_height_scale, d3_height_offset, escaping_smooth_algorithm, converging_smooth_algorithm, bump_map, lightDirectionDegrees, bumpMappingDepth, bumpMappingStrength, color_intensity, polar_projection, circle_period, fake_de, fake_de_factor, xJuliaCenter, yJuliaCenter);
                         }
                     }
                     else {
                         if(d3) {
-                            threads[i][j] = new CustomPalette(custom_palette, color_interpolation, color_space, reversed_palette, j * detail / n, (j + 1) * detail / n, i * detail / n, (i + 1) * detail / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, d3, d3_draw_method, detail, fiX, fiY, ptr, fractal_color, image, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, boundary_tracing, periodicity_checking, plane_type, burning_ship, mandel_grass, mandel_grass_vals, function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, coefficients, z_exponent_nova, relaxation, nova_method, user_formula, user_formula2, bail_technique, user_plane, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, d3_height_scale, d3_height_offset, escaping_smooth_algorithm, converging_smooth_algorithm, bump_map, lightDirectionDegrees, bumpMappingDepth, bumpMappingStrength, color_intensity, polar_projection, circle_period);
+                            threads[i][j] = new CustomPalette(custom_palette, color_interpolation, color_space, reversed_palette, j * detail / n, (j + 1) * detail / n, i * detail / n, (i + 1) * detail / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, d3, d3_draw_method, detail, fiX, fiY, ptr, fractal_color, image, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, boundary_tracing, periodicity_checking, plane_type, burning_ship, mandel_grass, mandel_grass_vals, function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, coefficients, z_exponent_nova, relaxation, nova_method, user_formula, user_formula2, bail_technique, user_plane, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, d3_height_scale, d3_height_offset, escaping_smooth_algorithm, converging_smooth_algorithm, bump_map, lightDirectionDegrees, bumpMappingDepth, bumpMappingStrength, color_intensity, polar_projection, circle_period, fake_de, fake_de_factor);
 
                         }
                         else {
-                            threads[i][j] = new CustomPalette(custom_palette, color_interpolation, color_space, reversed_palette, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, d3, d3_draw_method, detail, fiX, fiY, ptr, fractal_color, image, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, boundary_tracing, periodicity_checking, plane_type, burning_ship, mandel_grass, mandel_grass_vals, function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, coefficients, z_exponent_nova, relaxation, nova_method, user_formula, user_formula2, bail_technique, user_plane, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, d3_height_scale, d3_height_offset, escaping_smooth_algorithm, converging_smooth_algorithm, bump_map, lightDirectionDegrees, bumpMappingDepth, bumpMappingStrength, color_intensity, polar_projection, circle_period);
+                            threads[i][j] = new CustomPalette(custom_palette, color_interpolation, color_space, reversed_palette, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, d3, d3_draw_method, detail, fiX, fiY, ptr, fractal_color, image, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, boundary_tracing, periodicity_checking, plane_type, burning_ship, mandel_grass, mandel_grass_vals, function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, coefficients, z_exponent_nova, relaxation, nova_method, user_formula, user_formula2, bail_technique, user_plane, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, d3_height_scale, d3_height_offset, escaping_smooth_algorithm, converging_smooth_algorithm, bump_map, lightDirectionDegrees, bumpMappingDepth, bumpMappingStrength, color_intensity, polar_projection, circle_period, fake_de, fake_de_factor);
                         }
                     }
                 }
@@ -6636,7 +6715,7 @@ public class MainWindow extends JFrame {
                 file_temp = new ObjectOutputStream(new FileOutputStream(file.toString()));
                 SettingsFractals settings;
                 if(julia) {
-                    settings = new SettingsJulia1054(xCenter, yCenter, size, max_iterations, color_choice, fractal_color, out_coloring_algorithm, in_coloring_algorithm, smoothing, function, bailout_test_algorithm, bailout, n_norm, plane_type, burning_ship, z_exponent, z_exponent_complex, color_cycling_location, coefficients, custom_palette, color_interpolation, color_space, reversed_palette, rotation, rotation_center, mandel_grass, mandel_grass_vals, z_exponent_nova, relaxation, nova_method, user_formula, user_formula2, bail_technique, user_plane, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, color_intensity, escaping_smooth_algorithm, converging_smooth_algorithm, bump_map, bumpMappingStrength, bumpMappingDepth, lightDirectionDegrees, polar_projection, circle_period, xJuliaCenter, yJuliaCenter);
+                    settings = new SettingsJulia1055(xCenter, yCenter, size, max_iterations, color_choice, fractal_color, out_coloring_algorithm, in_coloring_algorithm, smoothing, function, bailout_test_algorithm, bailout, n_norm, plane_type, burning_ship, z_exponent, z_exponent_complex, color_cycling_location, coefficients, custom_palette, color_interpolation, color_space, reversed_palette, rotation, rotation_center, mandel_grass, mandel_grass_vals, z_exponent_nova, relaxation, nova_method, user_formula, user_formula2, bail_technique, user_plane, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, color_intensity, escaping_smooth_algorithm, converging_smooth_algorithm, bump_map, bumpMappingStrength, bumpMappingDepth, lightDirectionDegrees, polar_projection, circle_period, fake_de, fake_de_factor, xJuliaCenter, yJuliaCenter);
                 }
                 else {
                     int temp_bailout_test_algorithm = 0;
@@ -6645,7 +6724,7 @@ public class MainWindow extends JFrame {
                         temp_bailout_test_algorithm = bailout_test_algorithm;
                     }
 
-                    settings = new SettingsFractals1054(xCenter, yCenter, size, max_iterations, color_choice, fractal_color, out_coloring_algorithm, in_coloring_algorithm, smoothing, function, temp_bailout_test_algorithm, bailout, n_norm, plane_type, burning_ship, z_exponent, z_exponent_complex, color_cycling_location, coefficients, custom_palette, color_interpolation, color_space, reversed_palette, rotation, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, mandel_grass, mandel_grass_vals, z_exponent_nova, relaxation, nova_method, user_formula, user_formula2, bail_technique, user_plane, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, color_intensity, escaping_smooth_algorithm, converging_smooth_algorithm, bump_map, bumpMappingStrength, bumpMappingDepth, lightDirectionDegrees, polar_projection, circle_period);
+                    settings = new SettingsFractals1055(xCenter, yCenter, size, max_iterations, color_choice, fractal_color, out_coloring_algorithm, in_coloring_algorithm, smoothing, function, temp_bailout_test_algorithm, bailout, n_norm, plane_type, burning_ship, z_exponent, z_exponent_complex, color_cycling_location, coefficients, custom_palette, color_interpolation, color_space, reversed_palette, rotation, rotation_center, perturbation, perturbation_vals, init_val, initial_vals, mandel_grass, mandel_grass_vals, z_exponent_nova, relaxation, nova_method, user_formula, user_formula2, bail_technique, user_plane, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, color_intensity, escaping_smooth_algorithm, converging_smooth_algorithm, bump_map, bumpMappingStrength, bumpMappingDepth, lightDirectionDegrees, polar_projection, circle_period, fake_de, fake_de_factor);
                 }
                 file_temp.writeObject(settings);
                 file_temp.flush();
@@ -6669,7 +6748,7 @@ public class MainWindow extends JFrame {
         String temp = class_name;
         temp = temp.substring(29, temp.length());
 
-        return temp.equals("SettingsJulia") || temp.equals("SettingsJulia1049") || temp.equals("SettingsJulia1050") || temp.equals("SettingsJulia1053") || temp.equals("SettingsJulia1054");
+        return temp.equals("SettingsJulia") || temp.equals("SettingsJulia1049") || temp.equals("SettingsJulia1050") || temp.equals("SettingsJulia1053") || temp.equals("SettingsJulia1054") || temp.equals("SettingsJulia1055");
 
     }
 
@@ -6692,6 +6771,9 @@ public class MainWindow extends JFrame {
         }
         else if(temp.equals("SettingsJulia1054") || temp.equals("SettingsFractals1054")) {
             return "1.0.5.4";
+        }
+        else if(temp.equals("SettingsJulia1055") || temp.equals("SettingsFractals1055")) {
+            return "1.0.5.5";
         }
 
         return "";
@@ -6787,6 +6869,10 @@ public class MainWindow extends JFrame {
                         xJuliaCenter = ((SettingsJulia1054)settings).getXJuliaCenter();
                         yJuliaCenter = ((SettingsJulia1054)settings).getYJuliaCenter();
                     }
+                    else if(getSettingsVersion("" + settings.getClass()).equals("1.0.5.5")) {
+                        xJuliaCenter = ((SettingsJulia1054)settings).getXJuliaCenter();
+                        yJuliaCenter = ((SettingsJulia1054)settings).getYJuliaCenter();
+                    }
 
                     julia = true;
                     first_seed = false;
@@ -6864,14 +6950,10 @@ public class MainWindow extends JFrame {
                         plane_transform_center[0] = -1;
                         plane_transform_center[1] = 0;
                     }
-                    else if(plane_type == FOLDIN_PLANE) {
-                        plane_transform_center[0] = 1;
-                        plane_transform_center[1] = 0;
+                    else if(plane_type == FOLDIN_PLANE || plane_type == FOLDOUT_PLANE) {
+                        plane_transform_radius = 1;
                     }
-                    else if(plane_type == FOLDOUT_PLANE) {
-                        plane_transform_center[0] = 1;
-                        plane_transform_center[1] = 0;
-                    }
+
                 }
                 else {
                     exterior_de = ((SettingsFractals1053)settings).getExteriorDe();
@@ -6903,8 +6985,15 @@ public class MainWindow extends JFrame {
                         plane_transform_radius = ((SettingsFractals1053)settings).getPlaneTransformRadius();
                         plane_transform_amount = ((SettingsFractals1053)settings).getPlaneTransformAmount();
                     }
-                    else if(plane_type == FOLDUP_PLANE || plane_type == FOLDDOWN_PLANE || plane_type == FOLDRIGHT_PLANE || plane_type == FOLDLEFT_PLANE || plane_type == FOLDIN_PLANE || plane_type == FOLDOUT_PLANE) {
+                    else if(plane_type == FOLDUP_PLANE || plane_type == FOLDDOWN_PLANE || plane_type == FOLDRIGHT_PLANE || plane_type == FOLDLEFT_PLANE) {
                         plane_transform_center = ((SettingsFractals1053)settings).getPlaneTransformCenter();
+                    }
+                    else if(plane_type == FOLDIN_PLANE || plane_type == FOLDOUT_PLANE) {
+                        plane_transform_radius = ((SettingsFractals1053)settings).getPlaneTransformRadius();
+                    }
+                    else if(plane_type == CIRCLEINVERSION_PLANE) {
+                        plane_transform_center = ((SettingsFractals1053)settings).getPlaneTransformCenter();
+                        plane_transform_radius = ((SettingsFractals1053)settings).getPlaneTransformRadius();
                     }
                 }
 
@@ -6984,6 +7073,17 @@ public class MainWindow extends JFrame {
 
                     color_intensity = ((SettingsFractals1054)settings).getColorIntensity();
                 }
+                
+                if(getSettingsVersion("" + settings.getClass()).equals("1.0.4.8") || getSettingsVersion("" + settings.getClass()).equals("1.0.4.9") || getSettingsVersion("" + settings.getClass()).equals("1.0.5.0") || getSettingsVersion("" + settings.getClass()).equals("1.0.5.3") || getSettingsVersion("" + settings.getClass()).equals("1.0.5.4")) {
+                    fake_de = false;
+                }
+                else {
+                    fake_de = ((SettingsFractals1055)settings).getFakeDe();
+                    
+                    if(fake_de) {
+                        fake_de_factor = ((SettingsFractals1055)settings).getFakeDeFactor();
+                    }
+                }
 
                 if(in_coloring_algorithm != MAXIMUM_ITERATIONS) {
                     periodicity_checking = false;
@@ -7033,7 +7133,7 @@ public class MainWindow extends JFrame {
                         mandel_grass_opt.setEnabled(false);
                     }
                 }
-                else if(out_coloring_algorithm == ESCAPE_TIME_ESCAPE_RADIUS || out_coloring_algorithm == ESCAPE_TIME_GRID || out_coloring_algorithm == BIOMORPH || out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER || out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER2 || out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER3 || out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER4 || out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER5 || out_coloring_algorithm == ITERATIONS_PLUS_RE || out_coloring_algorithm == ITERATIONS_PLUS_IM || out_coloring_algorithm == ITERATIONS_PLUS_RE_DIVIDE_IM || out_coloring_algorithm == ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM || out_coloring_algorithm == ESCAPE_TIME_ALGORITHM2) {
+                else if(out_coloring_algorithm == ESCAPE_TIME_ESCAPE_RADIUS || out_coloring_algorithm == ESCAPE_TIME_GRID || out_coloring_algorithm == BIOMORPH || out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER || out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER2 || out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER3 || out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER4 || out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER5 || out_coloring_algorithm == ITERATIONS_PLUS_RE || out_coloring_algorithm == ITERATIONS_PLUS_IM || out_coloring_algorithm == ITERATIONS_PLUS_RE_DIVIDE_IM || out_coloring_algorithm == ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM || out_coloring_algorithm == ESCAPE_TIME_ALGORITHM2 || out_coloring_algorithm == BANDED) {
                     rootFindingMethodsSetEnabled(false);
                 }
                 else {
@@ -7057,7 +7157,7 @@ public class MainWindow extends JFrame {
                     exterior_de_opt.setEnabled(false);
                 }
 
-                if(bump_map) {
+                if(bump_map || fake_de) {
                     d3_opt.setEnabled(false);
                     d3_button.setEnabled(false);
 
@@ -7542,6 +7642,9 @@ public class MainWindow extends JFrame {
                         if(out_coloring_algorithm != BIOMORPH) {
                             out_coloring_modes[BIOMORPH].setEnabled(true);
                         }
+                        if(out_coloring_algorithm != BANDED) {
+                            out_coloring_modes[BANDED].setEnabled(true);
+                        }
                         if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                             out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
                         }
@@ -7693,7 +7796,7 @@ public class MainWindow extends JFrame {
                 burning_ship_opt.setSelected(burning_ship);
                 mandel_grass_opt.setSelected(mandel_grass);
 
-                if(plane_type == USER_PLANE || plane_type == TWIRL_PLANE || plane_type == SHEAR_PLANE || plane_type == KALEIDOSCOPE_PLANE || plane_type == PINCH_PLANE || plane_type == FOLDUP_PLANE || plane_type == FOLDDOWN_PLANE || plane_type == FOLDRIGHT_PLANE || plane_type == FOLDLEFT_PLANE || plane_type == FOLDIN_PLANE || plane_type == FOLDOUT_PLANE) {
+                if(plane_type == USER_PLANE || plane_type == TWIRL_PLANE || plane_type == SHEAR_PLANE || plane_type == KALEIDOSCOPE_PLANE || plane_type == PINCH_PLANE || plane_type == FOLDUP_PLANE || plane_type == FOLDDOWN_PLANE || plane_type == FOLDRIGHT_PLANE || plane_type == FOLDLEFT_PLANE || plane_type == FOLDIN_PLANE || plane_type == FOLDOUT_PLANE || plane_type == CIRCLEINVERSION_PLANE) {
                     planes[plane_type].setSelected(true);
                 }
                 else {
@@ -10706,12 +10809,134 @@ public class MainWindow extends JFrame {
 
     }
 
+    private void setPosterize() {
+
+        if(!posterize_opt.isSelected()) {
+            filters[POSTERIZE] = false;
+        }
+        else {
+            filters[POSTERIZE] = true;
+        }
+
+        setOptions(false);
+
+        progress.setValue(0);
+
+        last_used = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
+        System.arraycopy(((DataBufferInt)image.getRaster().getDataBuffer()).getData(), 0, ((DataBufferInt)last_used.getRaster().getDataBuffer()).getData(), 0, image_size * image_size);
+
+        image = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
+
+        backup_orbit = null;
+
+        whole_image_done = false;
+
+        if(d3) {
+            Arrays.fill(((DataBufferInt)image.getRaster().getDataBuffer()).getData(), 0, image_size * image_size, Color.BLACK.getRGB());
+        }
+
+        if(filters[ANTIALIASING]) {
+            if(julia_map) {
+                createThreadsJuliaMap();
+            }
+            else if(d3) {
+                createThreadsRotate3DModel();
+            }
+            else {
+                createThreads();
+            }
+
+            calculation_time = System.currentTimeMillis();
+
+            if(julia_map) {
+                startThreads(julia_grid_first_dimension);
+            }
+            else {
+                startThreads(n);
+            }
+        }
+        else {
+            if(d3) {
+                createThreadsRotate3DModel();
+            }
+            else {
+                createThreadsPaletteAndFilter();
+            }
+
+            calculation_time = System.currentTimeMillis();
+
+            startThreads(n);
+        }
+
+    }
+
+    private void setSolarize() {
+
+        if(!solarize_opt.isSelected()) {
+            filters[SOLARIZE] = false;
+        }
+        else {
+            filters[SOLARIZE] = true;
+        }
+
+        setOptions(false);
+
+        progress.setValue(0);
+
+        last_used = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
+        System.arraycopy(((DataBufferInt)image.getRaster().getDataBuffer()).getData(), 0, ((DataBufferInt)last_used.getRaster().getDataBuffer()).getData(), 0, image_size * image_size);
+
+        image = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
+
+        backup_orbit = null;
+
+        whole_image_done = false;
+
+        if(d3) {
+            Arrays.fill(((DataBufferInt)image.getRaster().getDataBuffer()).getData(), 0, image_size * image_size, Color.BLACK.getRGB());
+        }
+
+        if(filters[ANTIALIASING]) {
+            if(julia_map) {
+                createThreadsJuliaMap();
+            }
+            else if(d3) {
+                createThreadsRotate3DModel();
+            }
+            else {
+                createThreads();
+            }
+
+            calculation_time = System.currentTimeMillis();
+
+            if(julia_map) {
+                startThreads(julia_grid_first_dimension);
+            }
+            else {
+                startThreads(n);
+            }
+        }
+        else {
+            if(d3) {
+                createThreadsRotate3DModel();
+            }
+            else {
+                createThreadsPaletteAndFilter();
+            }
+
+            calculation_time = System.currentTimeMillis();
+
+            startThreads(n);
+        }
+
+    }
+
     private void setGrid() {
 
         if(!grid_opt.isSelected()) {
             grid = false;
             old_grid = grid;
-            if(!zoom_window && !julia_map && !orbit && image_size < 2001 && !boundaries && !bump_map) {
+            if(!zoom_window && !julia_map && !orbit && image_size < 2001 && !boundaries && !bump_map && !fake_de) {
                 d3_opt.setEnabled(true);
                 d3_button.setEnabled(true);
             }
@@ -10740,7 +10965,7 @@ public class MainWindow extends JFrame {
         if(!boundaries_opt.isSelected()) {
             boundaries = false;
             old_boundaries = boundaries;
-            if(!zoom_window && !julia_map && !orbit && image_size < 2001 && !grid && !bump_map) {
+            if(!zoom_window && !julia_map && !orbit && image_size < 2001 && !grid && !bump_map && !fake_de) {
                 d3_opt.setEnabled(true);
                 d3_button.setEnabled(true);
             }
@@ -10775,7 +11000,7 @@ public class MainWindow extends JFrame {
                 }
             }
 
-            if(image_size < 2001 && !grid && !boundaries && !bump_map) {
+            if(image_size < 2001 && !grid && !boundaries && !bump_map && !fake_de) {
                 d3_opt.setEnabled(true);
                 d3_button.setEnabled(true);
             }
@@ -11112,7 +11337,7 @@ public class MainWindow extends JFrame {
             julia = false;
             julia_button.setSelected(false);
             fast_julia_image = null;
-            if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS && out_coloring_algorithm != ESCAPE_TIME_GRID && out_coloring_algorithm != BIOMORPH && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5 && out_coloring_algorithm != ITERATIONS_PLUS_RE && out_coloring_algorithm != ITERATIONS_PLUS_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && out_coloring_algorithm != DISTANCE_ESTIMATOR && !exterior_de && out_coloring_algorithm != ATOM_DOMAIN) {
+            if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS && out_coloring_algorithm != ESCAPE_TIME_GRID && out_coloring_algorithm != BIOMORPH && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5 && out_coloring_algorithm != ITERATIONS_PLUS_RE && out_coloring_algorithm != ITERATIONS_PLUS_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && out_coloring_algorithm != DISTANCE_ESTIMATOR && !exterior_de && out_coloring_algorithm != ATOM_DOMAIN && out_coloring_algorithm != BANDED) {
                 rootFindingMethodsSetEnabled(true);
             }
             if(out_coloring_algorithm != ATOM_DOMAIN && out_coloring_algorithm != DISTANCE_ESTIMATOR && !exterior_de) {
@@ -11157,7 +11382,7 @@ public class MainWindow extends JFrame {
                 }
             }
 
-            if(image_size < 2001 && !grid && !boundaries && !bump_map) {
+            if(image_size < 2001 && !grid && !boundaries && !bump_map && !fake_de) {
                 d3_opt.setEnabled(true);
                 d3_button.setEnabled(true);
             }
@@ -11165,7 +11390,7 @@ public class MainWindow extends JFrame {
             if(!polar_projection) {
                 zoom_window_opt.setEnabled(true);
             }
-            
+
             color_cycling_opt.setEnabled(true);
             color_cycling_button.setEnabled(true);
 
@@ -11524,6 +11749,10 @@ public class MainWindow extends JFrame {
             bump_map_opt.setEnabled(option);
         }
 
+        if(!d3) {
+            fake_de_opt.setEnabled(option);
+        }
+
         if(!zoom_window && !boundaries && !grid) {
             polar_projection_opt.setEnabled(option);
             polar_projection_button.setEnabled(option);
@@ -11543,6 +11772,8 @@ public class MainWindow extends JFrame {
         grayscale_opt.setEnabled(option);
         color_channel_mixing_opt.setEnabled(option);
         color_temperature_opt.setEnabled(option);
+        posterize_opt.setEnabled(option);
+        solarize_opt.setEnabled(option);
 
         filters_options.setEnabled(option);
 
@@ -11578,7 +11809,7 @@ public class MainWindow extends JFrame {
             julia_map_opt.setEnabled(option);
         }
 
-        if(!zoom_window && !orbit && !julia_map && !grid && image_size < 2001 && !boundaries && !bump_map) {
+        if(!zoom_window && !orbit && !julia_map && !grid && image_size < 2001 && !boundaries && !bump_map && !fake_de) {
             d3_opt.setEnabled(option);
             d3_button.setEnabled(option);
         }
@@ -14223,7 +14454,7 @@ public class MainWindow extends JFrame {
                                     != ESCAPE_TIME_GAUSSIAN_INTEGER4 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5 && out_coloring_algorithm != ITERATIONS_PLUS_RE
                                     && out_coloring_algorithm != ITERATIONS_PLUS_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && out_coloring_algorithm
                                     != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && out_coloring_algorithm
-                                    != DISTANCE_ESTIMATOR && !exterior_de && out_coloring_algorithm != ATOM_DOMAIN) {
+                                    != DISTANCE_ESTIMATOR && !exterior_de && out_coloring_algorithm != ATOM_DOMAIN && out_coloring_algorithm != BANDED) {
                                 rootFindingMethodsSetEnabled(true);
                             }
                             if(out_coloring_algorithm != DISTANCE_ESTIMATOR && !exterior_de && out_coloring_algorithm != ATOM_DOMAIN) {
@@ -14242,7 +14473,7 @@ public class MainWindow extends JFrame {
                                     != ESCAPE_TIME_GAUSSIAN_INTEGER3 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && out_coloring_algorithm
                                     != ESCAPE_TIME_GAUSSIAN_INTEGER5 && out_coloring_algorithm != ITERATIONS_PLUS_RE && out_coloring_algorithm != ITERATIONS_PLUS_IM
                                     && out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM
-                                    && out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && !perturbation) {
+                                    && out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && out_coloring_algorithm != BANDED && !perturbation) {
                                 rootFindingMethodsSetEnabled(true);
                             }
 
@@ -14261,7 +14492,7 @@ public class MainWindow extends JFrame {
                                     != ESCAPE_TIME_GAUSSIAN_INTEGER3 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && out_coloring_algorithm
                                     != ESCAPE_TIME_GAUSSIAN_INTEGER5 && out_coloring_algorithm != ITERATIONS_PLUS_RE && out_coloring_algorithm != ITERATIONS_PLUS_IM
                                     && out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM
-                                    && out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && !init_val) {
+                                    && out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && out_coloring_algorithm != BANDED && !init_val) {
                                 rootFindingMethodsSetEnabled(true);
                             }
 
@@ -14281,7 +14512,7 @@ public class MainWindow extends JFrame {
                                     != ESCAPE_TIME_GAUSSIAN_INTEGER3 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && out_coloring_algorithm
                                     != ESCAPE_TIME_GAUSSIAN_INTEGER5 && out_coloring_algorithm != ITERATIONS_PLUS_RE && out_coloring_algorithm != ITERATIONS_PLUS_IM
                                     && out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM
-                                    && out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
+                                    && out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && out_coloring_algorithm != BANDED) {
                                 rootFindingMethodsSetEnabled(true);
                             }
 
@@ -14599,7 +14830,7 @@ public class MainWindow extends JFrame {
                                     != ESCAPE_TIME_GAUSSIAN_INTEGER4 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5 && out_coloring_algorithm != ITERATIONS_PLUS_RE
                                     && out_coloring_algorithm != ITERATIONS_PLUS_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && out_coloring_algorithm
                                     != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && out_coloring_algorithm
-                                    != DISTANCE_ESTIMATOR && !exterior_de && out_coloring_algorithm != ATOM_DOMAIN) {
+                                    != DISTANCE_ESTIMATOR && !exterior_de && out_coloring_algorithm != ATOM_DOMAIN && out_coloring_algorithm != BANDED) {
                                 rootFindingMethodsSetEnabled(true);
                             }
                             if(out_coloring_algorithm != DISTANCE_ESTIMATOR && !exterior_de && out_coloring_algorithm != ATOM_DOMAIN) {
@@ -14617,7 +14848,7 @@ public class MainWindow extends JFrame {
                                     != ESCAPE_TIME_GAUSSIAN_INTEGER3 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && out_coloring_algorithm
                                     != ESCAPE_TIME_GAUSSIAN_INTEGER5 && out_coloring_algorithm != ITERATIONS_PLUS_RE && out_coloring_algorithm != ITERATIONS_PLUS_IM
                                     && out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM
-                                    && out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && !perturbation) {
+                                    && out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && out_coloring_algorithm != BANDED && !perturbation) {
                                 rootFindingMethodsSetEnabled(true);
                             }
 
@@ -14636,7 +14867,7 @@ public class MainWindow extends JFrame {
                                     != ESCAPE_TIME_GAUSSIAN_INTEGER3 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && out_coloring_algorithm
                                     != ESCAPE_TIME_GAUSSIAN_INTEGER5 && out_coloring_algorithm != ITERATIONS_PLUS_RE && out_coloring_algorithm != ITERATIONS_PLUS_IM
                                     && out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM
-                                    && out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && !init_val) {
+                                    && out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && out_coloring_algorithm != BANDED && !init_val) {
                                 rootFindingMethodsSetEnabled(true);
                             }
 
@@ -14656,7 +14887,7 @@ public class MainWindow extends JFrame {
                                     != ESCAPE_TIME_GAUSSIAN_INTEGER3 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && out_coloring_algorithm
                                     != ESCAPE_TIME_GAUSSIAN_INTEGER5 && out_coloring_algorithm != ITERATIONS_PLUS_RE && out_coloring_algorithm != ITERATIONS_PLUS_IM
                                     && out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM
-                                    && out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
+                                    && out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && out_coloring_algorithm != BANDED) {
                                 rootFindingMethodsSetEnabled(true);
                             }
 
@@ -14771,6 +15002,9 @@ public class MainWindow extends JFrame {
                 }
                 if(out_coloring_algorithm != BIOMORPH) {
                     out_coloring_modes[BIOMORPH].setEnabled(true);
+                }
+                if(out_coloring_algorithm != BANDED) {
+                    out_coloring_modes[BANDED].setEnabled(true);
                 }
                 if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                     out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
@@ -14928,7 +15162,7 @@ public class MainWindow extends JFrame {
                             julia_button.setSelected(false);
                             julia_opt.setSelected(false);
                             fast_julia_image = null;
-                            if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS && out_coloring_algorithm != ESCAPE_TIME_GRID && out_coloring_algorithm != BIOMORPH && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5 && out_coloring_algorithm != ITERATIONS_PLUS_RE && out_coloring_algorithm != ITERATIONS_PLUS_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && out_coloring_algorithm != DISTANCE_ESTIMATOR && !exterior_de && out_coloring_algorithm != ATOM_DOMAIN) {
+                            if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS && out_coloring_algorithm != ESCAPE_TIME_GRID && out_coloring_algorithm != BIOMORPH && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5 && out_coloring_algorithm != ITERATIONS_PLUS_RE && out_coloring_algorithm != ITERATIONS_PLUS_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && out_coloring_algorithm != DISTANCE_ESTIMATOR && !exterior_de && out_coloring_algorithm != ATOM_DOMAIN && out_coloring_algorithm != BANDED) {
                                 rootFindingMethodsSetEnabled(true);
                             }
                             if(out_coloring_algorithm != DISTANCE_ESTIMATOR && !exterior_de && out_coloring_algorithm != ATOM_DOMAIN) {
@@ -14940,7 +15174,7 @@ public class MainWindow extends JFrame {
                             init_val = false;
                             init_val_opt.setSelected(false);
 
-                            if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS && out_coloring_algorithm != ESCAPE_TIME_GRID && out_coloring_algorithm != DISTANCE_ESTIMATOR && !exterior_de && out_coloring_algorithm != ATOM_DOMAIN && out_coloring_algorithm != BIOMORPH && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5 && out_coloring_algorithm != ITERATIONS_PLUS_RE && out_coloring_algorithm != ITERATIONS_PLUS_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && !perturbation) {
+                            if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS && out_coloring_algorithm != ESCAPE_TIME_GRID && out_coloring_algorithm != DISTANCE_ESTIMATOR && !exterior_de && out_coloring_algorithm != ATOM_DOMAIN && out_coloring_algorithm != BIOMORPH && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5 && out_coloring_algorithm != ITERATIONS_PLUS_RE && out_coloring_algorithm != ITERATIONS_PLUS_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && out_coloring_algorithm != BANDED && !perturbation) {
                                 rootFindingMethodsSetEnabled(true);
                             }
 
@@ -14953,7 +15187,7 @@ public class MainWindow extends JFrame {
                             perturbation = false;
                             perturbation_opt.setSelected(false);
 
-                            if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS && out_coloring_algorithm != ESCAPE_TIME_GRID && out_coloring_algorithm != DISTANCE_ESTIMATOR && !exterior_de && out_coloring_algorithm != ATOM_DOMAIN && out_coloring_algorithm != BIOMORPH && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5 && out_coloring_algorithm != ITERATIONS_PLUS_RE && out_coloring_algorithm != ITERATIONS_PLUS_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && !init_val) {
+                            if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS && out_coloring_algorithm != ESCAPE_TIME_GRID && out_coloring_algorithm != DISTANCE_ESTIMATOR && !exterior_de && out_coloring_algorithm != ATOM_DOMAIN && out_coloring_algorithm != BIOMORPH && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5 && out_coloring_algorithm != ITERATIONS_PLUS_RE && out_coloring_algorithm != ITERATIONS_PLUS_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && out_coloring_algorithm != BANDED && !init_val) {
                                 rootFindingMethodsSetEnabled(true);
                             }
 
@@ -14967,7 +15201,7 @@ public class MainWindow extends JFrame {
                             julia_map_opt.setSelected(false);
                             setOptions(false);
 
-                            if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS && out_coloring_algorithm != ESCAPE_TIME_GRID && out_coloring_algorithm != DISTANCE_ESTIMATOR && !exterior_de && out_coloring_algorithm != ATOM_DOMAIN && out_coloring_algorithm != BIOMORPH && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5 && out_coloring_algorithm != ITERATIONS_PLUS_RE && out_coloring_algorithm != ITERATIONS_PLUS_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
+                            if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS && out_coloring_algorithm != ESCAPE_TIME_GRID && out_coloring_algorithm != DISTANCE_ESTIMATOR && !exterior_de && out_coloring_algorithm != ATOM_DOMAIN && out_coloring_algorithm != BIOMORPH && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5 && out_coloring_algorithm != ITERATIONS_PLUS_RE && out_coloring_algorithm != ITERATIONS_PLUS_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && out_coloring_algorithm != BANDED) {
                                 rootFindingMethodsSetEnabled(true);
                             }
 
@@ -16987,10 +17221,10 @@ public class MainWindow extends JFrame {
         for(int i = 0; i < n; i++) {
             for(int j = 0; j < n; j++) {
                 if(color_choice != palette.length - 1) {
-                    threads[i][j] = new Palette(color_choice, j * FAST_JULIA_IMAGE_SIZE / n, (j + 1) * FAST_JULIA_IMAGE_SIZE / n, i * FAST_JULIA_IMAGE_SIZE / n, (i + 1) * FAST_JULIA_IMAGE_SIZE / n, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, bailout_test_algorithm, temp_bailout, n_norm, ptr, fractal_color, fast_julia_filters, fast_julia_image, boundary_tracing, periodicity_checking, plane_type, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, burning_ship, mandel_grass, mandel_grass_vals, function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, coefficients, z_exponent_nova, relaxation, nova_method, user_formula, user_formula2, bail_technique, user_plane, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, converging_smooth_algorithm, bump_map, lightDirectionDegrees, bumpMappingDepth, bumpMappingStrength, color_intensity, polar_projection, circle_period, temp_xJuliaCenter, temp_yJuliaCenter);
+                    threads[i][j] = new Palette(color_choice, j * FAST_JULIA_IMAGE_SIZE / n, (j + 1) * FAST_JULIA_IMAGE_SIZE / n, i * FAST_JULIA_IMAGE_SIZE / n, (i + 1) * FAST_JULIA_IMAGE_SIZE / n, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, bailout_test_algorithm, temp_bailout, n_norm, ptr, fractal_color, fast_julia_filters, fast_julia_image, boundary_tracing, periodicity_checking, plane_type, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, burning_ship, mandel_grass, mandel_grass_vals, function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, coefficients, z_exponent_nova, relaxation, nova_method, user_formula, user_formula2, bail_technique, user_plane, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, converging_smooth_algorithm, bump_map, lightDirectionDegrees, bumpMappingDepth, bumpMappingStrength, color_intensity, polar_projection, circle_period, fake_de, fake_de_factor, temp_xJuliaCenter, temp_yJuliaCenter);
                 }
                 else {
-                    threads[i][j] = new CustomPalette(custom_palette, color_interpolation, color_space, reversed_palette, j * FAST_JULIA_IMAGE_SIZE / n, (j + 1) * FAST_JULIA_IMAGE_SIZE / n, i * FAST_JULIA_IMAGE_SIZE / n, (i + 1) * FAST_JULIA_IMAGE_SIZE / n, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, bailout_test_algorithm, temp_bailout, n_norm, ptr, fractal_color, fast_julia_filters, fast_julia_image, boundary_tracing, periodicity_checking, plane_type, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, burning_ship, mandel_grass, mandel_grass_vals, function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, coefficients, z_exponent_nova, relaxation, nova_method, user_formula, user_formula2, bail_technique, user_plane, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, converging_smooth_algorithm, bump_map, lightDirectionDegrees, bumpMappingDepth, bumpMappingStrength, color_intensity, polar_projection, circle_period, temp_xJuliaCenter, temp_yJuliaCenter);
+                    threads[i][j] = new CustomPalette(custom_palette, color_interpolation, color_space, reversed_palette, j * FAST_JULIA_IMAGE_SIZE / n, (j + 1) * FAST_JULIA_IMAGE_SIZE / n, i * FAST_JULIA_IMAGE_SIZE / n, (i + 1) * FAST_JULIA_IMAGE_SIZE / n, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, bailout_test_algorithm, temp_bailout, n_norm, ptr, fractal_color, fast_julia_filters, fast_julia_image, boundary_tracing, periodicity_checking, plane_type, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, burning_ship, mandel_grass, mandel_grass_vals, function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, coefficients, z_exponent_nova, relaxation, nova_method, user_formula, user_formula2, bail_technique, user_plane, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, converging_smooth_algorithm, bump_map, lightDirectionDegrees, bumpMappingDepth, bumpMappingStrength, color_intensity, polar_projection, circle_period, fake_de, fake_de_factor, temp_xJuliaCenter, temp_yJuliaCenter);
                 }
             }
         }
@@ -17066,10 +17300,10 @@ public class MainWindow extends JFrame {
             setOptions(false);
 
             if(color_choice != palette.length - 1) {
-                threads[0][0] = new Palette(color_choice, 0, image_size, 0, image_size, max_iterations, ptr, fractal_color, smoothing, image, color_cycling_location, bump_map, lightDirectionDegrees, bumpMappingDepth, bumpMappingStrength, color_intensity);
+                threads[0][0] = new Palette(color_choice, 0, image_size, 0, image_size, max_iterations, ptr, fractal_color, smoothing, image, color_cycling_location, bump_map, lightDirectionDegrees, bumpMappingDepth, bumpMappingStrength, color_intensity, fake_de, fake_de_factor);
             }
             else {
-                threads[0][0] = new CustomPalette(custom_palette, color_interpolation, color_space, reversed_palette, 0, image_size, 0, image_size, max_iterations, ptr, fractal_color, smoothing, image, color_cycling_location, bump_map, lightDirectionDegrees, bumpMappingDepth, bumpMappingStrength, color_intensity);
+                threads[0][0] = new CustomPalette(custom_palette, color_interpolation, color_space, reversed_palette, 0, image_size, 0, image_size, max_iterations, ptr, fractal_color, smoothing, image, color_cycling_location, bump_map, lightDirectionDegrees, bumpMappingDepth, bumpMappingStrength, color_intensity, fake_de, fake_de_factor);
             }
 
             whole_image_done = false;
@@ -17087,10 +17321,10 @@ public class MainWindow extends JFrame {
         for(int i = 0; i < n; i++) {
             for(int j = 0; j < n; j++) {
                 if(color_choice != palette.length - 1) {
-                    threads[i][j] = new Palette(color_choice, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, max_iterations, ptr, image, fractal_color, color_cycling_location, smoothing, filters, filters_options_vals, bump_map, lightDirectionDegrees, bumpMappingDepth, bumpMappingStrength, color_intensity);
+                    threads[i][j] = new Palette(color_choice, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, max_iterations, ptr, image, fractal_color, color_cycling_location, smoothing, filters, filters_options_vals, bump_map, lightDirectionDegrees, bumpMappingDepth, bumpMappingStrength, color_intensity, fake_de, fake_de_factor);
                 }
                 else {
-                    threads[i][j] = new CustomPalette(custom_palette, color_interpolation, color_space, reversed_palette, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, max_iterations, ptr, image, fractal_color, color_cycling_location, smoothing, filters, filters_options_vals, bump_map, lightDirectionDegrees, bumpMappingDepth, bumpMappingStrength, color_intensity);
+                    threads[i][j] = new CustomPalette(custom_palette, color_interpolation, color_space, reversed_palette, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, max_iterations, ptr, image, fractal_color, color_cycling_location, smoothing, filters, filters_options_vals, bump_map, lightDirectionDegrees, bumpMappingDepth, bumpMappingStrength, color_intensity, fake_de, fake_de_factor);
                 }
             }
         }
@@ -18574,7 +18808,7 @@ public class MainWindow extends JFrame {
             init_val_opt.setEnabled(false);
             perturbation_opt.setEnabled(false);
         }
-        else if(out_coloring_algorithm == ESCAPE_TIME_ESCAPE_RADIUS || out_coloring_algorithm == ESCAPE_TIME_GRID || out_coloring_algorithm == BIOMORPH || out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER || out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER2 || out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER3 || out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER4 || out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER5 || out_coloring_algorithm == ITERATIONS_PLUS_RE || out_coloring_algorithm == ITERATIONS_PLUS_IM || out_coloring_algorithm == ITERATIONS_PLUS_RE_DIVIDE_IM || out_coloring_algorithm == ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM || out_coloring_algorithm == ESCAPE_TIME_ALGORITHM2) {
+        else if(out_coloring_algorithm == ESCAPE_TIME_ESCAPE_RADIUS || out_coloring_algorithm == ESCAPE_TIME_GRID || out_coloring_algorithm == BIOMORPH || out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER || out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER2 || out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER3 || out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER4 || out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER5 || out_coloring_algorithm == ITERATIONS_PLUS_RE || out_coloring_algorithm == ITERATIONS_PLUS_IM || out_coloring_algorithm == ITERATIONS_PLUS_RE_DIVIDE_IM || out_coloring_algorithm == ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM || out_coloring_algorithm == ESCAPE_TIME_ALGORITHM2 || out_coloring_algorithm == BANDED) {
             rootFindingMethodsSetEnabled(false);
         }
         else {
@@ -18592,6 +18826,8 @@ public class MainWindow extends JFrame {
                 out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
                 out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
                 out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
+                out_coloring_modes[BANDED].setEnabled(true);
+  
             }
             out_coloring_modes[BIOMORPH].setSelected(false);
             out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setSelected(false);
@@ -18606,6 +18842,7 @@ public class MainWindow extends JFrame {
             out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setSelected(false);
             out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setSelected(false);
             out_coloring_modes[ESCAPE_TIME_GRID].setSelected(false);
+            out_coloring_modes[BANDED].setEnabled(false);
 
 
             if(!julia_map && !julia && !perturbation && !init_val && function != NEWTON3 && function != NEWTON4 && function != NEWTONGENERALIZED3 && function != NEWTONGENERALIZED8 && function != NEWTONSIN && function != NEWTONCOS && function != NEWTONPOLY && function != HALLEY3 && function != HALLEY4 && function != HALLEYGENERALIZED3 && function != HALLEYGENERALIZED8 && function != HALLEYSIN && function != HALLEYCOS && function != HALLEYPOLY && function != SCHRODER3 && function != SCHRODER4 && function != SCHRODERGENERALIZED3 && function != SCHRODERGENERALIZED8 && function != SCHRODERSIN && function != SCHRODERCOS && function != SCHRODERPOLY && function != HOUSEHOLDER3 && function != HOUSEHOLDER4 && function != HOUSEHOLDERGENERALIZED3 && function != HOUSEHOLDERGENERALIZED8 && function != HOUSEHOLDERSIN && function != HOUSEHOLDERCOS && function != HOUSEHOLDERPOLY && function != SECANT3 && function != SECANT4 && function != SECANTGENERALIZED3 && function != SECANTGENERALIZED8 && function != SECANTCOS && function != SECANTPOLY && function != STEFFENSEN3 && function != STEFFENSEN4 && function != STEFFENSENGENERALIZED3) {
@@ -18957,6 +19194,111 @@ public class MainWindow extends JFrame {
 
     }
 
+    private void setFakeDistanceEstimation() {
+
+        if(backup_orbit != null && orbit) {
+            image = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
+            System.arraycopy(((DataBufferInt)backup_orbit.getRaster().getDataBuffer()).getData(), 0, ((DataBufferInt)image.getRaster().getDataBuffer()).getData(), 0, image_size * image_size);
+        }
+        main_panel.repaint();
+
+        JTextField fake_de_factor_field = new JTextField();
+        fake_de_factor_field.setText("" + fake_de_factor);
+
+        fake_de_factor_field.addAncestorListener(new RequestFocusListener());
+
+        final JCheckBox enable_fake_de = new JCheckBox("Fake Distance Estimation");
+        enable_fake_de.setSelected(fake_de);
+        enable_fake_de.setFocusable(false);
+
+        Object[] message = {
+            " ",
+            enable_fake_de,
+            " ",
+            "Set the fake distance estimation factor.",
+            "Fake Distance Estimation factor:", fake_de_factor_field,
+            " "};
+
+
+        int res = JOptionPane.showConfirmDialog(scroll_pane, message, "Fake Distance Estimation", JOptionPane.OK_CANCEL_OPTION);
+
+
+        double temp;
+        if(res == JOptionPane.OK_OPTION) {
+            try {
+                temp = Double.parseDouble(fake_de_factor_field.getText());
+            }
+            catch(Exception ex) {
+                JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
+                main_panel.repaint();
+                return;
+            }
+        }
+        else {
+            main_panel.repaint();
+            return;
+        }
+
+
+        if(temp < 0) {
+            main_panel.repaint();
+            JOptionPane.showMessageDialog(scroll_pane, "The fake distance estimation factor must be greater than -1.", "Error!", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        //if(boundary_tracing && enable_fake_de.isSelected() && !julia_map) {
+        //JOptionPane.showMessageDialog(scroll_pane, "Boundary tracing is enabled, which creates glitches in the image.\nYou should disable boundary tracing for a better result.", "Warning!", JOptionPane.WARNING_MESSAGE);
+        //}
+
+        fake_de = enable_fake_de.isSelected();
+        fake_de_factor = temp;
+
+        if(fake_de) {
+            d3_opt.setEnabled(false);
+            d3_button.setEnabled(false);
+        }
+
+        setOptions(false);
+
+        progress.setValue(0);
+
+        last_used = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
+        System.arraycopy(((DataBufferInt)image.getRaster().getDataBuffer()).getData(), 0, ((DataBufferInt)last_used.getRaster().getDataBuffer()).getData(), 0, image_size * image_size);
+
+        image = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
+
+        backup_orbit = null;
+
+        whole_image_done = false;
+
+        if(filters[ANTIALIASING]) {
+            if(julia_map) {
+                createThreadsJuliaMap();
+            }
+            else {
+                createThreads();
+            }
+
+            calculation_time = System.currentTimeMillis();
+
+            if(julia_map) {
+                startThreads(julia_grid_first_dimension);
+            }
+            else {
+                startThreads(n);
+            }
+        }
+        else {
+            createThreadsPaletteAndFilter();
+
+            calculation_time = System.currentTimeMillis();
+
+            startThreads(n);
+        }
+
+
+    }
+
     private void setExteriorDistanceEstimation() {
 
         if(backup_orbit != null && orbit) {
@@ -18979,7 +19321,7 @@ public class MainWindow extends JFrame {
             " ",
             enable_dem,
             " ",
-            "Set the exterior distance estimation factor.",
+            "Set the distance estimation factor.",
             "Distance Estimation factor:", dem_factor,
             " "};
 
@@ -19042,7 +19384,7 @@ public class MainWindow extends JFrame {
                 }
             }
 
-            if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS && out_coloring_algorithm != ESCAPE_TIME_GRID && out_coloring_algorithm != DISTANCE_ESTIMATOR && !exterior_de && out_coloring_algorithm != ATOM_DOMAIN && out_coloring_algorithm != BIOMORPH && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5 && out_coloring_algorithm != ITERATIONS_PLUS_RE && out_coloring_algorithm != ITERATIONS_PLUS_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && !julia && !julia_map && !perturbation && !init_val) {
+            if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS && out_coloring_algorithm != ESCAPE_TIME_GRID && out_coloring_algorithm != DISTANCE_ESTIMATOR && !exterior_de && out_coloring_algorithm != ATOM_DOMAIN && out_coloring_algorithm != BIOMORPH && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5 && out_coloring_algorithm != ITERATIONS_PLUS_RE && out_coloring_algorithm != ITERATIONS_PLUS_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && out_coloring_algorithm != BANDED && !julia && !julia_map && !perturbation && !init_val) {
                 rootFindingMethodsSetEnabled(true);
             }
 
@@ -19091,7 +19433,7 @@ public class MainWindow extends JFrame {
             julia_map = false;
             setOptions(false);
 
-            if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS && out_coloring_algorithm != ESCAPE_TIME_GRID && out_coloring_algorithm != DISTANCE_ESTIMATOR && out_coloring_algorithm != ATOM_DOMAIN && !exterior_de && out_coloring_algorithm != BIOMORPH && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5 && out_coloring_algorithm != ITERATIONS_PLUS_RE && out_coloring_algorithm != ITERATIONS_PLUS_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
+            if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS && out_coloring_algorithm != ESCAPE_TIME_GRID && out_coloring_algorithm != DISTANCE_ESTIMATOR && out_coloring_algorithm != ATOM_DOMAIN && !exterior_de && out_coloring_algorithm != BIOMORPH && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5 && out_coloring_algorithm != ITERATIONS_PLUS_RE && out_coloring_algorithm != ITERATIONS_PLUS_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && out_coloring_algorithm != BANDED) {
                 rootFindingMethodsSetEnabled(true);
             }
 
@@ -20731,10 +21073,10 @@ public class MainWindow extends JFrame {
         for(int i = 0; i < n; i++) {
             for(int j = 0; j < n; j++) {
                 if(color_choice != palette.length - 1) {
-                    threads[i][j] = new Palette(color_choice, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, ptr, fractal_color, image, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, burning_ship, mandel_grass, mandel_grass_vals, function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, coefficients, z_exponent_nova, relaxation, nova_method, user_formula, user_formula2, bail_technique, user_plane, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, converging_smooth_algorithm, bump_map, lightDirectionDegrees, bumpMappingDepth, bumpMappingStrength, color_intensity, polar_projection, circle_period);
+                    threads[i][j] = new Palette(color_choice, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, ptr, fractal_color, image, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, burning_ship, mandel_grass, mandel_grass_vals, function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, coefficients, z_exponent_nova, relaxation, nova_method, user_formula, user_formula2, bail_technique, user_plane, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, converging_smooth_algorithm, bump_map, lightDirectionDegrees, bumpMappingDepth, bumpMappingStrength, color_intensity, polar_projection, circle_period, fake_de, fake_de_factor);
                 }
                 else {
-                    threads[i][j] = new CustomPalette(custom_palette, color_interpolation, color_space, reversed_palette, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, ptr, fractal_color, image, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, burning_ship, mandel_grass, mandel_grass_vals, function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, coefficients, z_exponent_nova, relaxation, nova_method, user_formula, user_formula2, bail_technique, user_plane, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, converging_smooth_algorithm, bump_map, lightDirectionDegrees, bumpMappingDepth, bumpMappingStrength, color_intensity, polar_projection, circle_period);
+                    threads[i][j] = new CustomPalette(custom_palette, color_interpolation, color_space, reversed_palette, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, ptr, fractal_color, image, filters, filters_options_vals, out_coloring_algorithm, in_coloring_algorithm, smoothing, periodicity_checking, plane_type, burning_ship, mandel_grass, mandel_grass_vals, function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, coefficients, z_exponent_nova, relaxation, nova_method, user_formula, user_formula2, bail_technique, user_plane, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, converging_smooth_algorithm, bump_map, lightDirectionDegrees, bumpMappingDepth, bumpMappingStrength, color_intensity, polar_projection, circle_period, fake_de, fake_de_factor);
                 }
             }
         }
@@ -20963,7 +21305,7 @@ public class MainWindow extends JFrame {
                 out_coloring_modes[ATOM_DOMAIN].setEnabled(true);
             }
 
-            if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS && out_coloring_algorithm != ESCAPE_TIME_GRID && out_coloring_algorithm != DISTANCE_ESTIMATOR && !exterior_de && out_coloring_algorithm != ATOM_DOMAIN && out_coloring_algorithm != BIOMORPH && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5 && out_coloring_algorithm != ITERATIONS_PLUS_RE && out_coloring_algorithm != ITERATIONS_PLUS_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && !init_val) {
+            if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS && out_coloring_algorithm != ESCAPE_TIME_GRID && out_coloring_algorithm != DISTANCE_ESTIMATOR && !exterior_de && out_coloring_algorithm != ATOM_DOMAIN && out_coloring_algorithm != BIOMORPH && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5 && out_coloring_algorithm != ITERATIONS_PLUS_RE && out_coloring_algorithm != ITERATIONS_PLUS_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && out_coloring_algorithm != BANDED && !init_val) {
                 rootFindingMethodsSetEnabled(true);
             }
 
@@ -21048,7 +21390,7 @@ public class MainWindow extends JFrame {
                 out_coloring_modes[ATOM_DOMAIN].setEnabled(true);
             }
 
-            if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS && out_coloring_algorithm != ESCAPE_TIME_GRID && out_coloring_algorithm != DISTANCE_ESTIMATOR && out_coloring_algorithm != ATOM_DOMAIN && !exterior_de && out_coloring_algorithm != BIOMORPH && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5 && out_coloring_algorithm != ITERATIONS_PLUS_RE && out_coloring_algorithm != ITERATIONS_PLUS_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && !perturbation) {
+            if(out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS && out_coloring_algorithm != ESCAPE_TIME_GRID && out_coloring_algorithm != DISTANCE_ESTIMATOR && out_coloring_algorithm != ATOM_DOMAIN && !exterior_de && out_coloring_algorithm != BIOMORPH && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5 && out_coloring_algorithm != ITERATIONS_PLUS_RE && out_coloring_algorithm != ITERATIONS_PLUS_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM && out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && out_coloring_algorithm != BANDED && !perturbation) {
                 rootFindingMethodsSetEnabled(true);
             }
 
@@ -21349,7 +21691,7 @@ public class MainWindow extends JFrame {
 
         setEnabled(false);
         int filters_options_window_width = 430;
-        int filters_options_window_height = 410;
+        int filters_options_window_height = 510;
         filters_options_frame = new JFrame("Filters Options");
         filters_options_frame.setIconImage(getIcon("/fractalzoomer/icons/filter_options.png").getImage());
         filters_options_frame.setLayout(new FlowLayout());
@@ -21372,7 +21714,7 @@ public class MainWindow extends JFrame {
 
         JPanel panel = new JPanel();
 
-        panel.setPreferredSize(new Dimension(400, 330));
+        panel.setPreferredSize(new Dimension(400, 430));
 
         JPanel[] panels = new JPanel[combo_boxes_filters.length];
 
@@ -21399,7 +21741,7 @@ public class MainWindow extends JFrame {
 
 
         panels[SHARPNESS] = new JPanel();
-        String[] sharpness_str = {"Sharpness Low", "Sharpness High"};
+        String[] sharpness_str = {"Low", "High"};
 
         combo_boxes_filters[SHARPNESS] = new JComboBox(sharpness_str);
         combo_boxes_filters[SHARPNESS].setSelectedIndex(combo_box_choices_filters[SHARPNESS]);
@@ -21410,7 +21752,7 @@ public class MainWindow extends JFrame {
 
 
         panels[EMBOSS] = new JPanel();
-        String[] emboss_str = {"Emboss Grayscale", "Emboss Colored"};
+        String[] emboss_str = {"Grayscale", "Colored"};
 
         combo_boxes_filters[EMBOSS] = new JComboBox(emboss_str);
         combo_boxes_filters[EMBOSS].setSelectedIndex(combo_box_choices_filters[EMBOSS]);
@@ -21418,6 +21760,26 @@ public class MainWindow extends JFrame {
         combo_boxes_filters[EMBOSS].setToolTipText("Sets the color format of the emboss.");
         panels[EMBOSS].add(combo_boxes_filters[EMBOSS]);
         panels[EMBOSS].setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Emboss", TitledBorder.DEFAULT_POSITION, TitledBorder.DEFAULT_POSITION));
+
+        panels[HISTOGRAM_EQUALIZATION] = new JPanel();
+        String[] histogram_str = {"Brightness", "GIMP levels", "Red", "Green", "Blue"};
+
+        combo_boxes_filters[HISTOGRAM_EQUALIZATION] = new JComboBox(histogram_str);
+        combo_boxes_filters[HISTOGRAM_EQUALIZATION].setSelectedIndex(combo_box_choices_filters[HISTOGRAM_EQUALIZATION]);
+        combo_boxes_filters[HISTOGRAM_EQUALIZATION].setFocusable(false);
+        combo_boxes_filters[HISTOGRAM_EQUALIZATION].setToolTipText("Sets the histogram algorithm.");
+        panels[HISTOGRAM_EQUALIZATION].add(combo_boxes_filters[HISTOGRAM_EQUALIZATION]);
+        panels[HISTOGRAM_EQUALIZATION].setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Histogram Equalization", TitledBorder.DEFAULT_POSITION, TitledBorder.DEFAULT_POSITION));
+
+        panels[POSTERIZE] = new JPanel();
+        String[] posterize_str = {"2 levels", "4 levels", "8 levels", "16 levels", "32 levels", "64 levels", "128 levels"};
+
+        combo_boxes_filters[POSTERIZE] = new JComboBox(posterize_str);
+        combo_boxes_filters[POSTERIZE].setSelectedIndex(combo_box_choices_filters[POSTERIZE]);
+        combo_boxes_filters[POSTERIZE].setFocusable(false);
+        combo_boxes_filters[POSTERIZE].setToolTipText("Sets the posterization level.");
+        panels[POSTERIZE].add(combo_boxes_filters[POSTERIZE]);
+        panels[POSTERIZE].setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Posterize", TitledBorder.DEFAULT_POSITION, TitledBorder.DEFAULT_POSITION));
 
 
         panels[CONTRAST_BRIGHTNESS] = new JPanel();
@@ -21440,8 +21802,20 @@ public class MainWindow extends JFrame {
         panels[COLOR_TEMPERATURE].add(combo_boxes_filters[COLOR_TEMPERATURE]);
         panels[COLOR_TEMPERATURE].setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Color Temperature", TitledBorder.DEFAULT_POSITION, TitledBorder.DEFAULT_POSITION));
 
+
+        panels[INVERT_COLORS] = new JPanel();
+        String[] color_invert_str = {"Colors", "Brightness"};
+
+        combo_boxes_filters[INVERT_COLORS] = new JComboBox(color_invert_str);
+        combo_boxes_filters[INVERT_COLORS].setSelectedIndex(combo_box_choices_filters[INVERT_COLORS]);
+        combo_boxes_filters[INVERT_COLORS].setFocusable(false);
+        combo_boxes_filters[INVERT_COLORS].setToolTipText("Sets the color inverting algorithm.");
+        panels[INVERT_COLORS].add(combo_boxes_filters[INVERT_COLORS]);
+        panels[INVERT_COLORS].setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Inverted Colors", TitledBorder.DEFAULT_POSITION, TitledBorder.DEFAULT_POSITION));
+
+
         panels[COLOR_CHANNEL_MASKING] = new JPanel();
-        String[] mask_color_channel_str = {"Mask Red Channel", "Mask Green Channel", "Mask Blue Channel"};
+        String[] mask_color_channel_str = {"Red", "Green", "Blue"};
 
         combo_boxes_filters[COLOR_CHANNEL_MASKING] = new JComboBox(mask_color_channel_str);
         combo_boxes_filters[COLOR_CHANNEL_MASKING].setSelectedIndex(combo_box_choices_filters[COLOR_CHANNEL_MASKING]);
@@ -21452,7 +21826,7 @@ public class MainWindow extends JFrame {
 
 
         panels[COLOR_CHANNEL_SWAPPING] = new JPanel();
-        String[] color_channel_swapping_str = {"Color Channel Swapping RBG", "Color Channel Swapping GRB", "Color Channel Swapping GBR", "Color Channel Swapping BGR", "Color Channel Swapping BRG"};
+        String[] color_channel_swapping_str = {"RBG", "GRB", "GBR", "BGR", "BRG"};
 
         combo_boxes_filters[COLOR_CHANNEL_SWAPPING] = new JComboBox(color_channel_swapping_str);
         combo_boxes_filters[COLOR_CHANNEL_SWAPPING].setSelectedIndex(combo_box_choices_filters[COLOR_CHANNEL_SWAPPING]);
@@ -21463,7 +21837,7 @@ public class MainWindow extends JFrame {
 
 
         panels[COLOR_CHANNEL_MIXING] = new JPanel();
-        String[] color_channel_mixing_str = {"Mix Green to Red", "Mix Blue to Red", "Mix Red to Green", "Mix Blue to Green", "Mix Red to Blue", "Mix Green to Blue"};
+        String[] color_channel_mixing_str = {"Green to Red", "Blue to Red", "Red to Green", "Blue to Green", "Red to Blue", "Green to Blue"};
 
         combo_boxes_filters[COLOR_CHANNEL_MIXING] = new JComboBox(color_channel_mixing_str);
         combo_boxes_filters[COLOR_CHANNEL_MIXING].setSelectedIndex(combo_box_choices_filters[COLOR_CHANNEL_MIXING]);
@@ -21474,7 +21848,7 @@ public class MainWindow extends JFrame {
 
 
         panels[GRAYSCALE] = new JPanel();
-        String[] grayscale_str = {"Grayscale Luminance NTSC", "Grayscale Luminance HDTV", "Grayscale Average", "Grayscale Lightness"};
+        String[] grayscale_str = {"Luminance NTSC", "Luminance HDTV", "Average", "Lightness"};
 
         combo_boxes_filters[GRAYSCALE] = new JComboBox(grayscale_str);
         combo_boxes_filters[GRAYSCALE].setSelectedIndex(combo_box_choices_filters[GRAYSCALE]);
@@ -21484,18 +21858,24 @@ public class MainWindow extends JFrame {
         panels[GRAYSCALE].setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Grayscale", TitledBorder.DEFAULT_POSITION, TitledBorder.DEFAULT_POSITION));
 
 
-        panel.setLayout(new GridLayout(5, 2));
+
+
+        panel.setLayout(new GridLayout(7, 2));
 
         panel.add(panels[ANTIALIASING]);
         panel.add(panels[EDGE_DETECTION]);
         panel.add(panels[SHARPNESS]);
         panel.add(panels[EMBOSS]);
+        panel.add(panels[HISTOGRAM_EQUALIZATION]);
+        panel.add(panels[POSTERIZE]);
         panel.add(panels[CONTRAST_BRIGHTNESS]);
         panel.add(panels[COLOR_TEMPERATURE]);
+        panel.add(panels[INVERT_COLORS]);
         panel.add(panels[COLOR_CHANNEL_MASKING]);
         panel.add(panels[COLOR_CHANNEL_SWAPPING]);
         panel.add(panels[COLOR_CHANNEL_MIXING]);
         panel.add(panels[GRAYSCALE]);
+
 
         panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Filters", TitledBorder.DEFAULT_POSITION, TitledBorder.DEFAULT_POSITION));
 
@@ -21562,8 +21942,12 @@ public class MainWindow extends JFrame {
                 filters_options_vals[COLOR_CHANNEL_MIXING] = combo_box_choices_filters[COLOR_CHANNEL_MIXING] + 1 + combo_box_choices_filters[COLOR_CHANNEL_MIXING] / 3;
 
                 filters_options_vals[GRAYSCALE] = combo_box_choices_filters[GRAYSCALE];
+                filters_options_vals[HISTOGRAM_EQUALIZATION] = combo_box_choices_filters[HISTOGRAM_EQUALIZATION];
+                filters_options_vals[INVERT_COLORS] = combo_box_choices_filters[INVERT_COLORS];
 
-                if(filters[ANTIALIASING] || filters[EDGE_DETECTION] || filters[SHARPNESS] || filters[EMBOSS] || filters[COLOR_CHANNEL_MASKING] || filters[COLOR_CHANNEL_SWAPPING] || filters[CONTRAST_BRIGHTNESS] || filters[GRAYSCALE] || filters[COLOR_TEMPERATURE] || filters[COLOR_CHANNEL_MIXING]) {
+                filters_options_vals[POSTERIZE] = (int)Math.pow(2, combo_box_choices_filters[POSTERIZE] + 1);
+
+                if(filters[ANTIALIASING] || filters[EDGE_DETECTION] || filters[SHARPNESS] || filters[EMBOSS] || filters[COLOR_CHANNEL_MASKING] || filters[COLOR_CHANNEL_SWAPPING] || filters[CONTRAST_BRIGHTNESS] || filters[GRAYSCALE] || filters[COLOR_TEMPERATURE] || filters[COLOR_CHANNEL_MIXING] || filters[HISTOGRAM_EQUALIZATION] || filters[INVERT_COLORS] || filters[POSTERIZE]) {
                     setOptions(false);
 
                     progress.setValue(0);
@@ -21668,11 +22052,27 @@ public class MainWindow extends JFrame {
 
             whole_image_done = false;
 
-            createThreads();
+            if(d3) {
+                fiX = 0.64;
+                fiY = 0.82;
+                Arrays.fill(((DataBufferInt)image.getRaster().getDataBuffer()).getData(), 0, image_size * image_size, Color.BLACK.getRGB());
+            }
+
+            if(julia_map) {
+                createThreadsJuliaMap();
+            }
+            else {
+                createThreads();
+            }
 
             calculation_time = System.currentTimeMillis();
 
-            startThreads(n);
+            if(julia_map) {
+                startThreads(julia_grid_first_dimension);
+            }
+            else {
+                startThreads(n);
+            }
         }
         else {
             JTextField field_real = new JTextField();
@@ -21766,6 +22166,8 @@ public class MainWindow extends JFrame {
                     image = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
 
                     if(d3) {
+                        fiX = 0.64;
+                        fiY = 0.82;
                         Arrays.fill(((DataBufferInt)image.getRaster().getDataBuffer()).getData(), 0, image_size * image_size, Color.BLACK.getRGB());
                     }
 
@@ -21773,11 +22175,21 @@ public class MainWindow extends JFrame {
 
                     whole_image_done = false;
 
-                    createThreads();
+                    if(julia_map) {
+                        createThreadsJuliaMap();
+                    }
+                    else {
+                        createThreads();
+                    }
 
                     calculation_time = System.currentTimeMillis();
 
-                    startThreads(n);
+                    if(julia_map) {
+                        startThreads(julia_grid_first_dimension);
+                    }
+                    else {
+                        startThreads(n);
+                    }
                 }
                 catch(Exception e) {
                     JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
@@ -21924,6 +22336,7 @@ public class MainWindow extends JFrame {
                     d3_details_opt.setEnabled(true);
 
                     bump_map_opt.setEnabled(false);
+                    fake_de_opt.setEnabled(false);
 
                     d3 = true;
 
@@ -22335,6 +22748,9 @@ public class MainWindow extends JFrame {
         if(out_coloring_algorithm != BIOMORPH) {
             out_coloring_modes[BIOMORPH].setEnabled(true);
         }
+        if(out_coloring_algorithm != BANDED) {
+            out_coloring_modes[BANDED].setEnabled(true);
+        }
         if(out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
             out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
         }
@@ -22381,6 +22797,7 @@ public class MainWindow extends JFrame {
         julia_button.setEnabled(false);
         julia_map_opt.setEnabled(false);
         out_coloring_modes[BIOMORPH].setEnabled(false);
+        out_coloring_modes[BANDED].setEnabled(false);
         out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(false);
         out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(false);
         out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(false);

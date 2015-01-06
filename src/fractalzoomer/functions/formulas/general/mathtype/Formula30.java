@@ -31,6 +31,7 @@ import fractalzoomer.in_coloring_algorithms.SinReSquaredMinusImSquared;
 import fractalzoomer.in_coloring_algorithms.Squares;
 import fractalzoomer.in_coloring_algorithms.Squares2;
 import fractalzoomer.in_coloring_algorithms.ZMag;
+import fractalzoomer.out_coloring_algorithms.Banded;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeAlgorithm1;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeAlgorithm2;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeEscapeRadius;
@@ -158,6 +159,9 @@ public class Formula30 extends Julia {
                 else {
                     out_color_algorithm = new SmoothEscapeTimeGrid(Math.log(bailout_squared), escaping_smooth_algorithm);
                 }
+                break;
+            case MainWindow.BANDED:
+                out_color_algorithm = new Banded();
                 break;
 
         }
@@ -287,6 +291,9 @@ public class Formula30 extends Julia {
                 else {
                     out_color_algorithm = new SmoothEscapeTimeGrid(Math.log(bailout_squared), escaping_smooth_algorithm);
                 }
+                break;
+            case MainWindow.BANDED:
+                out_color_algorithm = new Banded();
                 break;
 
         }

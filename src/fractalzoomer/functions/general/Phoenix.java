@@ -1,6 +1,5 @@
 package fractalzoomer.functions.general;
 
-
 import fractalzoomer.in_coloring_algorithms.AtanReTimesImTimesAbsReTimesAbsIm;
 import fractalzoomer.out_coloring_algorithms.BinaryDecomposition;
 import fractalzoomer.out_coloring_algorithms.BinaryDecomposition2;
@@ -28,6 +27,7 @@ import fractalzoomer.in_coloring_algorithms.SinReSquaredMinusImSquared;
 import fractalzoomer.in_coloring_algorithms.Squares;
 import fractalzoomer.in_coloring_algorithms.Squares2;
 import fractalzoomer.in_coloring_algorithms.ZMag;
+import fractalzoomer.out_coloring_algorithms.Banded;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeAlgorithm1;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeAlgorithm2;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeEscapeRadius;
@@ -48,14 +48,13 @@ import java.util.ArrayList;
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
 /**
  *
  * @author hrkalona
  */
 public class Phoenix extends Julia {
 
-    public Phoenix(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean init_value, double[] initial_vals, String user_plane, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double [] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm) {
+    public Phoenix(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean init_value, double[] initial_vals, String user_plane, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm) {
 
         super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
 
@@ -65,14 +64,14 @@ public class Phoenix extends Julia {
         else {
             pertur_val = new DefaultPerturbation(perturbation_vals[0], perturbation_vals[1]);
         }
-        
+
         if(init_value) {
             init_val = new InitialValue(initial_vals[0], initial_vals[1]);
         }
         else {
             init_val = new DefaultInitialValue(initial_vals[0], initial_vals[1]);
         }
-        
+
         switch (out_coloring_algorithm) {
 
             case MainWindow.ESCAPE_TIME:
@@ -157,12 +156,15 @@ public class Phoenix extends Julia {
                     out_color_algorithm = new SmoothEscapeTimeGrid(Math.log(bailout_squared), escaping_smooth_algorithm);
                 }
                 break;
-                         
+            case MainWindow.BANDED:
+                out_color_algorithm = new Banded();
+                break;
+
         }
 
 
         switch (in_coloring_algorithm) {
-            
+
             case MainWindow.MAXIMUM_ITERATIONS:
                 in_color_algorithm = new MaximumIterations();
                 break;
@@ -170,35 +172,35 @@ public class Phoenix extends Julia {
                 in_color_algorithm = new ZMag();
                 break;
             case MainWindow.DECOMPOSITION_LIKE:
-                in_color_algorithm = new DecompositionLike();       
+                in_color_algorithm = new DecompositionLike();
                 break;
             case MainWindow.RE_DIVIDE_IM:
-                in_color_algorithm = new ReDivideIm();       
+                in_color_algorithm = new ReDivideIm();
                 break;
             case MainWindow.COS_MAG:
-                in_color_algorithm = new CosMag();       
+                in_color_algorithm = new CosMag();
                 break;
             case MainWindow.MAG_TIMES_COS_RE_SQUARED:
-                in_color_algorithm = new MagTimesCosReSquared();       
+                in_color_algorithm = new MagTimesCosReSquared();
                 break;
             case MainWindow.SIN_RE_SQUARED_MINUS_IM_SQUARED:
-                in_color_algorithm = new SinReSquaredMinusImSquared();       
+                in_color_algorithm = new SinReSquaredMinusImSquared();
                 break;
             case MainWindow.ATAN_RE_TIMES_IM_TIMES_ABS_RE_TIMES_ABS_IM:
-                in_color_algorithm = new AtanReTimesImTimesAbsReTimesAbsIm();       
+                in_color_algorithm = new AtanReTimesImTimesAbsReTimesAbsIm();
                 break;
             case MainWindow.SQUARES:
-                in_color_algorithm = new Squares();       
+                in_color_algorithm = new Squares();
                 break;
             case MainWindow.SQUARES2:
-                in_color_algorithm = new Squares2();       
+                in_color_algorithm = new Squares2();
                 break;
-                
+
         }
 
     }
 
-    public Phoenix(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double [] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, double xJuliaCenter, double yJuliaCenter) {
+    public Phoenix(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, double xJuliaCenter, double yJuliaCenter) {
 
         super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
 
@@ -286,12 +288,15 @@ public class Phoenix extends Julia {
                     out_color_algorithm = new SmoothEscapeTimeGrid(Math.log(bailout_squared), escaping_smooth_algorithm);
                 }
                 break;
-                         
+            case MainWindow.BANDED:
+                out_color_algorithm = new Banded();
+                break;
+
         }
 
 
         switch (in_coloring_algorithm) {
-            
+
             case MainWindow.MAXIMUM_ITERATIONS:
                 in_color_algorithm = new MaximumIterations();
                 break;
@@ -299,46 +304,46 @@ public class Phoenix extends Julia {
                 in_color_algorithm = new ZMag();
                 break;
             case MainWindow.DECOMPOSITION_LIKE:
-                in_color_algorithm = new DecompositionLike();       
+                in_color_algorithm = new DecompositionLike();
                 break;
             case MainWindow.RE_DIVIDE_IM:
-                in_color_algorithm = new ReDivideIm();       
+                in_color_algorithm = new ReDivideIm();
                 break;
             case MainWindow.COS_MAG:
-                in_color_algorithm = new CosMag();       
+                in_color_algorithm = new CosMag();
                 break;
             case MainWindow.MAG_TIMES_COS_RE_SQUARED:
-                in_color_algorithm = new MagTimesCosReSquared();       
+                in_color_algorithm = new MagTimesCosReSquared();
                 break;
             case MainWindow.SIN_RE_SQUARED_MINUS_IM_SQUARED:
-                in_color_algorithm = new SinReSquaredMinusImSquared();       
+                in_color_algorithm = new SinReSquaredMinusImSquared();
                 break;
             case MainWindow.ATAN_RE_TIMES_IM_TIMES_ABS_RE_TIMES_ABS_IM:
-                in_color_algorithm = new AtanReTimesImTimesAbsReTimesAbsIm();       
+                in_color_algorithm = new AtanReTimesImTimesAbsReTimesAbsIm();
                 break;
             case MainWindow.SQUARES:
-                in_color_algorithm = new Squares();       
+                in_color_algorithm = new Squares();
                 break;
             case MainWindow.SQUARES2:
-                in_color_algorithm = new Squares2();       
+                in_color_algorithm = new Squares2();
                 break;
-                
+
         }
 
     }
 
     //orbit
-    public Phoenix(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean init_value, double[] initial_vals, String user_plane, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double [] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount) {
+    public Phoenix(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean init_value, double[] initial_vals, String user_plane, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount) {
 
         super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
-        
+
         if(perturbation) {
             pertur_val = new Perturbation(perturbation_vals[0], perturbation_vals[1]);
         }
         else {
             pertur_val = new DefaultPerturbation(perturbation_vals[0], perturbation_vals[1]);
         }
-        
+
         if(init_value) {
             init_val = new InitialValue(initial_vals[0], initial_vals[1]);
         }
@@ -348,7 +353,7 @@ public class Phoenix extends Julia {
 
     }
 
-    public Phoenix(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double [] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, double xJuliaCenter, double yJuliaCenter) {
+    public Phoenix(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, double xJuliaCenter, double yJuliaCenter) {
 
         super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
 
@@ -362,12 +367,12 @@ public class Phoenix extends Julia {
         Complex tempz = complex[0].square().plus_mutable(new Complex(temp * complex[2].getRe() + complex[1].getRe(), temp * complex[2].getIm()));
         complex[2] = complex[0];
         complex[0] = tempz;
-     
+
     }
 
     @Override
     public double calculateFractalWithPeriodicity(Complex pixel) {
-      int iterations = 0;
+        int iterations = 0;
 
         check = 3;
         check_counter = 0;
@@ -376,17 +381,17 @@ public class Phoenix extends Julia {
         update_counter = 0;
 
         period = new Complex();
-        
+
         Complex temp_z = new Complex(pertur_val.getPixel(init_val.getPixel(pixel)));
-        
+
         Complex[] complex = new Complex[3];
         complex[0] = temp_z;//z
         complex[1] = new Complex(pixel);//c
         complex[2] = new Complex();//s
-        
+
         Complex zold = new Complex();
 
-        for (; iterations < max_iterations; iterations++) {
+        for(; iterations < max_iterations; iterations++) {
             if(bailout_algorithm.escaped(complex[0])) {
                 Object[] object = {iterations, complex[0], zold};
                 return out_color_algorithm.getResult(object);
@@ -395,7 +400,7 @@ public class Phoenix extends Julia {
             function(complex);
 
             if(periodicityCheck(complex[0])) {
-               return max_iterations;
+                return max_iterations;
             }
 
         }
@@ -405,18 +410,18 @@ public class Phoenix extends Julia {
 
     @Override
     public double calculateFractalWithoutPeriodicity(Complex pixel) {
-      int iterations = 0;
+        int iterations = 0;
 
         Complex temp_z = new Complex(pertur_val.getPixel(init_val.getPixel(pixel)));
-        
+
         Complex[] complex = new Complex[3];
         complex[0] = temp_z;//z
         complex[1] = new Complex(pixel);//c
         complex[2] = new Complex();//s
-        
+
         Complex zold = new Complex();
 
-        for (; iterations < max_iterations; iterations++) {
+        for(; iterations < max_iterations; iterations++) {
             if(bailout_algorithm.escaped(complex[0])) {
                 Object[] object = {iterations, complex[0], zold};
                 return out_color_algorithm.getResult(object);
@@ -428,12 +433,12 @@ public class Phoenix extends Julia {
 
         Object[] object = {max_iterations, complex[0]};
         return in_color_algorithm.getResult(object);
-        
+
     }
 
     @Override
     public double calculateJuliaWithPeriodicity(Complex pixel) {
-      int iterations = 0;
+        int iterations = 0;
 
         check = 3;
         check_counter = 0;
@@ -447,10 +452,10 @@ public class Phoenix extends Julia {
         complex[0] = new Complex(pixel);//z
         complex[1] = new Complex(seed);//c
         complex[2] = new Complex();//s
-        
+
         Complex zold = new Complex();
- 
-        for (; iterations < max_iterations; iterations++) {
+
+        for(; iterations < max_iterations; iterations++) {
             if(bailout_algorithm.escaped(complex[0])) {
                 Object[] object = {iterations, complex[0], zold};
                 return out_color_algorithm.getResult(object);
@@ -459,9 +464,9 @@ public class Phoenix extends Julia {
             function(complex);
 
             if(periodicityCheck(complex[0])) {
-               return max_iterations;
+                return max_iterations;
             }
-            
+
         }
 
         return max_iterations;
@@ -469,33 +474,33 @@ public class Phoenix extends Julia {
 
     @Override
     public double calculateJuliaWithoutPeriodicity(Complex pixel) {
-      int iterations = 0;
+        int iterations = 0;
 
         Complex[] complex = new Complex[3];
         complex[0] = new Complex(pixel);//z
         complex[1] = new Complex(seed);//c
         complex[2] = new Complex();//s
-        
+
         Complex zold = new Complex();
 
-        for (; iterations < max_iterations; iterations++) {
+        for(; iterations < max_iterations; iterations++) {
             if(bailout_algorithm.escaped(complex[0])) {
                 Object[] object = {iterations, complex[0], zold};
                 return out_color_algorithm.getResult(object);
             }
             zold.assign(complex[0]);
             function(complex);
-   
+
         }
 
         Object[] object = {max_iterations, complex[0]};
         return in_color_algorithm.getResult(object);
-        
+
     }
-    
+
     @Override
     public double[] calculateFractal3DWithPeriodicity(Complex pixel) {
-      int iterations = 0;
+        int iterations = 0;
 
         check = 3;
         check_counter = 0;
@@ -504,19 +509,19 @@ public class Phoenix extends Julia {
         update_counter = 0;
 
         period = new Complex();
-        
+
         Complex temp_z = new Complex(pertur_val.getPixel(init_val.getPixel(pixel)));
-        
+
         Complex[] complex = new Complex[3];
         complex[0] = temp_z;//z
         complex[1] = new Complex(pixel);//c
         complex[2] = new Complex();//s
-        
+
         Complex zold = new Complex();
 
         double temp;
-        
-        for (; iterations < max_iterations; iterations++) {
+
+        for(; iterations < max_iterations; iterations++) {
             if(bailout_algorithm.escaped(complex[0])) {
                 Object[] object = {iterations, complex[0], zold};
                 temp = out_color_algorithm.getResult(object);
@@ -535,25 +540,25 @@ public class Phoenix extends Julia {
 
         double[] array = {40 * Math.log(max_iterations + 1) - 100, max_iterations};
         return array;
-        
+
     }
 
     @Override
     public double[] calculateFractal3DWithoutPeriodicity(Complex pixel) {
-      int iterations = 0;
+        int iterations = 0;
 
         Complex temp_z = new Complex(pertur_val.getPixel(init_val.getPixel(pixel)));
-        
+
         Complex[] complex = new Complex[3];
         complex[0] = temp_z;//z
         complex[1] = new Complex(pixel);//c
         complex[2] = new Complex();//s
-        
+
         Complex zold = new Complex();
 
         double temp;
-        
-        for (; iterations < max_iterations; iterations++) {
+
+        for(; iterations < max_iterations; iterations++) {
             if(bailout_algorithm.escaped(complex[0])) {
                 Object[] object = {iterations, complex[0], zold};
                 temp = out_color_algorithm.getResult(object);
@@ -570,12 +575,12 @@ public class Phoenix extends Julia {
         double result = temp == max_iterations ? max_iterations : max_iterations + temp - 100820;
         double[] array = {40 * Math.log(result + 1) - 100, temp};
         return array;
-        
+
     }
 
     @Override
     public double[] calculateJulia3DWithPeriodicity(Complex pixel) {
-      int iterations = 0;
+        int iterations = 0;
 
         check = 3;
         check_counter = 0;
@@ -589,12 +594,12 @@ public class Phoenix extends Julia {
         complex[0] = new Complex(pixel);//z
         complex[1] = new Complex(seed);//c
         complex[2] = new Complex();//s
-        
+
         Complex zold = new Complex();
- 
+
         double temp;
-        
-        for (; iterations < max_iterations; iterations++) {
+
+        for(; iterations < max_iterations; iterations++) {
             if(bailout_algorithm.escaped(complex[0])) {
                 Object[] object = {iterations, complex[0], zold};
                 temp = out_color_algorithm.getResult(object);
@@ -608,7 +613,7 @@ public class Phoenix extends Julia {
                 double[] array = {40 * Math.log(max_iterations + 1) - 100, max_iterations};
                 return array;
             }
-            
+
         }
 
         double[] array = {40 * Math.log(max_iterations + 1) - 100, max_iterations};
@@ -617,18 +622,18 @@ public class Phoenix extends Julia {
 
     @Override
     public double[] calculateJulia3DWithoutPeriodicity(Complex pixel) {
-      int iterations = 0;
+        int iterations = 0;
 
         Complex[] complex = new Complex[3];
         complex[0] = new Complex(pixel);//z
         complex[1] = new Complex(seed);//c
         complex[2] = new Complex();//s
-        
+
         Complex zold = new Complex();
 
         double temp;
-        
-        for (; iterations < max_iterations; iterations++) {
+
+        for(; iterations < max_iterations; iterations++) {
             if(bailout_algorithm.escaped(complex[0])) {
                 Object[] object = {iterations, complex[0], zold};
                 temp = out_color_algorithm.getResult(object);
@@ -637,7 +642,7 @@ public class Phoenix extends Julia {
             }
             zold.assign(complex[0]);
             function(complex);
-   
+
         }
 
         Object[] object = {max_iterations, complex[0]};
@@ -645,12 +650,12 @@ public class Phoenix extends Julia {
         double result = temp == max_iterations ? max_iterations : max_iterations + temp - 100820;
         double[] array = {40 * Math.log(result + 1) - 100, temp};
         return array;
-        
+
     }
 
     @Override
     public void calculateFractalOrbit() {
-      int iterations = 0;
+        int iterations = 0;
 
         Complex[] complex = new Complex[3];
         complex[0] = new Complex(pertur_val.getPixel(init_val.getPixel(pixel_orbit)));//z
@@ -658,23 +663,23 @@ public class Phoenix extends Julia {
         complex[2] = new Complex();//s
 
         Complex temp = null;
-        
-        for (; iterations < max_iterations; iterations++) {
-           function(complex);
-           temp = rotation.getPixel(complex[0], true);
-           
-           if(Double.isNaN(temp.getRe()) || Double.isNaN(temp.getIm()) || Double.isInfinite(temp.getRe()) || Double.isInfinite(temp.getIm())) {
-               break;
-           }
-           
-           complex_orbit.add(temp);
+
+        for(; iterations < max_iterations; iterations++) {
+            function(complex);
+            temp = rotation.getPixel(complex[0], true);
+
+            if(Double.isNaN(temp.getRe()) || Double.isNaN(temp.getIm()) || Double.isInfinite(temp.getRe()) || Double.isInfinite(temp.getIm())) {
+                break;
+            }
+
+            complex_orbit.add(temp);
         }
 
     }
 
     @Override
     public void calculateJuliaOrbit() {
-      int iterations = 0;
+        int iterations = 0;
 
         Complex[] complex = new Complex[3];
         complex[0] = new Complex(pixel_orbit);//z
@@ -682,18 +687,17 @@ public class Phoenix extends Julia {
         complex[2] = new Complex();//s
 
         Complex temp = null;
-        
-        for (; iterations < max_iterations; iterations++) {
-           function(complex);
-           temp = rotation.getPixel(complex[0], true);
-           
-           if(Double.isNaN(temp.getRe()) || Double.isNaN(temp.getIm()) || Double.isInfinite(temp.getRe()) || Double.isInfinite(temp.getIm())) {
-               break;
-           }
-           
-           complex_orbit.add(temp);
+
+        for(; iterations < max_iterations; iterations++) {
+            function(complex);
+            temp = rotation.getPixel(complex[0], true);
+
+            if(Double.isNaN(temp.getRe()) || Double.isNaN(temp.getIm()) || Double.isInfinite(temp.getRe()) || Double.isInfinite(temp.getIm())) {
+                break;
+            }
+
+            complex_orbit.add(temp);
         }
 
     }
-
 }

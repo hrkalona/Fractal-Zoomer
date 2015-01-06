@@ -32,6 +32,7 @@ import fractalzoomer.in_coloring_algorithms.Squares;
 import fractalzoomer.in_coloring_algorithms.Squares2;
 import fractalzoomer.in_coloring_algorithms.ZMag;
 import fractalzoomer.out_coloring_algorithms.AtomDomain;
+import fractalzoomer.out_coloring_algorithms.Banded;
 import fractalzoomer.out_coloring_algorithms.DistanceEstimator;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeEscapeRadius;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeAlgorithm1;
@@ -193,6 +194,9 @@ public class Mandelbrot extends Julia {
                 special_alg = 2;
                 atom_factor = bailout / 2.0;
                 break;
+            case MainWindow.BANDED:
+                out_color_algorithm = new Banded();
+                break;
 
         }
 
@@ -353,6 +357,9 @@ public class Mandelbrot extends Julia {
                 out_color_algorithm = new AtomDomain();
                 special_alg = 2;
                 atom_factor = bailout / 2.0;
+                break;
+             case MainWindow.BANDED:
+                out_color_algorithm = new Banded();
                 break;
 
         }

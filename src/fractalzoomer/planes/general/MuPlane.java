@@ -12,19 +12,17 @@ import fractalzoomer.planes.Plane;
  * @author hrkalona2
  */
 public class MuPlane extends Plane {
-    
+
     public MuPlane() {
-        
+
         super();
-        
+
     }
-    
+
     @Override
     public Complex getPixel(Complex pixel) {
-        
+
         return pixel;
-        
+
     }
-    
-    
 }

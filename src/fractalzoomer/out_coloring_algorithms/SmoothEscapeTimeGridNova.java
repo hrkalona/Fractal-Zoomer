@@ -51,6 +51,8 @@ public class SmoothEscapeTimeGridNova extends OutColorAlgorithm {
             double temp4 = Math.log(((Double)object[2]) + 1e-33);
 
             double power = temp4 / Math.log(((Complex)object[3]).distance_squared(((Complex)object[4])));
+            
+            power = power <= 0 ? 1e-33 : power;
 
             double f = Math.log(log_convergent_bailout / temp4) / Math.log(power);
 
