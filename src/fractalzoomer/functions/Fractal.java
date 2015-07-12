@@ -30,6 +30,7 @@ import fractalzoomer.planes.Plane;
 import fractalzoomer.planes.general.MuPlane;
 import fractalzoomer.bailout_tests.StripBailoutTest;
 import fractalzoomer.bailout_tests.SquareBailoutTest;
+import fractalzoomer.bailout_tests.UserBailoutTest;
 import fractalzoomer.fractal_options.DefaultInitialValue;
 import fractalzoomer.planes.UserPlane;
 import fractalzoomer.planes.distort.KaleidoscopePlane;
@@ -74,6 +75,7 @@ import fractalzoomer.planes.distort.TwirlPlane;
 import fractalzoomer.planes.fold.FoldDownPlane;
 import fractalzoomer.planes.fold.FoldLeftPlane;
 import fractalzoomer.planes.general.CircleInversionPlane;
+import fractalzoomer.planes.general.MuVariationPlane;
 import java.util.ArrayList;
 
 /*
@@ -109,7 +111,7 @@ public abstract class Fractal {
   protected Complex period;
 
 
-    public Fractal(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double [] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount) {
+    public Fractal(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout,  String bailout_test_user_formula, int bailout_test_comparison, double n_norm, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double [] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount) {
 
         this.xCenter = xCenter;
         this.yCenter = yCenter;
@@ -296,6 +298,9 @@ public abstract class Fractal {
             case MainWindow.CIRCLEINVERSION_PLANE:
                 plane = new CircleInversionPlane(plane_transform_center, plane_transform_radius);
                 break;
+            case MainWindow.VARIATION_MU_PLANE:
+                plane = new MuVariationPlane();
+                break;
         }
         
    
@@ -318,6 +323,9 @@ public abstract class Fractal {
                 break;
             case MainWindow.BAILOUT_TEST_NNORM:
                 bailout_algorithm = new NNormBailoutTest(bailout, n_norm);
+                break;
+            case MainWindow.BAILOUT_TEST_USER:
+                bailout_algorithm = new UserBailoutTest(bailout, bailout_test_user_formula, bailout_test_comparison);
                 break;
                 
         }
@@ -512,6 +520,9 @@ public abstract class Fractal {
                 break;
             case MainWindow.CIRCLEINVERSION_PLANE:
                 plane = new CircleInversionPlane(plane_transform_center, plane_transform_radius);
+                break;
+            case MainWindow.VARIATION_MU_PLANE:
+                plane = new MuVariationPlane();
                 break;
        
         }

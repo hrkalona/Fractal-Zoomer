@@ -10,6 +10,8 @@ import fractalzoomer.fractal_options.DefaultInitialValue;
 import fractalzoomer.fractal_options.DefaultPerturbation;
 import fractalzoomer.fractal_options.InitialValue;
 import fractalzoomer.fractal_options.Perturbation;
+import fractalzoomer.fractal_options.VariableInitialValue;
+import fractalzoomer.fractal_options.VariablePerturbation;
 import fractalzoomer.functions.Julia;
 import fractalzoomer.in_coloring_algorithms.DecompositionLike;
 import fractalzoomer.main.MainWindow;
@@ -65,21 +67,31 @@ public class UserFormulaConditionalConverging extends Julia {
     private Parser[] parser2;
     int iterations;
 
-    public UserFormulaConditionalConverging(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean init_value, double[] initial_vals, String[] user_formula_conditions, String[] user_formula_condition_formula, String user_plane, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int converging_smooth_algorithm) {
+    public UserFormulaConditionalConverging(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout,  String bailout_test_user_formula, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, String perturbation_user_formula, boolean init_value, double[] initial_vals, boolean variable_init_value, String initial_value_user_formula, String[] user_formula_conditions, String[] user_formula_condition_formula, String user_plane, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int converging_smooth_algorithm) {
 
-        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, false, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_comparison, n_norm, false, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
 
         convergent_bailout = 1E-11;
 
         if(perturbation) {
-            pertur_val = new Perturbation(perturbation_vals[0], perturbation_vals[1]);
+            if(variable_perturbation) {
+                pertur_val = new VariablePerturbation(perturbation_vals[0], perturbation_vals[1], perturbation_user_formula);
+            }
+            else {
+                pertur_val = new Perturbation(perturbation_vals[0], perturbation_vals[1]);
+            }
         }
         else {
             pertur_val = new DefaultPerturbation(perturbation_vals[0], perturbation_vals[1]);
         }
 
         if(init_value) {
-            init_val = new InitialValue(initial_vals[0], initial_vals[1]);
+            if(variable_init_value) {
+                init_val = new VariableInitialValue(initial_vals[0], initial_vals[1], initial_value_user_formula);
+            }
+            else {
+                init_val = new InitialValue(initial_vals[0], initial_vals[1]);
+            }
         }
         else {
             init_val = new DefaultInitialValue(initial_vals[0], initial_vals[1]);
@@ -239,9 +251,9 @@ public class UserFormulaConditionalConverging extends Julia {
 
     }
 
-    public UserFormulaConditionalConverging(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, String[] user_formula_conditions, String[] user_formula_condition_formula, String user_plane, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int converging_smooth_algorithm, double xJuliaCenter, double yJuliaCenter) {
+    public UserFormulaConditionalConverging(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout,  String bailout_test_user_formula, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, String[] user_formula_conditions, String[] user_formula_condition_formula, String user_plane, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int converging_smooth_algorithm, double xJuliaCenter, double yJuliaCenter) {
 
-        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, false, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_comparison, n_norm, false, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
 
         convergent_bailout = 1E-11;
 
@@ -403,19 +415,29 @@ public class UserFormulaConditionalConverging extends Julia {
     }
 
     //orbit
-    public UserFormulaConditionalConverging(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean init_value, double[] initial_vals, String[] user_formula_conditions, String[] user_formula_condition_formula, String user_plane, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount) {
+    public UserFormulaConditionalConverging(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, String perturbation_user_formula, boolean init_value, double[] initial_vals, boolean variable_init_value, String initial_value_user_formula, String[] user_formula_conditions, String[] user_formula_condition_formula, String user_plane, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount) {
 
         super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
 
         if(perturbation) {
-            pertur_val = new Perturbation(perturbation_vals[0], perturbation_vals[1]);
+            if(variable_perturbation) {
+                pertur_val = new VariablePerturbation(perturbation_vals[0], perturbation_vals[1], perturbation_user_formula);
+            }
+            else {
+                pertur_val = new Perturbation(perturbation_vals[0], perturbation_vals[1]);
+            }
         }
         else {
             pertur_val = new DefaultPerturbation(perturbation_vals[0], perturbation_vals[1]);
         }
 
         if(init_value) {
-            init_val = new InitialValue(initial_vals[0], initial_vals[1]);
+            if(variable_init_value) {
+                init_val = new VariableInitialValue(initial_vals[0], initial_vals[1], initial_value_user_formula);
+            }
+            else {
+                init_val = new InitialValue(initial_vals[0], initial_vals[1]);
+            }
         }
         else {
             init_val = new DefaultInitialValue(initial_vals[0], initial_vals[1]);

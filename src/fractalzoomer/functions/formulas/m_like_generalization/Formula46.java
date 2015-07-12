@@ -2,9 +2,10 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package fractalzoomer.functions.formulas.m_like_generalization.c_azb_dze;
+package fractalzoomer.functions.formulas.m_like_generalization;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.fractal_options.DefaultInitialValue;
 import fractalzoomer.fractal_options.DefaultPerturbation;
 import fractalzoomer.fractal_options.InitialValue;
 import fractalzoomer.fractal_options.Perturbation;
@@ -53,9 +54,9 @@ import java.util.ArrayList;
  *
  * @author hrkalona2
  */
-public class Formula27 extends Julia {
+public class Formula46 extends Julia {
 
-    public Formula27(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout,  String bailout_test_user_formula, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, String perturbation_user_formula, boolean init_value, double[] initial_vals, boolean variable_init_value, String initial_value_user_formula, String user_plane, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm) {
+    public Formula46(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout,  String bailout_test_user_formula, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, String perturbation_user_formula, boolean init_value, double[] initial_vals, boolean variable_init_value, String initial_value_user_formula, String user_plane, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm) {
 
         super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_comparison, n_norm, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
 
@@ -80,7 +81,7 @@ public class Formula27 extends Julia {
             }
         }
         else {
-            init_val = new InitialValue(-1, 0);
+            init_val = new VariableInitialValue(initial_vals[0], initial_vals[1], "(0.275i / c) / (2 * (-0.4 + 0.2i) * c)");
         }
 
         switch (out_coloring_algorithm) {
@@ -211,7 +212,7 @@ public class Formula27 extends Julia {
 
     }
 
-    public Formula27(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout,  String bailout_test_user_formula, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, double xJuliaCenter, double yJuliaCenter) {
+    public Formula46(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout,  String bailout_test_user_formula, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, double xJuliaCenter, double yJuliaCenter) {
 
         super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_comparison, n_norm, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
 
@@ -344,7 +345,7 @@ public class Formula27 extends Julia {
     }
 
     //orbit
-    public Formula27(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, String perturbation_user_formula, boolean init_value, double[] initial_vals, boolean variable_init_value, String initial_value_user_formula, String user_plane, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount) {
+    public Formula46(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, String perturbation_user_formula, boolean init_value, double[] initial_vals, boolean variable_init_value, String initial_value_user_formula, String user_plane, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount) {
 
         super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
 
@@ -369,12 +370,12 @@ public class Formula27 extends Julia {
             }
         }
         else {
-            init_val = new InitialValue(-1, 0);
+            init_val = new VariableInitialValue(initial_vals[0], initial_vals[1], "(0.275i / c) / (2 * (-0.4 + 0.2i) * c)");
         }
 
     }
 
-    public Formula27(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, double xJuliaCenter, double yJuliaCenter) {
+    public Formula46(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, double xJuliaCenter, double yJuliaCenter) {
 
         super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
 
@@ -383,8 +384,7 @@ public class Formula27 extends Julia {
     @Override
     protected void function(Complex[] complex) {
 
-        complex[0].plus_mutable(2).sixth_mutable();
-        complex[0].plus_mutable(complex[0].reciprocal()).times_mutable(complex[1]);
+        complex[0] = (complex[1].times(new Complex(-0.4, 0.2)).times(complex[0].square())).plus((new Complex(0, -0.275).divide(complex[1])).times(complex[0])).plus(complex[1]);
 
     }
 
@@ -438,17 +438,21 @@ public class Formula27 extends Julia {
         complex[0] = tempz;//z
         complex[1] = new Complex(pixel);//c
 
+
         Complex zold = new Complex();
 
         for(; iterations < max_iterations; iterations++) {
+
             if(bailout_algorithm.escaped(complex[0])) {
                 Object[] object = {iterations, complex[0], zold};
                 return out_color_algorithm.getResult(object);
+
             }
             zold.assign(complex[0]);
             function(complex);
 
         }
+
 
         Object[] object = {max_iterations, complex[0]};
         return in_color_algorithm.getResult(object);

@@ -1,7 +1,5 @@
 package fractalzoomer.out_coloring_algorithms;
 
-import fractalzoomer.core.Complex;
-
 
 
 /*

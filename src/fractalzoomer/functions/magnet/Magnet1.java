@@ -9,6 +9,8 @@ import fractalzoomer.core.Complex;
 import fractalzoomer.fractal_options.DefaultPerturbation;
 import fractalzoomer.fractal_options.InitialValue;
 import fractalzoomer.fractal_options.Perturbation;
+import fractalzoomer.fractal_options.VariableInitialValue;
+import fractalzoomer.fractal_options.VariablePerturbation;
 import fractalzoomer.in_coloring_algorithms.CosMag;
 import fractalzoomer.in_coloring_algorithms.DecompositionLike;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeColorDecomposition;
@@ -63,21 +65,31 @@ public class Magnet1 extends Julia {
 
     private double convergent_bailout;
 
-    public Magnet1(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean init_value, double[] initial_vals, String user_plane, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, int converging_smooth_algorithm) {
+    public Magnet1(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout,  String bailout_test_user_formula, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, String perturbation_user_formula, boolean init_value, double[] initial_vals, boolean variable_init_value, String initial_value_user_formula, String user_plane, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, int converging_smooth_algorithm) {
 
-        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_comparison, n_norm, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
 
         convergent_bailout = 1E-12;
 
         if(perturbation) {
-            pertur_val = new Perturbation(perturbation_vals[0], perturbation_vals[1]);
+            if(variable_perturbation) {
+                pertur_val = new VariablePerturbation(perturbation_vals[0], perturbation_vals[1], perturbation_user_formula);
+            }
+            else {
+                pertur_val = new Perturbation(perturbation_vals[0], perturbation_vals[1]);
+            }
         }
         else {
             pertur_val = new DefaultPerturbation(perturbation_vals[0], perturbation_vals[1]);
         }
 
         if(init_value) {
-            init_val = new InitialValue(initial_vals[0], initial_vals[1]);
+            if(variable_init_value) {
+                init_val = new VariableInitialValue(initial_vals[0], initial_vals[1], initial_value_user_formula);
+            }
+            else {
+                init_val = new InitialValue(initial_vals[0], initial_vals[1]);
+            }
         }
         else {
             init_val = new InitialValue(0, 0);
@@ -253,9 +265,9 @@ public class Magnet1 extends Julia {
 
     }
 
-    public Magnet1(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, double n_norm, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, int converging_smooth_algorithm, double xJuliaCenter, double yJuliaCenter) {
+    public Magnet1(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout,  String bailout_test_user_formula, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, int converging_smooth_algorithm, double xJuliaCenter, double yJuliaCenter) {
 
-        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, n_norm, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_comparison, n_norm, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
 
         convergent_bailout = 1E-12;
 
@@ -429,19 +441,29 @@ public class Magnet1 extends Julia {
     }
 
     //orbit
-    public Magnet1(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean init_value, double[] initial_vals, String user_plane, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount) {
+    public Magnet1(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, String perturbation_user_formula, boolean init_value, double[] initial_vals, boolean variable_init_value, String initial_value_user_formula, String user_plane, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount) {
 
         super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
 
         if(perturbation) {
-            pertur_val = new Perturbation(perturbation_vals[0], perturbation_vals[1]);
+            if(variable_perturbation) {
+                pertur_val = new VariablePerturbation(perturbation_vals[0], perturbation_vals[1], perturbation_user_formula);
+            }
+            else {
+                pertur_val = new Perturbation(perturbation_vals[0], perturbation_vals[1]);
+            }
         }
         else {
             pertur_val = new DefaultPerturbation(perturbation_vals[0], perturbation_vals[1]);
         }
 
         if(init_value) {
-            init_val = new InitialValue(initial_vals[0], initial_vals[1]);
+            if(variable_init_value) {
+                init_val = new VariableInitialValue(initial_vals[0], initial_vals[1], initial_value_user_formula);
+            }
+            else {
+                init_val = new InitialValue(initial_vals[0], initial_vals[1]);
+            }
         }
         else {
             init_val = new InitialValue(0, 0);
