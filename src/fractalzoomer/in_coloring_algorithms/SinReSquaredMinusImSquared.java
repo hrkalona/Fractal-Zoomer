@@ -22,8 +22,8 @@ public class SinReSquaredMinusImSquared extends InColorAlgorithm {
     @Override
     public double getResult(Object[] object) {
         
-        double re = ((Complex)object[1]).getRe();
-        double im = ((Complex)object[1]).getIm();
+        double re = ((Complex)object[0]).getRe();
+        double im = ((Complex)object[0]).getIm();
         
         return Math.abs(Math.sin(re * re - im * im)) * 400 + 100820;
              

@@ -27,6 +27,8 @@ import fractalzoomer.in_coloring_algorithms.ReDivideIm;
 import fractalzoomer.in_coloring_algorithms.SinReSquaredMinusImSquared;
 import fractalzoomer.in_coloring_algorithms.Squares;
 import fractalzoomer.in_coloring_algorithms.Squares2;
+import fractalzoomer.in_coloring_algorithms.UserConditionalInColorAlgorithm;
+import fractalzoomer.in_coloring_algorithms.UserInColorAlgorithm;
 import fractalzoomer.in_coloring_algorithms.ZMag;
 import fractalzoomer.out_coloring_algorithms.Banded;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeAlgorithm1;
@@ -51,6 +53,8 @@ import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeGridMagnet;
 import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeMagnet;
 import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimePlusImMagnet;
 import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimePlusReMagnet;
+import fractalzoomer.out_coloring_algorithms.UserConditionalOutColorAlgorithmMagnet;
+import fractalzoomer.out_coloring_algorithms.UserOutColorAlgorithmMagnet;
 import java.util.ArrayList;
 
 /*
@@ -65,7 +69,7 @@ public class Magnet2 extends Julia {
 
     private double convergent_bailout;
 
-    public Magnet2(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout,  String bailout_test_user_formula, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, String perturbation_user_formula, boolean init_value, double[] initial_vals, boolean variable_init_value, String initial_value_user_formula, String user_plane, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, int converging_smooth_algorithm) {
+    public Magnet2(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, String perturbation_user_formula, boolean init_value, double[] initial_vals, boolean variable_init_value, String initial_value_user_formula, String user_plane, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, int converging_smooth_algorithm) {
 
         super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_comparison, n_norm, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
 
@@ -224,16 +228,24 @@ public class Magnet2 extends Julia {
             case MainWindow.BANDED:
                 out_color_algorithm = new Banded();
                 break;
+            case MainWindow.USER_OUTCOLORING_ALGORITHM:
+                if(user_out_coloring_algorithm == 0) {
+                    out_color_algorithm = new UserOutColorAlgorithmMagnet(outcoloring_formula, bailout);
+                }
+                else {
+                    out_color_algorithm = new UserConditionalOutColorAlgorithmMagnet(user_outcoloring_conditions, user_outcoloring_condition_formula, bailout);
+                }
+                break;
 
         }
 
         switch (in_coloring_algorithm) {
 
             case MainWindow.MAXIMUM_ITERATIONS:
-                in_color_algorithm = new MaximumIterations();
+                in_color_algorithm = new MaximumIterations(max_iterations);
                 break;
             case MainWindow.Z_MAG:
-                in_color_algorithm = new ZMag();
+                in_color_algorithm = new ZMag(max_iterations);
                 break;
             case MainWindow.DECOMPOSITION_LIKE:
                 in_color_algorithm = new DecompositionLike();
@@ -257,17 +269,24 @@ public class Magnet2 extends Julia {
                 in_color_algorithm = new Squares();
                 break;
             case MainWindow.SQUARES2:
-                in_color_algorithm = new Squares2();
+                in_color_algorithm = new Squares2(max_iterations);
+                break;
+            case MainWindow.USER_INCOLORING_ALGORITHM:
+                if(user_in_coloring_algorithm == 0) {
+                    in_color_algorithm = new UserInColorAlgorithm(incoloring_formula, max_iterations);
+                }
+                else {
+                    in_color_algorithm = new UserConditionalInColorAlgorithm(user_incoloring_conditions, user_incoloring_condition_formula, max_iterations);
+                }
                 break;
 
         }
 
-
     }
 
-    public Magnet2(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout,  String bailout_test_user_formula, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, int converging_smooth_algorithm, double xJuliaCenter, double yJuliaCenter) {
+    public Magnet2(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, int plane_type, boolean apply_plane_on_julia, double[] rotation_vals, double[] rotation_center, String user_plane, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, int converging_smooth_algorithm, double xJuliaCenter, double yJuliaCenter) {
 
-        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_comparison, n_norm, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_comparison, n_norm, periodicity_checking, plane_type, apply_plane_on_julia, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
 
         convergent_bailout = 1E-8;
 
@@ -400,16 +419,24 @@ public class Magnet2 extends Julia {
             case MainWindow.BANDED:
                 out_color_algorithm = new Banded();
                 break;
+            case MainWindow.USER_OUTCOLORING_ALGORITHM:
+                if(user_out_coloring_algorithm == 0) {
+                    out_color_algorithm = new UserOutColorAlgorithmMagnet(outcoloring_formula, bailout);
+                }
+                else {
+                    out_color_algorithm = new UserConditionalOutColorAlgorithmMagnet(user_outcoloring_conditions, user_outcoloring_condition_formula, bailout);
+                }
+                break;
 
         }
 
         switch (in_coloring_algorithm) {
 
             case MainWindow.MAXIMUM_ITERATIONS:
-                in_color_algorithm = new MaximumIterations();
+                in_color_algorithm = new MaximumIterations(max_iterations);
                 break;
             case MainWindow.Z_MAG:
-                in_color_algorithm = new ZMag();
+                in_color_algorithm = new ZMag(max_iterations);
                 break;
             case MainWindow.DECOMPOSITION_LIKE:
                 in_color_algorithm = new DecompositionLike();
@@ -433,11 +460,18 @@ public class Magnet2 extends Julia {
                 in_color_algorithm = new Squares();
                 break;
             case MainWindow.SQUARES2:
-                in_color_algorithm = new Squares2();
+                in_color_algorithm = new Squares2(max_iterations);
+                break;
+            case MainWindow.USER_INCOLORING_ALGORITHM:
+                if(user_in_coloring_algorithm == 0) {
+                    in_color_algorithm = new UserInColorAlgorithm(incoloring_formula, max_iterations);
+                }
+                else {
+                    in_color_algorithm = new UserConditionalInColorAlgorithm(user_incoloring_conditions, user_incoloring_condition_formula, max_iterations);
+                }
                 break;
 
         }
-
 
     }
 
@@ -472,9 +506,9 @@ public class Magnet2 extends Julia {
 
     }
 
-    public Magnet2(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, double xJuliaCenter, double yJuliaCenter) {
+    public Magnet2(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, boolean apply_plane_on_julia, double[] rotation_vals, double[] rotation_center, String user_plane, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, double xJuliaCenter, double yJuliaCenter) {
 
-        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, apply_plane_on_julia, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
 
     }
 
@@ -565,7 +599,7 @@ public class Magnet2 extends Julia {
 
         }
 
-        Object[] object = {max_iterations, complex[0]};
+        Object[] object = {complex[0]};
         return in_color_algorithm.getResult(object);
 
     }
@@ -583,7 +617,6 @@ public class Magnet2 extends Julia {
         update_counter = 0;
 
         period = new Complex();
-
 
         Complex[] complex = new Complex[2];
         complex[0] = new Complex(pixel);//z
@@ -634,7 +667,7 @@ public class Magnet2 extends Julia {
 
         }
 
-        Object[] object = {max_iterations, complex[0]};
+        Object[] object = {complex[0]};
         return in_color_algorithm.getResult(object);
 
     }
@@ -717,7 +750,7 @@ public class Magnet2 extends Julia {
 
         }
 
-        Object[] object = {max_iterations, complex[0]};
+        Object[] object = {complex[0]};
         temp3 = in_color_algorithm.getResult(object);
         double result = temp3 == max_iterations ? max_iterations : max_iterations + temp3 - 100820;
         double[] array = {40 * Math.log(result + 1) - 100, temp3};
@@ -738,7 +771,6 @@ public class Magnet2 extends Julia {
         update_counter = 0;
 
         period = new Complex();
-
 
         Complex[] complex = new Complex[2];
         complex[0] = new Complex(pixel);//z
@@ -800,7 +832,7 @@ public class Magnet2 extends Julia {
 
         }
 
-        Object[] object = {max_iterations, complex[0]};
+        Object[] object = {complex[0]};
         temp3 = in_color_algorithm.getResult(object);
         double result = temp3 == max_iterations ? max_iterations : max_iterations + temp3 - 100820;
         double[] array = {40 * Math.log(result + 1) - 100, temp3};

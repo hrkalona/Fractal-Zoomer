@@ -12,15 +12,17 @@ import fractalzoomer.core.Complex;
  * @author hrkalona2
  */
 public class MaximumIterations extends InColorAlgorithm {
+    private int max_iterations;
     
-    public MaximumIterations() { 
+    public MaximumIterations(int max_iterations) { 
         super();
+        this.max_iterations = max_iterations;
     }
     
     @Override
     public double getResult(Object[] object) {
   
-        return (Integer)object[0];
+        return max_iterations;
  
     }
     

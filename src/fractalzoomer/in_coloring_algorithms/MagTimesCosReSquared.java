@@ -22,9 +22,9 @@ public class MagTimesCosReSquared extends InColorAlgorithm {
     @Override
     public double getResult(Object[] object) {
         
-        double re = ((Complex)object[1]).getRe();
+        double re = ((Complex)object[0]).getRe();
         
-        return ((Complex)object[1]).norm_squared() * Math.abs(Math.cos(re * re)) * 400 + 100820; 
+        return ((Complex)object[0]).norm_squared() * Math.abs(Math.cos(re * re)) * 400 + 100820; 
              
     }
     

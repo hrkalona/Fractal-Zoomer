@@ -527,8 +527,8 @@ public abstract class Fractal {
        
         }
         
-        pixel_orbit = plane.getPixel(rotation.getPixel(pixel_orbit, false));
-
+        pixel_orbit = plane.getPixel(rotation.getPixel(pixel_orbit, false));       
+        
     }
 
     protected abstract void function(Complex[] complex);
@@ -643,7 +643,7 @@ public abstract class Fractal {
         }
   
         
-        Object[] object = {max_iterations, complex[0]};
+        Object[] object = {complex[0]};
         return in_color_algorithm.getResult(object);
   
        /* int iterations = 0; 
@@ -764,7 +764,7 @@ public abstract class Fractal {
         }
   
         
-        Object[] object = {max_iterations, complex[0]};
+        Object[] object = {complex[0]};
         temp = in_color_algorithm.getResult(object);
         double result = temp == max_iterations ? max_iterations : max_iterations + temp - 100820;
         double[] array = {40 * Math.log(result + 1) - 100, temp};

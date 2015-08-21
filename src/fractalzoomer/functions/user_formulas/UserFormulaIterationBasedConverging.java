@@ -30,6 +30,8 @@ import fractalzoomer.in_coloring_algorithms.ReDivideIm;
 import fractalzoomer.in_coloring_algorithms.SinReSquaredMinusImSquared;
 import fractalzoomer.in_coloring_algorithms.Squares;
 import fractalzoomer.in_coloring_algorithms.Squares2;
+import fractalzoomer.in_coloring_algorithms.UserConditionalInColorAlgorithm;
+import fractalzoomer.in_coloring_algorithms.UserInColorAlgorithm;
 import fractalzoomer.in_coloring_algorithms.ZMag;
 import fractalzoomer.out_coloring_algorithms.Banded;
 import fractalzoomer.out_coloring_algorithms.ColorDecompositionRootFindingMethod;
@@ -50,6 +52,8 @@ import fractalzoomer.out_coloring_algorithms.SmoothColorDecompositionRootFinding
 import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeColorDecompositionRootFindingMethod;
 import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeGridNova;
 import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeRootFindingMethod;
+import fractalzoomer.out_coloring_algorithms.UserConditionalOutColorAlgorithmRootFindingMethod;
+import fractalzoomer.out_coloring_algorithms.UserOutColorAlgorithmRootFindingMethod;
 import fractalzoomer.parser.ExpressionNode;
 import fractalzoomer.parser.Parser;
 import java.util.ArrayList;
@@ -65,7 +69,7 @@ public class UserFormulaIterationBasedConverging extends Julia {
     private Parser[] parser;
     int iterations;
 
-    public UserFormulaIterationBasedConverging(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout,  String bailout_test_user_formula, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, String perturbation_user_formula, boolean init_value, double[] initial_vals, boolean variable_init_value, String initial_value_user_formula, String[] user_formula, String user_plane, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int converging_smooth_algorithm) {
+    public UserFormulaIterationBasedConverging(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, String perturbation_user_formula, boolean init_value, double[] initial_vals, boolean variable_init_value, String initial_value_user_formula, String[] user_formula, String user_plane, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int converging_smooth_algorithm) {
 
         super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_comparison, n_norm, false, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
 
@@ -192,17 +196,24 @@ public class UserFormulaIterationBasedConverging extends Julia {
             case MainWindow.BANDED:
                 out_color_algorithm = new Banded();
                 break;
-
+            case MainWindow.USER_OUTCOLORING_ALGORITHM:
+                if(user_out_coloring_algorithm == 0) {
+                    out_color_algorithm = new UserOutColorAlgorithmRootFindingMethod(outcoloring_formula, convergent_bailout);
+                }
+                else {
+                    out_color_algorithm = new UserConditionalOutColorAlgorithmRootFindingMethod(user_outcoloring_conditions, user_outcoloring_condition_formula, convergent_bailout);
+                }
+                break;
 
         }
 
         switch (in_coloring_algorithm) {
 
             case MainWindow.MAXIMUM_ITERATIONS:
-                in_color_algorithm = new MaximumIterations();
+                in_color_algorithm = new MaximumIterations(max_iterations);
                 break;
             case MainWindow.Z_MAG:
-                in_color_algorithm = new ZMag();
+                in_color_algorithm = new ZMag(max_iterations);
                 break;
             case MainWindow.DECOMPOSITION_LIKE:
                 in_color_algorithm = new DecompositionLike();
@@ -226,7 +237,15 @@ public class UserFormulaIterationBasedConverging extends Julia {
                 in_color_algorithm = new Squares();
                 break;
             case MainWindow.SQUARES2:
-                in_color_algorithm = new Squares2();
+                in_color_algorithm = new Squares2(max_iterations);
+                break;
+            case MainWindow.USER_INCOLORING_ALGORITHM:
+                if(user_in_coloring_algorithm == 0) {
+                    in_color_algorithm = new UserInColorAlgorithm(incoloring_formula, max_iterations);
+                }
+                else {
+                    in_color_algorithm = new UserConditionalInColorAlgorithm(user_incoloring_conditions, user_incoloring_condition_formula, max_iterations);
+                }
                 break;
 
         }
@@ -241,9 +260,9 @@ public class UserFormulaIterationBasedConverging extends Julia {
 
     }
 
-    public UserFormulaIterationBasedConverging(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout,  String bailout_test_user_formula, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int in_coloring_algorithm, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, String[] user_formula, String user_plane, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int converging_smooth_algorithm, double xJuliaCenter, double yJuliaCenter) {
+    public UserFormulaIterationBasedConverging(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, int plane_type, boolean apply_plane_on_julia, double[] rotation_vals, double[] rotation_center, String[] user_formula, String user_plane, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int converging_smooth_algorithm, double xJuliaCenter, double yJuliaCenter) {
 
-        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_comparison, n_norm, false, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_comparison, n_norm, false, plane_type, apply_plane_on_julia, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
 
         convergent_bailout = 1E-11;
 
@@ -347,17 +366,25 @@ public class UserFormulaIterationBasedConverging extends Julia {
                 convergent_bailout = 1E-7;
                 out_color_algorithm = new Banded();
                 break;
-
+            case MainWindow.USER_OUTCOLORING_ALGORITHM:
+                convergent_bailout = 1E-7;
+                if(user_out_coloring_algorithm == 0) {
+                    out_color_algorithm = new UserOutColorAlgorithmRootFindingMethod(outcoloring_formula, convergent_bailout);
+                }
+                else {
+                    out_color_algorithm = new UserConditionalOutColorAlgorithmRootFindingMethod(user_outcoloring_conditions, user_outcoloring_condition_formula, convergent_bailout);
+                }
+                break;
 
         }
 
         switch (in_coloring_algorithm) {
 
             case MainWindow.MAXIMUM_ITERATIONS:
-                in_color_algorithm = new MaximumIterations();
+                in_color_algorithm = new MaximumIterations(max_iterations);
                 break;
             case MainWindow.Z_MAG:
-                in_color_algorithm = new ZMag();
+                in_color_algorithm = new ZMag(max_iterations);
                 break;
             case MainWindow.DECOMPOSITION_LIKE:
                 in_color_algorithm = new DecompositionLike();
@@ -381,7 +408,15 @@ public class UserFormulaIterationBasedConverging extends Julia {
                 in_color_algorithm = new Squares();
                 break;
             case MainWindow.SQUARES2:
-                in_color_algorithm = new Squares2();
+                in_color_algorithm = new Squares2(max_iterations);
+                break;
+            case MainWindow.USER_INCOLORING_ALGORITHM:
+                if(user_in_coloring_algorithm == 0) {
+                    in_color_algorithm = new UserInColorAlgorithm(incoloring_formula, max_iterations);
+                }
+                else {
+                    in_color_algorithm = new UserConditionalInColorAlgorithm(user_incoloring_conditions, user_incoloring_condition_formula, max_iterations);
+                }
                 break;
 
         }
@@ -435,9 +470,9 @@ public class UserFormulaIterationBasedConverging extends Julia {
 
     }
 
-    public UserFormulaIterationBasedConverging(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, String[] user_formula, String user_plane, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, double xJuliaCenter, double yJuliaCenter) {
+    public UserFormulaIterationBasedConverging(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, boolean apply_plane_on_julia, double[] rotation_vals, double[] rotation_center, String[] user_formula, String user_plane, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, double xJuliaCenter, double yJuliaCenter) {
 
-        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, apply_plane_on_julia, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
 
         parser = new Parser[user_formula.length];
         expr = new ExpressionNode[user_formula.length];
@@ -564,7 +599,7 @@ public class UserFormulaIterationBasedConverging extends Julia {
 
         }
 
-        Object[] object = {max_iterations, complex[0]};
+        Object[] object = {complex[0]};
         return in_color_algorithm.getResult(object);
 
     }
@@ -628,7 +663,7 @@ public class UserFormulaIterationBasedConverging extends Julia {
 
         }
 
-        Object[] object = {max_iterations, complex[0]};
+        Object[] object = {complex[0]};
         return in_color_algorithm.getResult(object);
 
     }
@@ -697,7 +732,7 @@ public class UserFormulaIterationBasedConverging extends Julia {
 
         }
 
-        Object[] object = {max_iterations, complex[0]};
+        Object[] object = {complex[0]};
         temp2 = in_color_algorithm.getResult(object);
         double result = temp2 == max_iterations ? max_iterations : max_iterations + temp2 - 100820;
         double[] array = {40 * Math.log(result + 1) - 100, temp2};
@@ -765,7 +800,7 @@ public class UserFormulaIterationBasedConverging extends Julia {
 
         }
 
-        Object[] object = {max_iterations, complex[0]};
+        Object[] object = {complex[0]};
         double temp2 = in_color_algorithm.getResult(object);
         double result = temp2 == max_iterations ? max_iterations : max_iterations + temp2 - 100820;
         double[] array = {40 * Math.log(result + 1) - 100, temp2};
@@ -780,7 +815,6 @@ public class UserFormulaIterationBasedConverging extends Julia {
         Complex[] complex = new Complex[2];
         complex[0] = new Complex(pertur_val.getPixel(init_val.getPixel(pixel_orbit)));
         complex[1] = new Complex(pixel_orbit);//c
-
 
         Complex temp = null;
 

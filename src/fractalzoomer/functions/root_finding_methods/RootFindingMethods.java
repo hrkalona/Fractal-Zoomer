@@ -17,7 +17,7 @@ import java.util.ArrayList;
 public abstract class RootFindingMethods extends Fractal { 
   protected double convergent_bailout;
 
-    public RootFindingMethods(double xCenter, double yCenter, double size, int max_iterations, int out_coloring_algorithm, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double [] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount) {
+    public RootFindingMethods(double xCenter, double yCenter, double size, int max_iterations, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double [] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount) {
 
         super(xCenter, yCenter, size, max_iterations, 0, 0, "", 0, 0, false, plane_type, rotation_vals, rotation_center, user_plane, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
 
@@ -55,7 +55,7 @@ public abstract class RootFindingMethods extends Fractal {
  
         }
 
-        Object[] object = {max_iterations, complex[0]};
+        Object[] object = {complex[0]};
         return in_color_algorithm.getResult(object);
         
     }
@@ -83,7 +83,7 @@ public abstract class RootFindingMethods extends Fractal {
  
         }
 
-        Object[] object = {max_iterations, complex[0]};
+        Object[] object = {complex[0]};
         double temp2 = in_color_algorithm.getResult(object);
         double result = temp2 == max_iterations ? max_iterations : max_iterations + temp2 - 100820;
         double[] array = {40 * Math.log(result + 1) - 100, temp2};
