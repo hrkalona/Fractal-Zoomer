@@ -1,9 +1,21 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/* 
+ * Fractal Zoomer, Copyright (C) 2015 hrkalona2
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package fractalzoomer.utils;
+
+package fractalzoomer.gui;
 
 import fractalzoomer.main.MainWindow;
 import java.awt.event.ActionEvent;
@@ -94,7 +106,7 @@ public class FractalFunctionsMenu extends JMenu {
         burning_ship_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, ActionEvent.CTRL_MASK));
         mandel_grass_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_M, ActionEvent.SHIFT_MASK));
 
-        fractal_functions = new JRadioButtonMenuItem[123];
+        fractal_functions = new JRadioButtonMenuItem[130];
 
         fractal_functions[0] = new JRadioButtonMenuItem("Mandelbrot z = z^2 + c");
         fractal_functions[0].addActionListener(new ActionListener() {
@@ -682,6 +694,17 @@ public class FractalFunctionsMenu extends JMenu {
             }
         });
         newton_type_functions.add(fractal_functions[MainWindow.NEWTONPOLY]);
+        
+        fractal_functions[MainWindow.NEWTONFORMULA] = new JRadioButtonMenuItem("Newton Formula");
+        fractal_functions[MainWindow.NEWTONFORMULA].addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFunction(MainWindow.NEWTONFORMULA);
+
+            }
+        });
+        newton_type_functions.add(fractal_functions[MainWindow.NEWTONFORMULA]);
 
         root_finding_functions.add(newton_type_functions);
         root_finding_functions.addSeparator();
@@ -1204,6 +1227,17 @@ public class FractalFunctionsMenu extends JMenu {
             }
         });
         halley_type_functions.add(fractal_functions[MainWindow.HALLEYPOLY]);
+        
+        fractal_functions[MainWindow.HALLEYFORMULA] = new JRadioButtonMenuItem("Halley Formula");
+        fractal_functions[MainWindow.HALLEYFORMULA].addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFunction(MainWindow.HALLEYFORMULA);
+
+            }
+        });
+        halley_type_functions.add(fractal_functions[MainWindow.HALLEYFORMULA]);
 
         fractal_functions[MainWindow.SCHRODER3] = new JRadioButtonMenuItem("Schroder 3");
         fractal_functions[MainWindow.SCHRODER3].addActionListener(new ActionListener() {
@@ -1281,6 +1315,17 @@ public class FractalFunctionsMenu extends JMenu {
             }
         });
         schroder_type_functions.add(fractal_functions[MainWindow.SCHRODERPOLY]);
+        
+        fractal_functions[MainWindow.SCHRODERFORMULA] = new JRadioButtonMenuItem("Schroder Formula");
+        fractal_functions[MainWindow.SCHRODERFORMULA].addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFunction(MainWindow.SCHRODERFORMULA);
+
+            }
+        });
+        schroder_type_functions.add(fractal_functions[MainWindow.SCHRODERFORMULA]);
 
         fractal_functions[MainWindow.HOUSEHOLDER3] = new JRadioButtonMenuItem("Householder 3");
         fractal_functions[MainWindow.HOUSEHOLDER3].addActionListener(new ActionListener() {
@@ -1358,6 +1403,17 @@ public class FractalFunctionsMenu extends JMenu {
             }
         });
         householder_type_functions.add(fractal_functions[MainWindow.HOUSEHOLDERPOLY]);
+        
+        fractal_functions[MainWindow.HOUSEHOLDERFORMULA] = new JRadioButtonMenuItem("Householder Formula");
+        fractal_functions[MainWindow.HOUSEHOLDERFORMULA].addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFunction(MainWindow.HOUSEHOLDERFORMULA);
+
+            }
+        });
+        householder_type_functions.add(fractal_functions[MainWindow.HOUSEHOLDERFORMULA]);
 
         fractal_functions[MainWindow.SECANT3] = new JRadioButtonMenuItem("Secant 3");
         fractal_functions[MainWindow.SECANT3].addActionListener(new ActionListener() {
@@ -1424,6 +1480,17 @@ public class FractalFunctionsMenu extends JMenu {
             }
         });
         secant_type_functions.add(fractal_functions[MainWindow.SECANTPOLY]);
+        
+        fractal_functions[MainWindow.SECANTFORMULA] = new JRadioButtonMenuItem("Secant Formula");
+        fractal_functions[MainWindow.SECANTFORMULA].addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFunction(MainWindow.SECANTFORMULA);
+
+            }
+        });
+        secant_type_functions.add(fractal_functions[MainWindow.SECANTFORMULA]);
 
         fractal_functions[MainWindow.STEFFENSEN3] = new JRadioButtonMenuItem("Steffensen 3");
         fractal_functions[MainWindow.STEFFENSEN3].addActionListener(new ActionListener() {
@@ -1457,6 +1524,28 @@ public class FractalFunctionsMenu extends JMenu {
             }
         });
         steffensen_type_functions.add(fractal_functions[MainWindow.STEFFENSENGENERALIZED3]);
+        
+        fractal_functions[MainWindow.STEFFENSENPOLY] = new JRadioButtonMenuItem("Steffensen Polynomial");
+        fractal_functions[MainWindow.STEFFENSENPOLY].addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFunction(MainWindow.STEFFENSENPOLY);
+
+            }
+        });
+        steffensen_type_functions.add(fractal_functions[MainWindow.STEFFENSENPOLY]);
+        
+        fractal_functions[MainWindow.STEFFENSENFORMULA] = new JRadioButtonMenuItem("Steffensen Formula");
+        fractal_functions[MainWindow.STEFFENSENFORMULA].addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFunction(MainWindow.STEFFENSENFORMULA);
+
+            }
+        });
+        steffensen_type_functions.add(fractal_functions[MainWindow.STEFFENSENFORMULA]);
 
         burning_ship_opt.addActionListener(new ActionListener() {
 

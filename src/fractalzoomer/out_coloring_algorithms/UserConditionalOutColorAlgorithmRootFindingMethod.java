@@ -1,8 +1,20 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/* 
+ * Fractal Zoomer, Copyright (C) 2015 hrkalona2
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package fractalzoomer.out_coloring_algorithms;
 
 import fractalzoomer.core.Complex;
@@ -19,7 +31,7 @@ public class UserConditionalOutColorAlgorithmRootFindingMethod extends OutColorA
     private Parser[] parser;
     private ExpressionNode[] expr2;
     private Parser[] parser2;
-    private double convergent_bailout;
+    private Complex c_convergent_bailout;
 
     public UserConditionalOutColorAlgorithmRootFindingMethod(String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, double convergent_bailout) {
 
@@ -41,7 +53,7 @@ public class UserConditionalOutColorAlgorithmRootFindingMethod extends OutColorA
             expr2[i] = parser2[i].parse(user_outcoloring_condition_formula[i]);
         }
 
-        this.convergent_bailout = convergent_bailout;
+        c_convergent_bailout = new Complex(convergent_bailout, 0);
 
     }
 
@@ -66,7 +78,7 @@ public class UserConditionalOutColorAlgorithmRootFindingMethod extends OutColorA
         }
 
         if(parser[0].foundCbail()) {
-            parser[0].setCbailvalue(new Complex(convergent_bailout, 0));
+            parser[0].setCbailvalue(c_convergent_bailout);
         }
 
         /* RIGHT */
@@ -87,7 +99,7 @@ public class UserConditionalOutColorAlgorithmRootFindingMethod extends OutColorA
         }
 
         if(parser[1].foundCbail()) {
-            parser[1].setCbailvalue(new Complex(convergent_bailout, 0));
+            parser[1].setCbailvalue(c_convergent_bailout);
         }
 
         int result = expr[0].getValue().compare(expr[1].getValue());
@@ -110,7 +122,7 @@ public class UserConditionalOutColorAlgorithmRootFindingMethod extends OutColorA
             }
 
             if(parser2[0].foundCbail()) {
-                parser2[0].setCbailvalue(new Complex(convergent_bailout, 0));
+                parser2[0].setCbailvalue(c_convergent_bailout);
             }
 
             return expr2[0].getValue().getAbsRe() + 100800;
@@ -133,12 +145,12 @@ public class UserConditionalOutColorAlgorithmRootFindingMethod extends OutColorA
             }
 
             if(parser2[1].foundCbail()) {
-                parser2[1].setCbailvalue(new Complex(convergent_bailout, 0));
+                parser2[1].setCbailvalue(c_convergent_bailout);
             }
 
             return expr2[1].getValue().getAbsRe() + 100800;
         }
-        else { //left == right
+        else if (result == 0) { //left == right
             if(parser2[2].foundN()) {
                 parser2[2].setNvalue(new Complex((Integer)object[0], 0));
             }
@@ -156,11 +168,13 @@ public class UserConditionalOutColorAlgorithmRootFindingMethod extends OutColorA
             }
 
             if(parser2[2].foundCbail()) {
-                parser2[2].setCbailvalue(new Complex(convergent_bailout, 0));
+                parser2[2].setCbailvalue(c_convergent_bailout);
             }
 
             return expr2[2].getValue().getAbsRe() + 100800;
         }
+        
+        return 0;
     }
 
     @Override

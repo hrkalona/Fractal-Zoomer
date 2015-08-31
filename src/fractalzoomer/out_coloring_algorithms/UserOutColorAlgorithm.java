@@ -1,8 +1,20 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/* 
+ * Fractal Zoomer, Copyright (C) 2015 hrkalona2
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package fractalzoomer.out_coloring_algorithms;
 
 import fractalzoomer.core.Complex;
@@ -16,7 +28,7 @@ import fractalzoomer.parser.Parser;
 public class UserOutColorAlgorithm extends OutColorAlgorithm {
     protected ExpressionNode expr;
     protected Parser parser;
-    protected double bailout;
+    protected Complex c_bailout;
 
     public UserOutColorAlgorithm(String outcoloring_formula, double bailout) {
 
@@ -24,7 +36,7 @@ public class UserOutColorAlgorithm extends OutColorAlgorithm {
         
         parser = new Parser();
         expr = parser.parse(outcoloring_formula);
-        this.bailout = bailout;
+        c_bailout = new Complex(bailout, 0);
 
     }
 
@@ -44,7 +56,7 @@ public class UserOutColorAlgorithm extends OutColorAlgorithm {
         }
         
         if(parser.foundBail()) {
-            parser.setBailvalue(new Complex(bailout, 0));
+            parser.setBailvalue(c_bailout);
         }
 
         return expr.getValue().getAbsRe() + 100800;
