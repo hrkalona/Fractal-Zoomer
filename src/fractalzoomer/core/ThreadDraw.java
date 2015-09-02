@@ -10354,9 +10354,9 @@ public abstract class ThreadDraw extends Thread {
         }
     }
 
-    public void setColorCycling(boolean temp) {
+    public void terminateColorCycling() {
 
-        color_cycling = temp;
+        color_cycling = false;
 
     }
 
