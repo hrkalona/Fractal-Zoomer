@@ -1491,6 +1491,22 @@ public final class Complex {
         return this.times_i(0.5).cot().times_i(a);
 
     }
+    
+    public static final String toString2(double real, double imaginary) {
+        String temp = "";
+        
+        real = real == 0.0 ? 0.0 : real;
+        imaginary = imaginary == 0.0 ? 0.0 : imaginary;
+
+        if(imaginary >= 0) {
+            temp = real + "+" + imaginary + "i";
+        }
+        else {
+            temp = real + "" + imaginary + "i";
+        }
+        
+        return temp;
+    }
 
     @Override
     public final String toString() {

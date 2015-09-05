@@ -32,6 +32,7 @@
 /* Also forgive me for the huge-packed main class, read above! */
 package fractalzoomer.main;
 
+import fractalzoomer.core.Complex;
 import fractalzoomer.utils.ColorGenerator;
 import fractalzoomer.core.DrawOrbit;
 import fractalzoomer.gui.MainPanel;
@@ -137,7 +138,9 @@ import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.JTextPane;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
@@ -152,6 +155,8 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.plaf.basic.BasicFileChooserUI;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.StyledDocument;
 
 /**
  *
@@ -396,6 +401,7 @@ public class MainWindow extends JFrame {
     private JMenuItem d3_details_opt;
     private JMenuItem bump_map_opt;
     private JMenuItem fake_de_opt;
+    private JMenuItem overview_opt;
     private JCheckBoxMenuItem burning_ship_opt;
     private JCheckBoxMenuItem mandel_grass_opt;
     private JCheckBoxMenuItem d3_opt;
@@ -1300,6 +1306,8 @@ public class MainWindow extends JFrame {
 
         decrease_roll_palette = new JMenuItem("Shift Palette Backward", getIcon("/fractalzoomer/icons/minus.png"));
 
+        overview_opt = new JMenuItem("Settings Overview", getIcon("/fractalzoomer/icons/overview.png"));
+
         tools_menu = new JMenu("Tools");
         orbit_opt = new JCheckBoxMenuItem("Orbit");
         julia_opt = new JCheckBoxMenuItem("Julia");
@@ -1366,6 +1374,8 @@ public class MainWindow extends JFrame {
         increase_roll_palette.setToolTipText("Shifts the chosen palette forward by one.");
         decrease_roll_palette.setToolTipText("Shifts the chosen palette backward by one.");
 
+        overview_opt.setToolTipText("Creates a report of all the active fractal options.");
+
         fast_julia_filters_opt.setToolTipText("Activates the filters for the julia preview.");
         d3_details_opt.setToolTipText("Changes the 3D options.");
 
@@ -1418,6 +1428,8 @@ public class MainWindow extends JFrame {
         roll_palette.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, ActionEvent.SHIFT_MASK));
         increase_roll_palette.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, ActionEvent.SHIFT_MASK));
         decrease_roll_palette.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, ActionEvent.SHIFT_MASK));
+
+        overview_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.SHIFT_MASK));
 
         fast_julia_filters_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, ActionEvent.CTRL_MASK));
         d3_details_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, ActionEvent.ALT_MASK));
@@ -1811,6 +1823,16 @@ public class MainWindow extends JFrame {
             }
         });
 
+        overview_opt.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                Overview();
+
+            }
+        });
+
         color_intensity_opt.addActionListener(new ActionListener() {
 
             @Override
@@ -2177,7 +2199,7 @@ public class MainWindow extends JFrame {
                 if(!color_cycling) {
                     main_panel.repaint();
                 }
-                JOptionPane.showMessageDialog(scroll_pane, "<html><center><font size='5' face='arial' color='blue'><b><u>Fractal Zoomer</u></b></font><br><br><font size='4'><img src=\"" + getClass().getResource("/fractalzoomer/icons/mandel2.png") + "\"><br><br>Version: <b>1.0.5.9</b><br><br>Author: <b>Christos Kalonakis</b><br><br>Contact: <a href=\"mailto:hrkalona@gmail.com\">hrkalona@gmail.com</a><br><br></font></center></html>", "About", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(scroll_pane, "<html><center><font size='5' face='arial' color='blue'><b><u>Fractal Zoomer</u></b></font><br><br><font size='4'><img src=\"" + getClass().getResource("/fractalzoomer/icons/mandel2.png") + "\"><br><br>Version: <b>1.0.6.0</b><br><br>Author: <b>Christos Kalonakis</b><br><br>Contact: <a href=\"mailto:hrkalona@gmail.com\">hrkalona@gmail.com</a><br><br></font></center></html>", "About", JOptionPane.INFORMATION_MESSAGE);
 
             }
         });
@@ -2628,6 +2650,8 @@ public class MainWindow extends JFrame {
         options_menu.add(tools_options_menu);
         options_menu.addSeparator();
         options_menu.add(filters_options);
+        options_menu.addSeparator();
+        options_menu.add(overview_opt);
         options_menu.addSeparator();
         options_menu.add(window_menu);
 
@@ -3140,23 +3164,8 @@ public class MainWindow extends JFrame {
             case MANDELBROTNTH:
                 temp += "  z = z^" + z_exponent + " + c";
                 break;
-            case MANDELBROTWTH:
-                z_exponent_complex[0] = z_exponent_complex[0] == 0 ? 0.0 : z_exponent_complex[0];
-
-                String temp3 = "";
-
-                if(z_exponent_complex[1] > 0) {
-                    temp3 = z_exponent_complex[0] + "+" + (z_exponent_complex[1]) + "i";
-                }
-                else {
-                    if(z_exponent_complex[1] == 0) {
-                        temp3 = z_exponent_complex[0] + "+" + (0.0) + "i";
-                    }
-                    else {
-                        temp3 = z_exponent_complex[0] + "" + (z_exponent_complex[1]) + "i";
-                    }
-                }
-                temp += "  z = z^(" + temp3 + ") + c";
+            case MANDELBROTWTH:              
+                temp += "  z = z^(" + Complex.toString2(z_exponent_complex[0], z_exponent_complex[1]) + ") + c";
                 break;
             case MANDELPOLY:
                 temp += "   Multibrot " + poly + " + c";
@@ -3303,58 +3312,25 @@ public class MainWindow extends JFrame {
                 temp += "   Steffensen Formula";
                 break;
             case NOVA:
-
-                z_exponent_nova[0] = z_exponent_nova[0] == 0 ? 0.0 : z_exponent_nova[0];
-
-                temp3 = "";
-
-                if(z_exponent_nova[1] > 0) {
-                    temp3 = z_exponent_nova[0] + "+" + (z_exponent_nova[1]) + "i";
-                }
-                else {
-                    if(z_exponent_nova[1] == 0) {
-                        temp3 = z_exponent_nova[0] + "+" + (0.0) + "i";
-                    }
-                    else {
-                        temp3 = z_exponent_nova[0] + "" + (z_exponent_nova[1]) + "i";
-                    }
-                }
-
-                relaxation[0] = relaxation[0] == 0 ? 0.0 : relaxation[0];
-
-                String temp4 = "";
-
-                if(relaxation[1] > 0) {
-                    temp4 = relaxation[0] + "+" + (relaxation[1]) + "i";
-                }
-                else {
-                    if(relaxation[1] == 0) {
-                        temp4 = relaxation[0] + "+" + (0.0) + "i";
-                    }
-                    else {
-                        temp4 = relaxation[0] + "" + (relaxation[1]) + "i";
-                    }
-                }
-
                 switch (nova_method) {
 
                     case MainWindow.NOVA_NEWTON:
-                        temp += "   Nova-Newton, e: " + temp3 + ", r: " + temp4;
+                        temp += "   Nova-Newton, e: " + Complex.toString2(z_exponent_nova[0], z_exponent_nova[1]) + ", r: " + Complex.toString2(relaxation[0], relaxation[1]);
                         break;
                     case MainWindow.NOVA_HALLEY:
-                        temp += "   Nova-Halley, e: " + temp3 + ", r: " + temp4;
+                        temp += "   Nova-Halley, e: " + Complex.toString2(z_exponent_nova[0], z_exponent_nova[1]) + ", r: " + Complex.toString2(relaxation[0], relaxation[1]);
                         break;
                     case MainWindow.NOVA_SCHRODER:
-                        temp += "   Nova-Schroder, e: " + temp3 + ", r: " + temp4;
+                        temp += "   Nova-Schroder, e: " + Complex.toString2(z_exponent_nova[0], z_exponent_nova[1]) + ", r: " + Complex.toString2(relaxation[0], relaxation[1]);
                         break;
                     case MainWindow.NOVA_HOUSEHOLDER:
-                        temp += "   Nova-Householder, e: " + temp3 + ", r: " + temp4;
+                        temp += "   Nova-Householder, e: " + Complex.toString2(z_exponent_nova[0], z_exponent_nova[1]) + ", r: " + Complex.toString2(relaxation[0], relaxation[1]);
                         break;
                     case MainWindow.NOVA_SECANT:
-                        temp += "   Nova-Secant, e: " + temp3 + ", r: " + temp4;
+                        temp += "   Nova-Secant, e: " + Complex.toString2(z_exponent_nova[0], z_exponent_nova[1]) + ", r: " + Complex.toString2(relaxation[0], relaxation[1]);
                         break;
                     case MainWindow.NOVA_STEFFENSEN:
-                        temp += "   Nova-Steffensen, e: " + temp3 + ", r: " + temp4;
+                        temp += "   Nova-Steffensen, e: " + Complex.toString2(z_exponent_nova[0], z_exponent_nova[1]) + ", r: " + Complex.toString2(relaxation[0], relaxation[1]);
                         break;
                 }
 
@@ -3572,19 +3548,7 @@ public class MainWindow extends JFrame {
 
         }
 
-        temp1 = temp1 == 0.0 ? 0.0 : temp1;
-
-        if(-temp2 > 0) {
-            temp += "   Center: " + temp1 + "+" + (-temp2) + "i" + "   Size: " + size;
-        }
-        else {
-            if(temp2 == 0) {
-                temp += "   Center: " + temp1 + "+" + (0.0) + "i" + "   Size: " + size;
-            }
-            else {
-                temp += "   Center: " + temp1 + "" + (-temp2) + "i" + "   Size: " + size;
-            }
-        }
+        temp += "   Center: " + Complex.toString2(temp1, -temp2) + "   Size: " + size;
 
         setTitle(temp);
 
@@ -7389,6 +7353,8 @@ public class MainWindow extends JFrame {
             perturbation_opt.setEnabled(option);
             init_val_opt.setEnabled(option);
         }
+
+        overview_opt.setEnabled(option);
 
     }
 
@@ -11588,7 +11554,7 @@ public class MainWindow extends JFrame {
             }
             catch(InterruptedException ex) {
             }
-            
+
             color_cycling_location = threads[0][0].getColorCyclingLocation();
 
             if(color_choice == palette.length - 1) {
@@ -19543,6 +19509,356 @@ public class MainWindow extends JFrame {
         if(julia || julia_map) {
             defaultFractalSettings();
         }
+
+    }
+
+    private void Overview() {
+
+        JTextArea textArea = new JTextArea(32, 55); // 60
+        textArea.setEditable(false);
+        //textArea.setPreferredSize(new Dimension(500, 500));
+        textArea.setFont(new Font("default", Font.BOLD, 11));
+        textArea.setLineWrap(false);
+        textArea.setWrapStyleWord(false);
+
+        JScrollPane scroll_pane_2 = new JScrollPane(textArea);
+        scroll_pane_2.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+
+        double temp_xcenter = xCenter - rotation_center[0];
+        double temp_ycenter = yCenter - rotation_center[1];
+
+        double temp1 = temp_xcenter * rotation_vals[0] - temp_ycenter * rotation_vals[1] + rotation_center[0];
+        double temp2 = temp_xcenter * rotation_vals[1] + temp_ycenter * rotation_vals[0] + rotation_center[1];
+
+        String tab = "        ";
+
+        String overview = "";
+
+        overview += "Center: " + Complex.toString2(temp1, -temp2) + "\n\n";
+        overview += "Size: " + size + "\n\n";
+
+        if(julia) {
+            overview += "Julia Seed: " + Complex.toString2(xJuliaCenter, -yJuliaCenter) + "\n\n";
+        }
+
+        if(polar_projection) {
+            overview += "Polar Projection: " + "\n" + tab + "Circle Periods = " + circle_period + "\n\n";
+        }
+
+        overview += "Function: " + fractal_functions[function].getText() + "\n";
+
+        if(function == MANDELPOLY || function == NEWTONPOLY || function == HALLEYPOLY || function == SCHRODERPOLY || function == HOUSEHOLDERPOLY || function == SECANTPOLY || function == STEFFENSENPOLY) {
+            overview += tab + poly + "\n";
+        }
+        else if(function == MANDELBROTNTH) {
+            overview += tab + "z = z^" + z_exponent + " + c\n";
+        }
+        else if(function == MANDELBROTWTH) {
+            overview += tab + "z = z^(" + Complex.toString2(z_exponent_complex[0], z_exponent_complex[1]) + ") + c\n";
+        }
+        else if(function == NOVA) {
+            switch (nova_method) {
+                case NOVA_NEWTON:
+                    overview += tab + "Newton Method\n";
+                    break;
+                case NOVA_HALLEY:
+                    overview += tab + "Halley Method\n";
+                    break;
+                case NOVA_SCHRODER:
+                    overview += tab + "Schroder Method\n";
+                    break;
+                case NOVA_HOUSEHOLDER:
+                    overview += tab + "Householder Method\n";
+                    break;
+                case NOVA_SECANT:
+                    overview += tab + "Secant Method\n";
+                    break;
+                case NOVA_STEFFENSEN:
+                    overview += tab + "Steffensen Method\n";
+                    break;
+            }
+
+            overview += tab + "p(z) = z^(" + Complex.toString2(z_exponent_nova[0], z_exponent_nova[1]) + ") - 1\n";
+            overview += tab + "Relaxation = " + Complex.toString2(relaxation[0], relaxation[1]) + "\n";
+        }
+        else if(function == NEWTONFORMULA) {
+            overview += tab + "f(z) = " + user_fz_formula + "\n";
+            overview += tab + "f'(z) = " + user_dfz_formula + "\n";
+        }
+        else if(function == HALLEYFORMULA) {
+            overview += tab + "f(z) = " + user_fz_formula + "\n";
+            overview += tab + "f'(z) = " + user_dfz_formula + "\n";
+            overview += tab + "f''(z) = " + user_ddfz_formula + "\n";
+        }
+        else if(function == SCHRODERFORMULA) {
+            overview += tab + "f(z) = " + user_fz_formula + "\n";
+            overview += tab + "f'(z) = " + user_dfz_formula + "\n";
+            overview += tab + "f''(z) = " + user_ddfz_formula + "\n";
+        }
+        else if(function == HOUSEHOLDERFORMULA) {
+            overview += tab + "f(z) = " + user_fz_formula + "\n";
+            overview += tab + "f'(z) = " + user_dfz_formula + "\n";
+            overview += tab + "f''(z) = " + user_ddfz_formula + "\n";
+        }
+        else if(function == SECANTFORMULA) {
+            overview += tab + "f(z) = " + user_fz_formula + "\n";
+        }
+        else if(function == STEFFENSENFORMULA) {
+            overview += tab + "f(z) = " + user_fz_formula + "\n";
+        }
+        else if(function == USER_FORMULA) {
+            overview += tab + "z = " + user_formula + "\n";
+            overview += tab + "c = " + user_formula2 + "\n";
+            if(bail_technique == 0) {
+                overview += tab + "Escaping Algorithm\n";
+            }
+            else {
+                overview += tab + "Converging Algorithm\n";
+            }
+        }
+        else if(function == USER_FORMULA_ITERATION_BASED) {
+            overview += tab + "if [iteration % 4 = 0] then z = " + user_formula_iteration_based[0] + "\n";
+            overview += tab + "if [iteration % 4 = 1] then z = " + user_formula_iteration_based[1] + "\n";
+            overview += tab + "if [iteration % 4 = 2] then z = " + user_formula_iteration_based[2] + "\n";
+            overview += tab + "if [iteration % 4 = 3] then z = " + user_formula_iteration_based[3] + "\n";
+            if(bail_technique == 0) {
+                overview += tab + "Escaping Algorithm\n";
+            }
+            else {
+                overview += tab + "Converging Algorithm\n";
+            }
+        }
+        else if(function == USER_FORMULA_CONDITIONAL) {
+            overview += tab + "if [" + user_formula_conditions[0] + " > " + user_formula_conditions[1] + "] then z = " + user_formula_condition_formula[0] + "\n";
+            overview += tab + "if [" + user_formula_conditions[0] + " < " + user_formula_conditions[1] + "] then z = " + user_formula_condition_formula[1] + "\n";
+            overview += tab + "if [" + user_formula_conditions[0] + " = " + user_formula_conditions[1] + "] then z = " + user_formula_condition_formula[2] + "\n";
+            if(bail_technique == 0) {
+                overview += tab + "Escaping Algorithm\n";
+            }
+            else {
+                overview += tab + "Converging Algorithm\n";
+            }
+        }
+
+        if((function <= 9 || function == MANDELPOLY || function == MANDELBROTWTH) && burning_ship) {
+            overview += tab + "Burning Ship\n";
+        }
+        if((function <= 9 || function == MANDELPOLY || function == MANDELBROTWTH) && mandel_grass) {
+            overview += tab + "Mandel Grass = " + Complex.toString2(mandel_grass_vals[0], mandel_grass_vals[1]) + "\n";
+        }
+        overview += "\n";
+
+        overview += "Plane Transformation: " + planes[plane_type].getText() + "\n";
+
+        if(plane_type == CIRCLEINVERSION_PLANE) {
+            overview += tab + "Center = " + Complex.toString2(plane_transform_center[0], -plane_transform_center[1]) + "\n";
+            overview += tab + "Radius = " + plane_transform_radius + "\n";
+        }
+        else if(plane_type == FOLDUP_PLANE || plane_type == FOLDDOWN_PLANE || plane_type == FOLDRIGHT_PLANE || plane_type == FOLDLEFT_PLANE) {
+            overview += tab + "Center = " + Complex.toString2(plane_transform_center[0], -plane_transform_center[1]) + "\n";
+        }
+        else if(plane_type == FOLDIN_PLANE || plane_type == FOLDOUT_PLANE) {
+            overview += tab + "Radius = " + plane_transform_radius + "\n";
+        }
+        else if(plane_type == PINCH_PLANE) {
+            overview += tab + "Center = " + Complex.toString2(plane_transform_center[0], -plane_transform_center[1]) + "\n";
+            overview += tab + "Angle = " + plane_transform_angle + " degrees\n";
+            overview += tab + "Radius = " + plane_transform_radius + "\n";
+            overview += tab + "Amount = " + plane_transform_amount + "\n";
+        }
+        else if(plane_type == SHEAR_PLANE) {
+            overview += tab + "Scale Real = " + plane_transform_scales[0] + "\n";
+            overview += tab + "Scale Imaginary = " + plane_transform_scales[1] + "\n";
+        }
+        else if(plane_type == TWIRL_PLANE) {
+            overview += tab + "Center = " + Complex.toString2(plane_transform_center[0], -plane_transform_center[1]) + "\n";
+            overview += tab + "Angle = " + plane_transform_angle + " degrees\n";
+            overview += tab + "Radius = " + plane_transform_radius + "\n";
+        }
+        else if(plane_type == KALEIDOSCOPE_PLANE) {
+            overview += tab + "Center = " + Complex.toString2(plane_transform_center[0], -plane_transform_center[1]) + "\n";
+            overview += tab + "Angle = " + plane_transform_angle + " degrees\n";
+            overview += tab + "Angle 2 = " + plane_transform_angle2 + " degrees\n";
+            overview += tab + "Radius = " + plane_transform_radius + "\n";
+            overview += tab + "Sides = " + plane_transform_sides + "\n";
+        }
+        else if(plane_type == USER_PLANE) {
+            if(user_plane_algorithm == 0) {
+                overview += tab + "z = " + user_plane + "\n";
+            }
+            else {
+                overview += tab + "if [" + user_plane_conditions[0] + " > " + user_plane_conditions[1] + "] then z = " + user_plane_condition_formula[0] + "\n";
+                overview += tab + "if [" + user_plane_conditions[0] + " < " + user_plane_conditions[1] + "] then z = " + user_plane_condition_formula[1] + "\n";
+                overview += tab + "if [" + user_plane_conditions[0] + " = " + user_plane_conditions[1] + "] then z = " + user_plane_condition_formula[2] + "\n";
+            }
+        }
+
+        overview += "\n";
+
+        if(!perturbation && !init_val && (function != NEWTON3 && function != STEFFENSENPOLY && function != NEWTONFORMULA && function != HALLEYFORMULA && function != SCHRODERFORMULA && function != HOUSEHOLDERFORMULA && function != SECANTFORMULA && function != STEFFENSENFORMULA && function != NEWTON4 && function != NEWTONGENERALIZED3 && function != NEWTONGENERALIZED8 && function != NEWTONSIN && function != NEWTONCOS && function != NEWTONPOLY && function != HALLEY3 && function != HALLEY4 && function != HALLEYGENERALIZED3 && function != HALLEYGENERALIZED8 && function != HALLEYSIN && function != HALLEYCOS && function != HALLEYPOLY && function != SCHRODER3 && function != SCHRODER4 && function != SCHRODERGENERALIZED3 && function != SCHRODERGENERALIZED8 && function != SCHRODERSIN && function != SCHRODERCOS && function != SCHRODERPOLY && function != HOUSEHOLDER3 && function != HOUSEHOLDER4 && function != HOUSEHOLDERGENERALIZED3 && function != HOUSEHOLDERGENERALIZED8 && function != HOUSEHOLDERSIN && function != HOUSEHOLDERCOS && function != HOUSEHOLDERPOLY && function != SIERPINSKI_GASKET && function != SECANT3 && function != SECANT4 && function != SECANTGENERALIZED3 && function != SECANTGENERALIZED8 && function != SECANTCOS && function != SECANTPOLY && function != STEFFENSEN3 && function != STEFFENSEN4 && function != STEFFENSENGENERALIZED3) && (function != USER_FORMULA || (function == USER_FORMULA && user_formula_c == true)) && (function != USER_FORMULA_ITERATION_BASED || (function == USER_FORMULA_ITERATION_BASED && user_formula_c == true)) && (function != USER_FORMULA_CONDITIONAL || (function == USER_FORMULA_CONDITIONAL && user_formula_c == true))) {
+            if(apply_plane_on_julia) {
+                overview += "Julia Set Plane Transformation: Applicable to the Julia Seed and the Whole Plane\n\n";
+            }
+            else {
+                overview += "Julia Set Plane Transformation: Applicable to the Julia Seed\n\n";
+            }
+        }
+
+        if(init_val) {
+            if(variable_init_value) {
+                if(user_initial_value_algorithm == 0) {
+                    overview += "Initial Value: Variable Value\n";
+                    overview += tab + "z(0) = " + initial_value_user_formula + "\n";
+                }
+                else {
+                    overview += "Initial Value: Variable Value Conditional\n";
+                    overview += tab + "if [" + user_initial_value_conditions[0] + " > " + user_initial_value_conditions[1] + "] then z(0) = " + user_initial_value_condition_formula[0] + "\n";
+                    overview += tab + "if [" + user_initial_value_conditions[0] + " < " + user_initial_value_conditions[1] + "] then z(0) = " + user_initial_value_condition_formula[1] + "\n";
+                    overview += tab + "if [" + user_initial_value_conditions[0] + " = " + user_initial_value_conditions[1] + "] then z(0) = " + user_initial_value_condition_formula[2] + "\n";
+                }
+            }
+            else {
+                overview += "Initial Value: Static Value\n";
+                overview += tab + "z(0) = " + Complex.toString2(initial_vals[0], initial_vals[1]) + "\n";
+            }
+            overview += "\n";
+        }
+
+        if(perturbation) {
+            if(variable_perturbation) {
+                if(user_perturbation_algorithm == 0) {
+                    overview += "Perturbation: Variable Value\n";
+                    overview += tab + "z(0) + c = " + perturbation_user_formula + "\n";
+                }
+                else {
+                    overview += "Perturbation: Variable Value Conditional\n";
+                    overview += tab + "if [" + user_perturbation_conditions[0] + " > " + user_perturbation_conditions[1] + "] then z(0) = " + user_perturbation_condition_formula[0] + "\n";
+                    overview += tab + "if [" + user_perturbation_conditions[0] + " < " + user_perturbation_conditions[1] + "] then z(0) = " + user_perturbation_condition_formula[1] + "\n";
+                    overview += tab + "if [" + user_perturbation_conditions[0] + " = " + user_perturbation_conditions[1] + "] then z(0) = " + user_perturbation_condition_formula[2] + "\n";
+                }
+            }
+            else {
+                overview += "Perturbation: Static Value\n";
+                overview += tab + "z(0) + c = " + Complex.toString2(perturbation_vals[0], perturbation_vals[1]) + "\n";
+            }
+            overview += "\n";
+        }
+
+        overview += "Max Iterations: " + max_iterations + "\n\n";
+
+        if(bailout_number.isEnabled()) {
+            overview += "Bailout Test: " + bailout_tests[bailout_test_algorithm].getText() + "\n";
+            if(bailout_test_algorithm == BAILOUT_TEST_NNORM) {
+                overview += tab + "(abs(re(z))^" + n_norm + " + abs(im(z))^" + n_norm + ")^(1/" + n_norm + ") >= " + bailout + "\n";
+            }
+            else if(bailout_test_algorithm == BAILOUT_TEST_USER) {
+                String greater, equal, lower;
+
+                if(bailout_test_comparison == 0) { // >
+                    greater = "Escaped";
+                    equal = "Not Escaped";
+                    lower = "Not Escaped";
+                }
+                else if(bailout_test_comparison == 1) { // >=
+                    greater = "Escaped";
+                    equal = "Escaped";
+                    lower = "Not Escaped";
+                }
+                else if(bailout_test_comparison == 2) { // <
+                    greater = "Not Escaped";
+                    equal = "Not Escaped";
+                    lower = "Escaped";
+                }
+                else { // <=
+                    greater = "Not Escaped";
+                    equal = "Escaped";
+                    lower = "Escaped";
+                }
+                overview += tab + "if [" + bailout_test_user_formula + " > " + bailout_test_user_formula2 + "] then " + greater + "\n";
+                overview += tab + "if [" + bailout_test_user_formula + " < " + bailout_test_user_formula2 + "] then " + lower + "\n";
+                overview += tab + "if [" + bailout_test_user_formula + " = " + bailout_test_user_formula2 + "] then " + equal + "\n";
+            }
+            overview += "\n";
+            overview += "Bailout: " + bailout + "\n\n";
+        }
+        overview += "Rotation: " + rotation + " degrees about " + Complex.toString2(rotation_center[0], -rotation_center[1]) + "\n\n";
+        
+        overview += "Height Ratio: " + height_ratio + "\n\n";
+        
+        overview += "Out Coloring Method: " + out_coloring_modes[out_coloring_algorithm].getText() + "\n";
+
+        if(out_coloring_algorithm == USER_OUTCOLORING_ALGORITHM) {
+            if(user_out_coloring_algorithm == 0) {
+                overview += tab + "out = " + outcoloring_formula + "\n";
+            }
+            else {
+                overview += tab + "if [" + user_outcoloring_conditions[0] + " > " + user_outcoloring_conditions[1] + "] then out = " + user_outcoloring_condition_formula[0] + "\n";
+                overview += tab + "if [" + user_outcoloring_conditions[0] + " < " + user_outcoloring_conditions[1] + "] then out = " + user_outcoloring_condition_formula[1] + "\n";
+                overview += tab + "if [" + user_outcoloring_conditions[0] + " = " + user_outcoloring_conditions[1] + "] then out = " + user_outcoloring_condition_formula[2] + "\n";
+            }
+        }
+        overview += "\n";
+
+        overview += "In Coloring Method: " + in_coloring_modes[in_coloring_algorithm].getText() + "\n";
+        if(in_coloring_algorithm == USER_INCOLORING_ALGORITHM) {
+            if(user_in_coloring_algorithm == 0) {
+                overview += tab + "in = " + incoloring_formula + "\n";
+            }
+            else {
+                overview += tab + "if [" + user_incoloring_conditions[0] + " > " + user_incoloring_conditions[1] + "] then in = " + user_incoloring_condition_formula[0] + "\n";
+                overview += tab + "if [" + user_incoloring_conditions[0] + " < " + user_incoloring_conditions[1] + "] then in = " + user_incoloring_condition_formula[1] + "\n";
+                overview += tab + "if [" + user_incoloring_conditions[0] + " = " + user_incoloring_conditions[1] + "] then in = " + user_incoloring_condition_formula[2] + "\n";
+            }
+        }
+        overview += "\n";
+        
+        overview += "Palette: " + palette[color_choice].getText() + "\n\n";
+        overview += "Palette Offset: " + color_cycling_location + "\n\n";
+        overview += "Color Intensity: " + color_intensity + "\n\n";
+
+        if(smoothing) {
+            overview += "Smooth Colors:\n";
+            if(escaping_smooth_algorithm == 0) {
+                overview += tab + "Escaping Smooth Algorithm 1\n";
+            }
+            else {
+                overview += tab + "Escaping Smooth Algorithm 2\n";
+            }
+            if(converging_smooth_algorithm == 0) {
+                overview += tab + "Converging Smooth Algorithm 1\n";
+            }
+            else {
+                overview += tab + "Converging Smooth Algorithm 2\n\n";
+            }
+        }
+
+        if(bump_map) {
+            overview += "Bump Mapping:\n";
+            overview += tab + "Light Direction = " + lightDirectionDegrees + " degrees\n";
+            overview += tab + "Depth = " + bumpMappingDepth + "\n";
+            overview += tab + "Strength = " + bumpMappingStrength + "\n\n";
+        }
+
+        if(exterior_de) {
+            overview += "Distance Estimation:\n";
+            overview += tab + "Factor = " + exterior_de_factor + "\n\n";
+        }
+
+        if(fake_de) {
+            overview += "Fake Distance Estimation:\n";
+            overview += tab + "Factor = " + fake_de_factor + "\n\n";
+        }
+
+        textArea.setText(overview);
+
+        Object[] message = {
+            "Active fractal settings:",
+            " ",
+            scroll_pane_2,};
+
+        textArea.setCaretPosition(0);
+
+        JOptionPane.showMessageDialog(scroll_pane, message, "Settings Overview", JOptionPane.INFORMATION_MESSAGE);
 
     }
 
