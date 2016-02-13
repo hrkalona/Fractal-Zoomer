@@ -1,6 +1,6 @@
+Fractal Zoomer 1.0.6.0
+
 The most complete fractal generating software using java!
-This is the source code of my fractal zoomer. 
-MainWindow is the main class.
 
 Optimizations:
 Boundary Tracing
