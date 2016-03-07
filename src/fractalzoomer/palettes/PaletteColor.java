@@ -14,22 +14,83 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package fractalzoomer.palettes;
 
+import java.awt.Color;
+
 public abstract class PaletteColor {
-  protected int[] palette;
-  protected static int mod_offset;
-  protected double color_intensity;
-  
-  public PaletteColor(int[] palette, double color_intensity) {
-      
-      this.palette = palette;
-      mod_offset = (100800 % palette.length) == 0 ? 0 : palette.length - (100800 % palette.length);
-      this.color_intensity = color_intensity;
-    
-  }
-  
-  public abstract int getPaletteColor(double result);
-   
+
+    protected int[] palette;
+    protected static int mod_offset;
+    protected double color_intensity;
+    protected int[] special_color;
+
+    public PaletteColor(int[] palette, double color_intensity, Color special_color) {
+
+        this.palette = palette;
+        mod_offset = (100800 % palette.length) == 0 ? 0 : palette.length - (100800 % palette.length);
+        this.color_intensity = color_intensity;
+
+        if(special_color == null) {
+            this.special_color = null;
+        }
+        else {
+            this.special_color = new int[2];
+
+            this.special_color[0] = special_color.getRGB();
+
+            boolean flag = true;
+
+            int count = 0;
+            
+            Color last_color;
+            boolean up = true;
+            if(special_color.getBlue() == 255) {
+                last_color = new Color(special_color.getRed(), special_color.getGreen(), special_color.getBlue() - 1);
+                this.special_color[1] = last_color.getRGB();
+                up = false;
+            }
+            else {
+                last_color = new Color(special_color.getRed(), special_color.getGreen(), special_color.getBlue() + 1);
+                this.special_color[1] = last_color.getRGB();
+                up = true;
+            }
+
+            while(flag && count < 10) {
+                flag = false;
+                for(int j = 0; j < palette.length; j++) {
+                    if(palette[j] == last_color.getRGB()) {
+
+                        if(up) {
+                            if(last_color.getBlue() == 255) {
+                                last_color = new Color(special_color.getRed(), special_color.getGreen(), special_color.getBlue() - 1);
+                                this.special_color[1] = last_color.getRGB();
+                                up = false;
+                            }
+                            else {
+                                last_color = new Color(special_color.getRed(), special_color.getGreen(), special_color.getBlue() + 1);
+                                this.special_color[1] = last_color.getRGB();
+                            }
+                        }
+                        else {
+                            if(last_color.getBlue() == 0) {
+                                last_color = new Color(special_color.getRed(), special_color.getGreen(), special_color.getBlue() + 1);
+                                this.special_color[1] = last_color.getRGB();
+                                up = true;
+                            }
+                            else {
+                                last_color = new Color(special_color.getRed(), special_color.getGreen(), special_color.getBlue() - 1);
+                                this.special_color[1] = last_color.getRGB();
+                            }
+                        }
+                    }
+                }
+            }
+
+        }
+
+    }
+
+    public abstract int getPaletteColor(double result);
+
 }

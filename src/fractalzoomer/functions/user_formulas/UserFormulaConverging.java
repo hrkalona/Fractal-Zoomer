@@ -89,7 +89,7 @@ public class UserFormulaConverging extends Julia {
 
         super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, false, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
 
-        convergent_bailout = 1E-11;
+        convergent_bailout = 1E-10;
 
         if(perturbation) {
             if(variable_perturbation) {
@@ -263,7 +263,7 @@ public class UserFormulaConverging extends Julia {
                 in_color_algorithm = new Squares();
                 break;
             case MainWindow.SQUARES2:
-                in_color_algorithm = new Squares2(max_iterations);
+                in_color_algorithm = new Squares2();
                 break;
             case MainWindow.USER_INCOLORING_ALGORITHM:
                 if(user_in_coloring_algorithm == 0) {
@@ -288,7 +288,7 @@ public class UserFormulaConverging extends Julia {
 
         super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, false, plane_type, apply_plane_on_julia, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
 
-        convergent_bailout = 1E-11;
+        convergent_bailout = 1E-10;
 
         switch (out_coloring_algorithm) {
 
@@ -432,7 +432,7 @@ public class UserFormulaConverging extends Julia {
                 in_color_algorithm = new Squares();
                 break;
             case MainWindow.SQUARES2:
-                in_color_algorithm = new Squares2(max_iterations);
+                in_color_algorithm = new Squares2();
                 break;
             case MainWindow.USER_INCOLORING_ALGORITHM:
                 if(user_in_coloring_algorithm == 0) {
@@ -698,7 +698,7 @@ public class UserFormulaConverging extends Julia {
         for(; iterations < max_iterations; iterations++) {
             if((temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
                 Object[] object = {iterations, complex[0], temp, zold, zold2};
-                double[] array = {40 * Math.log(out_color_algorithm.getResult3D(object) - 100799) - 100, out_color_algorithm.getResult(object)};
+                double[] array = {Math.abs(out_color_algorithm.getResult3D(object)) - 100800, out_color_algorithm.getResult(object)};
                 return array;
             }
             zold2.assign(zold);
@@ -717,8 +717,8 @@ public class UserFormulaConverging extends Julia {
 
         Object[] object = {complex[0], zold};
         temp2 = in_color_algorithm.getResult(object);
-        double result = temp2 == max_iterations ? max_iterations : max_iterations + temp2 - 100820;
-        double[] array = {40 * Math.log(result + 1) - 100, temp2};
+        double result = temp2 == max_iterations ? max_iterations : max_iterations + Math.abs(temp2) - 100820;
+        double[] array = {result, temp2};
         return array;
 
     }
@@ -754,7 +754,7 @@ public class UserFormulaConverging extends Julia {
         for(; iterations < max_iterations; iterations++) {
             if((temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
                 Object[] object = {iterations, complex[0], temp, zold, zold2};
-                double[] array = {40 * Math.log(out_color_algorithm.getResult3D(object) - 100799) - 100, out_color_algorithm.getResult(object)};
+                double[] array = {Math.abs(out_color_algorithm.getResult3D(object)) - 100800, out_color_algorithm.getResult(object)};
                 return array;
             }
             zold2.assign(zold);
@@ -773,8 +773,8 @@ public class UserFormulaConverging extends Julia {
 
         Object[] object = {complex[0], zold};
         double temp2 = in_color_algorithm.getResult(object);
-        double result = temp2 == max_iterations ? max_iterations : max_iterations + temp2 - 100820;
-        double[] array = {40 * Math.log(result + 1) - 100, temp2};
+        double result = temp2 == max_iterations ? max_iterations : max_iterations + Math.abs(temp2) - 100820;
+        double[] array = {result, temp2};
         return array;
 
     }

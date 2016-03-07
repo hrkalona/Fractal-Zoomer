@@ -79,7 +79,7 @@ public class SmoothBinaryDecompositionMagnet extends SmoothBinaryDecomposition {
             }
         }
 
-        return ((Boolean)object[2] ? (((Complex)object[1]).getIm() < 0 ? temp3 + 100850 : temp3 + 100906) : ((Complex)object[1]).getIm() < 0 ? temp3 + 100850 : temp3 + 100800);
+        return ((Boolean)object[2] ? (((Complex)object[1]).getIm() < 0 ? -(temp3 + 100850) : temp3 + 100906) : ((Complex)object[1]).getIm() < 0 ? -(temp3 + 100850) : temp3 + 100800);
 
     }
 }

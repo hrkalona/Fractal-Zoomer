@@ -264,7 +264,7 @@ public class MandelbrotWth extends Julia {
                 in_color_algorithm = new Squares();
                 break;
             case MainWindow.SQUARES2:
-                in_color_algorithm = new Squares2(max_iterations);
+                in_color_algorithm = new Squares2();
                 break;
             case MainWindow.USER_INCOLORING_ALGORITHM:
                 if(user_in_coloring_algorithm == 0) {
@@ -427,7 +427,7 @@ public class MandelbrotWth extends Julia {
                 in_color_algorithm = new Squares();
                 break;
             case MainWindow.SQUARES2:
-                in_color_algorithm = new Squares2(max_iterations);
+                in_color_algorithm = new Squares2();
                 break;
             case MainWindow.USER_INCOLORING_ALGORITHM:
                 if(user_in_coloring_algorithm == 0) {

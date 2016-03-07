@@ -72,7 +72,7 @@ public class SmoothEscapeTimeGridNova extends OutColorAlgorithm {
             temp3 = (Integer)object[0] + f;
         }
 
-        return grid ? temp3 + 100800 : temp3 + 100850;
+        return grid ? temp3 + 100800 : -(temp3 + 100850);
 
     }
 

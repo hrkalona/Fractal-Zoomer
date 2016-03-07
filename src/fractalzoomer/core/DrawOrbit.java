@@ -1755,6 +1755,7 @@ public class DrawOrbit extends Thread {
         full_image_g.setColor(orbit_color);
 
         full_image_g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        full_image_g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
         list_size = complex_orbit.size() - 1;
 
         double size = pixel_orbit.getSize();
@@ -1811,6 +1812,7 @@ public class DrawOrbit extends Thread {
                 f1 = f1 < 0 ? f1 + 2 * Math.PI : f1;
                 x1 = (int)((Math.log(r1) - start) / mulx + 0.5);
                 y1 = (int)((f1 / muly + 0.5));
+                
             }
             else {
                 x0 = (int)((complex_orbit.get(i).getRe() - temp_xcenter_size) / temp_size_image_size_x + 0.5);
@@ -1819,7 +1821,7 @@ public class DrawOrbit extends Thread {
                 y1 = (int)((complex_orbit.get(i + 1).getIm() - temp_ycenter_size) / temp_size_image_size_y + 0.5);
             }
 
-            if(Math.abs(x0) == 2147483647 || Math.abs(y0) == 2147483647 || Math.abs(x1) == 2147483647 || Math.abs(y1) == 2147483647) {
+            if(x0 == Integer.MIN_VALUE || x0 == Integer.MAX_VALUE || x1 == Integer.MIN_VALUE || x1 == Integer.MAX_VALUE || y0 == Integer.MIN_VALUE || y0 == Integer.MAX_VALUE || y1 == Integer.MIN_VALUE || y1 == Integer.MAX_VALUE) {
                 return;
             }
 
@@ -1853,6 +1855,7 @@ public class DrawOrbit extends Thread {
         full_image_g.setColor(orbit_color);
 
         full_image_g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        full_image_g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
 
         list_size = complex_orbit.size();
 
@@ -1905,7 +1908,7 @@ public class DrawOrbit extends Thread {
                 y0 = (int)((complex_orbit.get(i).getIm() - temp_ycenter_size) / temp_size_image_size_y + 0.5);
             }
 
-            if(Math.abs(x0) == 2147483647 || Math.abs(y0) == 2147483647) {
+            if(x0 == Integer.MIN_VALUE || x0 == Integer.MAX_VALUE || y0 == Integer.MIN_VALUE || y0 == Integer.MAX_VALUE) {
                 return;
             }
 

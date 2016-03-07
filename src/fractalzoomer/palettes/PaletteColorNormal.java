@@ -17,18 +17,30 @@
 
 package fractalzoomer.palettes;
 
+import java.awt.Color;
+
 public class PaletteColorNormal extends PaletteColor {
   
-  public PaletteColorNormal(int[] palette, double color_intensity) {
+  public PaletteColorNormal(int[] palette, double color_intensity, Color special_color) {
       
-      super(palette, color_intensity);
+      super(palette, color_intensity, special_color);
       
   }
 
     @Override
     public int getPaletteColor(double result) {
         
-        return palette[((int)((result + mod_offset) * color_intensity)) % palette.length];
+        if(result < 0) {
+            if(special_color != null) {
+                return special_color[((int)(result * (-1))) % special_color.length];
+            }
+            else {
+                return palette[((int)((result * (-1) + mod_offset) * color_intensity)) % palette.length];
+            }           
+        }
+        else {
+            return palette[((int)((result + mod_offset) * color_intensity)) % palette.length];
+        }       
         
     }
   

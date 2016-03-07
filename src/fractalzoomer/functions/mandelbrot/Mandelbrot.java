@@ -284,7 +284,7 @@ public class Mandelbrot extends Julia {
                 in_color_algorithm = new Squares();
                 break;
             case MainWindow.SQUARES2:
-                in_color_algorithm = new Squares2(max_iterations);
+                in_color_algorithm = new Squares2();
                 break;
             case MainWindow.USER_INCOLORING_ALGORITHM:
                 if(user_in_coloring_algorithm == 0) {
@@ -462,7 +462,7 @@ public class Mandelbrot extends Julia {
                 in_color_algorithm = new Squares();
                 break;
             case MainWindow.SQUARES2:
-                in_color_algorithm = new Squares2(max_iterations);
+                in_color_algorithm = new Squares2();
                 break;
             case MainWindow.USER_INCOLORING_ALGORITHM:
                 if(user_in_coloring_algorithm == 0) {
@@ -584,7 +584,7 @@ public class Mandelbrot extends Julia {
                 double temp2 = complex[0].norm_squared();
                 double temp3 = 0.5 * Math.log(temp2);
 
-                return (temp2 * temp3 * temp3) / dc.norm_squared() > (limit * limit) ? res : max_iterations;
+                return (temp2 * temp3 * temp3) / dc.norm_squared() > (limit * limit) ? res : -max_iterations;
             }
 
             zold.assign(complex[0]);
@@ -621,7 +621,7 @@ public class Mandelbrot extends Julia {
                 double temp2 = complex[0].norm_squared();
                 double temp3 = 0.5 * Math.log(temp2);
 
-                return (temp2 * temp3 * temp3) / dc.norm_squared() > (limit * limit) ? res : max_iterations;
+                return (temp2 * temp3 * temp3) / dc.norm_squared() > (limit * limit) ? res : -max_iterations;
             }
 
             de.times_mutable(complex[0]);
@@ -669,7 +669,7 @@ public class Mandelbrot extends Julia {
                 double temp2 = complex[0].norm_squared();
                 double temp3 = 0.5 * Math.log(temp2);
 
-                return (temp2 * temp3 * temp3) / dc.norm_squared() > (limit * limit) ? res : max_iterations;
+                return (temp2 * temp3 * temp3) / dc.norm_squared() > (limit * limit) ? res : -max_iterations;
             }
 
             zold.assign(complex[0]);
@@ -835,7 +835,7 @@ public class Mandelbrot extends Julia {
                 double temp2 = complex[0].norm_squared();
                 double temp3 = 0.5 * Math.log(temp2);
 
-                return (temp2 * temp3 * temp3) / dc.norm_squared() > (limit * limit) ? res : max_iterations;
+                return (temp2 * temp3 * temp3) / dc.norm_squared() > (limit * limit) ? res : -max_iterations;
             }
             zold.assign(complex[0]);
             dc.times_mutable(complex[0]).times_mutable(2).plus(1);
@@ -881,7 +881,7 @@ public class Mandelbrot extends Julia {
                 double temp2 = complex[0].norm_squared();
                 double temp3 = 0.5 * Math.log(temp2);
 
-                return (temp2 * temp3 * temp3) / dc.norm_squared() > (limit * limit) ? res : max_iterations;
+                return (temp2 * temp3 * temp3) / dc.norm_squared() > (limit * limit) ? res : -max_iterations;
             }
             de.times_mutable(complex[0]);
             dc.times_mutable(complex[0]).times_mutable(2).plus(1);
@@ -937,7 +937,7 @@ public class Mandelbrot extends Julia {
                 double temp2 = complex[0].norm_squared();
                 double temp3 = 0.5 * Math.log(temp2);
 
-                return (temp2 * temp3 * temp3) / dc.norm_squared() > (limit * limit) ? res : max_iterations;
+                return (temp2 * temp3 * temp3) / dc.norm_squared() > (limit * limit) ? res : -max_iterations;
             }
             zold.assign(complex[0]);
             dc.times_mutable(complex[0]).times_mutable(2).plus(1);
@@ -1131,7 +1131,7 @@ public class Mandelbrot extends Julia {
                 double temp2 = complex[0].norm_squared();
                 double temp3 = 0.5 * Math.log(temp2);
 
-                return (temp2 * temp3 * temp3) / dc.norm_squared() > (limit * limit) ? res : max_iterations;
+                return (temp2 * temp3 * temp3) / dc.norm_squared() > (limit * limit) ? res : -max_iterations;
             }
             zold.assign(complex[0]);
             dc.times_mutable(complex[0]).times_mutable(2).plus(1);
@@ -1174,7 +1174,7 @@ public class Mandelbrot extends Julia {
                 double temp2 = complex[0].norm_squared();
                 double temp3 = 0.5 * Math.log(temp2);
 
-                return (temp2 * temp3 * temp3) / dc.norm_squared() > (limit * limit) ? res : max_iterations;
+                return (temp2 * temp3 * temp3) / dc.norm_squared() > (limit * limit) ? res : -max_iterations;
             }
             de.times_mutable(complex[0]);
             dc.times_mutable(complex[0]).times_mutable(2).plus(1);
@@ -1227,7 +1227,7 @@ public class Mandelbrot extends Julia {
                 double temp2 = complex[0].norm_squared();
                 double temp3 = 0.5 * Math.log(temp2);
 
-                return (temp2 * temp3 * temp3) / dc.norm_squared() > (limit * limit) ? res : max_iterations;
+                return (temp2 * temp3 * temp3) / dc.norm_squared() > (limit * limit) ? res : -max_iterations;
             }
             zold.assign(complex[0]);
             dc.times_mutable(complex[0]).times_mutable(2).plus(1);
@@ -1403,7 +1403,7 @@ public class Mandelbrot extends Julia {
                 double temp2 = complex[0].norm_squared();
                 double temp3 = 0.5 * Math.log(temp2);
 
-                return (temp2 * temp3 * temp3) / dc.norm_squared() > (limit * limit) ? res : max_iterations;
+                return (temp2 * temp3 * temp3) / dc.norm_squared() > (limit * limit) ? res : -max_iterations;
             }
             zold.assign(complex[0]);
             dc.times_mutable(complex[0]).times_mutable(2).plus(1);
@@ -1436,7 +1436,7 @@ public class Mandelbrot extends Julia {
                 double temp2 = complex[0].norm_squared();
                 double temp3 = 0.5 * Math.log(temp2);
 
-                return (temp2 * temp3 * temp3) / dc.norm_squared() > (limit * limit) ? res : max_iterations;
+                return (temp2 * temp3 * temp3) / dc.norm_squared() > (limit * limit) ? res : -max_iterations;
             }
             de.times_mutable(complex[0]);
             dc.times_mutable(complex[0]).times_mutable(2).plus(1);
@@ -1479,7 +1479,7 @@ public class Mandelbrot extends Julia {
                 double temp2 = complex[0].norm_squared();
                 double temp3 = 0.5 * Math.log(temp2);
 
-                return (temp2 * temp3 * temp3) / dc.norm_squared() > (limit * limit) ? res : max_iterations;
+                return (temp2 * temp3 * temp3) / dc.norm_squared() > (limit * limit) ? res : -max_iterations;
             }
             zold.assign(complex[0]);
             dc.times_mutable(complex[0]).times_mutable(2).plus(1);
@@ -1627,10 +1627,10 @@ public class Mandelbrot extends Julia {
                 double temp2 = complex[0].norm_squared();
                 double temp3 = 0.5 * Math.log(temp2);
 
-                double result = (temp2 * temp3 * temp3) / dc.norm_squared() > (limit * limit) ? temp : max_iterations;
+                double result = (temp2 * temp3 * temp3) / dc.norm_squared() > (limit * limit) ? temp : -max_iterations;
 
-                temp = result == max_iterations ? result : result - 100800;
-                double[] array = {40 * Math.log(temp + 1) - 100, result};
+                temp = result == -max_iterations ? -result : Math.abs(result) - 100800;
+                double[] array = {temp, result};
                 return array;
 
             }
@@ -1642,8 +1642,8 @@ public class Mandelbrot extends Julia {
 
         Object[] object = {complex[0], zold};
         temp = in_color_algorithm.getResult(object);
-        double result = temp == max_iterations ? max_iterations : max_iterations + temp - 100820;
-        double[] array = {40 * Math.log(result + 1) - 100, temp};
+        double result = temp == max_iterations ? max_iterations : max_iterations + Math.abs(temp) - 100820;
+        double[] array = {result, temp};
         return array;
     }
 
@@ -1671,10 +1671,10 @@ public class Mandelbrot extends Julia {
                 double temp2 = complex[0].norm_squared();
                 double temp3 = 0.5 * Math.log(temp2);
 
-                double result = (temp2 * temp3 * temp3) / dc.norm_squared() > (limit * limit) ? temp : max_iterations;
+                double result = (temp2 * temp3 * temp3) / dc.norm_squared() > (limit * limit) ? temp : -max_iterations;
 
-                temp = result == max_iterations ? result : result - 100800;
-                double[] array = {40 * Math.log(temp + 1) - 100, result};
+                temp = result == -max_iterations ? -result : Math.abs(result) - 100800;
+                double[] array = {temp, result};
                 return array;
 
             }
@@ -1687,8 +1687,8 @@ public class Mandelbrot extends Julia {
 
         Object[] object = {complex[0], zold};
         temp = in_color_algorithm.getResult(object);
-        double result = temp == max_iterations ? max_iterations : max_iterations + temp - 100820;
-        double[] array = {40 * Math.log(result + 1) - 100, temp};
+        double result = temp == max_iterations ? max_iterations : max_iterations + Math.abs(temp) - 100820;
+        double[] array = {result, temp};
         return array;
     }
 
@@ -1726,10 +1726,10 @@ public class Mandelbrot extends Julia {
                 double temp2 = complex[0].norm_squared();
                 double temp3 = 0.5 * Math.log(temp2);
 
-                double result = (temp2 * temp3 * temp3) / dc.norm_squared() > (limit * limit) ? temp : max_iterations;
+                double result = (temp2 * temp3 * temp3) / dc.norm_squared() > (limit * limit) ? temp : -max_iterations;
 
-                temp = result == max_iterations ? result : result - 100800;
-                double[] array = {40 * Math.log(temp + 1) - 100, result};
+                temp = result == -max_iterations ? -result : Math.abs(result) - 100800;
+                double[] array = {temp, result};
                 return array;
 
             }
@@ -1741,8 +1741,8 @@ public class Mandelbrot extends Julia {
 
         Object[] object = {complex[0], zold};
         temp = in_color_algorithm.getResult(object);
-        double result = temp == max_iterations ? max_iterations : max_iterations + temp - 100820;
-        double[] array = {40 * Math.log(result + 1) - 100, temp};
+        double result = temp == max_iterations ? max_iterations : max_iterations + Math.abs(temp) - 100820;
+        double[] array = {result, temp};
         return array;
     }
 
@@ -1764,7 +1764,7 @@ public class Mandelbrot extends Julia {
             if(bailout_algorithm.escaped(complex[0], zold)) {
                 Object[] object = {iterations, complex[0], zold};
                 temp = out_color_algorithm.getResult(object);
-                double[] array = {40 * Math.log(temp - 100799) - 100, temp};
+                double[] array = {Math.abs(temp) - 100800, temp};
                 return array;
 
             }
@@ -1775,8 +1775,8 @@ public class Mandelbrot extends Julia {
 
         Object[] object = {complex[0], zold};
         temp = in_color_algorithm.getResult(object);
-        double result = temp == max_iterations ? max_iterations : max_iterations + temp - 100820;
-        double[] array = {40 * Math.log(result + 1) - 100, temp};
+        double result = temp == max_iterations ? max_iterations : max_iterations + Math.abs(temp) - 100820;
+        double[] array = {result, temp};
         return array;
     }
 
@@ -1800,7 +1800,7 @@ public class Mandelbrot extends Julia {
             if(bailout_algorithm.escaped(complex[0], zold)) {
                 Object[] object = {iterations, complex[0], de};
                 temp = out_color_algorithm.getResult(object);
-                double[] array = {40 * Math.log(temp - 100799) - 100, temp};
+                double[] array = {Math.abs(temp) - 100800, temp};
                 return array;
 
             }
@@ -1812,8 +1812,8 @@ public class Mandelbrot extends Julia {
 
         Object[] object = {complex[0], zold};
         temp = in_color_algorithm.getResult(object);
-        double result = temp == max_iterations ? max_iterations : max_iterations + temp - 100820;
-        double[] array = {40 * Math.log(result + 1) - 100, temp};
+        double result = temp == max_iterations ? max_iterations : max_iterations + Math.abs(temp) - 100820;
+        double[] array = {result, temp};
         return array;
     }
 
@@ -1846,7 +1846,7 @@ public class Mandelbrot extends Julia {
             if(bailout_algorithm.escaped(complex[0], zold)) {
                 Object[] object = {p, complex[0], zold};
                 temp = out_color_algorithm.getResult(object);
-                double[] array = {40 * Math.log(temp - 100799) - 100, temp};
+                double[] array = {Math.abs(temp) - 100800, temp};
                 return array;
 
             }
@@ -1857,8 +1857,8 @@ public class Mandelbrot extends Julia {
 
         Object[] object = {complex[0], zold};
         temp = in_color_algorithm.getResult(object);
-        double result = temp == max_iterations ? max_iterations : max_iterations + temp - 100820;
-        double[] array = {40 * Math.log(result + 1) - 100, temp};
+        double result = temp == max_iterations ? max_iterations : max_iterations + Math.abs(temp) - 100820;
+        double[] array = {result, temp};
         return array;
     }
 
@@ -1921,10 +1921,10 @@ public class Mandelbrot extends Julia {
                 double temp2 = complex[0].norm_squared();
                 double temp3 = 0.5 * Math.log(temp2);
 
-                double result = (temp2 * temp3 * temp3) / dc.norm_squared() > (limit * limit) ? temp : max_iterations;
+                double result = (temp2 * temp3 * temp3) / dc.norm_squared() > (limit * limit) ? temp : -max_iterations;
 
-                temp = result == max_iterations ? result : result - 100800;
-                double[] array = {40 * Math.log(temp + 1) - 100, result};
+                temp = result == -max_iterations ? -result : Math.abs(result) - 100800;
+                double[] array = {temp, result};
                 return array;
             }
             zold.assign(complex[0]);
@@ -1932,13 +1932,13 @@ public class Mandelbrot extends Julia {
             function(complex);
 
             if(periodicityCheck(complex[0])) {
-                double[] array = {40 * Math.log(max_iterations + 1) - 100, max_iterations};
+                double[] array = {max_iterations, max_iterations};
                 return array;
             }
 
         }
 
-        double[] array = {40 * Math.log(max_iterations + 1) - 100, max_iterations};
+        double[] array = {max_iterations, max_iterations};
         return array;
     }
 
@@ -1975,10 +1975,10 @@ public class Mandelbrot extends Julia {
                 double temp2 = complex[0].norm_squared();
                 double temp3 = 0.5 * Math.log(temp2);
 
-                double result = (temp2 * temp3 * temp3) / dc.norm_squared() > (limit * limit) ? temp : max_iterations;
+                double result = (temp2 * temp3 * temp3) / dc.norm_squared() > (limit * limit) ? temp : -max_iterations;
 
-                temp = result == max_iterations ? result : result - 100800;
-                double[] array = {40 * Math.log(temp + 1) - 100, result};
+                temp = result == -max_iterations ? -result : Math.abs(result) - 100800;
+                double[] array = {temp, result};
                 return array;
             }
             de.times_mutable(complex[0]);
@@ -1987,13 +1987,13 @@ public class Mandelbrot extends Julia {
             function(complex);
 
             if(periodicityCheck(complex[0])) {
-                double[] array = {40 * Math.log(max_iterations + 1) - 100, max_iterations};
+                double[] array = {max_iterations, max_iterations};
                 return array;
             }
 
         }
 
-        double[] array = {40 * Math.log(max_iterations + 1) - 100, max_iterations};
+        double[] array = {max_iterations, max_iterations};
         return array;
     }
 
@@ -2039,10 +2039,10 @@ public class Mandelbrot extends Julia {
                 double temp2 = complex[0].norm_squared();
                 double temp3 = 0.5 * Math.log(temp2);
 
-                double result = (temp2 * temp3 * temp3) / dc.norm_squared() > (limit * limit) ? temp : max_iterations;
+                double result = (temp2 * temp3 * temp3) / dc.norm_squared() > (limit * limit) ? temp : -max_iterations;
 
-                temp = result == max_iterations ? result : result - 100800;
-                double[] array = {40 * Math.log(temp + 1) - 100, result};
+                temp = result == -max_iterations ? -result : Math.abs(result) - 100800;
+                double[] array = {temp, result};
                 return array;
             }
             zold.assign(complex[0]);
@@ -2050,13 +2050,13 @@ public class Mandelbrot extends Julia {
             function(complex);
 
             if(periodicityCheck(complex[0])) {
-                double[] array = {40 * Math.log(max_iterations + 1) - 100, max_iterations};
+                double[] array = {max_iterations, max_iterations};
                 return array;
             }
 
         }
 
-        double[] array = {40 * Math.log(max_iterations + 1) - 100, max_iterations};
+        double[] array = {max_iterations, max_iterations};
         return array;
     }
 
@@ -2086,20 +2086,20 @@ public class Mandelbrot extends Julia {
             if(bailout_algorithm.escaped(complex[0], zold)) {
                 Object[] object = {iterations, complex[0], zold};
                 temp = out_color_algorithm.getResult(object);
-                double[] array = {40 * Math.log(temp - 100799) - 100, temp};
+                double[] array = {Math.abs(temp) - 100800, temp};
                 return array;
             }
             zold.assign(complex[0]);
             function(complex);
 
             if(periodicityCheck(complex[0])) {
-                double[] array = {40 * Math.log(max_iterations + 1) - 100, max_iterations};
+                double[] array = {max_iterations, max_iterations};
                 return array;
             }
 
         }
 
-        double[] array = {40 * Math.log(max_iterations + 1) - 100, max_iterations};
+        double[] array = {max_iterations, max_iterations};
         return array;
     }
 
@@ -2131,7 +2131,7 @@ public class Mandelbrot extends Julia {
             if(bailout_algorithm.escaped(complex[0], zold)) {
                 Object[] object = {iterations, complex[0], de};
                 temp = out_color_algorithm.getResult(object);
-                double[] array = {40 * Math.log(temp - 100799) - 100, temp};
+                double[] array = {Math.abs(temp) - 100800, temp};
                 return array;
             }
             de.times_mutable(complex[0]);
@@ -2139,13 +2139,13 @@ public class Mandelbrot extends Julia {
             function(complex);
 
             if(periodicityCheck(complex[0])) {
-                double[] array = {40 * Math.log(max_iterations + 1) - 100, max_iterations};
+                double[] array = {max_iterations, max_iterations};
                 return array;
             }
 
         }
 
-        double[] array = {40 * Math.log(max_iterations + 1) - 100, max_iterations};
+        double[] array = {max_iterations, max_iterations};
         return array;
     }
 
@@ -2186,20 +2186,20 @@ public class Mandelbrot extends Julia {
             if(bailout_algorithm.escaped(complex[0], zold)) {
                 Object[] object = {p, complex[0], zold};
                 temp = out_color_algorithm.getResult(object);
-                double[] array = {40 * Math.log(temp - 100799) - 100, temp};
+                double[] array = {Math.abs(temp) - 100800, temp};
                 return array;
             }
             zold.assign(complex[0]);
             function(complex);
 
             if(periodicityCheck(complex[0])) {
-                double[] array = {40 * Math.log(max_iterations + 1) - 100, max_iterations};
+                double[] array = {max_iterations, max_iterations};
                 return array;
             }
 
         }
 
-        double[] array = {40 * Math.log(max_iterations + 1) - 100, max_iterations};
+        double[] array = {max_iterations, max_iterations};
         return array;
     }
 
@@ -2260,10 +2260,10 @@ public class Mandelbrot extends Julia {
                 double temp2 = complex[0].norm_squared();
                 double temp3 = 0.5 * Math.log(temp2);
 
-                double result = (temp2 * temp3 * temp3) / dc.norm_squared() > (limit * limit) ? temp : max_iterations;
+                double result = (temp2 * temp3 * temp3) / dc.norm_squared() > (limit * limit) ? temp : -max_iterations;
 
-                temp = result == max_iterations ? result : result - 100800;
-                double[] array = {40 * Math.log(temp + 1) - 100, result};
+                temp = result == -max_iterations ? -result : Math.abs(result) - 100800;
+                double[] array = {temp, result};
                 return array;
             }
             zold.assign(complex[0]);
@@ -2271,12 +2271,12 @@ public class Mandelbrot extends Julia {
             function(complex);
 
             if(periodicityCheck(complex[0])) {
-                double[] array = {40 * Math.log(max_iterations + 1) - 100, max_iterations};
+                double[] array = {max_iterations, max_iterations};
                 return array;
             }
         }
 
-        double[] array = {40 * Math.log(max_iterations + 1) - 100, max_iterations};
+        double[] array = {max_iterations, max_iterations};
         return array;
     }
 
@@ -2311,10 +2311,10 @@ public class Mandelbrot extends Julia {
                 double temp2 = complex[0].norm_squared();
                 double temp3 = 0.5 * Math.log(temp2);
 
-                double result = (temp2 * temp3 * temp3) / dc.norm_squared() > (limit * limit) ? temp : max_iterations;
+                double result = (temp2 * temp3 * temp3) / dc.norm_squared() > (limit * limit) ? temp : -max_iterations;
 
-                temp = result == max_iterations ? result : result - 100800;
-                double[] array = {40 * Math.log(temp + 1) - 100, result};
+                temp = result == -max_iterations ? -result : Math.abs(result) - 100800;
+                double[] array = {temp, result};
                 return array;
             }
             de.times_mutable(complex[0]);
@@ -2323,12 +2323,12 @@ public class Mandelbrot extends Julia {
             function(complex);
 
             if(periodicityCheck(complex[0])) {
-                double[] array = {40 * Math.log(max_iterations + 1) - 100, max_iterations};
+                double[] array = {max_iterations, max_iterations};
                 return array;
             }
         }
 
-        double[] array = {40 * Math.log(max_iterations + 1) - 100, max_iterations};
+        double[] array = {max_iterations, max_iterations};
         return array;
     }
 
@@ -2372,10 +2372,10 @@ public class Mandelbrot extends Julia {
                 double temp2 = complex[0].norm_squared();
                 double temp3 = 0.5 * Math.log(temp2);
 
-                double result = (temp2 * temp3 * temp3) / dc.norm_squared() > (limit * limit) ? temp : max_iterations;
+                double result = (temp2 * temp3 * temp3) / dc.norm_squared() > (limit * limit) ? temp : -max_iterations;
 
-                temp = result == max_iterations ? result : result - 100800;
-                double[] array = {40 * Math.log(temp + 1) - 100, result};
+                temp = result == -max_iterations ? -result : Math.abs(result) - 100800;
+                double[] array = {temp, result};
                 return array;
             }
             zold.assign(complex[0]);
@@ -2383,12 +2383,12 @@ public class Mandelbrot extends Julia {
             function(complex);
 
             if(periodicityCheck(complex[0])) {
-                double[] array = {40 * Math.log(max_iterations + 1) - 100, max_iterations};
+                double[] array = {max_iterations, max_iterations};
                 return array;
             }
         }
 
-        double[] array = {40 * Math.log(max_iterations + 1) - 100, max_iterations};
+        double[] array = {max_iterations, max_iterations};
         return array;
     }
 
@@ -2416,19 +2416,19 @@ public class Mandelbrot extends Julia {
             if(bailout_algorithm.escaped(complex[0], zold)) {
                 Object[] object = {iterations, complex[0], zold};
                 temp = out_color_algorithm.getResult(object);
-                double[] array = {40 * Math.log(temp - 100799) - 100, temp};
+                double[] array = {Math.abs(temp) - 100800, temp};
                 return array;
             }
             zold.assign(complex[0]);
             function(complex);
 
             if(periodicityCheck(complex[0])) {
-                double[] array = {40 * Math.log(max_iterations + 1) - 100, max_iterations};
+                double[] array = {max_iterations, max_iterations};
                 return array;
             }
         }
 
-        double[] array = {40 * Math.log(max_iterations + 1) - 100, max_iterations};
+        double[] array = {max_iterations, max_iterations};
         return array;
     }
 
@@ -2458,7 +2458,7 @@ public class Mandelbrot extends Julia {
             if(bailout_algorithm.escaped(complex[0], zold)) {
                 Object[] object = {iterations, complex[0], de};
                 temp = out_color_algorithm.getResult(object);
-                double[] array = {40 * Math.log(temp - 100799) - 100, temp};
+                double[] array = {Math.abs(temp) - 100800, temp};
                 return array;
             }
             de.times_mutable(complex[0]);
@@ -2466,12 +2466,12 @@ public class Mandelbrot extends Julia {
             function(complex);
 
             if(periodicityCheck(complex[0])) {
-                double[] array = {40 * Math.log(max_iterations + 1) - 100, max_iterations};
+                double[] array = {max_iterations, max_iterations};
                 return array;
             }
         }
 
-        double[] array = {40 * Math.log(max_iterations + 1) - 100, max_iterations};
+        double[] array = {max_iterations, max_iterations};
         return array;
     }
 
@@ -2510,19 +2510,19 @@ public class Mandelbrot extends Julia {
             if(bailout_algorithm.escaped(complex[0], zold)) {
                 Object[] object = {p, complex[0], zold};
                 temp = out_color_algorithm.getResult(object);
-                double[] array = {40 * Math.log(temp - 100799) - 100, temp};
+                double[] array = {Math.abs(temp) - 100800, temp};
                 return array;
             }
             zold.assign(complex[0]);
             function(complex);
 
             if(periodicityCheck(complex[0])) {
-                double[] array = {40 * Math.log(max_iterations + 1) - 100, max_iterations};
+                double[] array = {max_iterations, max_iterations};
                 return array;
             }
         }
 
-        double[] array = {40 * Math.log(max_iterations + 1) - 100, max_iterations};
+        double[] array = {max_iterations, max_iterations};
         return array;
     }
 
@@ -2574,10 +2574,10 @@ public class Mandelbrot extends Julia {
                 double temp2 = complex[0].norm_squared();
                 double temp3 = 0.5 * Math.log(temp2);
 
-                double result = (temp2 * temp3 * temp3) / dc.norm_squared() > (limit * limit) ? temp : max_iterations;
+                double result = (temp2 * temp3 * temp3) / dc.norm_squared() > (limit * limit) ? temp : -max_iterations;
 
-                temp = result == max_iterations ? result : result - 100800;
-                double[] array = {40 * Math.log(temp + 1) - 100, result};
+                temp = result == -max_iterations ? -result : Math.abs(result) - 100800;
+                double[] array = {temp, result};
                 return array;
             }
             zold.assign(complex[0]);
@@ -2588,8 +2588,8 @@ public class Mandelbrot extends Julia {
 
         Object[] object = {complex[0], zold};
         temp = in_color_algorithm.getResult(object);
-        double result = temp == max_iterations ? max_iterations : max_iterations + temp - 100820;
-        double[] array = {40 * Math.log(result + 1) - 100, temp};
+        double result = temp == max_iterations ? max_iterations : max_iterations + Math.abs(temp) - 100820;
+        double[] array = {result, temp};
         return array;
     }
 
@@ -2616,10 +2616,10 @@ public class Mandelbrot extends Julia {
                 double temp2 = complex[0].norm_squared();
                 double temp3 = 0.5 * Math.log(temp2);
 
-                double result = (temp2 * temp3 * temp3) / dc.norm_squared() > (limit * limit) ? temp : max_iterations;
+                double result = (temp2 * temp3 * temp3) / dc.norm_squared() > (limit * limit) ? temp : -max_iterations;
 
-                temp = result == max_iterations ? result : result - 100800;
-                double[] array = {40 * Math.log(temp + 1) - 100, result};
+                temp = result == -max_iterations ? -result : Math.abs(result) - 100800;
+                double[] array = {temp, result};
                 return array;
             }
             de.times_mutable(complex[0]);
@@ -2631,8 +2631,8 @@ public class Mandelbrot extends Julia {
 
         Object[] object = {complex[0], zold};
         temp = in_color_algorithm.getResult(object);
-        double result = temp == max_iterations ? max_iterations : max_iterations + temp - 100820;
-        double[] array = {40 * Math.log(result + 1) - 100, temp};
+        double result = temp == max_iterations ? max_iterations : max_iterations + Math.abs(temp) - 100820;
+        double[] array = {result, temp};
         return array;
     }
 
@@ -2668,10 +2668,10 @@ public class Mandelbrot extends Julia {
                 double temp2 = complex[0].norm_squared();
                 double temp3 = 0.5 * Math.log(temp2);
 
-                double result = (temp2 * temp3 * temp3) / dc.norm_squared() > (limit * limit) ? temp : max_iterations;
+                double result = (temp2 * temp3 * temp3) / dc.norm_squared() > (limit * limit) ? temp : -max_iterations;
 
-                temp = result == max_iterations ? result : result - 100800;
-                double[] array = {40 * Math.log(temp + 1) - 100, result};
+                temp = result == -max_iterations ? -result : Math.abs(result) - 100800;
+                double[] array = {temp, result};
                 return array;
             }
             zold.assign(complex[0]);
@@ -2682,8 +2682,8 @@ public class Mandelbrot extends Julia {
 
         Object[] object = {complex[0], zold};
         temp = in_color_algorithm.getResult(object);
-        double result = temp == max_iterations ? max_iterations : max_iterations + temp - 100820;
-        double[] array = {40 * Math.log(result + 1) - 100, temp};
+        double result = temp == max_iterations ? max_iterations : max_iterations + Math.abs(temp) - 100820;
+        double[] array = {result, temp};
         return array;
     }
 
@@ -2703,7 +2703,7 @@ public class Mandelbrot extends Julia {
             if(bailout_algorithm.escaped(complex[0], zold)) {
                 Object[] object = {iterations, complex[0], zold};
                 temp = out_color_algorithm.getResult(object);
-                double[] array = {40 * Math.log(temp - 100799) - 100, temp};
+                double[] array = {Math.abs(temp) - 100800, temp};
                 return array;
             }
             zold.assign(complex[0]);
@@ -2713,8 +2713,8 @@ public class Mandelbrot extends Julia {
 
         Object[] object = {complex[0], zold};
         temp = in_color_algorithm.getResult(object);
-        double result = temp == max_iterations ? max_iterations : max_iterations + temp - 100820;
-        double[] array = {40 * Math.log(result + 1) - 100, temp};
+        double result = temp == max_iterations ? max_iterations : max_iterations + Math.abs(temp) - 100820;
+        double[] array = {result, temp};
         return array;
     }
 
@@ -2736,7 +2736,7 @@ public class Mandelbrot extends Julia {
             if(bailout_algorithm.escaped(complex[0], zold)) {
                 Object[] object = {iterations, complex[0], de};
                 temp = out_color_algorithm.getResult(object);
-                double[] array = {40 * Math.log(temp - 100799) - 100, temp};
+                double[] array = {Math.abs(temp) - 100800, temp};
                 return array;
             }
             de.times_mutable(complex[0]);
@@ -2747,8 +2747,8 @@ public class Mandelbrot extends Julia {
 
         Object[] object = {complex[0], zold};
         temp = in_color_algorithm.getResult(object);
-        double result = temp == max_iterations ? max_iterations : max_iterations + temp - 100820;
-        double[] array = {40 * Math.log(result + 1) - 100, temp};
+        double result = temp == max_iterations ? max_iterations : max_iterations + Math.abs(temp) - 100820;
+        double[] array = {result, temp};
         return array;
     }
 
@@ -2779,7 +2779,7 @@ public class Mandelbrot extends Julia {
             if(bailout_algorithm.escaped(complex[0], zold)) {
                 Object[] object = {p, complex[0], zold};
                 temp = out_color_algorithm.getResult(object);
-                double[] array = {40 * Math.log(temp - 100799) - 100, temp};
+                double[] array = {Math.abs(temp) - 100800, temp};
                 return array;
             }
             zold.assign(complex[0]);
@@ -2789,8 +2789,8 @@ public class Mandelbrot extends Julia {
 
         Object[] object = {complex[0], zold};
         temp = in_color_algorithm.getResult(object);
-        double result = temp == max_iterations ? max_iterations : max_iterations + temp - 100820;
-        double[] array = {40 * Math.log(result + 1) - 100, temp};
+        double result = temp == max_iterations ? max_iterations : max_iterations + Math.abs(temp) - 100820;
+        double[] array = {result, temp};
         return array;
     }
 

@@ -730,20 +730,20 @@ public abstract class Fractal {
             if(bailout_algorithm.escaped(complex[0], zold)) {
                 Object[] object = {iterations, complex[0], zold};
                 temp = out_color_algorithm.getResult(object);
-                double[] array = {40 * Math.log(temp - 100799) - 100, temp};
+                double[] array = {Math.abs(temp) - 100800, temp};
                 return array;
             }
             zold.assign(complex[0]);
             function(complex);
 
             if(periodicityCheck(complex[0])) {
-                double[] array = {40 * Math.log(max_iterations + 1) - 100, max_iterations};
+                double[] array = {max_iterations, max_iterations};
                 return array;
             }
 
         }
 
-        double[] array = {40 * Math.log(max_iterations + 1) - 100, max_iterations};
+        double[] array = {max_iterations, max_iterations};
         return array;
 
     }
@@ -766,7 +766,7 @@ public abstract class Fractal {
             if(bailout_algorithm.escaped(complex[0], zold)) {
                 Object[] object = {iterations, complex[0], zold};
                 temp = out_color_algorithm.getResult(object);
-                double[] array = {40 * Math.log(temp - 100799) - 100, temp};
+                double[] array = {Math.abs(temp) - 100800, temp};
                 return array;
 
             }
@@ -777,8 +777,8 @@ public abstract class Fractal {
 
         Object[] object = {complex[0], zold};
         temp = in_color_algorithm.getResult(object);
-        double result = temp == max_iterations ? max_iterations : max_iterations + temp - 100820;
-        double[] array = {40 * Math.log(result + 1) - 100, temp};
+        double result = temp == max_iterations ? max_iterations : max_iterations + Math.abs(temp) - 100820;
+        double[] array = {result, temp};
         return array;
 
     }

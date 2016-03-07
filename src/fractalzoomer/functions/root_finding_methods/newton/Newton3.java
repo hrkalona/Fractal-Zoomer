@@ -146,7 +146,7 @@ public class Newton3 extends RootFindingMethods {
                 in_color_algorithm = new Squares();
                 break;
             case MainWindow.SQUARES2:
-                in_color_algorithm = new Squares2(max_iterations);
+                in_color_algorithm = new Squares2();
                 break;
             case MainWindow.USER_INCOLORING_ALGORITHM:
                 if(user_in_coloring_algorithm == 0) {
@@ -167,6 +167,8 @@ public class Newton3 extends RootFindingMethods {
         super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula,  plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
 
     }
+    
+   
 
     @Override
     protected void function(Complex[] complex) {

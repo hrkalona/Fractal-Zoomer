@@ -293,7 +293,7 @@ public class Magnet2 extends Julia {
                 in_color_algorithm = new Squares();
                 break;
             case MainWindow.SQUARES2:
-                in_color_algorithm = new Squares2(max_iterations);
+                in_color_algorithm = new Squares2();
                 break;
             case MainWindow.USER_INCOLORING_ALGORITHM:
                 if(user_in_coloring_algorithm == 0) {
@@ -312,7 +312,7 @@ public class Magnet2 extends Julia {
 
         super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, periodicity_checking, plane_type, apply_plane_on_julia, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
 
-        convergent_bailout = 1E-8;
+        convergent_bailout = 1E-9;
 
         switch (out_coloring_algorithm) {
 
@@ -484,7 +484,7 @@ public class Magnet2 extends Julia {
                 in_color_algorithm = new Squares();
                 break;
             case MainWindow.SQUARES2:
-                in_color_algorithm = new Squares2(max_iterations);
+                in_color_algorithm = new Squares2();
                 break;
             case MainWindow.USER_INCOLORING_ALGORITHM:
                 if(user_in_coloring_algorithm == 0) {
@@ -736,20 +736,20 @@ public class Magnet2 extends Julia {
             if(temp1 || temp2) {
                 Object[] object = {iterations, complex[0], temp2, temp4, zold};
                 temp3 = out_color_algorithm.getResult(object);
-                double[] array = {40 * Math.log(temp3 - 100799) - 100, temp3};
+                double[] array = {Math.abs(temp3) - 100800, temp3};
                 return array;
             }
             zold = complex[0];
             function(complex);
 
             if(periodicityCheck(complex[0])) {
-                double[] array = {40 * Math.log(max_iterations + 1) - 100, max_iterations};
+                double[] array = {max_iterations, max_iterations};
                 return array;
             }
 
         }
 
-        double[] array = {40 * Math.log(max_iterations + 1) - 100, max_iterations};
+        double[] array = {max_iterations, max_iterations};
         return array;
 
     }
@@ -776,7 +776,7 @@ public class Magnet2 extends Julia {
             if(temp1 || temp2) {
                 Object[] object = {iterations, complex[0], temp2, temp4, zold};
                 temp3 = out_color_algorithm.getResult(object);
-                double[] array = {40 * Math.log(temp3 - 100799) - 100, temp3};
+                double[] array = {Math.abs(temp3) - 100800, temp3};
                 return array;
             }
             zold = complex[0];
@@ -786,8 +786,8 @@ public class Magnet2 extends Julia {
 
         Object[] object = {complex[0], zold};
         temp3 = in_color_algorithm.getResult(object);
-        double result = temp3 == max_iterations ? max_iterations : max_iterations + temp3 - 100820;
-        double[] array = {40 * Math.log(result + 1) - 100, temp3};
+        double result = temp3 == max_iterations ? max_iterations : max_iterations + Math.abs(temp3) - 100820;
+        double[] array = {result, temp3};
         return array;
 
     }
@@ -820,20 +820,20 @@ public class Magnet2 extends Julia {
             if(temp1 || temp2) {
                 Object[] object = {iterations, complex[0], temp2, temp4, zold};
                 temp3 = out_color_algorithm.getResult(object);
-                double[] array = {40 * Math.log(temp3 - 100799) - 100, temp3};
+                double[] array = {Math.abs(temp3) - 100800, temp3};
                 return array;
             }
             zold = complex[0];
             function(complex);
 
             if(periodicityCheck(complex[0])) {
-                double[] array = {40 * Math.log(max_iterations + 1) - 100, max_iterations};
+                double[] array = {max_iterations, max_iterations};
                 return array;
             }
 
         }
 
-        double[] array = {40 * Math.log(max_iterations + 1) - 100, max_iterations};
+        double[] array = {max_iterations, max_iterations};
         return array;
 
     }
@@ -858,7 +858,7 @@ public class Magnet2 extends Julia {
             if(temp1 || temp2) {
                 Object[] object = {iterations, complex[0], temp2, temp4, zold};
                 temp3 = out_color_algorithm.getResult(object);
-                double[] array = {40 * Math.log(temp3 - 100799) - 100, temp3};
+                double[] array = {Math.abs(temp3) - 100800, temp3};
                 return array;
             }
             zold = complex[0];
@@ -868,8 +868,8 @@ public class Magnet2 extends Julia {
 
         Object[] object = {complex[0], zold};
         temp3 = in_color_algorithm.getResult(object);
-        double result = temp3 == max_iterations ? max_iterations : max_iterations + temp3 - 100820;
-        double[] array = {40 * Math.log(result + 1) - 100, temp3};
+        double result = temp3 == max_iterations ? max_iterations : max_iterations + Math.abs(temp3) - 100820;
+        double[] array = {result, temp3};
         return array;
 
     }

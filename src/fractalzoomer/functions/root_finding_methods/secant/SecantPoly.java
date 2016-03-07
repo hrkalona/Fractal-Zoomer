@@ -148,7 +148,7 @@ public class SecantPoly extends RootFindingMethods {
                 in_color_algorithm = new Squares();
                 break;
             case MainWindow.SQUARES2:
-                in_color_algorithm = new Squares2(max_iterations);
+                in_color_algorithm = new Squares2();
                 break;
             case MainWindow.USER_INCOLORING_ALGORITHM:
                 if(user_in_coloring_algorithm == 0) {
@@ -229,7 +229,7 @@ public class SecantPoly extends RootFindingMethods {
         for(; iterations < max_iterations; iterations++) {
             if((temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
                 Object[] object = {iterations, complex[0], temp, zold, zold2};
-                double[] array = {40 * Math.log(out_color_algorithm.getResult3D(object) - 100799) - 100, out_color_algorithm.getResult(object)};
+                double[] array = {Math.abs(out_color_algorithm.getResult3D(object)) - 100800, out_color_algorithm.getResult(object)};
                 return array;
             }
             zold2.assign(zold);
@@ -240,8 +240,8 @@ public class SecantPoly extends RootFindingMethods {
 
         Object[] object = {complex[0], zold};
         double temp2 = in_color_algorithm.getResult(object);
-        double result = temp2 == max_iterations ? max_iterations : max_iterations + temp2 - 100820;
-        double[] array = {40 * Math.log(result + 1) - 100, temp2};
+        double result = temp2 == max_iterations ? max_iterations : max_iterations + Math.abs(temp2) - 100820;
+        double[] array = {result, temp2};
         return array;
 
     }

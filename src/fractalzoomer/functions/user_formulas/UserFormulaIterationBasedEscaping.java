@@ -246,7 +246,7 @@ public class UserFormulaIterationBasedEscaping extends Julia {
                 in_color_algorithm = new Squares();
                 break;
             case MainWindow.SQUARES2:
-                in_color_algorithm = new Squares2(max_iterations);
+                in_color_algorithm = new Squares2();
                 break;
             case MainWindow.USER_INCOLORING_ALGORITHM:
                 if(user_in_coloring_algorithm == 0) {
@@ -401,7 +401,7 @@ public class UserFormulaIterationBasedEscaping extends Julia {
                 in_color_algorithm = new Squares();
                 break;
             case MainWindow.SQUARES2:
-                in_color_algorithm = new Squares2(max_iterations);
+                in_color_algorithm = new Squares2();
                 break;
             case MainWindow.USER_INCOLORING_ALGORITHM:
                 if(user_in_coloring_algorithm == 0) {
@@ -664,7 +664,7 @@ public class UserFormulaIterationBasedEscaping extends Julia {
             if(bailout_algorithm.escaped(complex[0], zold)) {
                 Object[] object = {iterations, complex[0], zold};
                 temp = out_color_algorithm.getResult(object);
-                double[] array = {40 * Math.log(temp - 100799) - 100, temp};
+                double[] array = {Math.abs(temp) - 100800, temp};
                 return array;
             }
             zold.assign(complex[0]);
@@ -687,13 +687,13 @@ public class UserFormulaIterationBasedEscaping extends Julia {
             }
 
             if(periodicityCheck(complex[0])) {
-                double[] array = {40 * Math.log(max_iterations + 1) - 100, max_iterations};
+                double[] array = {max_iterations, max_iterations};
                 return array;
             }
 
         }
 
-        double[] array = {40 * Math.log(max_iterations + 1) - 100, max_iterations};
+        double[] array = {max_iterations, max_iterations};
         return array;
 
     }
@@ -738,7 +738,7 @@ public class UserFormulaIterationBasedEscaping extends Julia {
             if(bailout_algorithm.escaped(complex[0], zold)) {
                 Object[] object = {iterations, complex[0], zold};
                 temp = out_color_algorithm.getResult(object);
-                double[] array = {40 * Math.log(temp - 100799) - 100, temp};
+                double[] array = {Math.abs(temp) - 100800, temp};
                 return array;
 
             }
@@ -765,8 +765,8 @@ public class UserFormulaIterationBasedEscaping extends Julia {
 
         Object[] object = {complex[0], zold};
         temp = in_color_algorithm.getResult(object);
-        double result = temp == max_iterations ? max_iterations : max_iterations + temp - 100820;
-        double[] array = {40 * Math.log(result + 1) - 100, temp};
+        double result = temp == max_iterations ? max_iterations : max_iterations + Math.abs(temp) - 100820;
+        double[] array = {result, temp};
         return array;
 
     }
@@ -1009,7 +1009,7 @@ public class UserFormulaIterationBasedEscaping extends Julia {
             if(bailout_algorithm.escaped(complex[0], zold)) {
                 Object[] object = {iterations, complex[0], zold};
                 temp = out_color_algorithm.getResult(object);
-                double[] array = {40 * Math.log(temp - 100799) - 100, temp};
+                double[] array = {Math.abs(temp) - 100800, temp};
                 return array;
             }
             zold.assign(complex[0]);
@@ -1032,12 +1032,12 @@ public class UserFormulaIterationBasedEscaping extends Julia {
             }
 
             if(periodicityCheck(complex[0])) {
-                double[] array = {40 * Math.log(max_iterations + 1) - 100, max_iterations};
+                double[] array = {max_iterations, max_iterations};
                 return array;
             }
         }
 
-        double[] array = {40 * Math.log(max_iterations + 1) - 100, max_iterations};
+        double[] array = {max_iterations, max_iterations};
         return array;
 
     }
@@ -1078,7 +1078,7 @@ public class UserFormulaIterationBasedEscaping extends Julia {
             if(bailout_algorithm.escaped(complex[0], zold)) {
                 Object[] object = {iterations, complex[0], zold};
                 temp = out_color_algorithm.getResult(object);
-                double[] array = {40 * Math.log(temp - 100799) - 100, temp};
+                double[] array = {Math.abs(temp) - 100800, temp};
                 return array;
             }
             zold.assign(complex[0]);
@@ -1104,8 +1104,8 @@ public class UserFormulaIterationBasedEscaping extends Julia {
 
         Object[] object = {complex[0], zold};
         temp = in_color_algorithm.getResult(object);
-        double result = temp == max_iterations ? max_iterations : max_iterations + temp - 100820;
-        double[] array = {40 * Math.log(result + 1) - 100, temp};
+        double result = temp == max_iterations ? max_iterations : max_iterations + Math.abs(temp) - 100820;
+        double[] array = {result, temp};
         return array;
 
     }

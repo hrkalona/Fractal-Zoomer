@@ -57,7 +57,7 @@ public class SmoothBiomorphsNova extends SmoothBiomorphs {
         double temp4 = ((Complex)object[1]).getRe();
         double temp5 = ((Complex)object[1]).getIm();
 
-        return temp4 > -bailout && temp4 < bailout || temp5 > -bailout && temp5 < bailout ? temp3 + 100800 : temp3 + 100850;
+        return temp4 > -bailout && temp4 < bailout || temp5 > -bailout && temp5 < bailout ? temp3 + 100800 : -(temp3 + 100850);
 
     }
 }
