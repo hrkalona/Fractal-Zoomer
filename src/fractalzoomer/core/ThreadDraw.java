@@ -156,9 +156,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
-import java.awt.image.ConvolveOp;
 import java.awt.image.DataBufferInt;
-import java.awt.image.Kernel;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -167,7 +165,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author hrkalona
  */
 public abstract class ThreadDraw extends Thread {
-
+    /**** MODES ****/
     public static final int NORMAL = 0;
     public static final int FAST_JULIA = 1;
     public static final int COLOR_CYCLING = 2;
@@ -178,80 +176,98 @@ public abstract class ThreadDraw extends Thread {
     public static final int FAST_JULIA_POLAR = 7;
     public static final int JULIA_MAP_POLAR = 8;
     public static final int APPLY_PALETTE_AND_FILTER_3D_MODEL = 9;
-    public static final float[] thick_edges = {-1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -2.0f, -2.0f, -2.0f, -1.0f, -1.0f, -2.0f, 32.0f, -2.0f, -1.0f, -1.0f, -2.0f, -2.0f, -2.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f, -1.0f};
-    public static final float[] thin_edges = {-1.0f, -1.0f, -1.0f, -1.0f, 8.0f, -1.0f, -1.0f, -1.0f, -1.0f};
-    public static final float[] sharpness_high = {-0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, 3.4f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f};
-    public static float[] sharpness_low = {0.0f, -0.2f, 0.0f, -0.2f, 1.8f, -0.2f, 0.0f, -0.2f, 0.0f};
-    public static final float[] EMBOSS = {1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, -1.0f};
-    //public static final float blackBodyRGB[] = {1.0000F, 0.0401F, 0.0000F, 1.0000F, 0.0631F, 0.0000F, 1.0000F, 0.0860F, 0.0000F, 1.0000F, 0.1085F, 0.0000F, 1.0000F, 0.1303F, 0.0000F, 1.0000F, 0.1515F, 0.0000F, 1.0000F, 0.1718F, 0.0000F, 1.0000F, 0.1912F, 0.0000F, 1.0000F, 0.2097F, 0.0000F, 1.0000F, 0.2272F, 0.0000F, 1.0000F, 0.2484F, 0.0061F, 1.0000F, 0.2709F, 0.0153F, 1.0000F, 0.2930F, 0.0257F, 1.0000F, 0.3149F, 0.0373F, 1.0000F, 0.3364F, 0.0501F, 1.0000F, 0.3577F, 0.0640F, 1.0000F, 0.3786F, 0.0790F, 1.0000F, 0.3992F, 0.0950F, 1.0000F, 0.4195F, 0.1119F, 1.0000F, 0.4394F, 0.1297F, 1.0000F, 0.4589F, 0.1483F, 1.0000F, 0.4781F, 0.1677F, 1.0000F, 0.4970F, 0.1879F, 1.0000F, 0.5155F, 0.2087F, 1.0000F, 0.5336F, 0.2301F, 1.0000F, 0.5515F, 0.2520F, 1.0000F, 0.5689F, 0.2745F, 1.0000F, 0.5860F, 0.2974F, 1.0000F, 0.6028F, 0.3207F, 1.0000F, 0.6193F, 0.3444F, 1.0000F, 0.6354F, 0.3684F, 1.0000F, 0.6511F, 0.3927F, 1.0000F, 0.6666F, 0.4172F, 1.0000F, 0.6817F, 0.4419F, 1.0000F, 0.6966F, 0.4668F, 1.0000F, 0.7111F, 0.4919F, 1.0000F, 0.7253F, 0.5170F, 1.0000F, 0.7392F, 0.5422F, 1.0000F, 0.7528F, 0.5675F, 1.0000F, 0.7661F, 0.5928F, 1.0000F, 0.7792F, 0.6180F, 1.0000F, 0.7919F, 0.6433F, 1.0000F, 0.8044F, 0.6685F, 1.0000F, 0.8167F, 0.6937F, 1.0000F, 0.8286F, 0.7187F, 1.0000F, 0.8403F, 0.7437F, 1.0000F, 0.8518F, 0.7686F, 1.0000F, 0.8630F, 0.7933F, 1.0000F, 0.8740F, 0.8179F, 1.0000F, 0.8847F, 0.8424F, 1.0000F, 0.8952F, 0.8666F, 1.0000F, 0.9055F, 0.8907F, 1.0000F, 0.9156F, 0.9147F, 1.0000F, 0.9254F, 0.9384F, 1.0000F, 0.9351F, 0.9619F, 1.0000F, 0.9445F, 0.9853F, 0.9917F, 0.9458F, 1.0000F, 0.9696F, 0.9336F, 1.0000F, 0.9488F, 0.9219F, 1.0000F, 0.9290F, 0.9107F, 1.0000F, 0.9102F, 0.9000F, 1.0000F, 0.8923F, 0.8897F, 1.0000F, 0.8753F, 0.8799F, 1.0000F, 0.8591F, 0.8704F, 1.0000F, 0.8437F, 0.8614F, 1.0000F, 0.8289F, 0.8527F, 1.0000F, 0.8149F, 0.8443F, 1.0000F, 0.8014F, 0.8363F, 1.0000F, 0.7885F, 0.8285F, 1.0000F, 0.7762F, 0.8211F, 1.0000F, 0.7644F, 0.8139F, 1.0000F, 0.7531F, 0.8069F, 1.0000F, 0.7423F, 0.8002F, 1.0000F, 0.7319F, 0.7938F, 1.0000F, 0.7219F, 0.7875F, 1.0000F, 0.7123F, 0.7815F, 1.0000F, 0.7030F, 0.7757F, 1.0000F, 0.6941F, 0.7700F, 1.0000F, 0.6856F, 0.7645F, 1.0000F, 0.6773F, 0.7593F, 1.0000F, 0.6693F, 0.7541F, 1.0000F, 0.6617F, 0.7492F, 1.0000F, 0.6543F, 0.7444F, 1.0000F, 0.6471F, 0.7397F, 1.0000F, 0.6402F, 0.7352F, 1.0000F, 0.6335F, 0.7308F, 1.0000F, 0.6271F, 0.7265F, 1.0000F, 0.6208F, 0.7224F, 1.0000F, 0.6148F, 0.7183F, 1.0000F, 0.6089F, 0.7144F, 1.0000F, 0.6033F, 0.7106F, 1.0000F, 0.5978F, 0.7069F, 1.0000F, 0.5925F, 0.7033F, 1.0000F, 0.5873F, 0.6998F, 1.0000F, 0.5823F, 0.6964F, 1.0000F, 0.5774F, 0.6930F, 1.0000F, 0.5727F, 0.6898F, 1.0000F, 0.5681F, 0.6866F, 1.0000F, 0.5637F, 0.6836F, 1.0000F, 0.5593F, 0.6806F, 1.0000F, 0.5551F, 0.6776F, 1.0000F, 0.5510F, 0.6748F, 1.0000F, 0.5470F, 0.6720F, 1.0000F, 0.5432F, 0.6693F, 1.0000F, 0.5394F, 0.6666F, 1.0000F, 0.5357F, 0.6640F, 1.0000F, 0.5322F, 0.6615F, 1.0000F, 0.5287F, 0.6590F, 1.0000F, 0.5253F, 0.6566F, 1.0000F, 0.5220F, 0.6542F, 1.0000F, 0.5187F, 0.6519F, 1.0000F, 0.5156F, 0.6497F, 1.0000F, 0.5125F, 0.6474F, 1.0000F, 0.5095F, 0.6453F, 1.0000F, 0.5066F, 0.6432F, 1.0000F, 0.5037F, 0.6411F, 1.0000F, 0.5009F, 0.6391F, 1.0000F, 0.4982F, 0.6371F, 1.0000F, 0.4955F, 0.6351F, 1.0000F, 0.4929F, 0.6332F, 1.0000F, 0.4904F, 0.6314F, 1.0000F, 0.4879F, 0.6295F, 1.0000F, 0.4854F, 0.6277F, 1.0000F, 0.4831F, 0.6260F, 1.0000F, 0.4807F, 0.6243F, 1.0000F, 0.4785F, 0.6226F, 1.0000F, 0.4762F, 0.6209F, 1.0000F, 0.4740F, 0.6193F, 1.0000F, 0.4719F, 0.6177F, 1.0000F, 0.4698F, 0.6161F, 1.0000F, 0.4677F, 0.6146F, 1.0000F, 0.4657F, 0.6131F, 1.0000F, 0.4638F, 0.6116F, 1.0000F, 0.4618F, 0.6102F, 1.0000F, 0.4599F, 0.6087F, 1.0000F, 0.4581F, 0.6073F, 1.0000F, 0.4563F, 0.6060F, 1.0000F, 0.4545F, 0.6046F, 1.0000F, 0.4527F, 0.6033F, 1.0000F, 0.4510F, 0.6020F, 1.0000F, 0.4493F, 0.6007F, 1.0000F, 0.4477F, 0.5994F, 1.0000F, 0.4460F, 0.5982F, 1.0000F, 0.4445F, 0.5970F, 1.0000F, 0.4429F, 0.5958F, 1.0000F, 0.4413F, 0.5946F, 1.0000F, 0.4398F, 0.5935F, 1.0000F, 0.4384F, 0.5923F, 1.0000F, 0.4369F, 0.5912F, 1.0000F, 0.4355F, 0.5901F, 1.0000F, 0.4341F, 0.5890F, 1.0000F, 0.4327F, 0.5879F, 1.0000F, 0.4313F, 0.5869F, 1.0000F, 0.4300F, 0.5859F, 1.0000F, 0.4287F, 0.5848F, 1.0000F, 0.4274F, 0.5838F, 1.0000F, 0.4261F, 0.5829F, 1.0000F, 0.4249F, 0.5819F, 1.0000F, 0.4236F, 0.5809F, 1.0000F, 0.4224F, 0.5800F, 1.0000F, 0.4212F, 0.5791F, 1.0000F, 0.4201F, 0.5781F, 1.0000F, 0.4189F, 0.5772F, 1.0000F, 0.4178F, 0.5763F, 1.0000F, 0.4167F, 0.5755F, 1.0000F, 0.4156F, 0.5746F, 1.0000F, 0.4145F, 0.5738F, 1.0000F, 0.4134F, 0.5729F, 1.0000F, 0.4124F, 0.5721F, 1.0000F, 0.4113F, 0.5713F, 1.0000F, 0.4103F, 0.5705F, 1.0000F, 0.4093F, 0.5697F, 1.0000F, 0.4083F, 0.5689F, 1.0000F, 0.4074F, 0.5681F, 1.0000F, 0.4064F, 0.5674F, 1.0000F, 0.4055F, 0.5666F, 1.0000F, 0.4045F, 0.5659F, 1.0000F, 0.4036F, 0.5652F, 1.0000F, 0.4027F, 0.5644F, 1.0000F, 0.4018F, 0.5637F, 1.0000F, 0.4009F, 0.5630F, 1.0000F, 0.4001F, 0.5623F, 1.0000F, 0.3992F, 0.5616F, 1.0000F, 0.3984F, 0.5610F, 1.0000F, 0.3975F, 0.5603F, 1.0000F, 0.3967F, 0.5596F, 1.0000F, 0.3959F, 0.5590F, 1.0000F, 0.3951F, 0.5584F, 1.0000F, 0.3943F, 0.5577F, 1.0000F, 0.3935F, 0.5571F, 1.0000F, 0.3928F, 0.5565F, 1.0000F, 0.3920F, 0.5559F, 1.0000F, 0.3913F, 0.5553F, 1.0000F, 0.3905F, 0.5547F, 1.0000F, 0.3898F, 0.5541F, 1.0000F, 0.3891F, 0.5535F, 1.0000F, 0.3884F, 0.5529F, 1.0000F, 0.3877F, 0.5524F, 1.0000F, 0.3870F, 0.5518F, 1.0000F, 0.3863F, 0.5513F, 1.0000F, 0.3856F, 0.5507F, 1.0000F, 0.3850F, 0.5502F, 1.0000F, 0.3843F, 0.5496F, 1.0000F, 0.3836F, 0.5491F, 1.0000F, 0.3830F, 0.5486F, 1.0000F, 0.3824F, 0.5481F, 1.0000F, 0.3817F, 0.5476F, 1.0000F, 0.3811F, 0.5471F, 1.0000F, 0.3805F, 0.5466F, 1.0000F, 0.3799F, 0.5461F, 1.0000F, 0.3793F, 0.5456F, 1.0000F, 0.3787F, 0.5451F, 1.0000F, 0.3781F, 0.5446F, 1.0000F, 0.3776F, 0.5441F, 1.0000F, 0.3770F, 0.5437F, 1.0000F, 0.3764F, 0.5432F, 1.0000F, 0.3759F, 0.5428F, 1.0000F, 0.3753F, 0.5423F, 1.0000F, 0.3748F, 0.5419F, 1.0000F, 0.3742F, 0.5414F, 1.0000F, 0.3737F, 0.5410F, 1.0000F, 0.3732F, 0.5405F, 1.0000F, 0.3726F, 0.5401F, 1.0000F, 0.3721F, 0.5397F, 1.0000F, 0.3716F, 0.5393F, 1.0000F, 0.3711F, 0.5389F, 1.0000F, 0.3706F, 0.5384F, 1.0000F, 0.3701F, 0.5380F, 1.0000F, 0.3696F, 0.5376F, 1.0000F, 0.3692F, 0.5372F, 1.0000F, 0.3687F, 0.5368F, 1.0000F, 0.3682F, 0.5365F, 1.0000F, 0.3677F, 0.5361F, 1.0000F, 0.3673F, 0.5357F, 1.0000F, 0.3668F, 0.5353F, 1.0000F, 0.3664F, 0.5349F, 1.0000F, 0.3659F, 0.5346F, 1.0000F, 0.3655F, 0.5342F, 1.0000F, 0.3650F, 0.5338F, 1.0000F, 0.3646F, 0.5335F, 1.0000F, 0.3642F, 0.5331F, 1.0000F, 0.3637F, 0.5328F, 1.0000F, 0.3633F, 0.5324F, 1.0000F, 0.3629F, 0.5321F, 1.0000F, 0.3625F, 0.5317F, 1.0000F, 0.3621F, 0.5314F, 1.0000F, 0.3617F, 0.5310F, 1.0000F, 0.3613F, 0.5307F, 1.0000F, 0.3609F, 0.5304F, 1.0000F, 0.3605F, 0.5300F, 1.0000F, 0.3601F, 0.5297F, 1.0000F, 0.3597F, 0.5294F, 1.0000F, 0.3593F, 0.5291F, 1.0000F, 0.3589F, 0.5288F, 1.0000F, 0.3586F, 0.5284F, 1.0000F, 0.3582F, 0.5281F, 1.0000F, 0.3578F, 0.5278F, 1.0000F, 0.3575F, 0.5275F, 1.0000F, 0.3571F, 0.5272F, 1.0000F, 0.3567F, 0.5269F, 1.0000F, 0.3564F, 0.5266F, 1.0000F, 0.3560F, 0.5263F, 1.0000F, 0.3557F, 0.5260F, 1.0000F, 0.3553F, 0.5257F, 1.0000F, 0.3550F, 0.5255F, 1.0000F, 0.3546F, 0.5252F, 1.0000F, 0.3543F, 0.5249F, 1.0000F, 0.3540F, 0.5246F, 1.0000F, 0.3536F, 0.5243F, 1.0000F, 0.3533F, 0.5241F, 1.0000F, 0.3530F, 0.5238F, 1.0000F, 0.3527F, 0.5235F, 1.0000F, 0.3524F, 0.5232F, 1.0000F, 0.3520F, 0.5230F, 1.0000F, 0.3517F, 0.5227F, 1.0000F, 0.3514F, 0.5225F, 1.0000F, 0.3511F, 0.5222F, 1.0000F, 0.3508F, 0.5219F, 1.0000F, 0.3505F, 0.5217F, 1.0000F, 0.3502F, 0.5214F, 1.0000F, 0.3499F, 0.5212F, 1.0000F, 0.3496F, 0.5209F, 1.0000F, 0.3493F, 0.5207F, 1.0000F, 0.3490F, 0.5204F, 1.0000F, 0.3487F, 0.5202F, 1.0000F, 0.3485F, 0.5200F, 1.0000F, 0.3482F, 0.5197F, 1.0000F, 0.3479F, 0.5195F, 1.0000F, 0.3476F, 0.5192F, 1.0000F, 0.3473F, 0.5190F, 1.0000F, 0.3471F, 0.5188F, 1.0000F, 0.3468F, 0.5186F, 1.0000F, 0.3465F, 0.5183F, 1.0000F, 0.3463F, 0.5181F, 1.0000F, 0.3460F, 0.5179F, 1.0000F, 0.3457F, 0.5177F, 1.0000F, 0.3455F, 0.5174F, 1.0000F, 0.3452F, 0.5172F, 1.0000F, 0.3450F, 0.5170F, 1.0000F, 0.3447F, 0.5168F, 1.0000F, 0.3444F, 0.5166F, 1.0000F, 0.3442F, 0.5164F, 1.0000F, 0.3439F, 0.5161F, 1.0000F, 0.3437F, 0.5159F, 1.0000F, 0.3435F, 0.5157F, 1.0000F, 0.3432F, 0.5155F, 1.0000F, 0.3430F, 0.5153F, 1.0000F, 0.3427F, 0.5151F, 1.0000F, 0.3425F, 0.5149F, 1.0000F, 0.3423F, 0.5147F, 1.0000F, 0.3420F, 0.5145F, 1.0000F, 0.3418F, 0.5143F, 1.0000F, 0.3416F, 0.5141F, 1.0000F, 0.3413F, 0.5139F, 1.0000F, 0.3411F, 0.5137F, 1.0000F, 0.3409F, 0.5135F, 1.0000F, 0.3407F, 0.5133F, 1.0000F, 0.3404F, 0.5132F, 1.0000F, 0.3402F, 0.5130F, 1.0000F, 0.3400F, 0.5128F, 1.0000F, 0.3398F, 0.5126F, 1.0000F, 0.3396F, 0.5124F, 1.0000F, 0.3393F, 0.5122F, 1.0000F, 0.3391F, 0.5120F, 1.0000F, 0.3389F, 0.5119F, 1.0000F, 0.3387F, 0.5117F, 1.0000F, 0.3385F, 0.5115F, 1.0000F, 0.3383F, 0.5113F, 1.0000F, 0.3381F, 0.5112F, 1.0000F, 0.3379F, 0.5110F, 1.0000F, 0.3377F, 0.5108F, 1.0000F, 0.3375F, 0.5106F, 1.0000F, 0.3373F, 0.5105F, 1.0000F, 0.3371F, 0.5103F, 1.0000F, 0.3369F, 0.5101F, 1.0000F, 0.3367F, 0.5100F, 1.0000F, 0.3365F, 0.5098F, 1.0000F, 0.3363F, 0.5096F, 1.0000F, 0.3361F, 0.5095F, 1.0000F, 0.3359F, 0.5093F, 1.0000F, 0.3357F, 0.5091F, 1.0000F, 0.3356F, 0.5090F, 1.0000F, 0.3354F, 0.5088F, 1.0000F, 0.3352F, 0.5087F, 1.0000F, 0.3350F, 0.5085F, 1.0000F, 0.3348F, 0.5084F, 1.0000F, 0.3346F, 0.5082F, 1.0000F, 0.3345F, 0.5080F, 1.0000F, 0.3343F, 0.5079F, 1.0000F, 0.3341F, 0.5077F, 1.0000F, 0.3339F, 0.5076F, 1.0000F, 0.3338F, 0.5074F, 1.0000F, 0.3336F, 0.5073F, 1.0000F, 0.3334F, 0.5071F, 1.0000F, 0.3332F, 0.5070F, 1.0000F, 0.3331F, 0.5068F, 1.0000F, 0.3329F, 0.5067F, 1.0000F, 0.3327F, 0.5066F, 1.0000F, 0.3326F, 0.5064F, 1.0000F, 0.3324F, 0.5063F, 1.0000F, 0.3322F, 0.5061F, 1.0000F, 0.3321F, 0.5060F, 1.0000F, 0.3319F, 0.5058F, 1.0000F, 0.3317F, 0.5057F, 1.0000F, 0.3316F, 0.5056F, 1.0000F, 0.3314F, 0.5054F, 1.0000F, 0.3313F, 0.5053F, 1.0000F, 0.3311F, 0.5052F, 1.0000F, 0.3309F, 0.5050F, 1.0000F, 0.3308F, 0.5049F, 1.0000F, 0.3306F, 0.5048F, 1.0000F, 0.3305F, 0.5046F, 1.0000F, 0.3303F, 0.5045F, 1.0000F, 0.3302F, 0.5044F, 1.0000F, 0.3300F, 0.5042F, 1.0000F, 0.3299F, 0.5041F, 1.0000F, 0.3297F, 0.5040F, 1.0000F, 0.3296F, 0.5038F, 1.0000F, 0.3294F, 0.5037F, 1.0000F, 0.3293F, 0.5036F, 1.0000F, 0.3291F, 0.5035F, 1.0000F, 0.3290F, 0.5033F, 1.0000F, 0.3288F, 0.5032F, 1.0000F, 0.3287F, 0.5031F, 1.0000F, 0.3286F, 0.5030F, 1.0000F, 0.3284F, 0.5028F, 1.0000F, 0.3283F, 0.5027F, 1.0000F, 0.3281F, 0.5026F, 1.0000F, 0.3280F, 0.5025F, 1.0000F, 0.3279F, 0.5024F, 1.0000F, 0.3277F, 0.5022F, 1.0000F};
-    public static final int[] colors_3d = {-16777216, -16711423, -16645630, -16579837, -16514044, -16448251, -16382458, -16316665, -16250872, -16185079, -16119286, -16053493, -15987700, -15921907, -15856114, -15790321, -15724528, -15658735, -15592942, -15527149, -15461356, -15395563, -15329770, -15263977, -15198184, -15132391, -15066598, -15000805, -14935012, -14869219, -14803426, -14737633, -14671840, -14606047, -14540254, -14474461, -14408668, -14342875, -14277082, -14211289, -14145496, -14079703, -14013910, -13948117, -13882324, -13816531, -13750738, -13684945, -13619152, -13553359, -13487566, -13421773, -13355980, -13290187, -13224394, -13158601, -13092808, -13027015, -12961222, -12895429, -12829636, -12763843, -12698050, -12632257, -12566464, -12500671, -12434878, -12369085, -12303292, -12237499, -12171706, -12105913, -12040120, -11974327, -11908534, -11842741, -11776948, -11711155, -11645362, -11579569, -11513776, -11447983, -11382190, -11316397, -11250604, -11184811, -11119018, -11053225, -10987432, -10921639, -10855846, -10790053, -10724260, -10658467, -10592674, -10526881, -10461088, -10395295, -10329502, -10263709, -10197916, -10132123, -10066330, -10000537, -9934744, -9868951, -9803158, -9737365, -9671572, -9605779, -9539986, -9474193, -9408400, -9342607, -9276814, -9211021, -9145228, -9079435, -9013642, -8947849, -8882056, -8816263, -8750470, -8684677, -8618884, -8553091, -8487298, -8421505, -8355712, -8289919, -8224126, -8158333, -8092540, -8026747, -7960954, -7895161, -7829368, -7763575, -7697782, -7631989, -7566196, -7500403, -7434610, -7368817, -7303024, -7237231, -7171438, -7105645, -7039852, -6974059, -6908266, -6842473, -6776680, -6710887, -6645094, -6579301, -6513508, -6447715, -6381922, -6316129, -6250336, -6184543, -6118750, -6052957, -5987164, -5921371, -5855578, -5789785, -5723992, -5658199, -5592406, -5526613, -5460820, -5395027, -5329234, -5263441, -5197648, -5131855, -5066062, -5000269, -4934476, -4868683, -4802890, -4737097, -4671304, -4605511, -4539718, -4473925, -4408132, -4342339, -4276546, -4210753, -4144960, -4079167, -4013374, -3947581, -3881788, -3815995, -3750202, -3684409, -3618616, -3552823, -3487030, -3421237, -3355444, -3289651, -3223858, -3158065, -3092272, -3026479, -2960686, -2894893, -2829100, -2763307, -2697514, -2631721, -2565928, -2500135, -2434342, -2368549, -2302756, -2236963, -2171170, -2105377, -2039584, -1973791, -1907998, -1842205, -1776412, -1710619, -1644826, -1579033, -1513240, -1447447, -1381654, -1315861, -1250068, -1184275, -1118482, -1052689, -986896, -921103, -855310, -789517, -723724, -657931, -592138, -526345, -460552, -394759, -328966, -263173, -197380, -131587, -65794, -1};
-    public static final double[] colors_3d_brightness = {0.0, 0.003921569, 0.007843138, 0.011764706, 0.015686275, 0.019607844, 0.023529412, 0.02745098, 0.03137255, 0.03529412, 0.039215688, 0.043137256, 0.047058824, 0.050980393, 0.05490196, 0.05882353, 0.0627451, 0.06666667, 0.07058824, 0.07450981, 0.078431375, 0.08235294, 0.08627451, 0.09019608, 0.09411765, 0.09803922, 0.101960786, 0.105882354, 0.10980392, 0.11372549, 0.11764706, 0.12156863, 0.1254902, 0.12941177, 0.13333334, 0.13725491, 0.14117648, 0.14509805, 0.14901961, 0.15294118, 0.15686275, 0.16078432, 0.16470589, 0.16862746, 0.17254902, 0.1764706, 0.18039216, 0.18431373, 0.1882353, 0.19215687, 0.19607843, 0.2, 0.20392157, 0.20784314, 0.21176471, 0.21568628, 0.21960784, 0.22352941, 0.22745098, 0.23137255, 0.23529412, 0.23921569, 0.24313726, 0.24705882, 0.2509804, 0.25490198, 0.25882354, 0.2627451, 0.26666668, 0.27058825, 0.27450982, 0.2784314, 0.28235295, 0.28627452, 0.2901961, 0.29411766, 0.29803923, 0.3019608, 0.30588236, 0.30980393, 0.3137255, 0.31764707, 0.32156864, 0.3254902, 0.32941177, 0.33333334, 0.3372549, 0.34117648, 0.34509805, 0.34901962, 0.3529412, 0.35686275, 0.36078432, 0.3647059, 0.36862746, 0.37254903, 0.3764706, 0.38039216, 0.38431373, 0.3882353, 0.39215687, 0.39607844, 0.4, 0.40392157, 0.40784314, 0.4117647, 0.41568628, 0.41960785, 0.42352942, 0.42745098, 0.43137255, 0.43529412, 0.4392157, 0.44313726, 0.44705883, 0.4509804, 0.45490196, 0.45882353, 0.4627451, 0.46666667, 0.47058824, 0.4745098, 0.47843137, 0.48235294, 0.4862745, 0.49019608, 0.49411765, 0.49803922, 0.5019608, 0.5058824, 0.50980395, 0.5137255, 0.5176471, 0.52156866, 0.5254902, 0.5294118, 0.53333336, 0.5372549, 0.5411765, 0.54509807, 0.54901963, 0.5529412, 0.5568628, 0.56078434, 0.5647059, 0.5686275, 0.57254905, 0.5764706, 0.5803922, 0.58431375, 0.5882353, 0.5921569, 0.59607846, 0.6, 0.6039216, 0.60784316, 0.6117647, 0.6156863, 0.61960787, 0.62352943, 0.627451, 0.6313726, 0.63529414, 0.6392157, 0.6431373, 0.64705884, 0.6509804, 0.654902, 0.65882355, 0.6627451, 0.6666667, 0.67058825, 0.6745098, 0.6784314, 0.68235296, 0.6862745, 0.6901961, 0.69411767, 0.69803923, 0.7019608, 0.7058824, 0.70980394, 0.7137255, 0.7176471, 0.72156864, 0.7254902, 0.7294118, 0.73333335, 0.7372549, 0.7411765, 0.74509805, 0.7490196, 0.7529412, 0.75686276, 0.7607843, 0.7647059, 0.76862746, 0.77254903, 0.7764706, 0.78039217, 0.78431374, 0.7882353, 0.7921569, 0.79607844, 0.8, 0.8039216, 0.80784315, 0.8117647, 0.8156863, 0.81960785, 0.8235294, 0.827451, 0.83137256, 0.8352941, 0.8392157, 0.84313726, 0.84705883, 0.8509804, 0.85490197, 0.85882354, 0.8627451, 0.8666667, 0.87058824, 0.8745098, 0.8784314, 0.88235295, 0.8862745, 0.8901961, 0.89411765, 0.8980392, 0.9019608, 0.90588236, 0.9098039, 0.9137255, 0.91764706, 0.92156863, 0.9254902, 0.92941177, 0.93333334, 0.9372549, 0.9411765, 0.94509804, 0.9490196, 0.9529412, 0.95686275, 0.9607843, 0.9647059, 0.96862745, 0.972549, 0.9764706, 0.98039216, 0.9843137, 0.9882353, 0.99215686, 0.99607843, 1.0};
-    protected static double[] image_iterations;
-    protected static AtomicInteger synchronization;
-    protected static AtomicInteger synchronization2;
-    protected static AtomicInteger synchronization3;
-    protected static AtomicInteger synchronization4;
-    protected static AtomicInteger synchronization5;
-    protected static AtomicInteger synchronization6;
-    protected static AtomicInteger total_calculated;
-    protected static AtomicInteger normal_drawing_algorithm_pixel;
-    protected int[] rgbs;
-    protected Fractal fractal;
-    protected PaletteColor palette_color;
+    /***************/  
+    
+    /**** Thread Related / Synchronization ****/
     protected int FROMx;
     protected int TOx;
     protected int FROMy;
     protected int TOy;
-    protected boolean[] filters;
-    protected boolean julia;
-    protected boolean fast_julia_filters;
-    protected boolean boundary_tracing;
-    protected boolean d3;
-    protected MainWindow ptr;
-    protected BufferedImage image;
+    
+    protected int thread_slices;
+    
     protected int drawing_done;
     protected int thread_calculated;
-    protected int fractal_color;
-    protected int dem_color;
-    protected int max_iterations;
-    protected boolean color_cycling;
-    protected int color_cycling_location;
-    protected int action;
-    protected int thread_slices;
+    
+    protected static AtomicInteger image_filters_sync;
+    protected static AtomicInteger post_processing_sync;
+    protected static AtomicInteger calculate_vectors_sync;
+    protected static AtomicInteger painting_sync;
+    protected static AtomicInteger height_scaling_sync;
+    protected static AtomicInteger gaussian_scaling_sync;
+    protected static AtomicInteger total_calculated;
+    protected static AtomicInteger normal_drawing_algorithm_pixel;
+    /*******************************/
+    
+    /**** 3D ****/
+    protected boolean d3;
+    public static final int[] colors_3d = {-16777216, -16711423, -16645630, -16579837, -16514044, -16448251, -16382458, -16316665, -16250872, -16185079, -16119286, -16053493, -15987700, -15921907, -15856114, -15790321, -15724528, -15658735, -15592942, -15527149, -15461356, -15395563, -15329770, -15263977, -15198184, -15132391, -15066598, -15000805, -14935012, -14869219, -14803426, -14737633, -14671840, -14606047, -14540254, -14474461, -14408668, -14342875, -14277082, -14211289, -14145496, -14079703, -14013910, -13948117, -13882324, -13816531, -13750738, -13684945, -13619152, -13553359, -13487566, -13421773, -13355980, -13290187, -13224394, -13158601, -13092808, -13027015, -12961222, -12895429, -12829636, -12763843, -12698050, -12632257, -12566464, -12500671, -12434878, -12369085, -12303292, -12237499, -12171706, -12105913, -12040120, -11974327, -11908534, -11842741, -11776948, -11711155, -11645362, -11579569, -11513776, -11447983, -11382190, -11316397, -11250604, -11184811, -11119018, -11053225, -10987432, -10921639, -10855846, -10790053, -10724260, -10658467, -10592674, -10526881, -10461088, -10395295, -10329502, -10263709, -10197916, -10132123, -10066330, -10000537, -9934744, -9868951, -9803158, -9737365, -9671572, -9605779, -9539986, -9474193, -9408400, -9342607, -9276814, -9211021, -9145228, -9079435, -9013642, -8947849, -8882056, -8816263, -8750470, -8684677, -8618884, -8553091, -8487298, -8421505, -8355712, -8289919, -8224126, -8158333, -8092540, -8026747, -7960954, -7895161, -7829368, -7763575, -7697782, -7631989, -7566196, -7500403, -7434610, -7368817, -7303024, -7237231, -7171438, -7105645, -7039852, -6974059, -6908266, -6842473, -6776680, -6710887, -6645094, -6579301, -6513508, -6447715, -6381922, -6316129, -6250336, -6184543, -6118750, -6052957, -5987164, -5921371, -5855578, -5789785, -5723992, -5658199, -5592406, -5526613, -5460820, -5395027, -5329234, -5263441, -5197648, -5131855, -5066062, -5000269, -4934476, -4868683, -4802890, -4737097, -4671304, -4605511, -4539718, -4473925, -4408132, -4342339, -4276546, -4210753, -4144960, -4079167, -4013374, -3947581, -3881788, -3815995, -3750202, -3684409, -3618616, -3552823, -3487030, -3421237, -3355444, -3289651, -3223858, -3158065, -3092272, -3026479, -2960686, -2894893, -2829100, -2763307, -2697514, -2631721, -2565928, -2500135, -2434342, -2368549, -2302756, -2236963, -2171170, -2105377, -2039584, -1973791, -1907998, -1842205, -1776412, -1710619, -1644826, -1579033, -1513240, -1447447, -1381654, -1315861, -1250068, -1184275, -1118482, -1052689, -986896, -921103, -855310, -789517, -723724, -657931, -592138, -526345, -460552, -394759, -328966, -263173, -197380, -131587, -65794, -1};
+    protected int detail;
+    protected double fiX, fiY, scale, m20, m21, m22;
+    protected double d3_height_scale;
+    protected int min_to_max_scaling;
+    protected int max_scaling;
+    protected int height_algorithm;
+    protected boolean gaussian_scaling;
+    protected double gaussian_weight;
+    protected int gaussian_kernel_size;
+    protected static float vert[][][];
+    protected static float vert1[][][];
+    protected static float Norm1z[][][];
+    protected static float[] gaussian_kernel;
+    protected static float[][] temp_array;
+    protected double color_3d_blending;
+    /************/
+    
+     /**** Filters ****/
+    protected boolean[] filters;
+    protected int[] filters_options_vals;
+    protected boolean fast_julia_filters;
+    /*****************/
+    
+    /**** Image Related ****/
+    protected BufferedImage image;
+    protected int[] rgbs;   
+    protected static double[] image_iterations;
+    protected static double[] image_iterations_fast_julia;
+    /***********************/
+    
+    /**** Post Processing ****/
+    public static final int MAX_BUMP_MAPPING_DEPTH = 100;
+    public static final int DEFAULT_BUMP_MAPPING_STRENGTH = 50;
     protected boolean bump_map;
     protected double bumpMappingStrength;
     protected double bumpMappingDepth;
     protected double lightDirectionDegrees;
     protected boolean fake_de;
     protected double fake_de_factor;
-    protected static double[] image_iterations_fast_julia;
+    protected int dem_color;
+    protected boolean rainbow_palette;
+    protected double rainbow_palette_factor;   
+    /*************************/
+    
+    /**** Color Cycling ****/
+    protected boolean color_cycling;
+    protected int color_cycling_location;
+    protected int color_cycling_speed;
+    /***********************/
+    
+    protected Fractal fractal; 
+    protected boolean julia;
     protected double height_ratio;
     protected boolean polar_projection;
     protected double circle_period;
+    protected int fractal_color;  
+    protected int max_iterations;
+    protected PaletteColor palette_color;
+    protected boolean boundary_tracing;   
+    protected MainWindow ptr; 
+    protected int action;
     protected double x_antialiasing_size;
     protected double x_antialiasing_size_x2;
     protected double y_antialiasing_size;
     protected double y_antialiasing_size_x2;
-    protected int color_cycling_speed;
-    protected int[] filters_options_vals;
-    protected int detail;
-    protected double fiX, fiY, scale, m20, m21, m22;
-    protected double d3_height_scale;
-    protected int min_to_max_scaling;
-    protected int height_algorithm;
-    protected boolean gaussian_scaling;
-    protected double gaussian_weight;
-    protected int gaussian_kernel_size;
-    protected int blending;
-    protected static float vert[][][];
-    protected static float vert1[][][];
-    protected static float Norm[][][][];
-    protected static float Norm1z[][][];
-    protected static float[] gaussian_kernel;
-    protected static float[][] temp_array;
-    protected double color_3d_blending;
-    public static final int MAX_BUMP_MAPPING_DEPTH = 100;
-    public static final int DEFAULT_BUMP_MAPPING_STRENGTH = 50;
+  
 
     /*protected double[] AntialiasingData;
      protected double[] FastJuliaData;
@@ -263,12 +279,12 @@ public abstract class ThreadDraw extends Thread {
      public static final int Loaded = 1, Queued = 2;*/
     static {
 
-        synchronization = new AtomicInteger(0);
-        synchronization2 = new AtomicInteger(0);
-        synchronization3 = new AtomicInteger(0);
-        synchronization4 = new AtomicInteger(0);
-        synchronization5 = new AtomicInteger(0);
-        synchronization6 = new AtomicInteger(0);
+        image_filters_sync = new AtomicInteger(0);
+        post_processing_sync = new AtomicInteger(0);
+        calculate_vectors_sync = new AtomicInteger(0);
+        painting_sync = new AtomicInteger(0);
+        height_scaling_sync = new AtomicInteger(0);     
+        gaussian_scaling_sync = new AtomicInteger(0);
         total_calculated = new AtomicInteger(0);
         normal_drawing_algorithm_pixel = new AtomicInteger(0);
         image_iterations = new double[MainWindow.image_size * MainWindow.image_size];
@@ -277,7 +293,7 @@ public abstract class ThreadDraw extends Thread {
     }
 
     //Fractal
-    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, boolean d3, int detail, double fiX, double fiY, double color_3d_blending, int blending, boolean gaussian_scaling, double gaussian_weight, int gaussian_kernel_size, int min_to_max_scaling, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, boolean[] filters, int[] filters_options_vals, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean boundary_tracing, boolean periodicity_checking, int plane_type, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_val, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, boolean exterior_de, double exterior_de_factor, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, double d3_height_scale, int height_algorithm, int escaping_smooth_algorithm, int converging_smooth_algorithm, boolean bump_map, double lightDirectionDegrees, double bumpMappingDepth, double bumpMappingStrength, boolean polar_projection, double circle_period, boolean fake_de, double fake_de_factor, String user_fz_formula, String user_dfz_formula, String user_ddfz_formula) {
+    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, boolean d3, int detail, double d3_size_scale, double fiX, double fiY, double color_3d_blending, boolean gaussian_scaling, double gaussian_weight, int gaussian_kernel_size, int min_to_max_scaling, int max_scaling, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, boolean[] filters, int[] filters_options_vals, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean boundary_tracing, boolean periodicity_checking, int plane_type, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_val, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, boolean exterior_de, double exterior_de_factor, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, double d3_height_scale, int height_algorithm, int escaping_smooth_algorithm, int converging_smooth_algorithm, boolean bump_map, double lightDirectionDegrees, double bumpMappingDepth, double bumpMappingStrength, boolean polar_projection, double circle_period, boolean fake_de, double fake_de_factor, boolean rainbow_palette, double rainbow_palette_factor, String user_fz_formula, String user_dfz_formula, String user_ddfz_formula) {
 
         this.FROMx = FROMx;
         this.TOx = TOx;
@@ -299,13 +315,13 @@ public abstract class ThreadDraw extends Thread {
         this.height_ratio = height_ratio;
         this.d3_height_scale = d3_height_scale;
         this.height_algorithm = height_algorithm;
-        scale = 1;
+        scale = d3_size_scale;
         this.color_3d_blending = color_3d_blending;
-        this.blending = blending;
         this.gaussian_scaling = gaussian_scaling;
         this.gaussian_weight = gaussian_weight;
         this.gaussian_kernel_size = gaussian_kernel_size;
         this.min_to_max_scaling = min_to_max_scaling;
+        this.max_scaling = max_scaling;
 
         this.bump_map = bump_map;
         this.bumpMappingStrength = bumpMappingStrength;
@@ -314,6 +330,9 @@ public abstract class ThreadDraw extends Thread {
 
         this.fake_de = fake_de;
         this.fake_de_factor = fake_de_factor;
+
+        this.rainbow_palette = rainbow_palette;
+        this.rainbow_palette_factor = rainbow_palette_factor;
 
         this.polar_projection = polar_projection;
         this.circle_period = circle_period;
@@ -795,7 +814,7 @@ public abstract class ThreadDraw extends Thread {
     }
 
     //Julia
-    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, boolean d3, int detail, double fiX, double fiY, double color_3d_blending, int blending, boolean gaussian_scaling, double gaussian_weight, int gaussian_kernel_size, int min_to_max_scaling, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, boolean[] filters, int[] filters_options_vals, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean boundary_tracing, boolean periodicity_checking, int plane_type, boolean apply_plane_on_julia, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] rotation_vals, double[] rotation_center, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, boolean exterior_de, double exterior_de_factor, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, double d3_height_scale, int height_algorithm, int escaping_smooth_algorithm, int converging_smooth_algorithm, boolean bump_map, double lightDirectionDegrees, double bumpMappingDepth, double bumpMappingStrength, boolean polar_projection, double circle_period, boolean fake_de, double fake_de_factor, double xJuliaCenter, double yJuliaCenter) {
+    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, boolean d3, int detail, double d3_size_scale, double fiX, double fiY, double color_3d_blending, boolean gaussian_scaling, double gaussian_weight, int gaussian_kernel_size, int min_to_max_scaling, int max_scaling, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, boolean[] filters, int[] filters_options_vals, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean boundary_tracing, boolean periodicity_checking, int plane_type, boolean apply_plane_on_julia, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] rotation_vals, double[] rotation_center, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, boolean exterior_de, double exterior_de_factor, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, double d3_height_scale, int height_algorithm, int escaping_smooth_algorithm, int converging_smooth_algorithm, boolean bump_map, double lightDirectionDegrees, double bumpMappingDepth, double bumpMappingStrength, boolean polar_projection, double circle_period, boolean fake_de, double fake_de_factor, boolean rainbow_palette, double rainbow_palette_factor, double xJuliaCenter, double yJuliaCenter) {
 
         this.FROMx = FROMx;
         this.TOx = TOx;
@@ -817,13 +836,13 @@ public abstract class ThreadDraw extends Thread {
         this.height_ratio = height_ratio;
         this.d3_height_scale = d3_height_scale;
         this.height_algorithm = height_algorithm;
-        scale = 1;
+        scale = d3_size_scale;
         this.color_3d_blending = color_3d_blending;
-        this.blending = blending;
         this.gaussian_scaling = gaussian_scaling;
         this.gaussian_weight = gaussian_weight;
         this.gaussian_kernel_size = gaussian_kernel_size;
         this.min_to_max_scaling = min_to_max_scaling;
+        this.max_scaling = max_scaling;
 
         this.bump_map = bump_map;
         this.bumpMappingStrength = bumpMappingStrength;
@@ -832,6 +851,9 @@ public abstract class ThreadDraw extends Thread {
 
         this.fake_de = fake_de;
         this.fake_de_factor = fake_de_factor;
+
+        this.rainbow_palette = rainbow_palette;
+        this.rainbow_palette_factor = rainbow_palette_factor;
 
         this.polar_projection = polar_projection;
         this.circle_period = circle_period;
@@ -1165,7 +1187,7 @@ public abstract class ThreadDraw extends Thread {
     }
 
     //Julia Map
-    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, boolean[] filters, int[] filters_options_vals, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, int plane_type, boolean apply_plane_on_julia, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] rotation_vals, double[] rotation_center, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, boolean exterior_de, double exterior_de_factor, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, int converging_smooth_algorithm, boolean bump_map, double lightDirectionDegrees, double bumpMappingDepth, double bumpMappingStrength, boolean polar_projection, double circle_period, boolean fake_de, double fake_de_factor) {
+    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, boolean[] filters, int[] filters_options_vals, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, int plane_type, boolean apply_plane_on_julia, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] rotation_vals, double[] rotation_center, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, boolean exterior_de, double exterior_de_factor, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, int converging_smooth_algorithm, boolean bump_map, double lightDirectionDegrees, double bumpMappingDepth, double bumpMappingStrength, boolean polar_projection, double circle_period, boolean fake_de, double fake_de_factor, boolean rainbow_palette, double rainbow_palette_factor) {
 
         this.FROMx = FROMx;
         this.TOx = TOx;
@@ -1188,6 +1210,9 @@ public abstract class ThreadDraw extends Thread {
 
         this.fake_de = fake_de;
         this.fake_de_factor = fake_de_factor;
+
+        this.rainbow_palette = rainbow_palette;
+        this.rainbow_palette_factor = rainbow_palette_factor;
 
         this.polar_projection = polar_projection;
         this.circle_period = circle_period;
@@ -1249,12 +1274,12 @@ public abstract class ThreadDraw extends Thread {
             double size_2_y = (size * height_ratio) * 0.5;
 
             double temp_xcenter_size = xCenter - size_2_x;
-            double temp_ycenter_size = yCenter - size_2_y;
+            double temp_ycenter_size = yCenter + size_2_y;
             double temp_size_image_size_x = size / image.getHeight();
             double temp_size_image_size_y = (size * height_ratio) / image.getHeight();
 
             double temp1 = temp_xcenter_size + temp_size_image_size_x * ((TOx + FROMx) * 0.5) - rotation_center[0];
-            double temp2 = temp_ycenter_size + temp_size_image_size_y * ((TOy + FROMy) * 0.5) - rotation_center[1];
+            double temp2 = temp_ycenter_size - temp_size_image_size_y * ((TOy + FROMy) * 0.5) - rotation_center[1];
 
             xJuliaCenter = temp1 * rotation_vals[0] - temp2 * rotation_vals[1] + rotation_center[0];
             yJuliaCenter = temp1 * rotation_vals[1] + temp2 * rotation_vals[0] + rotation_center[1];
@@ -1541,7 +1566,7 @@ public abstract class ThreadDraw extends Thread {
     }
 
     //Julia Preview
-    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, MainWindow ptr, Color fractal_color, Color dem_color, boolean fast_julia_filters, BufferedImage image, boolean boundary_tracing, boolean periodicity_checking, int plane_type, boolean apply_plane_on_julia, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean[] filters, int[] filters_options_vals, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] rotation_vals, double[] rotation_center, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, boolean exterior_de, double exterior_de_factor, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, int converging_smooth_algorithm, boolean bump_map, double lightDirectionDegrees, double bumpMappingDepth, double bumpMappingStrength, boolean polar_projection, double circle_period, boolean fake_de, double fake_de_factor, double xJuliaCenter, double yJuliaCenter) {
+    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, MainWindow ptr, Color fractal_color, Color dem_color, boolean fast_julia_filters, BufferedImage image, boolean boundary_tracing, boolean periodicity_checking, int plane_type, boolean apply_plane_on_julia, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean[] filters, int[] filters_options_vals, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] rotation_vals, double[] rotation_center, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, boolean exterior_de, double exterior_de_factor, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, int converging_smooth_algorithm, boolean bump_map, double lightDirectionDegrees, double bumpMappingDepth, double bumpMappingStrength, boolean polar_projection, double circle_period, boolean fake_de, double fake_de_factor, boolean rainbow_palette, double rainbow_palette_factor, double xJuliaCenter, double yJuliaCenter) {
 
         this.FROMx = FROMx;
         this.TOx = TOx;
@@ -1565,6 +1590,9 @@ public abstract class ThreadDraw extends Thread {
 
         this.fake_de = fake_de;
         this.fake_de_factor = fake_de_factor;
+
+        this.rainbow_palette = rainbow_palette;
+        this.rainbow_palette_factor = rainbow_palette_factor;
 
         this.polar_projection = polar_projection;
         this.circle_period = circle_period;
@@ -1877,7 +1905,7 @@ public abstract class ThreadDraw extends Thread {
     }
 
     //Color Cycling
-    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, int max_iterations, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, int color_cycling_location, boolean bump_map, double lightDirectionDegrees, double bumpMappingDepth, double bumpMappingStrength, boolean fake_de, double fake_de_factor, int color_cycling_speed) {
+    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, int max_iterations, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, int color_cycling_location, boolean bump_map, double lightDirectionDegrees, double bumpMappingDepth, double bumpMappingStrength, boolean fake_de, double fake_de_factor, boolean rainbow_palette, double rainbow_palette_factor, int color_cycling_speed, boolean[] filters, int[] filters_options_vals) {
 
         this.FROMx = FROMx;
         this.TOx = TOx;
@@ -1889,6 +1917,8 @@ public abstract class ThreadDraw extends Thread {
         this.color_cycling_location = color_cycling_location;
         this.fractal_color = fractal_color.getRGB();
         this.dem_color = dem_color.getRGB();
+        this.filters = filters;
+        this.filters_options_vals = filters_options_vals;
         action = COLOR_CYCLING;
         color_cycling = true;
 
@@ -1902,12 +1932,15 @@ public abstract class ThreadDraw extends Thread {
         this.fake_de = fake_de;
         this.fake_de_factor = fake_de_factor;
 
+        this.rainbow_palette = rainbow_palette;
+        this.rainbow_palette_factor = rainbow_palette_factor;
+
         rgbs = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
 
     }
 
     //Apply Filter
-    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, int max_iterations, MainWindow ptr, BufferedImage image, Color fractal_color, Color dem_color, int color_cycling_location, boolean[] filters, int[] filters_options_vals, boolean bump_map, double lightDirectionDegrees, double bumpMappingDepth, double bumpMappingStrength, boolean fake_de, double fake_de_factor) {
+    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, int max_iterations, MainWindow ptr, BufferedImage image, Color fractal_color, Color dem_color, int color_cycling_location, boolean[] filters, int[] filters_options_vals, boolean bump_map, double lightDirectionDegrees, double bumpMappingDepth, double bumpMappingStrength, boolean fake_de, double fake_de_factor, boolean rainbow_palette, double rainbow_palette_factor) {
 
         this.FROMx = FROMx;
         this.TOx = TOx;
@@ -1932,6 +1965,9 @@ public abstract class ThreadDraw extends Thread {
         this.fake_de = fake_de;
         this.fake_de_factor = fake_de_factor;
 
+        this.rainbow_palette = rainbow_palette;
+        this.rainbow_palette_factor = rainbow_palette_factor;
+
         rgbs = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
 
         drawing_done = 0;
@@ -1939,7 +1975,7 @@ public abstract class ThreadDraw extends Thread {
     }
 
     //Rotate 3d model
-    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, int detail, double fiX, double fiY, double color_3d_blending, int blending, boolean draw_action, MainWindow ptr, BufferedImage image, boolean[] filters, int[] filters_options_vals) {
+    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, int detail, double d3_size_scale, double fiX, double fiY, double color_3d_blending, boolean draw_action, MainWindow ptr, BufferedImage image, boolean[] filters, int[] filters_options_vals) {
 
         this.FROMx = FROMx;
         this.TOx = TOx;
@@ -1954,11 +1990,10 @@ public abstract class ThreadDraw extends Thread {
         this.fiY = fiY;
         //this.d3_draw_method = d3_draw_method;
         this.color_3d_blending = color_3d_blending;
-        this.blending = blending;
 
         rgbs = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
 
-        scale = 1;
+        scale = d3_size_scale;
 
         if(draw_action) {
             action = ROTATE_3D_MODEL;
@@ -2055,7 +2090,7 @@ public abstract class ThreadDraw extends Thread {
             update(drawing_done);
         }
 
-        int done = synchronization.incrementAndGet();
+        int done = image_filters_sync.incrementAndGet();
 
         total_calculated.addAndGet(thread_calculated);
 
@@ -2133,7 +2168,7 @@ public abstract class ThreadDraw extends Thread {
             update(drawing_done);
         }
 
-        int done = synchronization.incrementAndGet();
+        int done = image_filters_sync.incrementAndGet();
 
         total_calculated.addAndGet(thread_calculated);
 
@@ -2196,7 +2231,7 @@ public abstract class ThreadDraw extends Thread {
     
      int loc = y2 * image_size + x2;
     
-     double center = LoadFractal(p, xreal = temp_xcenter_size + x2 * temp_size_image_size, yimag = temp_ycenter_size + y2 * temp_size_image_size, loc);
+     double center = LoadFractal(p, xreal = temp_xcenter_size + x2 * temp_size_image_size, yimag = temp_ycenter_size - y2 * temp_size_image_size, loc);
      boolean ll = x >= 1, rr = x < width - 1;
      boolean uu = y >= 1, dd = y < height - 1;
     
@@ -2285,7 +2320,7 @@ public abstract class ThreadDraw extends Thread {
         double temp_size_image_size_y = (size * height_ratio) / image_size;
 
         double temp_xcenter_size = fractal.getXCenter() - size_2_x;
-        double temp_ycenter_size = fractal.getYCenter() - size_2_y;
+        double temp_ycenter_size = fractal.getYCenter() + size_2_y;
 
         int pixel_percent = image_size * image_size / 100;
 
@@ -2305,7 +2340,7 @@ public abstract class ThreadDraw extends Thread {
             x = loc % image_size;
             y = loc / image_size;
 
-            image_iterations[loc] = fractal.calculateFractal(new Complex(temp_xcenter_size + temp_size_image_size_x * x, temp_ycenter_size + temp_size_image_size_y * y));
+            image_iterations[loc] = fractal.calculateFractal(new Complex(temp_xcenter_size + temp_size_image_size_x * x, temp_ycenter_size - temp_size_image_size_y * y));
             rgbs[loc] = getColor(image_iterations[loc]);
 
             drawing_done++;
@@ -2342,7 +2377,7 @@ public abstract class ThreadDraw extends Thread {
          y = tempy * tile;
         
          loc2 = y * image_size + x;
-         temp_result = image_iterations[loc2] = fractal.calculateFractal(new Complex(temp_xcenter_size + temp_size_image_size * x, temp_ycenter_size + temp_size_image_size * y));
+         temp_result = image_iterations[loc2] = fractal.calculateFractal(new Complex(temp_xcenter_size + temp_size_image_size * x, temp_ycenter_size - temp_size_image_size * y));
          color = rgbs[loc2] = getColor(temp_result);
         
          tempx = tempx == image_size_tile - 1 ? image_size : x + tile;
@@ -2361,7 +2396,7 @@ public abstract class ThreadDraw extends Thread {
 
         //Brute force
              /*double temp = temp_xcenter_size + temp_size_image_size * FROMx;
-         double temp_y0 = temp_ycenter_size + temp_size_image_size * FROMy;
+         double temp_y0 = temp_ycenter_size - temp_size_image_size * FROMy;
          double temp_x0 = temp;
         
          for(int y = FROMy; y < TOy; y++, temp_y0 += temp_size_image_size) {
@@ -2386,12 +2421,12 @@ public abstract class ThreadDraw extends Thread {
          }
         
          thread_calculated += drawing_done;*/
-        if(bump_map || fake_de) {
-            int sync2 = synchronization2.incrementAndGet();
+        if(bump_map || fake_de || rainbow_palette) {
+            int pp_sync = post_processing_sync.incrementAndGet();
 
-            while(sync2 != ptr.getNumberOfThreads()) {
+            while(pp_sync != ptr.getNumberOfThreads()) {
                 yield();
-                sync2 = synchronization2.get();
+                pp_sync = post_processing_sync.get();
             }
 
             applyPostProcessing(image_size);
@@ -2408,7 +2443,7 @@ public abstract class ThreadDraw extends Thread {
         double temp_size_image_size_y = (size * height_ratio) / image_size;
 
         double temp_xcenter_size = fractal.getXCenter() - size_2_x;
-        double temp_ycenter_size = fractal.getYCenter() - size_2_y;
+        double temp_ycenter_size = fractal.getYCenter() + size_2_y;
 
         int pixel_percent = image_size * image_size / 100;
 
@@ -2428,7 +2463,7 @@ public abstract class ThreadDraw extends Thread {
         int intY[] = {0, 1, 0, -1};
 
         for(y = FROMy; y < TOy; y++) {
-            temp_y0 = temp_ycenter_size + y * temp_size_image_size_y;
+            temp_y0 = temp_ycenter_size - y * temp_size_image_size_y;
             for(x = FROMx, pix = y * image_size + x; x < TOx; x++, pix++) {
 
                 if(rgbs[pix] == culcColor) {
@@ -2453,7 +2488,6 @@ public abstract class ThreadDraw extends Thread {
                     while(iy - 1 >= FROMy && rgbs[startPix - image_size] == startColor) {   // looking for boundary
                         curPix = startPix = startPix - image_size;
                         iy--;
-                        //curY = temp_ycenter_size + iy * temp_size_image_size;
                     }
 
                     temp_ix = ix;
@@ -2464,13 +2498,11 @@ public abstract class ThreadDraw extends Thread {
                             dir = Dir & maskDir;
                             nextPix = curPix + delPix[dir];
 
-                            //nextX = curX + delX[dir]; 
-                            //nextY = curY + delY[dir];
                             next_ix = temp_ix + intX[dir];
                             next_iy = temp_iy + intY[dir];
 
                             nextX = temp_xcenter_size + next_ix * temp_size_image_size_x;
-                            nextY = temp_ycenter_size + next_iy * temp_size_image_size_y;
+                            nextY = temp_ycenter_size - next_iy * temp_size_image_size_y;
 
                             if(!(next_ix >= FROMx && next_ix < TOx && next_iy >= FROMy && next_iy < TOy)) {
                                 continue;
@@ -2669,7 +2701,7 @@ public abstract class ThreadDraw extends Thread {
         
          for(y = slice_FROMy, whole_area = true, step = 0, total_drawing = 0; step < temp; step++, whole_area = true) {
         
-         temp_y0 = temp_ycenter_size + temp_size_image_size * y;           
+         temp_y0 = temp_ycenter_size - temp_size_image_size * y;           
         
          x = slice_FROMx + step;
          temp_x0 = temp_xcenter_size + temp_size_image_size * x;                        
@@ -2719,7 +2751,7 @@ public abstract class ThreadDraw extends Thread {
          }
         
          for(x--, y++; y < slice_TOy - step; y++) {
-         temp_y0 += temp_size_image_size;//= temp_ycenter_size + temp_size_image_size * y;
+         temp_y0 += temp_size_image_size;//= temp_ycenter_size - temp_size_image_size * y;
          loc = y * image_size + x;
          temp_result = image_iterations[loc] = fractal.calculateFractal(new Complex(temp_x0, temp_y0));
         
@@ -2772,7 +2804,7 @@ public abstract class ThreadDraw extends Thread {
          }
         
          for(x++, y--; y > slice_FROMy + step; y--) {
-         temp_y0 -= temp_size_image_size;//= temp_ycenter_size + temp_size_image_size * y;
+         temp_y0 -= temp_size_image_size;//= temp_ycenter_size - temp_size_image_size * y;
          loc = y * image_size + x;
          temp_result = image_iterations[loc] = fractal.calculateFractal(new Complex(temp_x0, temp_y0));
         
@@ -2826,12 +2858,12 @@ public abstract class ThreadDraw extends Thread {
          }
         
          thread_calculated += drawing_done; */
-        if(bump_map || fake_de) {
-            int sync2 = synchronization2.incrementAndGet();
+        if(bump_map || fake_de || rainbow_palette) {
+            int pp_sync = post_processing_sync.incrementAndGet();
 
-            while(sync2 != ptr.getNumberOfThreads()) {
+            while(pp_sync != ptr.getNumberOfThreads()) {
                 yield();
-                sync2 = synchronization2.get();
+                pp_sync = post_processing_sync.get();
             }
 
             applyPostProcessing(image_size);
@@ -2950,7 +2982,6 @@ public abstract class ThreadDraw extends Thread {
                     while(iy - 1 >= FROMy && rgbs[startPix - image_size] == startColor) {   // looking for boundary
                         curPix = startPix = startPix - image_size;
                         iy--;
-                        //curY = temp_ycenter_size + iy * temp_size_image_size;
                     }
 
                     temp_ix = ix;
@@ -3071,12 +3102,12 @@ public abstract class ThreadDraw extends Thread {
             }
         }
 
-        if(bump_map || fake_de) {
-            int sync2 = synchronization2.incrementAndGet();
+        if(bump_map || fake_de || rainbow_palette) {
+            int pp_sync = post_processing_sync.incrementAndGet();
 
-            while(sync2 != ptr.getNumberOfThreads()) {
+            while(pp_sync != ptr.getNumberOfThreads()) {
                 yield();
-                sync2 = synchronization2.get();
+                pp_sync = post_processing_sync.get();
             }
 
             applyPostProcessing(image_size);
@@ -3152,7 +3183,8 @@ public abstract class ThreadDraw extends Thread {
             cos_inv_y_antialiasing_size_x2, 1, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, 1, cos_y_antialiasing_size_x2,
             cos_inv_y_antialiasing_size, cos_y_antialiasing_size, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size, cos_y_antialiasing_size};
 
-        double temp_samples = filters_options_vals[MainWindow.ANTIALIASING] + 1;
+        int supersampling_num = (filters_options_vals[MainWindow.ANTIALIASING] == 0 ? 4 : 8 * filters_options_vals[MainWindow.ANTIALIASING]);
+        double temp_samples = supersampling_num + 1;
 
         int red, green, blue, color;
 
@@ -3184,7 +3216,7 @@ public abstract class ThreadDraw extends Thread {
                     blue = color & 0xff;
 
                     //Supersampling
-                    for(int i = 0; i < filters_options_vals[MainWindow.ANTIALIASING]; i++) {
+                    for(int i = 0; i < supersampling_num; i++) {
 
                         sf3 = sf * antialiasing_y_cos[i] + cf * antialiasing_y_sin[i];
                         cf3 = cf * antialiasing_y_cos[i] - sf * antialiasing_y_sin[i];
@@ -3245,7 +3277,7 @@ public abstract class ThreadDraw extends Thread {
                                 blue = color & 0xff;
 
                                 //Supersampling
-                                for(int i = 0; i < filters_options_vals[MainWindow.ANTIALIASING]; i++) {
+                                for(int i = 0; i < supersampling_num; i++) {
 
                                     sf3 = sf2 * antialiasing_y_cos[i] + cf2 * antialiasing_y_sin[i];
                                     cf3 = cf2 * antialiasing_y_cos[i] - sf2 * antialiasing_y_sin[i];
@@ -3343,12 +3375,12 @@ public abstract class ThreadDraw extends Thread {
             }
         }
 
-        if(bump_map || fake_de) {
-            int sync2 = synchronization2.incrementAndGet();
+        if(bump_map || fake_de || rainbow_palette) {
+            int pp_sync = post_processing_sync.incrementAndGet();
 
-            while(sync2 != ptr.getNumberOfThreads()) {
+            while(pp_sync != ptr.getNumberOfThreads()) {
                 yield();
-                sync2 = synchronization2.get();
+                pp_sync = post_processing_sync.get();
             }
 
             applyPostProcessing(image_size);
@@ -3424,7 +3456,8 @@ public abstract class ThreadDraw extends Thread {
             cos_inv_y_antialiasing_size_x2, 1, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, 1, cos_y_antialiasing_size_x2,
             cos_inv_y_antialiasing_size, cos_y_antialiasing_size, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size, cos_y_antialiasing_size};
 
-        double temp_samples = filters_options_vals[MainWindow.ANTIALIASING] + 1;
+        int supersampling_num = (filters_options_vals[MainWindow.ANTIALIASING] == 0 ? 4 : 8 * filters_options_vals[MainWindow.ANTIALIASING]);
+        double temp_samples = supersampling_num + 1;
 
         int red, green, blue, color;
 
@@ -3456,7 +3489,7 @@ public abstract class ThreadDraw extends Thread {
                     blue = color & 0xff;
 
                     //Supersampling
-                    for(int i = 0; i < filters_options_vals[MainWindow.ANTIALIASING]; i++) {
+                    for(int i = 0; i < supersampling_num; i++) {
 
                         sf3 = sf * antialiasing_y_cos[i] + cf * antialiasing_y_sin[i];
                         cf3 = cf * antialiasing_y_cos[i] - sf * antialiasing_y_sin[i];
@@ -3517,7 +3550,7 @@ public abstract class ThreadDraw extends Thread {
                                 blue = color & 0xff;
 
                                 //Supersampling
-                                for(int i = 0; i < filters_options_vals[MainWindow.ANTIALIASING]; i++) {
+                                for(int i = 0; i < supersampling_num; i++) {
 
                                     sf3 = sf2 * antialiasing_y_cos[i] + cf2 * antialiasing_y_sin[i];
                                     cf3 = cf2 * antialiasing_y_cos[i] - sf2 * antialiasing_y_sin[i];
@@ -3615,12 +3648,12 @@ public abstract class ThreadDraw extends Thread {
             }
         }
 
-        if(bump_map || fake_de) {
-            int sync2 = synchronization2.incrementAndGet();
+        if(bump_map || fake_de || rainbow_palette) {
+            int pp_sync = post_processing_sync.incrementAndGet();
 
-            while(sync2 != ptr.getNumberOfThreads()) {
+            while(pp_sync != ptr.getNumberOfThreads()) {
                 yield();
-                sync2 = synchronization2.get();
+                pp_sync = post_processing_sync.get();
             }
 
             applyPostProcessing(image_size);
@@ -3796,12 +3829,12 @@ public abstract class ThreadDraw extends Thread {
             }
         }
 
-        if(bump_map || fake_de) {
-            int sync2 = synchronization2.incrementAndGet();
+        if(bump_map || fake_de || rainbow_palette) {
+            int pp_sync = post_processing_sync.incrementAndGet();
 
-            while(sync2 != ptr.getNumberOfThreads()) {
+            while(pp_sync != ptr.getNumberOfThreads()) {
                 yield();
-                sync2 = synchronization2.get();
+                pp_sync = post_processing_sync.get();
             }
 
             applyPostProcessing(image_size);
@@ -3875,12 +3908,12 @@ public abstract class ThreadDraw extends Thread {
 
         thread_calculated += drawing_done;
 
-        if(bump_map || fake_de) {
-            int sync2 = synchronization2.incrementAndGet();
+        if(bump_map || fake_de || rainbow_palette) {
+            int pp_sync = post_processing_sync.incrementAndGet();
 
-            while(sync2 != ptr.getNumberOfThreads()) {
+            while(pp_sync != ptr.getNumberOfThreads()) {
                 yield();
-                sync2 = synchronization2.get();
+                pp_sync = post_processing_sync.get();
             }
 
             applyPostProcessing(image_size);
@@ -3950,7 +3983,8 @@ public abstract class ThreadDraw extends Thread {
             cos_inv_y_antialiasing_size_x2, 1, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, 1, cos_y_antialiasing_size_x2,
             cos_inv_y_antialiasing_size, cos_y_antialiasing_size, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size, cos_y_antialiasing_size};
 
-        double temp_samples = filters_options_vals[MainWindow.ANTIALIASING] + 1;
+        int supersampling_num = (filters_options_vals[MainWindow.ANTIALIASING] == 0 ? 4 : 8 * filters_options_vals[MainWindow.ANTIALIASING]);
+        double temp_samples = supersampling_num + 1;
 
         do {
 
@@ -3977,7 +4011,7 @@ public abstract class ThreadDraw extends Thread {
             blue = color & 0xff;
 
             //Supersampling
-            for(int i = 0; i < filters_options_vals[MainWindow.ANTIALIASING]; i++) {
+            for(int i = 0; i < supersampling_num; i++) {
 
                 sf2 = sf * antialiasing_y_cos[i] + cf * antialiasing_y_sin[i];
                 cf2 = cf * antialiasing_y_cos[i] - sf * antialiasing_y_sin[i];
@@ -4007,12 +4041,12 @@ public abstract class ThreadDraw extends Thread {
 
         thread_calculated += drawing_done;
 
-        if(bump_map || fake_de) {
-            int sync2 = synchronization2.incrementAndGet();
+        if(bump_map || fake_de || rainbow_palette) {
+            int pp_sync = post_processing_sync.incrementAndGet();
 
-            while(sync2 != ptr.getNumberOfThreads()) {
+            while(pp_sync != ptr.getNumberOfThreads()) {
                 yield();
-                sync2 = synchronization2.get();
+                pp_sync = post_processing_sync.get();
             }
 
             applyPostProcessing(image_size);
@@ -4082,7 +4116,8 @@ public abstract class ThreadDraw extends Thread {
             cos_inv_y_antialiasing_size_x2, 1, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, 1, cos_y_antialiasing_size_x2,
             cos_inv_y_antialiasing_size, cos_y_antialiasing_size, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size, cos_y_antialiasing_size};
 
-        double temp_samples = filters_options_vals[MainWindow.ANTIALIASING] + 1;
+        int supersampling_num = (filters_options_vals[MainWindow.ANTIALIASING] == 0 ? 4 : 8 * filters_options_vals[MainWindow.ANTIALIASING]);
+        double temp_samples = supersampling_num + 1;
 
         do {
 
@@ -4109,7 +4144,7 @@ public abstract class ThreadDraw extends Thread {
             blue = color & 0xff;
 
             //Supersampling
-            for(int i = 0; i < filters_options_vals[MainWindow.ANTIALIASING]; i++) {
+            for(int i = 0; i < supersampling_num; i++) {
 
                 sf2 = sf * antialiasing_y_cos[i] + cf * antialiasing_y_sin[i];
                 cf2 = cf * antialiasing_y_cos[i] - sf * antialiasing_y_sin[i];
@@ -4139,12 +4174,12 @@ public abstract class ThreadDraw extends Thread {
 
         thread_calculated += drawing_done;
 
-        if(bump_map || fake_de) {
-            int sync2 = synchronization2.incrementAndGet();
+        if(bump_map || fake_de || rainbow_palette) {
+            int pp_sync = post_processing_sync.incrementAndGet();
 
-            while(sync2 != ptr.getNumberOfThreads()) {
+            while(pp_sync != ptr.getNumberOfThreads()) {
                 yield();
-                sync2 = synchronization2.get();
+                pp_sync = post_processing_sync.get();
             }
 
             applyPostProcessing(image_size);
@@ -4208,12 +4243,12 @@ public abstract class ThreadDraw extends Thread {
 
         thread_calculated += drawing_done;
 
-        if(bump_map || fake_de) {
-            int sync2 = synchronization2.incrementAndGet();
+        if(bump_map || fake_de || rainbow_palette) {
+            int pp_sync = post_processing_sync.incrementAndGet();
 
-            while(sync2 != ptr.getNumberOfThreads()) {
+            while(pp_sync != ptr.getNumberOfThreads()) {
                 yield();
-                sync2 = synchronization2.get();
+                pp_sync = post_processing_sync.get();
             }
 
             applyPostProcessing(image_size);
@@ -4229,23 +4264,47 @@ public abstract class ThreadDraw extends Thread {
 
         int n1 = detail - 1;
 
+        double dx = image_size / (double)n1;
+
         double ct = Math.cos(fiX), cf = Math.cos(fiY), st = Math.sin(fiX), sf = Math.sin(fiY);
         double m00 = scale * cf, m02 = scale * sf, m10 = scale * st * sf, m11 = scale * ct, m12 = -scale * st * cf;
         m20 = -ct * sf;
         m21 = st;
         m22 = ct * cf;
 
+        double mod;
+        double norm_0_0, norm_0_1, norm_0_2, norm_1_0, norm_1_1, norm_1_2;
+
         int pixel_percent = detail * detail / 100;
 
         for(x = FROMx; x < TOx; x++) {
+            double c1 = dx * x - w2;
             for(y = FROMy; y < TOy; y++) {
-                vert1[x][y][0] = (float)(m00 * vert[x][y][0] + m02 * vert[x][y][2]);
-                vert1[x][y][1] = (float)(m10 * vert[x][y][0] + m11 * vert[x][y][1] + m12 * vert[x][y][2]);
 
                 if(y < n1 && x < n1) {
-                    Norm1z[x][y][0] = (float)(m20 * Norm[x][y][0][0] + m21 * Norm[x][y][0][1] + m22 * Norm[x][y][0][2]);
-                    Norm1z[x][y][1] = (float)(m20 * Norm[x][y][1][0] + m21 * Norm[x][y][1][1] + m22 * Norm[x][y][1][2]);
+                    norm_0_0 = vert[x][y][1] - vert[x + 1][y][1];
+                    norm_0_1 = dx;
+                    norm_0_2 = vert[x + 1][y][1] - vert[x + 1][y + 1][1];
+                    mod = Math.sqrt(norm_0_0 * norm_0_0 + norm_0_1 * norm_0_1 + norm_0_2 * norm_0_2) / 255.5;
+                    norm_0_0 /= mod;
+                    norm_0_1 /= mod;
+                    norm_0_2 /= mod;
+
+                    norm_1_0 = vert[x][y + 1][1] - vert[x + 1][y + 1][1];
+                    norm_1_1 = dx;
+                    norm_1_2 = vert[x][y][1] - vert[x][y + 1][1];
+                    mod = Math.sqrt(norm_1_0 * norm_1_0 + norm_1_1 * norm_1_1 + norm_1_2 * norm_1_2) / 255.5;
+                    norm_1_0 /= mod;
+                    norm_1_1 /= mod;
+                    norm_1_2 /= mod;
+
+                    Norm1z[x][y][0] = (float)(m20 * norm_0_0 + m21 * norm_0_1 + m22 * norm_0_2);
+                    Norm1z[x][y][1] = (float)(m20 * norm_1_0 + m21 * norm_1_1 + m22 * norm_1_2);
                 }
+
+                double c2 = dx * y - w2;
+                vert1[x][y][0] = (float)(m00 * c1 + m02 * c2);
+                vert1[x][y][1] = (float)(m10 * c1 + m11 * vert[x][y][1] + m12 * c2);
 
                 if(update_progress) {
                     drawing_done++;
@@ -4258,9 +4317,9 @@ public abstract class ThreadDraw extends Thread {
             }
         }
 
-        int sync2 = synchronization2.incrementAndGet();
+        int p_sync = painting_sync.incrementAndGet();
 
-        if(sync2 == ptr.getNumberOfThreads()) {
+        if(p_sync == ptr.getNumberOfThreads()) {
 
             paint3D(n1, w2);
 
@@ -4275,7 +4334,7 @@ public abstract class ThreadDraw extends Thread {
         double size_2_x = size * 0.5;
         double size_2_y = (size * height_ratio) * 0.5;
         double temp_xcenter_size = fractal.getXCenter() - size_2_x;
-        double temp_ycenter_size = fractal.getYCenter() - size_2_y;
+        double temp_ycenter_size = fractal.getYCenter() + size_2_y;
 
         int pixel_percent = detail * detail / 100;
 
@@ -4301,11 +4360,10 @@ public abstract class ThreadDraw extends Thread {
             x = loc % detail;
             y = loc / detail;
 
-            vert[x][y][0] = (float)(dx * x - w2);
-            vert[x][y][2] = (float)(dx * y - w2);
-            temp = fractal.calculateFractal3D(new Complex(temp_xcenter_size + dr_x * x, temp_ycenter_size + dr_y * y));
+            temp = fractal.calculateFractal3D(new Complex(temp_xcenter_size + dr_x * x, temp_ycenter_size - dr_y * y));
             vert[x][y][1] = (float)(temp[0]);
-            vert[x][y][3] = getColor(temp[1]);
+            vert[x][y][0] = getColor(temp[1]);
+            vert[x][y][2] = (float)(temp[1]);
 
             drawing_done++;
             counter++;
@@ -4317,20 +4375,20 @@ public abstract class ThreadDraw extends Thread {
 
         } while(true);
 
-        if(bump_map || fake_de) {
-            int sync5 = synchronization5.incrementAndGet();
+        if(bump_map || fake_de || rainbow_palette) {
+            int pp_sync = post_processing_sync.incrementAndGet();
 
-            while(sync5 != ptr.getNumberOfThreads()) {
+            while(pp_sync != ptr.getNumberOfThreads()) {
                 yield();
-                sync5 = synchronization5.get();
+                pp_sync = post_processing_sync.get();
             }
 
             applyPostProcessing3D(detail);
         }
 
-        int sync4 = synchronization4.incrementAndGet();
+        int hs_sync = height_scaling_sync.incrementAndGet();
 
-        if(sync4 == ptr.getNumberOfThreads()) {
+        if(hs_sync == ptr.getNumberOfThreads()) {
 
             applyHeightScaling();
 
@@ -4341,32 +4399,32 @@ public abstract class ThreadDraw extends Thread {
         }
 
         if(gaussian_scaling) {
-            int sync6 = synchronization6.incrementAndGet();
+            int gs_sync = gaussian_scaling_sync.incrementAndGet();
 
-            while(sync6 != ptr.getNumberOfThreads()) {
+            while(gs_sync != ptr.getNumberOfThreads()) {
                 yield();
-                sync6 = synchronization6.get();
+                gs_sync = gaussian_scaling_sync.get();
             }
 
             gaussianHeightScaling();
         }
 
-        int sync2 = synchronization2.incrementAndGet();
+        int cv_sync = calculate_vectors_sync.incrementAndGet();
 
-        while(sync2 != ptr.getNumberOfThreads()) {
+        while(cv_sync != ptr.getNumberOfThreads()) {
             yield();
-            sync2 = synchronization2.get();
+            cv_sync = calculate_vectors_sync.get();
         }
 
         if(gaussian_scaling) {
             gaussianHeightScalingEnd();
         }
 
-        calculate3DVectors(n1, dx);
+        calculate3DVectors(n1, dx, w2);
 
-        int sync3 = synchronization3.incrementAndGet();
+        int p_sync = painting_sync.incrementAndGet();
 
-        if(sync3 == ptr.getNumberOfThreads()) {
+        if(p_sync == ptr.getNumberOfThreads()) {
 
             paint3D(n1, w2);
 
@@ -4423,11 +4481,10 @@ public abstract class ThreadDraw extends Thread {
 
             r2 = Math.exp(x * mulx + start);
 
-            vert[x][y][0] = (float)(dx * x - w2);
-            vert[x][y][2] = (float)(dx * y - w2);
             temp = fractal.calculateFractal3D(new Complex(xcenter + r2 * cf2, ycenter + r2 * sf2));
             vert[x][y][1] = (float)(temp[0]);
-            vert[x][y][3] = getColor(temp[1]);
+            vert[x][y][0] = getColor(temp[1]);
+            vert[x][y][2] = (float)(temp[1]);
 
             drawing_done++;
             counter++;
@@ -4439,20 +4496,20 @@ public abstract class ThreadDraw extends Thread {
 
         } while(true);
 
-        if(bump_map || fake_de) {
-            int sync5 = synchronization5.incrementAndGet();
+        if(bump_map || fake_de || rainbow_palette) {
+            int pp_sync = post_processing_sync.incrementAndGet();
 
-            while(sync5 != ptr.getNumberOfThreads()) {
+            while(pp_sync != ptr.getNumberOfThreads()) {
                 yield();
-                sync5 = synchronization5.get();
+                pp_sync = post_processing_sync.get();
             }
 
             applyPostProcessing3D(detail);
         }
 
-        int sync4 = synchronization4.incrementAndGet();
+        int hs_sync = height_scaling_sync.incrementAndGet();
 
-        if(sync4 == ptr.getNumberOfThreads()) {
+        if(hs_sync == ptr.getNumberOfThreads()) {
 
             applyHeightScaling();
 
@@ -4463,32 +4520,32 @@ public abstract class ThreadDraw extends Thread {
         }
 
         if(gaussian_scaling) {
-            int sync6 = synchronization6.incrementAndGet();
+            int gs_sync = gaussian_scaling_sync.incrementAndGet();
 
-            while(sync6 != ptr.getNumberOfThreads()) {
+            while(gs_sync != ptr.getNumberOfThreads()) {
                 yield();
-                sync6 = synchronization6.get();
+                gs_sync = gaussian_scaling_sync.get();
             }
 
             gaussianHeightScaling();
         }
 
-        int sync2 = synchronization2.incrementAndGet();
+        int cv_sync = calculate_vectors_sync.incrementAndGet();
 
-        while(sync2 != ptr.getNumberOfThreads()) {
+        while(cv_sync != ptr.getNumberOfThreads()) {
             yield();
-            sync2 = synchronization2.get();
+            cv_sync = calculate_vectors_sync.get();
         }
 
         if(gaussian_scaling) {
             gaussianHeightScalingEnd();
         }
 
-        calculate3DVectors(n1, dx);
+        calculate3DVectors(n1, dx, w2);
 
-        int sync3 = synchronization3.incrementAndGet();
+        int p_sync = painting_sync.incrementAndGet();
 
-        if(sync3 == ptr.getNumberOfThreads()) {
+        if(p_sync == ptr.getNumberOfThreads()) {
 
             paint3D(n1, w2);
 
@@ -4545,11 +4602,10 @@ public abstract class ThreadDraw extends Thread {
 
             r2 = Math.exp(x * mulx + start);
 
-            vert[x][y][0] = (float)(dx * x - w2);
-            vert[x][y][2] = (float)(dx * y - w2);
             temp = fractal.calculateJulia3D(new Complex(xcenter + r2 * cf2, ycenter + r2 * sf2));
             vert[x][y][1] = (float)(temp[0]);
-            vert[x][y][3] = getColor(temp[1]);
+            vert[x][y][0] = getColor(temp[1]);
+            vert[x][y][2] = (float)(temp[1]);
 
             drawing_done++;
             counter++;
@@ -4561,20 +4617,20 @@ public abstract class ThreadDraw extends Thread {
 
         } while(true);
 
-        if(bump_map || fake_de) {
-            int sync5 = synchronization5.incrementAndGet();
+        if(bump_map || fake_de || rainbow_palette) {
+            int pp_sync = post_processing_sync.incrementAndGet();
 
-            while(sync5 != ptr.getNumberOfThreads()) {
+            while(pp_sync != ptr.getNumberOfThreads()) {
                 yield();
-                sync5 = synchronization5.get();
+                pp_sync = post_processing_sync.get();
             }
 
             applyPostProcessing3D(detail);
         }
 
-        int sync4 = synchronization4.incrementAndGet();
+        int hs_sync = height_scaling_sync.incrementAndGet();
 
-        if(sync4 == ptr.getNumberOfThreads()) {
+        if(hs_sync == ptr.getNumberOfThreads()) {
 
             applyHeightScaling();
 
@@ -4585,32 +4641,32 @@ public abstract class ThreadDraw extends Thread {
         }
 
         if(gaussian_scaling) {
-            int sync6 = synchronization6.incrementAndGet();
+            int gs_sync = gaussian_scaling_sync.incrementAndGet();
 
-            while(sync6 != ptr.getNumberOfThreads()) {
+            while(gs_sync != ptr.getNumberOfThreads()) {
                 yield();
-                sync6 = synchronization6.get();
+                gs_sync = gaussian_scaling_sync.get();
             }
 
             gaussianHeightScaling();
         }
 
-        int sync2 = synchronization2.incrementAndGet();
+        int cv_sync = calculate_vectors_sync.incrementAndGet();
 
-        while(sync2 != ptr.getNumberOfThreads()) {
+        while(cv_sync != ptr.getNumberOfThreads()) {
             yield();
-            sync2 = synchronization2.get();
+            cv_sync = calculate_vectors_sync.get();
         }
 
         if(gaussian_scaling) {
             gaussianHeightScalingEnd();
         }
 
-        calculate3DVectors(n1, dx);
+        calculate3DVectors(n1, dx, w2);
 
-        int sync3 = synchronization3.incrementAndGet();
+        int p_sync = painting_sync.incrementAndGet();
 
-        if(sync3 == ptr.getNumberOfThreads()) {
+        if(p_sync == ptr.getNumberOfThreads()) {
 
             paint3D(n1, w2);
 
@@ -4654,7 +4710,8 @@ public abstract class ThreadDraw extends Thread {
 
         double height;
 
-        double temp_samples = filters_options_vals[MainWindow.ANTIALIASING] + 1;
+        int supersampling_num = (filters_options_vals[MainWindow.ANTIALIASING] == 0 ? 4 : 8 * filters_options_vals[MainWindow.ANTIALIASING]);
+        double temp_samples = supersampling_num + 1;
 
         double exp_x_antialiasing_size = Math.exp(x_antialiasing_size);
         double exp_inv_x_antialiasing_size = 1 / exp_x_antialiasing_size;
@@ -4706,8 +4763,6 @@ public abstract class ThreadDraw extends Thread {
 
             r2 = Math.exp(x * mulx + start);
 
-            vert[x][y][0] = (float)(dx * x - w2);
-            vert[x][y][2] = (float)(dx * y - w2);
             temp = fractal.calculateFractal3D(new Complex(xcenter + r2 * cf2, ycenter + r2 * sf2));
             height = temp[0];
             color = getColor(temp[1]);
@@ -4717,7 +4772,7 @@ public abstract class ThreadDraw extends Thread {
             blue = color & 0xff;
 
             //Supersampling
-            for(int k = 0; k < filters_options_vals[MainWindow.ANTIALIASING]; k++) {
+            for(int k = 0; k < supersampling_num; k++) {
 
                 sf3 = sf2 * antialiasing_y_cos[k] + cf2 * antialiasing_y_sin[k];
                 cf3 = cf2 * antialiasing_y_cos[k] - sf2 * antialiasing_y_sin[k];
@@ -4734,7 +4789,8 @@ public abstract class ThreadDraw extends Thread {
             }
 
             vert[x][y][1] = (float)(height / temp_samples);
-            vert[x][y][3] = 0xff000000 | (((int)(red / temp_samples + 0.5)) << 16) | (((int)(green / temp_samples + 0.5)) << 8) | ((int)(blue / temp_samples + 0.5));
+            vert[x][y][0] = 0xff000000 | (((int)(red / temp_samples + 0.5)) << 16) | (((int)(green / temp_samples + 0.5)) << 8) | ((int)(blue / temp_samples + 0.5));
+            vert[x][y][2] = (float)(temp[1]);
 
             drawing_done++;
             counter++;
@@ -4746,20 +4802,20 @@ public abstract class ThreadDraw extends Thread {
 
         } while(true);
 
-        if(bump_map || fake_de) {
-            int sync5 = synchronization5.incrementAndGet();
+        if(bump_map || fake_de || rainbow_palette) {
+            int pp_sync = post_processing_sync.incrementAndGet();
 
-            while(sync5 != ptr.getNumberOfThreads()) {
+            while(pp_sync != ptr.getNumberOfThreads()) {
                 yield();
-                sync5 = synchronization5.get();
+                pp_sync = post_processing_sync.get();
             }
 
             applyPostProcessing3D(detail);
         }
 
-        int sync4 = synchronization4.incrementAndGet();
+        int hs_sync = height_scaling_sync.incrementAndGet();
 
-        if(sync4 == ptr.getNumberOfThreads()) {
+        if(hs_sync == ptr.getNumberOfThreads()) {
 
             applyHeightScaling();
 
@@ -4770,32 +4826,32 @@ public abstract class ThreadDraw extends Thread {
         }
 
         if(gaussian_scaling) {
-            int sync6 = synchronization6.incrementAndGet();
+            int gs_sync = gaussian_scaling_sync.incrementAndGet();
 
-            while(sync6 != ptr.getNumberOfThreads()) {
+            while(gs_sync != ptr.getNumberOfThreads()) {
                 yield();
-                sync6 = synchronization6.get();
+                gs_sync = gaussian_scaling_sync.get();
             }
 
             gaussianHeightScaling();
         }
 
-        int sync2 = synchronization2.incrementAndGet();
+        int cv_sync = calculate_vectors_sync.incrementAndGet();
 
-        while(sync2 != ptr.getNumberOfThreads()) {
+        while(cv_sync != ptr.getNumberOfThreads()) {
             yield();
-            sync2 = synchronization2.get();
+            cv_sync = calculate_vectors_sync.get();
         }
 
         if(gaussian_scaling) {
             gaussianHeightScalingEnd();
         }
 
-        calculate3DVectors(n1, dx);
+        calculate3DVectors(n1, dx, w2);
 
-        int sync3 = synchronization3.incrementAndGet();
+        int p_sync = painting_sync.incrementAndGet();
 
-        if(sync3 == ptr.getNumberOfThreads()) {
+        if(p_sync == ptr.getNumberOfThreads()) {
 
             paint3D(n1, w2);
 
@@ -4839,7 +4895,8 @@ public abstract class ThreadDraw extends Thread {
 
         double height;
 
-        double temp_samples = filters_options_vals[MainWindow.ANTIALIASING] + 1;
+        int supersampling_num = (filters_options_vals[MainWindow.ANTIALIASING] == 0 ? 4 : 8 * filters_options_vals[MainWindow.ANTIALIASING]);
+        double temp_samples = supersampling_num + 1;
 
         double exp_x_antialiasing_size = Math.exp(x_antialiasing_size);
         double exp_inv_x_antialiasing_size = 1 / exp_x_antialiasing_size;
@@ -4891,8 +4948,6 @@ public abstract class ThreadDraw extends Thread {
 
             r2 = Math.exp(x * mulx + start);
 
-            vert[x][y][0] = (float)(dx * x - w2);
-            vert[x][y][2] = (float)(dx * y - w2);
             temp = fractal.calculateJulia3D(new Complex(xcenter + r2 * cf2, ycenter + r2 * sf2));
             height = temp[0];
             color = getColor(temp[1]);
@@ -4902,7 +4957,7 @@ public abstract class ThreadDraw extends Thread {
             blue = color & 0xff;
 
             //Supersampling
-            for(int k = 0; k < filters_options_vals[MainWindow.ANTIALIASING]; k++) {
+            for(int k = 0; k < supersampling_num; k++) {
 
                 sf3 = sf2 * antialiasing_y_cos[k] + cf2 * antialiasing_y_sin[k];
                 cf3 = cf2 * antialiasing_y_cos[k] - sf2 * antialiasing_y_sin[k];
@@ -4919,7 +4974,8 @@ public abstract class ThreadDraw extends Thread {
             }
 
             vert[x][y][1] = (float)(height / temp_samples);
-            vert[x][y][3] = 0xff000000 | (((int)(red / temp_samples + 0.5)) << 16) | (((int)(green / temp_samples + 0.5)) << 8) | ((int)(blue / temp_samples + 0.5));
+            vert[x][y][0] = 0xff000000 | (((int)(red / temp_samples + 0.5)) << 16) | (((int)(green / temp_samples + 0.5)) << 8) | ((int)(blue / temp_samples + 0.5));
+            vert[x][y][2] = (float)(temp[1]);
 
             drawing_done++;
             counter++;
@@ -4931,20 +4987,20 @@ public abstract class ThreadDraw extends Thread {
 
         } while(true);
 
-        if(bump_map || fake_de) {
-            int sync5 = synchronization5.incrementAndGet();
+        if(bump_map || fake_de || rainbow_palette) {
+            int pp_sync = post_processing_sync.incrementAndGet();
 
-            while(sync5 != ptr.getNumberOfThreads()) {
+            while(pp_sync != ptr.getNumberOfThreads()) {
                 yield();
-                sync5 = synchronization5.get();
+                pp_sync = post_processing_sync.get();
             }
 
             applyPostProcessing3D(detail);
         }
 
-        int sync4 = synchronization4.incrementAndGet();
+        int hs_sync = height_scaling_sync.incrementAndGet();
 
-        if(sync4 == ptr.getNumberOfThreads()) {
+        if(hs_sync == ptr.getNumberOfThreads()) {
 
             applyHeightScaling();
 
@@ -4955,32 +5011,32 @@ public abstract class ThreadDraw extends Thread {
         }
 
         if(gaussian_scaling) {
-            int sync6 = synchronization6.incrementAndGet();
+            int gs_sync = gaussian_scaling_sync.incrementAndGet();
 
-            while(sync6 != ptr.getNumberOfThreads()) {
+            while(gs_sync != ptr.getNumberOfThreads()) {
                 yield();
-                sync6 = synchronization6.get();
+                gs_sync = gaussian_scaling_sync.get();
             }
 
             gaussianHeightScaling();
         }
 
-        int sync2 = synchronization2.incrementAndGet();
+        int cv_sync = calculate_vectors_sync.incrementAndGet();
 
-        while(sync2 != ptr.getNumberOfThreads()) {
+        while(cv_sync != ptr.getNumberOfThreads()) {
             yield();
-            sync2 = synchronization2.get();
+            cv_sync = calculate_vectors_sync.get();
         }
 
         if(gaussian_scaling) {
             gaussianHeightScalingEnd();
         }
 
-        calculate3DVectors(n1, dx);
+        calculate3DVectors(n1, dx, w2);
 
-        int sync3 = synchronization3.incrementAndGet();
+        int p_sync = painting_sync.incrementAndGet();
 
-        if(sync3 == ptr.getNumberOfThreads()) {
+        if(p_sync == ptr.getNumberOfThreads()) {
 
             paint3D(n1, w2);
 
@@ -4996,7 +5052,7 @@ public abstract class ThreadDraw extends Thread {
         double size_2_x = size * 0.5;
         double size_2_y = (size * height_ratio) * 0.5;
         double temp_xcenter_size = fractal.getXCenter() - size_2_x;
-        double temp_ycenter_size = fractal.getYCenter() - size_2_y;
+        double temp_ycenter_size = fractal.getYCenter() + size_2_y;
 
         int pixel_percent = detail * detail / 100;
 
@@ -5012,7 +5068,8 @@ public abstract class ThreadDraw extends Thread {
 
         int condition = detail * detail;
 
-        double temp_samples = filters_options_vals[MainWindow.ANTIALIASING] + 1;
+        int supersampling_num = (filters_options_vals[MainWindow.ANTIALIASING] == 0 ? 4 : 8 * filters_options_vals[MainWindow.ANTIALIASING]);
+        double temp_samples = supersampling_num + 1;
 
         int red, green, blue, color;
 
@@ -5038,9 +5095,7 @@ public abstract class ThreadDraw extends Thread {
             x = loc % detail;
             y = loc / detail;
 
-            vert[x][y][0] = (float)(dx * x - w2);
-            vert[x][y][2] = (float)(dx * y - w2);
-            temp = fractal.calculateFractal3D(new Complex(temp_x0 = temp_xcenter_size + dr_x * x, temp_y0 = temp_ycenter_size + dr_y * y));
+            temp = fractal.calculateFractal3D(new Complex(temp_x0 = temp_xcenter_size + dr_x * x, temp_y0 = temp_ycenter_size - dr_y * y));
             height = temp[0];
             color = getColor(temp[1]);
 
@@ -5049,7 +5104,7 @@ public abstract class ThreadDraw extends Thread {
             blue = color & 0xff;
 
             //Supersampling
-            for(int k = 0; k < filters_options_vals[MainWindow.ANTIALIASING]; k++) {
+            for(int k = 0; k < supersampling_num; k++) {
                 temp = fractal.calculateFractal3D(new Complex(temp_x0 + antialiasing_x[k], temp_y0 + antialiasing_y[k]));
                 color = getColor(temp[1]);
 
@@ -5060,7 +5115,8 @@ public abstract class ThreadDraw extends Thread {
             }
 
             vert[x][y][1] = (float)(height / temp_samples);
-            vert[x][y][3] = 0xff000000 | (((int)(red / temp_samples + 0.5)) << 16) | (((int)(green / temp_samples + 0.5)) << 8) | ((int)(blue / temp_samples + 0.5));
+            vert[x][y][0] = 0xff000000 | (((int)(red / temp_samples + 0.5)) << 16) | (((int)(green / temp_samples + 0.5)) << 8) | ((int)(blue / temp_samples + 0.5));
+            vert[x][y][2] = (float)(temp[1]);
 
             drawing_done++;
             counter++;
@@ -5072,20 +5128,20 @@ public abstract class ThreadDraw extends Thread {
 
         } while(true);
 
-        if(bump_map || fake_de) {
-            int sync5 = synchronization5.incrementAndGet();
+        if(bump_map || fake_de || rainbow_palette) {
+            int pp_sync = post_processing_sync.incrementAndGet();
 
-            while(sync5 != ptr.getNumberOfThreads()) {
+            while(pp_sync != ptr.getNumberOfThreads()) {
                 yield();
-                sync5 = synchronization5.get();
+                pp_sync = post_processing_sync.get();
             }
 
             applyPostProcessing3D(detail);
         }
 
-        int sync4 = synchronization4.incrementAndGet();
+        int hs_sync = height_scaling_sync.incrementAndGet();
 
-        if(sync4 == ptr.getNumberOfThreads()) {
+        if(hs_sync == ptr.getNumberOfThreads()) {
 
             applyHeightScaling();
 
@@ -5096,32 +5152,32 @@ public abstract class ThreadDraw extends Thread {
         }
 
         if(gaussian_scaling) {
-            int sync6 = synchronization6.incrementAndGet();
+            int gs_sync = gaussian_scaling_sync.incrementAndGet();
 
-            while(sync6 != ptr.getNumberOfThreads()) {
+            while(gs_sync != ptr.getNumberOfThreads()) {
                 yield();
-                sync6 = synchronization6.get();
+                gs_sync = gaussian_scaling_sync.get();
             }
 
             gaussianHeightScaling();
         }
 
-        int sync2 = synchronization2.incrementAndGet();
+        int cv_sync = calculate_vectors_sync.incrementAndGet();
 
-        while(sync2 != ptr.getNumberOfThreads()) {
+        while(cv_sync != ptr.getNumberOfThreads()) {
             yield();
-            sync2 = synchronization2.get();
+            cv_sync = calculate_vectors_sync.get();
         }
 
         if(gaussian_scaling) {
             gaussianHeightScalingEnd();
         }
 
-        calculate3DVectors(n1, dx);
+        calculate3DVectors(n1, dx, w2);
 
-        int sync3 = synchronization3.incrementAndGet();
+        int p_sync = painting_sync.incrementAndGet();
 
-        if(sync3 == ptr.getNumberOfThreads()) {
+        if(p_sync == ptr.getNumberOfThreads()) {
 
             paint3D(n1, w2);
 
@@ -5140,7 +5196,7 @@ public abstract class ThreadDraw extends Thread {
         double temp_size_image_size_y = (size * height_ratio) / image_size;
 
         double temp_xcenter_size = fractal.getXCenter() - size_2_x;
-        double temp_ycenter_size = fractal.getYCenter() - size_2_y;
+        double temp_ycenter_size = fractal.getYCenter() + size_2_y;
 
         int pixel_percent = image_size * image_size / 100;
 
@@ -5164,7 +5220,8 @@ public abstract class ThreadDraw extends Thread {
             -y_antialiasing_size_x2, 0, y_antialiasing_size_x2, -y_antialiasing_size_x2, y_antialiasing_size_x2, -y_antialiasing_size_x2, 0, y_antialiasing_size_x2,
             -y_antialiasing_size, y_antialiasing_size, -y_antialiasing_size_x2, y_antialiasing_size_x2, -y_antialiasing_size_x2, y_antialiasing_size_x2, -y_antialiasing_size, y_antialiasing_size};
 
-        double temp_samples = filters_options_vals[MainWindow.ANTIALIASING] + 1;
+        int supersampling_num = (filters_options_vals[MainWindow.ANTIALIASING] == 0 ? 4 : 8 * filters_options_vals[MainWindow.ANTIALIASING]);
+        double temp_samples = supersampling_num + 1;
 
         do {
 
@@ -5178,7 +5235,7 @@ public abstract class ThreadDraw extends Thread {
             y = loc / image_size;
 
             temp_x0 = temp_xcenter_size + temp_size_image_size_x * x;
-            temp_y0 = temp_ycenter_size + temp_size_image_size_y * y;
+            temp_y0 = temp_ycenter_size - temp_size_image_size_y * y;
 
             image_iterations[loc] = fractal.calculateFractal(new Complex(temp_x0, temp_y0));
             color = getColor(image_iterations[loc]);
@@ -5188,7 +5245,7 @@ public abstract class ThreadDraw extends Thread {
             blue = color & 0xff;
 
             //Supersampling
-            for(int i = 0; i < filters_options_vals[MainWindow.ANTIALIASING]; i++) {
+            for(int i = 0; i < supersampling_num; i++) {
                 temp_result = fractal.calculateFractal(new Complex(temp_x0 + antialiasing_x[i], temp_y0 + antialiasing_y[i]));
                 color = getColor(temp_result);
 
@@ -5212,12 +5269,12 @@ public abstract class ThreadDraw extends Thread {
 
         thread_calculated += drawing_done;
 
-        if(bump_map || fake_de) {
-            int sync2 = synchronization2.incrementAndGet();
+        if(bump_map || fake_de || rainbow_palette) {
+            int pp_sync = post_processing_sync.incrementAndGet();
 
-            while(sync2 != ptr.getNumberOfThreads()) {
+            while(pp_sync != ptr.getNumberOfThreads()) {
                 yield();
-                sync2 = synchronization2.get();
+                pp_sync = post_processing_sync.get();
             }
 
             applyPostProcessing(image_size);
@@ -5234,7 +5291,7 @@ public abstract class ThreadDraw extends Thread {
         double temp_size_image_size_y = (size * height_ratio) / image_size;
 
         double temp_xcenter_size = fractal.getXCenter() - size_2_x;
-        double temp_ycenter_size = fractal.getYCenter() - size_2_y;
+        double temp_ycenter_size = fractal.getYCenter() + size_2_y;
 
         int pixel_percent = image_size * image_size / 100;
 
@@ -5265,10 +5322,11 @@ public abstract class ThreadDraw extends Thread {
             -y_antialiasing_size_x2, 0, y_antialiasing_size_x2, -y_antialiasing_size_x2, y_antialiasing_size_x2, -y_antialiasing_size_x2, 0, y_antialiasing_size_x2,
             -y_antialiasing_size, y_antialiasing_size, -y_antialiasing_size_x2, y_antialiasing_size_x2, -y_antialiasing_size_x2, y_antialiasing_size_x2, -y_antialiasing_size, y_antialiasing_size};
 
-        double temp_samples = filters_options_vals[MainWindow.ANTIALIASING] + 1;
+        int supersampling_num = (filters_options_vals[MainWindow.ANTIALIASING] == 0 ? 4 : 8 * filters_options_vals[MainWindow.ANTIALIASING]);
+        double temp_samples = supersampling_num + 1;
 
         for(y = FROMy; y < TOy; y++) {
-            temp_y0 = temp_ycenter_size + y * temp_size_image_size_y;
+            temp_y0 = temp_ycenter_size - y * temp_size_image_size_y;
             for(x = FROMx, pix = y * image_size + x; x < TOx; x++, pix++) {
 
                 if(rgbs[pix] == culcColor) {
@@ -5286,7 +5344,7 @@ public abstract class ThreadDraw extends Thread {
                     blue = color & 0xff;
 
                     //Supersampling
-                    for(int i = 0; i < filters_options_vals[MainWindow.ANTIALIASING]; i++) {
+                    for(int i = 0; i < supersampling_num; i++) {
                         temp_result = fractal.calculateFractal(new Complex(temp_x0 + antialiasing_x[i], temp_y0 + antialiasing_y[i]));
                         color = getColor(temp_result);
 
@@ -5322,7 +5380,7 @@ public abstract class ThreadDraw extends Thread {
                             next_iy = temp_iy + intY[dir];
 
                             nextX = temp_xcenter_size + next_ix * temp_size_image_size_x;
-                            nextY = temp_ycenter_size + next_iy * temp_size_image_size_y;
+                            nextY = temp_ycenter_size - next_iy * temp_size_image_size_y;
 
                             if(!(next_ix >= FROMx && next_ix < TOx && next_iy >= FROMy && next_iy < TOy)) {
                                 continue;
@@ -5337,7 +5395,7 @@ public abstract class ThreadDraw extends Thread {
                                 blue = color & 0xff;
 
                                 //Supersampling
-                                for(int i = 0; i < filters_options_vals[MainWindow.ANTIALIASING]; i++) {
+                                for(int i = 0; i < supersampling_num; i++) {
                                     temp_result = fractal.calculateFractal(new Complex(nextX + antialiasing_x[i], nextY + antialiasing_y[i]));
                                     color = getColor(temp_result);
 
@@ -5435,12 +5493,12 @@ public abstract class ThreadDraw extends Thread {
             }
         }
 
-        if(bump_map || fake_de) {
-            int sync2 = synchronization2.incrementAndGet();
+        if(bump_map || fake_de || rainbow_palette) {
+            int pp_sync = post_processing_sync.incrementAndGet();
 
-            while(sync2 != ptr.getNumberOfThreads()) {
+            while(pp_sync != ptr.getNumberOfThreads()) {
                 yield();
-                sync2 = synchronization2.get();
+                pp_sync = post_processing_sync.get();
             }
 
             applyPostProcessing(image_size);
@@ -5470,7 +5528,7 @@ public abstract class ThreadDraw extends Thread {
         double temp_size_image_size_y = (size * height_ratio) / image_size;
 
         double temp_xcenter_size = fractal.getXCenter() - size_2_x;
-        double temp_ycenter_size = fractal.getYCenter() - size_2_y;
+        double temp_ycenter_size = fractal.getYCenter() + size_2_y;
 
         int pixel_percent = image_size * image_size / 100;
 
@@ -5489,7 +5547,7 @@ public abstract class ThreadDraw extends Thread {
             x = loc % image_size;
             y = loc / image_size;
 
-            image_iterations[loc] = fractal.calculateJulia(new Complex(temp_xcenter_size + temp_size_image_size_x * x, temp_ycenter_size + temp_size_image_size_y * y));
+            image_iterations[loc] = fractal.calculateJulia(new Complex(temp_xcenter_size + temp_size_image_size_x * x, temp_ycenter_size - temp_size_image_size_y * y));
             rgbs[loc] = getColor(image_iterations[loc]);
 
             drawing_done++;
@@ -5505,12 +5563,12 @@ public abstract class ThreadDraw extends Thread {
 
         thread_calculated += drawing_done;
 
-        if(bump_map || fake_de) {
-            int sync2 = synchronization2.incrementAndGet();
+        if(bump_map || fake_de || rainbow_palette) {
+            int pp_sync = post_processing_sync.incrementAndGet();
 
-            while(sync2 != ptr.getNumberOfThreads()) {
+            while(pp_sync != ptr.getNumberOfThreads()) {
                 yield();
-                sync2 = synchronization2.get();
+                pp_sync = post_processing_sync.get();
             }
 
             applyPostProcessing(image_size);
@@ -5527,7 +5585,7 @@ public abstract class ThreadDraw extends Thread {
         double temp_size_image_size_y = (size * height_ratio) / image_size;
 
         double temp_xcenter_size = fractal.getXCenter() - size_2_x;
-        double temp_ycenter_size = fractal.getYCenter() - size_2_y;
+        double temp_ycenter_size = fractal.getYCenter() + size_2_y;
 
         int pixel_percent = image_size * image_size / 100;
 
@@ -5545,7 +5603,7 @@ public abstract class ThreadDraw extends Thread {
         int intY[] = {0, 1, 0, -1};
 
         for(y = FROMy; y < TOy; y++) {
-            temp_y0 = temp_ycenter_size + y * temp_size_image_size_y;
+            temp_y0 = temp_ycenter_size - y * temp_size_image_size_y;
             for(x = FROMx, pix = y * image_size + x; x < TOx; x++, pix++) {
 
                 if(rgbs[pix] == culcColor) {
@@ -5578,7 +5636,7 @@ public abstract class ThreadDraw extends Thread {
                             next_iy = temp_iy + intY[dir];
 
                             nextX = temp_xcenter_size + next_ix * temp_size_image_size_x;
-                            nextY = temp_ycenter_size + next_iy * temp_size_image_size_y;
+                            nextY = temp_ycenter_size - next_iy * temp_size_image_size_y;
 
                             if(!(next_ix >= FROMx && next_ix < TOx && next_iy >= FROMy && next_iy < TOy)) {
                                 continue;
@@ -5664,12 +5722,12 @@ public abstract class ThreadDraw extends Thread {
             }
         }
 
-        if(bump_map || fake_de) {
-            int sync2 = synchronization2.incrementAndGet();
+        if(bump_map || fake_de || rainbow_palette) {
+            int pp_sync = post_processing_sync.incrementAndGet();
 
-            while(sync2 != ptr.getNumberOfThreads()) {
+            while(pp_sync != ptr.getNumberOfThreads()) {
                 yield();
-                sync2 = synchronization2.get();
+                pp_sync = post_processing_sync.get();
             }
 
             applyPostProcessing(image_size);
@@ -5695,7 +5753,7 @@ public abstract class ThreadDraw extends Thread {
         double size_2_x = size * 0.5;
         double size_2_y = (size * height_ratio) * 0.5;
         double temp_xcenter_size = fractal.getXCenter() - size_2_x;
-        double temp_ycenter_size = fractal.getYCenter() - size_2_y;
+        double temp_ycenter_size = fractal.getYCenter() + size_2_y;
 
         int pixel_percent = detail * detail / 100;
 
@@ -5722,11 +5780,10 @@ public abstract class ThreadDraw extends Thread {
             x = loc % detail;
             y = loc / detail;
 
-            vert[x][y][0] = (float)(dx * x - w2);
-            vert[x][y][2] = (float)(dx * y - w2);
-            temp = fractal.calculateJulia3D(new Complex(temp_xcenter_size + dr_x * x, temp_ycenter_size + dr_y * y));
+            temp = fractal.calculateJulia3D(new Complex(temp_xcenter_size + dr_x * x, temp_ycenter_size - dr_y * y));
             vert[x][y][1] = (float)(temp[0]);
-            vert[x][y][3] = getColor(temp[1]);
+            vert[x][y][0] = getColor(temp[1]);
+            vert[x][y][2] = (float)(temp[1]);
 
             drawing_done++;
             counter++;
@@ -5738,20 +5795,20 @@ public abstract class ThreadDraw extends Thread {
 
         } while(true);
 
-        if(bump_map || fake_de) {
-            int sync5 = synchronization5.incrementAndGet();
+        if(bump_map || fake_de || rainbow_palette) {
+            int pp_sync = post_processing_sync.incrementAndGet();
 
-            while(sync5 != ptr.getNumberOfThreads()) {
+            while(pp_sync != ptr.getNumberOfThreads()) {
                 yield();
-                sync5 = synchronization5.get();
+                pp_sync = post_processing_sync.get();
             }
 
             applyPostProcessing3D(detail);
         }
 
-        int sync4 = synchronization4.incrementAndGet();
+        int hs_sync = height_scaling_sync.incrementAndGet();
 
-        if(sync4 == ptr.getNumberOfThreads()) {
+        if(hs_sync == ptr.getNumberOfThreads()) {
 
             applyHeightScaling();
 
@@ -5762,32 +5819,32 @@ public abstract class ThreadDraw extends Thread {
         }
 
         if(gaussian_scaling) {
-            int sync6 = synchronization6.incrementAndGet();
+            int gs_sync = gaussian_scaling_sync.incrementAndGet();
 
-            while(sync6 != ptr.getNumberOfThreads()) {
+            while(gs_sync != ptr.getNumberOfThreads()) {
                 yield();
-                sync6 = synchronization6.get();
+                gs_sync = gaussian_scaling_sync.get();
             }
 
             gaussianHeightScaling();
         }
 
-        int sync2 = synchronization2.incrementAndGet();
+        int cv_sync = calculate_vectors_sync.incrementAndGet();
 
-        while(sync2 != ptr.getNumberOfThreads()) {
+        while(cv_sync != ptr.getNumberOfThreads()) {
             yield();
-            sync2 = synchronization2.get();
+            cv_sync = calculate_vectors_sync.get();
         }
 
         if(gaussian_scaling) {
             gaussianHeightScalingEnd();
         }
 
-        calculate3DVectors(n1, dx);
+        calculate3DVectors(n1, dx, w2);
 
-        int sync3 = synchronization3.incrementAndGet();
+        int p_sync = painting_sync.incrementAndGet();
 
-        if(sync3 == ptr.getNumberOfThreads()) {
+        if(p_sync == ptr.getNumberOfThreads()) {
 
             paint3D(n1, w2);
 
@@ -5803,7 +5860,7 @@ public abstract class ThreadDraw extends Thread {
         double size_2_x = size * 0.5;
         double size_2_y = (size * height_ratio) * 0.5;
         double temp_xcenter_size = fractal.getXCenter() - size_2_x;
-        double temp_ycenter_size = fractal.getYCenter() - size_2_y;
+        double temp_ycenter_size = fractal.getYCenter() + size_2_y;
 
         int pixel_percent = detail * detail / 100;
 
@@ -5819,7 +5876,8 @@ public abstract class ThreadDraw extends Thread {
 
         int condition = detail * detail;
 
-        double temp_samples = filters_options_vals[MainWindow.ANTIALIASING] + 1;
+        int supersampling_num = (filters_options_vals[MainWindow.ANTIALIASING] == 0 ? 4 : 8 * filters_options_vals[MainWindow.ANTIALIASING]);
+        double temp_samples = supersampling_num + 1;
 
         int red, green, blue, color;
 
@@ -5845,9 +5903,7 @@ public abstract class ThreadDraw extends Thread {
             x = loc % detail;
             y = loc / detail;
 
-            vert[x][y][0] = (float)(dx * x - w2);
-            vert[x][y][2] = (float)(dx * y - w2);
-            temp = fractal.calculateJulia3D(new Complex(temp_x0 = temp_xcenter_size + dr_x * x, temp_y0 = temp_ycenter_size + dr_y * y));
+            temp = fractal.calculateJulia3D(new Complex(temp_x0 = temp_xcenter_size + dr_x * x, temp_y0 = temp_ycenter_size - dr_y * y));
             height = temp[0];
             color = getColor(temp[1]);
 
@@ -5856,7 +5912,7 @@ public abstract class ThreadDraw extends Thread {
             blue = color & 0xff;
 
             //Supersampling
-            for(int k = 0; k < filters_options_vals[MainWindow.ANTIALIASING]; k++) {
+            for(int k = 0; k < supersampling_num; k++) {
                 temp = fractal.calculateJulia3D(new Complex(temp_x0 + antialiasing_x[k], temp_y0 + antialiasing_y[k]));
                 color = getColor(temp[1]);
 
@@ -5867,7 +5923,8 @@ public abstract class ThreadDraw extends Thread {
             }
 
             vert[x][y][1] = (float)(height / temp_samples);
-            vert[x][y][3] = 0xff000000 | (((int)(red / temp_samples + 0.5)) << 16) | (((int)(green / temp_samples + 0.5)) << 8) | ((int)(blue / temp_samples + 0.5));
+            vert[x][y][0] = 0xff000000 | (((int)(red / temp_samples + 0.5)) << 16) | (((int)(green / temp_samples + 0.5)) << 8) | ((int)(blue / temp_samples + 0.5));
+            vert[x][y][2] = (float)(temp[1]);
 
             drawing_done++;
             counter++;
@@ -5879,20 +5936,20 @@ public abstract class ThreadDraw extends Thread {
 
         } while(true);
 
-        if(bump_map || fake_de) {
-            int sync5 = synchronization5.incrementAndGet();
+        if(bump_map || fake_de || rainbow_palette) {
+            int pp_sync = post_processing_sync.incrementAndGet();
 
-            while(sync5 != ptr.getNumberOfThreads()) {
+            while(pp_sync != ptr.getNumberOfThreads()) {
                 yield();
-                sync5 = synchronization5.get();
+                pp_sync = post_processing_sync.get();
             }
 
             applyPostProcessing3D(detail);
         }
 
-        int sync4 = synchronization4.incrementAndGet();
+        int hs_sync = height_scaling_sync.incrementAndGet();
 
-        if(sync4 == ptr.getNumberOfThreads()) {
+        if(hs_sync == ptr.getNumberOfThreads()) {
 
             applyHeightScaling();
 
@@ -5903,32 +5960,32 @@ public abstract class ThreadDraw extends Thread {
         }
 
         if(gaussian_scaling) {
-            int sync6 = synchronization6.incrementAndGet();
+            int gs_sync = gaussian_scaling_sync.incrementAndGet();
 
-            while(sync6 != ptr.getNumberOfThreads()) {
+            while(gs_sync != ptr.getNumberOfThreads()) {
                 yield();
-                sync6 = synchronization6.get();
+                gs_sync = gaussian_scaling_sync.get();
             }
 
             gaussianHeightScaling();
         }
 
-        int sync2 = synchronization2.incrementAndGet();
+        int cv_sync = calculate_vectors_sync.incrementAndGet();
 
-        while(sync2 != ptr.getNumberOfThreads()) {
+        while(cv_sync != ptr.getNumberOfThreads()) {
             yield();
-            sync2 = synchronization2.get();
+            cv_sync = calculate_vectors_sync.get();
         }
 
         if(gaussian_scaling) {
             gaussianHeightScalingEnd();
         }
 
-        calculate3DVectors(n1, dx);
+        calculate3DVectors(n1, dx, w2);
 
-        int sync3 = synchronization3.incrementAndGet();
+        int p_sync = painting_sync.incrementAndGet();
 
-        if(sync3 == ptr.getNumberOfThreads()) {
+        if(p_sync == ptr.getNumberOfThreads()) {
 
             paint3D(n1, w2);
 
@@ -5947,7 +6004,7 @@ public abstract class ThreadDraw extends Thread {
         double temp_size_image_size_y = (size * height_ratio) / image_size;
 
         double temp_xcenter_size = fractal.getXCenter() - size_2_x;
-        double temp_ycenter_size = fractal.getYCenter() - size_2_y;
+        double temp_ycenter_size = fractal.getYCenter() + size_2_y;
 
         int pixel_percent = image_size * image_size / 100;
 
@@ -5970,7 +6027,8 @@ public abstract class ThreadDraw extends Thread {
             -y_antialiasing_size_x2, 0, y_antialiasing_size_x2, -y_antialiasing_size_x2, y_antialiasing_size_x2, -y_antialiasing_size_x2, 0, y_antialiasing_size_x2,
             -y_antialiasing_size, y_antialiasing_size, -y_antialiasing_size_x2, y_antialiasing_size_x2, -y_antialiasing_size_x2, y_antialiasing_size_x2, -y_antialiasing_size, y_antialiasing_size};
 
-        double temp_samples = filters_options_vals[MainWindow.ANTIALIASING] + 1;
+        int supersampling_num = (filters_options_vals[MainWindow.ANTIALIASING] == 0 ? 4 : 8 * filters_options_vals[MainWindow.ANTIALIASING]);
+        double temp_samples = supersampling_num + 1;
 
         do {
 
@@ -5984,7 +6042,7 @@ public abstract class ThreadDraw extends Thread {
             y = loc / image_size;
 
             temp_x0 = temp_xcenter_size + temp_size_image_size_x * x;
-            temp_y0 = temp_ycenter_size + temp_size_image_size_y * y;
+            temp_y0 = temp_ycenter_size - temp_size_image_size_y * y;
 
             image_iterations[loc] = fractal.calculateJulia(new Complex(temp_x0, temp_y0));
             color = getColor(image_iterations[loc]);
@@ -5994,7 +6052,7 @@ public abstract class ThreadDraw extends Thread {
             blue = color & 0xff;
 
             //Supersampling
-            for(int i = 0; i < filters_options_vals[MainWindow.ANTIALIASING]; i++) {
+            for(int i = 0; i < supersampling_num; i++) {
                 temp_result = fractal.calculateJulia(new Complex(temp_x0 + antialiasing_x[i], temp_y0 + antialiasing_y[i]));
                 color = getColor(temp_result);
 
@@ -6018,12 +6076,12 @@ public abstract class ThreadDraw extends Thread {
 
         thread_calculated += drawing_done;
 
-        if(bump_map || fake_de) {
-            int sync2 = synchronization2.incrementAndGet();
+        if(bump_map || fake_de || rainbow_palette) {
+            int pp_sync = post_processing_sync.incrementAndGet();
 
-            while(sync2 != ptr.getNumberOfThreads()) {
+            while(pp_sync != ptr.getNumberOfThreads()) {
                 yield();
-                sync2 = synchronization2.get();
+                pp_sync = post_processing_sync.get();
             }
 
             applyPostProcessing(image_size);
@@ -6040,7 +6098,7 @@ public abstract class ThreadDraw extends Thread {
         double temp_size_image_size_y = (size * height_ratio) / image_size;
 
         double temp_xcenter_size = fractal.getXCenter() - size_2_x;
-        double temp_ycenter_size = fractal.getYCenter() - size_2_y;
+        double temp_ycenter_size = fractal.getYCenter() + size_2_y;
 
         int pixel_percent = image_size * image_size / 100;
 
@@ -6071,10 +6129,11 @@ public abstract class ThreadDraw extends Thread {
             -y_antialiasing_size_x2, 0, y_antialiasing_size_x2, -y_antialiasing_size_x2, y_antialiasing_size_x2, -y_antialiasing_size_x2, 0, y_antialiasing_size_x2,
             -y_antialiasing_size, y_antialiasing_size, -y_antialiasing_size_x2, y_antialiasing_size_x2, -y_antialiasing_size_x2, y_antialiasing_size_x2, -y_antialiasing_size, y_antialiasing_size};
 
-        double temp_samples = filters_options_vals[MainWindow.ANTIALIASING] + 1;
+        int supersampling_num = (filters_options_vals[MainWindow.ANTIALIASING] == 0 ? 4 : 8 * filters_options_vals[MainWindow.ANTIALIASING]);
+        double temp_samples = supersampling_num + 1;
 
         for(y = FROMy; y < TOy; y++) {
-            temp_y0 = temp_ycenter_size + y * temp_size_image_size_y;
+            temp_y0 = temp_ycenter_size - y * temp_size_image_size_y;
             for(x = FROMx, pix = y * image_size + x; x < TOx; x++, pix++) {
 
                 if(rgbs[pix] == culcColor) {
@@ -6092,7 +6151,7 @@ public abstract class ThreadDraw extends Thread {
                     blue = color & 0xff;
 
                     //Supersampling
-                    for(int i = 0; i < filters_options_vals[MainWindow.ANTIALIASING]; i++) {
+                    for(int i = 0; i < supersampling_num; i++) {
                         temp_result = fractal.calculateJulia(new Complex(temp_x0 + antialiasing_x[i], temp_y0 + antialiasing_y[i]));
                         color = getColor(temp_result);
 
@@ -6123,7 +6182,7 @@ public abstract class ThreadDraw extends Thread {
                             next_iy = temp_iy + intY[dir];
 
                             nextX = temp_xcenter_size + next_ix * temp_size_image_size_x;
-                            nextY = temp_ycenter_size + next_iy * temp_size_image_size_y;
+                            nextY = temp_ycenter_size - next_iy * temp_size_image_size_y;
 
                             if(!(next_ix >= FROMx && next_ix < TOx && next_iy >= FROMy && next_iy < TOy)) {
                                 continue;
@@ -6138,7 +6197,7 @@ public abstract class ThreadDraw extends Thread {
                                 blue = color & 0xff;
 
                                 //Supersampling
-                                for(int i = 0; i < filters_options_vals[MainWindow.ANTIALIASING]; i++) {
+                                for(int i = 0; i < supersampling_num; i++) {
                                     temp_result = fractal.calculateJulia(new Complex(nextX + antialiasing_x[i], nextY + antialiasing_y[i]));
                                     color = getColor(temp_result);
 
@@ -6226,12 +6285,12 @@ public abstract class ThreadDraw extends Thread {
             }
         }
 
-        if(bump_map || fake_de) {
-            int sync2 = synchronization2.incrementAndGet();
+        if(bump_map || fake_de || rainbow_palette) {
+            int pp_sync = post_processing_sync.incrementAndGet();
 
-            while(sync2 != ptr.getNumberOfThreads()) {
+            while(pp_sync != ptr.getNumberOfThreads()) {
                 yield();
-                sync2 = synchronization2.get();
+                pp_sync = post_processing_sync.get();
             }
 
             applyPostProcessing(image_size);
@@ -6261,7 +6320,7 @@ public abstract class ThreadDraw extends Thread {
             drawFastJulia(image_size);
         }
 
-        int done = synchronization.incrementAndGet();
+        int done = image_filters_sync.incrementAndGet();
 
         if(done == ptr.getNumberOfThreads()) {
 
@@ -6289,7 +6348,7 @@ public abstract class ThreadDraw extends Thread {
             drawFastJuliaPolar(image_size);
         }
 
-        int done = synchronization.incrementAndGet();
+        int done = image_filters_sync.incrementAndGet();
 
         if(done == ptr.getNumberOfThreads()) {
 
@@ -6316,7 +6375,7 @@ public abstract class ThreadDraw extends Thread {
         double temp_size_image_size_y = (size * height_ratio) / image_size;
 
         double temp_xcenter_size = fractal.getXCenter() - size_2_x;
-        double temp_ycenter_size = fractal.getYCenter() - size_2_y;
+        double temp_ycenter_size = fractal.getYCenter() + size_2_y;
 
         int x, y, loc;
 
@@ -6333,17 +6392,17 @@ public abstract class ThreadDraw extends Thread {
             x = loc % image_size;
             y = loc / image_size;
 
-            image_iterations_fast_julia[loc] = fractal.calculateJulia(new Complex(temp_xcenter_size + temp_size_image_size_x * x, temp_ycenter_size + temp_size_image_size_y * y));
+            image_iterations_fast_julia[loc] = fractal.calculateJulia(new Complex(temp_xcenter_size + temp_size_image_size_x * x, temp_ycenter_size - temp_size_image_size_y * y));
             rgbs[loc] = getColor(image_iterations_fast_julia[loc]);
 
         } while(true);
 
-        if(bump_map || fake_de) {
-            int sync2 = synchronization2.incrementAndGet();
+        if(bump_map || fake_de || rainbow_palette) {
+            int pp_sync = post_processing_sync.incrementAndGet();
 
-            while(sync2 != ptr.getNumberOfThreads()) {
+            while(pp_sync != ptr.getNumberOfThreads()) {
                 yield();
-                sync2 = synchronization2.get();
+                pp_sync = post_processing_sync.get();
             }
 
             applyPostProcessingFastJulia(image_size);
@@ -6351,45 +6410,117 @@ public abstract class ThreadDraw extends Thread {
 
     }
 
-    private int pseudoDistanceEstimation(double[] image_iterations, int color, int i, int j, int image_size) {
-        int i0 = i;
-        int j0 = j;
-        int ix = i + 1;
-        int jx = j;
+    private int paletteRainbow(double[] image_iterations, int i, int j, int image_size) {
+
+        int k0 = image_size * i + j;
+        int kx = k0 + image_size;
         int sx = 1;
-        int iy = i;
-        int jy = j + 1;
+        if(i == image_size - 1) {
+            kx -= 2 * image_size;
+            sx = -1;
+        }
+
+        int ky = k0 + 1;
         int sy = 1;
-
-        if(ix == image_size) {
-            ix -= 2;
-            sx = -1;
+        if(j == image_size - 1) {
+            ky -= 2;
+            sy = -1;
         }
-        if(jy == image_size) {
-            jy -= 2;
-            sx = -1;
-        }
-        double n0 = Math.abs(image_iterations[i0 * image_size + j0]);
-        double coef;
 
-        double zz = 1 / fake_de_factor;
-        double zz2 = zz * zz;
-
-        /*if(n0 == max_iterations && color == fractal_color) {
-         coef = 1.0;
-         }
-         else if(n0 == max_iterations && color != fractal_color) {
-         coef = 0.15;
-         }
-         else {*/
-        double nx = Math.abs(image_iterations[ix * image_size + jx]);
-        double ny = Math.abs(image_iterations[iy * image_size + jy]);
-
+        double n0 = Math.abs(image_iterations[k0]);
+        double nx = Math.abs(image_iterations[kx]);
+        double ny = Math.abs(image_iterations[ky]);
         double zx = sx * (nx - n0);
         double zy = sy * (ny - n0);
-        double z = Math.sqrt(zx * zx + zy * zy + zz2);
-        coef = zz / z;
-        //}
+
+        double zz = 1.0;
+
+        double z = Math.sqrt(zx * zx + zy * zy + zz * zz);
+        //zz /= z;
+        zx /= z;
+        zy /= z;
+
+        double hue = Math.atan2(zy, zx) / (2 * Math.PI);
+
+        if(image_iterations[k0] < 0) {
+            return getColor(image_iterations[k0] - hue * palette_color.getPaletteLength() * rainbow_palette_factor);
+        }
+        else {
+            return getColor(image_iterations[k0] + hue * palette_color.getPaletteLength() * rainbow_palette_factor);
+        }
+
+    }
+
+    private int paletteRainbow3D(float[][][] image_iterations, int i, int j, int image_size) {
+
+        int i1 = i + 1;
+        int sx = 1;
+        if(i == image_size - 1) {
+            i1 -= 2;
+            sx = -1;
+        }
+
+        int j1 = j + 1;
+        int sy = 1;
+        if(j == image_size - 1) {
+            j1 -= 2;
+            sy = -1;
+        }
+
+        double n0 = Math.abs(image_iterations[i][j][1]);
+        double nx = Math.abs(image_iterations[i1][j][1]);
+        double ny = Math.abs(image_iterations[i][j1][1]);
+        double zx = sx * (nx - n0);
+        double zy = sy * (ny - n0);
+
+        double zz = 1.0;
+
+        double z = Math.sqrt(zx * zx + zy * zy + zz * zz);
+        //zz /= z;
+        zx /= z;
+        zy /= z;
+
+        double hue = Math.atan2(zx, zy) / (2 * Math.PI); // zx , zy instead of zy , zx
+
+        if(image_iterations[i][j][2] < 0) {
+            return getColor(image_iterations[i][j][2] - hue * palette_color.getPaletteLength() * rainbow_palette_factor);
+        }
+        else {
+            return getColor(image_iterations[i][j][2] + hue * palette_color.getPaletteLength() * rainbow_palette_factor);
+        }
+
+    }
+
+    private int pseudoDistanceEstimation(double[] image_iterations, int color, int i, int j, int image_size) {
+
+        int k0 = image_size * i + j;
+        int kx = k0 + image_size;
+        int sx = 1;
+        if(i == image_size - 1) {
+            kx -= 2 * image_size;
+            sx = -1;
+        }
+
+        int ky = k0 + 1;
+        int sy = 1;
+        if(j == image_size - 1) {
+            ky -= 2;
+            sy = -1;
+        }
+
+        double n0 = Math.abs(image_iterations[k0]);
+        double nx = Math.abs(image_iterations[kx]);
+        double ny = Math.abs(image_iterations[ky]);
+        double zx = sx * (nx - n0);
+        double zy = sy * (ny - n0);
+
+        double zz = 1 / fake_de_factor;
+
+        double z = Math.sqrt(zx * zx + zy * zy + zz * zz);
+
+        zz /= z;
+
+        double coef = zz;
 
         int r = color & 0xFF0000;
         int g = color & 0x00FF00;
@@ -6408,44 +6539,32 @@ public abstract class ThreadDraw extends Thread {
     }
 
     private int pseudoDistanceEstimation3D(float[][][] image_iterations, int color, int i, int j, int image_size) {
-        int i0 = i;
-        int j0 = j;
-        int ix = i + 1;
-        int jx = j;
+
+        int i1 = i + 1;
         int sx = 1;
-        int iy = i;
-        int jy = j + 1;
+        if(i == image_size - 1) {
+            i1 -= 2;
+            sx = -1;
+        }
+
+        int j1 = j + 1;
         int sy = 1;
-
-        if(ix == image_size) {
-            ix -= 2;
-            sx = -1;
+        if(j == image_size - 1) {
+            j1 -= 2;
+            sy = -1;
         }
-        if(jy == image_size) {
-            jy -= 2;
-            sx = -1;
-        }
-        double n0 = Math.abs(image_iterations[i0][j0][1]);
-        double coef;
 
-        double zz = 1 / fake_de_factor;
-        double zz2 = zz * zz;
-
-        /*if(n0 == max_iterations && color == fractal_color) {
-         coef = 1.0;
-         }
-         else if(n0 == max_iterations && color != fractal_color) {
-         coef = 0.15;
-         }
-         else {*/
-        double nx = Math.abs(image_iterations[ix][jx][1]);
-        double ny = Math.abs(image_iterations[iy][jy][1]);
-
+        double n0 = Math.abs(image_iterations[i][j][1]);
+        double nx = Math.abs(image_iterations[i1][j][1]);
+        double ny = Math.abs(image_iterations[i][j1][1]);
         double zx = sx * (nx - n0);
         double zy = sy * (ny - n0);
-        double z = Math.sqrt(zx * zx + zy * zy + zz2);
-        coef = zz / z;
-        //}
+
+        double zz = 1 / fake_de_factor;
+
+        double z = Math.sqrt(zx * zx + zy * zy + zz * zz);
+        zz /= z;
+        double coef = zz;
 
         int r = color & 0xFF0000;
         int g = color & 0x00FF00;
@@ -6482,7 +6601,12 @@ public abstract class ThreadDraw extends Thread {
             for(int x = FROMx; x < TOx; x++) {
                 int index = y * image_size + x;
 
-                modified = rgbs[index];
+                if(rainbow_palette) {
+                    modified = paletteRainbow(image_iterations, y, x, image_size);
+                }
+                else {
+                    modified = rgbs[index];
+                }
 
                 if(bump_map) {
                     gradx = getGradientX(image_iterations, index, image_size);
@@ -6527,7 +6651,12 @@ public abstract class ThreadDraw extends Thread {
             for(int x = FROMx; x < TOx; x++) {
                 int index = y * image_size + x;
 
-                modified = rgbs[index];
+                if(rainbow_palette) {
+                    modified = paletteRainbow(image_iterations_fast_julia, y, x, image_size);
+                }
+                else {
+                    modified = rgbs[index];
+                }
 
                 if(bump_map) {
                     gradx = getGradientX(image_iterations_fast_julia, index, image_size);
@@ -6563,7 +6692,7 @@ public abstract class ThreadDraw extends Thread {
         double temp_size_image_size_y = (size * height_ratio) / image_size;
 
         double temp_xcenter_size = fractal.getXCenter() - size_2_x;
-        double temp_ycenter_size = fractal.getYCenter() - size_2_y;
+        double temp_ycenter_size = fractal.getYCenter() + size_2_y;
 
         final int dirRight = 0, dirUP = 3, maskDir = 3, culcColor = 0;
 
@@ -6580,7 +6709,7 @@ public abstract class ThreadDraw extends Thread {
         double start_val;
 
         for(y = FROMy; y < TOy; y++) {
-            temp_y0 = temp_ycenter_size + y * temp_size_image_size_y;
+            temp_y0 = temp_ycenter_size - y * temp_size_image_size_y;
             for(x = FROMx, pix = y * image_size + x; x < TOx; x++, pix++) {
 
                 if(rgbs[pix] == culcColor) {
@@ -6610,7 +6739,7 @@ public abstract class ThreadDraw extends Thread {
                             next_iy = temp_iy + intY[dir];
 
                             nextX = temp_xcenter_size + next_ix * temp_size_image_size_x;
-                            nextY = temp_ycenter_size + next_iy * temp_size_image_size_y;
+                            nextY = temp_ycenter_size - next_iy * temp_size_image_size_y;
 
                             if(!(next_ix >= FROMx && next_ix < TOx && next_iy >= FROMy && next_iy < TOy)) {
                                 continue;
@@ -6685,12 +6814,12 @@ public abstract class ThreadDraw extends Thread {
 
         }
 
-        if(bump_map || fake_de) {
-            int sync2 = synchronization2.incrementAndGet();
+        if(bump_map || fake_de || rainbow_palette) {
+            int pp_sync = post_processing_sync.incrementAndGet();
 
-            while(sync2 != ptr.getNumberOfThreads()) {
+            while(pp_sync != ptr.getNumberOfThreads()) {
                 yield();
-                sync2 = synchronization2.get();
+                pp_sync = post_processing_sync.get();
             }
 
             applyPostProcessingFastJulia(image_size);
@@ -6762,12 +6891,12 @@ public abstract class ThreadDraw extends Thread {
 
         } while(true);
 
-        if(bump_map || fake_de) {
-            int sync2 = synchronization2.incrementAndGet();
+        if(bump_map || fake_de || rainbow_palette) {
+            int pp_sync = post_processing_sync.incrementAndGet();
 
-            while(sync2 != ptr.getNumberOfThreads()) {
+            while(pp_sync != ptr.getNumberOfThreads()) {
                 yield();
-                sync2 = synchronization2.get();
+                pp_sync = post_processing_sync.get();
             }
 
             applyPostProcessingFastJulia(image_size);
@@ -6926,12 +7055,12 @@ public abstract class ThreadDraw extends Thread {
 
         }
 
-        if(bump_map || fake_de) {
-            int sync2 = synchronization2.incrementAndGet();
+        if(bump_map || fake_de || rainbow_palette) {
+            int pp_sync = post_processing_sync.incrementAndGet();
 
-            while(sync2 != ptr.getNumberOfThreads()) {
+            while(pp_sync != ptr.getNumberOfThreads()) {
                 yield();
-                sync2 = synchronization2.get();
+                pp_sync = post_processing_sync.get();
             }
 
             applyPostProcessingFastJulia(image_size);
@@ -6948,7 +7077,7 @@ public abstract class ThreadDraw extends Thread {
         double temp_size_image_size_y = (size * height_ratio) / image_size;
 
         double temp_xcenter_size = fractal.getXCenter() - size_2_x;
-        double temp_ycenter_size = fractal.getYCenter() - size_2_y;
+        double temp_ycenter_size = fractal.getYCenter() + size_2_y;
 
         int x, y, loc;
         int color;
@@ -6969,7 +7098,8 @@ public abstract class ThreadDraw extends Thread {
             -y_antialiasing_size_x2, 0, y_antialiasing_size_x2, -y_antialiasing_size_x2, y_antialiasing_size_x2, -y_antialiasing_size_x2, 0, y_antialiasing_size_x2,
             -y_antialiasing_size, y_antialiasing_size, -y_antialiasing_size_x2, y_antialiasing_size_x2, -y_antialiasing_size_x2, y_antialiasing_size_x2, -y_antialiasing_size, y_antialiasing_size};
 
-        double temp_samples = filters_options_vals[MainWindow.ANTIALIASING] + 1;
+        int supersampling_num = (filters_options_vals[MainWindow.ANTIALIASING] == 0 ? 4 : 8 * filters_options_vals[MainWindow.ANTIALIASING]);
+        double temp_samples = supersampling_num + 1;
 
         do {
 
@@ -6983,7 +7113,7 @@ public abstract class ThreadDraw extends Thread {
             y = loc / image_size;
 
             temp_x0 = temp_xcenter_size + temp_size_image_size_x * x;
-            temp_y0 = temp_ycenter_size + temp_size_image_size_y * y;
+            temp_y0 = temp_ycenter_size - temp_size_image_size_y * y;
 
             image_iterations_fast_julia[loc] = fractal.calculateJulia(new Complex(temp_x0, temp_y0));
             color = getColor(image_iterations_fast_julia[loc]);
@@ -6993,7 +7123,7 @@ public abstract class ThreadDraw extends Thread {
             blue = color & 0xff;
 
             //Supersampling
-            for(int i = 0; i < filters_options_vals[MainWindow.ANTIALIASING]; i++) {
+            for(int i = 0; i < supersampling_num; i++) {
                 temp_result = fractal.calculateJulia(new Complex(temp_x0 + antialiasing_x[i], temp_y0 + antialiasing_y[i]));
                 color = getColor(temp_result);
 
@@ -7006,12 +7136,12 @@ public abstract class ThreadDraw extends Thread {
 
         } while(true);
 
-        if(bump_map || fake_de) {
-            int sync2 = synchronization2.incrementAndGet();
+        if(bump_map || fake_de || rainbow_palette) {
+            int pp_sync = post_processing_sync.incrementAndGet();
 
-            while(sync2 != ptr.getNumberOfThreads()) {
+            while(pp_sync != ptr.getNumberOfThreads()) {
                 yield();
-                sync2 = synchronization2.get();
+                pp_sync = post_processing_sync.get();
             }
 
             applyPostProcessingFastJulia(image_size);
@@ -7028,7 +7158,7 @@ public abstract class ThreadDraw extends Thread {
         double temp_size_image_size_y = (size * height_ratio) / image_size;
 
         double temp_xcenter_size = fractal.getXCenter() - size_2_x;
-        double temp_ycenter_size = fractal.getYCenter() - size_2_y;
+        double temp_ycenter_size = fractal.getYCenter() + size_2_y;
 
         int color;
 
@@ -7059,10 +7189,11 @@ public abstract class ThreadDraw extends Thread {
             -y_antialiasing_size_x2, 0, y_antialiasing_size_x2, -y_antialiasing_size_x2, y_antialiasing_size_x2, -y_antialiasing_size_x2, 0, y_antialiasing_size_x2,
             -y_antialiasing_size, y_antialiasing_size, -y_antialiasing_size_x2, y_antialiasing_size_x2, -y_antialiasing_size_x2, y_antialiasing_size_x2, -y_antialiasing_size, y_antialiasing_size};
 
-        double temp_samples = filters_options_vals[MainWindow.ANTIALIASING] + 1;
+        int supersampling_num = (filters_options_vals[MainWindow.ANTIALIASING] == 0 ? 4 : 8 * filters_options_vals[MainWindow.ANTIALIASING]);
+        double temp_samples = supersampling_num + 1;
 
         for(y = FROMy; y < TOy; y++) {
-            temp_y0 = temp_ycenter_size + y * temp_size_image_size_y;
+            temp_y0 = temp_ycenter_size - y * temp_size_image_size_y;
             for(x = FROMx, pix = y * image_size + x; x < TOx; x++, pix++) {
 
                 if(rgbs[pix] == culcColor) {
@@ -7080,7 +7211,7 @@ public abstract class ThreadDraw extends Thread {
                     blue = color & 0xff;
 
                     //Supersampling
-                    for(int i = 0; i < filters_options_vals[MainWindow.ANTIALIASING]; i++) {
+                    for(int i = 0; i < supersampling_num; i++) {
                         temp_result = fractal.calculateJulia(new Complex(temp_x0 + antialiasing_x[i], temp_y0 + antialiasing_y[i]));
                         color = getColor(temp_result);
 
@@ -7108,7 +7239,7 @@ public abstract class ThreadDraw extends Thread {
                             next_iy = temp_iy + intY[dir];
 
                             nextX = temp_xcenter_size + next_ix * temp_size_image_size_x;
-                            nextY = temp_ycenter_size + next_iy * temp_size_image_size_y;
+                            nextY = temp_ycenter_size - next_iy * temp_size_image_size_y;
 
                             if(!(next_ix >= FROMx && next_ix < TOx && next_iy >= FROMy && next_iy < TOy)) {
                                 continue;
@@ -7123,7 +7254,7 @@ public abstract class ThreadDraw extends Thread {
                                 blue = color & 0xff;
 
                                 //Supersampling
-                                for(int i = 0; i < filters_options_vals[MainWindow.ANTIALIASING]; i++) {
+                                for(int i = 0; i < supersampling_num; i++) {
                                     temp_result = fractal.calculateJulia(new Complex(nextX + antialiasing_x[i], nextY + antialiasing_y[i]));
                                     color = getColor(temp_result);
 
@@ -7198,12 +7329,12 @@ public abstract class ThreadDraw extends Thread {
             }
         }
 
-        if(bump_map || fake_de) {
-            int sync2 = synchronization2.incrementAndGet();
+        if(bump_map || fake_de || rainbow_palette) {
+            int pp_sync = post_processing_sync.incrementAndGet();
 
-            while(sync2 != ptr.getNumberOfThreads()) {
+            while(pp_sync != ptr.getNumberOfThreads()) {
                 yield();
-                sync2 = synchronization2.get();
+                pp_sync = post_processing_sync.get();
             }
 
             applyPostProcessingFastJulia(image_size);
@@ -7292,7 +7423,8 @@ public abstract class ThreadDraw extends Thread {
             cos_inv_y_antialiasing_size_x2, 1, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, 1, cos_y_antialiasing_size_x2,
             cos_inv_y_antialiasing_size, cos_y_antialiasing_size, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size, cos_y_antialiasing_size};
 
-        double temp_samples = filters_options_vals[MainWindow.ANTIALIASING] + 1;
+        int supersampling_num = (filters_options_vals[MainWindow.ANTIALIASING] == 0 ? 4 : 8 * filters_options_vals[MainWindow.ANTIALIASING]);
+        double temp_samples = supersampling_num + 1;
 
         do {
 
@@ -7319,7 +7451,7 @@ public abstract class ThreadDraw extends Thread {
             blue = color & 0xff;
 
             //Supersampling
-            for(int i = 0; i < filters_options_vals[MainWindow.ANTIALIASING]; i++) {
+            for(int i = 0; i < supersampling_num; i++) {
 
                 sf2 = sf * antialiasing_y_cos[i] + cf * antialiasing_y_sin[i];
                 cf2 = cf * antialiasing_y_cos[i] - sf * antialiasing_y_sin[i];
@@ -7338,12 +7470,12 @@ public abstract class ThreadDraw extends Thread {
 
         } while(true);
 
-        if(bump_map || fake_de) {
-            int sync2 = synchronization2.incrementAndGet();
+        if(bump_map || fake_de || rainbow_palette) {
+            int pp_sync = post_processing_sync.incrementAndGet();
 
-            while(sync2 != ptr.getNumberOfThreads()) {
+            while(pp_sync != ptr.getNumberOfThreads()) {
                 yield();
-                sync2 = synchronization2.get();
+                pp_sync = post_processing_sync.get();
             }
 
             applyPostProcessingFastJulia(image_size);
@@ -7417,7 +7549,8 @@ public abstract class ThreadDraw extends Thread {
             cos_inv_y_antialiasing_size_x2, 1, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, 1, cos_y_antialiasing_size_x2,
             cos_inv_y_antialiasing_size, cos_y_antialiasing_size, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size, cos_y_antialiasing_size};
 
-        double temp_samples = filters_options_vals[MainWindow.ANTIALIASING] + 1;
+        int supersampling_num = (filters_options_vals[MainWindow.ANTIALIASING] == 0 ? 4 : 8 * filters_options_vals[MainWindow.ANTIALIASING]);
+        double temp_samples = supersampling_num + 1;
 
         int red, green, blue, color;
 
@@ -7449,7 +7582,7 @@ public abstract class ThreadDraw extends Thread {
                     blue = color & 0xff;
 
                     //Supersampling
-                    for(int i = 0; i < filters_options_vals[MainWindow.ANTIALIASING]; i++) {
+                    for(int i = 0; i < supersampling_num; i++) {
 
                         sf3 = sf * antialiasing_y_cos[i] + cf * antialiasing_y_sin[i];
                         cf3 = cf * antialiasing_y_cos[i] - sf * antialiasing_y_sin[i];
@@ -7507,7 +7640,7 @@ public abstract class ThreadDraw extends Thread {
                                 blue = color & 0xff;
 
                                 //Supersampling
-                                for(int i = 0; i < filters_options_vals[MainWindow.ANTIALIASING]; i++) {
+                                for(int i = 0; i < supersampling_num; i++) {
 
                                     sf3 = sf2 * antialiasing_y_cos[i] + cf2 * antialiasing_y_sin[i];
                                     cf3 = cf2 * antialiasing_y_cos[i] - sf2 * antialiasing_y_sin[i];
@@ -7589,12 +7722,12 @@ public abstract class ThreadDraw extends Thread {
             }
         }
 
-        if(bump_map || fake_de) {
-            int sync2 = synchronization2.incrementAndGet();
+        if(bump_map || fake_de || rainbow_palette) {
+            int pp_sync = post_processing_sync.incrementAndGet();
 
-            while(sync2 != ptr.getNumberOfThreads()) {
+            while(pp_sync != ptr.getNumberOfThreads()) {
                 yield();
-                sync2 = synchronization2.get();
+                pp_sync = post_processing_sync.get();
             }
 
             applyPostProcessingFastJulia(image_size);
@@ -7623,9 +7756,11 @@ public abstract class ThreadDraw extends Thread {
             rgbs[loc] = getColor(image_iterations[loc]);
         }
 
-        if(bump_map || fake_de) {
+        if(bump_map || fake_de || rainbow_palette) {
             applyPostProcessing(image_size);
         }
+        
+        applyFilters();
 
         ptr.setWholeImageDone(true);
 
@@ -7651,9 +7786,10 @@ public abstract class ThreadDraw extends Thread {
             update(drawing_done);
         }
 
-        int done = synchronization.incrementAndGet();
+        int done = image_filters_sync.incrementAndGet();
 
         if(done == ptr.getNumberOfThreads()) {
+            
             applyFilters();
 
             ptr.setOptions(true);
@@ -7675,9 +7811,10 @@ public abstract class ThreadDraw extends Thread {
             update(drawing_done);
         }
 
-        int done = synchronization.incrementAndGet();
+        int done = image_filters_sync.incrementAndGet();
 
         if(done == ptr.getNumberOfThreads()) {
+            
             applyFilters();
 
             ptr.setOptions(true);
@@ -7699,7 +7836,7 @@ public abstract class ThreadDraw extends Thread {
             update(drawing_done);
         }
 
-        int done = synchronization.incrementAndGet();
+        int done = image_filters_sync.incrementAndGet();
 
         if(done == ptr.getNumberOfThreads()) {
 
@@ -7859,12 +7996,12 @@ public abstract class ThreadDraw extends Thread {
 
         }
 
-        if(bump_map || fake_de) {
-            int sync2 = synchronization2.incrementAndGet();
+        if(bump_map || fake_de || rainbow_palette) {
+            int pp_sync = post_processing_sync.incrementAndGet();
 
-            while(sync2 != ptr.getNumberOfThreads()) {
+            while(pp_sync != ptr.getNumberOfThreads()) {
                 yield();
-                sync2 = synchronization2.get();
+                pp_sync = post_processing_sync.get();
             }
 
             applyPostProcessing(image_size);
@@ -7887,7 +8024,7 @@ public abstract class ThreadDraw extends Thread {
             update(drawing_done);
         }
 
-        int done = synchronization.incrementAndGet();
+        int done = image_filters_sync.incrementAndGet();
 
         if(done == ptr.getJuliaMapSlices()) {
 
@@ -7919,7 +8056,7 @@ public abstract class ThreadDraw extends Thread {
             update(drawing_done);
         }
 
-        int done = synchronization.incrementAndGet();
+        int done = image_filters_sync.incrementAndGet();
 
         if(done == ptr.getJuliaMapSlices()) {
 
@@ -7946,14 +8083,14 @@ public abstract class ThreadDraw extends Thread {
         double temp_size_image_size_y = (size * height_ratio) / (TOx - FROMx);
 
         double temp_xcenter_size = fractal.getXCenter() - size_2_x;
-        double temp_ycenter_size = fractal.getYCenter() - size_2_y;
+        double temp_ycenter_size = fractal.getYCenter() + size_2_y;
 
         int pixel_percent = image_size * image_size / 100;
 
         double temp_y0 = temp_ycenter_size;
         double temp_x0 = temp_xcenter_size;
 
-        for(int y = FROMy; y < TOy; y++, temp_y0 += temp_size_image_size_y) {
+        for(int y = FROMy; y < TOy; y++, temp_y0 -= temp_size_image_size_y) {
             for(int x = FROMx, loc = y * image_size + x; x < TOx; x++, temp_x0 += temp_size_image_size_x, loc++) {
 
                 image_iterations[loc] = fractal.calculateJulia(new Complex(temp_x0, temp_y0));
@@ -7972,12 +8109,12 @@ public abstract class ThreadDraw extends Thread {
 
         }
 
-        if(bump_map || fake_de) {
-            int sync2 = synchronization2.incrementAndGet();
+        if(bump_map || fake_de || rainbow_palette) {
+            int pp_sync = post_processing_sync.incrementAndGet();
 
-            while(sync2 != ptr.getJuliaMapSlices()) {
+            while(pp_sync != ptr.getJuliaMapSlices()) {
                 yield();
-                sync2 = synchronization2.get();
+                pp_sync = post_processing_sync.get();
             }
 
             applyPostProcessing(image_size);
@@ -8026,12 +8163,12 @@ public abstract class ThreadDraw extends Thread {
 
         }
 
-        if(bump_map || fake_de) {
-            int sync2 = synchronization2.incrementAndGet();
+        if(bump_map || fake_de || rainbow_palette) {
+            int pp_sync = post_processing_sync.incrementAndGet();
 
-            while(sync2 != ptr.getJuliaMapSlices()) {
+            while(pp_sync != ptr.getJuliaMapSlices()) {
                 yield();
-                sync2 = synchronization2.get();
+                pp_sync = post_processing_sync.get();
             }
 
             applyPostProcessing(image_size);
@@ -8049,7 +8186,7 @@ public abstract class ThreadDraw extends Thread {
         double temp_size_image_size_y = (size * height_ratio) / (TOx - FROMx);
 
         double temp_xcenter_size = fractal.getXCenter() - size_2_x;
-        double temp_ycenter_size = fractal.getYCenter() - size_2_y;
+        double temp_ycenter_size = fractal.getYCenter() + size_2_y;
 
         int pixel_percent = image_size * image_size / 100;
 
@@ -8071,9 +8208,10 @@ public abstract class ThreadDraw extends Thread {
             -y_antialiasing_size_x2, 0, y_antialiasing_size_x2, -y_antialiasing_size_x2, y_antialiasing_size_x2, -y_antialiasing_size_x2, 0, y_antialiasing_size_x2,
             -y_antialiasing_size, y_antialiasing_size, -y_antialiasing_size_x2, y_antialiasing_size_x2, -y_antialiasing_size_x2, y_antialiasing_size_x2, -y_antialiasing_size, y_antialiasing_size};
 
-        double temp_samples = filters_options_vals[MainWindow.ANTIALIASING] + 1;
+        int supersampling_num = (filters_options_vals[MainWindow.ANTIALIASING] == 0 ? 4 : 8 * filters_options_vals[MainWindow.ANTIALIASING]);
+        double temp_samples = supersampling_num + 1;
 
-        for(int y = FROMy; y < TOy; y++, temp_y0 += temp_size_image_size_y) {
+        for(int y = FROMy; y < TOy; y++, temp_y0 -= temp_size_image_size_y) {
             for(int x = FROMx, loc = y * image_size + x; x < TOx; x++, temp_x0 += temp_size_image_size_x, loc++) {
 
                 image_iterations[loc] = fractal.calculateJulia(new Complex(temp_x0, temp_y0));
@@ -8084,7 +8222,7 @@ public abstract class ThreadDraw extends Thread {
                 blue = color & 0xff;
 
                 //Supersampling
-                for(int i = 0; i < filters_options_vals[MainWindow.ANTIALIASING]; i++) {
+                for(int i = 0; i < supersampling_num; i++) {
                     temp_result = fractal.calculateJulia(new Complex(temp_x0 + antialiasing_x[i], temp_y0 + antialiasing_y[i]));
                     color = getColor(temp_result);
 
@@ -8107,12 +8245,12 @@ public abstract class ThreadDraw extends Thread {
 
         }
 
-        if(bump_map || fake_de) {
-            int sync2 = synchronization2.incrementAndGet();
+        if(bump_map || fake_de || rainbow_palette) {
+            int pp_sync = post_processing_sync.incrementAndGet();
 
-            while(sync2 != ptr.getJuliaMapSlices()) {
+            while(pp_sync != ptr.getJuliaMapSlices()) {
                 yield();
-                sync2 = synchronization2.get();
+                pp_sync = post_processing_sync.get();
             }
 
             applyPostProcessing(image_size);
@@ -8178,7 +8316,8 @@ public abstract class ThreadDraw extends Thread {
             cos_inv_y_antialiasing_size_x2, 1, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, 1, cos_y_antialiasing_size_x2,
             cos_inv_y_antialiasing_size, cos_y_antialiasing_size, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size, cos_y_antialiasing_size};
 
-        double temp_samples = filters_options_vals[MainWindow.ANTIALIASING] + 1;
+        int supersampling_num = (filters_options_vals[MainWindow.ANTIALIASING] == 0 ? 4 : 8 * filters_options_vals[MainWindow.ANTIALIASING]);
+        double temp_samples = supersampling_num + 1;
 
         for(int y = FROMy, y1 = 0; y < TOy; y++, y1++) {
             f = y1 * muly;
@@ -8195,7 +8334,7 @@ public abstract class ThreadDraw extends Thread {
                 blue = color & 0xff;
 
                 //Supersampling
-                for(int i = 0; i < filters_options_vals[MainWindow.ANTIALIASING]; i++) {
+                for(int i = 0; i < supersampling_num; i++) {
                     sf2 = sf * antialiasing_y_cos[i] + cf * antialiasing_y_sin[i];
                     cf2 = cf * antialiasing_y_cos[i] - sf * antialiasing_y_sin[i];
 
@@ -8221,12 +8360,12 @@ public abstract class ThreadDraw extends Thread {
 
         }
 
-        if(bump_map || fake_de) {
-            int sync2 = synchronization2.incrementAndGet();
+        if(bump_map || fake_de || rainbow_palette) {
+            int pp_sync = post_processing_sync.incrementAndGet();
 
-            while(sync2 != ptr.getJuliaMapSlices()) {
+            while(pp_sync != ptr.getJuliaMapSlices()) {
                 yield();
-                sync2 = synchronization2.get();
+                pp_sync = post_processing_sync.get();
             }
 
             applyPostProcessing(image_size);
@@ -8234,952 +8373,41 @@ public abstract class ThreadDraw extends Thread {
 
     }
 
-    /*
-     visualize_planes
-     * 
-     * double size = 6;
-    
-    
-     double size_2 = size * 0.5;
-     double temp_xcenter_size = 0 - size_2;
-     double temp_ycenter_size = 0 - size_2;
-    
-     //double temp_size_image_size = size / image_size;
-    
-     double temp_size_image_size = size / (0.6 * image_size);
-     int d = (int)(image_size * 0.2);
-    
-     for(int x = FROMx; x < TOx; x++) {
-     for(int y = FROMy; y < TOy; y++) {
-    
-     if(x >= 0.20 * image_size && x < 0.80 * image_size && y >= 0.20 * image_size && y < 0.80 * image_size) {
-     int new_x = x - d;
-     int new_y = y - d;
-    
-     Complex new_complex = fractal.getTransformedNumber(new Complex(temp_xcenter_size + new_x * temp_size_image_size, temp_ycenter_size + new_y * temp_size_image_size));
-    
-     int x0 = (int)((new_complex.getRe() - temp_xcenter_size) / temp_size_image_size + 0.5);
-     int y0 = (int)((new_complex.getIm() - temp_ycenter_size) / temp_size_image_size + 0.5);
-    
-     if((x0 + d) >= 0 && (x0 + d) < image_size && (y0 + d) >= 0 && (y0 + d) < image_size) {
-     rgbs[(y0 + d) * image_size + (x0 + d)] = fractal_color;
-     }
-    
-     }
-     }
-     }
-    
-     */
-    public void update(int new_percent) {
+    private void visualizePlanes(int image_size) {
+
+        double size_2 = fractal.getSize() * 0.5;
+        double temp_xcenter_size = 0 - size_2;
+        double temp_ycenter_size = 0 + size_2;
+
+        //double temp_size_image_size = size / image_size;
+        double temp_size_image_size = fractal.getSize() / (0.6 * image_size);
+        int d = (int)(image_size * 0.2);
+
+        for(int x = FROMx; x < TOx; x++) {
+            for(int y = FROMy; y < TOy; y++) {
+
+                if(x >= 0.20 * image_size && x < 0.80 * image_size && y >= 0.20 * image_size && y < 0.80 * image_size) {
+                    int new_x = x - d;
+                    int new_y = y - d;
+
+                    Complex new_complex = fractal.getTransformedNumber(new Complex(temp_xcenter_size + new_x * temp_size_image_size, temp_ycenter_size - new_y * temp_size_image_size));
+
+                    int x0 = (int)((new_complex.getRe() - temp_xcenter_size) / temp_size_image_size + 0.5);
+                    int y0 = (int)((-new_complex.getIm() + temp_ycenter_size) / temp_size_image_size + 0.5);
+
+                    if((x0 + d) >= 0 && (x0 + d) < image_size && (y0 + d) >= 0 && (y0 + d) < image_size) {
+                        rgbs[(y0 + d) * image_size + (x0 + d)] = fractal_color;
+                    }
+
+                }
+            }
+        }
+    }
+
+    private void update(int new_percent) {
 
         ptr.getProgressBar().setValue(ptr.getProgressBar().getValue() + new_percent);
 
-    }
-
-    private void filterEmboss() {
-
-        int image_size = image.getHeight();
-
-        if(filters_options_vals[MainWindow.EMBOSS] == 1) {
-            int kernelWidth = (int)Math.sqrt((double)EMBOSS.length);
-            int kernelHeight = kernelWidth;
-            int xOffset = (kernelWidth - 1) / 2;
-            int yOffset = xOffset;
-
-            BufferedImage newSource = new BufferedImage(image_size + kernelWidth - 1, image_size + kernelHeight - 1, BufferedImage.TYPE_INT_RGB);
-            Graphics2D graphics = newSource.createGraphics();
-            graphics.drawImage(image, xOffset, yOffset, null);
-
-            Kernel kernel = new Kernel(kernelWidth, kernelHeight, EMBOSS);
-            ConvolveOp cop = new ConvolveOp(kernel, ConvolveOp.EDGE_NO_OP, null);
-            cop.filter(newSource, image);
-
-            graphics.dispose();
-            graphics = null;
-            kernel = null;
-            cop = null;
-            newSource = null;
-        }
-        else {
-            int[] raster = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
-
-            for(int i = image_size - 1; i >= 0; i--) {
-                for(int j = image_size - 1, loc = i * image_size + j; j >= 0; j--, loc--) {
-                    int current = raster[loc];
-
-                    int upperLeft = 0;
-                    if(i > 0 && j > 0) {
-                        upperLeft = raster[loc - image_size - 1];
-                    }
-
-                    int rDiff = ((current >> 16) & 0xff) - ((upperLeft >> 16) & 0xff);
-                    int gDiff = ((current >> 8) & 0xff) - ((upperLeft >> 8) & 0xff);
-                    int bDiff = (current & 0xff) - (upperLeft & 0xff);
-
-                    int diff = rDiff;
-                    if(Math.abs(gDiff) > Math.abs(diff)) {
-                        diff = gDiff;
-                    }
-                    if(Math.abs(bDiff) > Math.abs(diff)) {
-                        diff = bDiff;
-                    }
-
-                    int grayLevel = Math.max(Math.min(128 + diff, 255), 0);
-                    raster[loc] = 0xff000000 | ((grayLevel << 16) + (grayLevel << 8) + grayLevel);
-                }
-            }
-        }
-
-    }
-
-    private void filterEdgeDetection() {
-
-        /*float[] EDGES = {1.0f,   1.0f,  1.0f,
-         1.0f, -8.0f,  1.0f,
-         1.0f,   1.0f,  1.0f};*/
-
-        /*float[] EDGES = {-7.0f,   -7.0f,  -7.0f,
-         -7.0f, 56.0f,  -7.0f,
-         -7.0f,   -7.0f,  -7.0f};*/
-
-        /*float[] EDGES = {-1.0f, -1.0f, -2.0f, -1.0f, -1.0f,
-         -1.0f, -2.0f, -4.0f, -2.0f, -1.0f,
-         -2.0f, -4.0f, 44.0f, -4.0f, -2.0f,
-         -1.0f, -2.0f, -4.0f, -2.0f, -1.0f,
-         -1.0f, -1.0f, -2.0f, -1.0f, -1.0f};*/
-        float[] EDGES = null;
-
-        if(filters_options_vals[MainWindow.EDGE_DETECTION] == 1) {
-            EDGES = thick_edges;
-        }
-        else {
-            EDGES = thin_edges;
-        }
-
-        int kernelWidth = (int)Math.sqrt((double)EDGES.length);
-
-        int image_size = image.getHeight();
-
-        Kernel kernel = new Kernel(kernelWidth, kernelWidth, EDGES);
-        ConvolveOp cop = new ConvolveOp(kernel, ConvolveOp.EDGE_ZERO_FILL, null);
-        BufferedImage newSource = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_RGB);
-        BufferedImage newSource2 = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_RGB);
-
-        System.arraycopy(((DataBufferInt)image.getRaster().getDataBuffer()).getData(), 0, ((DataBufferInt)newSource.getRaster().getDataBuffer()).getData(), 0, image_size * image_size);
-
-        cop.filter(newSource, newSource2);
-
-        int black = Color.BLACK.getRGB();
-
-        int[] raster = ((DataBufferInt)newSource2.getRaster().getDataBuffer()).getData();
-
-        int condition = image_size * image_size;
-
-        for(int p = 0; p < condition; p++) {
-            if((0xff000000 | raster[p]) == black) {
-                rgbs[p] = black;
-            }
-        }
-
-        kernel = null;
-        cop = null;
-        newSource = null;
-        newSource2 = null;
-
-    }
-
-    private void filterSharpness() {
-
-        int image_size = image.getHeight();
-
-        float[] SHARPNESS = null;
-
-        if(filters_options_vals[MainWindow.SHARPNESS] == 0) {
-            SHARPNESS = sharpness_low;
-        }
-        else {
-            SHARPNESS = sharpness_high;
-        }
-
-        int kernelWidth = (int)Math.sqrt((double)SHARPNESS.length);
-        int kernelHeight = kernelWidth;
-        int xOffset = (kernelWidth - 1) / 2;
-        int yOffset = xOffset;
-
-        BufferedImage newSource = new BufferedImage(image_size + kernelWidth - 1, image_size + kernelHeight - 1, BufferedImage.TYPE_INT_RGB);
-        Graphics2D graphics = newSource.createGraphics();
-        graphics.drawImage(image, xOffset, yOffset, null);
-
-        Kernel kernel = new Kernel(kernelWidth, kernelHeight, SHARPNESS);
-        ConvolveOp cop = new ConvolveOp(kernel, ConvolveOp.EDGE_NO_OP, null);
-        cop.filter(newSource, image);
-
-        graphics.dispose();
-        graphics = null;
-        kernel = null;
-        cop = null;
-        newSource = null;
-    }
-
-    private void filterBlurring() { //OLD antialiasing method (blurring)
-
-        /*     float b = 0.05f;
-         float a = 1.0f - (8.0f * b);
-        
-        
-         float[] AA = {b, b, b,    // low-pass filter
-         b, a, b,
-         b, b, b};
-        
-        
-         /* float c = 0.00390625f;
-         float b = 0.046875f;
-         float a = 1.0f - (16.0f * c + 8.0f * b);
-        
-         float[] AA = {c, c, c, c, c,    // low-pass filter
-         c, b, b, b, c,
-         c, b, a, b, c,
-         c, b, b, b, c,
-         c, c, c, c, c};*/
-        /*  float d = 1.0f / 3096.0f;
-         float c = 12.0f * d;
-         float b = 12.0f * c;
-         float a = 1.0f - (24.0f * d + 16.0f * c + 8.0f * b);
-        
-         float[] AA = {d, d, d, d, d, d, d,    // low-pass filter
-         d, c, c, c, c, c, d,
-         d, c, b, b, b, c, d,
-         d, c, b, a, b, c, d,
-         d, c, b, b, b, c, d,
-         d, c, c, c, c, c, d,
-         d, d, d, d, d, d, d};*/
-        float[] blur = null;
-
-        /*if(blurring == 1) {
-         float[] MOTION_BLUR = {0.2f,  0.0f,  0.0f, 0.0f,  0.0f,
-         0.0f,   0.2f,  0.0f, 0.0f,  0.0f,
-         0.0f,   0.0f,  0.2f, 0.0f,  0.0f,
-         0.0f,   0.0f,  0.0f, 0.2f,  0.0f,
-         0.0f,   0.0f,  0.0f, 0.0f,  0.2f};
-        
-         blur = MOTION_BLUR;
-         }*/
-        //else {
-        float e = 1.0f / 37184.0f;
-        float d = 12.0f * e;
-        float c = 12.0f * d;
-        float b = 12.0f * c;
-        float a = 1.0f - (32.0f * e + 24.0f * d + 16.0f * c + 8.0f * b);
-
-        float[] NORMAL_BLUR = {e, e, e, e, e, e, e, e, e, // low-pass filter
-            e, d, d, d, d, d, d, d, e,
-            e, d, c, c, c, c, c, d, e,
-            e, d, c, b, b, b, c, d, e,
-            e, d, c, b, a, b, c, d, e,
-            e, d, c, b, b, b, c, d, e,
-            e, d, c, c, c, c, c, d, e,
-            e, d, d, d, d, d, d, d, e,
-            e, e, e, e, e, e, e, e, e};
-
-        blur = NORMAL_BLUR;
-        // }
-
-
-        /*float h = 1.0f / 64260344.0f;
-         float g = 12.0f * h;
-         float f = 12.0f * g;
-         float e = 12.0f * f;
-         float d = 12.0f * e;
-         float c = 12.0f * d;
-         float b = 12.0f * c;
-         float a = 1.0f - (56.0f * h + 48.0f * g + 40.0f * f + 32.0f * e + 24.0f * d + 16.0f * c + 8.0f * b);
-        
-         float[] AA  = {h, h, h, h, h, h, h, h, h, h, h, h, h, h, h,    // low-pass filter
-         h, g, g, g, g, g, g, g, g, g, g, g, g, g, h,
-         h, g, f, f, f, f, f, f, f, f, f, f, f, g, h,
-         h, g, f, e, e, e, e, e, e, e, e, e, f, g, h,
-         h, g, f, e, d, d, d, d, d, d, d, e, f, g, h,
-         h, g, f, e, d, c, c, c, c, c, d, e, f, g, h,
-         h, g, f, e, d, c, b, b, b, c, d, e, f, g, h,
-         h, g, f, e, d, c, b, a, b, c, d, e, f, g, h,
-         h, g, f, e, d, c, b, b, b, c, d, e, f, g, h,
-         h, g, f, e, d, c, c, c, c, c, d, e, f, g, h,
-         h, g, f, e, d, d, d, d, d, d, d, e, f, g, h,
-         h, g, f, e, e, e, e, e, e, e, e, e, f, g, h,
-         h, g, f, f, f, f, f, f, f, f, f, f, f, g, h,
-         h, g, g, g, g, g, g, g, g, g, g, g, g, g, h,
-         h, h, h, h, h, h, h, h, h, h, h, h, h, h, h};*/
-        //resize the picture to cover the image edges
-        int kernelWidth = (int)Math.sqrt((double)blur.length);
-        int kernelHeight = kernelWidth;
-        int xOffset = (kernelWidth - 1) / 2;
-        int yOffset = xOffset;
-
-        int image_size = image.getHeight();
-
-        BufferedImage newSource = new BufferedImage(image_size + kernelWidth - 1, image_size + kernelHeight - 1, BufferedImage.TYPE_INT_RGB);
-        Graphics2D graphics = newSource.createGraphics();
-        graphics.drawImage(image, xOffset, yOffset, null);
-
-        Kernel kernel = new Kernel(kernelWidth, kernelHeight, blur);
-        ConvolveOp cop = new ConvolveOp(kernel, ConvolveOp.EDGE_NO_OP, null);
-        cop.filter(newSource, image);
-
-        graphics.dispose();
-        graphics = null;
-        blur = null;
-        kernel = null;
-        cop = null;
-        newSource = null;
-    }
-
-    private void filterInvertColors() {
-
-        int image_size = image.getHeight();
-
-        int[] raster = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
-
-        int condition = image_size * image_size;
-
-        int r, g, b;
-
-        for(int p = 0; p < condition; p++) {
-
-            if(filters_options_vals[MainWindow.INVERT_COLORS] == 0) {
-                raster[p] = ~(raster[p] & 0x00ffffff);
-            }
-            else {
-                r = (raster[p] >> 16) & 0xff;
-                g = (raster[p] >> 8) & 0xff;
-                b = raster[p] & 0xff;
-
-                float res[] = new float[3];
-
-                Color.RGBtoHSB(r, g, b, res);
-
-                raster[p] = Color.HSBtoRGB(res[0], res[1], 1.0f - res[2]);
-            }
-
-        }
-
-    }
-
-    private void filterMaskColors() {
-
-        int image_size = image.getHeight();
-
-        int[] raster = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
-
-        int mask = 0;
-
-        if(filters_options_vals[MainWindow.COLOR_CHANNEL_MASKING] == 0) {
-            mask = 0xff00ffff;  //RED
-        }
-        else if(filters_options_vals[MainWindow.COLOR_CHANNEL_MASKING] == 1) {
-            mask = 0xffff00ff;  //GREEN
-        }
-        else {
-            mask = 0xffffff00;  //BLUE
-        }
-
-        int condition = image_size * image_size;
-
-        for(int p = 0; p < condition; p++) {
-            raster[p] = raster[p] & mask;
-        }
-
-    }
-
-    private void filterFadeOut() {
-
-        int image_size = image.getHeight();
-
-        int[] raster = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
-        int r, g, b;
-
-        int condition = image_size * image_size;
-
-        for(int p = 0; p < condition; p++) {
-            r = (raster[p] >> 16) & 0xff;
-            g = (raster[p] >> 8) & 0xff;
-            b = raster[p] & 0xff;
-
-            r = (r + 255) >> 1;
-            g = (g + 255) >> 1;
-            b = (b + 255) >> 1;
-
-            raster[p] = 0xff000000 | (r << 16) | (g << 8) | b;
-        }
-
-    }
-
-    private void filterColorChannelSwapping() {
-
-        int image_size = image.getHeight();
-
-        int[] raster = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
-        int r, g, b;
-
-        int condition = image_size * image_size;
-
-        for(int p = 0; p < condition; p++) {
-            r = (raster[p] >> 16) & 0xff;
-            g = (raster[p] >> 8) & 0xff;
-            b = raster[p] & 0xff;
-
-            if(filters_options_vals[MainWindow.COLOR_CHANNEL_SWAPPING] == 0) {
-                raster[p] = 0xff000000 | (r << 16) | (b << 8) | g;
-            }
-            else if(filters_options_vals[MainWindow.COLOR_CHANNEL_SWAPPING] == 1) {
-                raster[p] = 0xff000000 | (g << 16) | (r << 8) | b;
-            }
-            else if(filters_options_vals[MainWindow.COLOR_CHANNEL_SWAPPING] == 2) {
-                raster[p] = 0xff000000 | (g << 16) | (b << 8) | r;
-            }
-            else if(filters_options_vals[MainWindow.COLOR_CHANNEL_SWAPPING] == 3) {
-                raster[p] = 0xff000000 | (b << 16) | (g << 8) | r;
-            }
-            else {
-                raster[p] = 0xff000000 | (b << 16) | (r << 8) | g;
-            }
-        }
-
-    }
-
-    private void filterContrastBrightness() {
-
-        int image_size = image.getHeight();
-
-        int[] raster = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
-
-        float brightness = 1.0f;
-        float contrast = 1.0f;
-
-        if(filters_options_vals[MainWindow.CONTRAST_BRIGHTNESS] == 0) {
-            contrast = 2.0f;
-        }
-        else if(filters_options_vals[MainWindow.CONTRAST_BRIGHTNESS] == 1) {
-            brightness = 2.0f;
-        }
-        else {
-            brightness = 2.0f;
-            contrast = 2.0f;
-        }
-
-        int[] table = new int[256];
-        float f;
-
-        for(int i = 0; i < 256; i++) {
-            f = i / 255.0f;
-            f = f * brightness;
-            f = (f - 0.5f) * contrast + 0.5f;
-            table[i] = clamp((int)(255 * f));
-        }
-
-        int r, g, b;
-
-        int condition = image_size * image_size;
-
-        for(int p = 0; p < condition; p++) {
-            r = (raster[p] >> 16) & 0xff;
-            g = (raster[p] >> 8) & 0xff;
-            b = raster[p] & 0xff;
-
-            raster[p] = 0xff000000 | (table[r] << 16) | (table[g] << 8) | table[b];
-        }
-
-    }
-
-    private void filterColorTemperature() {
-
-        int image_size = image.getHeight();
-
-        int[] raster = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
-
-        float rFactor = 0;
-        float gFactor = 0;
-        float bFactor = 0;
-
-        switch (filters_options_vals[MainWindow.COLOR_TEMPERATURE]) {
-            case 2000:
-                rFactor = 1.0f;
-                gFactor = 0.2484f;
-                bFactor = 0.0061f;
-                break;
-            case 3000:
-                rFactor = 1.0f;
-                gFactor = 0.4589f;
-                bFactor = 0.1483f;
-                break;
-            case 4000:
-                rFactor = 1.0f;
-                gFactor = 0.6354f;
-                bFactor = 0.3684f;
-                break;
-            case 5000:
-                rFactor = 1.0f;
-                gFactor = 0.7792f;
-                bFactor = 0.618f;
-                break;
-            case 10000:
-                rFactor = 0.6033f;
-                gFactor = 0.7106f;
-                bFactor = 1.0f;
-                break;
-            case 30000:
-                rFactor = 0.3471f;
-                gFactor = 0.5188f;
-                bFactor = 1.0f;
-                break;
-        }
-
-        //  int t = 3 * (int)((((float)filters_options_vals[MainWindow.COLOR_TEMPATURE]) - 1000F) / 100F);
-        //rFactor = blackBodyRGB[t];
-        //gFactor = blackBodyRGB[t + 1];
-        //bFactor = blackBodyRGB[t + 2];
-        int r, g, b;
-
-        int condition = image_size * image_size;
-
-        for(int p = 0; p < condition; p++) {
-            r = (raster[p] >> 16) & 0xff;
-            g = (raster[p] >> 8) & 0xff;
-            b = raster[p] & 0xff;
-
-            r = (int)(r * rFactor + 0.5);
-            g = (int)(g * gFactor + 0.5);
-            b = (int)(b * bFactor + 0.5);
-
-            raster[p] = 0xff000000 | (r << 16) | (g << 8) | b;
-        }
-
-    }
-
-    private void filterGrayscale() {
-
-        int image_size = image.getHeight();
-
-        int[] raster = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
-
-        int r, g, b, rgb;
-
-        int condition = image_size * image_size;
-
-        for(int p = 0; p < condition; p++) {
-            r = (raster[p] >> 16) & 0xff;
-            g = (raster[p] >> 8) & 0xff;
-            b = raster[p] & 0xff;
-
-            if(filters_options_vals[MainWindow.GRAYSCALE] == 0) {
-                rgb = (r * 612 + g * 1202 + b * 233) >> 11;	// NTSC luma
-                //rgb = (int)(r * 0.299F + g * 0.587F + b * 0.114F);	// NTSC luma
-            }
-            else if(filters_options_vals[MainWindow.GRAYSCALE] == 1) {
-                rgb = (r * 435 + g * 1464 + b * 147) >> 11;	// HDTV luma
-                //rgb = (int)(r * 0.2126F + g * 0.7152F + b * 0.0722F);	// HDTV luma
-            }
-            else if(filters_options_vals[MainWindow.GRAYSCALE] == 2) {
-                rgb = (int)((r + g + b) / 3.0 + 0.5);	// simple average
-            }
-            else {
-                rgb = (int)((Math.max(Math.max(r, g), b) + Math.min(Math.min(r, g), b)) / 2.0 + 0.5);
-            }
-
-            raster[p] = 0xff000000 | (rgb << 16) | (rgb << 8) | rgb;
-        }
-
-    }
-
-    private void histogramEqualization() {
-
-        int image_size = image.getHeight();
-
-        int[] raster = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
-
-        int condition = image_size * image_size;
-
-        /*int r, g, b;
-        
-         int cdf[] = new int[100001];
-        
-         for(int p = 0; p < condition; p++) {
-         r = (raster[p] >> 16) & 0xff;
-         g = (raster[p] >> 8) & 0xff;
-         b = raster[p] & 0xff;
-        
-         float res[] = new float[3];
-        
-         Color.RGBtoHSB(r, g, b, res);
-        
-         cdf[(int)(res[2] * 100000 + 0.5)]++;
-         }
-        
-         int min = 0;
-         int j = 0;
-         while(min == 0) {
-         min = cdf[j++];
-         }
-         int d = condition - min;
-        
-         for(int i = 1; i < cdf.length; i++) {
-         cdf[i] += cdf[i - 1];
-         }
-        
-         for(int p = 0; p < condition; p++) {
-         r = (raster[p] >> 16) & 0xff;
-         g = (raster[p] >> 8) & 0xff;
-         b = raster[p] & 0xff;
-        
-         float res[] = new float[3];
-        
-         Color.RGBtoHSB(r, g, b, res);
-        
-         double temp = ((double)(cdf[(int)(res[2] * 100000 + 0.5)] - min)) / d;
-        
-         raster[p] = Color.HSBtoRGB(res[0], res[1], (float)(temp < 0 ? 0 : temp));
-        
-        
-         }*/
-        if(filters_options_vals[MainWindow.HISTOGRAM_EQUALIZATION] == 1) {
-
-            int hist[][] = new int[3][256];
-
-            int i, c;
-            double mult, count, percentage, next_percentage;
-            int low = 0, high = 0;
-
-            // Fill the histogram by counting the number of pixels with each value
-            for(int p = 0; p < condition; p++) {
-                hist[0][(raster[p] >> 16) & 0xff]++;
-                hist[1][(raster[p] >> 8) & 0xff]++;
-                hist[2][raster[p] & 0xff]++;
-            }
-
-            count = image_size * image_size;
-            // Fore each channel
-            for(c = 0; c < hist.length; c++) {
-                // Determine the low input value
-                next_percentage = hist[c][0] / count;
-                for(i = 0; i < 255; i++) {
-                    percentage = next_percentage;
-                    next_percentage += hist[c][i + 1] / count;
-                    if(Math.abs(percentage - 0.006) < Math.abs(next_percentage - 0.006)) {
-                        //low = i;//i+1; This is a deviation from the way The GIMP does it
-                        low = i + 1;
-                        // that prevents any change in the image if it's
-                        // already optimal
-                        break;
-                    }
-                }
-                // Determine the high input value
-                next_percentage = hist[c][255] / count;
-                for(i = 255; i > 0; i--) {
-                    percentage = next_percentage;
-                    next_percentage += hist[c][i - 1] / count;
-                    if(Math.abs(percentage - 0.006) < Math.abs(next_percentage - 0.006)) {
-                        //high = i;//i-1; This is a deviation from the way The GIMP does it
-                        high = i - 1;
-                        // that prevents any change in the image if it's
-                        // already optimal
-                        break;
-                    }
-                }
-
-                // Turn the histogram into a look up table to stretch the values
-                mult = 255.0 / (high - low);
-
-                for(i = 0; i < low; i++) {
-                    hist[c][i] = 0;
-                }
-
-                for(i = 255; i > high; i--) {
-                    hist[c][i] = 255;
-                }
-
-                double base = 0.0;
-
-                for(i = low; i <= high; i++) {
-                    hist[c][i] = (int)(base + 0.5);
-                    base += mult;
-                }
-            }
-
-            // Now apply the changes (stretch the values)
-            int r, g, b;
-
-            for(int p = 0; p < condition; p++) {
-                r = hist[0][(raster[p] >> 16) & 0xff];
-                g = hist[1][(raster[p] >> 8) & 0xff];
-                b = hist[2][raster[p] & 0xff];
-
-                raster[p] = 0xff000000 | (r << 16) | (g << 8) | b;
-            }
-        }
-        else if(filters_options_vals[MainWindow.HISTOGRAM_EQUALIZATION] == 0) {
-            int hist[] = new int[1025];
-
-            int i;
-            double mult, count, percentage, next_percentage;
-            int low = 0, high = 0;
-
-            int hist_len = hist.length - 1;
-
-            int r, g, b;
-
-            // Fill the histogram by counting the number of pixels with each value
-            for(int p = 0; p < condition; p++) {
-                r = (raster[p] >> 16) & 0xff;
-                g = (raster[p] >> 8) & 0xff;
-                b = raster[p] & 0xff;
-
-                float res[] = new float[3];
-
-                Color.RGBtoHSB(r, g, b, res);
-
-                hist[(int)(res[2] * hist_len + 0.5)]++;
-            }
-
-            count = image_size * image_size;
-
-            // Determine the low input value
-            next_percentage = hist[0] / count;
-            for(i = 0; i < hist_len; i++) {
-                percentage = next_percentage;
-                next_percentage += hist[i + 1] / count;
-                if(Math.abs(percentage - 0.006) < Math.abs(next_percentage - 0.006)) {
-                    //low = i;//i+1; This is a deviation from the way The GIMP does it
-                    low = i + 1;
-                    // that prevents any change in the image if it's
-                    // already optimal
-                    break;
-                }
-            }
-            // Determine the high input value
-            next_percentage = hist[hist_len] / count;
-            for(i = hist_len; i > 0; i--) {
-                percentage = next_percentage;
-                next_percentage += hist[i - 1] / count;
-                if(Math.abs(percentage - 0.006) < Math.abs(next_percentage - 0.006)) {
-                    //high = i;//i-1; This is a deviation from the way The GIMP does it
-                    high = i - 1;
-                    // that prevents any change in the image if it's
-                    // already optimal
-                    break;
-                }
-            }
-
-            // Turn the histogram into a look up table to stretch the values
-            mult = ((double)hist_len) / (high - low);
-
-            for(i = 0; i < low; i++) {
-                hist[i] = 0;
-            }
-
-            for(i = hist_len; i > high; i--) {
-                hist[i] = hist_len;
-            }
-
-            double base = 0.0;
-
-            for(i = low; i <= high; i++) {
-                hist[i] = (int)(base + 0.5);
-                base += mult;
-            }
-
-            // Now apply the changes (stretch the values)
-            for(int p = 0; p < condition; p++) {
-                r = (raster[p] >> 16) & 0xff;
-                g = (raster[p] >> 8) & 0xff;
-                b = raster[p] & 0xff;
-
-                float res[] = new float[3];
-
-                Color.RGBtoHSB(r, g, b, res);
-
-                double temp = hist[(int)(res[2] * hist_len + 0.5)] / ((double)hist_len);
-
-                raster[p] = Color.HSBtoRGB(res[0], res[1], (float)temp);
-            }
-
-        }
-        else if(filters_options_vals[MainWindow.HISTOGRAM_EQUALIZATION] == 2 || filters_options_vals[MainWindow.HISTOGRAM_EQUALIZATION] == 3 || filters_options_vals[MainWindow.HISTOGRAM_EQUALIZATION] == 4) {
-            int hist[] = new int[256];
-
-            int i;
-            double mult, count, percentage, next_percentage;
-            int low = 0, high = 0;
-
-            // Fill the histogram by counting the number of pixels with each value
-            for(int p = 0; p < condition; p++) {
-                if(filters_options_vals[MainWindow.HISTOGRAM_EQUALIZATION] == 2) {
-                    hist[(raster[p] >> 16) & 0xff]++;
-                }
-                else if(filters_options_vals[MainWindow.HISTOGRAM_EQUALIZATION] == 3) {
-                    hist[(raster[p] >> 8) & 0xff]++;
-                }
-                else {
-                    hist[raster[p] & 0xff]++;
-                }
-            }
-
-            count = image_size * image_size;
-            // Determine the low input value
-            next_percentage = hist[0] / count;
-            for(i = 0; i < 255; i++) {
-                percentage = next_percentage;
-                next_percentage += hist[i + 1] / count;
-                if(Math.abs(percentage - 0.006) < Math.abs(next_percentage - 0.006)) {
-                    //low = i;//i+1; This is a deviation from the way The GIMP does it
-                    low = i + 1;
-                    // that prevents any change in the image if it's
-                    // already optimal
-                    break;
-                }
-            }
-            // Determine the high input value
-            next_percentage = hist[255] / count;
-            for(i = 255; i > 0; i--) {
-                percentage = next_percentage;
-                next_percentage += hist[i - 1] / count;
-                if(Math.abs(percentage - 0.006) < Math.abs(next_percentage - 0.006)) {
-                    //high = i;//i-1; This is a deviation from the way The GIMP does it
-                    high = i - 1;
-                    // that prevents any change in the image if it's
-                    // already optimal
-                    break;
-                }
-            }
-
-            // Turn the histogram into a look up table to stretch the values
-            mult = 255.0 / (high - low);
-
-            for(i = 0; i < low; i++) {
-                hist[i] = 0;
-            }
-
-            for(i = 255; i > high; i--) {
-                hist[i] = 255;
-            }
-
-            double base = 0.0;
-
-            for(i = low; i <= high; i++) {
-                hist[i] = (int)(base + 0.5);
-                base += mult;
-            }
-
-            // Now apply the changes (stretch the values)
-            int r, g, b;
-
-            for(int p = 0; p < condition; p++) {
-
-                if(filters_options_vals[MainWindow.HISTOGRAM_EQUALIZATION] == 2) {
-                    r = hist[(raster[p] >> 16) & 0xff];
-                    g = (raster[p] >> 8) & 0xff;
-                    b = raster[p] & 0xff;
-                }
-                else if(filters_options_vals[MainWindow.HISTOGRAM_EQUALIZATION] == 3) {
-                    r = (raster[p] >> 16) & 0xff;
-                    g = hist[(raster[p] >> 8) & 0xff];
-                    b = raster[p] & 0xff;
-                }
-                else {
-                    r = (raster[p] >> 16) & 0xff;
-                    g = (raster[p] >> 8) & 0xff;
-                    b = hist[raster[p] & 0xff];
-                }
-
-                raster[p] = 0xff000000 | (r << 16) | (g << 8) | b;
-            }
-        }
-    }
-
-    private void filterColorChannelMixing() {
-
-        int[] matrix = {
-            1, 0, 0,
-            0, 1, 0,
-            0, 0, 1,};
-
-        matrix[filters_options_vals[MainWindow.COLOR_CHANNEL_MIXING]] = 1;
-
-        int image_size = image.getHeight();
-
-        int[] raster = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
-
-        int r, g, b;
-
-        int condition = image_size * image_size;
-
-        for(int p = 0; p < condition; p++) {
-            r = (raster[p] >> 16) & 0xff;
-            g = (raster[p] >> 8) & 0xff;
-            b = raster[p] & 0xff;
-
-            r = clamp(matrix[0] * r + matrix[1] * g + matrix[2] * b);
-            g = clamp(matrix[3] * r + matrix[4] * g + matrix[5] * b);
-            b = clamp(matrix[6] * r + matrix[7] * g + matrix[8] * b);
-
-            raster[p] = 0xff000000 | (r << 16) | (g << 8) | b;
-        }
-
-    }
-
-    private void filterPosterize() {
-
-        int image_size = image.getHeight();
-
-        int[] raster = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
-
-        int condition = image_size * image_size;
-
-        int[] levels = new int[256];
-
-        int numLevels = filters_options_vals[MainWindow.POSTERIZE];
-
-        for(int i = 0; i < levels.length; i++) {
-            levels[i] = 255 * (numLevels * i / 256) / (numLevels - 1);
-        }
-
-        int r, g, b;
-
-        for(int p = 0; p < condition; p++) {
-            r = levels[(raster[p] >> 16) & 0xff];
-            g = levels[(raster[p] >> 8) & 0xff];
-            b = levels[raster[p] & 0xff];
-
-            raster[p] = 0xff000000 | (r << 16) | (g << 8) | b;
-        }
-
-    }
-
-    private void filterSolarize() {
-
-        int image_size = image.getHeight();
-
-        int[] raster = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
-
-        int condition = image_size * image_size;
-
-        int[] table = new int[256];
-
-        float f;
-
-        for(int i = 0; i < table.length; i++) {
-            f = i / 255.0f;
-            f = f > 0.5f ? 2 * (f - 0.5f) : 2 * (0.5f - f);
-            table[i] = clamp((int)(255 * f));
-        }
-
-        int r, g, b;
-
-        for(int p = 0; p < condition; p++) {
-            r = (raster[p] >> 16) & 0xff;
-            g = (raster[p] >> 8) & 0xff;
-            b = raster[p] & 0xff;
-
-            raster[p] = 0xff000000 | (table[r] << 16) | (table[g] << 8) | table[b];
-        }
     }
 
     private double getGradientX(double[] image_iterations, int index, int size) {
@@ -9295,76 +8523,88 @@ public abstract class ThreadDraw extends Thread {
     private void applyFilters() {
 
         if(filters[MainWindow.COLOR_CHANNEL_SWAPPING]) {
-            filterColorChannelSwapping();
+            ImageFilters.filterColorChannelSwapping(image, filters_options_vals[MainWindow.COLOR_CHANNEL_SWAPPING]);
         }
 
         if(filters[MainWindow.COLOR_CHANNEL_MIXING]) {
-            filterColorChannelMixing();
+            ImageFilters.filterColorChannelMixing(image, filters_options_vals[MainWindow.COLOR_CHANNEL_MIXING]);
         }
+        
+        if(filters[MainWindow.COLOR_CHANNEL_SCALING]) {
+            ImageFilters.filterColorChannelScaling(image, filters_options_vals[MainWindow.COLOR_CHANNEL_SCALING]);
+        }
+        
+        if(filters[MainWindow.COLOR_CHANNEL_HSB_SCALING]) {
+            ImageFilters.filterHSBcolorChannelScaling(image, filters_options_vals[MainWindow.COLOR_CHANNEL_HSB_SCALING]);
+        }       
 
         if(filters[MainWindow.GRAYSCALE]) {
-            filterGrayscale();
+            ImageFilters.filterGrayscale(image, filters_options_vals[MainWindow.GRAYSCALE]);
         }
 
         if(filters[MainWindow.POSTERIZE]) {
-            filterPosterize();
+            ImageFilters.filterPosterize(image, filters_options_vals[MainWindow.POSTERIZE]);
+        }
+        
+        if(filters[MainWindow.DITHER]) {
+            ImageFilters.filterDither(image, filters_options_vals[MainWindow.DITHER]);
         }
 
         if(filters[MainWindow.INVERT_COLORS]) {
-            filterInvertColors();
+            ImageFilters.filterInvertColors(image, filters_options_vals[MainWindow.INVERT_COLORS]);
         }
 
         if(filters[MainWindow.SOLARIZE]) {
-            filterSolarize();
+            ImageFilters.filterSolarize(image);
         }
 
         if(filters[MainWindow.COLOR_TEMPERATURE]) {
-            filterColorTemperature();
+            ImageFilters.filterColorTemperature(image, filters_options_vals[MainWindow.COLOR_TEMPERATURE]);
         }
 
         if(filters[MainWindow.CONTRAST_BRIGHTNESS]) {
-            filterContrastBrightness();
+            ImageFilters.filterContrastBrightness(image, filters_options_vals[MainWindow.CONTRAST_BRIGHTNESS]);
+        }
+        
+        if(filters[MainWindow.GAIN]) {
+            ImageFilters.filterGain(image, filters_options_vals[MainWindow.GAIN]);
+        }
+        
+        if(filters[MainWindow.GAMMA]) {
+            ImageFilters.filterGamma(image, filters_options_vals[MainWindow.GAMMA]);
+        }
+        
+        if(filters[MainWindow.EXPOSURE]) {
+            ImageFilters.filterExposure(image, filters_options_vals[MainWindow.EXPOSURE]);
         }
 
         if(filters[MainWindow.HISTOGRAM_EQUALIZATION]) {
-            histogramEqualization();
+            ImageFilters.filterHistogramEqualization(image, filters_options_vals[MainWindow.HISTOGRAM_EQUALIZATION]);
         }
 
         if(filters[MainWindow.COLOR_CHANNEL_MASKING]) {
-            filterMaskColors();
+            ImageFilters.filterMaskColors(image, filters_options_vals[MainWindow.COLOR_CHANNEL_MASKING]);
         }
 
         if(filters[MainWindow.EDGE_DETECTION]) {
-            filterEdgeDetection();
+            ImageFilters.filterEdgeDetection(image, filters_options_vals[MainWindow.EDGE_DETECTION]);
         }
 
         if(filters[MainWindow.SHARPNESS]) {
-            filterSharpness();
+            ImageFilters.filterSharpness(image, filters_options_vals[MainWindow.SHARPNESS]);
         }
 
         if(filters[MainWindow.BLURRING]) {
-            filterBlurring();
+            ImageFilters.filterBlurring(image, filters_options_vals[MainWindow.BLURRING]);
         }
 
         if(filters[MainWindow.EMBOSS]) {
-            filterEmboss();
+            ImageFilters.filterEmboss(image, filters_options_vals[MainWindow.EMBOSS]);
         }
 
         if(filters[MainWindow.FADE_OUT]) {
-            filterFadeOut();
+            ImageFilters.filterFadeOut(image);
         }
-
-    }
-
-    private int clamp(int c) {
-
-        if(c < 0) {
-            return 0;
-        }
-        if(c > 255) {
-            return 255;
-        }
-        return c;
 
     }
 
@@ -9384,7 +8624,7 @@ public abstract class ThreadDraw extends Thread {
             case 5:
                 return 40 * Math.cos(x);
             case 6:
-                return 150 / (1 + Math.exp(-3*x+3));
+                return 150 / (1 + Math.exp(-3 * x + 3));
         }
 
         return 0;
@@ -9406,7 +8646,7 @@ public abstract class ThreadDraw extends Thread {
             }
         }
 
-        min = min + (min_to_max_scaling / 100.0)* 0.05 * max;
+        min = min + (min_to_max_scaling / 100.0) * 0.1 * max;
         min = min > max ? max : min;
 
         max -= min;
@@ -9415,7 +8655,7 @@ public abstract class ThreadDraw extends Thread {
             for(int y = 0; y < detail; y++) {
                 vert[x][y][1] -= min;
                 vert[x][y][1] = vert[x][y][1] < 0 ? 0 : vert[x][y][1];
-                vert[x][y][1] *= 90 / max;
+                vert[x][y][1] *= (200 - max_scaling) / max;
 
                 vert[x][y][1] = (float)(d3_height_scale * calculateHeight(vert[x][y][1]) - 100);
             }
@@ -9481,7 +8721,12 @@ public abstract class ThreadDraw extends Thread {
         for(int y = FROMy; y < TOy; y++) {
             for(int x = FROMx; x < TOx; x++) {
 
-                modified = (int)vert[x][y][3];
+                if(rainbow_palette) {
+                    modified = paletteRainbow3D(vert, x, y, image_size);
+                }
+                else {
+                    modified = (int)vert[x][y][0];
+                }
 
                 if(bump_map) {
                     gradx = getGradientX3D(vert, x, y, image_size);
@@ -9502,7 +8747,7 @@ public abstract class ThreadDraw extends Thread {
                     modified = pseudoDistanceEstimation3D(vert, modified, x, y, image_size);
                 }
 
-                vert[x][y][3] = modified;
+                vert[x][y][0] = modified;
             }
         }
     }
@@ -9533,7 +8778,7 @@ public abstract class ThreadDraw extends Thread {
 
     }
 
-    private void calculate3DVectors(int n1, double dx) {
+    private void calculate3DVectors(int n1, double dx, double w2) {
 
         double mod;
         double ct = Math.cos(fiX), cf = Math.cos(fiY), st = Math.sin(fiX), sf = Math.sin(fiY);
@@ -9542,29 +8787,38 @@ public abstract class ThreadDraw extends Thread {
         m21 = st;
         m22 = ct * cf;
 
+        double norm_0_0, norm_0_1, norm_0_2, norm_1_0, norm_1_1, norm_1_2;
+
         for(int x = FROMx; x < TOx; x++) {
+
+            double c1 = dx * x - w2;
+
             for(int y = FROMy; y < TOy; y++) {
                 if(x < n1 && y < n1) {
-                    Norm[x][y][0][0] = vert[x][y][1] - vert[x + 1][y][1];
-                    Norm[x][y][0][1] = (float)(dx);
-                    Norm[x][y][0][2] = vert[x + 1][y][1] - vert[x + 1][y + 1][1];
-                    mod = Math.sqrt(Norm[x][y][0][0] * Norm[x][y][0][0] + Norm[x][y][0][1] * Norm[x][y][0][1] + Norm[x][y][0][2] * Norm[x][y][0][2]) / 255.5;
-                    Norm[x][y][0][0] /= mod;
-                    Norm[x][y][0][1] /= mod;
-                    Norm[x][y][0][2] /= mod;
-                    Norm[x][y][1][0] = vert[x][y + 1][1] - vert[x + 1][y + 1][1];
-                    Norm[x][y][1][1] = (float)(dx);
-                    Norm[x][y][1][2] = vert[x][y][1] - vert[x][y + 1][1];
-                    mod = Math.sqrt(Norm[x][y][1][0] * Norm[x][y][1][0] + Norm[x][y][1][1] * Norm[x][y][1][1] + Norm[x][y][1][2] * Norm[x][y][1][2]) / 255.5;
-                    Norm[x][y][1][0] /= mod;
-                    Norm[x][y][1][1] /= mod;
-                    Norm[x][y][1][2] /= mod;
 
-                    Norm1z[x][y][0] = (float)(m20 * Norm[x][y][0][0] + m21 * Norm[x][y][0][1] + m22 * Norm[x][y][0][2]);
-                    Norm1z[x][y][1] = (float)(m20 * Norm[x][y][1][0] + m21 * Norm[x][y][1][1] + m22 * Norm[x][y][1][2]);
+                    norm_0_0 = vert[x][y][1] - vert[x + 1][y][1];
+                    norm_0_1 = dx;
+                    norm_0_2 = vert[x + 1][y][1] - vert[x + 1][y + 1][1];
+                    mod = Math.sqrt(norm_0_0 * norm_0_0 + norm_0_1 * norm_0_1 + norm_0_2 * norm_0_2) / 255.5;
+                    norm_0_0 /= mod;
+                    norm_0_1 /= mod;
+                    norm_0_2 /= mod;
+
+                    norm_1_0 = vert[x][y + 1][1] - vert[x + 1][y + 1][1];
+                    norm_1_1 = dx;
+                    norm_1_2 = vert[x][y][1] - vert[x][y + 1][1];
+                    mod = Math.sqrt(norm_1_0 * norm_1_0 + norm_1_1 * norm_1_1 + norm_1_2 * norm_1_2) / 255.5;
+                    norm_1_0 /= mod;
+                    norm_1_1 /= mod;
+                    norm_1_2 /= mod;
+
+                    Norm1z[x][y][0] = (float)(m20 * norm_0_0 + m21 * norm_0_1 + m22 * norm_0_2);
+                    Norm1z[x][y][1] = (float)(m20 * norm_1_0 + m21 * norm_1_1 + m22 * norm_1_2);
                 }
-                vert1[x][y][0] = (float)(m00 * vert[x][y][0] + m02 * vert[x][y][2]);
-                vert1[x][y][1] = (float)(m10 * vert[x][y][0] + m11 * vert[x][y][1] + m12 * vert[x][y][2]);
+
+                double c2 = dx * y - w2;
+                vert1[x][y][0] = (float)(m00 * c1 + m02 * c2);
+                vert1[x][y][1] = (float)(m10 * c1 + m11 * vert[x][y][1] + m12 * c2);
             }
         }
     }
@@ -9592,23 +8846,13 @@ public abstract class ThreadDraw extends Thread {
         double second_color = 1 - color_3d_blending;
 
         double red, green, blue;
-        float[] iter_color_hsb = new float[3];
 
         for(int i = ib; i != ie; i += sti) {
             for(int j = jb; j != je; j += stj) {
 
-                red = ((((int)vert[i][j][3]) >> 16) & 0xff);
-                green = ((((int)vert[i][j][3]) >> 8) & 0xff);
-                blue = (((int)vert[i][j][3]) & 0xff);
-
-                if(blending == 0) {
-                    Color.RGBtoHSB((int)red, (int)green, (int)blue, iter_color_hsb);
-                }
-                else {
-                    red *= color_3d_blending;
-                    green *= color_3d_blending;
-                    blue *= color_3d_blending;
-                }
+                red = ((((int)vert[i][j][0]) >> 16) & 0xff);
+                green = ((((int)vert[i][j][0]) >> 8) & 0xff);
+                blue = (((int)vert[i][j][0]) & 0xff);
 
                 if(Norm1z[i][j][0] > 0) {
                     xPol[0] = w2 + (int)vert1[i][j][0];
@@ -9618,12 +8862,7 @@ public abstract class ThreadDraw extends Thread {
                     yPol[1] = w2 - (int)vert1[i + 1][j][1];
                     yPol[2] = w2 - (int)vert1[i + 1][j + 1][1];
 
-                    if(blending == 0) {
-                        g.setColor(new Color(Color.HSBtoRGB(iter_color_hsb[0], iter_color_hsb[1], (float)(iter_color_hsb[2] * color_3d_blending + colors_3d_brightness[(int)Norm1z[i][j][0]] * second_color))));
-                    }
-                    else {
-                        g.setColor(new Color((int)(red + ((colors_3d[(int)Norm1z[i][j][0]] >> 16) & 0xff) * second_color + 0.5), (int)(green + ((colors_3d[(int)Norm1z[i][j][0]] >> 8) & 0xff) * second_color + 0.5), (int)(blue + (colors_3d[(int)Norm1z[i][j][0]] & 0xff) * second_color + 0.5)));
-                    }
+                    g.setColor(new Color((int)(red * color_3d_blending + ((colors_3d[(int)Norm1z[i][j][0]] >> 16) & 0xff) * second_color + 0.5), (int)(green * color_3d_blending + ((colors_3d[(int)Norm1z[i][j][0]] >> 8) & 0xff) * second_color + 0.5), (int)(blue * color_3d_blending + (colors_3d[(int)Norm1z[i][j][0]] & 0xff) * second_color + 0.5)));
 
                     if(filters[MainWindow.ANTIALIASING]) {
                         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
@@ -9645,12 +8884,7 @@ public abstract class ThreadDraw extends Thread {
                     yPol[1] = w2 - (int)vert1[i][j + 1][1];
                     yPol[2] = w2 - (int)vert1[i + 1][j + 1][1];
 
-                    if(blending == 0) {
-                        g.setColor(new Color(Color.HSBtoRGB(iter_color_hsb[0], iter_color_hsb[1], (float)(iter_color_hsb[2] * color_3d_blending + colors_3d_brightness[(int)Norm1z[i][j][1]] * second_color))));
-                    }
-                    else {
-                        g.setColor(new Color((int)(red + ((colors_3d[(int)Norm1z[i][j][1]] >> 16) & 0xff) * second_color + 0.5), (int)(green + ((colors_3d[(int)Norm1z[i][j][1]] >> 8) & 0xff) * second_color + 0.5), (int)(blue + (colors_3d[(int)Norm1z[i][j][1]] & 0xff) * second_color + 0.5)));
-                    }
+                    g.setColor(new Color((int)(red * color_3d_blending + ((colors_3d[(int)Norm1z[i][j][1]] >> 16) & 0xff) * second_color + 0.5), (int)(green * color_3d_blending + ((colors_3d[(int)Norm1z[i][j][1]] >> 8) & 0xff) * second_color + 0.5), (int)(blue * color_3d_blending + (colors_3d[(int)Norm1z[i][j][1]] & 0xff) * second_color + 0.5)));
 
                     if(filters[MainWindow.ANTIALIASING]) {
                         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
@@ -9672,7 +8906,6 @@ public abstract class ThreadDraw extends Thread {
 
         vert = null;
         vert1 = null;
-        Norm = null;
         Norm1z = null;
         image_iterations = new double[image_size * image_size];
         image_iterations_fast_julia = new double[MainWindow.FAST_JULIA_IMAGE_SIZE * MainWindow.FAST_JULIA_IMAGE_SIZE];
@@ -9683,22 +8916,21 @@ public abstract class ThreadDraw extends Thread {
 
         image_iterations = null;
         image_iterations_fast_julia = null;
-        vert = new float[detail][detail][4];
+        vert = new float[detail][detail][3];
         vert1 = new float[detail][detail][2];
-        Norm = new float[detail][detail][2][3];
         Norm1z = new float[detail][detail][2];
 
     }
 
     public static void resetAtomics() {
 
-        synchronization = new AtomicInteger(0);
+        image_filters_sync = new AtomicInteger(0);
         total_calculated = new AtomicInteger(0);
-        synchronization2 = new AtomicInteger(0);
-        synchronization3 = new AtomicInteger(0);
-        synchronization4 = new AtomicInteger(0);
-        synchronization5 = new AtomicInteger(0);
-        synchronization6 = new AtomicInteger(0);
+        post_processing_sync = new AtomicInteger(0);
+        calculate_vectors_sync = new AtomicInteger(0);
+        painting_sync = new AtomicInteger(0);
+        height_scaling_sync = new AtomicInteger(0);
+        gaussian_scaling_sync = new AtomicInteger(0);
         normal_drawing_algorithm_pixel = new AtomicInteger(0);
 
     }

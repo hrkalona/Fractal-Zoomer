@@ -14,34 +14,41 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package fractalzoomer.gui;
 
 import fractalzoomer.main.MainWindow;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import javax.swing.ImageIcon;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.KeyStroke;
-
 
 /**
  *
  * @author hrkalona2
  */
 public class FiltersMenu extends JMenu {
+
+    private JMenu detail_filters_menu;
+    private JMenu color_filters_menu;
     private JCheckBoxMenuItem[] filters_opt;
     private MainWindow ptr;
-    
+
     public FiltersMenu(MainWindow ptr2, String name) {
-        
+
         super(name);
 
         this.ptr = ptr2;
 
-        filters_opt = new JCheckBoxMenuItem[16];
-        
+        detail_filters_menu = new JMenu("Details");
+        detail_filters_menu.setIcon(getIcon("/fractalzoomer/icons/filter_details.png"));
+        color_filters_menu = new JMenu("Colors");
+        color_filters_menu.setIcon(getIcon("/fractalzoomer/icons/filter_colors.png"));
+
+        filters_opt = new JCheckBoxMenuItem[22];
+
         filters_opt[MainWindow.ANTIALIASING] = new JCheckBoxMenuItem("Anti-Aliasing");
         filters_opt[MainWindow.EDGE_DETECTION] = new JCheckBoxMenuItem("Edge Detection");
         filters_opt[MainWindow.SHARPNESS] = new JCheckBoxMenuItem("Sharpness");
@@ -55,11 +62,16 @@ public class FiltersMenu extends JMenu {
         filters_opt[MainWindow.FADE_OUT] = new JCheckBoxMenuItem("Fade Out");
         filters_opt[MainWindow.INVERT_COLORS] = new JCheckBoxMenuItem("Inverted Colors");
         filters_opt[MainWindow.COLOR_CHANNEL_MASKING] = new JCheckBoxMenuItem("Mask Color Channel");
-        filters_opt[MainWindow.COLOR_CHANNEL_SWAPPING]= new JCheckBoxMenuItem("Color Channel Swapping");
+        filters_opt[MainWindow.COLOR_CHANNEL_SWAPPING] = new JCheckBoxMenuItem("Color Channel Swapping");
         filters_opt[MainWindow.COLOR_CHANNEL_MIXING] = new JCheckBoxMenuItem("Color Channel Mixing");
+        filters_opt[MainWindow.COLOR_CHANNEL_SCALING] = new JCheckBoxMenuItem("Color Channel Scaling");
+        filters_opt[MainWindow.COLOR_CHANNEL_HSB_SCALING] = new JCheckBoxMenuItem("Color Channel HSB Scaling");
         filters_opt[MainWindow.GRAYSCALE] = new JCheckBoxMenuItem("Grayscale");
-        
-        
+        filters_opt[MainWindow.DITHER] = new JCheckBoxMenuItem("Dither");
+        filters_opt[MainWindow.GAIN] = new JCheckBoxMenuItem("Gain/Bias");
+        filters_opt[MainWindow.GAMMA] = new JCheckBoxMenuItem("Gamma");
+        filters_opt[MainWindow.EXPOSURE] = new JCheckBoxMenuItem("Exposure");
+
         filters_opt[MainWindow.ANTIALIASING].setToolTipText("Smooths the jagged look of the image.");
         filters_opt[MainWindow.EDGE_DETECTION].setToolTipText("Detects the edges of the image.");
         filters_opt[MainWindow.SHARPNESS].setToolTipText("Makes the edges of the image more sharp.");
@@ -74,10 +86,16 @@ public class FiltersMenu extends JMenu {
         filters_opt[MainWindow.GRAYSCALE].setToolTipText("Converts the image to grayscale.");
         filters_opt[MainWindow.COLOR_TEMPERATURE].setToolTipText("Changes the color temperature of the image.");
         filters_opt[MainWindow.COLOR_CHANNEL_MIXING].setToolTipText("Mixes the color channels of the image.");
+        filters_opt[MainWindow.COLOR_CHANNEL_SCALING].setToolTipText("Scales the color channels of the image.");
+        filters_opt[MainWindow.COLOR_CHANNEL_HSB_SCALING].setToolTipText("Scales the HSB color channels of the image.");
         filters_opt[MainWindow.POSTERIZE].setToolTipText("Changes the color tones of the image.");
         filters_opt[MainWindow.SOLARIZE].setToolTipText("Creates a solarized effect.");
-        
-        filters_opt[MainWindow.ANTIALIASING].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G, ActionEvent.CTRL_MASK));
+        filters_opt[MainWindow.DITHER].setToolTipText("Creates a dithering effect on the image.");
+        filters_opt[MainWindow.GAIN].setToolTipText("Changes the gain/bias of the image.");
+        filters_opt[MainWindow.GAMMA].setToolTipText("Changes the gamma of the image.");
+        filters_opt[MainWindow.EXPOSURE].setToolTipText("Changes the exposure of the image.");
+
+        filters_opt[MainWindow.ANTIALIASING].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G, 0));
         filters_opt[MainWindow.EDGE_DETECTION].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, ActionEvent.CTRL_MASK));
         filters_opt[MainWindow.SHARPNESS].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, ActionEvent.ALT_MASK));
         filters_opt[MainWindow.EMBOSS].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_M, ActionEvent.CTRL_MASK));
@@ -86,6 +104,8 @@ public class FiltersMenu extends JMenu {
         filters_opt[MainWindow.COLOR_CHANNEL_MASKING].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_M, ActionEvent.ALT_MASK));
         filters_opt[MainWindow.FADE_OUT].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, ActionEvent.ALT_MASK));
         filters_opt[MainWindow.COLOR_CHANNEL_SWAPPING].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, ActionEvent.SHIFT_MASK));
+        filters_opt[MainWindow.COLOR_CHANNEL_SCALING].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.ALT_MASK));
+        filters_opt[MainWindow.COLOR_CHANNEL_HSB_SCALING].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, ActionEvent.CTRL_MASK));
         filters_opt[MainWindow.CONTRAST_BRIGHTNESS].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, ActionEvent.SHIFT_MASK));
         filters_opt[MainWindow.GRAYSCALE].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G, ActionEvent.SHIFT_MASK));
         filters_opt[MainWindow.COLOR_TEMPERATURE].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, ActionEvent.ALT_MASK));
@@ -93,7 +113,11 @@ public class FiltersMenu extends JMenu {
         filters_opt[MainWindow.HISTOGRAM_EQUALIZATION].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.CTRL_MASK));
         filters_opt[MainWindow.POSTERIZE].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, ActionEvent.SHIFT_MASK));
         filters_opt[MainWindow.SOLARIZE].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.SHIFT_MASK));
-        
+        filters_opt[MainWindow.DITHER].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T, ActionEvent.SHIFT_MASK));
+        filters_opt[MainWindow.GAIN].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G, ActionEvent.CTRL_MASK));
+        filters_opt[MainWindow.GAMMA].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G, ActionEvent.ALT_MASK));
+        filters_opt[MainWindow.EXPOSURE].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, ActionEvent.SHIFT_MASK));
+
         filters_opt[MainWindow.ANTIALIASING].addActionListener(new ActionListener() {
 
             @Override
@@ -203,6 +227,36 @@ public class FiltersMenu extends JMenu {
 
             }
         });
+        
+        filters_opt[MainWindow.GAIN].addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFilter(MainWindow.GAIN);
+
+            }
+        });
+        
+        filters_opt[MainWindow.GAMMA].addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFilter(MainWindow.GAMMA);
+
+            }
+        });
+        
+        filters_opt[MainWindow.EXPOSURE].addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFilter(MainWindow.EXPOSURE);
+
+            }
+        });
 
         filters_opt[MainWindow.GRAYSCALE].addActionListener(new ActionListener() {
 
@@ -243,6 +297,16 @@ public class FiltersMenu extends JMenu {
 
             }
         });
+        
+        filters_opt[MainWindow.DITHER].addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFilter(MainWindow.DITHER);
+
+            }
+        });
 
         filters_opt[MainWindow.SOLARIZE].addActionListener(new ActionListener() {
 
@@ -253,48 +317,107 @@ public class FiltersMenu extends JMenu {
 
             }
         });
-        
-        add(filters_opt[MainWindow.ANTIALIASING]);
-        addSeparator();
-        add(filters_opt[MainWindow.EDGE_DETECTION]);
-        addSeparator();
-        add(filters_opt[MainWindow.SHARPNESS]);
-        addSeparator();
-        add(filters_opt[MainWindow.BLURRING]);
-        addSeparator();
-        add(filters_opt[MainWindow.EMBOSS]);
-        addSeparator();
-        add(filters_opt[MainWindow.HISTOGRAM_EQUALIZATION]);
-        addSeparator();
-        add(filters_opt[MainWindow.POSTERIZE]);
-        addSeparator();
-        add(filters_opt[MainWindow.CONTRAST_BRIGHTNESS]);
-        addSeparator();
-        add(filters_opt[MainWindow.COLOR_TEMPERATURE]);
-        addSeparator();
-        add(filters_opt[MainWindow.INVERT_COLORS]);
-        addSeparator();
-        add(filters_opt[MainWindow.SOLARIZE]);
-        addSeparator();
-        add(filters_opt[MainWindow.COLOR_CHANNEL_MASKING]);
-        addSeparator();
-        add(filters_opt[MainWindow.COLOR_CHANNEL_SWAPPING]);
-        addSeparator();
-        add(filters_opt[MainWindow.COLOR_CHANNEL_MIXING]);
-        addSeparator();
-        add(filters_opt[MainWindow.GRAYSCALE]);
-        addSeparator();
-        add(filters_opt[MainWindow.FADE_OUT]);
 
+        filters_opt[MainWindow.COLOR_CHANNEL_SCALING].addActionListener(new ActionListener() {
 
-        
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFilter(MainWindow.COLOR_CHANNEL_SCALING);
+
+            }
+        });
+
+        filters_opt[MainWindow.COLOR_CHANNEL_HSB_SCALING].addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFilter(MainWindow.COLOR_CHANNEL_HSB_SCALING);
+
+            }
+        });
+
+        detail_filters_menu.add(filters_opt[MainWindow.ANTIALIASING]);
+        detail_filters_menu.addSeparator();
+        detail_filters_menu.add(filters_opt[MainWindow.EDGE_DETECTION]);
+        detail_filters_menu.addSeparator();
+        detail_filters_menu.add(filters_opt[MainWindow.SHARPNESS]);
+        detail_filters_menu.addSeparator();
+        detail_filters_menu.add(filters_opt[MainWindow.BLURRING]);
+        detail_filters_menu.addSeparator();
+        detail_filters_menu.add(filters_opt[MainWindow.EMBOSS]);
+
+        color_filters_menu.add(filters_opt[MainWindow.HISTOGRAM_EQUALIZATION]);
+        color_filters_menu.addSeparator();
+        color_filters_menu.add(filters_opt[MainWindow.POSTERIZE]);
+        color_filters_menu.addSeparator();
+        color_filters_menu.add(filters_opt[MainWindow.DITHER]);
+        color_filters_menu.addSeparator();
+        color_filters_menu.add(filters_opt[MainWindow.CONTRAST_BRIGHTNESS]);
+        color_filters_menu.addSeparator();
+        color_filters_menu.add(filters_opt[MainWindow.GAIN]);
+        color_filters_menu.addSeparator();
+        color_filters_menu.add(filters_opt[MainWindow.GAMMA]);
+        color_filters_menu.addSeparator();
+        color_filters_menu.add(filters_opt[MainWindow.EXPOSURE]);
+        color_filters_menu.addSeparator();
+        color_filters_menu.add(filters_opt[MainWindow.COLOR_TEMPERATURE]);
+        color_filters_menu.addSeparator();
+        color_filters_menu.add(filters_opt[MainWindow.INVERT_COLORS]);
+        color_filters_menu.addSeparator();
+        color_filters_menu.add(filters_opt[MainWindow.SOLARIZE]);
+        color_filters_menu.addSeparator();
+        color_filters_menu.add(filters_opt[MainWindow.COLOR_CHANNEL_MASKING]);
+        color_filters_menu.addSeparator();
+        color_filters_menu.add(filters_opt[MainWindow.COLOR_CHANNEL_SWAPPING]);
+        color_filters_menu.addSeparator();
+        color_filters_menu.add(filters_opt[MainWindow.COLOR_CHANNEL_MIXING]);
+        color_filters_menu.addSeparator();
+        color_filters_menu.add(filters_opt[MainWindow.COLOR_CHANNEL_SCALING]);
+        color_filters_menu.addSeparator();
+        color_filters_menu.add(filters_opt[MainWindow.COLOR_CHANNEL_HSB_SCALING]);
+        color_filters_menu.addSeparator();
+        color_filters_menu.add(filters_opt[MainWindow.GRAYSCALE]);
+        color_filters_menu.addSeparator();
+        color_filters_menu.add(filters_opt[MainWindow.FADE_OUT]);
+
+        add(detail_filters_menu);
+        addSeparator();
+        add(color_filters_menu);
+
     }
-    
+
     public JCheckBoxMenuItem[] getFilters() {
 
         return filters_opt;
 
     }
 
+    private ImageIcon getIcon(String path) {
+
+        return new ImageIcon(getClass().getResource(path));
+
+    }
     
+    public void setCheckedFilters(boolean[] filters) {
+                
+        for(int k = 0; k < filters_opt.length; k++) {
+            filters_opt[k].setSelected(filters[k]);
+        }
+        
+    }
+    
+    public JMenu getColorsFiltersMenu() {
+        
+        return color_filters_menu;
+        
+    }
+    
+    public JMenu getDetailsFiltersMenu() {
+        
+        return detail_filters_menu;
+        
+    }
+
 }

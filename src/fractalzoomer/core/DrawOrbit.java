@@ -223,7 +223,7 @@ public class DrawOrbit extends Thread {
             double temp_size_image_size_y = (size * height_ratio) / image_size;
 
             double xPixel = xCenter - size_2_x + temp_size_image_size_x * pixel_x;
-            double yPixel = yCenter - size_2_y + temp_size_image_size_y * pixel_y;
+            double yPixel = yCenter + size_2_y - temp_size_image_size_y * pixel_y;
 
             complex_orbit = new ArrayList<Complex>(max_iterations + 1);
             complex_orbit.add(new Complex(xPixel, yPixel));
@@ -1124,7 +1124,7 @@ public class DrawOrbit extends Thread {
             double temp_size_image_size_y = (size * height_ratio) / image_size;
 
             double xPixel = xCenter - size_2_x + temp_size_image_size_x * pixel_x;
-            double yPixel = yCenter - size_2_y + temp_size_image_size_y * pixel_y;
+            double yPixel = yCenter + size_2_y - temp_size_image_size_y * pixel_y;
 
             complex_orbit = new ArrayList<Complex>(max_iterations + 1);
             complex_orbit.add(new Complex(xPixel, yPixel));
@@ -1781,7 +1781,7 @@ public class DrawOrbit extends Thread {
             size_2_x = size * 0.5;
             size_2_y = (size * height_ratio) * 0.5;
             temp_xcenter_size = pixel_orbit.getXCenter() - size_2_x;
-            temp_ycenter_size = pixel_orbit.getYCenter() - size_2_y;
+            temp_ycenter_size = pixel_orbit.getYCenter() + size_2_y;
             temp_size_image_size_x = size / image_size;
             temp_size_image_size_y = (size * height_ratio) / image_size;
         }
@@ -1816,9 +1816,9 @@ public class DrawOrbit extends Thread {
             }
             else {
                 x0 = (int)((complex_orbit.get(i).getRe() - temp_xcenter_size) / temp_size_image_size_x + 0.5);
-                y0 = (int)((complex_orbit.get(i).getIm() - temp_ycenter_size) / temp_size_image_size_y + 0.5);
+                y0 = (int)((-complex_orbit.get(i).getIm() + temp_ycenter_size) / temp_size_image_size_y + 0.5);
                 x1 = (int)((complex_orbit.get(i + 1).getRe() - temp_xcenter_size) / temp_size_image_size_x + 0.5);
-                y1 = (int)((complex_orbit.get(i + 1).getIm() - temp_ycenter_size) / temp_size_image_size_y + 0.5);
+                y1 = (int)((-complex_orbit.get(i + 1).getIm() + temp_ycenter_size) / temp_size_image_size_y + 0.5);
             }
 
             if(x0 == Integer.MIN_VALUE || x0 == Integer.MAX_VALUE || x1 == Integer.MIN_VALUE || x1 == Integer.MAX_VALUE || y0 == Integer.MIN_VALUE || y0 == Integer.MAX_VALUE || y1 == Integer.MIN_VALUE || y1 == Integer.MAX_VALUE) {
@@ -1881,7 +1881,7 @@ public class DrawOrbit extends Thread {
             size_2_x = size * 0.5;
             size_2_y = (size * height_ratio) * 0.5;
             temp_xcenter_size = pixel_orbit.getXCenter() - size_2_x;
-            temp_ycenter_size = pixel_orbit.getYCenter() - size_2_y;
+            temp_ycenter_size = pixel_orbit.getYCenter() + size_2_y;
             temp_size_image_size_x = size / image_size;
             temp_size_image_size_y = (size * height_ratio) / image_size;
         }
@@ -1905,7 +1905,7 @@ public class DrawOrbit extends Thread {
             }
             else {
                 x0 = (int)((complex_orbit.get(i).getRe() - temp_xcenter_size) / temp_size_image_size_x + 0.5);
-                y0 = (int)((complex_orbit.get(i).getIm() - temp_ycenter_size) / temp_size_image_size_y + 0.5);
+                y0 = (int)((-complex_orbit.get(i).getIm() + temp_ycenter_size) / temp_size_image_size_y + 0.5);
             }
 
             if(x0 == Integer.MIN_VALUE || x0 == Integer.MAX_VALUE || y0 == Integer.MIN_VALUE || y0 == Integer.MAX_VALUE) {

@@ -38,18 +38,18 @@ public class Palette extends ThreadDraw {
     private static final int[] alternative6_palette = {-16646144, -16056320, -15400960, -14745600, -14090240, -13434880, -12845056, -12189696, -11534336, -10878976, -10223616, -9633792, -8978432, -8323072, -7667712, -7012352, -6356992, -5963776, -5570560, -5177344, -4784128, -4390912, -3997696, -3604480, -3211264, -2818048, -2424832, -2031616, -1638400, -1245184, -851968, -458752, -65536, -63744, -61952, -60160, -58368, -56576, -54784, -52992, -51200, -49408, -47616, -45824, -44032, -42240, -40448, -38656, -36608, -34560, -32256, -29952, -27904, -25600, -23296, -21248, -18944, -16640, -14592, -12288, -9984, -7936, -5632, -3328, -1024, -1016, -1008, -1000, -992, -984, -720, -712, -704, -696, -688, -424, -416, -408, -400, -392, -127, -120, -112, -105, -97, -90, -82, -75, -67, -60, -52, -45, -37, -30, -22, -15, -7, -458759, -917511, -1376262, -1769478, -2228230, -2686981, -3145733, -3538948, -3997700, -4456452, -4915203, -5308419, -5767171, -6225922, -6684674, -7077889, -7602177, -8060929, -8585217, -9043969, -9568257, -10027009, -10551297, -11010049, -11534337, -11993089, -12517377, -12976129, -13500417, -13959169, -14483457, -14942209, -15074561, -15206657, -15338753, -15405313, -15537665, -15669761, -15736321, -15868417, -16000769, -16067329, -16199425, -16331521, -16398337, -16530433, -16662529, -16729089, -16731905, -16734721, -16737537, -16740353, -16743169, -16745985, -16748801, -16751617, -16754433, -16757249, -16760065, -16762881, -16765697, -16768513, -16771329, -16774145, -16774407, -16774669, -16774931, -16774936, -16775198, -16775460, -16775466, -16775727, -16775989, -16775995, -16776257, -16776518, -16776524, -16776786, -16777048, -16777053, -16777063, -16777072, -16777081, -16777090, -16777099, -16777108, -16777117, -16777126, -16777135, -16777144, -16777153, -16777162, -16777171, -16777180, -16777189, -16777198, -16777200, -16777201, -16777202, -16777203, -16777204, -16777205, -16777206, -16711671, -16711673, -16711674, -16711675, -16711676, -16711677, -16711678, -16711679};//{-9090739, -10076349, -11061703, -11981520, -12966874, -13952228, -14872045, -15857399, -16777216, -15986931, -15130853, -14340311, -13484233, -12628155, -11837613, -10981535, -10125457, -10981535, -11772077, -12628155, -13418440, -14274518, -15065060, -15921138, -16711423, -15924213, -15136747, -14349537, -13562071, -12774861, -11987395, -11200185, -10347182, -11200185, -11987395, -12774861, -13562071, -14349537, -15136747, -15924213, -16711423, -15988979, -15266279, -14543579, -13820878, -13098178, -12375478, -11652778, -10864541, -11587242, -12309942, -13032642, -13755086, -14477786, -15200486, -15923186, -16645630, -15857406, -15068925, -14280701, -13492220, -12703996, -11915515, -11127291, -10273274, -11127291, -11915515, -12703996, -13492220, -14280701, -15068925, -15857406, -16645630, -15661303, -14676720, -13626857, -12642273, -11657946, -10607827, -9623500, -8573380, -9623500, -10607827, -11592410, -12576737, -13626600, -14611183, -15595510, -16579837, -15920889, -15261940, -14602992, -13944043, -13285094, -12626146, -11967197, -11307992, -11967197, -12626146, -13285094, -13944043, -14602992, -15261940, -15920889, -16579837, -15856379, -15132664, -14408950, -13685235, -12961777, -12238062, -11514348, -10790633, -11514348, -12238062, -12961521, -13685235, -14408949, -15132408, -15856122, -16514044, -16121081, -15727861, -15334898, -14941678, -14548459, -14155495, -13762276, -13303520, -13762276, -14155495, -14548459, -14941678, -15334898, -15727861, -16121081, -16514044, -16448251, -16316665, -16185079, -16053493, -15987700, -15856114, -15724528, -15592942, -15724528, -15856114, -15921907, -16053493, -16185079, -16250872, -16382458, -16448251, -16510968, -16507893, -16505074, -16501999, -16564460, -16561641, -16558566, -16555491, -16558566, -16561385, -16498924, -16501743, -16504818, -16442101, -16445176, -16382458, -16380410, -16312825, -16310776, -16243191, -16175607, -16173558, -16105973, -16038132, -16105973, -16173558, -16175607, -16243191, -16310776, -16312825, -16380410, -16382458, -16313839, -16179427, -16045015, -15910603, -15776192, -15641780, -15507368, -15372956, -15507368, -15641780, -15776191, -15844811, -15979223, -16113634, -16248046, -16316665, -15985392, -15653863, -15322334, -14990805, -14659276, -14327747, -13996218, -13599153, -13996218, -14327747, -14659276, -14990805, -15322334, -15653863, -15985392, -16316665, -16118514, -15854827, -15591139, -15327452, -15129301, -14865613, -14601926, -14338238, -14601926, -14865613, -15063764, -15327451, -15591139, -15789290, -16052977, -16250872, -16250094, -16249060, -16248026, -16181456, -16180678, -16179644, -16178610, -16112040, -16178610, -16179644, -16180678, -16181456, -16248026, -16249060, -16250094, -16250872, -15396848, -14477287, -13623263, -12703702, -11784141, -10930117, -10010556,};//{-9903620, -9051663, -8133913, -7216419, -6364206, -5446712, -4528962, -3611468, -2759255, -1841761, -924011, -6261, -1388922, -2771582, -4154242, -5471366, -6854026, -8236686, -9553554, -9484943, -9416075, -9347463, -9278596, -9209728, -9141116, -9072248, -9003381, -8934769, -8865901, -8797033, -9454970, -10047115, -10639516, -11231660, -11889341, -12481742, -13073887, -13666031, -13403623, -13140958, -12878294, -12550093, -12287429, -12024764, -11762100, -11433899, -10646957, -9859759, -9072816, -8220082, -7433139, -6645941, -5793206, -5859770, -5860542, -5861313, -5927621, -5928392, -5929164, -5929935, -5996243, -5997014, -5997786, -5998557, -6064865, -6065636, -6066408, -6067179, -6198506, -6329832, -6460903, -6592229, -6723555, -6854626, -6920416, -7051742, -7182813, -7314139, -7445465, -7576536, -7707862, -7773396, -8490708, -9208020, -9859795, -10577107, -11228627, -11945938, -12597714, -13315026, -13966545, -13444552, -12856767, -12268982, -11681197, -11093412, -10505627, -9917842, -9395848, -8808063, -8220278, -7632493, -7044708, -6456923, -5869138, -5281352, -5869147, -6456941, -7044735, -7632529, -8220323, -8808117, -9395911, -9983705, -9982664, -9981366, -9980068, -9979026, -9977729, -9976431, -9975389, -9974091, -9972794, -9971752, -9970454};
     private static final int[] alternative7_palette = {-10855495, -10263364, -9671232, -9078844, -8421176, -7829044, -7236656, -6578988, -5986600, -5394469, -4736801, -4144413, -3552281, -2894613, -2302225, -1710093, -1052169, -1054991, -992021, -929050, -931616, -868646, -805675, -742705, -745271, -682300, -619330, -556359, -558925, -495955, -432984, -435550, -372580, -309609, -246639, -249205, -186234, -123264, -60293, -454027, -781969, -1175446, -1503388, -1897122, -2225063, -2618541, -2946482, -3274680, -3668158, -3996099, -4389577, -4717775, -5111252, -5439194, -5767135, -6488033, -7143395, -7798757, -8454119, -9109481, -9764843, -10420205, -11075567, -11796465, -12451827, -13107189, -13762551, -14417913, -15073275, -15728637, -16383999, -16252156, -16120056, -15987956, -15855856, -15723757, -15526377, -15394277, -15262177, -15130078, -14997978, -14800598, -14668498, -14536399, -14404299, -14272199, -14074563, -14073538, -14006977, -13940415, -13873598, -13807036, -13740475, -13673657, -13607096, -13540535, -13473717, -13407156, -13340594, -13273777, -13207215, -13140654, -13073836, -13073067, -13006762, -12940457, -12874152, -12807847, -12741286, -12674981, -12608676, -12607907, -12541602, -12475041, -12408736, -12342431, -12276126, -12209821, -12143259, -11552661, -10961806, -10371207, -9780352, -9189498, -8598899, -8008044, -7351653, -6761055, -6170200, -5579601, -4988746, -4397892, -3807293, -3216438, -2560047, -2428973, -2297642, -2166567, -1969701, -1838626, -1707295, -1576221, -1379354, -1248023, -1116949, -985618, -789007, -657677, -526602, -395271, -198404, -397576, -530956, -664592, -797972, -931352, -1130524, -1263904, -1397283, -1530919, -1664299, -1863471, -1996851, -2130231, -2263867, -2397247, -2530626, -3055171, -3579459, -4104003, -4628292, -5152836, -5677124, -6201669, -6725957, -7250245, -7774790, -8299078, -8823622, -9347911, -9872455, -10396743};
     private static final int[] alternative8_palette = {-16777216, -16514044, -16250872, -15922164, -15658992, -15330284, -15067112, -14738404, -14475232, -14146524, -13883352, -13554388, -13291216, -13028044, -12699336, -12436165, -12107457, -11844285, -11515577, -11252405, -10923697, -10660525, -10331560, -9871009, -9410201, -8949650, -8488842, -8028291, -7567483, -7106931, -6580588, -6120036, -5659229, -5198677, -4737869, -4277318, -3816510, -3290423, -2829615, -2369063, -1908512, -1447704, -987153, -526345, -1, -132104, -264206, -330516, -462618, -529184, -661030, -793132, -859698, -991544, -1058110, -1189956, -1322059, -1388625, -1520471, -1587037, -1719139, -1850985, -1917551, -2049653, -2115963, -2248065, -2314375, -2577547, -2775183, -3038355, -3235991, -3499163, -3696799, -3894435, -4157351, -4354987, -4618159, -4815795, -5013431, -5276603, -5474239, -5737155, -5934791, -6132427, -6395599, -6593235, -6856407, -7054043, -7251423, -7580129, -7908578, -8237027, -8565476, -8893925, -9222374, -9550823, -9879273, -10207722, -10536171, -10864876, -11127789, -11456238, -11784687, -12113137, -12441586, -12770035, -13098484, -13426933, -13755382, -14083831, -14346744, -14478073, -14609401, -14740730, -14806522, -14937850, -15069179, -15134971, -15266555, -15397884, -15463676, -15595005, -15726333, -15791869, -15923198, -16054526, -16120318, -16251647, -16382975, -16448767, -16580096, -16711424, -16777216, -16776701, -16776186, -16775671, -16774900, -16774384, -16708333, -16707818, -16707047, -16706531, -16706016, -16639709, -16639194, -16638679, -16638163, -16637392, -16636877, -16570826, -16570310, -16569539, -16569024, -16568509, -16502201, -16501429, -16435121, -16434348, -16368040, -16367011, -16300703, -16234394, -16233622, -16167057, -16166285, -16099976, -16033668, -16032896, -15966331, -15965559, -15899250, -15832942, -15831913, -15765605, -15764832, -15698524, -15631959, -15632989, -15568226, -15503464, -15504493, -15439730, -15374968, -15310461, -15311234, -15246472, -15181965, -15117203, -15117976, -15053469, -14988707, -14989480, -14924973, -14860211, -14795448, -14796477, -14731715, -14666952, -14602189, -14734032, -14800082, -14931668, -14997719, -15129305, -15195611, -15327198, -15393248, -15524834, -15656421, -15722727, -15854313, -15920364, -15986414, -16118000, -16184051, -16315893, -16381943, -16513530, -16579580, -16711166};
-    private static final int[] alternative9_palette = {-16774541, -16773770, -16707462, -16641154, -16574590, -16508282, -16507510, -16441202, -16374638, -16308331, -16242023, -16241251, -16174687, -16108379, -16042071, -15975763, -15909199, -15711052, -15447369, -15183686, -14920003, -14656320, -14392380, -14128697, -13865014, -13601331, -13337648, -13073708, -12810025, -12546342, -12282659, -12018976, -11755036, -11295259, -10835225, -10375192, -9849622, -9389589, -8929811, -8469778, -7944208, -7484175, -7024141, -6564364, -6038794, -5578761, -5118727, -4658694, -4133124, -3936517, -3739654, -3542791, -3280391, -3083528, -2886665, -2689802, -2427402, -2230539, -2033676, -1836813, -1574413, -1377550, -1180687, -983824, -721424, -721945, -656673, -657193, -591921, -592441, -527169, -527689, -462417, -397146, -397666, -332394, -332914, -267642, -268162, -202890, -137618, -138649, -139424, -140199, -140973, -141748, -142779, -143554, -78792, -79567, -80342, -81373, -82147, -82922, -83697, -84472, -19710, -348671, -612095, -941055, -1204479, -1533439, -1796863, -2125823, -2389247, -2652672, -2981632, -3245056, -3574016, -3837440, -4166400, -4429824, -4693248, -5153024, -5547008, -5941248, -6335232, -6729472, -7123456, -7517696, -7911680, -8371200, -8765440, -9159424, -9553664, -9947648, -10341888, -10735872, -11129856, -11523840, -11852288, -12246015, -12574463, -12902910, -13296638, -13625085, -13953277, -14347261, -14675708, -15069436, -15397883, -15726331, -16120058, -16448506, -16776697, -16776693, -16776689, -16776685, -16776681, -16776677, -16776417, -16776413, -16776409, -16776405, -16776401, -16776141, -16776137, -16776133, -16776129, -16776125, -16775864, -16775862, -16775859, -16775856, -16775598, -16775595, -16775592, -16775334, -16775331, -16775328, -16775070, -16775067, -16775064, -16774806, -16774803, -16774800};//{-14137846, -14134774, -14131446, -14128374, -14125046, -14121974, -14118646, -14115574, -14112246, -13716720, -13255657, -12794338, -12398812, -11937493, -11476430, -11080648, -10619585, -10158266, -8519836, -6815869, -5111902, -3407935, -1703968, -1, -1775648, -3551039, -5326429, -7101820, -8877211, -10652601, -12427992};
+    private static final int[] alternative9_palette = {-6296973, -5969037, -5641100, -5313163, -4985226, -4657289, -4329096, -4001159, -3607686, -3279750, -2951813, -2623620, -2295683, -1967746, -1639809, -1311872, -918143, -983678, -1049213, -1114748, -1114747, -1180282, -1245817, -1245816, -1311094, -1376629, -1376628, -1442163, -1507698, -1507697, -1573232, -1638767, -1638509, -1639539, -1574776, -1575806, -1511043, -1512073, -1447310, -1448340, -1383577, -1384606, -1319844, -1320873, -1256111, -1257140, -1192378, -1193407, -1128644, -1129156, -1064131, -999106, -934082, -869057, -804032, -739008, -673727, -608702, -543678, -478653, -413628, -348604, -283579, -218554, -153273, -154555, -155837, -157118, -158144, -159426, -160707, -161989, -97478, -98760, -100042, -101323, -102349, -103631, -104912, -106194, -41683, -174294, -306905, -439516, -572127, -704738, -837092, -969703, -1036778, -1169389, -1302000, -1434354, -1566965, -1699576, -1832187, -1964798, -2031616, -2621440, -3145728, -3735552, -4259840, -4784128, -5373952, -5898240, -6422528, -7012352, -7536640, -8126464, -8650752, -9175040, -9764864, -10289152, -10813440, -10616829, -10420217, -10223605, -10026993, -9830381, -9633770, -9437158, -9240290, -9043678, -8847066, -8650455, -8453843, -8257231, -8060619, -7864007, -7601603, -7864006, -8060616, -8257227, -8519373, -8715983, -8912594, -9174740, -9371350, -9568217, -9830363, -10026974, -10223584, -10485730, -10682341, -10878951, -11075561, -11206631, -11272164, -11403233, -11468766, -11599835, -11665368, -11796437, -11861970, -11993039, -12058572, -12189641, -12255174, -12386243, -12451776, -12582845, -12648378, -12844984, -13041589, -13238195, -13434800, -13631406, -13827755, -14024361, -14220966, -14417571, -14614177, -14810526, -15007132, -15203737, -15400343, -15596948, -15793297, -15858321, -15857809, -15857297, -15922321, -15921809, -15921296, -15986320, -15985552, -15985040, -16050064, -16049551, -16049039, -16114063, -16113551, -16113039, -16112270, -15717516, -15322761, -14927751, -14532996, -14138242, -13743231, -13348477, -12953466, -12558712, -12163957, -11768947, -11374192, -10979438, -10584427, -10189673, -9729126, -9992299, -10255216, -10452596, -10715513, -10978430, -11175810, -11438727, -11636107, -11899280, -12162197, -12359577, -12622494, -12885411, -13082791, -13345708, -13543088, -13674163, -13805238, -13936313, -14001852, -14132927, -14264001, -14395076, -14460615, -14591690, -14722765, -14853839, -14919378, -15050453, -15181528, -15312603, -15377885, -15509984, -15576290, -15642596, -15774438, -15840744, -15907051, -16038893, -16105199, -16171761, -16303603, -16369910, -16436216, -16568058, -16634364, -16700670, -16766976, -16700928, -16634880, -16568832, -16502528, -16436480, -16370432, -16304384, -16172544, -16106496, -16040448, -15974400, -15908096, -15842048, -15776000, -15709952, -15578112, -15051513, -14459122, -13866731, -13274340, -12681949, -12155093, -11562702, -10970311, -10378176, -9785785, -9258929, -8666538, -8074147, -7481756, -6889365};//{-14137846, -14134774, -14131446, -14128374, -14125046, -14121974, -14118646, -14115574, -14112246, -13716720, -13255657, -12794338, -12398812, -11937493, -11476430, -11080648, -10619585, -10158266, -8519836, -6815869, -5111902, -3407935, -1703968, -1, -1775648, -3551039, -5326429, -7101820, -8877211, -10652601, -12427992};
     private static final int[] dusk_palette = {-16777216, -16711421, -16645370, -16579575, -16513524, -16447473, -16316142, -16250091, -16184040, -16118245, -16052194, -15920863, -15854812, -15788761, -15722966, -15656915, -15525327, -15130314, -14669765, -14209215, -13748666, -13288116, -12892847, -12432297, -11971748, -11511199, -11050649, -10655380, -10194830, -9734281, -9273731, -8813182, -8352376, -8023928, -7695224, -7300983, -6972279, -6578038, -6249334, -5855093, -5526389, -5197941, -4803700, -4474996, -4080755, -3752051, -3357810, -3029106, -2634865, -2503792, -2372719, -2241645, -2110572, -1979498, -1848425, -1717351, -1586022, -1454949, -1323875, -1192802, -1061728, -930655, -799581, -668508, -537178, -800346, -997722, -1260633, -1458009, -1721177, -1918552, -2181464, -2378839, -2642007, -2839383, -3102294, -3299670, -3562838, -3760213, -4023125, -4220500, -4680793, -5141086, -5601379, -6061416, -6521709, -6982002, -7442039, -7902331, -8362624, -8822661, -9282954, -9743247, -10203284, -10663577, -11123870, -11518370, -11649958, -11781546, -11913134, -12044722, -12176310, -12307641, -12439229, -12570817, -12702405, -12833993, -12965324, -13096912, -13228500, -13360088, -13491676, -13623007, -13426399, -13229791, -12967390, -12770782, -12508382, -12311773, -12049373, -11852764, -11656156, -11393756, -11197147, -10934747, -10738139, -10475738, -10279130, -10016729, -9491928, -8967126, -8376789, -7851987, -7327186, -6736848, -6212047, -5621709, -5096907, -4572106, -3981768, -3456967, -2932165, -2341828, -1817026, -1226432, -1159870, -1093052, -1026233, -959415, -892596, -825778, -758959, -626605, -560043, -493224, -426406, -359587, -292769, -225950, -159132, -26777, -91546, -90523, -89756, -88733, -87966, -86943, -86176, -85153, -84386, -83363, -82596, -81573, -80806, -79783, -79016, -77993, -78249, -78504, -78759, -78758, -79013, -79269, -79524, -79523, -79778, -80033, -80289, -80288, -80543, -80798, -81053, -15516, -16799, -18082, -19364, -20647, -21930, -23212, -24495, -25777, -27060, -28343, -29625, -30908, -32191, -33473, -34756, -35782, -495817, -890316, -1350350, -1744849, -2204883, -2599382, -3059416, -3453915, -3913950, -4308448, -4768483, -5162981, -5623016, -6017514, -6477549, -6872047, -7331312, -7790577, -8249842, -8708851, -9168116, -9627380, -10086645, -10480118, -10939383, -11398648, -11857912, -12316921, -12776186, -13235451, -13694716, -14088188, -14285053, -14481661, -14612989, -14809597, -14940926, -15137534, -15268862, -15465470, -15662335, -15793407, -15990271, -16121343, -16318208, -16449280, -16646144};
     private static final int[] grayscale_palette = {-1, -789517, -1579033, -2302756, -3092272, -3815995, -4605511, -5395027, -6118750, -6908266, -7631989, -8421505, -9211021, -9934744, -10724260, -11447983, -12237499, -13027015, -13750738, -14540254, -15263977, -16053493, -16777216, -15987700, -15198184, -14408668, -13619152, -12829636, -12040120, -11184811, -10395295, -9605779, -8816263, -8026747, -7237231, -6447715, -5592406, -4802890, -4013374, -3223858, -2434342, -1644826, -855310};
-    private static final int[] earthsky_palette = {-1, -1824, -3390, -4957, -6523, -8089, -9656, -11222, -12788, -803572, -1528820, -2253812, -2979059, -3769843, -4494835, -5220083, -5945074, -6536685, -7128039, -7654114, -8245468, -8836823, -9362897, -9954252, -10480070, -11004863, -11464120, -11923121, -12382378, -12841635, -13300636, -13759893, -14218894, -14546054, -14873214, -15200374, -15527534, -15854694, -16181854, -16509014, -16770638, -16702533, -16568635, -16500530, -16366632, -16298526, -16164629, -16096523, -15962625, -13991937, -12021249, -9985025, -8014081, -6043393, -4007169, -2036481};
+    private static final int[] earthsky_palette = {-16774541, -16773770, -16707462, -16641154, -16574590, -16508282, -16507510, -16441202, -16374638, -16308331, -16242023, -16241251, -16174687, -16108379, -16042071, -15975763, -15909199, -15711052, -15447369, -15183686, -14920003, -14656320, -14392380, -14128697, -13865014, -13601331, -13337648, -13073708, -12810025, -12546342, -12282659, -12018976, -11755036, -11295259, -10835225, -10375192, -9849622, -9389589, -8929811, -8469778, -7944208, -7484175, -7024141, -6564364, -6038794, -5578761, -5118727, -4658694, -4133124, -3936517, -3739654, -3542791, -3280391, -3083528, -2886665, -2689802, -2427402, -2230539, -2033676, -1836813, -1574413, -1377550, -1180687, -983824, -721424, -721945, -656673, -657193, -591921, -592441, -527169, -527689, -462417, -397146, -397666, -332394, -332914, -267642, -268162, -202890, -137618, -138649, -139424, -140199, -140973, -141748, -142779, -143554, -78792, -79567, -80342, -81373, -82147, -82922, -83697, -84472, -19710, -348671, -612095, -941055, -1204479, -1533439, -1796863, -2125823, -2389247, -2652672, -2981632, -3245056, -3574016, -3837440, -4166400, -4429824, -4693248, -5153024, -5547008, -5941248, -6335232, -6729472, -7123456, -7517696, -7911680, -8371200, -8765440, -9159424, -9553664, -9947648, -10341888, -10735872, -11129856, -11523840, -11852288, -12246015, -12574463, -12902910, -13296638, -13625085, -13953277, -14347261, -14675708, -15069436, -15397883, -15726331, -16120058, -16448506, -16776697, -16776693, -16776689, -16776685, -16776681, -16776677, -16776417, -16776413, -16776409, -16776405, -16776401, -16776141, -16776137, -16776133, -16776129, -16776125, -16775864, -16775862, -16775859, -16775856, -16775598, -16775595, -16775592, -16775334, -16775331, -16775328, -16775070, -16775067, -16775064, -16774806, -16774803, -16774800};
     private static final int[] hotcold_palette = {-1, -1905153, -3744513, -5649409, -7488769, -9393665, -11233025, -13137921, -14977281, -15044107, -15110676, -15177502, -15244071, -15310640, -15377466, -15444035, -15510604, -15380311, -15184482, -15053933, -14858103, -14662274, -14531725, -14335896, -14139810, -13747364, -13289381, -12831399, -12373160, -11980713, -11522731, -11064748, -10606509, -9951909, -9231773, -8511381, -7791245, -7136645, -6416253, -5696117, -4975725, -4385638, -3795550, -3139926, -2549838, -1959751, -1304127, -714039, -58415, -51242, -43812, -36638, -29208, -22035, -14605, -7431};
     private static final int[] hotcold2_palette = {-51200, -49916, -48375, -47090, -45549, -44008, -42723, -41182, -39642, -38357, -36816, -35275, -33990, -32449, -31164, -29624, -28083, -26798, -25257, -23716, -22431, -20890, -19349, -18833, -18316, -17800, -17283, -16767, -15994, -15478, -14961, -14445, -13928, -13156, -12639, -12123, -11606, -11090, -10573, -9801, -9284, -8768, -8252, -7735, -6962, -72496, -72238, -137516, -137514, -202791, -202533, -268067, -267809, -333086, -333084, -332826, -398104, -398102, -463379, -463121, -528655, -528397, -593674, -593672, -658950, -658692, -658433, -789761, -855553, -986881, -1052673, -1184001, -1249537, -1315329, -1446657, -1512449, -1643777, -1709313, -1775105, -1906433, -1972225, -2103553, -2169345, -2234881, -2366209, -2432001, -2563329, -2629121, -2694657, -2825985, -2891777, -2957569, -3088897, -3154433, -3220225, -3286017, -3417345, -3482881, -3548673, -3614465, -3745793, -3811585, -3877121, -4008449, -4074241, -4140033, -4205569, -4336897, -4402689, -4468481, -4534017, -4665345, -4731137, -4862465, -4928257, -5059585, -5125377, -5191169, -5322497, -5388289, -5519617, -5585153, -5650945, -5782273, -5848065, -5979393, -6045185, -6110977, -6242305, -6308097, -6439425, -6505217, -6570753, -6310157, -5984025, -5723428, -5397296, -5136699, -4810567, -4549971, -4223838, -3963242, -3637365, -3311233, -3050637, -2724248, -2463652, -2137519, -1876923, -1550791, -1290194, -964062, -703465, -377333};
     private static final int[] fire_palette = {-16777216, -15073280, -13303808, -11534336, -9764864, -8060928, -6291456, -4521984, -2752512, -2423552, -2094336, -1765376, -1436160, -1106944, -777984, -448768, -54016, -52480, -50688, -48896, -47104, -45312, -43520, -41728, -39936, -38400, -36608, -34816, -33024, -31232, -29440, -27648, -25856, -24320, -22528, -20736, -18944, -17152, -15360, -13568, -11776, -10491, -8950, -7665, -6124, -4583, -3298, -1757, -215, -2105565, -4210914, -6316263, -8421612, -10526961, -12632310, -14737659};
     private static final int[] jet_palette = {-16777027, -16777022, -16777016, -16777011, -16777005, -16777000, -16776994, -16776989, -16776983, -16776978, -16776972, -16776967, -16776961, -16775681, -16774145, -16772865, -16771329, -16770049, -16768769, -16767233, -16765697, -16764417, -16762881, -16761601, -16760065, -16758785, -16757249, -16755969, -16754433, -16753153, -16751617, -16750337, -16748801, -16747521, -16745985, -16744705, -16743169, -16742145, -16740865, -16739585, -16738305, -16737281, -16736001, -16734721, -16733441, -16732417, -16731137, -16729857, -16728577, -16727297, -16725761, -16724481, -16722945, -16721665, -16720129, -16718849, -16717313, -16716033, -16714497, -16713217, -16711681, -16384007, -15990796, -15663122, -15269911, -14942237, -14614562, -14221352, -13828141, -13500467, -13107256, -12779582, -12386371, -12058696, -11665485, -11337810, -10944598, -10616923, -10223712, -9896037, -9502825, -9175150, -8781939, -8454264, -8061052, -7798914, -7471239, -7143565, -6815890, -6553752, -6226077, -5898403, -5570728, -5308590, -4980915, -4653241, -4325566, -3997892, -3604681, -3277007, -2883796, -2556122, -2162911, -1835237, -1442026, -1114352, -721141, -393467, -256, -1792, -3072, -4608, -5888, -7424, -8704, -10240, -11520, -13056, -14336, -15872, -17152, -18432, -19712, -20992, -22016, -23296, -24576, -25856, -26880, -28160, -29440, -30720, -31744, -33280, -34560, -36096, -37376, -38912, -40192, -41728, -43008, -44544, -45824, -47360, -48640, -50176, -51456, -52992, -54272, -55808, -57088, -58624, -59904, -61440, -62720, -64256, -65536, -458752, -786432, -1179648, -1507328, -1900544, -2228224, -2621440, -2949120, -3342336, -3670016, -4063232, -4390912, -4718592, -5046272, -5373952, -5636096, -5963776, -6291456, -6619136, -6881280, -7208960, -7536640, -7864320, -8126464, -8847345, -9568225, -10289105, -11009985, -11730866, -12451746, -13172626, -13893506, -14614387, -15335267, -16121683,};
 
-    public Palette(int color_choice, int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, boolean d3, int detail, double fiX, double fiY, double color_3d_blending, int blending, boolean gaussian_scaling, double gaussian_weight, int gaussian_kernel_size, int min_to_max_scaling, MainWindow ptr, Color fractal_color, Color dem_color, Color special_color, BufferedImage image, boolean[] filters, int[] filters_options_vals, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean boundary_tracing, boolean periodicity_checking, int plane_type, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_val, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula,  String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, boolean exterior_de, double exterior_de_factor, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double [] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, double  d3_height_scale, int height_algorithm, int escaping_smooth_algorithm, int converging_smooth_algorithm, boolean bump_map, double lightDirectionDegrees, double bumpMappingDepth, double bumpMappingStrength, double color_intensity, boolean polar_projection, double circle_period, boolean fake_de, double fake_de_factor, String user_fz_formula, String user_dfz_formula, String user_ddfz_formula) {
+    public Palette(int color_choice, int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, boolean d3, int detail, double d3_size_scale, double fiX, double fiY, double color_3d_blending, boolean gaussian_scaling, double gaussian_weight, int gaussian_kernel_size, int min_to_max_scaling, int max_scaling, MainWindow ptr, Color fractal_color, Color dem_color, Color special_color, BufferedImage image, boolean[] filters, int[] filters_options_vals, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean boundary_tracing, boolean periodicity_checking, int plane_type, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_val, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula,  String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, boolean exterior_de, double exterior_de_factor, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double [] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, double  d3_height_scale, int height_algorithm, int escaping_smooth_algorithm, int converging_smooth_algorithm, boolean bump_map, double lightDirectionDegrees, double bumpMappingDepth, double bumpMappingStrength, double color_intensity, boolean polar_projection, double circle_period, boolean fake_de, double fake_de_factor, boolean rainbow_palette, double rainbow_palette_factor, String user_fz_formula, String user_dfz_formula, String user_ddfz_formula) {
 
-        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, d3, detail, fiX, fiY, color_3d_blending, blending, gaussian_scaling, gaussian_weight, gaussian_kernel_size, min_to_max_scaling, ptr, fractal_color, dem_color, image, filters, filters_options_vals, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula,  user_incoloring_conditions, user_incoloring_condition_formula, smoothing, boundary_tracing, periodicity_checking, plane_type, burning_ship, mandel_grass, mandel_grass_vals, function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, coefficients, z_exponent_nova, relaxation, nova_method, user_formula, user_formula2, bail_technique, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula,  user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, d3_height_scale, height_algorithm, escaping_smooth_algorithm, converging_smooth_algorithm, bump_map, lightDirectionDegrees, bumpMappingDepth, bumpMappingStrength, polar_projection, circle_period, fake_de, fake_de_factor, user_fz_formula, user_dfz_formula, user_ddfz_formula);
+        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, d3, detail, d3_size_scale, fiX, fiY, color_3d_blending, gaussian_scaling, gaussian_weight, gaussian_kernel_size, min_to_max_scaling, max_scaling, ptr, fractal_color, dem_color, image, filters, filters_options_vals, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula,  user_incoloring_conditions, user_incoloring_condition_formula, smoothing, boundary_tracing, periodicity_checking, plane_type, burning_ship, mandel_grass, mandel_grass_vals, function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, coefficients, z_exponent_nova, relaxation, nova_method, user_formula, user_formula2, bail_technique, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula,  user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, d3_height_scale, height_algorithm, escaping_smooth_algorithm, converging_smooth_algorithm, bump_map, lightDirectionDegrees, bumpMappingDepth, bumpMappingStrength, polar_projection, circle_period, fake_de, fake_de_factor, rainbow_palette, rainbow_palette_factor, user_fz_formula, user_dfz_formula, user_ddfz_formula);
 
         switch (color_choice) {
 
@@ -202,165 +202,9 @@ public class Palette extends ThreadDraw {
 
     }
 
-    public Palette(int color_choice, int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, boolean d3, int detail, double fiX, double fiY, double color_3d_blending, int blending, boolean gaussian_scaling, double gaussian_weight, int gaussian_kernel_size, int min_to_max_scaling, MainWindow ptr, Color fractal_color, Color dem_color, Color special_color, BufferedImage image, boolean[] filters, int[] filters_options_vals, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean boundary_tracing, boolean periodicity_checking, int plane_type, boolean apply_plane_on_julia, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] rotation_vals, double[] rotation_center, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula,  String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, boolean exterior_de, double exterior_de_factor, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double [] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, double  d3_height_scale, int height_algorithm, int escaping_smooth_algorithm, int converging_smooth_algorithm, boolean bump_map, double lightDirectionDegrees, double bumpMappingDepth, double bumpMappingStrength, double color_intensity, boolean polar_projection, double circle_period, boolean fake_de, double fake_de_factor, double xJuliaCenter, double yJuliaCenter) {
+    public Palette(int color_choice, int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, boolean d3, int detail, double d3_size_scale, double fiX, double fiY, double color_3d_blending, boolean gaussian_scaling, double gaussian_weight, int gaussian_kernel_size, int min_to_max_scaling, int max_scaling, MainWindow ptr, Color fractal_color, Color dem_color, Color special_color, BufferedImage image, boolean[] filters, int[] filters_options_vals, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean boundary_tracing, boolean periodicity_checking, int plane_type, boolean apply_plane_on_julia, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] rotation_vals, double[] rotation_center, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula,  String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, boolean exterior_de, double exterior_de_factor, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double [] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, double  d3_height_scale, int height_algorithm, int escaping_smooth_algorithm, int converging_smooth_algorithm, boolean bump_map, double lightDirectionDegrees, double bumpMappingDepth, double bumpMappingStrength, double color_intensity, boolean polar_projection, double circle_period, boolean fake_de, double fake_de_factor, boolean rainbow_palette, double rainbow_palette_factor, double xJuliaCenter, double yJuliaCenter) {
 
-        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, d3, detail, fiX, fiY, color_3d_blending, blending, gaussian_scaling, gaussian_weight, gaussian_kernel_size, min_to_max_scaling, ptr, fractal_color, dem_color, image, filters, filters_options_vals, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula,  user_incoloring_conditions, user_incoloring_condition_formula, smoothing, boundary_tracing, periodicity_checking, plane_type, apply_plane_on_julia, burning_ship, mandel_grass, mandel_grass_vals, function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, coefficients, z_exponent_nova, relaxation, nova_method, user_formula, user_formula2, bail_technique, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula,  user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, d3_height_scale, height_algorithm, escaping_smooth_algorithm, converging_smooth_algorithm, bump_map, lightDirectionDegrees, bumpMappingDepth, bumpMappingStrength, polar_projection, circle_period, fake_de, fake_de_factor, xJuliaCenter, yJuliaCenter);
-
-        switch (color_choice) {
-
-            case 0:
-                if(!smoothing) {
-                    palette_color = new PaletteColorNormal(default_palette, color_intensity, special_color);
-                }
-                else {
-                    palette_color = new PaletteColorSmooth(default_palette, color_intensity, special_color);
-                }
-                break;
-            case 1:
-                if(!smoothing) {
-                    palette_color = new PaletteColorNormal(spectrum_palette, color_intensity, special_color);
-                }
-                else {
-                    palette_color = new PaletteColorSmooth(spectrum_palette, color_intensity, special_color);
-                }
-                break;
-            case 2:
-                if(!smoothing) {
-                    palette_color = new PaletteColorNormal(alternative_palette, color_intensity, special_color);
-                }
-                else {
-                    palette_color = new PaletteColorSmooth(alternative_palette, color_intensity, special_color);
-                }
-                break;
-            case 3:
-                if(!smoothing) {
-                    palette_color = new PaletteColorNormal(alternative2_palette, color_intensity, special_color);
-                }
-                else {
-                    palette_color = new PaletteColorSmooth(alternative2_palette, color_intensity, special_color);
-                }
-                break;
-            case 4:
-                if(!smoothing) {
-                    palette_color = new PaletteColorNormal(alternative3_palette, color_intensity, special_color);
-                }
-                else {
-                    palette_color = new PaletteColorSmooth(alternative3_palette, color_intensity, special_color);
-                }
-                break;
-            case 5:
-                if(!smoothing) {
-                    palette_color = new PaletteColorNormal(alternative4_palette, color_intensity, special_color);
-                }
-                else {
-                    palette_color = new PaletteColorSmooth(alternative4_palette, color_intensity, special_color);
-                }
-                break;
-            case 6:
-                if(!smoothing) {
-                    palette_color = new PaletteColorNormal(alternative5_palette, color_intensity, special_color);
-                }
-                else {
-                    palette_color = new PaletteColorSmooth(alternative5_palette, color_intensity, special_color);
-                }
-                break;
-            case 7:
-                if(!smoothing) {
-                    palette_color = new PaletteColorNormal(alternative6_palette, color_intensity, special_color);
-                }
-                else {
-                    palette_color = new PaletteColorSmooth(alternative6_palette, color_intensity, special_color);
-                }
-                break;
-            case 8:
-                if(!smoothing) {
-                    palette_color = new PaletteColorNormal(alternative7_palette, color_intensity, special_color);
-                }
-                else {
-                    palette_color = new PaletteColorSmooth(alternative7_palette, color_intensity, special_color);
-                }
-                break;
-            case 9:
-                if(!smoothing) {
-                    palette_color = new PaletteColorNormal(alternative8_palette, color_intensity, special_color);
-                }
-                else {
-                    palette_color = new PaletteColorSmooth(alternative8_palette, color_intensity, special_color);
-                }
-                break;
-            case 10:
-                if(!smoothing) {
-                    palette_color = new PaletteColorNormal(alternative9_palette, color_intensity, special_color);
-                }
-                else {
-                    palette_color = new PaletteColorSmooth(alternative9_palette, color_intensity, special_color);
-                }
-                break;
-            case 11:
-                if(!smoothing) {
-                    palette_color = new PaletteColorNormal(dusk_palette, color_intensity, special_color);
-                }
-                else {
-                    palette_color = new PaletteColorSmooth(dusk_palette, color_intensity, special_color);
-                }
-                break;
-            case 12:
-                if(!smoothing) {
-                    palette_color = new PaletteColorNormal(grayscale_palette, color_intensity, special_color);
-                }
-                else {
-                    palette_color = new PaletteColorSmooth(grayscale_palette, color_intensity, special_color);
-                }
-                break;
-            case 13:
-                if(!smoothing) {
-                    palette_color = new PaletteColorNormal(earthsky_palette, color_intensity, special_color);
-                }
-                else {
-                    palette_color = new PaletteColorSmooth(earthsky_palette, color_intensity, special_color);
-                }
-                break;
-            case 14:
-                if(!smoothing) {
-                    palette_color = new PaletteColorNormal(hotcold_palette, color_intensity, special_color);
-                }
-                else {
-                    palette_color = new PaletteColorSmooth(hotcold_palette, color_intensity, special_color);
-                }
-                break;
-            case 15:
-                if(!smoothing) {
-                    palette_color = new PaletteColorNormal(hotcold2_palette, color_intensity, special_color);
-                }
-                else {
-                    palette_color = new PaletteColorSmooth(hotcold2_palette, color_intensity, special_color);
-                }
-                break;
-            case 16:
-                if(!smoothing) {
-                    palette_color = new PaletteColorNormal(fire_palette, color_intensity, special_color);
-                }
-                else {
-                    palette_color = new PaletteColorSmooth(fire_palette, color_intensity, special_color);
-                }
-                break;
-            case 17:
-                if(!smoothing) {
-                    palette_color = new PaletteColorNormal(jet_palette, color_intensity, special_color);
-                }
-                else {
-                    palette_color = new PaletteColorSmooth(jet_palette, color_intensity, special_color);
-                }
-                break;
-
-        }
-
-
-    }
-
-    public Palette(int color_choice, int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, MainWindow ptr, Color fractal_color, Color dem_color, Color special_color, BufferedImage image, boolean[] filters, int[] filters_options_vals, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, int plane_type, boolean apply_plane_on_julia, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] rotation_vals, double[] rotation_center, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula,  String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, boolean exterior_de, double exterior_de_factor, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double [] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, int converging_smooth_algorithm, boolean bump_map, double lightDirectionDegrees, double bumpMappingDepth, double bumpMappingStrength, double color_intensity, boolean polar_projection, double circle_period, boolean fake_de, double fake_de_factor) {
-
-        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, ptr, fractal_color, dem_color, image, filters, filters_options_vals, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula,  user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, plane_type, apply_plane_on_julia, burning_ship, mandel_grass, mandel_grass_vals, function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, coefficients, z_exponent_nova, relaxation, nova_method, user_formula, user_formula2, bail_technique, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula,  user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, converging_smooth_algorithm, bump_map, lightDirectionDegrees, bumpMappingDepth, bumpMappingStrength, polar_projection, circle_period, fake_de, fake_de_factor);
+        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, d3, detail, d3_size_scale, fiX, fiY, color_3d_blending, gaussian_scaling, gaussian_weight, gaussian_kernel_size, min_to_max_scaling, max_scaling, ptr, fractal_color, dem_color, image, filters, filters_options_vals, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula,  user_incoloring_conditions, user_incoloring_condition_formula, smoothing, boundary_tracing, periodicity_checking, plane_type, apply_plane_on_julia, burning_ship, mandel_grass, mandel_grass_vals, function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, coefficients, z_exponent_nova, relaxation, nova_method, user_formula, user_formula2, bail_technique, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula,  user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, d3_height_scale, height_algorithm, escaping_smooth_algorithm, converging_smooth_algorithm, bump_map, lightDirectionDegrees, bumpMappingDepth, bumpMappingStrength, polar_projection, circle_period, fake_de, fake_de_factor, rainbow_palette, rainbow_palette_factor, xJuliaCenter, yJuliaCenter);
 
         switch (color_choice) {
 
@@ -514,165 +358,9 @@ public class Palette extends ThreadDraw {
 
     }
 
-    public Palette(int color_choice, int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, MainWindow ptr, Color fractal_color, Color dem_color, Color special_color, boolean fast_julia_filters, BufferedImage image, boolean boundary_tracing, boolean periodicity_checking, int plane_type, boolean apply_plane_on_julia, boolean[] filters, int[] filters_options_vals, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] rotation_vals, double[] rotation_center, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula,  String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, boolean exterior_de, double exterior_de_factor, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double [] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, int converging_smooth_algorithm, boolean bump_map, double lightDirectionDegrees, double bumpMappingDepth, double bumpMappingStrength, double color_intensity, boolean polar_projection, double circle_period, boolean fake_de, double fake_de_factor, double xJuliaCenter, double yJuliaCenter) {
+    public Palette(int color_choice, int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, MainWindow ptr, Color fractal_color, Color dem_color, Color special_color, BufferedImage image, boolean[] filters, int[] filters_options_vals, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, int plane_type, boolean apply_plane_on_julia, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] rotation_vals, double[] rotation_center, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula,  String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, boolean exterior_de, double exterior_de_factor, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double [] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, int converging_smooth_algorithm, boolean bump_map, double lightDirectionDegrees, double bumpMappingDepth, double bumpMappingStrength, double color_intensity, boolean polar_projection, double circle_period, boolean fake_de, double fake_de_factor, boolean rainbow_palette, double rainbow_palette_factor) {
 
-        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, ptr, fractal_color, dem_color, fast_julia_filters, image, boundary_tracing, periodicity_checking, plane_type, apply_plane_on_julia, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula,  user_incoloring_conditions, user_incoloring_condition_formula, smoothing, filters, filters_options_vals, burning_ship, mandel_grass, mandel_grass_vals, function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, coefficients, z_exponent_nova, relaxation, nova_method, user_formula, user_formula2, bail_technique, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula,  user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, converging_smooth_algorithm, bump_map, lightDirectionDegrees, bumpMappingDepth, bumpMappingStrength, polar_projection, circle_period, fake_de, fake_de_factor, xJuliaCenter, yJuliaCenter);
-
-        switch (color_choice) {
-
-            case 0:
-                if(!smoothing) {
-                    palette_color = new PaletteColorNormal(default_palette, color_intensity, special_color);
-                }
-                else {
-                    palette_color = new PaletteColorSmooth(default_palette, color_intensity, special_color);
-                }
-                break;
-            case 1:
-                if(!smoothing) {
-                    palette_color = new PaletteColorNormal(spectrum_palette, color_intensity, special_color);
-                }
-                else {
-                    palette_color = new PaletteColorSmooth(spectrum_palette, color_intensity, special_color);
-                }
-                break;
-            case 2:
-                if(!smoothing) {
-                    palette_color = new PaletteColorNormal(alternative_palette, color_intensity, special_color);
-                }
-                else {
-                    palette_color = new PaletteColorSmooth(alternative_palette, color_intensity, special_color);
-                }
-                break;
-            case 3:
-                if(!smoothing) {
-                    palette_color = new PaletteColorNormal(alternative2_palette, color_intensity, special_color);
-                }
-                else {
-                    palette_color = new PaletteColorSmooth(alternative2_palette, color_intensity, special_color);
-                }
-                break;
-            case 4:
-                if(!smoothing) {
-                    palette_color = new PaletteColorNormal(alternative3_palette, color_intensity, special_color);
-                }
-                else {
-                    palette_color = new PaletteColorSmooth(alternative3_palette, color_intensity, special_color);
-                }
-                break;
-            case 5:
-                if(!smoothing) {
-                    palette_color = new PaletteColorNormal(alternative4_palette, color_intensity, special_color);
-                }
-                else {
-                    palette_color = new PaletteColorSmooth(alternative4_palette, color_intensity, special_color);
-                }
-                break;
-            case 6:
-                if(!smoothing) {
-                    palette_color = new PaletteColorNormal(alternative5_palette, color_intensity, special_color);
-                }
-                else {
-                    palette_color = new PaletteColorSmooth(alternative5_palette, color_intensity, special_color);
-                }
-                break;
-            case 7:
-                if(!smoothing) {
-                    palette_color = new PaletteColorNormal(alternative6_palette, color_intensity, special_color);
-                }
-                else {
-                    palette_color = new PaletteColorSmooth(alternative6_palette, color_intensity, special_color);
-                }
-                break;
-            case 8:
-                if(!smoothing) {
-                    palette_color = new PaletteColorNormal(alternative7_palette, color_intensity, special_color);
-                }
-                else {
-                    palette_color = new PaletteColorSmooth(alternative7_palette, color_intensity, special_color);
-                }
-                break;
-            case 9:
-                if(!smoothing) {
-                    palette_color = new PaletteColorNormal(alternative8_palette, color_intensity, special_color);
-                }
-                else {
-                    palette_color = new PaletteColorSmooth(alternative8_palette, color_intensity, special_color);
-                }
-                break;
-            case 10:
-                if(!smoothing) {
-                    palette_color = new PaletteColorNormal(alternative9_palette, color_intensity, special_color);
-                }
-                else {
-                    palette_color = new PaletteColorSmooth(alternative9_palette, color_intensity, special_color);
-                }
-                break;
-            case 11:
-                if(!smoothing) {
-                    palette_color = new PaletteColorNormal(dusk_palette, color_intensity, special_color);
-                }
-                else {
-                    palette_color = new PaletteColorSmooth(dusk_palette, color_intensity, special_color);
-                }
-                break;
-            case 12:
-                if(!smoothing) {
-                    palette_color = new PaletteColorNormal(grayscale_palette, color_intensity, special_color);
-                }
-                else {
-                    palette_color = new PaletteColorSmooth(grayscale_palette, color_intensity, special_color);
-                }
-                break;
-            case 13:
-                if(!smoothing) {
-                    palette_color = new PaletteColorNormal(earthsky_palette, color_intensity, special_color);
-                }
-                else {
-                    palette_color = new PaletteColorSmooth(earthsky_palette, color_intensity, special_color);
-                }
-                break;
-            case 14:
-                if(!smoothing) {
-                    palette_color = new PaletteColorNormal(hotcold_palette, color_intensity, special_color);
-                }
-                else {
-                    palette_color = new PaletteColorSmooth(hotcold_palette, color_intensity, special_color);
-                }
-                break;
-            case 15:
-                if(!smoothing) {
-                    palette_color = new PaletteColorNormal(hotcold2_palette, color_intensity, special_color);
-                }
-                else {
-                    palette_color = new PaletteColorSmooth(hotcold2_palette, color_intensity, special_color);
-                }
-                break;
-            case 16:
-                if(!smoothing) {
-                    palette_color = new PaletteColorNormal(fire_palette, color_intensity, special_color);
-                }
-                else {
-                    palette_color = new PaletteColorSmooth(fire_palette, color_intensity, special_color);
-                }
-                break;
-            case 17:
-                if(!smoothing) {
-                    palette_color = new PaletteColorNormal(jet_palette, color_intensity, special_color);
-                }
-                else {
-                    palette_color = new PaletteColorSmooth(jet_palette, color_intensity, special_color);
-                }
-                break;
-
-        }
-
-
-    }
-
-    public Palette(int color_choice, int FROMx, int TOx, int FROMy, int TOy, int max_iterations, MainWindow ptr, Color fractal_color, Color dem_color, Color special_color, boolean smoothing, BufferedImage image, int color_cycling_location, boolean bump_map, double lightDirectionDegrees, double bumpMappingDepth, double bumpMappingStrength, double color_intensity, boolean fake_de, double fake_de_factor, int color_cycling_speed) {
-
-        super(FROMx, TOx, FROMy, TOy, max_iterations, ptr, fractal_color, dem_color, image, color_cycling_location, bump_map, lightDirectionDegrees, bumpMappingDepth, bumpMappingStrength, fake_de, fake_de_factor, color_cycling_speed);
+        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, ptr, fractal_color, dem_color, image, filters, filters_options_vals, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula,  user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, plane_type, apply_plane_on_julia, burning_ship, mandel_grass, mandel_grass_vals, function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, coefficients, z_exponent_nova, relaxation, nova_method, user_formula, user_formula2, bail_technique, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula,  user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, converging_smooth_algorithm, bump_map, lightDirectionDegrees, bumpMappingDepth, bumpMappingStrength, polar_projection, circle_period, fake_de, fake_de_factor, rainbow_palette, rainbow_palette_factor);
 
         switch (color_choice) {
 
@@ -826,9 +514,9 @@ public class Palette extends ThreadDraw {
 
     }
 
-    public Palette(int color_choice, int FROMx, int TOx, int FROMy, int TOy, int max_iterations, MainWindow ptr, BufferedImage image, Color fractal_color, Color dem_color, Color special_color, int color_cycling_location, boolean smoothing, boolean[] filters, int[] filters_options_vals, boolean bump_map, double lightDirectionDegrees, double bumpMappingDepth, double bumpMappingStrength, double color_intensity, boolean fake_de, double fake_de_factor) {
+    public Palette(int color_choice, int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, MainWindow ptr, Color fractal_color, Color dem_color, Color special_color, boolean fast_julia_filters, BufferedImage image, boolean boundary_tracing, boolean periodicity_checking, int plane_type, boolean apply_plane_on_julia, boolean[] filters, int[] filters_options_vals, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] rotation_vals, double[] rotation_center, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula,  String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, boolean exterior_de, double exterior_de_factor, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double [] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, int converging_smooth_algorithm, boolean bump_map, double lightDirectionDegrees, double bumpMappingDepth, double bumpMappingStrength, double color_intensity, boolean polar_projection, double circle_period, boolean fake_de, double fake_de_factor, boolean rainbow_palette, double rainbow_palette_factor, double xJuliaCenter, double yJuliaCenter) {
 
-        super(FROMx, TOx, FROMy, TOy, max_iterations, ptr, image, fractal_color, dem_color, color_cycling_location, filters, filters_options_vals, bump_map, lightDirectionDegrees, bumpMappingDepth, bumpMappingStrength, fake_de, fake_de_factor);
+        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, ptr, fractal_color, dem_color, fast_julia_filters, image, boundary_tracing, periodicity_checking, plane_type, apply_plane_on_julia, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula,  user_incoloring_conditions, user_incoloring_condition_formula, smoothing, filters, filters_options_vals, burning_ship, mandel_grass, mandel_grass_vals, function, z_exponent, z_exponent_complex, color_cycling_location, rotation_vals, rotation_center, coefficients, z_exponent_nova, relaxation, nova_method, user_formula, user_formula2, bail_technique, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula,  user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, converging_smooth_algorithm, bump_map, lightDirectionDegrees, bumpMappingDepth, bumpMappingStrength, polar_projection, circle_period, fake_de, fake_de_factor, rainbow_palette, rainbow_palette_factor, xJuliaCenter, yJuliaCenter);
 
         switch (color_choice) {
 
@@ -982,9 +670,321 @@ public class Palette extends ThreadDraw {
 
     }
 
-    public Palette(int FROMx, int TOx, int FROMy, int TOy, int detail, double fiX, double fiY, double color_3d_blending, int blending, boolean draw_action, MainWindow ptr, BufferedImage image, boolean[] filters, int[] filters_options_vals) {
+    public Palette(int color_choice, int FROMx, int TOx, int FROMy, int TOy, int max_iterations, MainWindow ptr, Color fractal_color, Color dem_color, Color special_color, boolean smoothing, BufferedImage image, int color_cycling_location, boolean bump_map, double lightDirectionDegrees, double bumpMappingDepth, double bumpMappingStrength, double color_intensity, boolean fake_de, double fake_de_factor, boolean rainbow_palette, double rainbow_palette_factor, int color_cycling_speed, boolean[] filters, int[] filters_options_vals) {
 
-        super(FROMx, TOx, FROMy, TOy, detail, fiX, fiY, color_3d_blending, blending, draw_action, ptr, image, filters, filters_options_vals);
+        super(FROMx, TOx, FROMy, TOy, max_iterations, ptr, fractal_color, dem_color, image, color_cycling_location, bump_map, lightDirectionDegrees, bumpMappingDepth, bumpMappingStrength, fake_de, fake_de_factor, rainbow_palette, rainbow_palette_factor, color_cycling_speed, filters, filters_options_vals);
+
+        switch (color_choice) {
+
+            case 0:
+                if(!smoothing) {
+                    palette_color = new PaletteColorNormal(default_palette, color_intensity, special_color);
+                }
+                else {
+                    palette_color = new PaletteColorSmooth(default_palette, color_intensity, special_color);
+                }
+                break;
+            case 1:
+                if(!smoothing) {
+                    palette_color = new PaletteColorNormal(spectrum_palette, color_intensity, special_color);
+                }
+                else {
+                    palette_color = new PaletteColorSmooth(spectrum_palette, color_intensity, special_color);
+                }
+                break;
+            case 2:
+                if(!smoothing) {
+                    palette_color = new PaletteColorNormal(alternative_palette, color_intensity, special_color);
+                }
+                else {
+                    palette_color = new PaletteColorSmooth(alternative_palette, color_intensity, special_color);
+                }
+                break;
+            case 3:
+                if(!smoothing) {
+                    palette_color = new PaletteColorNormal(alternative2_palette, color_intensity, special_color);
+                }
+                else {
+                    palette_color = new PaletteColorSmooth(alternative2_palette, color_intensity, special_color);
+                }
+                break;
+            case 4:
+                if(!smoothing) {
+                    palette_color = new PaletteColorNormal(alternative3_palette, color_intensity, special_color);
+                }
+                else {
+                    palette_color = new PaletteColorSmooth(alternative3_palette, color_intensity, special_color);
+                }
+                break;
+            case 5:
+                if(!smoothing) {
+                    palette_color = new PaletteColorNormal(alternative4_palette, color_intensity, special_color);
+                }
+                else {
+                    palette_color = new PaletteColorSmooth(alternative4_palette, color_intensity, special_color);
+                }
+                break;
+            case 6:
+                if(!smoothing) {
+                    palette_color = new PaletteColorNormal(alternative5_palette, color_intensity, special_color);
+                }
+                else {
+                    palette_color = new PaletteColorSmooth(alternative5_palette, color_intensity, special_color);
+                }
+                break;
+            case 7:
+                if(!smoothing) {
+                    palette_color = new PaletteColorNormal(alternative6_palette, color_intensity, special_color);
+                }
+                else {
+                    palette_color = new PaletteColorSmooth(alternative6_palette, color_intensity, special_color);
+                }
+                break;
+            case 8:
+                if(!smoothing) {
+                    palette_color = new PaletteColorNormal(alternative7_palette, color_intensity, special_color);
+                }
+                else {
+                    palette_color = new PaletteColorSmooth(alternative7_palette, color_intensity, special_color);
+                }
+                break;
+            case 9:
+                if(!smoothing) {
+                    palette_color = new PaletteColorNormal(alternative8_palette, color_intensity, special_color);
+                }
+                else {
+                    palette_color = new PaletteColorSmooth(alternative8_palette, color_intensity, special_color);
+                }
+                break;
+            case 10:
+                if(!smoothing) {
+                    palette_color = new PaletteColorNormal(alternative9_palette, color_intensity, special_color);
+                }
+                else {
+                    palette_color = new PaletteColorSmooth(alternative9_palette, color_intensity, special_color);
+                }
+                break;
+            case 11:
+                if(!smoothing) {
+                    palette_color = new PaletteColorNormal(dusk_palette, color_intensity, special_color);
+                }
+                else {
+                    palette_color = new PaletteColorSmooth(dusk_palette, color_intensity, special_color);
+                }
+                break;
+            case 12:
+                if(!smoothing) {
+                    palette_color = new PaletteColorNormal(grayscale_palette, color_intensity, special_color);
+                }
+                else {
+                    palette_color = new PaletteColorSmooth(grayscale_palette, color_intensity, special_color);
+                }
+                break;
+            case 13:
+                if(!smoothing) {
+                    palette_color = new PaletteColorNormal(earthsky_palette, color_intensity, special_color);
+                }
+                else {
+                    palette_color = new PaletteColorSmooth(earthsky_palette, color_intensity, special_color);
+                }
+                break;
+            case 14:
+                if(!smoothing) {
+                    palette_color = new PaletteColorNormal(hotcold_palette, color_intensity, special_color);
+                }
+                else {
+                    palette_color = new PaletteColorSmooth(hotcold_palette, color_intensity, special_color);
+                }
+                break;
+            case 15:
+                if(!smoothing) {
+                    palette_color = new PaletteColorNormal(hotcold2_palette, color_intensity, special_color);
+                }
+                else {
+                    palette_color = new PaletteColorSmooth(hotcold2_palette, color_intensity, special_color);
+                }
+                break;
+            case 16:
+                if(!smoothing) {
+                    palette_color = new PaletteColorNormal(fire_palette, color_intensity, special_color);
+                }
+                else {
+                    palette_color = new PaletteColorSmooth(fire_palette, color_intensity, special_color);
+                }
+                break;
+            case 17:
+                if(!smoothing) {
+                    palette_color = new PaletteColorNormal(jet_palette, color_intensity, special_color);
+                }
+                else {
+                    palette_color = new PaletteColorSmooth(jet_palette, color_intensity, special_color);
+                }
+                break;
+
+        }
+
+
+    }
+
+    public Palette(int color_choice, int FROMx, int TOx, int FROMy, int TOy, int max_iterations, MainWindow ptr, BufferedImage image, Color fractal_color, Color dem_color, Color special_color, int color_cycling_location, boolean smoothing, boolean[] filters, int[] filters_options_vals, boolean bump_map, double lightDirectionDegrees, double bumpMappingDepth, double bumpMappingStrength, double color_intensity, boolean fake_de, double fake_de_factor, boolean rainbow_palette, double rainbow_palette_factor) {
+
+        super(FROMx, TOx, FROMy, TOy, max_iterations, ptr, image, fractal_color, dem_color, color_cycling_location, filters, filters_options_vals, bump_map, lightDirectionDegrees, bumpMappingDepth, bumpMappingStrength, fake_de, fake_de_factor, rainbow_palette, rainbow_palette_factor);
+
+        switch (color_choice) {
+
+            case 0:
+                if(!smoothing) {
+                    palette_color = new PaletteColorNormal(default_palette, color_intensity, special_color);
+                }
+                else {
+                    palette_color = new PaletteColorSmooth(default_palette, color_intensity, special_color);
+                }
+                break;
+            case 1:
+                if(!smoothing) {
+                    palette_color = new PaletteColorNormal(spectrum_palette, color_intensity, special_color);
+                }
+                else {
+                    palette_color = new PaletteColorSmooth(spectrum_palette, color_intensity, special_color);
+                }
+                break;
+            case 2:
+                if(!smoothing) {
+                    palette_color = new PaletteColorNormal(alternative_palette, color_intensity, special_color);
+                }
+                else {
+                    palette_color = new PaletteColorSmooth(alternative_palette, color_intensity, special_color);
+                }
+                break;
+            case 3:
+                if(!smoothing) {
+                    palette_color = new PaletteColorNormal(alternative2_palette, color_intensity, special_color);
+                }
+                else {
+                    palette_color = new PaletteColorSmooth(alternative2_palette, color_intensity, special_color);
+                }
+                break;
+            case 4:
+                if(!smoothing) {
+                    palette_color = new PaletteColorNormal(alternative3_palette, color_intensity, special_color);
+                }
+                else {
+                    palette_color = new PaletteColorSmooth(alternative3_palette, color_intensity, special_color);
+                }
+                break;
+            case 5:
+                if(!smoothing) {
+                    palette_color = new PaletteColorNormal(alternative4_palette, color_intensity, special_color);
+                }
+                else {
+                    palette_color = new PaletteColorSmooth(alternative4_palette, color_intensity, special_color);
+                }
+                break;
+            case 6:
+                if(!smoothing) {
+                    palette_color = new PaletteColorNormal(alternative5_palette, color_intensity, special_color);
+                }
+                else {
+                    palette_color = new PaletteColorSmooth(alternative5_palette, color_intensity, special_color);
+                }
+                break;
+            case 7:
+                if(!smoothing) {
+                    palette_color = new PaletteColorNormal(alternative6_palette, color_intensity, special_color);
+                }
+                else {
+                    palette_color = new PaletteColorSmooth(alternative6_palette, color_intensity, special_color);
+                }
+                break;
+            case 8:
+                if(!smoothing) {
+                    palette_color = new PaletteColorNormal(alternative7_palette, color_intensity, special_color);
+                }
+                else {
+                    palette_color = new PaletteColorSmooth(alternative7_palette, color_intensity, special_color);
+                }
+                break;
+            case 9:
+                if(!smoothing) {
+                    palette_color = new PaletteColorNormal(alternative8_palette, color_intensity, special_color);
+                }
+                else {
+                    palette_color = new PaletteColorSmooth(alternative8_palette, color_intensity, special_color);
+                }
+                break;
+            case 10:
+                if(!smoothing) {
+                    palette_color = new PaletteColorNormal(alternative9_palette, color_intensity, special_color);
+                }
+                else {
+                    palette_color = new PaletteColorSmooth(alternative9_palette, color_intensity, special_color);
+                }
+                break;
+            case 11:
+                if(!smoothing) {
+                    palette_color = new PaletteColorNormal(dusk_palette, color_intensity, special_color);
+                }
+                else {
+                    palette_color = new PaletteColorSmooth(dusk_palette, color_intensity, special_color);
+                }
+                break;
+            case 12:
+                if(!smoothing) {
+                    palette_color = new PaletteColorNormal(grayscale_palette, color_intensity, special_color);
+                }
+                else {
+                    palette_color = new PaletteColorSmooth(grayscale_palette, color_intensity, special_color);
+                }
+                break;
+            case 13:
+                if(!smoothing) {
+                    palette_color = new PaletteColorNormal(earthsky_palette, color_intensity, special_color);
+                }
+                else {
+                    palette_color = new PaletteColorSmooth(earthsky_palette, color_intensity, special_color);
+                }
+                break;
+            case 14:
+                if(!smoothing) {
+                    palette_color = new PaletteColorNormal(hotcold_palette, color_intensity, special_color);
+                }
+                else {
+                    palette_color = new PaletteColorSmooth(hotcold_palette, color_intensity, special_color);
+                }
+                break;
+            case 15:
+                if(!smoothing) {
+                    palette_color = new PaletteColorNormal(hotcold2_palette, color_intensity, special_color);
+                }
+                else {
+                    palette_color = new PaletteColorSmooth(hotcold2_palette, color_intensity, special_color);
+                }
+                break;
+            case 16:
+                if(!smoothing) {
+                    palette_color = new PaletteColorNormal(fire_palette, color_intensity, special_color);
+                }
+                else {
+                    palette_color = new PaletteColorSmooth(fire_palette, color_intensity, special_color);
+                }
+                break;
+            case 17:
+                if(!smoothing) {
+                    palette_color = new PaletteColorNormal(jet_palette, color_intensity, special_color);
+                }
+                else {
+                    palette_color = new PaletteColorSmooth(jet_palette, color_intensity, special_color);
+                }
+                break;
+
+        }
+
+
+    }
+
+    public Palette(int FROMx, int TOx, int FROMy, int TOy, int detail, double d3_size_scale, double fiX, double fiY, double color_3d_blending, boolean draw_action, MainWindow ptr, BufferedImage image, boolean[] filters, int[] filters_options_vals) {
+
+        super(FROMx, TOx, FROMy, TOy, detail, d3_size_scale, fiX, fiY, color_3d_blending, draw_action, ptr, image, filters, filters_options_vals);
 
     }
 }

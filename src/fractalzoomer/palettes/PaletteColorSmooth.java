@@ -99,5 +99,5 @@ public class PaletteColorSmooth extends PaletteColor {
         return palette[((int)((i + palette.length))) % palette.length];
 
     }
-
+    
 }

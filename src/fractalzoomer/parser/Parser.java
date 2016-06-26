@@ -42,7 +42,7 @@ public class Parser {
      */
     Token lookahead;
 
-    /* Implement for fractal zoomer purposes */
+    /* Implemented for fractal zoomer purposes */
     boolean found_z;
     boolean found_c;
     boolean found_n;
@@ -450,6 +450,7 @@ public class Parser {
         }
     }
 
+    /* Implemented for fractal zoomer purposes */
     public boolean foundZ() {
         return found_z;
     }
@@ -486,6 +487,10 @@ public class Parser {
         return found_maxn;
     }
 
+    /* Instead of using the visitor pattern, in order to save comparison time
+       I have decided to keep every object that is a variable into a seperate array
+       and update its value manually.
+    */
     public void setZvalue(Complex value) {
 
         for(int i = 0; i < z_var_arr.length; i++) {
@@ -557,5 +562,6 @@ public class Parser {
         }
 
     }
+    /*************************************************/
 
 }

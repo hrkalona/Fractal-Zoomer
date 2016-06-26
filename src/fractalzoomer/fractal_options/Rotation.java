@@ -26,11 +26,13 @@ import fractalzoomer.core.Complex;
  */
 public class Rotation {
   private Complex rotation;
+  private Complex inv_rotation;
   private Complex center;
   
     public Rotation(double cos_theta, double sin_theta, double x, double y) {
         
         rotation = new Complex(cos_theta, sin_theta);
+        inv_rotation = rotation.conjugate();
         center = new Complex(x, y);
         
     }
@@ -38,7 +40,7 @@ public class Rotation {
     public Complex getPixel(Complex pixel, boolean inv) {
         
          Complex temp = pixel.sub(center);
-         return inv == true ? temp.times(rotation.conjugate()).plus_mutable(center) : temp.times(rotation).plus_mutable(center);
+         return inv == true ? temp.times(inv_rotation).plus_mutable(center) : temp.times(rotation).plus_mutable(center);
          
     }
     

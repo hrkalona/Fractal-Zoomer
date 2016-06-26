@@ -42,6 +42,7 @@ public class PaletteColorNormal extends PaletteColor {
             return palette[((int)((result + mod_offset) * color_intensity)) % palette.length];
         }       
         
-    }
+    }  
+ 
   
 }

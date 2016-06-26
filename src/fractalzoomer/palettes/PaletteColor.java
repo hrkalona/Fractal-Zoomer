@@ -92,5 +92,12 @@ public abstract class PaletteColor {
     }
 
     public abstract int getPaletteColor(double result);
+    
+    
+    public int getPaletteLength() {
+        
+        return palette.length;
+        
+    }
 
 }
