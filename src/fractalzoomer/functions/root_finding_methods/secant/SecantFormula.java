@@ -356,5 +356,50 @@ public class SecantFormula extends RootFindingMethods {
         }
 
     }
+    
+    @Override
+    public Complex iterateFractalDomain(Complex pixel) {
+        iterations = 0;
+
+        Complex[] complex = new Complex[3];
+        complex[0] = new Complex(pixel);//z
+        complex[1] = new Complex();
+        
+        if(parser.foundZ()) {
+            parser.setZvalue(complex[1]);
+        }
+
+        if(parser.foundN()) {
+            parser.setNvalue(new Complex(iterations, 0));
+        }
+        
+        if(parser.foundS()) {
+            parser.setSvalue(new Complex(complex[0]));
+        }
+
+        if(parser.foundP()) {
+            parser.setPvalue(new Complex());
+        }  
+       
+        complex[2] = expr.getValue();
+  
+
+        Complex zold = new Complex();
+          
+
+        for(; iterations < max_iterations; iterations++) {
+
+            zold.assign(complex[0]);
+            function(complex);
+
+            if(parser.foundP()) {
+                parser.setPvalue(new Complex(zold));
+            }
+
+        }
+
+        return complex[0];
+
+    }
 
 }

@@ -92,6 +92,8 @@ import fractalzoomer.planes.fold.FoldDownPlane;
 import fractalzoomer.planes.fold.FoldLeftPlane;
 import fractalzoomer.planes.general.CircleInversionPlane;
 import fractalzoomer.planes.general.MuVariationPlane;
+import fractalzoomer.planes.math.ErfPlane;
+import fractalzoomer.planes.math.RiemannZetaPlane;
 import java.util.ArrayList;
 
 /**
@@ -294,10 +296,10 @@ public abstract class Fractal {
                 plane = new FactorialPlane();
                 break;
             case MainWindow.BIPOLAR_PLANE:
-                plane = new BipolarPlane();
+                plane = new BipolarPlane(plane_transform_center[0]);
                 break;
             case MainWindow.INVERSED_BIPOLAR_PLANE:
-                plane = new InversedBipolarPlane();
+                plane = new InversedBipolarPlane(plane_transform_center[0]);
                 break;
             case MainWindow.TWIRL_PLANE:
                 plane = new TwirlPlane(plane_transform_center, plane_transform_angle, plane_transform_radius);
@@ -316,6 +318,12 @@ public abstract class Fractal {
                 break;
             case MainWindow.VARIATION_MU_PLANE:
                 plane = new MuVariationPlane();
+                break;
+            case MainWindow.ERF_PLANE:
+                plane = new ErfPlane();
+                break;
+            case MainWindow.RZETA_PLANE:
+                plane = new RiemannZetaPlane();
                 break;
         }
 
@@ -519,10 +527,10 @@ public abstract class Fractal {
                 plane = new FactorialPlane();
                 break;
             case MainWindow.BIPOLAR_PLANE:
-                plane = new BipolarPlane();
+                plane = new BipolarPlane(plane_transform_center[0]);
                 break;
             case MainWindow.INVERSED_BIPOLAR_PLANE:
-                plane = new InversedBipolarPlane();
+                plane = new InversedBipolarPlane(plane_transform_center[0]);
                 break;
             case MainWindow.TWIRL_PLANE:
                 plane = new TwirlPlane(plane_transform_center, plane_transform_angle, plane_transform_radius);
@@ -541,6 +549,12 @@ public abstract class Fractal {
                 break;
             case MainWindow.VARIATION_MU_PLANE:
                 plane = new MuVariationPlane();
+                break;
+            case MainWindow.ERF_PLANE:
+                plane = new ErfPlane();
+                break;
+            case MainWindow.RZETA_PLANE:
+                plane = new RiemannZetaPlane();
                 break;
 
         }
@@ -844,12 +858,40 @@ public abstract class Fractal {
         }
 
     }
+    
+    public Complex calculateFractalDomain(Complex pixel) {
+
+        return iterateFractalDomain(plane.getPixel(rotation.getPixel(pixel, false)));
+     
+    }
+    
+    public Complex iterateFractalDomain(Complex pixel) {
+        
+        int iterations = 0;
+
+        Complex tempz = new Complex(pertur_val.getPixel(init_val.getPixel(pixel)));
+
+        Complex[] complex = new Complex[2];
+        complex[0] = tempz;//z
+        complex[1] = new Complex(pixel);//c
+
+        for(; iterations < max_iterations; iterations++) {
+            
+            function(complex);
+
+        }
+
+        return complex[0];
+        
+    }
 
     public abstract void calculateJuliaOrbit();
 
     public abstract double calculateJulia(Complex pixel);
 
     public abstract double[] calculateJulia3D(Complex pixel);
+    
+    public abstract Complex calculateJuliaDomain(Complex pixel);
 
     public double getXCenter() {
 
@@ -880,5 +922,12 @@ public abstract class Fractal {
         return plane.getPixel(z);
 
     }
+    
+    public PlanePointOption getInitialValue() {
+        
+        return init_val;
+        
+    }
+  
 
 }

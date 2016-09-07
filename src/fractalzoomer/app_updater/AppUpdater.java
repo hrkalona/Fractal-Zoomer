@@ -55,10 +55,15 @@ public class AppUpdater {
             StringTokenizer tokenizer = new StringTokenizer(temp);
 
             if(tokenizer.countTokens() == 3) {
-                tokenizer.nextToken();
-                tokenizer.nextToken();
+                String token1 = tokenizer.nextToken();
+                String token2 = tokenizer.nextToken();
 
-                version = tokenizer.nextToken().replace(".", "");
+                if(token1.equals("Fractal") && token2.equals("Zoomer")) {
+                    version = tokenizer.nextToken().replace(".", "");
+                }
+                else {
+                    return -1;
+                }
             }
             else {
                 return -1;

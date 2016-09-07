@@ -616,6 +616,82 @@ public class UserFormulaIterationBasedEscaping extends Julia {
         return in_color_algorithm.getResult(object);
 
     }
+    
+    @Override
+    public double calculateFractalWithPeriodicity(Complex pixel) {
+
+        iterations = 0;
+        
+        check = 3;
+        check_counter = 0;
+
+        update = 10;
+        update_counter = 0;
+
+        period = new Complex();
+
+        Complex tempz = new Complex(pertur_val.getPixel(init_val.getPixel(pixel)));
+
+        Complex[] complex = new Complex[2];
+        complex[0] = tempz;//z
+        complex[1] = new Complex(pixel);//c
+
+        Complex zold = new Complex();
+
+        if(parser[0].foundS()) {
+            parser[0].setSvalue(new Complex(complex[0]));
+        }
+
+        if(parser[1].foundS()) {
+            parser[1].setSvalue(new Complex(complex[0]));
+        }
+
+        if(parser[2].foundS()) {
+            parser[2].setSvalue(new Complex(complex[0]));
+        }
+
+        if(parser[3].foundS()) {
+            parser[3].setSvalue(new Complex(complex[0]));
+        }
+
+        if(parser[0].foundP()) {
+            parser[0].setPvalue(new Complex());
+        }
+
+        for(; iterations < max_iterations; iterations++) {
+
+            if(bailout_algorithm.escaped(complex[0], zold)) {
+                Object[] object = {iterations, complex[0], zold};
+                return out_color_algorithm.getResult(object);
+            }
+            zold.assign(complex[0]);
+            function(complex);
+
+            if(parser[0].foundP()) {
+                parser[0].setPvalue(new Complex(zold));
+            }
+
+            if(parser[1].foundP()) {
+                parser[1].setPvalue(new Complex(zold));
+            }
+
+            if(parser[2].foundP()) {
+                parser[2].setPvalue(new Complex(zold));
+            }
+
+            if(parser[3].foundP()) {
+                parser[3].setPvalue(new Complex(zold));
+            }
+            
+            if(periodicityCheck(complex[0])) {
+                return max_iterations;
+            }
+
+        }
+
+        return max_iterations;
+
+    }
 
     @Override
     public double[] calculateFractal3DWithPeriodicity(Complex pixel) {
@@ -1170,6 +1246,123 @@ public class UserFormulaIterationBasedEscaping extends Julia {
 
             complex_orbit.add(temp);
         }
+
+    }
+    
+    @Override
+    public Complex iterateFractalDomain(Complex pixel) {
+
+        iterations = 0;
+
+        Complex tempz = new Complex(pertur_val.getPixel(init_val.getPixel(pixel)));
+
+        Complex[] complex = new Complex[2];
+        complex[0] = tempz;//z
+        complex[1] = new Complex(pixel);//c
+
+        Complex zold = new Complex();
+
+        if(parser[0].foundS()) {
+            parser[0].setSvalue(new Complex(complex[0]));
+        }
+
+        if(parser[1].foundS()) {
+            parser[1].setSvalue(new Complex(complex[0]));
+        }
+
+        if(parser[2].foundS()) {
+            parser[2].setSvalue(new Complex(complex[0]));
+        }
+
+        if(parser[3].foundS()) {
+            parser[3].setSvalue(new Complex(complex[0]));
+        }
+
+        if(parser[0].foundP()) {
+            parser[0].setPvalue(new Complex());
+        }
+
+        for(; iterations < max_iterations; iterations++) {
+
+            zold.assign(complex[0]);
+            function(complex);
+
+            if(parser[0].foundP()) {
+                parser[0].setPvalue(new Complex(zold));
+            }
+
+            if(parser[1].foundP()) {
+                parser[1].setPvalue(new Complex(zold));
+            }
+
+            if(parser[2].foundP()) {
+                parser[2].setPvalue(new Complex(zold));
+            }
+
+            if(parser[3].foundP()) {
+                parser[3].setPvalue(new Complex(zold));
+            }
+
+        }
+
+        return complex[0];
+
+    }
+    
+    @Override
+    public Complex iterateJuliaDomain(Complex pixel) {
+        iterations = 0;
+
+        Complex[] complex = new Complex[2];
+        complex[0] = new Complex(pixel);//z
+        complex[1] = new Complex(seed);//c
+
+        Complex zold = new Complex();
+
+        if(parser[0].foundS()) {
+            parser[0].setSvalue(new Complex(complex[0]));
+        }
+
+        if(parser[1].foundS()) {
+            parser[1].setSvalue(new Complex(complex[0]));
+        }
+
+        if(parser[2].foundS()) {
+            parser[2].setSvalue(new Complex(complex[0]));
+        }
+
+        if(parser[3].foundS()) {
+            parser[3].setSvalue(new Complex(complex[0]));
+        }
+
+        if(parser[0].foundP()) {
+            parser[0].setPvalue(new Complex());
+        }
+
+        for(; iterations < max_iterations; iterations++) {
+  
+            zold.assign(complex[0]);
+            function(complex);
+
+            if(parser[0].foundP()) {
+                parser[0].setPvalue(new Complex(zold));
+            }
+
+            if(parser[1].foundP()) {
+                parser[1].setPvalue(new Complex(zold));
+            }
+
+            if(parser[2].foundP()) {
+                parser[2].setPvalue(new Complex(zold));
+            }
+
+            if(parser[3].foundP()) {
+                parser[3].setPvalue(new Complex(zold));
+            }
+
+        }
+
+        return complex[0];
 
     }
 }

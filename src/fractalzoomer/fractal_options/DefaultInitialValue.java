@@ -39,4 +39,11 @@ public class DefaultInitialValue extends PlanePointOption {
         
     }
     
+    @Override
+    public String toString() {
+        
+        return "c";
+        
+    }
+    
 }

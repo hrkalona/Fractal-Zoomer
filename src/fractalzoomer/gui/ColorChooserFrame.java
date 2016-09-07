@@ -38,6 +38,7 @@ import javax.swing.JScrollPane;
  * @author hrkalona2
  */
 public class ColorChooserFrame extends JFrame {
+
     private JFrame ptr2;
     private MainWindow ptra2;
     private Object obj2;
@@ -49,8 +50,7 @@ public class ColorChooserFrame extends JFrame {
         ptr2 = ptr;
         ptra2 = ptra;
         obj2 = obj;
-  
-        
+
         ptr2.setEnabled(false);
         int color_window_width = 720;
         int color_window_height = 480;
@@ -67,7 +67,7 @@ public class ColorChooserFrame extends JFrame {
         else if(obj2 instanceof Color) {
             color_chooser.setColor((Color)obj2);
         }
-        
+
         color_chooser.setPreferredSize(new Dimension(600, 360));
 
         addWindowListener(new WindowAdapter() {
@@ -87,12 +87,12 @@ public class ColorChooserFrame extends JFrame {
         ok.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
-    
+
                 if(obj2 instanceof JLabel) {
                     ((JLabel)obj2).setBackground(new Color(color_chooser.getColor().getRed(), color_chooser.getColor().getGreen(), color_chooser.getColor().getBlue()));
                 }
                 else if(obj2 instanceof Color) {
-                    
+
                     ptra2.storeColor(num, color_chooser.getColor());
                 }
 
@@ -119,7 +119,7 @@ public class ColorChooserFrame extends JFrame {
 
         buttons.add(ok);
         buttons.add(close);
-        
+
         RoundedPanel round_panel = new RoundedPanel(true, true, true, 15);
         round_panel.setBackground(MainWindow.bg_color);
         round_panel.setPreferredSize(new Dimension(640, 380));

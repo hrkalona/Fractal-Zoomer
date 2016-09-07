@@ -49,7 +49,7 @@ public class PlanesMenu extends JMenu {
 
         this.ptr = ptr2;
 
-        planes = new JRadioButtonMenuItem[59];
+        planes = new JRadioButtonMenuItem[61];
 
         planes_general_menu = new JMenu("General Planes");
         planes_fold_menu = new JMenu("Fold Planes");
@@ -482,6 +482,30 @@ public class PlanesMenu extends JMenu {
             }
         });
         planes_math_menu.add(planes[MainWindow.FACT_PLANE]);
+        
+        planes[MainWindow.ERF_PLANE] = new JRadioButtonMenuItem("erf");
+        planes[MainWindow.ERF_PLANE].setToolTipText("The error function plane.");
+        planes[MainWindow.ERF_PLANE].addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setPlane(MainWindow.ERF_PLANE);
+
+            }
+        });
+        planes_math_menu.add(planes[MainWindow.ERF_PLANE]);
+        
+        planes[MainWindow.RZETA_PLANE] = new JRadioButtonMenuItem("riemann zeta");
+        planes[MainWindow.RZETA_PLANE].setToolTipText("The riemann zeta plane.");
+        planes[MainWindow.RZETA_PLANE].addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setPlane(MainWindow.RZETA_PLANE);
+
+            }
+        });
+        planes_math_menu.add(planes[MainWindow.RZETA_PLANE]);
 
         planes[MainWindow.SIN_PLANE] = new JRadioButtonMenuItem("sin");
         planes[MainWindow.SIN_PLANE].setToolTipText("The sin plane.");

@@ -791,4 +791,44 @@ public class Manowar extends Julia {
         }
 
     }
+    
+    @Override
+    public Complex iterateFractalDomain(Complex pixel) {
+        int iterations = 0;
+
+        Complex tempz = new Complex(pertur_val.getPixel(init_val.getPixel(pixel)));
+
+        Complex[] complex = new Complex[3];
+        complex[0] = tempz;//z
+        complex[1] = new Complex(tempz);//z1
+        complex[2] = new Complex(pixel);//c
+
+        for(; iterations < max_iterations; iterations++) {
+   
+            function(complex);
+
+        }
+
+        return complex[0];
+
+    }
+    
+    @Override
+    public Complex iterateJuliaDomain(Complex pixel) {
+        int iterations = 0;
+
+        Complex[] complex = new Complex[3];
+        complex[0] = new Complex(pixel);//z
+        complex[1] = new Complex(pixel);//z1
+        complex[2] = new Complex(seed);//c
+
+        for(; iterations < max_iterations; iterations++) {
+
+            function(complex);
+
+        }
+
+        return complex[0];
+
+    }
 }

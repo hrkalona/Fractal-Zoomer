@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package fractalzoomer.parser;
 
 import fractalzoomer.core.Complex;
@@ -76,7 +75,6 @@ public class Parser {
     /**
      * ************************************
      */
-
     /**
      * Parse a mathematical expression in a string and return an ExpressionNode.
      *
@@ -168,7 +166,7 @@ public class Parser {
      * handles the non-terminal expression
      */
     private ExpressionNode expression() {
-    // only one rule
+        // only one rule
         // expression -> signed_term sum_op
         ExpressionNode expr = signedTerm();
         expr = sumOp(expr);
@@ -182,7 +180,7 @@ public class Parser {
         // sum_op -> PLUSMINUS term sum_op
         if(lookahead.token == Token.PLUSMINUS) {
             AdditionExpressionNode sum;
-      // This means we are actually dealing with a sum
+            // This means we are actually dealing with a sum
             // If expr is not already a sum, we have to create one
             if(expr.getType() == ExpressionNode.ADDITION_NODE) {
                 sum = (AdditionExpressionNode)expr;
@@ -242,8 +240,8 @@ public class Parser {
         if(lookahead.token == Token.MULTDIV) {
             MultiplicationExpressionNode prod;
 
-      // This means we are actually dealing with a product
-            // If expr is not already a sum, we have to create one
+            // This means we are actually dealing with a product
+            // If expr is not already a product, we have to create one
             if(expression.getType() == ExpressionNode.MULTIPLICATION_NODE) {
                 prod = (MultiplicationExpressionNode)expression;
             }
@@ -254,7 +252,7 @@ public class Parser {
             // reduce the input and recursively call sum_op
             boolean positive = lookahead.sequence.equals("*");
             nextToken();
-            ExpressionNode f = factor();
+            ExpressionNode f = signedFactor();
             prod.add(f, positive);
 
             return termOp(prod);
@@ -262,6 +260,27 @@ public class Parser {
 
         // term_op -> EPSILON
         return expression;
+    }
+
+    /**
+     * handles the non-terminal signed_factor
+     */
+    private ExpressionNode signedFactor() {
+        // signed_factor -> PLUSMINUS factor
+        if(lookahead.token == Token.PLUSMINUS) {
+            boolean positive = lookahead.sequence.equals("+");
+            nextToken();
+            ExpressionNode t = factor();
+            if(positive) {
+                return t;
+            }
+            else {
+                return new AdditionExpressionNode(t, false);
+            }
+        }
+
+        // signed_factor -> factor
+        return factor();
     }
 
     /**
@@ -280,7 +299,7 @@ public class Parser {
         // factor_op -> RAISED expression
         if(lookahead.token == Token.RAISED) {
             nextToken();
-            ExpressionNode exponent = factor();
+            ExpressionNode exponent = signedFactor();
 
             return new ExponentiationExpressionNode(expr, exponent);
         }
@@ -296,9 +315,7 @@ public class Parser {
         // argument -> FUNCTION argument
         if(lookahead.token == Token.FUNCTION) {
             int function = FunctionExpressionNode.stringToFunction(lookahead.sequence);
-            if(function < 0) {
-                throw new ParserException("Unexpected Function %s found.", lookahead);
-            }
+
             nextToken();
             ExpressionNode expr = argument();
             return new FunctionExpressionNode(function, expr);
@@ -378,22 +395,22 @@ public class Parser {
                 found_s = true;
                 s_var.add((VariableExpressionNode)expr);
             }
-            
+
             if(temp.equalsIgnoreCase("pp")) {
                 found_pp = true;
                 pp_var.add((VariableExpressionNode)expr);
             }
-            
+
             if(temp.equalsIgnoreCase("bail")) {
                 found_bail = true;
                 bail_var.add((VariableExpressionNode)expr);
             }
-            
+
             if(temp.equalsIgnoreCase("cbail")) {
                 found_cbail = true;
                 cbail_var.add((VariableExpressionNode)expr);
             }
-            
+
             if(temp.equalsIgnoreCase("maxn")) {
                 found_maxn = true;
                 maxn_var.add((VariableExpressionNode)expr);
@@ -470,27 +487,27 @@ public class Parser {
     public boolean foundS() {
         return found_s;
     }
-    
+
     public boolean foundPP() {
         return found_pp;
     }
-    
+
     public boolean foundBail() {
         return found_bail;
     }
-    
+
     public boolean foundCbail() {
         return found_cbail;
     }
-    
+
     public boolean foundMaxn() {
         return found_maxn;
     }
 
     /* Instead of using the visitor pattern, in order to save comparison time
-       I have decided to keep every object that is a variable into a seperate array
-       and update its value manually.
-    */
+     I have decided to keep every object that is a variable into a seperate array
+     and update its value manually.
+     */
     public void setZvalue(Complex value) {
 
         for(int i = 0; i < z_var_arr.length; i++) {
@@ -530,7 +547,7 @@ public class Parser {
         }
 
     }
-    
+
     public void setPPvalue(Complex value) {
 
         for(int i = 0; i < pp_var_arr.length; i++) {
@@ -538,7 +555,7 @@ public class Parser {
         }
 
     }
-    
+
     public void setBailvalue(Complex value) {
 
         for(int i = 0; i < bail_var_arr.length; i++) {
@@ -546,7 +563,7 @@ public class Parser {
         }
 
     }
-    
+
     public void setCbailvalue(Complex value) {
 
         for(int i = 0; i < cbail_var_arr.length; i++) {
@@ -554,7 +571,7 @@ public class Parser {
         }
 
     }
-    
+
     public void setMaxnvalue(Complex value) {
 
         for(int i = 0; i < maxn_var_arr.length; i++) {
@@ -562,6 +579,8 @@ public class Parser {
         }
 
     }
-    /*************************************************/
+    /**
+     * **********************************************
+     */
 
 }

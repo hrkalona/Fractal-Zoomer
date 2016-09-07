@@ -83,7 +83,7 @@ public class UserFormulaConverging extends Julia {
     private Parser parser;
     private ExpressionNode expr2;
     private Parser parser2;
-    int iterations;
+    private int iterations;
 
     public UserFormulaConverging(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_value, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, String user_formula, String user_formula2, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int converging_smooth_algorithm) {
 
@@ -878,6 +878,98 @@ public class UserFormulaConverging extends Julia {
 
             complex_orbit.add(temp);
         }
+
+    }
+    
+    @Override
+    public Complex iterateFractalDomain(Complex pixel) {
+        iterations = 0;
+
+        Complex tempz = new Complex(pertur_val.getPixel(init_val.getPixel(pixel)));
+
+        Complex[] complex = new Complex[2];
+        complex[0] = tempz;
+        complex[1] = new Complex(pixel);//c
+
+        Complex zold = new Complex();
+
+        if(parser.foundS()) {
+            parser.setSvalue(new Complex(complex[0]));
+        }
+
+        if(parser2.foundS()) {
+            parser2.setSvalue(new Complex(complex[0]));
+        }
+
+        if(parser.foundP()) {
+            parser.setPvalue(new Complex());
+        }
+
+        if(parser2.foundP()) {
+            parser2.setPvalue(new Complex());
+        }
+
+        for(; iterations < max_iterations; iterations++) {
+
+            zold.assign(complex[0]);
+            function(complex);
+
+            if(parser.foundP()) {
+                parser.setPvalue(new Complex(zold));
+            }
+
+            if(parser2.foundP()) {
+                parser2.setPvalue(new Complex(zold));
+            }
+
+        }
+
+        return complex[0];
+
+    }
+    
+    @Override
+    public Complex iterateJuliaDomain(Complex pixel) {
+        iterations = 0;
+
+        Complex[] complex = new Complex[2];
+        complex[0] = new Complex(pixel);
+        complex[1] = new Complex(seed);//c
+
+        Complex zold = new Complex();
+
+        if(parser.foundS()) {
+            parser.setSvalue(new Complex(complex[0]));
+        }
+
+        if(parser2.foundS()) {
+            parser2.setSvalue(new Complex(complex[0]));
+        }
+
+        if(parser.foundP()) {
+            parser.setPvalue(new Complex());
+        }
+
+        if(parser2.foundP()) {
+            parser2.setPvalue(new Complex());
+        }
+
+        for(; iterations < max_iterations; iterations++) {
+
+            zold.assign(complex[0]);
+            function(complex);
+
+            if(parser.foundP()) {
+                parser.setPvalue(new Complex(zold));
+            }
+
+            if(parser2.foundP()) {
+                parser2.setPvalue(new Complex(zold));
+            }
+
+        }
+
+        return complex[0];
 
     }
 }

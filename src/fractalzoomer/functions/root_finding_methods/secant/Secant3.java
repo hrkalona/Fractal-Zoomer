@@ -263,5 +263,25 @@ public class Secant3 extends RootFindingMethods {
         }
 
     }
+    
+    @Override
+    public Complex iterateFractalDomain(Complex pixel) {
+        int iterations = 0;
+
+        Complex[] complex = new Complex[3];
+        complex[0] = new Complex(pixel);//z
+        complex[1] = new Complex(); //zold
+        complex[2] = new Complex(-1, 0);
+
+
+        for(; iterations < max_iterations; iterations++) {
+     
+            function(complex);
+
+        }
+
+        return complex[0];
+
+    }
 
 }

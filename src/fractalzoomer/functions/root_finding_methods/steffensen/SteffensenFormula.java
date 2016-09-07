@@ -324,5 +324,37 @@ public class SteffensenFormula extends RootFindingMethods {
         }
 
     }
+    
+    @Override
+    public Complex iterateFractalDomain(Complex pixel) {
+        iterations = 0;
+
+        Complex[] complex = new Complex[1];
+        complex[0] = new Complex(pixel);//z
+
+        Complex zold = new Complex();
+
+        if(parser.foundS()) {
+            parser.setSvalue(new Complex(complex[0]));
+        }
+
+        if(parser.foundP()) {
+            parser.setPvalue(new Complex());
+        }
+
+        for(; iterations < max_iterations; iterations++) {
+    
+            zold.assign(complex[0]);
+            function(complex);
+
+            if(parser.foundP()) {
+                parser.setPvalue(new Complex(zold));
+            }
+
+        }
+
+        return complex[0];
+
+    }
 
 }

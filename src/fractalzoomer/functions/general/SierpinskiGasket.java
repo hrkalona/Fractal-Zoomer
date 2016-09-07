@@ -316,6 +316,23 @@ public class SierpinskiGasket extends Fractal {
         }
 
     }
+    
+    @Override
+    public Complex iterateFractalDomain(Complex pixel) {
+        int iterations = 0;
+
+        Complex[] complex = new Complex[1];
+        complex[0] = new Complex(pixel);//z
+
+        for(; iterations < max_iterations; iterations++) {
+  
+            function(complex);
+
+        }
+
+        return complex[0];
+
+    }
 
     @Override
     public double calculateJulia(Complex pixel) {
@@ -329,5 +346,12 @@ public class SierpinskiGasket extends Fractal {
 
     @Override
     public void calculateJuliaOrbit() {
+    }
+    
+    @Override
+    public Complex calculateJuliaDomain(Complex pixel) {
+        
+        return null;
+
     }
 }

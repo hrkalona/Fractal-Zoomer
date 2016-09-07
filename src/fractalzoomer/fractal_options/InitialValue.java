@@ -39,4 +39,11 @@ public class InitialValue extends PlanePointOption {
         return this.pixel;
 
     }
+    
+    @Override
+    public String toString() {
+        
+        return pixel.toString();
+        
+    }
 }

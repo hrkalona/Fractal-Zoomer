@@ -47,5 +47,6 @@ public class SplashFrame extends JFrame {
     private ImageIcon getIcon(String path) {
 
         return new ImageIcon(getClass().getResource(path));
+        
     }
 }

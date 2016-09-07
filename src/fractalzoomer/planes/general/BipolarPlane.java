@@ -25,17 +25,19 @@ import fractalzoomer.planes.Plane;
  * @author hrkalona2
  */
 public class BipolarPlane extends Plane {
+    private double focal_point;
     
-    public BipolarPlane() {
+    public BipolarPlane(double focal_point) {
         
         super();
+        this.focal_point = focal_point;
         
     }
 
     @Override
     public Complex getPixel(Complex pixel) {
         
-        return pixel.toBiPolar(2);
+        return pixel.toBiPolar(focal_point);
         
     }
     

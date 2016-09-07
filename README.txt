@@ -1,4 +1,4 @@
-Fractal Zoomer 1.0.6.2
+Fractal Zoomer 1.0.6.3
 
 The most complete fractal generating software using java!
 
@@ -21,6 +21,7 @@ Julia sets
 Julia map
 Polar coordinates projection
 3D Heightmap
+Domain Coloring
 Many Color Algorithms
 Color Cycling
 Orbits

@@ -173,9 +173,17 @@ public class Newton3 extends RootFindingMethods {
     @Override
     protected void function(Complex[] complex) {
 
+        /*
+        //BAILEYS
         Complex fz = complex[0].cube().sub_mutable(1);
         Complex dfz = complex[0].square().times_mutable(3);
+        Complex ddfz = complex[0].square().times_mutable(3);
+        
+        complex[0].sub_mutable(fz.divide(dfz.sub((fz.times(ddfz)).divide(dfz.times(2)))));*/
 
+        Complex fz = complex[0].cube().sub_mutable(1);
+        Complex dfz = complex[0].square().times_mutable(3);
+        
         complex[0].sub_mutable((fz).divide_mutable(dfz));
 
     }

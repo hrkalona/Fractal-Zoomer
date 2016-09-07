@@ -93,4 +93,11 @@ public class VariableConditionalInitialValue extends PlanePointOption {
 
     }
     
+    @Override
+    public String toString() {
+        
+        return "";
+        
+    }
+    
 }

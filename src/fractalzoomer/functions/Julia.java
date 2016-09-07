@@ -241,5 +241,34 @@ public abstract class Julia extends Fractal {
         }
 
     }
+    
+    @Override
+    public Complex calculateJuliaDomain(Complex pixel) {
+        
+        if(apply_plane_on_julia) {
+            return iterateJuliaDomain(plane.getPixel(rotation.getPixel(pixel, false)));
+        }
+        else {
+            return iterateJuliaDomain(rotation.getPixel(pixel, false));
+        }
+     
+    }
+    
+    public Complex iterateJuliaDomain(Complex pixel) {
+        int iterations = 0;
+
+        Complex[] complex = new Complex[2];
+        complex[0] = new Complex(pixel);//z
+        complex[1] = new Complex(seed);//c
+
+        for(; iterations < max_iterations; iterations++) {
+            
+            function(complex);
+
+        }
+
+        return complex[0];
+
+    }
 
 }

@@ -56,6 +56,7 @@ public class FractalFunctionsMenu extends JMenu {
     private JMenu c_azb_dze_f_g_type_functions;
     private JMenu zab_zde_fg_type_functions;
     private JMenu user_formulas_type_functions;
+    private JMenu coupled_type_functions;
     private JCheckBoxMenuItem burning_ship_opt;
     private JCheckBoxMenuItem mandel_grass_opt;
     private int i;
@@ -92,6 +93,8 @@ public class FractalFunctionsMenu extends JMenu {
         general_newton_variant_functions = new JMenu("z = z - (z^n + c)/(nz^(n - 2))");
         c_azb_dze_type_functions = new JMenu("z = c(az^b + dz^e)");
         c_azb_dze_f_g_type_functions = new JMenu("z = (c(az^b + dz^e) + f)^g");
+        
+        coupled_type_functions = new JMenu("Coupled Type");
 
         zab_zde_fg_type_functions = new JMenu("z = (z^a + b)/(z^d + e) + f + g");
 
@@ -104,9 +107,9 @@ public class FractalFunctionsMenu extends JMenu {
         mandel_grass_opt.setToolTipText("Enables the mandel grass variation.");
 
         burning_ship_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, ActionEvent.CTRL_MASK));
-        mandel_grass_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_M, ActionEvent.SHIFT_MASK));
+        mandel_grass_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_M, 0));
 
-        fractal_functions = new JRadioButtonMenuItem[130];
+        fractal_functions = new JRadioButtonMenuItem[133];
 
         fractal_functions[0] = new JRadioButtonMenuItem("Mandelbrot z = z^2 + c");
         fractal_functions[0].addActionListener(new ActionListener() {
@@ -567,12 +570,37 @@ public class FractalFunctionsMenu extends JMenu {
             }
         });
         kaliset_type_functions.add(fractal_functions[MainWindow.FORMULA26]);
+        
+        
+        fractal_functions[MainWindow.COUPLED_MANDELBROT] = new JRadioButtonMenuItem("Coupled Mandelbrot");
+        fractal_functions[MainWindow.COUPLED_MANDELBROT].addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFunction(MainWindow.COUPLED_MANDELBROT);
+
+            }
+        });
+        coupled_type_functions.add(fractal_functions[MainWindow.COUPLED_MANDELBROT]);
+        
+        fractal_functions[MainWindow.COUPLED_MANDELBROT_BURNING_SHIP] = new JRadioButtonMenuItem("Coupled Mandelbrot-Burning Ship");
+        fractal_functions[MainWindow.COUPLED_MANDELBROT_BURNING_SHIP].addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFunction(MainWindow.COUPLED_MANDELBROT_BURNING_SHIP);
+
+            }
+        });
+        coupled_type_functions.add(fractal_functions[MainWindow.COUPLED_MANDELBROT_BURNING_SHIP]);
 
         formulas_type_functions.add(m_like_generalizations_type_functions);
         formulas_type_functions.addSeparator();
         formulas_type_functions.add(kaliset_type_functions);
         formulas_type_functions.addSeparator();
         formulas_type_functions.add(general_type_functions);
+        formulas_type_functions.addSeparator();
+        formulas_type_functions.add(coupled_type_functions);
 
         general_type_functions.add(general_math_type_functions);
         general_type_functions.addSeparator();
@@ -1148,6 +1176,19 @@ public class FractalFunctionsMenu extends JMenu {
             }
         });
         user_formulas_type_functions.add(fractal_functions[MainWindow.USER_FORMULA_CONDITIONAL]);
+        
+        user_formulas_type_functions.addSeparator();
+
+        fractal_functions[MainWindow.USER_FORMULA_COUPLED] = new JRadioButtonMenuItem("User Formula Coupled");
+        fractal_functions[MainWindow.USER_FORMULA_COUPLED].addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFunction(MainWindow.USER_FORMULA_COUPLED);
+
+            }
+        });
+        user_formulas_type_functions.add(fractal_functions[MainWindow.USER_FORMULA_COUPLED]);
 
         add(user_formulas_type_functions);
 

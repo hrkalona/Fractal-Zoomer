@@ -873,4 +873,5 @@ public class Magnet2 extends Julia {
         return array;
 
     }
+    
 }

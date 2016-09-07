@@ -48,4 +48,12 @@ public class VariableInitialValue extends PlanePointOption {
         return expr.getValue();
 
     }
+    
+    @Override
+    public String toString() {
+        
+        return "";
+        
+    }
+
 }

@@ -14,14 +14,19 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package fractalzoomer.core;
+
+import java.util.Random;
 
 public final class Complex {
 
-    public static final double pi_2 = Math.PI / 2;
+    private static final double pi_2;
     private double re;
     private double im;
+    
+    static {
+        pi_2 = Math.PI / 2;
+    }
 
     public Complex() {
 
@@ -240,14 +245,13 @@ public final class Complex {
 
         //Gauss
         /*double temp1 = z.re;
-        double temp2 = z.im;
+         double temp2 = z.im;
         
-        double k1 = temp1 * (re + im);
-        double k2 = re * (temp2 - temp1);
-        double k3 = im * (temp1 + temp2);
+         double k1 = temp1 * (re + im);
+         double k2 = re * (temp2 - temp1);
+         double k3 = im * (temp1 + temp2);
         
-        return new Complex(k1 - k3, k1 + k2); */
-
+         return new Complex(k1 - k3, k1 + k2); */
     }
 
     /*
@@ -359,6 +363,34 @@ public final class Complex {
         return this;
 
     }
+    
+    /*
+     *  z1 / Imaginary
+     */
+    public final Complex divide_i(double number) {
+
+        double temp2 = number;
+        double temp3 = temp2 * temp2;
+
+        return new Complex((re + im * temp2) / temp3, (im - re * temp2) / temp3);
+
+    }
+    
+    /*
+     *  z1 = z1 / Imaginary
+     */
+    public final Complex divide_i_mutable(double number) {
+
+        double temp2 = number;
+        double temp3 = temp2 * temp2;
+
+        double temp4 = (re + im * temp2) / temp3;
+        im = (im - re * temp2) / temp3;
+        re = temp4;
+
+        return this;
+
+    }
 
     /*
      *  Real / z
@@ -410,6 +442,7 @@ public final class Complex {
         return this;
 
     }
+     
 
     /*
      *  1 / z
@@ -657,7 +690,6 @@ public final class Complex {
         double temp2 = im * im;
         double temp3 = temp * temp;
         double temp4 = temp2 * temp2;
-
 
         double temp5 = re * (im * (im * (re * (re * (im * (im * (126 * temp - 84 * temp2)) - 36 * temp3)) + 9 * temp4 * temp2)) + temp3 * temp3);
         im = im * (re * (re * (im * (im * (re * (re * (126 * temp2 - 84 * temp)) - 36 * temp4)) + 9 * temp3 * temp)) + temp4 * temp4);
@@ -1360,7 +1392,6 @@ public final class Complex {
         sin_and_der[0] = (temp2.plus(temp4)).divide(2);
         sin_and_der[1] = (temp4.sub(temp2)).divide(new Complex(0, 2));
 
-
         return sin_and_der;
 
     }
@@ -1476,6 +1507,112 @@ public final class Complex {
 
     }
 
+    /*
+     * The floor of a complex number
+     */
+    public final Complex floor() {
+
+        return new Complex(Math.floor(re), Math.floor(im));
+
+    }
+
+    /*
+     * z = The floor of a complex number
+     */
+    public final Complex floor_mutable() {
+
+        re = Math.floor(re);
+        im = Math.floor(im);
+
+        return this;
+
+    }
+
+    /*
+     * The ceil of a complex number
+     */
+    public final Complex ceil() {
+
+        return new Complex(Math.ceil(re), Math.ceil(im));
+
+    }
+
+    /*
+     * z = The ceil of a complex number
+     */
+    public final Complex ceil_mutable() {
+
+        re = Math.ceil(re);
+        im = Math.ceil(im);
+
+        return this;
+
+    }
+
+    /*
+     * The truncate of a complex number
+     */
+    public final Complex trunc() {
+
+        return new Complex((int)re, (int)im);
+
+    }
+
+    /*
+     * z = The truncate of a complex number
+     */
+    public final Complex trunc_mutable() {
+
+        re = (int)re;
+        im = (int)im;
+
+        return this;
+
+    }
+
+    /*
+     * The round of a complex number
+     */
+    public final Complex round() {
+
+        return new Complex(Math.round(re), Math.round(im));
+
+    }
+
+    /*
+     * z = The round of a complex number
+     */
+    public final Complex round_mutable() {
+
+        re = Math.round(re);
+        im = Math.round(im);
+
+        return this;
+
+    }
+
+    /*
+     * y + xi
+     */
+    public final Complex flip() {
+
+        return new Complex(im, re);
+
+    }
+
+    /*
+     * z = y + xi
+     */
+    public final Complex flip_mutable() {
+
+        double temp = re;
+        re = im;
+        im = temp;
+
+        return this;
+
+    }
+
     public final Complex toBiPolar(double a) {
         double d1_2, d2_2;
 
@@ -1492,9 +1629,37 @@ public final class Complex {
 
     }
     
+    /* Series approximation of the error function */
+    public final Complex erf() {
+        
+        Complex sum = new Complex();
+        
+        for(int k = 0; k < 50; k++) {
+            double temp = 2 * k + 1;
+            sum.plus_mutable((this.pow(temp).times(Math.pow(-1, k))).divide(new Complex(k, 0).factorial().times(temp)));
+        }
+        
+        return sum.times(2.0 / Math.sqrt(Math.PI));
+  
+    }
+    
+    /* Series approximation of the riemann zeta function */
+    public final Complex riemann_zeta() {
+        
+        Complex sum = new Complex();
+        
+        for(int k = 1; k < 51; k++) {
+            sum.plus_mutable(new Complex(k, 0).pow(this.negative()));
+        }
+        
+        return sum;
+  
+    }
+  
+
     public static final String toString2(double real, double imaginary) {
         String temp = "";
-        
+
         real = real == 0.0 ? 0.0 : real;
         imaginary = imaginary == 0.0 ? 0.0 : imaginary;
 
@@ -1504,7 +1669,7 @@ public final class Complex {
         else {
             temp = real + "" + imaginary + "i";
         }
-        
+
         return temp;
     }
 
@@ -1638,17 +1803,16 @@ public final class Complex {
             return new Complex(center.re + distance * Math.cos(a), center.im + distance * Math.sin(a));
         }
     }
-    
-    
+
     public final Complex circle_inversion(Complex center, double radius) {
-        
+
         double distance = this.distance_squared(center);
         double radius2 = radius * radius;
-        
-        double temp = radius2 / distance;   
-        
+
+        double temp = radius2 / distance;
+
         return new Complex(center.re + (re - center.re) * temp, center.im + (im - center.im) * temp);
-        
+
     }
 
     private double triangle(double x) {

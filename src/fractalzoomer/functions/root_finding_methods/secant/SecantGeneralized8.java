@@ -263,5 +263,25 @@ public class SecantGeneralized8 extends RootFindingMethods {
         }
 
     }
+    
+    @Override
+    public Complex iterateFractalDomain(Complex pixel) {
+        int iterations = 0;
+
+        Complex[] complex = new Complex[3];
+        complex[0] = new Complex(pixel);//z
+        complex[1] = new Complex();
+        complex[2] = new Complex(-16, 0);
+
+
+        for(; iterations < max_iterations; iterations++) {
+  
+            function(complex);
+
+        }
+
+        return complex[0];
+
+    }
 
 }

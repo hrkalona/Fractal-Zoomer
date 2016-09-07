@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package fractalzoomer.parser;
 
 import fractalzoomer.core.Complex;
@@ -217,6 +216,46 @@ public class FunctionExpressionNode implements ExpressionNode {
     public static final int GI = 42;
 
     /**
+     * function id for the reciprocal function
+     */
+    public static final int REC = 43;
+
+    /**
+     * function id for the flip function
+     */
+    public static final int FLIP = 44;
+
+    /**
+     * function id for the round function
+     */
+    public static final int ROUND = 45;
+
+    /**
+     * function id for the ceil function
+     */
+    public static final int CEIL = 46;
+
+    /**
+     * function id for the floor function
+     */
+    public static final int FLOOR = 47;
+
+    /**
+     * function id for the truncate function
+     */
+    public static final int TRUNC = 48;
+    
+    /**
+     * function id for the error function
+     */
+    public static final int ERF = 49;
+    
+    /**
+     * function id for the riemann zeta function
+     */
+    public static final int R_ZETA = 50;
+
+    /**
      * the id of the function to apply to the argument
      */
     private int function;
@@ -398,6 +437,38 @@ public class FunctionExpressionNode implements ExpressionNode {
             return FunctionExpressionNode.GI;
         }
 
+        if(str.equals("rec")) {
+            return FunctionExpressionNode.REC;
+        }
+
+        if(str.equals("flip")) {
+            return FunctionExpressionNode.FLIP;
+        }
+
+        if(str.equals("round")) {
+            return FunctionExpressionNode.ROUND;
+        }
+
+        if(str.equals("ceil")) {
+            return FunctionExpressionNode.CEIL;
+        }
+
+        if(str.equals("floor")) {
+            return FunctionExpressionNode.FLOOR;
+        }
+
+        if(str.equals("trunc")) {
+            return FunctionExpressionNode.TRUNC;
+        }
+        
+        if(str.equals("erf")) {
+            return FunctionExpressionNode.ERF;
+        }
+        
+        if(str.equals("rzeta")) {
+            return FunctionExpressionNode.R_ZETA;
+        }
+
         throw new ParserException("Unexpected Function " + str + " found.");
     }
 
@@ -410,7 +481,7 @@ public class FunctionExpressionNode implements ExpressionNode {
      * @return a string containing all the function names
      */
     public static String getAllFunctions() {
-        return "sin|sinh|asin|asinh|cos|cosh|acos|acosh|tan|tanh|atan|atanh|cot|coth|acot|acoth|sec|sech|asec|asech|csc|csch|acsc|acsch|sqrt|exp|log|log10|log2|abs|conj|re|im|norm|arg|gamma|fact|bipol|ibipol|absre|absim|gi";
+        return "sin|sinh|asin|asinh|cos|cosh|acos|acosh|tan|tanh|atan|atanh|cot|coth|acot|acoth|sec|sech|asec|asech|csc|csch|acsc|acsch|sqrt|exp|log|log10|log2|abs|conj|re|im|norm|arg|gamma|fact|bipol|ibipol|absre|absim|gi|rec|flip|round|ceil|floor|trunc|erf|rzeta";
     }
 
     /**
@@ -523,6 +594,30 @@ public class FunctionExpressionNode implements ExpressionNode {
 
             case GI:
                 return argument.getValue().gaussian_integer();
+
+            case REC:
+                return argument.getValue().reciprocal();
+
+            case FLIP:
+                return argument.getValue().flip();
+
+            case ROUND:
+                return argument.getValue().round();
+
+            case CEIL:
+                return argument.getValue().ceil();
+
+            case FLOOR:
+                return argument.getValue().floor();
+
+            case TRUNC:
+                return argument.getValue().trunc();
+                
+            case ERF:
+                return argument.getValue().erf();
+                
+            case R_ZETA:
+                return argument.getValue().riemann_zeta();
 
         }
 

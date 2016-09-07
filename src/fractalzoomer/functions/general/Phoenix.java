@@ -789,4 +789,45 @@ public class Phoenix extends Julia {
         }
 
     }
+    
+    @Override
+    public Complex iterateFractalDomain(Complex pixel) {
+        int iterations = 0;
+
+        Complex temp_z = new Complex(pertur_val.getPixel(init_val.getPixel(pixel)));
+
+        Complex[] complex = new Complex[3];
+        complex[0] = temp_z;//z
+        complex[1] = new Complex(pixel);//c
+        complex[2] = new Complex();//s
+
+
+        for(; iterations < max_iterations; iterations++) {
+
+            function(complex);
+
+        }
+
+        return complex[0];
+
+    }
+    
+    @Override
+    public Complex iterateJuliaDomain(Complex pixel) {
+        int iterations = 0;
+
+        Complex[] complex = new Complex[3];
+        complex[0] = new Complex(pixel);//z
+        complex[1] = new Complex(seed);//c
+        complex[2] = new Complex();//s
+
+        for(; iterations < max_iterations; iterations++) {
+ 
+            function(complex);
+
+        }
+
+        return complex[0];
+
+    }
 }
