@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2015 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2017 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,7 +46,7 @@ public class SmoothEscapeTimeColorDecompositionRootFindingMethod extends EscapeT
             double temp3 = Math.log(((Complex)object[3]).distance_squared((Complex)object[4]));
             double temp4 = (log_convergent_bailout - temp3) / (Math.log((Double)object[2]) - temp3);
 
-            return Math.abs(((Integer)object[0]) + (long)(((Math.atan2(temp2, temp) / (pi2) + 0.75) * pi59) + (temp * temp + temp2 * temp2) * 2.5) + temp4) + 100800;
+            return Math.abs(((Integer)object[0]) + (long)(((Math.atan2(temp2, temp) / (pi2) + 0.75) * pi59) + (temp * temp + temp2 * temp2) * 2.5) + temp4) + MAGIC_OFFSET_NUMBER;
         }
         else {
 
@@ -61,7 +61,7 @@ public class SmoothEscapeTimeColorDecompositionRootFindingMethod extends EscapeT
 
             double f = Math.log(log_convergent_bailout / temp4) / Math.log(power);
 
-            return Math.abs(((Integer)object[0]) + (long)(((Math.atan2(temp2, temp) / (pi2) + 0.75) * pi59) + (temp * temp + temp2 * temp2) * 2.5) + f) + 100800;
+            return Math.abs(((Integer)object[0]) + (long)(((Math.atan2(temp2, temp) / (pi2) + 0.75) * pi59) + (temp * temp + temp2 * temp2) * 2.5) + f) + MAGIC_OFFSET_NUMBER;
         }
     }
 
@@ -70,7 +70,7 @@ public class SmoothEscapeTimeColorDecompositionRootFindingMethod extends EscapeT
 
         if(algorithm == 0) {
             double temp = Math.log(((Complex)object[3]).distance_squared((Complex)object[4]));
-            return (Integer)object[0] + (log_convergent_bailout - temp) / (Math.log((Double)object[2]) - temp) + 100800;
+            return (Integer)object[0] + (log_convergent_bailout - temp) / (Math.log((Double)object[2]) - temp) + MAGIC_OFFSET_NUMBER;
         }
         else {
             double temp4 = Math.log(((Double)object[2]) + 1e-33);
@@ -79,7 +79,7 @@ public class SmoothEscapeTimeColorDecompositionRootFindingMethod extends EscapeT
 
             double f = Math.log(log_convergent_bailout / temp4) / Math.log(power);
 
-            return (Integer)object[0] + f + 100800;
+            return (Integer)object[0] + f + MAGIC_OFFSET_NUMBER;
         }
 
     }

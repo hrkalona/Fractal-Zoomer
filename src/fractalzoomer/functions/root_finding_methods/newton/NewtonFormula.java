@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2015 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2017 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package fractalzoomer.functions.root_finding_methods.newton;
 
 import fractalzoomer.in_coloring_algorithms.AtanReTimesImTimesAbsReTimesAbsIm;
@@ -25,6 +24,7 @@ import fractalzoomer.core.Complex;
 import fractalzoomer.functions.root_finding_methods.RootFindingMethods;
 import fractalzoomer.in_coloring_algorithms.CosMag;
 import fractalzoomer.in_coloring_algorithms.DecompositionLike;
+
 import fractalzoomer.out_coloring_algorithms.EscapeTime;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeColorDecompositionRootFindingMethod;
 import fractalzoomer.in_coloring_algorithms.MagTimesCosReSquared;
@@ -38,6 +38,7 @@ import fractalzoomer.in_coloring_algorithms.UserConditionalInColorAlgorithm;
 import fractalzoomer.in_coloring_algorithms.UserInColorAlgorithm;
 import fractalzoomer.in_coloring_algorithms.ZMag;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeAlgorithm1;
+
 import fractalzoomer.out_coloring_algorithms.SmoothBinaryDecomposition2RootFindingMethod;
 import fractalzoomer.out_coloring_algorithms.SmoothBinaryDecompositionRootFindingMethod;
 import fractalzoomer.out_coloring_algorithms.SmoothColorDecompositionRootFindingMethod;
@@ -53,7 +54,7 @@ import java.util.ArrayList;
  *
  * @author hrkalona2
  */
-public class NewtonFormula extends RootFindingMethods {
+public class NewtonFormula extends NewtonRootFindingMethod {
 
     private ExpressionNode expr;
     private Parser parser;
@@ -61,9 +62,9 @@ public class NewtonFormula extends RootFindingMethods {
     private Parser parser2;
     private int iterations;
 
-    public NewtonFormula(double xCenter, double yCenter, double size, int max_iterations, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula,  double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int converging_smooth_algorithm, String user_fz_formula, String user_dfz_formula) {
+    public NewtonFormula(double xCenter, double yCenter, double size, int max_iterations, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, boolean[] user_outcoloring_special_color, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean[] user_incoloring_special_color, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int converging_smooth_algorithm, String user_fz_formula, String user_dfz_formula) {
 
-        super(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula,  plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+        super(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, user_outcoloring_special_color, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
 
         switch (out_coloring_algorithm) {
 
@@ -115,10 +116,10 @@ public class NewtonFormula extends RootFindingMethods {
             case MainWindow.USER_OUTCOLORING_ALGORITHM:
                 convergent_bailout = 1E-7;
                 if(user_out_coloring_algorithm == 0) {
-                    out_color_algorithm = new UserOutColorAlgorithmRootFindingMethod(outcoloring_formula, convergent_bailout);
+                    out_color_algorithm = new UserOutColorAlgorithmRootFindingMethod(outcoloring_formula, convergent_bailout, max_iterations);
                 }
                 else {
-                    out_color_algorithm = new UserConditionalOutColorAlgorithmRootFindingMethod(user_outcoloring_conditions, user_outcoloring_condition_formula, convergent_bailout);
+                    out_color_algorithm = new UserConditionalOutColorAlgorithmRootFindingMethod(user_outcoloring_conditions, user_outcoloring_condition_formula, user_outcoloring_special_color, convergent_bailout, max_iterations);
                 }
                 break;
 
@@ -161,7 +162,7 @@ public class NewtonFormula extends RootFindingMethods {
                     in_color_algorithm = new UserInColorAlgorithm(incoloring_formula, max_iterations);
                 }
                 else {
-                    in_color_algorithm = new UserConditionalInColorAlgorithm(user_incoloring_conditions, user_incoloring_condition_formula, max_iterations);
+                    in_color_algorithm = new UserConditionalInColorAlgorithm(user_incoloring_conditions, user_incoloring_condition_formula, user_incoloring_special_color, max_iterations);
                 }
                 break;
 
@@ -176,9 +177,9 @@ public class NewtonFormula extends RootFindingMethods {
     }
 
     //orbit
-    public NewtonFormula(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula,  double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, String user_fz_formula, String user_dfz_formula) {
+    public NewtonFormula(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, String user_fz_formula, String user_dfz_formula) {
 
-        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula,  plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
 
         parser = new Parser();
         expr = parser.parse(user_fz_formula);
@@ -210,7 +211,7 @@ public class NewtonFormula extends RootFindingMethods {
 
         Complex dfz = expr2.getValue();
 
-        complex[0].sub_mutable((fz).divide_mutable(dfz));
+        newtonMethod(complex[0], fz, dfz);
     }
 
     @Override
@@ -223,26 +224,43 @@ public class NewtonFormula extends RootFindingMethods {
 
         Complex zold = new Complex();
         Complex zold2 = new Complex();
+        Complex start = new Complex(complex[0]);
 
         if(parser.foundS()) {
-            parser.setSvalue(new Complex(complex[0]));
+            parser.setSvalue(start);
         }
 
         if(parser2.foundS()) {
-            parser2.setSvalue(new Complex(complex[0]));
+            parser2.setSvalue(start);
+        }
+        
+        if(parser.foundMaxn()) {
+            parser.setMaxnvalue(new Complex(max_iterations, 0));
+        }
+        
+        if(parser2.foundMaxn()) {
+            parser2.setMaxnvalue(new Complex(max_iterations, 0));
         }
 
         if(parser.foundP()) {
-            parser.setPvalue(new Complex());
+            parser.setPvalue(zold);
         }
 
         if(parser2.foundP()) {
-            parser2.setPvalue(new Complex());
+            parser2.setPvalue(zold);
+        }
+
+        if(parser.foundPP()) {
+            parser.setPPvalue(zold2);
+        }
+
+        if(parser2.foundPP()) {
+            parser2.setPPvalue(zold2);
         }
 
         for(; iterations < max_iterations; iterations++) {
             if((temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
-                Object[] object = {iterations, complex[0], temp, zold, zold2};
+                Object[] object = {iterations, complex[0], temp, zold, zold2, pixel, start};
                 return out_color_algorithm.getResult(object);
             }
             zold2.assign(zold);
@@ -250,16 +268,24 @@ public class NewtonFormula extends RootFindingMethods {
             function(complex);
 
             if(parser.foundP()) {
-                parser.setPvalue(new Complex(zold));
+                parser.setPvalue(zold);
             }
 
             if(parser2.foundP()) {
-                parser2.setPvalue(new Complex(zold));
+                parser2.setPvalue(zold);
+            }
+
+            if(parser.foundPP()) {
+                parser.setPPvalue(zold2);
+            }
+
+            if(parser2.foundPP()) {
+                parser2.setPPvalue(zold2);
             }
 
         }
 
-        Object[] object = {complex[0], zold};
+        Object[] object = {complex[0], zold, zold2, pixel, start};
         return in_color_algorithm.getResult(object);
 
     }
@@ -274,27 +300,44 @@ public class NewtonFormula extends RootFindingMethods {
 
         Complex zold = new Complex();
         Complex zold2 = new Complex();
+        Complex start = new Complex(complex[0]);
 
         if(parser.foundS()) {
-            parser.setSvalue(new Complex(complex[0]));
+            parser.setSvalue(start);
         }
 
         if(parser2.foundS()) {
-            parser2.setSvalue(new Complex(complex[0]));
+            parser2.setSvalue(start);
+        }
+        
+        if(parser.foundMaxn()) {
+            parser.setMaxnvalue(new Complex(max_iterations, 0));
+        }
+        
+        if(parser2.foundMaxn()) {
+            parser2.setMaxnvalue(new Complex(max_iterations, 0));
         }
 
         if(parser.foundP()) {
-            parser.setPvalue(new Complex());
+            parser.setPvalue(zold);
         }
 
         if(parser2.foundP()) {
-            parser2.setPvalue(new Complex());
+            parser2.setPvalue(zold);
+        }
+
+        if(parser.foundPP()) {
+            parser.setPPvalue(zold2);
+        }
+
+        if(parser2.foundPP()) {
+            parser2.setPPvalue(zold2);
         }
 
         for(; iterations < max_iterations; iterations++) {
             if((temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
-                Object[] object = {iterations, complex[0], temp, zold, zold2};
-                double[] array = {Math.abs(out_color_algorithm.getResult3D(object)) - 100800, out_color_algorithm.getResult(object)};
+                Object[] object = {iterations, complex[0], temp, zold, zold2, pixel, start};
+                double[] array = {out_color_algorithm.transformResultToHeight(out_color_algorithm.getResult3D(object)), out_color_algorithm.getResult(object)};
                 return array;
             }
             zold2.assign(zold);
@@ -302,19 +345,26 @@ public class NewtonFormula extends RootFindingMethods {
             function(complex);
 
             if(parser.foundP()) {
-                parser.setPvalue(new Complex(zold));
+                parser.setPvalue(zold);
             }
 
             if(parser2.foundP()) {
-                parser2.setPvalue(new Complex(zold));
+                parser2.setPvalue(zold);
+            }
+
+            if(parser.foundPP()) {
+                parser.setPPvalue(zold2);
+            }
+
+            if(parser2.foundPP()) {
+                parser2.setPPvalue(zold2);
             }
 
         }
 
-        Object[] object = {complex[0], zold};
+        Object[] object = {complex[0], zold, zold2, pixel, start};
         double temp2 = in_color_algorithm.getResult(object);
-        double result = temp2 == max_iterations ? max_iterations : max_iterations + Math.abs(temp2) - 100820;
-        double[] array = {result, temp2};
+        double[] array = {in_color_algorithm.transformResultToHeight(temp2, max_iterations), temp2};
         return array;
 
     }
@@ -327,35 +377,62 @@ public class NewtonFormula extends RootFindingMethods {
         complex[0] = new Complex(pixel_orbit);//z
 
         Complex temp = null;
-        
+
         Complex zold = new Complex();
+        Complex zold2 = new Complex();
+        Complex start = new Complex(complex[0]);
 
         if(parser.foundS()) {
-            parser.setSvalue(new Complex(complex[0]));
+            parser.setSvalue(start);
         }
 
         if(parser2.foundS()) {
-            parser2.setSvalue(new Complex(complex[0]));
+            parser2.setSvalue(start);
+        }
+        
+        if(parser.foundMaxn()) {
+            parser.setMaxnvalue(new Complex(max_iterations, 0));
+        }
+        
+        if(parser2.foundMaxn()) {
+            parser2.setMaxnvalue(new Complex(max_iterations, 0));
         }
 
         if(parser.foundP()) {
-            parser.setPvalue(new Complex());
+            parser.setPvalue(zold);
         }
 
         if(parser2.foundP()) {
-            parser2.setPvalue(new Complex());
+            parser2.setPvalue(zold);
+        }
+
+        if(parser.foundPP()) {
+            parser.setPPvalue(zold2);
+        }
+
+        if(parser2.foundPP()) {
+            parser2.setPPvalue(zold2);
         }
 
         for(; iterations < max_iterations; iterations++) {
+            zold2.assign(zold);
             zold.assign(complex[0]);
             function(complex);
 
             if(parser.foundP()) {
-                parser.setPvalue(new Complex(zold));
+                parser.setPvalue(zold);
             }
 
             if(parser2.foundP()) {
-                parser2.setPvalue(new Complex(zold));
+                parser2.setPvalue(zold);
+            }
+
+            if(parser.foundPP()) {
+                parser.setPPvalue(zold2);
+            }
+
+            if(parser2.foundPP()) {
+                parser2.setPPvalue(zold2);
             }
 
             temp = rotation.getPixel(complex[0], true);
@@ -368,7 +445,7 @@ public class NewtonFormula extends RootFindingMethods {
         }
 
     }
-    
+
     @Override
     public Complex iterateFractalDomain(Complex pixel) {
         iterations = 0;
@@ -377,34 +454,61 @@ public class NewtonFormula extends RootFindingMethods {
         complex[0] = new Complex(pixel);//z
 
         Complex zold = new Complex();
+        Complex zold2 = new Complex();
+        Complex start = new Complex(complex[0]);
 
         if(parser.foundS()) {
-            parser.setSvalue(new Complex(complex[0]));
+            parser.setSvalue(start);
         }
 
         if(parser2.foundS()) {
-            parser2.setSvalue(new Complex(complex[0]));
+            parser2.setSvalue(start);
+        }
+        
+        if(parser.foundMaxn()) {
+            parser.setMaxnvalue(new Complex(max_iterations, 0));
+        }
+        
+        if(parser2.foundMaxn()) {
+            parser2.setMaxnvalue(new Complex(max_iterations, 0));
         }
 
         if(parser.foundP()) {
-            parser.setPvalue(new Complex());
+            parser.setPvalue(zold);
         }
 
         if(parser2.foundP()) {
-            parser2.setPvalue(new Complex());
+            parser2.setPvalue(zold);
+        }
+
+        if(parser.foundPP()) {
+            parser.setPPvalue(zold2);
+        }
+
+        if(parser2.foundPP()) {
+            parser2.setPPvalue(zold2);
         }
 
         for(; iterations < max_iterations; iterations++) {
 
+            zold2.assign(zold);
             zold.assign(complex[0]);
             function(complex);
 
             if(parser.foundP()) {
-                parser.setPvalue(new Complex(zold));
+                parser.setPvalue(zold);
             }
 
             if(parser2.foundP()) {
-                parser2.setPvalue(new Complex(zold));
+                parser2.setPvalue(zold);
+            }
+
+            if(parser.foundPP()) {
+                parser.setPPvalue(zold2);
+            }
+
+            if(parser2.foundPP()) {
+                parser2.setPPvalue(zold2);
             }
 
         }

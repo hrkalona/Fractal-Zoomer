@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2015 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2017 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -48,7 +48,7 @@ public class SmoothBinaryDecomposition2 extends OutColorAlgorithm {
 
             double temp3 = (Integer)object[0] + (log_bailout_squared - temp) / (Math.log(temp2) - temp);
 
-            return ((Complex)object[1]).getRe() < 0 ? -(temp3 + 100850) : temp3 + 100800;
+            return ((Complex)object[1]).getRe() < 0 ? -(temp3 + MAGIC_OFFSET_NUMBER + 50) : temp3 + MAGIC_OFFSET_NUMBER;
         }
         else {
             double temp = ((Complex)object[2]).norm_squared();
@@ -64,15 +64,8 @@ public class SmoothBinaryDecomposition2 extends OutColorAlgorithm {
 
             double temp3 = (Integer)object[0] + 1 - f;
             
-            return ((Complex)object[1]).getRe() < 0 ? -(temp3 + 100850) : temp3 + 100800;
+            return ((Complex)object[1]).getRe() < 0 ? -(temp3 + MAGIC_OFFSET_NUMBER + 50) : temp3 + MAGIC_OFFSET_NUMBER;
         }
-
-    }
-
-    @Override
-    public double getResult3D(Object[] object) {
-
-        return getResult(object);
 
     }
 }

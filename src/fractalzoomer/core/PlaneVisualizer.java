@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 hrkalona2
+ * Copyright (C) 2017 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +30,7 @@ import fractalzoomer.planes.fold.FoldRightPlane;
 import fractalzoomer.planes.fold.FoldUpPlane;
 import fractalzoomer.planes.general.BipolarPlane;
 import fractalzoomer.planes.general.CircleInversionPlane;
+import fractalzoomer.planes.general.InflectionPlane;
 import fractalzoomer.planes.general.InversedBipolarPlane;
 import fractalzoomer.planes.general.InversedLambda2Plane;
 import fractalzoomer.planes.general.InversedLambdaPlane;
@@ -261,10 +262,10 @@ public class PlaneVisualizer {
                 plane = new FactorialPlane();
                 break;
             case MainWindow.BIPOLAR_PLANE:
-                plane = new BipolarPlane(plane_transform_center[0]);
+                plane = new BipolarPlane(plane_transform_center);
                 break;
             case MainWindow.INVERSED_BIPOLAR_PLANE:
-                plane = new InversedBipolarPlane(plane_transform_center[0]);
+                plane = new InversedBipolarPlane(plane_transform_center);
                 break;
             case MainWindow.TWIRL_PLANE:
                 plane = new TwirlPlane(plane_transform_center, plane_transform_angle, plane_transform_radius);
@@ -289,6 +290,9 @@ public class PlaneVisualizer {
                 break;
             case MainWindow.RZETA_PLANE:
                 plane = new RiemannZetaPlane();
+                break;
+            case MainWindow.INFLECTION_PLANE:
+                plane = new InflectionPlane(plane_transform_center);
                 break;
         }
         

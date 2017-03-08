@@ -1,5 +1,5 @@
 /*
- * Fractal Zoomer, Copyright (C) 2016 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2017 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,35 +18,59 @@ package fractalzoomer.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.image.BufferedImage;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 
 /**
  *
  * @author hrkalona2
  */
 public class SplashFrame extends JFrame {
+    private SplashThread thread;
+    
 
-    public SplashFrame() {
+    public SplashFrame(int version) {
 
         setIconImage(getIcon("/fractalzoomer/icons/mandel2.png").getImage());
-        ImageIcon ic = getIcon("/fractalzoomer/icons/splash.png");
-        setSize(ic.getIconWidth(), ic.getIconHeight());
+
+        setSize(400, 260);
         setLocationRelativeTo(null);
         setUndecorated(true);
         setBackground(new Color(0, 0, 0, 0));
         setLayout(new BorderLayout());
-
-        JLabel l1 = new JLabel();
-        l1.setIcon(ic);
+        
+        BufferedImage image = convertToBufferedImage(getIcon("/fractalzoomer/icons/splash.png").getImage());
+    
+        SplashLabel l1 = new SplashLabel(400, 260);
 
         add(l1, BorderLayout.PAGE_START); 
+        
+        thread = new SplashThread(image, l1, version, 155);
+        thread.start();
     }
 
     private ImageIcon getIcon(String path) {
 
         return new ImageIcon(getClass().getResource(path));
         
+    }
+    
+    public boolean isAnimating() {
+        
+        return thread.isAlive();
+        
+    }
+    
+    private BufferedImage convertToBufferedImage(Image image) {
+        BufferedImage newImage = new BufferedImage(
+            image.getWidth(null), image.getHeight(null),
+            BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = newImage.createGraphics();
+        g.drawImage(image, 0, 0, null);
+        g.dispose();
+        return newImage;
     }
 }

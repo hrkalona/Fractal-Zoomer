@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2015 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2017 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,8 @@ package fractalzoomer.functions.root_finding_methods;
 
 import fractalzoomer.core.Complex;
 import fractalzoomer.functions.Fractal;
+
+
 import java.util.ArrayList;
 
 
@@ -29,7 +31,7 @@ import java.util.ArrayList;
 public abstract class RootFindingMethods extends Fractal { 
   protected double convergent_bailout;
 
-    public RootFindingMethods(double xCenter, double yCenter, double size, int max_iterations, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula,  double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double [] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount) {
+    public RootFindingMethods(double xCenter, double yCenter, double size, int max_iterations, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, boolean[] user_outcoloring_special_color, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula,  double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double [] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount) {
 
         super(xCenter, yCenter, size, max_iterations, 0, 0, "", "", 0, 0, false, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula,  plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
 
@@ -55,10 +57,11 @@ public abstract class RootFindingMethods extends Fractal {
 
         Complex zold = new Complex();
         Complex zold2 = new Complex();
+        Complex start = new Complex(complex[0]);
 
         for (; iterations < max_iterations; iterations++) {
             if((temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
-                Object[] object = {iterations, complex[0], temp, zold, zold2};
+                Object[] object = {iterations, complex[0], temp, zold, zold2, pixel, start};
                 return out_color_algorithm.getResult(object);
             }
             zold2.assign(zold);
@@ -67,7 +70,7 @@ public abstract class RootFindingMethods extends Fractal {
  
         }
 
-        Object[] object = {complex[0], zold};
+        Object[] object = {complex[0], zold, zold2, pixel, start};
         return in_color_algorithm.getResult(object);
         
     }
@@ -82,11 +85,12 @@ public abstract class RootFindingMethods extends Fractal {
 
         Complex zold = new Complex();
         Complex zold2 = new Complex();
+        Complex start = new Complex(complex[0]);
 
         for (; iterations < max_iterations; iterations++) {
             if((temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
-                Object[] object = {iterations, complex[0], temp, zold, zold2};
-                double[] array = {Math.abs(out_color_algorithm.getResult3D(object)) - 100800, out_color_algorithm.getResult(object)};
+                Object[] object = {iterations, complex[0], temp, zold, zold2, pixel, start};
+                double[] array = {out_color_algorithm.transformResultToHeight(out_color_algorithm.getResult3D(object)), out_color_algorithm.getResult(object)};
                 return array;
             }
             zold2.assign(zold);
@@ -95,10 +99,9 @@ public abstract class RootFindingMethods extends Fractal {
  
         }
 
-        Object[] object = {complex[0], zold};
+        Object[] object = {complex[0], zold, zold2, pixel, start};
         double temp2 = in_color_algorithm.getResult(object);
-        double result = temp2 == max_iterations ? max_iterations : max_iterations + Math.abs(temp2) - 100820;
-        double[] array = {result, temp2};
+        double[] array = {in_color_algorithm.transformResultToHeight(temp2, max_iterations), temp2};
         return array;
         
     }

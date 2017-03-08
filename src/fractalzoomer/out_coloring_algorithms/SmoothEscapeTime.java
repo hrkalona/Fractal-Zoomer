@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2015 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2017 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,12 +46,12 @@ public class SmoothEscapeTime extends OutColorAlgorithm {
             temp += 0.000000001;
             temp = Math.log(temp);
 
-            return (Integer)object[0] + (log_bailout_squared - temp) / (Math.log(temp2) - temp) + 100800;         
+            return (Integer)object[0] + (log_bailout_squared - temp) / (Math.log(temp2) - temp) + MAGIC_OFFSET_NUMBER;         
             
         }
         else {
             //double temp2 = ((Complex)object[1]).norm_squared();
-            //return (Integer)object[0] + 1 - Math.log(Math.log(temp2) / log_bailout_squared) / log_power + 100800;
+            //return (Integer)object[0] + 1 - Math.log(Math.log(temp2) / log_bailout_squared) / log_power + MAGIC_OFFSET_NUMBER;
             
             
             double temp = ((Complex)object[2]).norm_squared();
@@ -65,15 +65,8 @@ public class SmoothEscapeTime extends OutColorAlgorithm {
             double a = Math.log(temp2 / log_bailout_squared);
             double f =  a / Math.log(p);
             
-            return (Integer)object[0] + 1 - f + 100800;
+            return (Integer)object[0] + 1 - f + MAGIC_OFFSET_NUMBER;
         }
-
-    }
-
-    @Override
-    public double getResult3D(Object[] object) {
-
-        return getResult(object);
 
     }
 }

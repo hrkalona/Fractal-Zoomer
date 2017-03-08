@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2015 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2017 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,12 +30,24 @@ public class UserOutColorAlgorithmRootFindingMethod extends OutColorAlgorithm {
     private ExpressionNode expr;
     private Parser parser;
     private Complex c_convergent_bailout;
+    protected Complex c_max_iterations;
     
-    public UserOutColorAlgorithmRootFindingMethod(String outcoloring_formula, double convergent_bailout) {
+    public UserOutColorAlgorithmRootFindingMethod(String outcoloring_formula, double convergent_bailout, int max_iterations) {
         
         parser = new Parser();
         expr = parser.parse(outcoloring_formula);
         c_convergent_bailout = new Complex(convergent_bailout, 0);
+        
+               
+        if(parser.foundCbail()) {
+            parser.setCbailvalue(c_convergent_bailout);
+        }
+        
+        c_max_iterations = new Complex(max_iterations, 0);
+        
+        if(parser.foundMaxn()) {
+            parser.setMaxnvalue(c_max_iterations);
+        }
         
     }
 
@@ -50,6 +62,14 @@ public class UserOutColorAlgorithmRootFindingMethod extends OutColorAlgorithm {
             parser.setZvalue(((Complex)object[1]));
         }
         
+        if(parser.foundC()) {
+            parser.setCvalue(((Complex)object[5]));
+        }
+        
+        if(parser.foundS()) {
+            parser.setSvalue(((Complex)object[6]));
+        }
+        
         if(parser.foundP()) {
             parser.setPvalue(((Complex)object[3]));
         }
@@ -57,19 +77,8 @@ public class UserOutColorAlgorithmRootFindingMethod extends OutColorAlgorithm {
         if(parser.foundPP()) {
             parser.setPPvalue(((Complex)object[4]));
         }
-        
-        if(parser.foundCbail()) {
-            parser.setCbailvalue(c_convergent_bailout);
-        }
 
-        return expr.getValue().getAbsRe() + 100800;
-        
-    }
-
-    @Override
-    public double getResult3D(Object[] object) {
-        
-        return getResult(object);
+        return expr.getValue().getAbsRe() + MAGIC_OFFSET_NUMBER;
         
     }
     

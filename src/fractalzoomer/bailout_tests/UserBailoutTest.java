@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2015 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2017 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,8 +31,9 @@ public class UserBailoutTest extends BailoutTest {
     private Parser[] parser;
     private int bailout_test_comparison;
     private Complex cbound;
+    private Complex c_max_iterations;
 
-    public UserBailoutTest(double bound, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison) {
+    public UserBailoutTest(double bound, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, int max_iterations) {
 
         super(bound);
 
@@ -48,36 +49,78 @@ public class UserBailoutTest extends BailoutTest {
         this.bailout_test_comparison = bailout_test_comparison;
         
         cbound = new Complex(bound, 0);
+                     
+        if(parser[0].foundBail()) {
+            parser[0].setBailvalue(cbound);
+        }
+                    
+        if(parser[1].foundBail()) {
+            parser[1].setBailvalue(cbound);
+        }
+        
+        c_max_iterations = new Complex(max_iterations, 0);
+                    
+        if(parser[0].foundMaxn()) {
+            parser[0].setMaxnvalue(c_max_iterations);
+        }
+        
+        if(parser[1].foundMaxn()) {
+            parser[1].setMaxnvalue(c_max_iterations);
+        }
 
     }
 
     @Override
-    public boolean escaped(Complex z, Complex zold) {
+    public boolean escaped(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start) {
         
         /*LEFT*/
+        if(parser[0].foundN()) {
+            parser[0].setNvalue(new Complex(iterations, 0));
+        }
+        
         if(parser[0].foundZ()) {
             parser[0].setZvalue(z);
+        }
+        
+        if(parser[0].foundC()) {
+            parser[0].setCvalue(c);
+        }
+        
+        if(parser[0].foundS()) {
+            parser[0].setSvalue(start);
         }
         
         if(parser[0].foundP()) {
             parser[0].setPvalue(zold);
         }
         
-        if(parser[0].foundBail()) {
-            parser[0].setBailvalue(cbound);
+        if(parser[0].foundPP()) {
+            parser[0].setPPvalue(zold2);
         }
         
         /*RIGHT*/
+        if(parser[1].foundN()) {
+            parser[1].setNvalue(new Complex(iterations, 0));
+        }
+        
         if(parser[1].foundZ()) {
             parser[1].setZvalue(z);
+        }
+        
+        if(parser[1].foundC()) {
+            parser[1].setCvalue(c);
+        }
+        
+        if(parser[1].foundS()) {
+            parser[1].setSvalue(start);
         }
         
         if(parser[1].foundP()) {
             parser[1].setPvalue(zold);
         }
         
-        if(parser[1].foundBail()) {
-            parser[1].setBailvalue(cbound);
+        if(parser[1].foundPP()) {
+            parser[1].setPPvalue(zold2);
         }
 
         int res = expr[0].getValue().compare(expr[1].getValue());
@@ -91,6 +134,10 @@ public class UserBailoutTest extends BailoutTest {
                 return res == 1 ? true : false;
             case 3: //Escape if a <= b
                 return (res == 1 || res == 0) ? true : false;
+            case 4:
+                return res == 0 ? true : false;
+            case 5: 
+                return res != 0 ? true : false;
             default:
                 return false;
         }

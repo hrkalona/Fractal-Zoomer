@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2015 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2017 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,7 +49,7 @@ public class PlanesMenu extends JMenu {
 
         this.ptr = ptr2;
 
-        planes = new JRadioButtonMenuItem[61];
+        planes = new JRadioButtonMenuItem[62];
 
         planes_general_menu = new JMenu("General Planes");
         planes_fold_menu = new JMenu("Fold Planes");
@@ -242,6 +242,18 @@ public class PlanesMenu extends JMenu {
             }
         });
         planes_general_menu.add(planes[MainWindow.CIRCLEINVERSION_PLANE]);
+        
+        planes[MainWindow.INFLECTION_PLANE] = new JRadioButtonMenuItem("Inflection");
+        planes[MainWindow.INFLECTION_PLANE].setToolTipText("The inflection plane.");
+        planes[MainWindow.INFLECTION_PLANE].addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setPlane(MainWindow.INFLECTION_PLANE);
+
+            }
+        });
+        planes_general_menu.add(planes[MainWindow.INFLECTION_PLANE]);
 
         planes[MainWindow.FOLDUP_PLANE] = new JRadioButtonMenuItem("Fold up");
         planes[MainWindow.FOLDUP_PLANE].setToolTipText("The fold up plane.");

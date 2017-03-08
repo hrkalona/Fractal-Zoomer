@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2015 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2017 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,7 +37,7 @@ public class ZMag extends InColorAlgorithm {
     @Override
     public double getResult(Object[] object) {
 
-        return ((Complex)object[0]).norm_squared() * (max_iterations / 3.0) + 100820;
+        return ((Complex)object[0]).norm_squared() * (max_iterations / 3.0) + MAGIC_OFFSET_NUMBER;
 
     }
 

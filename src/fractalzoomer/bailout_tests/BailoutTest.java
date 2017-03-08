@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2015 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2017 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,6 +32,6 @@ public abstract class BailoutTest {
         
     }
     
-    public abstract boolean escaped(Complex z, Complex zold);
+    public abstract boolean escaped(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start);
     
 }

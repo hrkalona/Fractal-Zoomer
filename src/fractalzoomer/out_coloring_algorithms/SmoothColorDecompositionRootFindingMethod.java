@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2015 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2017 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,7 +42,7 @@ public class SmoothColorDecompositionRootFindingMethod extends ColorDecompositio
         double temp = Math.floor(1000 * ((Complex)object[1]).getRe() + 0.5) / 1000;
         double temp2 = Math.floor(1000 * ((Complex)object[1]).getIm() + 0.5) / 1000;
 
-        return Math.abs((long)(((Math.atan2(temp2, temp) / (pi2) + 0.75) * pi59) + (temp * temp + temp2 * temp2) * 2.5)) + 100800;
+        return Math.abs((long)(((Math.atan2(temp2, temp) / (pi2) + 0.75) * pi59) + (temp * temp + temp2 * temp2) * 2.5)) + MAGIC_OFFSET_NUMBER;
 
     }
 
@@ -51,7 +51,7 @@ public class SmoothColorDecompositionRootFindingMethod extends ColorDecompositio
 
         if(algorithm == 0) {
             double temp = Math.log(((Complex)object[3]).distance_squared((Complex)object[4]));
-            return (Integer)object[0] + (log_convergent_bailout - temp) / (Math.log((Double)object[2]) - temp) + 100800;
+            return (Integer)object[0] + (log_convergent_bailout - temp) / (Math.log((Double)object[2]) - temp) + MAGIC_OFFSET_NUMBER;
         }
         else {
             double temp4 = Math.log(((Double)object[2]) + 1e-33);
@@ -62,7 +62,7 @@ public class SmoothColorDecompositionRootFindingMethod extends ColorDecompositio
 
             double f = Math.log(log_convergent_bailout / temp4) / Math.log(power);
 
-            return (Integer)object[0] + f + 100800;
+            return (Integer)object[0] + f + MAGIC_OFFSET_NUMBER;
         }
 
     }

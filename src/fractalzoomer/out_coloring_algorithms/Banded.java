@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2015 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2017 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,15 +38,8 @@ public class Banded extends OutColorAlgorithm {
         
         double f = (Math.log(temp) / Math.log(2)) * 2.4;
 
-        return (Integer)object[0] + Math.abs(f) + 100800;
+        return (Integer)object[0] + Math.abs(f) + MAGIC_OFFSET_NUMBER;
 
-    }
-    
-    @Override
-    public double getResult3D(Object[] object) {
-        
-        return  getResult(object);
-        
     }
     
 }

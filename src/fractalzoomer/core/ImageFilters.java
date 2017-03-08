@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 hrkalona
+ * Copyright (C) 2017 hrkalona
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +30,9 @@ import fractalzoomer.filters_utils.image.GlowFilter;
 import fractalzoomer.filters_utils.image.GrayFilter;
 import fractalzoomer.filters_utils.image.HSBAdjustFilter;
 import fractalzoomer.filters_utils.image.HighPassFilter;
+import fractalzoomer.filters_utils.image.LightFilter;
+import fractalzoomer.filters_utils.image.LightFilter.Light;
+import fractalzoomer.filters_utils.image.LightFilter.Material;
 import fractalzoomer.filters_utils.image.MarbleTexFilter;
 import fractalzoomer.filters_utils.image.MaskFilter;
 import fractalzoomer.filters_utils.image.MaximumFilter;
@@ -46,6 +49,7 @@ import fractalzoomer.filters_utils.image.SparkleFilter;
 import fractalzoomer.filters_utils.image.SwizzleFilter;
 import fractalzoomer.filters_utils.image.TemperatureFilter;
 import fractalzoomer.filters_utils.image.WeaveFilter;
+import fractalzoomer.main.MainWindow;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
@@ -65,7 +69,7 @@ public class ImageFilters {
     private static float[] sharpness_low = {0.0f, -0.2f, 0.0f, -0.2f, 1.8f, -0.2f, 0.0f, -0.2f, 0.0f};
     private static final float[] EMBOSS = {1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, -1.0f};    
 
-    public static void filterEmboss(BufferedImage image, int filter_value) {
+    private static void filterEmboss(BufferedImage image, int filter_value) {
 
         int image_size = image.getHeight();
         
@@ -148,7 +152,7 @@ public class ImageFilters {
 
     }
 
-    public static void filterEdgeDetection(BufferedImage image, int filter_value, Color filter_color) {
+    private static void filterEdgeDetection(BufferedImage image, int filter_value, Color filter_color) {
 
         /*float[] EDGES = {1.0f,   1.0f,  1.0f,
          1.0f, -8.0f,  1.0f,
@@ -211,7 +215,7 @@ public class ImageFilters {
 
     }
 
-    public static void filterSharpness(BufferedImage image, int filter_value) {
+    private static void filterSharpness(BufferedImage image, int filter_value) {
 
         int image_size = image.getHeight();
 
@@ -244,7 +248,7 @@ public class ImageFilters {
         newSource = null;
     }
 
-    public static void filterBlurring(BufferedImage image, int filter_value) { //OLD antialiasing method (blurring)
+    private static void filterBlurring(BufferedImage image, int filter_value) { //OLD antialiasing method (blurring)
         
         int alg = ((int)(filter_value / 1000.0));
         
@@ -398,7 +402,7 @@ public class ImageFilters {
        
     }
 
-    public static void filterInvertColors(BufferedImage image, int filter_value) {
+    private static void filterInvertColors(BufferedImage image, int filter_value) {
 
         int image_size = image.getHeight();
 
@@ -451,7 +455,7 @@ public class ImageFilters {
 
     }
 
-    public static void filterMaskColors(BufferedImage image, int filter_value) {
+    private static void filterMaskColors(BufferedImage image, int filter_value) {
 
         int mask = 0;
 
@@ -472,7 +476,7 @@ public class ImageFilters {
 
     }
 
-    public static void filterFadeOut(BufferedImage image) {
+    private static void filterFadeOut(BufferedImage image) {
 
         GrayFilter f = new GrayFilter();
         
@@ -480,7 +484,7 @@ public class ImageFilters {
 
     }
 
-    public static void filterColorChannelSwapping(BufferedImage image, int filter_value) {
+    private static void filterColorChannelSwapping(BufferedImage image, int filter_value) {
 
         int image_size = image.getHeight();
 
@@ -513,7 +517,7 @@ public class ImageFilters {
 
     }
 
-    public static void filterContrastBrightness(BufferedImage image, int filter_value) {
+   private static void filterContrastBrightness(BufferedImage image, int filter_value) {
 
         double contrast = (((int)(filter_value / 1000.0)) / 100.0) * 2.0;
         double brightness = (((int)(filter_value % 1000.0)) / 100.0) * 2.0;
@@ -526,7 +530,7 @@ public class ImageFilters {
 
     }
 
-    public static void filterColorTemperature(BufferedImage image, int filter_value) {
+    private static void filterColorTemperature(BufferedImage image, int filter_value) {
    
         TemperatureFilter f = new TemperatureFilter();
         
@@ -537,7 +541,7 @@ public class ImageFilters {
 
     }
 
-    public static void filterGrayscale(BufferedImage image, int filter_value) {
+    private static void filterGrayscale(BufferedImage image, int filter_value) {
 
         int image_size = image.getHeight();
 
@@ -572,7 +576,7 @@ public class ImageFilters {
 
     }
 
-    public static void filterHistogramEqualization(BufferedImage image, int filter_value) {
+    private static void filterHistogramEqualization(BufferedImage image, int filter_value) {
 
         int image_size = image.getHeight();
 
@@ -1051,7 +1055,7 @@ public class ImageFilters {
         
     }
 
-    public static void filterColorChannelSwizzling(BufferedImage image, int filter_value) {
+    private static void filterColorChannelSwizzling(BufferedImage image, int filter_value) {
 
         
         int[] matrix = {
@@ -1076,7 +1080,7 @@ public class ImageFilters {
 
     }
 
-    public static void filterColorChannelAdjusting(BufferedImage image, int filter_value) {
+    private static void filterColorChannelAdjusting(BufferedImage image, int filter_value) {
 
         double rFactor = 2 * ((int)(filter_value / 1000000.0)) / 100.0;
         double gFactor = 2 * ((int)(((int)(filter_value % 1000000.0)) / 1000)) / 100.0;
@@ -1091,7 +1095,7 @@ public class ImageFilters {
         f.filter(image, image);
     }
 
-    public static void filterDither(BufferedImage image, int filter_value) {
+    private static void filterDither(BufferedImage image, int filter_value) {
             
         int levels = (int)(((int)(((int)(filter_value % 100000.0)) % 10000.0)) % 1000.0);
         int dither_mat_number = (int)(((int)(((int)(filter_value % 100000.0)) % 10000.0)) / 1000.0);
@@ -1156,7 +1160,7 @@ public class ImageFilters {
 
     }
 
-    public static void filterHSBcolorChannelAdjusting(BufferedImage image, int filter_value) {
+    private static void filterHSBcolorChannelAdjusting(BufferedImage image, int filter_value) {
 
         double hFactor = 2 * ((((int)(filter_value / 1000000.0)) / 100.0) - 0.5);
         double sFactor = 2 * ((((int)(((int)(filter_value % 1000000.0)) / 1000)) / 100.0) - 0.5);
@@ -1170,7 +1174,7 @@ public class ImageFilters {
         f.filter(image, image);
     }
 
-    public static void filterPosterize(BufferedImage image, int filter_value) {
+    private static void filterPosterize(BufferedImage image, int filter_value) {
       
         int numLevels = filter_value;
         
@@ -1181,7 +1185,7 @@ public class ImageFilters {
 
     }
 
-    public static void filterSolarize(BufferedImage image) {
+    private static void filterSolarize(BufferedImage image) {
 
         SolarizeFilter f = new SolarizeFilter();
         
@@ -1189,7 +1193,7 @@ public class ImageFilters {
         
     }
 
-    public static void filterGain(BufferedImage image, int filter_value) {
+    private static void filterGain(BufferedImage image, int filter_value) {
 
         double gain = (((int)(filter_value / 1000.0)) / 100.0);
         double bias = (((int)(filter_value % 1000.0)) / 100.0);
@@ -1202,7 +1206,7 @@ public class ImageFilters {
 
     }
 
-    public static void filterGamma(BufferedImage image, int filter_value) {
+    private static void filterGamma(BufferedImage image, int filter_value) {
 
         double gamma = filter_value / 100.0 * 3.0;
         
@@ -1213,7 +1217,7 @@ public class ImageFilters {
         
     }
 
-    public static void filterExposure(BufferedImage image, int filter_value) {
+    private static void filterExposure(BufferedImage image, int filter_value) {
 
         double exposure = filter_value / 100.0 * 5.0;
 
@@ -1224,7 +1228,7 @@ public class ImageFilters {
 
     }
     
-    public static void filterCrystallize(BufferedImage image, int filter_value, Color filter_color) {
+    private static void filterCrystallize(BufferedImage image, int filter_value, Color filter_color) {
        
         double size = (((int)(((int)(((int)(((int)(filter_value % 10000000.0)) % 1000000.0)) % 10000.0)) % 100.0)) / 80.0) * 100;
         double randomness = ((int)(((int)(((int)(((int)(filter_value % 10000000.0)) % 1000000.0)) % 10000.0)) / 100.0)) / 80.0;       
@@ -1251,7 +1255,7 @@ public class ImageFilters {
         
     }
     
-    public static void filterMarble(BufferedImage image, int filter_value) {
+    private static void filterMarble(BufferedImage image, int filter_value) {
        
         MarbleTexFilter f = new MarbleTexFilter();
         
@@ -1272,7 +1276,7 @@ public class ImageFilters {
         
     }
     
-    public static void filterPointillize(BufferedImage image, int filter_value, Color filter_color) {
+    private static void filterPointillize(BufferedImage image, int filter_value, Color filter_color) {
        
         PointillizeFilter f = new PointillizeFilter();
         
@@ -1301,7 +1305,7 @@ public class ImageFilters {
         
     }
     
-    public static void filterOil(BufferedImage image, int filter_value) {
+    private static void filterOil(BufferedImage image, int filter_value) {
        
         OilFilter f = new OilFilter();
         
@@ -1315,7 +1319,7 @@ public class ImageFilters {
         
     }
     
-    public static void filterWeave(BufferedImage image, int filter_value, Color filter_color) {
+    private static void filterWeave(BufferedImage image, int filter_value, Color filter_color) {
        
         WeaveFilter f = new WeaveFilter();    
         
@@ -1354,7 +1358,7 @@ public class ImageFilters {
         
     }
     
-    public static void filterSparkle(BufferedImage image, int filter_value, Color filter_color) {
+    private static void filterSparkle(BufferedImage image, int filter_value, Color filter_color) {
        
         SparkleFilter f = new SparkleFilter();
         
@@ -1373,7 +1377,7 @@ public class ImageFilters {
         
     }
     
-    public static void filterGlow(BufferedImage image, int filter_value) {
+    private static void filterGlow(BufferedImage image, int filter_value) {
         
         double softness = ((int)(filter_value / 1000.0));
         double amount = ((int)(filter_value % 1000.0)) / 100.0;
@@ -1387,7 +1391,7 @@ public class ImageFilters {
         
     }
     
-    public static void filterNoise(BufferedImage image, int filter_value) {
+    private static void filterNoise(BufferedImage image, int filter_value) {
         
         NoiseFilter f = new NoiseFilter();
         
@@ -1411,7 +1415,7 @@ public class ImageFilters {
         
     }
     
-    public static void filterColorChannelScaling(BufferedImage image, int filter_value) {
+    private static void filterColorChannelScaling(BufferedImage image, int filter_value) {
         
         double scale = filter_value / 100.0 * 5;
         
@@ -1422,7 +1426,56 @@ public class ImageFilters {
         
     }
     
-    public static void filterColorChannelMixing(BufferedImage image, int filter_value, Color filter_color) {
+    private static void filterLightEffects(BufferedImage image, int filter_value, int filter_value2, int filter_value3, Color filter_color, Color filter_color2, Color filter_color3) {
+           
+        LightFilter f = new LightFilter();
+        
+        int light_type = (int)(filter_value / 100000000.0);
+        double direction = (int)(((int)(filter_value % 100000000.0)) / 1000000.0) / 80.0 * 360.0 * Math.PI / 180.0;
+        double elevation = (int)(((int)(((int)(filter_value % 100000000.0)) % 1000000.0)) / 10000.0) / 80.0 * Math.PI / 2;
+        double distance = (int)(((int)(((int)(((int)(filter_value % 100000000.0)) % 1000000.0)) % 10000.0)) / 100) / 80.0 * 1000;
+        double intensity = (int)(((int)(((int)(((int)(filter_value % 100000000.0)) % 1000000.0)) % 10000.0)) % 100) / 80.0;
+        
+        double x = (int)(filter_value2 / 1000000.0) / 80.0;
+        double y = (int)(((int)(filter_value2 % 1000000.0)) / 10000.0) / 80.0;
+        double cone_angle = (int)(((int)(((int)(filter_value2 % 1000000.0)) % 10000.0)) / 100.0) / 80.0 * Math.PI / 2;
+        double focus = (int)(((int)(((int)(filter_value2 % 1000000.0)) % 10000.0)) % 100.0) / 80.0;
+        
+        int source = (int)(filter_value3 / 10000000.0);
+        double shininess =  10 - (int)(((int)(filter_value3 % 10000000.0)) / 100000.0) / 80.0 * 10.0;   
+        int bump_shape = (int)(((int)(((int)(filter_value3 % 10000000.0)) % 100000.0)) / 10000.0);
+        double bump_height = (int)(((int)(((int)(((int)(filter_value3 % 10000000.0)) % 100000.0)) % 10000.0)) / 100.0) / 80.0 * 10 - 5;
+        double bump_softness = (int)(((int)(((int)(((int)(filter_value3 % 10000000.0)) % 100000.0)) % 10000.0)) % 100.0) / 80.0 * 100.0;
+        
+        f.removeAllLights();
+        
+        Light l1 = f.addLight(light_type);
+        l1.setFocus((float)focus);
+        l1.setConeAngle((float)cone_angle);
+        l1.setElevation((float)elevation);
+        l1.setDistance((float)distance);
+        l1.setIntensity((float)intensity);
+        l1.setAzimuth((float)direction);
+        l1.setColor(filter_color.getRGB());
+        l1.setCentreX((float)x);
+        l1.setCentreY((float)y);
+        
+        Material m = f.getMaterial();
+        m.setShininess((float)shininess);
+        m.setDiffuseColor(filter_color2.getRGB());
+        m.setSpecularColor(filter_color3.getRGB());
+        
+        f.setBumpShape(bump_shape);
+        f.setBumpHeight((float)bump_height);
+        f.setBumpSoftness((float)bump_softness);
+        
+        f.setColorSource(source);
+  
+        f.filter(image, image);
+        
+    }
+    
+    private static void filterColorChannelMixing(BufferedImage image, int filter_value, Color filter_color) {
         
         ChannelMixFilter f = new ChannelMixFilter();
         
@@ -1472,6 +1525,137 @@ public class ImageFilters {
         return gaussian_kernel;
 
     }
-   
+    
+    public static void filter(BufferedImage image, boolean[] filters, int[] filters_options_vals, int[][] filters_options_extra_vals, Color[] filters_colors, Color[][] filters_extra_colors) {
+           
+        if(filters[MainWindow.CRYSTALLIZE]) {
+            ImageFilters.filterCrystallize(image, filters_options_vals[MainWindow.CRYSTALLIZE], filters_colors[MainWindow.CRYSTALLIZE]);
+        }
+        
+        if(filters[MainWindow.POINTILLIZE]) {
+            ImageFilters.filterPointillize(image, filters_options_vals[MainWindow.POINTILLIZE], filters_colors[MainWindow.POINTILLIZE]);
+        }
+        
+        if(filters[MainWindow.LIGHT_EFFECTS]) {
+            ImageFilters.filterLightEffects(image, filters_options_vals[MainWindow.LIGHT_EFFECTS], filters_options_extra_vals[0][MainWindow.LIGHT_EFFECTS], filters_options_extra_vals[1][MainWindow.LIGHT_EFFECTS], filters_colors[MainWindow.LIGHT_EFFECTS], filters_extra_colors[0][MainWindow.LIGHT_EFFECTS], filters_extra_colors[1][MainWindow.LIGHT_EFFECTS]);
+        }
+        
+        if(filters[MainWindow.OIL]) {
+            ImageFilters.filterOil(image, filters_options_vals[MainWindow.OIL]);
+        }
+        
+        if(filters[MainWindow.MARBLE]) {
+            ImageFilters.filterMarble(image, filters_options_vals[MainWindow.MARBLE]);
+        }
+        
+        if(filters[MainWindow.WEAVE]) {
+            ImageFilters.filterWeave(image, filters_options_vals[MainWindow.WEAVE], filters_colors[MainWindow.WEAVE]);
+        }
+        
+        if(filters[MainWindow.SPARKLE]) {
+            ImageFilters.filterSparkle(image, filters_options_vals[MainWindow.SPARKLE], filters_colors[MainWindow.SPARKLE]);
+        }
 
+        if(filters[MainWindow.COLOR_CHANNEL_SWAPPING]) {
+            ImageFilters.filterColorChannelSwapping(image, filters_options_vals[MainWindow.COLOR_CHANNEL_SWAPPING]);
+        }
+
+        if(filters[MainWindow.COLOR_CHANNEL_SWIZZLING]) {
+            ImageFilters.filterColorChannelSwizzling(image, filters_options_vals[MainWindow.COLOR_CHANNEL_SWIZZLING]);
+        }
+        
+        if(filters[MainWindow.COLOR_CHANNEL_MIXING]) {
+            ImageFilters.filterColorChannelMixing(image, filters_options_vals[MainWindow.COLOR_CHANNEL_MIXING], filters_colors[MainWindow.COLOR_CHANNEL_MIXING]);
+        }
+
+        if(filters[MainWindow.COLOR_CHANNEL_ADJUSTING]) {
+            ImageFilters.filterColorChannelAdjusting(image, filters_options_vals[MainWindow.COLOR_CHANNEL_ADJUSTING]);
+        }
+
+        if(filters[MainWindow.COLOR_CHANNEL_HSB_ADJUSTING]) {
+            ImageFilters.filterHSBcolorChannelAdjusting(image, filters_options_vals[MainWindow.COLOR_CHANNEL_HSB_ADJUSTING]);
+        }
+        
+        if(filters[MainWindow.COLOR_CHANNEL_SCALING]) {
+            ImageFilters.filterColorChannelScaling(image, filters_options_vals[MainWindow.COLOR_CHANNEL_SCALING]);
+        }
+
+        if(filters[MainWindow.GRAYSCALE]) {
+            ImageFilters.filterGrayscale(image, filters_options_vals[MainWindow.GRAYSCALE]);
+        }
+
+        if(filters[MainWindow.POSTERIZE]) {
+            ImageFilters.filterPosterize(image, filters_options_vals[MainWindow.POSTERIZE]);
+        }
+
+        if(filters[MainWindow.DITHER]) {
+            ImageFilters.filterDither(image, filters_options_vals[MainWindow.DITHER]);
+        }
+
+        if(filters[MainWindow.INVERT_COLORS]) {
+            ImageFilters.filterInvertColors(image, filters_options_vals[MainWindow.INVERT_COLORS]);
+        }
+
+        if(filters[MainWindow.SOLARIZE]) {
+            ImageFilters.filterSolarize(image);
+        }
+
+        if(filters[MainWindow.COLOR_TEMPERATURE]) {
+            ImageFilters.filterColorTemperature(image, filters_options_vals[MainWindow.COLOR_TEMPERATURE]);
+        }
+
+        if(filters[MainWindow.CONTRAST_BRIGHTNESS]) {
+            ImageFilters.filterContrastBrightness(image, filters_options_vals[MainWindow.CONTRAST_BRIGHTNESS]);
+        }
+
+        if(filters[MainWindow.GAIN]) {
+            ImageFilters.filterGain(image, filters_options_vals[MainWindow.GAIN]);
+        }
+
+        if(filters[MainWindow.GAMMA]) {
+            ImageFilters.filterGamma(image, filters_options_vals[MainWindow.GAMMA]);
+        }
+
+        if(filters[MainWindow.EXPOSURE]) {
+            ImageFilters.filterExposure(image, filters_options_vals[MainWindow.EXPOSURE]);
+        }
+
+        if(filters[MainWindow.HISTOGRAM_EQUALIZATION]) {
+            ImageFilters.filterHistogramEqualization(image, filters_options_vals[MainWindow.HISTOGRAM_EQUALIZATION]);
+        }
+
+        if(filters[MainWindow.COLOR_CHANNEL_MASKING]) {
+            ImageFilters.filterMaskColors(image, filters_options_vals[MainWindow.COLOR_CHANNEL_MASKING]);
+        }
+        
+        if(filters[MainWindow.NOISE]) {
+            ImageFilters.filterNoise(image, filters_options_vals[MainWindow.NOISE]);
+        }
+
+        if(filters[MainWindow.SHARPNESS]) {
+            ImageFilters.filterSharpness(image, filters_options_vals[MainWindow.SHARPNESS]);
+        }
+
+        if(filters[MainWindow.BLURRING]) {
+            ImageFilters.filterBlurring(image, filters_options_vals[MainWindow.BLURRING]);
+        }
+        
+        if(filters[MainWindow.GLOW]) {
+            ImageFilters.filterGlow(image, filters_options_vals[MainWindow.GLOW]);
+        }
+
+        if(filters[MainWindow.EMBOSS]) {
+            ImageFilters.filterEmboss(image, filters_options_vals[MainWindow.EMBOSS]);
+        }
+        
+        if(filters[MainWindow.EDGE_DETECTION]) {
+            ImageFilters.filterEdgeDetection(image, filters_options_vals[MainWindow.EDGE_DETECTION], filters_colors[MainWindow.EDGE_DETECTION]);
+        }
+
+        if(filters[MainWindow.FADE_OUT]) {
+            ImageFilters.filterFadeOut(image);
+        }
+      
+    }
+   
 }

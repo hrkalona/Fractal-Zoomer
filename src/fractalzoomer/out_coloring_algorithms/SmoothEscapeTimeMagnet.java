@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2015 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2017 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,11 +46,11 @@ public class SmoothEscapeTimeMagnet extends SmoothEscapeTime {
                 double temp2 = ((Complex)object[1]).norm_squared();
                 temp += 0.000000001;
                 temp = Math.log(temp);
-                return (Integer)object[0] + (log_bailout_squared - temp) / (Math.log(temp2) - temp) + 100906;
+                return (Integer)object[0] + (log_bailout_squared - temp) / (Math.log(temp2) - temp) + MAGIC_OFFSET_NUMBER + 106;
             }
             else {
                 //double temp2 = ((Complex)object[1]).norm_squared();
-                //return (Integer)object[0] + 1 - Math.log((Math.log(temp2)) / log_bailout_squared) / log_power + 100906;
+                //return (Integer)object[0] + 1 - Math.log((Math.log(temp2)) / log_bailout_squared) / log_power + MAGIC_OFFSET_NUMBER + 106;
 
                 double temp = ((Complex)object[4]).norm_squared();
                 double temp2 = ((Complex)object[1]).norm_squared();
@@ -63,13 +63,13 @@ public class SmoothEscapeTimeMagnet extends SmoothEscapeTime {
                 double a = Math.log(temp2 / log_bailout_squared);
                 double f = a / Math.log(p);
 
-                return (Integer)object[0] + 1 - f + 100906;
+                return (Integer)object[0] + 1 - f + MAGIC_OFFSET_NUMBER + 106;
             }
         }
         else {
             if(algorithm2 == 0) {
                 double temp = Math.log(((Complex)object[4]).distance_squared(1));
-                return (Integer)object[0] + (log_convergent_bailout - temp) / (Math.log((Double)object[3]) - temp) + 100800;
+                return (Integer)object[0] + (log_convergent_bailout - temp) / (Math.log((Double)object[3]) - temp) + MAGIC_OFFSET_NUMBER;
             }
             else {
                 double temp4 = Math.log(((Double)object[3]));
@@ -78,7 +78,7 @@ public class SmoothEscapeTimeMagnet extends SmoothEscapeTime {
 
                 double f = Math.log(log_convergent_bailout / temp4) / Math.log(power);
 
-                return (Integer)object[0] + f + 100800;
+                return (Integer)object[0] + f + MAGIC_OFFSET_NUMBER;
             }
         }
 

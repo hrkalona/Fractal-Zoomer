@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2015 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2017 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,8 +32,10 @@ public class UserConditionalOutColorAlgorithmRootFindingMethod extends OutColorA
     private ExpressionNode[] expr2;
     private Parser[] parser2;
     private Complex c_convergent_bailout;
+    private Complex c_max_iterations;
+    private boolean[] user_outcoloring_special_color;
 
-    public UserConditionalOutColorAlgorithmRootFindingMethod(String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, double convergent_bailout) {
+    public UserConditionalOutColorAlgorithmRootFindingMethod(String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, boolean[] user_outcoloring_special_color, double convergent_bailout, int max_iterations) {
 
         super();
 
@@ -54,6 +56,50 @@ public class UserConditionalOutColorAlgorithmRootFindingMethod extends OutColorA
         }
 
         c_convergent_bailout = new Complex(convergent_bailout, 0);
+        
+        this.user_outcoloring_special_color = user_outcoloring_special_color;
+        
+        if(parser[0].foundCbail()) {
+            parser[0].setCbailvalue(c_convergent_bailout);
+        }
+        
+        if(parser[1].foundCbail()) {
+            parser[1].setCbailvalue(c_convergent_bailout);
+        }
+        
+        if(parser2[0].foundCbail()) {
+            parser2[0].setCbailvalue(c_convergent_bailout);
+        }
+        
+        if(parser2[1].foundCbail()) {
+            parser2[1].setCbailvalue(c_convergent_bailout);
+        }
+        
+        if(parser2[2].foundCbail()) {
+            parser2[2].setCbailvalue(c_convergent_bailout);
+        }
+        
+        c_max_iterations = new Complex(max_iterations, 0);
+        
+        if(parser[0].foundMaxn()) {
+            parser[0].setMaxnvalue(c_max_iterations);
+        }      
+                
+        if(parser[1].foundMaxn()) {
+            parser[1].setMaxnvalue(c_max_iterations);
+        }
+        
+        if(parser2[0].foundMaxn()) {
+            parser2[0].setMaxnvalue(c_max_iterations);
+        }
+        
+        if(parser2[1].foundMaxn()) {
+            parser2[1].setMaxnvalue(c_max_iterations);
+        }
+        
+        if(parser2[2].foundMaxn()) {
+            parser2[2].setMaxnvalue(c_max_iterations);
+        }
 
     }
 
@@ -68,6 +114,14 @@ public class UserConditionalOutColorAlgorithmRootFindingMethod extends OutColorA
         if(parser[0].foundZ()) {
             parser[0].setZvalue(((Complex)object[1]));
         }
+        
+        if(parser[0].foundC()) {
+            parser[0].setCvalue(((Complex)object[5]));
+        }
+        
+        if(parser[0].foundS()) {
+            parser[0].setSvalue(((Complex)object[6]));
+        }
 
         if(parser[0].foundP()) {
             parser[0].setPvalue(((Complex)object[3]));
@@ -75,10 +129,6 @@ public class UserConditionalOutColorAlgorithmRootFindingMethod extends OutColorA
 
         if(parser[0].foundPP()) {
             parser[0].setPPvalue(((Complex)object[4]));
-        }
-
-        if(parser[0].foundCbail()) {
-            parser[0].setCbailvalue(c_convergent_bailout);
         }
 
         /* RIGHT */
@@ -89,6 +139,14 @@ public class UserConditionalOutColorAlgorithmRootFindingMethod extends OutColorA
         if(parser[1].foundZ()) {
             parser[1].setZvalue(((Complex)object[1]));
         }
+        
+        if(parser[1].foundC()) {
+            parser[1].setCvalue(((Complex)object[5]));
+        }
+        
+        if(parser[1].foundS()) {
+            parser[1].setSvalue(((Complex)object[6]));
+        }
 
         if(parser[1].foundP()) {
             parser[1].setPvalue(((Complex)object[3]));
@@ -96,10 +154,6 @@ public class UserConditionalOutColorAlgorithmRootFindingMethod extends OutColorA
 
         if(parser[1].foundPP()) {
             parser[1].setPPvalue(((Complex)object[4]));
-        }
-
-        if(parser[1].foundCbail()) {
-            parser[1].setCbailvalue(c_convergent_bailout);
         }
 
         int result = expr[0].getValue().compare(expr[1].getValue());
@@ -112,6 +166,14 @@ public class UserConditionalOutColorAlgorithmRootFindingMethod extends OutColorA
             if(parser2[0].foundZ()) {
                 parser2[0].setZvalue(((Complex)object[1]));
             }
+            
+            if(parser2[0].foundC()) {
+                parser2[0].setCvalue(((Complex)object[5]));
+            }
+            
+            if(parser2[0].foundS()) {
+                parser2[0].setSvalue(((Complex)object[6]));
+            }
 
             if(parser2[0].foundP()) {
                 parser2[0].setPvalue(((Complex)object[3]));
@@ -121,11 +183,8 @@ public class UserConditionalOutColorAlgorithmRootFindingMethod extends OutColorA
                 parser2[0].setPPvalue(((Complex)object[4]));
             }
 
-            if(parser2[0].foundCbail()) {
-                parser2[0].setCbailvalue(c_convergent_bailout);
-            }
-
-            return expr2[0].getValue().getAbsRe() + 100800;
+            double num = expr2[0].getValue().getAbsRe() + MAGIC_OFFSET_NUMBER;
+            return user_outcoloring_special_color[0] ? -num: num;
         }
         else if(result == 1) { // right > left
             if(parser2[1].foundN()) {
@@ -134,6 +193,14 @@ public class UserConditionalOutColorAlgorithmRootFindingMethod extends OutColorA
 
             if(parser2[1].foundZ()) {
                 parser2[1].setZvalue(((Complex)object[1]));
+            }
+            
+            if(parser2[1].foundC()) {
+                parser2[1].setCvalue(((Complex)object[5]));
+            }
+            
+            if(parser2[1].foundS()) {
+                parser2[1].setSvalue(((Complex)object[6]));
             }
 
             if(parser2[1].foundP()) {
@@ -144,11 +211,8 @@ public class UserConditionalOutColorAlgorithmRootFindingMethod extends OutColorA
                 parser2[1].setPPvalue(((Complex)object[4]));
             }
 
-            if(parser2[1].foundCbail()) {
-                parser2[1].setCbailvalue(c_convergent_bailout);
-            }
-
-            return expr2[1].getValue().getAbsRe() + 100800;
+            double num = expr2[1].getValue().getAbsRe() + MAGIC_OFFSET_NUMBER;
+            return user_outcoloring_special_color[1] ? -num: num;
         }
         else if (result == 0) { //left == right
             if(parser2[2].foundN()) {
@@ -157,6 +221,14 @@ public class UserConditionalOutColorAlgorithmRootFindingMethod extends OutColorA
 
             if(parser2[2].foundZ()) {
                 parser2[2].setZvalue(((Complex)object[1]));
+            }
+            
+            if(parser2[2].foundC()) {
+                parser2[2].setCvalue(((Complex)object[5]));
+            }
+            
+            if(parser2[2].foundS()) {
+                parser2[2].setSvalue(((Complex)object[6]));
             }
 
             if(parser2[2].foundP()) {
@@ -167,21 +239,11 @@ public class UserConditionalOutColorAlgorithmRootFindingMethod extends OutColorA
                 parser2[2].setPPvalue(((Complex)object[4]));
             }
 
-            if(parser2[2].foundCbail()) {
-                parser2[2].setCbailvalue(c_convergent_bailout);
-            }
-
-            return expr2[2].getValue().getAbsRe() + 100800;
+            double num = expr2[2].getValue().getAbsRe() + MAGIC_OFFSET_NUMBER;
+            return user_outcoloring_special_color[2] ? -num: num;
         }
         
         return 0;
-    }
-
-    @Override
-    public double getResult3D(Object[] object) {
-
-        return getResult(object);
-
     }
 
 }

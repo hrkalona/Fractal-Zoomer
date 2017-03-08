@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2015 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2017 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,6 +34,7 @@ public class FiltersMenu extends JMenu {
     private JMenu detail_filters_menu;
     private JMenu color_filters_menu;
     private JMenu texture_filters_menu;
+    private JMenu light_filters_menu;
     private JCheckBoxMenuItem[] filters_opt;
     private MainWindow ptr;
 
@@ -49,8 +50,10 @@ public class FiltersMenu extends JMenu {
         color_filters_menu.setIcon(getIcon("/fractalzoomer/icons/filter_colors.png"));
         texture_filters_menu = new JMenu("Texture");
         texture_filters_menu.setIcon(getIcon("/fractalzoomer/icons/filter_texture.png"));
+        light_filters_menu = new JMenu("Lighting");
+        light_filters_menu.setIcon(getIcon("/fractalzoomer/icons/filter_lighting.png"));
 
-        filters_opt = new JCheckBoxMenuItem[32];
+        filters_opt = new JCheckBoxMenuItem[33];
 
         filters_opt[MainWindow.ANTIALIASING] = new JCheckBoxMenuItem("Anti-Aliasing");
         filters_opt[MainWindow.EDGE_DETECTION] = new JCheckBoxMenuItem("Edge Detection");
@@ -84,6 +87,7 @@ public class FiltersMenu extends JMenu {
         filters_opt[MainWindow.GLOW] = new JCheckBoxMenuItem("Glow");
         filters_opt[MainWindow.COLOR_CHANNEL_SCALING] = new JCheckBoxMenuItem("Color Channel Scaling");
         filters_opt[MainWindow.NOISE] = new JCheckBoxMenuItem("Noise");
+        filters_opt[MainWindow.LIGHT_EFFECTS] = new JCheckBoxMenuItem("Light Effects");
 
         filters_opt[MainWindow.ANTIALIASING].setToolTipText("Smooths the jagged look of the image.");
         filters_opt[MainWindow.EDGE_DETECTION].setToolTipText("Detects the edges of the image.");
@@ -117,6 +121,7 @@ public class FiltersMenu extends JMenu {
         filters_opt[MainWindow.COLOR_CHANNEL_SCALING].setToolTipText("Scales the color channels of the image.");
         filters_opt[MainWindow.NOISE].setToolTipText("Adds noise to the image.");
         filters_opt[MainWindow.COLOR_CHANNEL_MIXING].setToolTipText("Mixes the color channels of the image.");
+        filters_opt[MainWindow.LIGHT_EFFECTS].setToolTipText("Adds light effects to the image.");
 
         filters_opt[MainWindow.ANTIALIASING].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G, 0));
         filters_opt[MainWindow.EDGE_DETECTION].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, ActionEvent.CTRL_MASK));
@@ -150,6 +155,7 @@ public class FiltersMenu extends JMenu {
         filters_opt[MainWindow.COLOR_CHANNEL_SCALING].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, ActionEvent.SHIFT_MASK));
         filters_opt[MainWindow.NOISE].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, 0));
         filters_opt[MainWindow.COLOR_CHANNEL_MIXING].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, 0));
+        filters_opt[MainWindow.LIGHT_EFFECTS].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_1, ActionEvent.CTRL_MASK));
 
 
         filters_opt[MainWindow.ANTIALIASING].addActionListener(new ActionListener() {
@@ -471,6 +477,16 @@ public class FiltersMenu extends JMenu {
 
             }
         });
+        
+        filters_opt[MainWindow.LIGHT_EFFECTS].addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFilter(MainWindow.LIGHT_EFFECTS);
+
+            }
+        });
 
         detail_filters_menu.add(filters_opt[MainWindow.ANTIALIASING]);
         detail_filters_menu.addSeparator();
@@ -535,13 +551,16 @@ public class FiltersMenu extends JMenu {
         texture_filters_menu.add(filters_opt[MainWindow.WEAVE]);
         texture_filters_menu.addSeparator();
         texture_filters_menu.add(filters_opt[MainWindow.SPARKLE]);
-
+        
+        light_filters_menu.add(filters_opt[MainWindow.LIGHT_EFFECTS]);
 
         add(detail_filters_menu);
         addSeparator();
         add(color_filters_menu);
         addSeparator();
         add(texture_filters_menu);
+        addSeparator();
+        add(light_filters_menu);
 
     }
 

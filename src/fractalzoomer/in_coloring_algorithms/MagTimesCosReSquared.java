@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2015 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2017 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,7 +37,7 @@ public class MagTimesCosReSquared extends InColorAlgorithm {
         
         double re = ((Complex)object[0]).getRe();
         
-        return ((Complex)object[0]).norm_squared() * Math.abs(Math.cos(re * re)) * 400 + 100820; 
+        return ((Complex)object[0]).norm_squared() * Math.abs(Math.cos(re * re)) * 400 + MAGIC_OFFSET_NUMBER; 
              
     }
     

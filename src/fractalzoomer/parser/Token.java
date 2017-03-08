@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2015 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2017 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,8 +23,8 @@ public class Token
   public static final int EPSILON = 0;
   /** Token id for plus or minus */
   public static final int PLUSMINUS = 1;
-  /** Token id for multiplication or division */
-  public static final int MULTDIV = 2;
+  /** Token id for multiplication division or remainder */
+  public static final int MULTDIVREM = 2;
   /** Token id for the exponentiation symbol */
   public static final int RAISED = 3;
   /** Token id for function names */
@@ -39,6 +39,12 @@ public class Token
   public static final int VARIABLE = 8;
   /** Token id for imaginary numbers */
   public static final int IMAGINARY_NUMBER = 9;
+  /** Token id for function names with 2 arguments*/
+  public static final int FUNCTION_2ARGUMENTS = 10;
+  /** Token id for function names with user multiple arguments*/
+  public static final int FUNCTION_USER_MULTI_ARGUMENTS = 11;
+  /** Token id for comma */
+  public static final int COMMA = 12;
 
   /** the token identifier */
   public final int token;

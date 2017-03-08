@@ -1,5 +1,5 @@
 /*
- * Fractal Zoomer, Copyright (C) 2015 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2017 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,13 +50,13 @@ import java.util.ArrayList;
  *
  * @author hrkalona2
  */
-public class SteffensenPoly extends RootFindingMethods {
+public class SteffensenPoly extends SteffensenRootFindingMethod {
 
     private double[] coefficients;
 
-    public SteffensenPoly(double xCenter, double yCenter, double size, int max_iterations, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, double[] coefficients, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula,  double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int converging_smooth_algorithm) {
+    public SteffensenPoly(double xCenter, double yCenter, double size, int max_iterations, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, boolean[] user_outcoloring_special_color, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean[] user_incoloring_special_color, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, double[] coefficients, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula,  double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int converging_smooth_algorithm) {
 
-        super(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula,  plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+        super(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, user_outcoloring_special_color, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula,  plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
 
         this.coefficients = coefficients;
 
@@ -110,10 +110,10 @@ public class SteffensenPoly extends RootFindingMethods {
             case MainWindow.USER_OUTCOLORING_ALGORITHM:
                 convergent_bailout = 1E-7;
                 if(user_out_coloring_algorithm == 0) {
-                    out_color_algorithm = new UserOutColorAlgorithmRootFindingMethod(outcoloring_formula, convergent_bailout);
+                    out_color_algorithm = new UserOutColorAlgorithmRootFindingMethod(outcoloring_formula, convergent_bailout, max_iterations);
                 }
                 else {
-                    out_color_algorithm = new UserConditionalOutColorAlgorithmRootFindingMethod(user_outcoloring_conditions, user_outcoloring_condition_formula, convergent_bailout);
+                    out_color_algorithm = new UserConditionalOutColorAlgorithmRootFindingMethod(user_outcoloring_conditions, user_outcoloring_condition_formula, user_outcoloring_special_color, convergent_bailout, max_iterations);
                 }
                 break;
 
@@ -156,7 +156,7 @@ public class SteffensenPoly extends RootFindingMethods {
                     in_color_algorithm = new UserInColorAlgorithm(incoloring_formula, max_iterations);
                 }
                 else {
-                    in_color_algorithm = new UserConditionalInColorAlgorithm(user_incoloring_conditions, user_incoloring_condition_formula, max_iterations);
+                    in_color_algorithm = new UserConditionalInColorAlgorithm(user_incoloring_conditions, user_incoloring_condition_formula, user_incoloring_special_color, max_iterations);
                 }
                 break;
 
@@ -180,7 +180,7 @@ public class SteffensenPoly extends RootFindingMethods {
         Complex temp = complex[0].plus(fz);  
         Complex ffz = temp.tenth().times_mutable(coefficients[0]).plus_mutable(temp.ninth().times_mutable(coefficients[1])).plus_mutable(temp.eighth().times_mutable(coefficients[2])).plus_mutable(temp.seventh().times_mutable(coefficients[3])).plus_mutable(temp.sixth().times_mutable(coefficients[4])).plus_mutable(temp.fifth().times_mutable(coefficients[5])).plus_mutable(temp.fourth().times_mutable(coefficients[6])).plus_mutable(temp.cube().times_mutable(coefficients[7])).plus_mutable(temp.square().times_mutable(coefficients[8])).plus_mutable(temp.times(coefficients[9])).plus_mutable(coefficients[10]);      
 
-        complex[0].sub_mutable((fz.square()).divide_mutable(ffz.sub_mutable(fz)));//steffensen
+        steffensenMethod(complex[0], fz , ffz);
 
     }
 

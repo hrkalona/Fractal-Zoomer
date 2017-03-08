@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2015 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2017 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,7 +38,7 @@ public class ShearPlane extends Plane {
     @Override
     public Complex getPixel(Complex pixel) {
 
-        return pixel.shear(plane_transform_scales[0], plane_transform_scales[1]);
+        return pixel.shear(new Complex(plane_transform_scales[0], plane_transform_scales[1]));
 
     }
 }

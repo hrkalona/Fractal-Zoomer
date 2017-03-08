@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2015 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2017 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,6 +29,7 @@ import fractalzoomer.functions.Julia;
 import fractalzoomer.in_coloring_algorithms.AtanReTimesImTimesAbsReTimesAbsIm;
 import fractalzoomer.in_coloring_algorithms.CosMag;
 import fractalzoomer.in_coloring_algorithms.DecompositionLike;
+
 import fractalzoomer.in_coloring_algorithms.MagTimesCosReSquared;
 import fractalzoomer.in_coloring_algorithms.MaximumIterations;
 import fractalzoomer.in_coloring_algorithms.ReDivideIm;
@@ -59,6 +60,7 @@ import fractalzoomer.out_coloring_algorithms.EscapeTimePlusIm;
 import fractalzoomer.out_coloring_algorithms.EscapeTimePlusRe;
 import fractalzoomer.out_coloring_algorithms.EscapeTimePlusReDivideIm;
 import fractalzoomer.out_coloring_algorithms.EscapeTimePlusRePlusImPlusReDivideIm;
+
 import fractalzoomer.out_coloring_algorithms.SmoothBinaryDecomposition;
 import fractalzoomer.out_coloring_algorithms.SmoothBinaryDecomposition2;
 import fractalzoomer.out_coloring_algorithms.SmoothBiomorphs;
@@ -82,7 +84,7 @@ public class UserFormulaEscaping extends Julia {
     private Parser parser2;
     private int iterations;
 
-    public UserFormulaEscaping(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_value, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, String user_formula, String user_formula2, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm) {
+    public UserFormulaEscaping(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, boolean[] user_outcoloring_special_color, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean[] user_incoloring_special_color, boolean smoothing, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_value, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, String user_formula, String user_formula2, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm) {
 
         super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
 
@@ -209,10 +211,10 @@ public class UserFormulaEscaping extends Julia {
                 break;
             case MainWindow.USER_OUTCOLORING_ALGORITHM:
                 if(user_out_coloring_algorithm == 0) {
-                    out_color_algorithm = new UserOutColorAlgorithm(outcoloring_formula, bailout);
+                    out_color_algorithm = new UserOutColorAlgorithm(outcoloring_formula, bailout, max_iterations);
                 }
                 else {
-                    out_color_algorithm = new UserConditionalOutColorAlgorithm(user_outcoloring_conditions, user_outcoloring_condition_formula, bailout);
+                    out_color_algorithm = new UserConditionalOutColorAlgorithm(user_outcoloring_conditions, user_outcoloring_condition_formula, user_outcoloring_special_color, bailout, max_iterations);
                 }
                 break;
 
@@ -255,7 +257,7 @@ public class UserFormulaEscaping extends Julia {
                     in_color_algorithm = new UserInColorAlgorithm(incoloring_formula, max_iterations);
                 }
                 else {
-                    in_color_algorithm = new UserConditionalInColorAlgorithm(user_incoloring_conditions, user_incoloring_condition_formula, max_iterations);
+                    in_color_algorithm = new UserConditionalInColorAlgorithm(user_incoloring_conditions, user_incoloring_condition_formula, user_incoloring_special_color, max_iterations);
                 }
                 break;
 
@@ -269,7 +271,7 @@ public class UserFormulaEscaping extends Julia {
 
     }
 
-    public UserFormulaEscaping(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, int plane_type, boolean apply_plane_on_julia, double[] rotation_vals, double[] rotation_center, String user_formula, String user_formula2, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, double xJuliaCenter, double yJuliaCenter) {
+    public UserFormulaEscaping(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, boolean[] user_outcoloring_special_color, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean[] user_incoloring_special_color, boolean smoothing, boolean periodicity_checking, int plane_type, boolean apply_plane_on_julia, double[] rotation_vals, double[] rotation_center, String user_formula, String user_formula2, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, double xJuliaCenter, double yJuliaCenter) {
 
         super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, periodicity_checking, plane_type, apply_plane_on_julia, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
 
@@ -362,10 +364,10 @@ public class UserFormulaEscaping extends Julia {
                 break;
             case MainWindow.USER_OUTCOLORING_ALGORITHM:
                 if(user_out_coloring_algorithm == 0) {
-                    out_color_algorithm = new UserOutColorAlgorithm(outcoloring_formula, bailout);
+                    out_color_algorithm = new UserOutColorAlgorithm(outcoloring_formula, bailout, max_iterations);
                 }
                 else {
-                    out_color_algorithm = new UserConditionalOutColorAlgorithm(user_outcoloring_conditions, user_outcoloring_condition_formula, bailout);
+                    out_color_algorithm = new UserConditionalOutColorAlgorithm(user_outcoloring_conditions, user_outcoloring_condition_formula, user_outcoloring_special_color, bailout, max_iterations);
                 }
                 break;
 
@@ -408,7 +410,7 @@ public class UserFormulaEscaping extends Julia {
                     in_color_algorithm = new UserInColorAlgorithm(incoloring_formula, max_iterations);
                 }
                 else {
-                    in_color_algorithm = new UserConditionalInColorAlgorithm(user_incoloring_conditions, user_incoloring_condition_formula, max_iterations);
+                    in_color_algorithm = new UserConditionalInColorAlgorithm(user_incoloring_conditions, user_incoloring_condition_formula, user_incoloring_special_color, max_iterations);
                 }
                 break;
 
@@ -538,52 +540,79 @@ public class UserFormulaEscaping extends Julia {
         complex[1] = new Complex(pixel);//c
 
         Complex zold = new Complex();
+        Complex zold2 = new Complex();
+        Complex start = new Complex(complex[0]);
 
         if(parser.foundS()) {
-            parser.setSvalue(new Complex(complex[0]));
+            parser.setSvalue(start);
         }
 
         if(parser2.foundS()) {
-            parser2.setSvalue(new Complex(complex[0]));
+            parser2.setSvalue(start);
+        }
+        
+        if(parser.foundMaxn()) {
+            parser.setMaxnvalue(new Complex(max_iterations, 0));
+        }
+        
+        if(parser2.foundMaxn()) {
+            parser2.setMaxnvalue(new Complex(max_iterations, 0));
         }
 
         if(parser.foundP()) {
-            parser.setPvalue(new Complex());
+            parser.setPvalue(zold);
         }
 
         if(parser2.foundP()) {
-            parser2.setPvalue(new Complex());
+            parser2.setPvalue(zold);
+        }
+
+        if(parser.foundPP()) {
+            parser.setPPvalue(zold2);
+        }
+
+        if(parser2.foundPP()) {
+            parser2.setPPvalue(zold2);
         }
 
         for(; iterations < max_iterations; iterations++) {
 
-            if(bailout_algorithm.escaped(complex[0], zold)) {
-                Object[] object = {iterations, complex[0], zold};
+            if(bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
+                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start};
                 return out_color_algorithm.getResult(object);
             }
+            zold2.assign(zold);
             zold.assign(complex[0]);
             function(complex);
 
             if(parser.foundP()) {
-                parser.setPvalue(new Complex(zold));
+                parser.setPvalue(zold);
             }
 
             if(parser2.foundP()) {
-                parser2.setPvalue(new Complex(zold));
+                parser2.setPvalue(zold);
+            }
+            
+            if(parser.foundPP()) {
+                parser.setPPvalue(zold2);
+            }
+
+            if(parser2.foundPP()) {
+                parser2.setPPvalue(zold2);
             }
 
         }
 
-        Object[] object = {complex[0], zold};
+        Object[] object = {complex[0], zold, zold2, complex[1], start};
         return in_color_algorithm.getResult(object);
 
     }
-    
+
     @Override
     public double calculateFractalWithPeriodicity(Complex pixel) {
 
         iterations = 0;
-        
+
         check = 3;
         check_counter = 0;
 
@@ -599,47 +628,74 @@ public class UserFormulaEscaping extends Julia {
         complex[1] = new Complex(pixel);//c
 
         Complex zold = new Complex();
+        Complex zold2 = new Complex();
+        Complex start = new Complex(complex[0]);
 
         if(parser.foundS()) {
-            parser.setSvalue(new Complex(complex[0]));
+            parser.setSvalue(start);
         }
 
         if(parser2.foundS()) {
-            parser2.setSvalue(new Complex(complex[0]));
+            parser2.setSvalue(start);
+        }
+        
+        if(parser.foundMaxn()) {
+            parser.setMaxnvalue(new Complex(max_iterations, 0));
+        }
+        
+        if(parser2.foundMaxn()) {
+            parser2.setMaxnvalue(new Complex(max_iterations, 0));
         }
 
         if(parser.foundP()) {
-            parser.setPvalue(new Complex());
+            parser.setPvalue(zold);
         }
 
         if(parser2.foundP()) {
-            parser2.setPvalue(new Complex());
+            parser2.setPvalue(zold);
+        }
+
+        if(parser.foundPP()) {
+            parser.setPPvalue(zold2);
+        }
+
+        if(parser2.foundPP()) {
+            parser2.setPPvalue(zold2);
         }
 
         for(; iterations < max_iterations; iterations++) {
 
-            if(bailout_algorithm.escaped(complex[0], zold)) {
-                Object[] object = {iterations, complex[0], zold};
+            if(bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
+                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start};
                 return out_color_algorithm.getResult(object);
             }
+            zold2.assign(zold);
             zold.assign(complex[0]);
             function(complex);
 
             if(parser.foundP()) {
-                parser.setPvalue(new Complex(zold));
+                parser.setPvalue(zold);
             }
 
             if(parser2.foundP()) {
-                parser2.setPvalue(new Complex(zold));
+                parser2.setPvalue(zold);
             }
             
+            if(parser.foundPP()) {
+                parser.setPPvalue(zold2);
+            }
+
+            if(parser2.foundPP()) {
+                parser2.setPPvalue(zold2);
+            }
+
             if(periodicityCheck(complex[0])) {
                 return max_iterations;
             }
 
         }
 
-        return max_iterations; 
+        return max_iterations;
 
     }
 
@@ -663,41 +719,68 @@ public class UserFormulaEscaping extends Julia {
         complex[1] = new Complex(pixel);//c
 
         Complex zold = new Complex();
+        Complex zold2 = new Complex();
+        Complex start = new Complex(complex[0]);
 
         if(parser.foundS()) {
-            parser.setSvalue(new Complex(complex[0]));
+            parser.setSvalue(start);
         }
 
         if(parser2.foundS()) {
-            parser2.setSvalue(new Complex(complex[0]));
+            parser2.setSvalue(start);
+        }
+        
+        if(parser.foundMaxn()) {
+            parser.setMaxnvalue(new Complex(max_iterations, 0));
+        }
+        
+        if(parser2.foundMaxn()) {
+            parser2.setMaxnvalue(new Complex(max_iterations, 0));
         }
 
         if(parser.foundP()) {
-            parser.setPvalue(new Complex());
+            parser.setPvalue(zold);
         }
 
         if(parser2.foundP()) {
-            parser2.setPvalue(new Complex());
+            parser2.setPvalue(zold);
+        }
+
+        if(parser.foundPP()) {
+            parser.setPPvalue(zold2);
+        }
+
+        if(parser2.foundPP()) {
+            parser2.setPPvalue(zold2);
         }
 
         double temp;
 
         for(; iterations < max_iterations; iterations++) {
-            if(bailout_algorithm.escaped(complex[0], zold)) {
-                Object[] object = {iterations, complex[0], zold};
+            if(bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
+                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start};
                 temp = out_color_algorithm.getResult(object);
-                double[] array = {Math.abs(temp) - 100800, temp};
+                double[] array = {out_color_algorithm.transformResultToHeight(temp), temp};
                 return array;
             }
+            zold2.assign(zold);
             zold.assign(complex[0]);
             function(complex);
 
             if(parser.foundP()) {
-                parser.setPvalue(new Complex(zold));
+                parser.setPvalue(zold);
             }
 
             if(parser2.foundP()) {
-                parser2.setPvalue(new Complex(zold));
+                parser2.setPvalue(zold);
+            }
+            
+            if(parser.foundPP()) {
+                parser.setPPvalue(zold2);
+            }
+
+            if(parser2.foundPP()) {
+                parser2.setPPvalue(zold2);
             }
 
             if(periodicityCheck(complex[0])) {
@@ -724,51 +807,77 @@ public class UserFormulaEscaping extends Julia {
         complex[1] = new Complex(pixel);//c
 
         Complex zold = new Complex();
+        Complex zold2 = new Complex();
+        Complex start = new Complex(complex[0]);
 
         if(parser.foundS()) {
-            parser.setSvalue(new Complex(complex[0]));
+            parser.setSvalue(start);
         }
 
         if(parser2.foundS()) {
-            parser2.setSvalue(new Complex(complex[0]));
+            parser2.setSvalue(start);
+        }
+        
+        if(parser.foundMaxn()) {
+            parser.setMaxnvalue(new Complex(max_iterations, 0));
+        }
+        
+        if(parser2.foundMaxn()) {
+            parser2.setMaxnvalue(new Complex(max_iterations, 0));
         }
 
         if(parser.foundP()) {
-            parser.setPvalue(new Complex());
+            parser.setPvalue(zold);
         }
 
         if(parser2.foundP()) {
-            parser2.setPvalue(new Complex());
+            parser2.setPvalue(zold);
+        }
+
+        if(parser.foundPP()) {
+            parser.setPPvalue(zold2);
+        }
+
+        if(parser2.foundPP()) {
+            parser2.setPPvalue(zold2);
         }
 
         double temp;
 
         for(; iterations < max_iterations; iterations++) {
 
-            if(bailout_algorithm.escaped(complex[0], zold)) {
-                Object[] object = {iterations, complex[0], zold};
+            if(bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
+                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start};
                 temp = out_color_algorithm.getResult(object);
-                double[] array = {Math.abs(temp) - 100800, temp};
+                double[] array = {out_color_algorithm.transformResultToHeight(temp), temp};
                 return array;
 
             }
+            zold2.assign(zold);
             zold.assign(complex[0]);
             function(complex);
 
             if(parser.foundP()) {
-                parser.setPvalue(new Complex(zold));
+                parser.setPvalue(zold);
             }
 
             if(parser2.foundP()) {
-                parser2.setPvalue(new Complex(zold));
+                parser2.setPvalue(zold);
+            }
+            
+            if(parser.foundPP()) {
+                parser.setPPvalue(zold2);
+            }
+
+            if(parser2.foundPP()) {
+                parser2.setPPvalue(zold2);
             }
 
         }
 
-        Object[] object = {complex[0], zold};
+        Object[] object = {complex[0], zold, zold2, complex[1], start};
         temp = in_color_algorithm.getResult(object);
-        double result = temp == max_iterations ? max_iterations : max_iterations + Math.abs(temp) - 100820;
-        double[] array = {result, temp};
+        double[] array = {in_color_algorithm.transformResultToHeight(temp, max_iterations), temp};
         return array;
 
     }
@@ -784,33 +893,60 @@ public class UserFormulaEscaping extends Julia {
         Complex temp = null;
 
         Complex zold = new Complex();
+        Complex zold2 = new Complex();
+        Complex start = new Complex(complex[0]);
 
         if(parser.foundS()) {
-            parser.setSvalue(new Complex(complex[0]));
+            parser.setSvalue(start);
         }
 
         if(parser2.foundS()) {
-            parser2.setSvalue(new Complex(complex[0]));
+            parser2.setSvalue(start);
+        }
+        
+        if(parser.foundMaxn()) {
+            parser.setMaxnvalue(new Complex(max_iterations, 0));
+        }
+        
+        if(parser2.foundMaxn()) {
+            parser2.setMaxnvalue(new Complex(max_iterations, 0));
         }
 
         if(parser.foundP()) {
-            parser.setPvalue(new Complex());
+            parser.setPvalue(zold);
         }
 
         if(parser2.foundP()) {
-            parser2.setPvalue(new Complex());
+            parser2.setPvalue(zold);
+        }
+
+        if(parser.foundPP()) {
+            parser.setPPvalue(zold2);
+        }
+
+        if(parser2.foundPP()) {
+            parser2.setPPvalue(zold2);
         }
 
         for(; iterations < max_iterations; iterations++) {
+            zold2.assign(zold);
             zold.assign(complex[0]);
             function(complex);
 
             if(parser.foundP()) {
-                parser.setPvalue(new Complex(zold));
+                parser.setPvalue(zold);
             }
 
             if(parser2.foundP()) {
-                parser2.setPvalue(new Complex(zold));
+                parser2.setPvalue(zold);
+            }
+            
+            if(parser.foundPP()) {
+                parser.setPPvalue(zold2);
+            }
+
+            if(parser2.foundPP()) {
+                parser2.setPPvalue(zold2);
             }
 
             temp = rotation.getPixel(complex[0], true);
@@ -841,37 +977,64 @@ public class UserFormulaEscaping extends Julia {
         complex[1] = new Complex(seed);//c
 
         Complex zold = new Complex();
+        Complex zold2 = new Complex();
+        Complex start = new Complex(complex[0]);
 
         if(parser.foundS()) {
-            parser.setSvalue(new Complex(complex[0]));
+            parser.setSvalue(start);
         }
 
         if(parser2.foundS()) {
-            parser2.setSvalue(new Complex(complex[0]));
+            parser2.setSvalue(start);
+        }
+        
+        if(parser.foundMaxn()) {
+            parser.setMaxnvalue(new Complex(max_iterations, 0));
+        }
+        
+        if(parser2.foundMaxn()) {
+            parser2.setMaxnvalue(new Complex(max_iterations, 0));
         }
 
         if(parser.foundP()) {
-            parser.setPvalue(new Complex());
+            parser.setPvalue(zold);
         }
 
         if(parser2.foundP()) {
-            parser2.setPvalue(new Complex());
+            parser2.setPvalue(zold);
+        }
+
+        if(parser.foundPP()) {
+            parser.setPPvalue(zold2);
+        }
+
+        if(parser2.foundPP()) {
+            parser2.setPPvalue(zold2);
         }
 
         for(; iterations < max_iterations; iterations++) {
-            if(bailout_algorithm.escaped(complex[0], zold)) {
-                Object[] object = {iterations, complex[0], zold};
+            if(bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
+                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start};
                 return out_color_algorithm.getResult(object);
             }
+            zold2.assign(zold);
             zold.assign(complex[0]);
             function(complex);
 
             if(parser.foundP()) {
-                parser.setPvalue(new Complex(zold));
+                parser.setPvalue(zold);
             }
 
             if(parser2.foundP()) {
-                parser2.setPvalue(new Complex(zold));
+                parser2.setPvalue(zold);
+            }
+            
+            if(parser.foundPP()) {
+                parser.setPPvalue(zold2);
+            }
+
+            if(parser2.foundPP()) {
+                parser2.setPPvalue(zold2);
             }
 
             if(periodicityCheck(complex[0])) {
@@ -891,42 +1054,69 @@ public class UserFormulaEscaping extends Julia {
         complex[1] = new Complex(seed);//c
 
         Complex zold = new Complex();
+        Complex zold2 = new Complex();
+        Complex start = new Complex(complex[0]);
 
         if(parser.foundS()) {
-            parser.setSvalue(new Complex(complex[0]));
+            parser.setSvalue(start);
         }
 
         if(parser2.foundS()) {
-            parser2.setSvalue(new Complex(complex[0]));
+            parser2.setSvalue(start);
+        }
+        
+        if(parser.foundMaxn()) {
+            parser.setMaxnvalue(new Complex(max_iterations, 0));
+        }
+        
+        if(parser2.foundMaxn()) {
+            parser2.setMaxnvalue(new Complex(max_iterations, 0));
         }
 
         if(parser.foundP()) {
-            parser.setPvalue(new Complex());
+            parser.setPvalue(zold);
         }
 
         if(parser2.foundP()) {
-            parser2.setPvalue(new Complex());
+            parser2.setPvalue(zold);
+        }
+
+        if(parser.foundPP()) {
+            parser.setPPvalue(zold2);
+        }
+
+        if(parser2.foundPP()) {
+            parser2.setPPvalue(zold2);
         }
 
         for(; iterations < max_iterations; iterations++) {
-            if(bailout_algorithm.escaped(complex[0], zold)) {
-                Object[] object = {iterations, complex[0], zold};
+            if(bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
+                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start};
                 return out_color_algorithm.getResult(object);
             }
+            zold2.assign(zold);
             zold.assign(complex[0]);
             function(complex);
 
             if(parser.foundP()) {
-                parser.setPvalue(new Complex(zold));
+                parser.setPvalue(zold);
             }
 
             if(parser2.foundP()) {
-                parser2.setPvalue(new Complex(zold));
+                parser2.setPvalue(zold);
+            }
+
+            if(parser.foundPP()) {
+                parser.setPPvalue(zold2);
+            }
+
+            if(parser2.foundPP()) {
+                parser2.setPPvalue(zold2);
             }
 
         }
 
-        Object[] object = {complex[0], zold};
+        Object[] object = {complex[0], zold, zold2, complex[1], start};
         return in_color_algorithm.getResult(object);
 
     }
@@ -948,41 +1138,68 @@ public class UserFormulaEscaping extends Julia {
         complex[1] = new Complex(seed);//c
 
         Complex zold = new Complex();
+        Complex zold2 = new Complex();
+        Complex start = new Complex(complex[0]);
 
         if(parser.foundS()) {
-            parser.setSvalue(new Complex(complex[0]));
+            parser.setSvalue(start);
         }
 
         if(parser2.foundS()) {
-            parser2.setSvalue(new Complex(complex[0]));
+            parser2.setSvalue(start);
+        }
+        
+        if(parser.foundMaxn()) {
+            parser.setMaxnvalue(new Complex(max_iterations, 0));
+        }
+        
+        if(parser2.foundMaxn()) {
+            parser2.setMaxnvalue(new Complex(max_iterations, 0));
         }
 
         if(parser.foundP()) {
-            parser.setPvalue(new Complex());
+            parser.setPvalue(zold);
         }
 
         if(parser2.foundP()) {
-            parser2.setPvalue(new Complex());
+            parser2.setPvalue(zold);
+        }
+
+        if(parser.foundPP()) {
+            parser.setPPvalue(zold2);
+        }
+
+        if(parser2.foundPP()) {
+            parser2.setPPvalue(zold2);
         }
 
         double temp;
 
         for(; iterations < max_iterations; iterations++) {
-            if(bailout_algorithm.escaped(complex[0], zold)) {
-                Object[] object = {iterations, complex[0], zold};
+            if(bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
+                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start};
                 temp = out_color_algorithm.getResult(object);
-                double[] array = {Math.abs(temp) - 100800, temp};
+                double[] array = {out_color_algorithm.transformResultToHeight(temp), temp};
                 return array;
             }
+            zold2.assign(zold);
             zold.assign(complex[0]);
             function(complex);
 
             if(parser.foundP()) {
-                parser.setPvalue(new Complex(zold));
+                parser.setPvalue(zold);
             }
 
             if(parser2.foundP()) {
-                parser2.setPvalue(new Complex(zold));
+                parser2.setPvalue(zold);
+            }
+
+            if(parser.foundPP()) {
+                parser.setPPvalue(zold2);
+            }
+
+            if(parser2.foundPP()) {
+                parser2.setPPvalue(zold2);
             }
 
             if(periodicityCheck(complex[0])) {
@@ -1005,49 +1222,75 @@ public class UserFormulaEscaping extends Julia {
         complex[1] = new Complex(seed);//c
 
         Complex zold = new Complex();
+        Complex zold2 = new Complex();
+        Complex start = new Complex(complex[0]);
 
         if(parser.foundS()) {
-            parser.setSvalue(new Complex(complex[0]));
+            parser.setSvalue(start);
         }
 
         if(parser2.foundS()) {
-            parser2.setSvalue(new Complex(complex[0]));
+            parser2.setSvalue(start);
+        }
+        
+        if(parser.foundMaxn()) {
+            parser.setMaxnvalue(new Complex(max_iterations, 0));
+        }
+        
+        if(parser2.foundMaxn()) {
+            parser2.setMaxnvalue(new Complex(max_iterations, 0));
         }
 
         if(parser.foundP()) {
-            parser.setPvalue(new Complex());
+            parser.setPvalue(zold);
         }
 
         if(parser2.foundP()) {
-            parser2.setPvalue(new Complex());
+            parser2.setPvalue(zold);
+        }
+
+        if(parser.foundPP()) {
+            parser.setPPvalue(zold2);
+        }
+
+        if(parser2.foundPP()) {
+            parser2.setPPvalue(zold2);
         }
 
         double temp;
 
         for(; iterations < max_iterations; iterations++) {
-            if(bailout_algorithm.escaped(complex[0], zold)) {
-                Object[] object = {iterations, complex[0], zold};
+            if(bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
+                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start};
                 temp = out_color_algorithm.getResult(object);
-                double[] array = {Math.abs(temp) - 100800, temp};
+                double[] array = {out_color_algorithm.transformResultToHeight(temp), temp};
                 return array;
             }
+            zold2.assign(zold);
             zold.assign(complex[0]);
             function(complex);
 
             if(parser.foundP()) {
-                parser.setPvalue(new Complex(zold));
+                parser.setPvalue(zold);
             }
 
             if(parser2.foundP()) {
-                parser2.setPvalue(new Complex(zold));
+                parser2.setPvalue(zold);
+            }
+
+            if(parser.foundPP()) {
+                parser.setPPvalue(zold2);
+            }
+
+            if(parser2.foundPP()) {
+                parser2.setPPvalue(zold2);
             }
 
         }
 
-        Object[] object = {complex[0], zold};
+        Object[] object = {complex[0], zold, zold2, complex[1], start};
         temp = in_color_algorithm.getResult(object);
-        double result = temp == max_iterations ? max_iterations : max_iterations + Math.abs(temp) - 100820;
-        double[] array = {result, temp};
+        double[] array = {in_color_algorithm.transformResultToHeight(temp, max_iterations), temp};
         return array;
 
     }
@@ -1063,33 +1306,60 @@ public class UserFormulaEscaping extends Julia {
         Complex temp = null;
 
         Complex zold = new Complex();
+        Complex zold2 = new Complex();
+        Complex start = new Complex(complex[0]);
 
         if(parser.foundS()) {
-            parser.setSvalue(new Complex(complex[0]));
+            parser.setSvalue(start);
         }
 
         if(parser2.foundS()) {
-            parser2.setSvalue(new Complex(complex[0]));
+            parser2.setSvalue(start);
+        }
+        
+        if(parser.foundMaxn()) {
+            parser.setMaxnvalue(new Complex(max_iterations, 0));
+        }
+        
+        if(parser2.foundMaxn()) {
+            parser2.setMaxnvalue(new Complex(max_iterations, 0));
         }
 
         if(parser.foundP()) {
-            parser.setPvalue(new Complex());
+            parser.setPvalue(zold);
         }
 
         if(parser2.foundP()) {
-            parser2.setPvalue(new Complex());
+            parser2.setPvalue(zold);
+        }
+
+        if(parser.foundPP()) {
+            parser.setPPvalue(zold2);
+        }
+
+        if(parser2.foundPP()) {
+            parser2.setPPvalue(zold2);
         }
 
         for(; iterations < max_iterations; iterations++) {
+            zold2.assign(zold);
             zold.assign(complex[0]);
             function(complex);
 
             if(parser.foundP()) {
-                parser.setPvalue(new Complex(zold));
+                parser.setPvalue(zold);
             }
 
             if(parser2.foundP()) {
-                parser2.setPvalue(new Complex(zold));
+                parser2.setPvalue(zold);
+            }
+
+            if(parser.foundPP()) {
+                parser.setPPvalue(zold2);
+            }
+
+            if(parser2.foundPP()) {
+                parser2.setPPvalue(zold2);
             }
 
             temp = rotation.getPixel(complex[0], true);
@@ -1102,7 +1372,7 @@ public class UserFormulaEscaping extends Julia {
         }
 
     }
-    
+
     @Override
     public Complex iterateFractalDomain(Complex pixel) {
 
@@ -1115,34 +1385,61 @@ public class UserFormulaEscaping extends Julia {
         complex[1] = new Complex(pixel);//c
 
         Complex zold = new Complex();
+        Complex zold2 = new Complex();
+        Complex start = new Complex(complex[0]);
 
         if(parser.foundS()) {
-            parser.setSvalue(new Complex(complex[0]));
+            parser.setSvalue(start);
         }
 
         if(parser2.foundS()) {
-            parser2.setSvalue(new Complex(complex[0]));
+            parser2.setSvalue(start);
+        }
+        
+        if(parser.foundMaxn()) {
+            parser.setMaxnvalue(new Complex(max_iterations, 0));
+        }
+        
+        if(parser2.foundMaxn()) {
+            parser2.setMaxnvalue(new Complex(max_iterations, 0));
         }
 
         if(parser.foundP()) {
-            parser.setPvalue(new Complex());
+            parser.setPvalue(zold);
         }
 
         if(parser2.foundP()) {
-            parser2.setPvalue(new Complex());
+            parser2.setPvalue(zold);
+        }
+
+        if(parser.foundPP()) {
+            parser.setPPvalue(zold2);
+        }
+
+        if(parser2.foundPP()) {
+            parser2.setPPvalue(zold2);
         }
 
         for(; iterations < max_iterations; iterations++) {
 
+            zold2.assign(zold);
             zold.assign(complex[0]);
             function(complex);
 
             if(parser.foundP()) {
-                parser.setPvalue(new Complex(zold));
+                parser.setPvalue(zold);
             }
 
             if(parser2.foundP()) {
-                parser2.setPvalue(new Complex(zold));
+                parser2.setPvalue(zold);
+            }
+
+            if(parser.foundPP()) {
+                parser.setPPvalue(zold2);
+            }
+
+            if(parser2.foundPP()) {
+                parser2.setPPvalue(zold2);
             }
 
         }
@@ -1150,7 +1447,7 @@ public class UserFormulaEscaping extends Julia {
         return complex[0];
 
     }
-    
+
     @Override
     public Complex iterateJuliaDomain(Complex pixel) {
         iterations = 0;
@@ -1160,34 +1457,61 @@ public class UserFormulaEscaping extends Julia {
         complex[1] = new Complex(seed);//c
 
         Complex zold = new Complex();
+        Complex zold2 = new Complex();
+        Complex start = new Complex(complex[0]);
 
         if(parser.foundS()) {
-            parser.setSvalue(new Complex(complex[0]));
+            parser.setSvalue(start);
         }
 
         if(parser2.foundS()) {
-            parser2.setSvalue(new Complex(complex[0]));
+            parser2.setSvalue(start);
+        }
+        
+        if(parser.foundMaxn()) {
+            parser.setMaxnvalue(new Complex(max_iterations, 0));
+        }
+        
+        if(parser2.foundMaxn()) {
+            parser2.setMaxnvalue(new Complex(max_iterations, 0));
         }
 
         if(parser.foundP()) {
-            parser.setPvalue(new Complex());
+            parser.setPvalue(zold);
         }
 
         if(parser2.foundP()) {
-            parser2.setPvalue(new Complex());
+            parser2.setPvalue(zold);
+        }
+
+        if(parser.foundPP()) {
+            parser.setPPvalue(zold2);
+        }
+
+        if(parser2.foundPP()) {
+            parser2.setPPvalue(zold2);
         }
 
         for(; iterations < max_iterations; iterations++) {
-   
+
+            zold2.assign(zold);
             zold.assign(complex[0]);
             function(complex);
 
             if(parser.foundP()) {
-                parser.setPvalue(new Complex(zold));
+                parser.setPvalue(zold);
             }
 
             if(parser2.foundP()) {
-                parser2.setPvalue(new Complex(zold));
+                parser2.setPvalue(zold);
+            }
+
+            if(parser.foundPP()) {
+                parser.setPPvalue(zold2);
+            }
+
+            if(parser2.foundPP()) {
+                parser2.setPPvalue(zold2);
             }
 
         }

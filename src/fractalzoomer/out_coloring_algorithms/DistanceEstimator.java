@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2015 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2017 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,15 +35,8 @@ public class DistanceEstimator  extends OutColorAlgorithm {
          double temp2 = (((Complex)object[1]).norm_squared());
          double temp = -4.*(Math.log(Math.log(temp2)*Math.sqrt(temp2 /(((Complex)object[2]).norm_squared())))-(Integer)object[0]*.693);
          
-         return temp < 0 ? 100800 : temp + 100800;
+         return temp < 0 ? MAGIC_OFFSET_NUMBER : temp + MAGIC_OFFSET_NUMBER;
 
-    }
-    
-    @Override
-    public double getResult3D(Object[] object) {
-        
-        return  getResult(object);
-        
     }
     
 }

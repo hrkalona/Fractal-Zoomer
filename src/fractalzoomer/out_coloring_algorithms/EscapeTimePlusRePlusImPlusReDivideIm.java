@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2015 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2017 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,15 +38,8 @@ public class EscapeTimePlusRePlusImPlusReDivideIm extends OutColorAlgorithm {
         double temp = ((Complex)object[1]).getRe();
         double temp2 = ((Complex)object[1]).getIm();
         
-        return Math.abs(((Integer)object[0]) + temp + temp2 + temp / temp2) + 100800;
+        return Math.abs(((Integer)object[0]) + temp + temp2 + temp / temp2) + MAGIC_OFFSET_NUMBER;
 
-    }
-    
-    @Override
-    public double getResult3D(Object[] object) {
-        
-        return  getResult(object);
-        
     }
 
 }

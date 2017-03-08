@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2015 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2017 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 package fractalzoomer.functions;
 
 import fractalzoomer.core.Complex;
+
 import java.util.ArrayList;
 
 /**
@@ -107,12 +108,15 @@ public abstract class Julia extends Fractal {
         complex[1] = new Complex(seed);//c
 
         Complex zold = new Complex();
+        Complex zold2 = new Complex();
+        Complex start = new Complex(complex[0]);
 
         for(; iterations < max_iterations; iterations++) {
-            if(bailout_algorithm.escaped(complex[0], zold)) {
-                Object[] object = {iterations, complex[0], zold};
+            if(bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
+                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start};
                 return out_color_algorithm.getResult(object);
             }
+            zold2.assign(zold);
             zold.assign(complex[0]);
             function(complex);
 
@@ -132,18 +136,21 @@ public abstract class Julia extends Fractal {
         complex[1] = new Complex(seed);//c
 
         Complex zold = new Complex();
+        Complex zold2 = new Complex();
+        Complex start = new Complex(complex[0]);
 
         for(; iterations < max_iterations; iterations++) {
-            if(bailout_algorithm.escaped(complex[0], zold)) {
-                Object[] object = {iterations, complex[0], zold};
+            if(bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
+                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start};
                 return out_color_algorithm.getResult(object);
             }
+            zold2.assign(zold);
             zold.assign(complex[0]);
             function(complex);
 
         }
 
-        Object[] object = {complex[0], zold};
+        Object[] object = {complex[0], zold, zold2, complex[1], start};
         return in_color_algorithm.getResult(object);
 
     }
@@ -164,16 +171,19 @@ public abstract class Julia extends Fractal {
         complex[1] = new Complex(seed);//c
 
         Complex zold = new Complex();
+        Complex zold2 = new Complex();
+        Complex start = new Complex(complex[0]);
 
         double temp;
 
         for(; iterations < max_iterations; iterations++) {
-            if(bailout_algorithm.escaped(complex[0], zold)) {
-                Object[] object = {iterations, complex[0], zold};
+            if(bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
+                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start};
                 temp = out_color_algorithm.getResult(object);
-                double[] array = {Math.abs(temp) - 100800, temp};
+                double[] array = {out_color_algorithm.transformResultToHeight(temp), temp};
                 return array;
             }
+            zold2.assign(zold);
             zold.assign(complex[0]);
             function(complex);
 
@@ -196,25 +206,27 @@ public abstract class Julia extends Fractal {
         complex[1] = new Complex(seed);//c
 
         Complex zold = new Complex();
+        Complex zold2 = new Complex();
+        Complex start = new Complex(complex[0]);
 
         double temp;
 
         for(; iterations < max_iterations; iterations++) {
-            if(bailout_algorithm.escaped(complex[0], zold)) {
-                Object[] object = {iterations, complex[0], zold};
+            if(bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
+                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start};
                 temp = out_color_algorithm.getResult(object);
-                double[] array = {Math.abs(temp) - 100800, temp};
+                double[] array = {out_color_algorithm.transformResultToHeight(temp), temp};
                 return array;
             }
+            zold2.assign(zold);
             zold.assign(complex[0]);
             function(complex);
 
         }
 
-        Object[] object = {complex[0], zold};
+        Object[] object = {complex[0], zold, zold2, complex[1], start};
         temp = in_color_algorithm.getResult(object);
-        double result = temp == max_iterations ? max_iterations : max_iterations + Math.abs(temp) - 100820;
-        double[] array = {result, temp};
+        double[] array = {in_color_algorithm.transformResultToHeight(temp, max_iterations), temp};
         return array;
 
     }

@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2015 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2017 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,15 +36,8 @@ public class EscapeTimeGaussianInteger2 extends OutColorAlgorithm {
         
         Complex temp = ((Complex)object[1]).sub(((Complex)object[1]).gaussian_integer());
         
-        return (Integer)object[0] +  Math.abs(Math.atan(temp.getIm() / temp.getRe())) * 5 + 100800;
+        return (Integer)object[0] +  Math.abs(Math.atan(temp.getIm() / temp.getRe())) * 5 + MAGIC_OFFSET_NUMBER;
  
-    }
-    
-    @Override
-    public double getResult3D(Object[] object) {
-        
-        return  getResult(object);
-        
     }
     
 }

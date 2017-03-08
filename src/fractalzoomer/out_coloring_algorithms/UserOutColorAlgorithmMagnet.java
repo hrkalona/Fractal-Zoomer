@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2015 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2017 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,9 +25,9 @@ import fractalzoomer.core.Complex;
  */
 public class UserOutColorAlgorithmMagnet extends  UserOutColorAlgorithm {
 
-    public UserOutColorAlgorithmMagnet(String outcoloring_formula, double bailout) {
+    public UserOutColorAlgorithmMagnet(String outcoloring_formula, double bailout, int max_iterations) {
 
-        super(outcoloring_formula, bailout);
+        super(outcoloring_formula, bailout, max_iterations);
 
     }
 
@@ -42,24 +42,25 @@ public class UserOutColorAlgorithmMagnet extends  UserOutColorAlgorithm {
             parser.setZvalue(((Complex)object[1]));
         }
         
+        if(parser.foundC()) {
+            parser.setCvalue(((Complex)object[6]));
+        }
+        
+        if(parser.foundS()) {
+            parser.setSvalue(((Complex)object[7]));
+        }
+        
         if(parser.foundP()) {
             parser.setPvalue(((Complex)object[4]));
         }
         
-        if(parser.foundBail()) {
-            parser.setBailvalue(c_bailout);
+        if(parser.foundPP()) {
+            parser.setPPvalue(((Complex)object[5]));
         }
 
         double temp = expr.getValue().getAbsRe();
         
-        return (Boolean)object[2] ? temp + 100906  : temp + 100800;
-        
-    }
-
-    @Override
-    public double getResult3D(Object[] object) {
-        
-        return getResult(object);
+        return (Boolean)object[2] ? temp + MAGIC_OFFSET_NUMBER + 106  : temp + MAGIC_OFFSET_NUMBER;
         
     }
 

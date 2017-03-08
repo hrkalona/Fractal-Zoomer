@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2015 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2017 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,15 +42,8 @@ public class EscapeTimeGrid extends OutColorAlgorithm {
         double zarg = (((Complex)object[1]).arg() / (pi2) + 1.0f) % 1.0;
         boolean grid = 0.05 < zabs && zabs < 0.95 && 0.05 < zarg && zarg < 0.95;
         
-        return grid ? (Integer)object[0] + 100800 : -((Integer)object[0] + 100850);
+        return grid ? (Integer)object[0] + MAGIC_OFFSET_NUMBER : -((Integer)object[0] + MAGIC_OFFSET_NUMBER + 50);
 
-    }
-    
-    @Override
-    public double getResult3D(Object[] object) {
-        
-        return  getResult(object);
-        
     }
     
 }

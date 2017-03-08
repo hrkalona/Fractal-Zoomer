@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2015 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2017 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +27,8 @@ import fractalzoomer.core.Complex;
  */
 public class AdditionExpressionNode extends SequenceExpressionNode
 {
+    public static final int ADD = 0;
+    public static final int SUB = 1;
 
   /**
    * Default constructor.
@@ -39,12 +41,12 @@ public class AdditionExpressionNode extends SequenceExpressionNode
    * 
    * @param node
    *          the term to be added
-   * @param positive
+   * @param mode
    *          a flag indicating whether the term is added or subtracted
    */
-  public AdditionExpressionNode(ExpressionNode node, boolean positive)
+  public AdditionExpressionNode(ExpressionNode node, int mode)
   {
-    super(node, positive);
+    super(node, mode);
   }
 
   /**
@@ -65,7 +67,7 @@ public class AdditionExpressionNode extends SequenceExpressionNode
     Complex sum = new Complex();
     for (Term t : terms)
     {
-      if (t.positive)
+      if (t.mode == ADD)
         sum.plus_mutable(t.expression.getValue());
       else
         sum.sub_mutable(t.expression.getValue());

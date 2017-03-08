@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2015 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2017 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,7 @@
  */
 package fractalzoomer.palettes;
 
+import fractalzoomer.out_coloring_algorithms.OutColorAlgorithm;
 import java.awt.Color;
 
 public abstract class PaletteColor {
@@ -28,14 +29,14 @@ public abstract class PaletteColor {
     public PaletteColor(int[] palette, double color_intensity, Color special_color) {
 
         this.palette = palette;
-        mod_offset = (100800 % palette.length) == 0 ? 0 : palette.length - (100800 % palette.length);
+        mod_offset = (OutColorAlgorithm.MAGIC_OFFSET_NUMBER % palette.length) == 0 ? 0 : palette.length - (OutColorAlgorithm.MAGIC_OFFSET_NUMBER % palette.length);
         this.color_intensity = color_intensity;
 
         if(special_color == null) {
             this.special_color = null;
         }
         else {
-            this.special_color = new int[2];
+            this.special_color = new int[2]; //create two almost the same colors just for boundaries
 
             this.special_color[0] = special_color.getRGB();
 

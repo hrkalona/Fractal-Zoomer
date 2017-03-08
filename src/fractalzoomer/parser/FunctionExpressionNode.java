@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2015 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2017 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,12 @@
 package fractalzoomer.parser;
 
 import fractalzoomer.core.Complex;
+import java.io.File;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 
 /**
  * An ExpressionNode that handles mathematical functions.
@@ -191,69 +197,163 @@ public class FunctionExpressionNode implements ExpressionNode {
     public static final int FACT = 37;
 
     /**
-     * function id for the bipolar function
-     */
-    public static final int TO_BIPOLAR = 38;
-
-    /**
-     * function id for the inversed bipolar function
-     */
-    public static final int FROM_BIPOLAR = 39;
-
-    /**
      * function id for the absolute value real function
      */
-    public static final int ABSRE = 40;
+    public static final int ABSRE = 38;
 
     /**
      * function id for the absolute value imaginary function
      */
-    public static final int ABSIM = 41;
+    public static final int ABSIM = 39;
 
     /**
      * function id for the gaussian integer function
      */
-    public static final int GI = 42;
+    public static final int GI = 40;
 
     /**
      * function id for the reciprocal function
      */
-    public static final int REC = 43;
+    public static final int REC = 41;
 
     /**
      * function id for the flip function
      */
-    public static final int FLIP = 44;
+    public static final int FLIP = 42;
 
     /**
      * function id for the round function
      */
-    public static final int ROUND = 45;
+    public static final int ROUND = 43;
 
     /**
      * function id for the ceil function
      */
-    public static final int CEIL = 46;
+    public static final int CEIL = 44;
 
     /**
      * function id for the floor function
      */
-    public static final int FLOOR = 47;
+    public static final int FLOOR = 45;
 
     /**
      * function id for the truncate function
      */
-    public static final int TRUNC = 48;
-    
+    public static final int TRUNC = 46;
+
     /**
      * function id for the error function
      */
-    public static final int ERF = 49;
-    
+    public static final int ERF = 47;
+
     /**
      * function id for the riemann zeta function
      */
-    public static final int R_ZETA = 50;
+    public static final int R_ZETA = 48;
+
+    /**
+     * function id for the user f1 function
+     */
+    public static final int F1 = 49;
+
+    /**
+     * function id for the user f2 function
+     */
+    public static final int F2 = 50;
+
+    /**
+     * function id for the user f3 function
+     */
+    public static final int F3 = 51;
+
+    /**
+     * function id for the user f4 function
+     */
+    public static final int F4 = 52;
+
+    /**
+     * function id for the user f5 function
+     */
+    public static final int F5 = 53;
+
+    /**
+     * function id for the user f6 function
+     */
+    public static final int F6 = 54;
+
+    /**
+     * function id for the user f7 function
+     */
+    public static final int F7 = 55;
+
+    /**
+     * function id for the user f8 function
+     */
+    public static final int F8 = 56;
+
+    /**
+     * function id for the user f9 function
+     */
+    public static final int F9 = 57;
+
+    /**
+     * function id for the user f10 function
+     */
+    public static final int F10 = 58;
+    
+    /**
+     * function id for the user f11 function
+     */
+    public static final int F11 = 59;
+
+    /**
+     * function id for the user f12 function
+     */
+    public static final int F12 = 60;
+
+    /**
+     * function id for the user f13 function
+     */
+    public static final int F13 = 61;
+
+    /**
+     * function id for the user f14 function
+     */
+    public static final int F14 = 62;
+
+    /**
+     * function id for the user f15 function
+     */
+    public static final int F15 = 63;
+
+    /**
+     * function id for the user f16 function
+     */
+    public static final int F16 = 64;
+
+    /**
+     * function id for the user f17 function
+     */
+    public static final int F17 = 65;
+
+    /**
+     * function id for the user f18 function
+     */
+    public static final int F18 = 66;
+
+    /**
+     * function id for the user f19 function
+     */
+    public static final int F19 = 67;
+
+    /**
+     * function id for the user f20 function
+     */
+    public static final int F20 = 68;
+
+    private final static String[] USER_FUNCS = {"f1", "f2", "f3", "f4", "f5", "f6", "f7", "f8", "f9", "f10", "f11", "f12", "f13", "f14", "f15", "f16", "f17", "f18", "f19", "f20"};
+
+    private Method method;
 
     /**
      * the id of the function to apply to the argument
@@ -275,6 +375,11 @@ public class FunctionExpressionNode implements ExpressionNode {
         super();
         this.function = function;
         this.argument = argument;
+
+        if (function >= F1 && function <= (F1 + USER_FUNCS.length)) {
+            getUserFunction();
+        }
+
     }
 
     /**
@@ -293,180 +398,178 @@ public class FunctionExpressionNode implements ExpressionNode {
      * @return the id of the function
      */
     public static int stringToFunction(String str) {
-        if(str.equals("sin")) {
+        if (str.equals("sin")) {
             return FunctionExpressionNode.SIN;
         }
-        if(str.equals("sinh")) {
+        if (str.equals("sinh")) {
             return FunctionExpressionNode.SINH;
         }
-        if(str.equals("asin")) {
+        if (str.equals("asin")) {
             return FunctionExpressionNode.ASIN;
         }
-        if(str.equals("asinh")) {
+        if (str.equals("asinh")) {
             return FunctionExpressionNode.ASINH;
         }
 
-        if(str.equals("cos")) {
+        if (str.equals("cos")) {
             return FunctionExpressionNode.COS;
         }
-        if(str.equals("cosh")) {
+        if (str.equals("cosh")) {
             return FunctionExpressionNode.COSH;
         }
-        if(str.equals("acos")) {
+        if (str.equals("acos")) {
             return FunctionExpressionNode.ACOS;
         }
-        if(str.equals("acosh")) {
+        if (str.equals("acosh")) {
             return FunctionExpressionNode.ACOSH;
         }
 
-        if(str.equals("tan")) {
+        if (str.equals("tan")) {
             return FunctionExpressionNode.TAN;
         }
-        if(str.equals("tanh")) {
+        if (str.equals("tanh")) {
             return FunctionExpressionNode.TANH;
         }
-        if(str.equals("atan")) {
+        if (str.equals("atan")) {
             return FunctionExpressionNode.ATAN;
         }
-        if(str.equals("atanh")) {
+        if (str.equals("atanh")) {
             return FunctionExpressionNode.ATANH;
         }
 
-        if(str.equals("cot")) {
+        if (str.equals("cot")) {
             return FunctionExpressionNode.COT;
         }
-        if(str.equals("coth")) {
+        if (str.equals("coth")) {
             return FunctionExpressionNode.COTH;
         }
-        if(str.equals("acot")) {
+        if (str.equals("acot")) {
             return FunctionExpressionNode.ACOT;
         }
-        if(str.equals("acoth")) {
+        if (str.equals("acoth")) {
             return FunctionExpressionNode.ACOTH;
         }
 
-        if(str.equals("sec")) {
+        if (str.equals("sec")) {
             return FunctionExpressionNode.SEC;
         }
-        if(str.equals("sech")) {
+        if (str.equals("sech")) {
             return FunctionExpressionNode.SECH;
         }
-        if(str.equals("asec")) {
+        if (str.equals("asec")) {
             return FunctionExpressionNode.ASEC;
         }
-        if(str.equals("asech")) {
+        if (str.equals("asech")) {
             return FunctionExpressionNode.ASECH;
         }
 
-        if(str.equals("csc")) {
+        if (str.equals("csc")) {
             return FunctionExpressionNode.CSC;
         }
-        if(str.equals("csch")) {
+        if (str.equals("csch")) {
             return FunctionExpressionNode.CSCH;
         }
-        if(str.equals("acsc")) {
+        if (str.equals("acsc")) {
             return FunctionExpressionNode.ACSC;
         }
-        if(str.equals("acsch")) {
+        if (str.equals("acsch")) {
             return FunctionExpressionNode.ACSCH;
         }
 
-        if(str.equals("sqrt")) {
+        if (str.equals("sqrt")) {
             return FunctionExpressionNode.SQRT;
         }
-        if(str.equals("exp")) {
+        if (str.equals("exp")) {
             return FunctionExpressionNode.EXP;
         }
-        if(str.equals("log")) {
+        if (str.equals("log")) {
             return FunctionExpressionNode.LN;
         }
-        if(str.equals("abs")) {
+        if (str.equals("abs")) {
             return FunctionExpressionNode.ABS;
         }
-        if(str.equals("log10")) {
+        if (str.equals("log10")) {
             return FunctionExpressionNode.LOG;
         }
-        if(str.equals("log2")) {
+        if (str.equals("log2")) {
             return FunctionExpressionNode.LOG2;
         }
 
-        if(str.equals("conj")) {
+        if (str.equals("conj")) {
             return FunctionExpressionNode.CONJ;
         }
 
-        if(str.equals("re")) {
+        if (str.equals("re")) {
             return FunctionExpressionNode.RE;
         }
-        if(str.equals("im")) {
+        if (str.equals("im")) {
             return FunctionExpressionNode.IM;
         }
 
-        if(str.equals("norm")) {
+        if (str.equals("norm")) {
             return FunctionExpressionNode.NORM;
         }
 
-        if(str.equals("arg")) {
+        if (str.equals("arg")) {
             return FunctionExpressionNode.ARG;
         }
 
-        if(str.equals("gamma")) {
+        if (str.equals("gamma")) {
             return FunctionExpressionNode.GAMMA;
         }
 
-        if(str.equals("fact")) {
+        if (str.equals("fact")) {
             return FunctionExpressionNode.FACT;
         }
 
-        if(str.equals("bipol")) {
-            return FunctionExpressionNode.TO_BIPOLAR;
-        }
-
-        if(str.equals("ibipol")) {
-            return FunctionExpressionNode.FROM_BIPOLAR;
-        }
-
-        if(str.equals("absre")) {
+        if (str.equals("absre")) {
             return FunctionExpressionNode.ABSRE;
         }
 
-        if(str.equals("absim")) {
+        if (str.equals("absim")) {
             return FunctionExpressionNode.ABSIM;
         }
 
-        if(str.equals("gi")) {
+        if (str.equals("gi")) {
             return FunctionExpressionNode.GI;
         }
 
-        if(str.equals("rec")) {
+        if (str.equals("rec")) {
             return FunctionExpressionNode.REC;
         }
 
-        if(str.equals("flip")) {
+        if (str.equals("flip")) {
             return FunctionExpressionNode.FLIP;
         }
 
-        if(str.equals("round")) {
+        if (str.equals("round")) {
             return FunctionExpressionNode.ROUND;
         }
 
-        if(str.equals("ceil")) {
+        if (str.equals("ceil")) {
             return FunctionExpressionNode.CEIL;
         }
 
-        if(str.equals("floor")) {
+        if (str.equals("floor")) {
             return FunctionExpressionNode.FLOOR;
         }
 
-        if(str.equals("trunc")) {
+        if (str.equals("trunc")) {
             return FunctionExpressionNode.TRUNC;
         }
-        
-        if(str.equals("erf")) {
+
+        if (str.equals("erf")) {
             return FunctionExpressionNode.ERF;
         }
-        
-        if(str.equals("rzeta")) {
+
+        if (str.equals("rzeta")) {
             return FunctionExpressionNode.R_ZETA;
+        }
+
+        for (int i = 0; i < USER_FUNCS.length; i++) {
+            if (str.equals(USER_FUNCS[i])) {
+                return FunctionExpressionNode.F1 + i;
+            }
         }
 
         throw new ParserException("Unexpected Function " + str + " found.");
@@ -481,7 +584,12 @@ public class FunctionExpressionNode implements ExpressionNode {
      * @return a string containing all the function names
      */
     public static String getAllFunctions() {
-        return "sin|sinh|asin|asinh|cos|cosh|acos|acosh|tan|tanh|atan|atanh|cot|coth|acot|acoth|sec|sech|asec|asech|csc|csch|acsc|acsch|sqrt|exp|log|log10|log2|abs|conj|re|im|norm|arg|gamma|fact|bipol|ibipol|absre|absim|gi|rec|flip|round|ceil|floor|trunc|erf|rzeta";
+        String temp_str = "";
+        for (int i = 0; i < USER_FUNCS.length; i++) {
+            temp_str += "|" + USER_FUNCS[i];
+        }
+
+        return "sin|sinh|asin|asinh|cos|cosh|acos|acosh|tan|tanh|atan|atanh|cot|coth|acot|acoth|sec|sech|asec|asech|csc|csch|acsc|acsch|sqrt|exp|log|log10|log2|abs|conj|re|im|norm|arg|gamma|fact|absre|absim|gi|rec|flip|round|ceil|floor|trunc|erf|rzeta" + temp_str;
     }
 
     /**
@@ -580,12 +688,6 @@ public class FunctionExpressionNode implements ExpressionNode {
             case FACT:
                 return argument.getValue().factorial();
 
-            case TO_BIPOLAR:
-                return argument.getValue().toBiPolar(2);
-
-            case FROM_BIPOLAR:
-                return argument.getValue().fromBiPolar(2);
-
             case ABSRE:
                 return argument.getValue().absre();
 
@@ -612,12 +714,38 @@ public class FunctionExpressionNode implements ExpressionNode {
 
             case TRUNC:
                 return argument.getValue().trunc();
-                
+
             case ERF:
                 return argument.getValue().erf();
-                
+
             case R_ZETA:
                 return argument.getValue().riemann_zeta();
+
+            case F1:
+            case F2:
+            case F3:
+            case F4:
+            case F5:
+            case F6:
+            case F7:
+            case F8:
+            case F9:
+            case F10:
+            case F11:
+            case F12:
+            case F13:
+            case F14:
+            case F15:
+            case F16:
+            case F17:
+            case F18:
+            case F19:
+            case F20:
+                try {
+                    return (Complex) method.invoke(null, argument.getValue());
+                } catch (Exception ex) {
+                    return new Complex();
+                }
 
         }
 
@@ -635,6 +763,36 @@ public class FunctionExpressionNode implements ExpressionNode {
     public void accept(ExpressionNodeVisitor visitor) {
         visitor.visit(this);
         argument.accept(visitor);
+    }
+
+    private void getUserFunction() {
+
+        try {
+            int i = function - F1;
+            File file = new File("");
+            URL url = file.toURI().toURL();
+            URLClassLoader loader = new URLClassLoader(new URL[]{url});
+            Class<?> userClass = loader.loadClass("UserDefinedFunctions");
+            method = userClass.getMethod("f" + (i + 1), Complex.class);
+
+            if (!Modifier.isStatic(method.getModifiers())) {
+                throw new ParserException("Method modifier error: Method " + method.getName() + " must be declared static.");
+            }
+
+            if (!method.getReturnType().equals(Complex.class)) {
+                throw new ParserException("Return type error: Method " + method.getName() + " must have a Complex return type.");
+            }
+        } catch (NoSuchMethodException ex) {
+            throw new ParserException("Method not found error: " + ex.getMessage());
+        } catch (SecurityException ex) {
+            throw new ParserException("Security error: " + ex.getMessage());
+        } catch (IllegalArgumentException ex) {
+            throw new ParserException("Illegal Argument error: " + ex.getMessage());
+        } catch (ClassNotFoundException ex) {
+            throw new ParserException("Class not found error: " + ex.getMessage());
+        } catch (MalformedURLException ex) {
+            throw new ParserException("File not found error: " + ex.getMessage());
+        }
     }
 
 }

@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2015 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2017 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -75,6 +75,14 @@ public class SetVariable implements ExpressionNodeVisitor
 
   /** Do nothing */
   public void visit(FunctionExpressionNode node)
+  {}
+  
+  /** Do nothing */
+  public void visit(Function2ArgumentsExpressionNode node)
+  {}
+  
+  /** Do nothing */
+  public void visit(FunctionUserMultiArgumentExpressionNode node)
   {}
 
 }

@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2015 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2017 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -96,15 +96,17 @@ public class Tokenizer
     Tokenizer tokenizer = new Tokenizer();
 
     tokenizer.add("[+-]", Token.PLUSMINUS);
-    tokenizer.add("[*/]", Token.MULTDIV);
+    tokenizer.add("[*/%]", Token.MULTDIVREM);
     tokenizer.add("\\^", Token.RAISED);
 
-    String funcs = FunctionExpressionNode.getAllFunctions();
-    tokenizer.add("(" + funcs + ")(?!\\w)", Token.FUNCTION);
+    tokenizer.add("(" + FunctionExpressionNode.getAllFunctions() + ")(?!\\w)", Token.FUNCTION);
+    tokenizer.add("(" + Function2ArgumentsExpressionNode.getAllFunctions() + ")(?!\\w)", Token.FUNCTION_2ARGUMENTS);
+    tokenizer.add("(" + FunctionUserMultiArgumentExpressionNode.getAllFunctions() + ")(?!\\w)", Token.FUNCTION_USER_MULTI_ARGUMENTS);
 
     tokenizer.add("\\(", Token.OPEN_BRACKET);
+    tokenizer.add(",", Token.COMMA);
     tokenizer.add("\\)", Token.CLOSE_BRACKET);
-    tokenizer.add("((?:\\d+\\.?|\\.\\d)\\d*(?:[Ee][-+]?\\d+)?)?(i)", Token.IMAGINARY_NUMBER);
+    tokenizer.add("((?:\\d+\\.?|\\.\\d)\\d*(?:[Ee][-+]?\\d+)?)?( )*(i|I)", Token.IMAGINARY_NUMBER);
     tokenizer.add("(?:\\d+\\.?|\\.\\d)\\d*(?:[Ee][-+]?\\d+)?", Token.REAL_NUMBER);   
     tokenizer.add("[a-zA-Z]\\w*", Token.VARIABLE);
 
@@ -149,8 +151,7 @@ public class Tokenizer
           s = m.replaceFirst("").trim();
           tokens.add(new Token(info.token, tok, totalLength - remaining));
           break;
-        }
-      }
+        }      }
       if (!match)
         throw new ParserException("Unexpected character in input: " + s);
     }

@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2015 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2017 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,14 +35,14 @@ public class EscapeTimeColorDecompositionRootFindingMethod extends EscapeTimeCol
         double temp = Math.floor(1000 * ((Complex)object[1]).getRe() + 0.5) / 1000;
         double temp2 = Math.floor(1000 * ((Complex)object[1]).getIm() + 0.5) / 1000;
 
-        return Math.abs(((Integer)object[0]) + (long)(((Math.atan2(temp2, temp) / (pi2)  + 0.75) * pi59)  + (temp * temp + temp2 * temp2) * 2.5)) + 100800;
+        return Math.abs(((Integer)object[0]) + (long)(((Math.atan2(temp2, temp) / (pi2)  + 0.75) * pi59)  + (temp * temp + temp2 * temp2) * 2.5)) + MAGIC_OFFSET_NUMBER;
 
     }
     
     @Override
     public double getResult3D(Object[] object) {
         
-        return  ((Integer)object[0]) + 100800;
+        return  ((Integer)object[0]) + MAGIC_OFFSET_NUMBER;
         
     }
     

@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2015 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2017 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -53,7 +53,7 @@ public class SmoothBiomorphs extends OutColorAlgorithm {
             double temp4 = ((Complex)object[1]).getRe();
             double temp5 = ((Complex)object[1]).getIm();
 
-            return temp4 > -bailout && temp4 < bailout || temp5 > -bailout && temp5 < bailout ? temp3 + 100800 : -(temp3 + 100850);
+            return temp4 > -bailout && temp4 < bailout || temp5 > -bailout && temp5 < bailout ? temp3 + MAGIC_OFFSET_NUMBER : -(temp3 + MAGIC_OFFSET_NUMBER + 50);
         }
         else {
             double temp = ((Complex)object[2]).norm_squared();
@@ -72,15 +72,8 @@ public class SmoothBiomorphs extends OutColorAlgorithm {
             double temp4 = ((Complex)object[1]).getRe();
             double temp5 = ((Complex)object[1]).getIm();
 
-            return temp4 > -bailout && temp4 < bailout || temp5 > -bailout && temp5 < bailout ? temp3 + 100800 : -(temp3 + 100850);
+            return temp4 > -bailout && temp4 < bailout || temp5 > -bailout && temp5 < bailout ? temp3 + MAGIC_OFFSET_NUMBER : -(temp3 + MAGIC_OFFSET_NUMBER + 50);
         }
-
-    }
-
-    @Override
-    public double getResult3D(Object[] object) {
-
-        return getResult(object);
 
     }
 }

@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2015 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2017 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,19 +34,19 @@ public abstract class SequenceExpressionNode implements ExpressionNode
   public class Term
   {
     /** the boolean flag */
-    public boolean positive;
+    public int mode;
     /** the expression node */
     public ExpressionNode expression;
 
     /**
      * Construct the Term object with some values.
-     * @param positive the boolean flag 
+     * @param mode the int flag 
      * @param expression the expression node
      */
-    public Term(boolean positive, ExpressionNode expression)
+    public Term(int mode, ExpressionNode expression)
     {
       super();
-      this.positive = positive;
+      this.mode = mode;
       this.expression = expression;
     }
   }
@@ -67,25 +67,25 @@ public abstract class SequenceExpressionNode implements ExpressionNode
    * 
    * @param node
    *          the term to be added
-   * @param positive
-   *          a boolean flag 
+   * @param mode
+   *          an int flag 
    */
-  public SequenceExpressionNode(ExpressionNode a, boolean positive)
+  public SequenceExpressionNode(ExpressionNode a, int mode)
   {
     this.terms = new ArrayList<Term>();
-    this.terms.add(new Term(positive, a));
+    this.terms.add(new Term(mode, a));
   }
 
   /**
    * Add another term to the sequence
    * @param node
    *          the term to be added
-   * @param positive
-   *          a boolean flag 
+   * @param mode
+   *          an int flag 
    */
-  public void add(ExpressionNode node, boolean positive)
+  public void add(ExpressionNode node, int mode)
   {
-    this.terms.add(new Term(positive, node));
+    this.terms.add(new Term(mode, node));
   }
 
 }

@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2015 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2017 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -101,17 +101,7 @@ public class AppUpdater {
 
         if(latestVersion != -1) {
             if(currentVersion < latestVersion) {
-              
-                String temp2 = "" + latestVersion;
-                String latestVersionStr = "";
-
-                int i;
-                for(i = 0; i < temp2.length() - 1; i++) {
-                    latestVersionStr += temp2.charAt(i) + ".";
-                }
-                latestVersionStr += temp2.charAt(i);
-
-                res[0] = "Version " + latestVersionStr + " is available! Click here to download.";
+                res[0] = "Version " + convertVersion(latestVersion) + " is available! Click here to download.";
                 res[1] = DOWNLOAD_URL;
 
                 return res;
@@ -128,5 +118,20 @@ public class AppUpdater {
         res[1] = "error";
 
         return res;
+    }
+    
+    public static String convertVersion(int version) {
+       
+        String temp2 = "" + version;
+        String versionStr = "";
+
+        int i;
+        for(i = 0; i < temp2.length() - 1; i++) {
+            versionStr += temp2.charAt(i) + ".";
+        }
+        versionStr += temp2.charAt(i);
+        
+        return versionStr;
+        
     }
 }

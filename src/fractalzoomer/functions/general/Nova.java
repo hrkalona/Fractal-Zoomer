@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2015 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2017 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,6 +33,7 @@ import fractalzoomer.out_coloring_algorithms.BinaryDecomposition2;
 import fractalzoomer.out_coloring_algorithms.BinaryDecomposition;
 import fractalzoomer.out_coloring_algorithms.Biomorphs;
 import fractalzoomer.in_coloring_algorithms.CosMag;
+
 import fractalzoomer.out_coloring_algorithms.ColorDecomposition;
 import fractalzoomer.out_coloring_algorithms.EscapeTimePlusIm;
 import fractalzoomer.out_coloring_algorithms.EscapeTimePlusRePlusImPlusReDivideIm;
@@ -61,6 +62,7 @@ import fractalzoomer.out_coloring_algorithms.EscapeTimeGaussianInteger4;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeGaussianInteger5;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeGridNova;
 import fractalzoomer.out_coloring_algorithms.EscapeTimePlusReDivideIm;
+
 import fractalzoomer.out_coloring_algorithms.SmoothBinaryDecomposition2RootFindingMethod;
 import fractalzoomer.out_coloring_algorithms.SmoothBinaryDecompositionRootFindingMethod;
 import fractalzoomer.out_coloring_algorithms.SmoothBiomorphsNova;
@@ -83,7 +85,7 @@ public class Nova extends Julia {
     protected double convergent_bailout;
     protected int nova_method;
 
-    public Nova(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_value, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, double[] z_exponent, double[] relaxation, int nova_method, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int converging_smooth_algorithm) {
+    public Nova(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, boolean[] user_outcoloring_special_color, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean[] user_incoloring_special_color, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_value, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, double[] z_exponent, double[] relaxation, int nova_method, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int converging_smooth_algorithm) {
 
         super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, false, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
 
@@ -218,10 +220,10 @@ public class Nova extends Julia {
                 break;
             case MainWindow.USER_OUTCOLORING_ALGORITHM:
                 if(user_out_coloring_algorithm == 0) {
-                    out_color_algorithm = new UserOutColorAlgorithmRootFindingMethod(outcoloring_formula, convergent_bailout);
+                    out_color_algorithm = new UserOutColorAlgorithmRootFindingMethod(outcoloring_formula, convergent_bailout, max_iterations);
                 }
                 else {
-                    out_color_algorithm = new UserConditionalOutColorAlgorithmRootFindingMethod(user_outcoloring_conditions, user_outcoloring_condition_formula, convergent_bailout);
+                    out_color_algorithm = new UserConditionalOutColorAlgorithmRootFindingMethod(user_outcoloring_conditions, user_outcoloring_condition_formula, user_outcoloring_special_color, convergent_bailout, max_iterations);
                 }
                 break;
 
@@ -264,7 +266,7 @@ public class Nova extends Julia {
                     in_color_algorithm = new UserInColorAlgorithm(incoloring_formula, max_iterations);
                 }
                 else {
-                    in_color_algorithm = new UserConditionalInColorAlgorithm(user_incoloring_conditions, user_incoloring_condition_formula, max_iterations);
+                    in_color_algorithm = new UserConditionalInColorAlgorithm(user_incoloring_conditions, user_incoloring_condition_formula, user_incoloring_special_color, max_iterations);
                 }
                 break;
 
@@ -272,7 +274,7 @@ public class Nova extends Julia {
 
     }
 
-    public Nova(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, int plane_type, boolean apply_plane_on_julia, double[] rotation_vals, double[] rotation_center, double[] z_exponent, double[] relaxation, int nova_method, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int converging_smooth_algorithm, double xJuliaCenter, double yJuliaCenter) {
+    public Nova(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, boolean[] user_outcoloring_special_color, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean[] user_incoloring_special_color, boolean smoothing, int plane_type, boolean apply_plane_on_julia, double[] rotation_vals, double[] rotation_center, double[] z_exponent, double[] relaxation, int nova_method, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int converging_smooth_algorithm, double xJuliaCenter, double yJuliaCenter) {
 
         super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, false, plane_type, apply_plane_on_julia, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
 
@@ -411,10 +413,10 @@ public class Nova extends Julia {
             case MainWindow.USER_OUTCOLORING_ALGORITHM:
                 convergent_bailout = 1E-7;
                 if(user_out_coloring_algorithm == 0) {
-                    out_color_algorithm = new UserOutColorAlgorithmRootFindingMethod(outcoloring_formula, convergent_bailout);
+                    out_color_algorithm = new UserOutColorAlgorithmRootFindingMethod(outcoloring_formula, convergent_bailout, max_iterations);
                 }
                 else {
-                    out_color_algorithm = new UserConditionalOutColorAlgorithmRootFindingMethod(user_outcoloring_conditions, user_outcoloring_condition_formula, convergent_bailout);
+                    out_color_algorithm = new UserConditionalOutColorAlgorithmRootFindingMethod(user_outcoloring_conditions, user_outcoloring_condition_formula, user_outcoloring_special_color, convergent_bailout, max_iterations);
                 }
                 break;
 
@@ -457,7 +459,7 @@ public class Nova extends Julia {
                     in_color_algorithm = new UserInColorAlgorithm(incoloring_formula, max_iterations);
                 }
                 else {
-                    in_color_algorithm = new UserConditionalInColorAlgorithm(user_incoloring_conditions, user_incoloring_condition_formula, max_iterations);
+                    in_color_algorithm = new UserConditionalInColorAlgorithm(user_incoloring_conditions, user_incoloring_condition_formula, user_incoloring_special_color, max_iterations);
                 }
                 break;
 
@@ -568,7 +570,7 @@ public class Nova extends Julia {
             fz = complex[0].pow(z_exponent).sub_mutable(1);
         }
 
-        if(nova_method != MainWindow.NOVA_SECANT) {
+        if(nova_method != MainWindow.NOVA_SECANT && nova_method != MainWindow.NOVA_MULLER) {
             if(z_exponent.getIm() == 0) {
                 if(z_exponent.getRe() == 2) {
                     dfz = complex[0].times(2);
@@ -708,6 +710,40 @@ public class Nova extends Julia {
             case MainWindow.NOVA_STEFFENSEN:
                 complex[0].sub_mutable(((fz.square()).divide_mutable(ffz.sub_mutable(fz))).times_mutable(relaxation)).plus_mutable(complex[1]); //steffensen
                 break;
+            case MainWindow.NOVA_MULLER:
+                Complex fz1 = complex[5];
+                Complex fz2 = complex[3];
+
+                Complex hk = complex[0].sub(complex[4]);
+                Complex hk1 = complex[4].sub(complex[2]);
+                Complex rk = hk.divide(hk1);
+
+                Complex rkp1 = rk.plus(1);
+                Complex rksqr = rk.square();
+                Complex ck = fz.times(rkp1);
+                Complex bk = fz.times(rk.times(2).plus_mutable(1)).sub(fz1.times(rkp1.square())).plus(fz2.times(rksqr));
+                Complex ak = fz.times(rk).sub(fz1.times(rkp1.times(rk))).plus(fz2.times(rksqr));
+
+                Complex ck2 = ck.times(2);
+                Complex temp2 = (bk.square().sub(ak.times(ck).times_mutable(4))).sqrt();
+
+                Complex denom1 = bk.plus(temp2);
+                Complex denom2 = bk.sub(temp2);
+
+                Complex qk;
+                if(denom1.norm_squared() > denom2.norm_squared()) {
+                    qk = ck2.divide(denom1);
+                }
+                else {
+                    qk = ck2.divide(denom2);
+                }
+
+                complex[2].assign(complex[4]);
+                complex[4].assign(complex[0]);
+                complex[0].sub_mutable(hk.times_mutable(qk).times_mutable(relaxation)).plus_mutable(complex[1]);
+                complex[3].assign(complex[5]);
+                complex[5].assign(fz);
+                break;
 
         }
 
@@ -720,18 +756,22 @@ public class Nova extends Julia {
 
         Complex tempz = new Complex(pertur_val.getPixel(init_val.getPixel(pixel)));
 
-        Complex[] complex = new Complex[4];
+        Complex[] complex = new Complex[6];
         complex[0] = tempz;
         complex[1] = new Complex(pixel);//c
         complex[2] = new Complex();
         complex[3] = new Complex(-1, 0);
+        complex[4] = new Complex(1e-10, 0);      
+        complex[5] = complex[4].pow(z_exponent).sub_mutable(1);
+
 
         Complex zold = new Complex();
         Complex zold2 = new Complex();
+        Complex start = new Complex(complex[0]);
 
         for(; iterations < max_iterations; iterations++) {
             if((temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
-                Object[] object = {iterations, complex[0], temp, zold, zold2};
+                Object[] object = {iterations, complex[0], temp, zold, zold2, complex[1], start};
                 return out_color_algorithm.getResult(object);
             }
             zold2.assign(zold);
@@ -740,7 +780,7 @@ public class Nova extends Julia {
 
         }
 
-        Object[] object = {complex[0], zold};
+        Object[] object = {complex[0], zold, zold2, complex[1], start};
         return in_color_algorithm.getResult(object);
 
     }
@@ -750,18 +790,21 @@ public class Nova extends Julia {
         int iterations = 0;
         double temp = 0;
 
-        Complex[] complex = new Complex[4];
+        Complex[] complex = new Complex[6];
         complex[0] = new Complex(pixel);
         complex[1] = new Complex(seed);//c
         complex[2] = new Complex();
         complex[3] = new Complex(-1, 0);
+        complex[4] = new Complex(1e-10, 0);      
+        complex[5] = complex[4].pow(z_exponent).sub_mutable(1);
 
         Complex zold = new Complex();
         Complex zold2 = new Complex();
+        Complex start = new Complex(complex[0]);
 
         for(; iterations < max_iterations; iterations++) {
             if((temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
-                Object[] object = {iterations, complex[0], temp, zold, zold2};
+                Object[] object = {iterations, complex[0], temp, zold, zold2, complex[1], start};
                 return out_color_algorithm.getResult(object);
             }
             zold2.assign(zold);
@@ -770,7 +813,7 @@ public class Nova extends Julia {
 
         }
 
-        Object[] object = {complex[0], zold};
+        Object[] object = {complex[0], zold, zold2, complex[1], start};
         return in_color_algorithm.getResult(object);
 
     }
@@ -782,22 +825,25 @@ public class Nova extends Julia {
 
         Complex tempz = new Complex(pertur_val.getPixel(init_val.getPixel(pixel)));
 
-        Complex[] complex = new Complex[4];
+        Complex[] complex = new Complex[6];
         complex[0] = tempz;
         complex[1] = new Complex(pixel);//c
         complex[2] = new Complex();
         complex[3] = new Complex(-1, 0);
+        complex[4] = new Complex(1e-10, 0);      
+        complex[5] = complex[4].pow(z_exponent).sub_mutable(1);
 
         Complex zold = new Complex();
         Complex zold2 = new Complex();
+        Complex start = new Complex(complex[0]);
 
         double temp2;
 
         for(; iterations < max_iterations; iterations++) {
             if((temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
-                Object[] object = {iterations, complex[0], temp, zold, zold2};
+                Object[] object = {iterations, complex[0], temp, zold, zold2, complex[1], start};
                 temp2 = out_color_algorithm.getResult(object);
-                double[] array = {Math.abs(temp2) - 100800, temp2};
+                double[] array = {out_color_algorithm.transformResultToHeight(temp2), temp2};
                 return array;
             }
             zold2.assign(zold);
@@ -806,10 +852,9 @@ public class Nova extends Julia {
 
         }
 
-        Object[] object = {complex[0], zold};
+        Object[] object = {complex[0], zold, zold2, complex[1], start};
         temp2 = in_color_algorithm.getResult(object);
-        double result = temp2 == max_iterations ? max_iterations : max_iterations + Math.abs(temp2) - 100820;
-        double[] array = {result, temp2};
+        double[] array = {in_color_algorithm.transformResultToHeight(temp2, max_iterations), temp2};
         return array;
 
     }
@@ -819,19 +864,22 @@ public class Nova extends Julia {
         int iterations = 0;
         double temp = 0;
 
-        Complex[] complex = new Complex[4];
+        Complex[] complex = new Complex[6];
         complex[0] = new Complex(pixel);
         complex[1] = new Complex(seed);//c
         complex[2] = new Complex();
         complex[3] = new Complex(-1, 0);
+        complex[4] = new Complex(1e-10, 0);      
+        complex[5] = complex[4].pow(z_exponent).sub_mutable(1);
 
         Complex zold = new Complex();
         Complex zold2 = new Complex();
+        Complex start = new Complex(complex[0]);
 
         for(; iterations < max_iterations; iterations++) {
             if((temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
-                Object[] object = {iterations, complex[0], temp, zold, zold2};
-                double[] array = {Math.abs(out_color_algorithm.getResult3D(object)) - 100800, out_color_algorithm.getResult(object)};
+                Object[] object = {iterations, complex[0], temp, zold, zold2, complex[1], start};
+                double[] array = {out_color_algorithm.transformResultToHeight(out_color_algorithm.getResult3D(object)), out_color_algorithm.getResult(object)};
                 return array;
             }
             zold2.assign(zold);
@@ -840,10 +888,9 @@ public class Nova extends Julia {
 
         }
 
-        Object[] object = {complex[0], zold};
+        Object[] object = {complex[0], zold, zold2, complex[1], start};
         double temp2 = in_color_algorithm.getResult(object);
-        double result = temp2 == max_iterations ? max_iterations : max_iterations + Math.abs(temp2) - 100820;
-        double[] array = {result, temp2};
+        double[] array = {in_color_algorithm.transformResultToHeight(temp2, max_iterations), temp2};
         return array;
 
     }
@@ -852,11 +899,13 @@ public class Nova extends Julia {
     public void calculateFractalOrbit() {
         int iterations = 0;
 
-        Complex[] complex = new Complex[4];
+        Complex[] complex = new Complex[6];
         complex[0] = new Complex(pertur_val.getPixel(init_val.getPixel(pixel_orbit)));
         complex[1] = new Complex(pixel_orbit);//c
         complex[2] = new Complex();
         complex[3] = new Complex(-1, 0);
+        complex[4] = new Complex(1e-10, 0);      
+        complex[5] = complex[4].pow(z_exponent).sub_mutable(1);
 
         Complex temp = null;
 
@@ -877,11 +926,13 @@ public class Nova extends Julia {
     public void calculateJuliaOrbit() {
         int iterations = 0;
 
-        Complex[] complex = new Complex[4];
+        Complex[] complex = new Complex[6];
         complex[0] = new Complex(pixel_orbit);//z
         complex[1] = new Complex(seed);//c
         complex[2] = new Complex();
         complex[3] = new Complex(-1, 0);
+        complex[4] = new Complex(1e-10, 0);      
+        complex[5] = complex[4].pow(z_exponent).sub_mutable(1);
 
         Complex temp = null;
 
@@ -897,22 +948,23 @@ public class Nova extends Julia {
         }
 
     }
-    
+
     @Override
     public Complex iterateFractalDomain(Complex pixel) {
         int iterations = 0;
-        double temp = 0;
 
         Complex tempz = new Complex(pertur_val.getPixel(init_val.getPixel(pixel)));
 
-        Complex[] complex = new Complex[4];
+        Complex[] complex = new Complex[6];
         complex[0] = tempz;
         complex[1] = new Complex(pixel);//c
         complex[2] = new Complex();
         complex[3] = new Complex(-1, 0);
+        complex[4] = new Complex(1e-10, 0);      
+        complex[5] = complex[4].pow(z_exponent).sub_mutable(1);
 
         for(; iterations < max_iterations; iterations++) {
- 
+
             function(complex);
 
         }
@@ -920,19 +972,21 @@ public class Nova extends Julia {
         return complex[0];
 
     }
-    
+
     @Override
     public Complex iterateJuliaDomain(Complex pixel) {
         int iterations = 0;
 
-        Complex[] complex = new Complex[4];
+        Complex[] complex = new Complex[6];
         complex[0] = new Complex(pixel);
         complex[1] = new Complex(seed);//c
         complex[2] = new Complex();
         complex[3] = new Complex(-1, 0);
+        complex[4] = new Complex(1e-10, 0);      
+        complex[5] = complex[4].pow(z_exponent).sub_mutable(1);
 
         for(; iterations < max_iterations; iterations++) {
-  
+
             function(complex);
 
         }

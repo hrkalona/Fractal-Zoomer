@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2015 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2017 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,6 +43,7 @@ public class FractalFunctionsMenu extends JMenu {
     private JMenu householder_type_functions;
     private JMenu secant_type_functions;
     private JMenu steffensen_type_functions;
+    private JMenu muller_type_functions;
     private JMenu barnsley_type_functions;
     private JMenu szegedi_butterfly_type_functions;
     private JMenu math_type_functions;
@@ -77,6 +78,7 @@ public class FractalFunctionsMenu extends JMenu {
         householder_type_functions = new JMenu("Householder Method");
         secant_type_functions = new JMenu("Secant Method");
         steffensen_type_functions = new JMenu("Steffensen Method");
+        muller_type_functions = new JMenu("Muller Method");
 
         barnsley_type_functions = new JMenu("Barnsley Type");
 
@@ -109,7 +111,7 @@ public class FractalFunctionsMenu extends JMenu {
         burning_ship_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, ActionEvent.CTRL_MASK));
         mandel_grass_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_M, 0));
 
-        fractal_functions = new JRadioButtonMenuItem[133];
+        fractal_functions = new JRadioButtonMenuItem[141];
 
         fractal_functions[0] = new JRadioButtonMenuItem("Mandelbrot z = z^2 + c");
         fractal_functions[0].addActionListener(new ActionListener() {
@@ -745,6 +747,8 @@ public class FractalFunctionsMenu extends JMenu {
         root_finding_functions.add(secant_type_functions);
         root_finding_functions.addSeparator();
         root_finding_functions.add(steffensen_type_functions);
+        root_finding_functions.addSeparator();
+        root_finding_functions.add(muller_type_functions);
 
         add(root_finding_functions);
         addSeparator();
@@ -1587,6 +1591,94 @@ public class FractalFunctionsMenu extends JMenu {
             }
         });
         steffensen_type_functions.add(fractal_functions[MainWindow.STEFFENSENFORMULA]);
+        
+        fractal_functions[MainWindow.MULLER3] = new JRadioButtonMenuItem("Muller 3");
+        fractal_functions[MainWindow.MULLER3].addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFunction(MainWindow.MULLER3);
+
+            }
+        });
+        muller_type_functions.add(fractal_functions[MainWindow.MULLER3]);
+
+        fractal_functions[MainWindow.MULLER4] = new JRadioButtonMenuItem("Muller 4");
+        fractal_functions[MainWindow.MULLER4].addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFunction(MainWindow.MULLER4);
+
+            }
+        });
+        muller_type_functions.add(fractal_functions[MainWindow.MULLER4]);
+
+        fractal_functions[MainWindow.MULLERGENERALIZED3] = new JRadioButtonMenuItem("Muller Generalized 3");
+        fractal_functions[MainWindow.MULLERGENERALIZED3].addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFunction(MainWindow.MULLERGENERALIZED3);
+
+            }
+        });
+        muller_type_functions.add(fractal_functions[MainWindow.MULLERGENERALIZED3]);
+
+        fractal_functions[MainWindow.MULLERGENERALIZED8] = new JRadioButtonMenuItem("Muller Generalized 8");
+        fractal_functions[MainWindow.MULLERGENERALIZED8].addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFunction(MainWindow.MULLERGENERALIZED8);
+
+            }
+        });
+        muller_type_functions.add(fractal_functions[MainWindow.MULLERGENERALIZED8]);
+
+        fractal_functions[MainWindow.MULLERSIN] = new JRadioButtonMenuItem("Muller Sin");
+        fractal_functions[MainWindow.MULLERSIN].addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFunction(MainWindow.MULLERSIN);
+
+            }
+        });
+        muller_type_functions.add(fractal_functions[MainWindow.MULLERSIN]);
+
+        fractal_functions[MainWindow.MULLERCOS] = new JRadioButtonMenuItem("Muller Cos");
+        fractal_functions[MainWindow.MULLERCOS].addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFunction(MainWindow.MULLERCOS);
+
+            }
+        });
+        muller_type_functions.add(fractal_functions[MainWindow.MULLERCOS]);
+
+        fractal_functions[MainWindow.MULLERPOLY] = new JRadioButtonMenuItem("Muller Polynomial");
+        fractal_functions[MainWindow.MULLERPOLY].addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFunction(MainWindow.MULLERPOLY);
+
+            }
+        });
+        muller_type_functions.add(fractal_functions[MainWindow.MULLERPOLY]);
+        
+        fractal_functions[MainWindow.MULLERFORMULA] = new JRadioButtonMenuItem("Muller Formula");
+        fractal_functions[MainWindow.MULLERFORMULA].addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFunction(MainWindow.MULLERFORMULA);
+
+            }
+        });
+        muller_type_functions.add(fractal_functions[MainWindow.MULLERFORMULA]);
 
         burning_ship_opt.addActionListener(new ActionListener() {
 

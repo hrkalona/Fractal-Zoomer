@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2015 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2017 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -91,6 +91,7 @@ import fractalzoomer.planes.distort.TwirlPlane;
 import fractalzoomer.planes.fold.FoldDownPlane;
 import fractalzoomer.planes.fold.FoldLeftPlane;
 import fractalzoomer.planes.general.CircleInversionPlane;
+import fractalzoomer.planes.general.InflectionPlane;
 import fractalzoomer.planes.general.MuVariationPlane;
 import fractalzoomer.planes.math.ErfPlane;
 import fractalzoomer.planes.math.RiemannZetaPlane;
@@ -296,10 +297,10 @@ public abstract class Fractal {
                 plane = new FactorialPlane();
                 break;
             case MainWindow.BIPOLAR_PLANE:
-                plane = new BipolarPlane(plane_transform_center[0]);
+                plane = new BipolarPlane(plane_transform_center);
                 break;
             case MainWindow.INVERSED_BIPOLAR_PLANE:
-                plane = new InversedBipolarPlane(plane_transform_center[0]);
+                plane = new InversedBipolarPlane(plane_transform_center);
                 break;
             case MainWindow.TWIRL_PLANE:
                 plane = new TwirlPlane(plane_transform_center, plane_transform_angle, plane_transform_radius);
@@ -325,6 +326,9 @@ public abstract class Fractal {
             case MainWindow.RZETA_PLANE:
                 plane = new RiemannZetaPlane();
                 break;
+            case MainWindow.INFLECTION_PLANE:
+                plane = new InflectionPlane(plane_transform_center);
+                break;
         }
 
         switch (bailout_test_algorithm) {
@@ -348,7 +352,7 @@ public abstract class Fractal {
                 bailout_algorithm = new NNormBailoutTest(bailout, n_norm);
                 break;
             case MainWindow.BAILOUT_TEST_USER:
-                bailout_algorithm = new UserBailoutTest(bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison);
+                bailout_algorithm = new UserBailoutTest(bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, max_iterations);
                 break;
 
         }
@@ -527,10 +531,10 @@ public abstract class Fractal {
                 plane = new FactorialPlane();
                 break;
             case MainWindow.BIPOLAR_PLANE:
-                plane = new BipolarPlane(plane_transform_center[0]);
+                plane = new BipolarPlane(plane_transform_center);
                 break;
             case MainWindow.INVERSED_BIPOLAR_PLANE:
-                plane = new InversedBipolarPlane(plane_transform_center[0]);
+                plane = new InversedBipolarPlane(plane_transform_center);
                 break;
             case MainWindow.TWIRL_PLANE:
                 plane = new TwirlPlane(plane_transform_center, plane_transform_angle, plane_transform_radius);
@@ -555,6 +559,9 @@ public abstract class Fractal {
                 break;
             case MainWindow.RZETA_PLANE:
                 plane = new RiemannZetaPlane();
+                break;
+            case MainWindow.INFLECTION_PLANE:
+                plane = new InflectionPlane(plane_transform_center);
                 break;
 
         }
@@ -629,12 +636,15 @@ public abstract class Fractal {
         complex[1] = new Complex(pixel);//c
 
         Complex zold = new Complex();
+        Complex zold2 = new Complex();
+        Complex start = new Complex(complex[0]);
 
         for(; iterations < max_iterations; iterations++) {
-            if(bailout_algorithm.escaped(complex[0], zold)) {
-                Object[] object = {iterations, complex[0], zold};
+            if(bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
+                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start};
                 return out_color_algorithm.getResult(object);
             }
+            zold2.assign(zold);
             zold.assign(complex[0]);
             function(complex);
 
@@ -659,19 +669,22 @@ public abstract class Fractal {
         complex[1] = new Complex(pixel);//c
 
         Complex zold = new Complex();
+        Complex zold2 = new Complex();
+        Complex start = new Complex(complex[0]);
 
         for(; iterations < max_iterations; iterations++) {
 
-            if(bailout_algorithm.escaped(complex[0], zold)) {
-                Object[] object = {iterations, complex[0], zold};
+            if(bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
+                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start};
                 return out_color_algorithm.getResult(object);
             }
+            zold2.assign(zold);
             zold.assign(complex[0]);
             function(complex);
 
         }
 
-        Object[] object = {complex[0], zold};
+        Object[] object = {complex[0], zold, zold2, complex[1], start};
         return in_color_algorithm.getResult(object);
 
         /* int iterations = 0; 
@@ -737,16 +750,19 @@ public abstract class Fractal {
         complex[1] = new Complex(pixel);//c
 
         Complex zold = new Complex();
+        Complex zold2 = new Complex();
+        Complex start = new Complex(complex[0]);
 
         double temp;
 
         for(; iterations < max_iterations; iterations++) {
-            if(bailout_algorithm.escaped(complex[0], zold)) {
-                Object[] object = {iterations, complex[0], zold};
+            if(bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
+                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start};
                 temp = out_color_algorithm.getResult(object);
-                double[] array = {Math.abs(temp) - 100800, temp};
+                double[] array = {out_color_algorithm.transformResultToHeight(temp), temp};
                 return array;
             }
+            zold2.assign(zold);
             zold.assign(complex[0]);
             function(complex);
 
@@ -773,26 +789,28 @@ public abstract class Fractal {
         complex[1] = new Complex(pixel);//c
 
         Complex zold = new Complex();
+        Complex zold2 = new Complex();
+        Complex start = new Complex(complex[0]);
         double temp;
 
         for(; iterations < max_iterations; iterations++) {
 
-            if(bailout_algorithm.escaped(complex[0], zold)) {
-                Object[] object = {iterations, complex[0], zold};
+            if(bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
+                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start};
                 temp = out_color_algorithm.getResult(object);
-                double[] array = {Math.abs(temp) - 100800, temp};
+                double[] array = {out_color_algorithm.transformResultToHeight(temp), temp};
                 return array;
 
             }
+            zold2.assign(zold);
             zold.assign(complex[0]);
             function(complex);
 
         }
 
-        Object[] object = {complex[0], zold};
-        temp = in_color_algorithm.getResult(object);
-        double result = temp == max_iterations ? max_iterations : max_iterations + Math.abs(temp) - 100820;
-        double[] array = {result, temp};
+        Object[] object = {complex[0], zold, zold2, complex[1], start};
+        temp = in_color_algorithm.getResult(object);        
+        double[] array = {in_color_algorithm.transformResultToHeight(temp, max_iterations), temp};
         return array;
 
     }

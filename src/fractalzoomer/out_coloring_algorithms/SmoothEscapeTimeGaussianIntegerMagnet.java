@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2015 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2017 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -57,14 +57,7 @@ public class SmoothEscapeTimeGaussianIntegerMagnet extends OutColorAlgorithm {
             }
         }
 
-        return (Integer)object[0] + ((Complex)(object[1])).distance_squared(((Complex)(object[1])).gaussian_integer()) * 90 + temp3 + 100800;
-
-    }
-
-    @Override
-    public double getResult3D(Object[] object) {
-
-        return getResult(object);
+        return (Integer)object[0] + ((Complex)(object[1])).distance_squared(((Complex)(object[1])).gaussian_integer()) * 90 + temp3 + MAGIC_OFFSET_NUMBER;
 
     }
 }

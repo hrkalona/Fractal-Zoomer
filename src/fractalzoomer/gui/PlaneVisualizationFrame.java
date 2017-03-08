@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 hrkalona2
+ * Copyright (C) 2017 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@ package fractalzoomer.gui;
 
 import fractalzoomer.core.PlaneVisualizer;
 import fractalzoomer.main.MainWindow;
+import fractalzoomer.parser.ParserException;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -32,6 +33,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
@@ -45,12 +47,14 @@ import javax.swing.event.ChangeListener;
  */
 public class PlaneVisualizationFrame extends JFrame {
     private MainWindow ptra2;
+    private PlaneVisualizationFrame thiss;
     
     public PlaneVisualizationFrame(MainWindow ptra, final int plane_type, final String user_plane, final int user_plane_algorithm, final String[] user_plane_conditions, final String[] user_plane_condition_formula, final double[] plane_transform_center, final double plane_transform_angle, final double plane_transform_radius, final double[] plane_transform_scales, final double plane_transform_angle2, final int plane_transform_sides, final double plane_transform_amount) {
         
         super();
 
         ptra2 = ptra;
+        thiss = this;
         
         ptra2.setEnabled(false);
         int filters_options_window_width = 850;
@@ -99,8 +103,13 @@ public class PlaneVisualizationFrame extends JFrame {
         final BufferedImage new_plane_image = new BufferedImage(302, 302, BufferedImage.TYPE_INT_ARGB);
         
         double size = 5;
-        new PlaneVisualizer(plane_mu_image, new_plane_image, plane_type, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, size).visualizePlanes(0, 0);
-       
+        try {
+            new PlaneVisualizer(plane_mu_image, new_plane_image, plane_type, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, size).visualizePlanes(0, 0);
+        } catch (ParserException e) {
+            JOptionPane.showMessageDialog(thiss, e.getMessage() + "\nThe application will terminate.", "Error!", JOptionPane.ERROR_MESSAGE);
+            ptra2.savePreferences();
+            System.exit(-1);
+        }
         
         final JLabel l1 = new JLabel();
         l1.setIcon(new ImageIcon(plane_mu_image));
@@ -111,8 +120,13 @@ public class PlaneVisualizationFrame extends JFrame {
             @Override
             public void stateChanged(ChangeEvent e) {
                 double size = Math.pow(1.3, (20 - size_slid.getValue()) - 10) * 5;
-                new PlaneVisualizer(plane_mu_image, new_plane_image, plane_type, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, size).visualizePlanes(0, 0);
-            
+                try {
+                    new PlaneVisualizer(plane_mu_image, new_plane_image, plane_type, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, size).visualizePlanes(0, 0);
+                } catch (ParserException ex) {
+                    JOptionPane.showMessageDialog(thiss, ex.getMessage() + "\nThe application will terminate.", "Error!", JOptionPane.ERROR_MESSAGE);
+                    ptra2.savePreferences();
+                    System.exit(-1);
+                }
                 l1.repaint();
                 l2.repaint();
             }

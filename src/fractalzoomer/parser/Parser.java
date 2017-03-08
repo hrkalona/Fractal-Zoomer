@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2015 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2017 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,10 +17,14 @@
 package fractalzoomer.parser;
 
 import fractalzoomer.core.Complex;
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
+import javax.tools.JavaCompiler;
+import javax.tools.ToolProvider;
 
 /**
  * A parser for mathematical expressions. The parser class defines a method
@@ -177,7 +181,7 @@ public class Parser {
      * handles the non-terminal sum_op
      */
     private ExpressionNode sumOp(ExpressionNode expr) {
-        // sum_op -> PLUSMINUS term sum_op
+        // sum_op -> PLUSMINUS signed_term sum_op
         if(lookahead.token == Token.PLUSMINUS) {
             AdditionExpressionNode sum;
             // This means we are actually dealing with a sum
@@ -186,14 +190,14 @@ public class Parser {
                 sum = (AdditionExpressionNode)expr;
             }
             else {
-                sum = new AdditionExpressionNode(expr, true);
+                sum = new AdditionExpressionNode(expr, AdditionExpressionNode.ADD);
             }
 
             // reduce the input and recursively call sum_op
-            boolean positive = lookahead.sequence.equals("+");
+            int mode =  lookahead.sequence.equals("+") ? AdditionExpressionNode.ADD : AdditionExpressionNode.SUB;
             nextToken();
-            ExpressionNode t = term();
-            sum.add(t, positive);
+            ExpressionNode t = signedTerm();
+            sum.add(t, mode);
 
             return sumOp(sum);
         }
@@ -206,16 +210,16 @@ public class Parser {
      * handles the non-terminal signed_term
      */
     private ExpressionNode signedTerm() {
-        // signed_term -> PLUSMINUS term
+        // signed_term -> PLUSMINUS signed_term
         if(lookahead.token == Token.PLUSMINUS) {
-            boolean positive = lookahead.sequence.equals("+");
+            int mode = lookahead.sequence.equals("+") ? AdditionExpressionNode.ADD : AdditionExpressionNode.SUB;
             nextToken();
-            ExpressionNode t = term();
-            if(positive) {
+            ExpressionNode t = signedTerm();
+            if(mode == AdditionExpressionNode.ADD) {
                 return t;
             }
             else {
-                return new AdditionExpressionNode(t, false);
+                return new AdditionExpressionNode(t, AdditionExpressionNode.SUB);
             }
         }
 
@@ -236,8 +240,8 @@ public class Parser {
      * handles the non-terminal term_op
      */
     private ExpressionNode termOp(ExpressionNode expression) {
-        // term_op -> MULTDIV factor term_op
-        if(lookahead.token == Token.MULTDIV) {
+        // term_op -> MULTDIV signed_factor term_op
+        if(lookahead.token == Token.MULTDIVREM) {
             MultiplicationExpressionNode prod;
 
             // This means we are actually dealing with a product
@@ -246,14 +250,25 @@ public class Parser {
                 prod = (MultiplicationExpressionNode)expression;
             }
             else {
-                prod = new MultiplicationExpressionNode(expression, true);
+                prod = new MultiplicationExpressionNode(expression, MultiplicationExpressionNode.MULT);
             }
 
             // reduce the input and recursively call sum_op
-            boolean positive = lookahead.sequence.equals("*");
+            int mode;
+            
+            if(lookahead.sequence.equals("*")) {
+                mode = MultiplicationExpressionNode.MULT;
+            }
+            else if(lookahead.sequence.equals("/")) {
+                mode = MultiplicationExpressionNode.DIV;
+            }
+            else {
+                mode = MultiplicationExpressionNode.REM;
+            }
+            
             nextToken();
             ExpressionNode f = signedFactor();
-            prod.add(f, positive);
+            prod.add(f, mode);
 
             return termOp(prod);
         }
@@ -266,16 +281,16 @@ public class Parser {
      * handles the non-terminal signed_factor
      */
     private ExpressionNode signedFactor() {
-        // signed_factor -> PLUSMINUS factor
+        // signed_factor -> PLUSMINUS signed_factor
         if(lookahead.token == Token.PLUSMINUS) {
-            boolean positive = lookahead.sequence.equals("+");
+            int mode = lookahead.sequence.equals("+") ? AdditionExpressionNode.ADD : AdditionExpressionNode.SUB;
             nextToken();
-            ExpressionNode t = factor();
-            if(positive) {
+            ExpressionNode t = signedFactor();
+            if(mode == AdditionExpressionNode.ADD) {
                 return t;
             }
             else {
-                return new AdditionExpressionNode(t, false);
+                return new AdditionExpressionNode(t, AdditionExpressionNode.SUB);
             }
         }
 
@@ -317,8 +332,24 @@ public class Parser {
             int function = FunctionExpressionNode.stringToFunction(lookahead.sequence);
 
             nextToken();
-            ExpressionNode expr = argument();
+            ExpressionNode expr = functionArgument();
             return new FunctionExpressionNode(function, expr);
+        }
+        // argument -> FUNCTION_2ARG argument
+        else if(lookahead.token == Token.FUNCTION_2ARGUMENTS) {
+            int function = Function2ArgumentsExpressionNode.stringToFunction(lookahead.sequence);
+
+            nextToken();
+            ExpressionNode expr[] = functionArgument2();
+            return new Function2ArgumentsExpressionNode(function, expr[0], expr[1]);
+        }
+        // argument -> FUNCTION_USER_MULTI_ARG argument
+        else if(lookahead.token == Token.FUNCTION_USER_MULTI_ARGUMENTS) {
+            int function = FunctionUserMultiArgumentExpressionNode.stringToFunction(lookahead.sequence);
+
+            nextToken();
+            ExpressionNode expr[] = functionUserMultiArguments();
+            return new FunctionUserMultiArgumentExpressionNode(function, expr);
         }
         // argument -> OPEN_BRACKET sum CLOSE_BRACKET
         else if(lookahead.token == Token.OPEN_BRACKET) {
@@ -334,6 +365,73 @@ public class Parser {
         // argument -> value
         return value();
     }
+    
+    /*handles the function with 2 arguments */
+    private ExpressionNode[] functionArgument2() {
+        if(lookahead.token == Token.OPEN_BRACKET) {
+            ExpressionNode[] exprs = new ExpressionNode[2];
+            
+            nextToken();
+            exprs[0] = expression();
+            if(lookahead.token != Token.COMMA) {
+                throw new ParserException("Comma expected.", lookahead);
+            }
+            nextToken();
+            exprs[1] = expression();
+            if(lookahead.token != Token.CLOSE_BRACKET) {
+                throw new ParserException("Closing brackets expected.", lookahead);
+            }
+            nextToken();
+            return exprs;
+        }
+
+        throw new ParserException("Opening brackets expected.", lookahead);
+    }
+    
+    /*handles the function with user multi arguments */
+    private ExpressionNode[] functionUserMultiArguments() {
+        if(lookahead.token == Token.OPEN_BRACKET) {
+            ExpressionNode[] exprs = new ExpressionNode[FunctionUserMultiArgumentExpressionNode.MAX_ARGUMENTS];
+            
+            nextToken();
+            exprs[0] = expression();
+            
+            for(int i = 1; i < exprs.length; i++) {               
+                if(lookahead.token == Token.CLOSE_BRACKET) {
+                    break;
+                }
+                
+                if(lookahead.token != Token.COMMA) {
+                    throw new ParserException("Comma expected.", lookahead);
+                }
+                nextToken();
+                exprs[i] = expression();
+            }
+            
+            if(lookahead.token != Token.CLOSE_BRACKET) {
+                throw new ParserException("Closing brackets expected.", lookahead);
+            }
+            nextToken();
+            return exprs;
+        }
+
+        throw new ParserException("Opening brackets expected.", lookahead);
+    }
+    
+     /*handles the function with 1 argument */
+    private ExpressionNode functionArgument() {
+        if(lookahead.token == Token.OPEN_BRACKET) {          
+            nextToken();
+            ExpressionNode expr = expression();
+            if(lookahead.token != Token.CLOSE_BRACKET) {
+                throw new ParserException("Closing brackets expected.", lookahead);
+            }
+            nextToken();  
+            return expr;
+        }
+
+        throw new ParserException("Opening brackets expected.", lookahead);
+    }
 
     /**
      * handles the non-terminal value
@@ -348,7 +446,7 @@ public class Parser {
 
         // argument -> IMAGINARY_NUMBER
         if(lookahead.token == Token.IMAGINARY_NUMBER) {
-            StringTokenizer tok = new StringTokenizer(lookahead.sequence, "i");
+            StringTokenizer tok = new StringTokenizer(lookahead.sequence, "iI");
             ExpressionNode expr;
             if(tok.hasMoreTokens()) {
                 expr = new ImaginaryConstantExpressionNode(tok.nextToken());
@@ -464,6 +562,25 @@ public class Parser {
         }
         else {
             lookahead = tokens.getFirst();
+        }
+    }
+    
+    
+    public static void compileUserFunctions() {
+
+        JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+
+        if(compiler != null) {
+            OutputStream out = new ByteArrayOutputStream();
+
+            int compilationResult = compiler.run(null, null, out, "UserDefinedFunctions.java");
+
+            if(compilationResult != 0) {
+                throw new ParserException("Compilation error: " + out.toString());
+            }
+        }
+        else {
+            throw new ParserException("Java Compiler was not found.\nUser code cannot be compiled.");
         }
     }
 

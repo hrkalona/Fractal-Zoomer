@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2015 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2017 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,14 @@
 package fractalzoomer.in_coloring_algorithms;
 
 public abstract class InColorAlgorithm {
+    public static final int MAGIC_OFFSET_NUMBER = 100820;
     
     public abstract double getResult(Object[] object);
+    
+    public double transformResultToHeight(double result, int max_iterations) {
+        
+        return result == max_iterations ? max_iterations : max_iterations + Math.abs(result) - MAGIC_OFFSET_NUMBER;
+        
+    }
     
 }

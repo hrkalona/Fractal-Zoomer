@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2015 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2017 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@ public class CosMag extends InColorAlgorithm {
     @Override
     public double getResult(Object[] object) {
  
-        return ((int)(((Complex)object[0]).norm_squared() * 10)) % 2 == 1 ? -(Math.abs(Math.cos(((Complex)object[0]).getRe() * ((Complex)object[0]).getIm() * ((Complex)object[0]).getAbsRe() * ((Complex)object[0]).getAbsIm())) * 400 + 100920) : Math.abs(Math.sin(((Complex)object[0]).getRe() * ((Complex)object[0]).getIm() * ((Complex)object[0]).getAbsRe() * ((Complex)object[0]).getAbsIm())) * 400 + 100820;
+        return ((int)(((Complex)object[0]).norm_squared() * 10)) % 2 == 1 ? -(Math.abs(Math.cos(((Complex)object[0]).getRe() * ((Complex)object[0]).getIm() * ((Complex)object[0]).getAbsRe() * ((Complex)object[0]).getAbsIm())) * 400 + MAGIC_OFFSET_NUMBER + 100) : Math.abs(Math.sin(((Complex)object[0]).getRe() * ((Complex)object[0]).getIm() * ((Complex)object[0]).getAbsRe() * ((Complex)object[0]).getAbsIm())) * 400 + MAGIC_OFFSET_NUMBER;
        
     }
     

@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2015 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2017 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,7 +38,7 @@ public class Squares2 extends InColorAlgorithm {
         double dx = Math.abs(x - Math.floor(x));
         double dy = Math.abs(y - Math.floor(y));
         
-        return (dx < 0.5 && dy < 0.5) || (dx > 0.5 && dy > 0.5) ? -100920 : 100820;
+        return (dx < 0.5 && dy < 0.5) || (dx > 0.5 && dy > 0.5) ? -(MAGIC_OFFSET_NUMBER + 100) : MAGIC_OFFSET_NUMBER;
         
     }
     

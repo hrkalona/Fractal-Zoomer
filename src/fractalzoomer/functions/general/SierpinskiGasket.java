@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2015 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2017 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,6 +34,7 @@ import fractalzoomer.out_coloring_algorithms.EscapeTimePlusRePlusImPlusReDivideI
 import fractalzoomer.in_coloring_algorithms.MagTimesCosReSquared;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.functions.Fractal;
+
 import fractalzoomer.in_coloring_algorithms.MaximumIterations;
 import fractalzoomer.in_coloring_algorithms.ReDivideIm;
 import fractalzoomer.in_coloring_algorithms.SinReSquaredMinusImSquared;
@@ -52,6 +53,7 @@ import fractalzoomer.out_coloring_algorithms.EscapeTimeGaussianInteger4;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeGaussianInteger5;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeGrid;
 import fractalzoomer.out_coloring_algorithms.EscapeTimePlusReDivideIm;
+
 import fractalzoomer.out_coloring_algorithms.SmoothBinaryDecomposition;
 import fractalzoomer.out_coloring_algorithms.SmoothBinaryDecomposition2;
 import fractalzoomer.out_coloring_algorithms.SmoothBiomorphs;
@@ -67,7 +69,7 @@ import java.util.ArrayList;
  */
 public class SierpinskiGasket extends Fractal {
 
-    public SierpinskiGasket(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula,  double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm) {
+    public SierpinskiGasket(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, boolean[] user_outcoloring_special_color, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean[] user_incoloring_special_color, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula,  double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm) {
 
         super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, false, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula,  plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
 
@@ -160,10 +162,10 @@ public class SierpinskiGasket extends Fractal {
                 break;
             case MainWindow.USER_OUTCOLORING_ALGORITHM:
                 if(user_out_coloring_algorithm == 0) {
-                    out_color_algorithm = new UserOutColorAlgorithm(outcoloring_formula, bailout);
+                    out_color_algorithm = new UserOutColorAlgorithm(outcoloring_formula, bailout, max_iterations);
                 }
                 else {
-                    out_color_algorithm = new UserConditionalOutColorAlgorithm(user_outcoloring_conditions, user_outcoloring_condition_formula, bailout);
+                    out_color_algorithm = new UserConditionalOutColorAlgorithm(user_outcoloring_conditions, user_outcoloring_condition_formula, user_outcoloring_special_color, bailout, max_iterations);
                 }
                 break;
 
@@ -206,7 +208,7 @@ public class SierpinskiGasket extends Fractal {
                     in_color_algorithm = new UserInColorAlgorithm(incoloring_formula, max_iterations);
                 }
                 else {
-                    in_color_algorithm = new UserConditionalInColorAlgorithm(user_incoloring_conditions, user_incoloring_condition_formula, max_iterations);
+                    in_color_algorithm = new UserConditionalInColorAlgorithm(user_incoloring_conditions, user_incoloring_condition_formula, user_incoloring_special_color, max_iterations);
                 }
                 break;
 
@@ -246,19 +248,21 @@ public class SierpinskiGasket extends Fractal {
         complex[0] = new Complex(pixel);//z
 
         Complex zold = new Complex();
+        Complex zold2 = new Complex();
+        Complex start = new Complex(complex[0]);
 
         for(; iterations < max_iterations; iterations++) {
-            if(bailout_algorithm.escaped(complex[0], zold)) {
-                Object[] object = {iterations, complex[0], zold};
+            if(bailout_algorithm.escaped(complex[0], zold, zold2, iterations, pixel, start)) {
+                Object[] object = {iterations, complex[0], zold, zold2, pixel, start};
                 return out_color_algorithm.getResult(object);
             }
-
+            zold2.assign(zold);
             zold.assign(complex[0]);
             function(complex);
 
         }
 
-        Object[] object = {complex[0], zold};
+        Object[] object = {complex[0], zold, zold2, pixel, start};
         return in_color_algorithm.getResult(object);
 
     }
@@ -271,26 +275,27 @@ public class SierpinskiGasket extends Fractal {
         complex[0] = new Complex(pixel);//z
 
         Complex zold = new Complex();
+        Complex zold2 = new Complex();
+        Complex start = new Complex(complex[0]);
 
         double temp;
 
         for(; iterations < max_iterations; iterations++) {
-            if(bailout_algorithm.escaped(complex[0], zold)) {
-                Object[] object = {iterations, complex[0], zold};
+            if(bailout_algorithm.escaped(complex[0], zold, zold2, iterations, pixel, start)) {
+                Object[] object = {iterations, complex[0], zold, zold2, pixel, start};
                 temp = out_color_algorithm.getResult(object);
-                double[] array = {Math.abs(temp) - 100800, temp};
+                double[] array = {out_color_algorithm.transformResultToHeight(temp), temp};
                 return array;
             }
-
+            zold2.assign(zold);
             zold.assign(complex[0]);
             function(complex);
 
         }
 
-        Object[] object = {complex[0], zold};
+        Object[] object = {complex[0], zold, zold2, pixel, start};
         temp = in_color_algorithm.getResult(object);
-        double result = temp == max_iterations ? max_iterations : max_iterations + Math.abs(temp) - 100820;
-        double[] array = {result, temp};
+        double[] array = {in_color_algorithm.transformResultToHeight(temp, max_iterations), temp};
         return array;
 
     }

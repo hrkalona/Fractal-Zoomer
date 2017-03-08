@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2015 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2017 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -279,7 +279,7 @@ public class OutColoringModesMenu extends JMenu {
         });
         add(out_coloring_modes[MainWindow.ESCAPE_TIME_GRID]);
 
-        out_coloring_modes[MainWindow.ATOM_DOMAIN] = new JRadioButtonMenuItem("Atom Domain");
+        /*out_coloring_modes[MainWindow.ATOM_DOMAIN] = new JRadioButtonMenuItem("Atom Domain");
         out_coloring_modes[MainWindow.ATOM_DOMAIN].setToolTipText("Sets the out-coloring method, using atom domain.");
         out_coloring_modes[MainWindow.ATOM_DOMAIN].addActionListener(new ActionListener() {
 
@@ -289,7 +289,7 @@ public class OutColoringModesMenu extends JMenu {
 
             }
         });
-        add(out_coloring_modes[MainWindow.ATOM_DOMAIN]);
+        add(out_coloring_modes[MainWindow.ATOM_DOMAIN]);*/
 
         out_coloring_modes[MainWindow.BANDED] = new JRadioButtonMenuItem("Banded");
         out_coloring_modes[MainWindow.BANDED].setToolTipText("Sets the out-coloring method, using an iteration based coloring.");

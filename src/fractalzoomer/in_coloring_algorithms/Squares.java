@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2015 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2017 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,7 +43,7 @@ public class Squares extends InColorAlgorithm {
         double re = ((Complex)object[0]).getRe();
         double im = ((Complex)object[0]).getIm();
         
-        return ((Math.abs((int)(re * 40)) % 2) ^ (Math.abs((int)(im * 40)) % 2)) == 1 ? Math.abs((Math.atan2(im, re) / (pi2)  + 0.75) * pi59) + 100820 :  Math.abs((Math.atan2(re, im) / (pi2)  + 0.75) * pi59) + 100820;
+        return ((Math.abs((int)(re * 40)) % 2) ^ (Math.abs((int)(im * 40)) % 2)) == 1 ? Math.abs((Math.atan2(im, re) / (pi2)  + 0.75) * pi59) + MAGIC_OFFSET_NUMBER :  Math.abs((Math.atan2(re, im) / (pi2)  + 0.75) * pi59) + MAGIC_OFFSET_NUMBER;
 
     }
     

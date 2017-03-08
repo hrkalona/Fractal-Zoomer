@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2015 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2017 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@ public class NNormBailoutTest extends BailoutTest {
     }
     
      @Override //N norm
-     public boolean escaped(Complex z, Complex zold) {
+     public boolean escaped(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start) {
          
         return Math.pow(Math.pow(z.getAbsRe(), n_norm) + Math.pow(z.getAbsIm(), n_norm), 1 / n_norm) >= bound;
          

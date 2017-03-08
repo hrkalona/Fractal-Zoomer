@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2015 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2017 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,14 +39,7 @@ public class ColorDecomposition extends OutColorAlgorithm {
     @Override
     public double getResult(Object[] object) {
 
-        return Math.abs((((Complex)object[1]).arg() / (pi2)  + 0.75) * pi59) + 100800;
-        
-    }
-    
-    @Override
-    public double getResult3D(Object[] object) {
-        
-        return  getResult(object);
+        return Math.abs((((Complex)object[1]).arg() / (pi2)  + 0.75) * pi59) + MAGIC_OFFSET_NUMBER;
         
     }
     

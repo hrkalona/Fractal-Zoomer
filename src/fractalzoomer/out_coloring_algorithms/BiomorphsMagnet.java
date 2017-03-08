@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2015 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2017 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,7 +37,7 @@ public class BiomorphsMagnet extends Biomorphs {
 
         double temp = ((Complex)object[1]).getRe();
         double temp2 = ((Complex)object[1]).getIm();
-        return (Boolean)object[2] ? (temp > -bailout && temp < bailout || temp2 > -bailout && temp2 < bailout ?  (Integer)object[0] + 100906 : -((Integer)object[0] + 100850)) : (temp > -bailout && temp < bailout || temp2 > -bailout && temp2 < bailout ?  (Integer)object[0] + 100800 : -((Integer)object[0] + 100850));
+        return (Boolean)object[2] ? (temp > -bailout && temp < bailout || temp2 > -bailout && temp2 < bailout ?  (Integer)object[0] + MAGIC_OFFSET_NUMBER + 106 : -((Integer)object[0] + MAGIC_OFFSET_NUMBER + 50)) : (temp > -bailout && temp < bailout || temp2 > -bailout && temp2 < bailout ?  (Integer)object[0] + MAGIC_OFFSET_NUMBER : -((Integer)object[0] + MAGIC_OFFSET_NUMBER + 50));
 
     }
     

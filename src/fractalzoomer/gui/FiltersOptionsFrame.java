@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 hrkalona
+ * Copyright (C) 2017 hrkalona
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@ package fractalzoomer.gui;
 import fractalzoomer.main.MainWindow;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -37,6 +38,7 @@ import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JTabbedPane;
@@ -52,7 +54,9 @@ public class FiltersOptionsFrame extends JFrame {
    private MainWindow ptra2;
    private Object[] components_filters;
    private int[] filters_options_vals;
+   private int[][] filters_options_extra_vals;
    private Color[] filters_colors;
+   private Color[][] filters_extra_colors;
    private FiltersOptionsFrame this_frame;
    private static int tab_index;
    
@@ -60,13 +64,15 @@ public class FiltersOptionsFrame extends JFrame {
        tab_index = 0;
    }
    
-    public FiltersOptionsFrame(MainWindow ptra, int[] filters_options_vals2, Color[] filters_colors2) {
+    public FiltersOptionsFrame(MainWindow ptra, int[] filters_options_vals2, int[][] filters_options_extra_vals2, Color[] filters_colors2, Color[][] filters_extra_colors2) {
         
         super();
 
         ptra2 = ptra;
         filters_options_vals = filters_options_vals2;
+        filters_options_extra_vals = filters_options_extra_vals2;
         filters_colors = filters_colors2;
+        filters_extra_colors = filters_extra_colors2;
         this_frame = this;
         
         components_filters = new Object[filters_options_vals.length];
@@ -104,6 +110,8 @@ public class FiltersOptionsFrame extends JFrame {
         panel_colors.setBackground(MainWindow.bg_color);
         JPanel panel_texture = new JPanel();
         panel_texture.setBackground(MainWindow.bg_color);
+        JPanel panel_lighting = new JPanel();
+        panel_lighting.setBackground(MainWindow.bg_color);
         
        
         tabbedPane.setFocusable(false);
@@ -116,6 +124,8 @@ public class FiltersOptionsFrame extends JFrame {
         tabbedPane.setIconAt(1, getIcon("/fractalzoomer/icons/filter_colors.png"));
         tabbedPane.addTab("Texture", panel_texture);
         tabbedPane.setIconAt(2, getIcon("/fractalzoomer/icons/filter_texture.png"));
+        tabbedPane.addTab("Lighting", panel_lighting);
+        tabbedPane.setIconAt(3, getIcon("/fractalzoomer/icons/filter_lighting.png"));
         
         tabbedPane.setSelectedIndex(tab_index);
 
@@ -288,7 +298,9 @@ public class FiltersOptionsFrame extends JFrame {
 
         table3 = new Hashtable<Integer, JLabel>();
         table3.put(0, new JLabel("0"));
+        table3.put(20, new JLabel("25"));
         table3.put(40, new JLabel("50"));
+        table3.put(60, new JLabel("75"));
         table3.put(80, new JLabel("100"));
         emboss_bumpheight_slid.setLabelTable(table3);
         
@@ -1717,10 +1729,11 @@ public class FiltersOptionsFrame extends JFrame {
         glow_softness_slid.setPaintLabels(true);
 
         table3 = new Hashtable<Integer, JLabel>();
-        table3.put(0, new JLabel("0.0"));
-        table3.put(25, new JLabel("25.0"));
-        table3.put(75, new JLabel("75.0"));
-        table3.put(100, new JLabel("100.0"));
+        table3.put(0, new JLabel("0"));
+        table3.put(25, new JLabel("25"));
+        table3.put(50, new JLabel("50"));
+        table3.put(75, new JLabel("75"));
+        table3.put(100, new JLabel("100"));
         glow_softness_slid.setLabelTable(table3);
         
         final JSlider glow_amount_slid = new JSlider(JSlider.HORIZONTAL, 0, 100, (int)(filters_options_vals[MainWindow.GLOW] % 1000.0));
@@ -1733,6 +1746,7 @@ public class FiltersOptionsFrame extends JFrame {
         table3 = new Hashtable<Integer, JLabel>();
         table3.put(0, new JLabel("0"));
         table3.put(25, new JLabel("25"));
+        table3.put(50, new JLabel("50"));
         table3.put(75, new JLabel("75"));
         table3.put(100, new JLabel("100"));
         glow_amount_slid.setLabelTable(table3);
@@ -1798,6 +1812,7 @@ public class FiltersOptionsFrame extends JFrame {
         table3 = new Hashtable<Integer, JLabel>();
         table3.put(0, new JLabel("0"));
         table3.put(25, new JLabel("25"));
+        table3.put(50, new JLabel("50"));
         table3.put(75, new JLabel("75"));
         table3.put(100, new JLabel("100"));
         noise_amount_slid.setLabelTable(table3);
@@ -1812,6 +1827,7 @@ public class FiltersOptionsFrame extends JFrame {
         table3 = new Hashtable<Integer, JLabel>();
         table3.put(0, new JLabel("0"));
         table3.put(25, new JLabel("25"));
+        table3.put(50, new JLabel("50"));
         table3.put(75, new JLabel("75"));
         table3.put(100, new JLabel("100"));
         noise_density_slid.setLabelTable(table3);
@@ -1986,10 +2002,7 @@ public class FiltersOptionsFrame extends JFrame {
         panel_blue.add(new JLabel("into"));    
         panel_blue.add(to_blue_slid);
         panel_blue.add(b_label5);
-       
-        
-        
-        
+
         ((JPanel)components_filters[MainWindow.COLOR_CHANNEL_MIXING]).add(panel_red);
         ((JPanel)components_filters[MainWindow.COLOR_CHANNEL_MIXING]).add(panel_green);
         ((JPanel)components_filters[MainWindow.COLOR_CHANNEL_MIXING]).add(panel_blue);
@@ -1998,6 +2011,544 @@ public class FiltersOptionsFrame extends JFrame {
         panels[MainWindow.COLOR_CHANNEL_MIXING].add(((JPanel)components_filters[MainWindow.COLOR_CHANNEL_MIXING]));
 
         panels[MainWindow.COLOR_CHANNEL_MIXING].setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Color Channel Mixing", TitledBorder.DEFAULT_POSITION, TitledBorder.DEFAULT_POSITION));
+        
+        panels[MainWindow.LIGHT_EFFECTS] = new JPanel();
+        panels[MainWindow.LIGHT_EFFECTS].setLayout(new GridLayout(1, 1));
+        panels[MainWindow.LIGHT_EFFECTS].setBackground(MainWindow.bg_color);
+
+        components_filters[MainWindow.LIGHT_EFFECTS] = new JPanel();
+        ((JPanel)components_filters[MainWindow.LIGHT_EFFECTS]).setLayout(new GridLayout(1, 3));
+        ((JPanel)components_filters[MainWindow.LIGHT_EFFECTS]).setBackground(MainWindow.bg_color);
+        
+        JPanel light_panel = new JPanel();
+        light_panel.setBackground(MainWindow.bg_color);
+        light_panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Light", TitledBorder.DEFAULT_POSITION, TitledBorder.DEFAULT_POSITION));
+        light_panel.setLayout(new GridLayout(10, 1));
+                
+        JPanel material_panel = new JPanel();
+        material_panel.setBackground(MainWindow.bg_color);
+        material_panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Material", TitledBorder.DEFAULT_POSITION, TitledBorder.DEFAULT_POSITION));
+        material_panel.setLayout(new GridLayout(5, 1));     
+        
+        JPanel bumps_panel = new JPanel();
+        bumps_panel.setBackground(MainWindow.bg_color);
+        bumps_panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Bumps", TitledBorder.DEFAULT_POSITION, TitledBorder.DEFAULT_POSITION));
+        bumps_panel.setLayout(new GridLayout(7, 1));
+        
+        String[] light_str = {"Point Light", "Distant Light", "Spotlight"};
+
+        final JComboBox light_box = new JComboBox(light_str);
+        light_box.setSelectedIndex((int)(filters_options_vals[MainWindow.LIGHT_EFFECTS] / 100000000.0));
+        light_box.setFocusable(false);
+        light_box.setToolTipText("Sets the type of the light.");
+        
+        JPanel type_panel = new JPanel();
+        type_panel.setBackground(MainWindow.bg_color);
+        type_panel.add(new JLabel("Type: "));
+        type_panel.add(light_box);
+        
+        light_panel.add(type_panel);
+        
+        JPanel dir_panel = new JPanel();
+        dir_panel.setBackground(MainWindow.bg_color);
+        dir_panel.setLayout(new FlowLayout(FlowLayout.RIGHT));
+        dir_panel.add(new JLabel("Direction:"));
+        
+        final JSlider light_direction_slid = new JSlider(JSlider.HORIZONTAL, 0, 80, (int)(((int)(filters_options_vals[MainWindow.LIGHT_EFFECTS] % 100000000.0)) / 1000000.0));
+        light_direction_slid.setPreferredSize(new Dimension(240, 35));
+        light_direction_slid.setBackground(MainWindow.bg_color);
+        light_direction_slid.setFocusable(false);
+        light_direction_slid.setToolTipText("Sets the light's direction.");
+        light_direction_slid.setPaintLabels(true);
+
+        table3 = new Hashtable<Integer, JLabel>();
+        table3.put(0, new JLabel("0"));
+        table3.put(20, new JLabel("90"));
+        table3.put(40, new JLabel("180"));
+        table3.put(60, new JLabel("270"));
+        table3.put(80, new JLabel("360"));
+        light_direction_slid.setLabelTable(table3);
+        
+        dir_panel.add(light_direction_slid);
+                    
+        light_panel.add(dir_panel);
+        
+        JPanel elev_panel = new JPanel();
+        elev_panel.setBackground(MainWindow.bg_color);
+        elev_panel.setLayout(new FlowLayout(FlowLayout.RIGHT));
+        elev_panel.add(new JLabel("Elevation:"));
+        
+        final JSlider light_elevation_slid = new JSlider(JSlider.HORIZONTAL, 0, 80, (int)(((int)(((int)(filters_options_vals[MainWindow.LIGHT_EFFECTS] % 100000000.0)) % 1000000.0)) / 10000.0));
+        light_elevation_slid.setPreferredSize(new Dimension(240, 35));
+        light_elevation_slid.setBackground(MainWindow.bg_color);
+        light_elevation_slid.setFocusable(false);
+        light_elevation_slid.setToolTipText("Sets the light's elevation.");
+        light_elevation_slid.setPaintLabels(true);
+
+        table3 = new Hashtable<Integer, JLabel>();
+        table3.put(0, new JLabel("0"));
+        table3.put(40, new JLabel("45"));
+        table3.put(80, new JLabel("90"));
+        light_elevation_slid.setLabelTable(table3);
+        
+        elev_panel.add(light_elevation_slid);
+        
+        light_panel.add(elev_panel);
+        
+        
+        JPanel dis_panel = new JPanel();
+        dis_panel.setBackground(MainWindow.bg_color);
+        dis_panel.setLayout(new FlowLayout(FlowLayout.RIGHT));
+        dis_panel.add(new JLabel("Distance:"));
+        
+        final JSlider light_distance_slid = new JSlider(JSlider.HORIZONTAL, 0, 80, (int)(((int)(((int)(((int)(filters_options_vals[MainWindow.LIGHT_EFFECTS] % 100000000.0)) % 1000000.0)) % 10000.0)) / 100));
+        light_distance_slid.setPreferredSize(new Dimension(240, 35));
+        light_distance_slid.setBackground(MainWindow.bg_color);
+        light_distance_slid.setFocusable(false);
+        light_distance_slid.setToolTipText("Sets the light's distance.");
+        light_distance_slid.setPaintLabels(true);
+        
+        table3 = new Hashtable<Integer, JLabel>();
+        table3.put(0, new JLabel("0.0"));
+        table3.put(40, new JLabel("500.0"));
+        table3.put(80, new JLabel("1000.0"));
+        light_distance_slid.setLabelTable(table3);
+        
+        dis_panel.add(light_distance_slid);
+        
+        light_panel.add(dis_panel);
+        
+        JPanel inte_panel = new JPanel();
+        inte_panel.setBackground(MainWindow.bg_color);
+        inte_panel.setLayout(new FlowLayout(FlowLayout.RIGHT));
+        inte_panel.add(new JLabel("Intensity:"));
+        
+        final JSlider light_intensity_slid = new JSlider(JSlider.HORIZONTAL, 0, 80, (int)(((int)(((int)(((int)(filters_options_vals[MainWindow.LIGHT_EFFECTS] % 100000000.0)) % 1000000.0)) % 10000.0)) % 100));
+        light_intensity_slid.setPreferredSize(new Dimension(240, 35));
+        light_intensity_slid.setBackground(MainWindow.bg_color);
+        light_intensity_slid.setFocusable(false);
+        light_intensity_slid.setToolTipText("Sets the light's intensity.");
+        light_intensity_slid.setPaintLabels(true);
+
+        table3 = new Hashtable<Integer, JLabel>();
+        table3.put(0, new JLabel("0.00"));
+        table3.put(20, new JLabel("0.25"));
+        table3.put(40, new JLabel("0.50"));
+        table3.put(60, new JLabel("0.75"));
+        table3.put(80, new JLabel("1.00"));
+        light_intensity_slid.setLabelTable(table3);
+        
+        inte_panel.add(light_intensity_slid);
+        light_panel.add(inte_panel);
+        
+        JPanel light_x_panel = new JPanel();
+        light_x_panel.setBackground(MainWindow.bg_color);
+        light_x_panel.setLayout(new FlowLayout(FlowLayout.RIGHT));
+        light_x_panel.add(new JLabel("X:"));
+        
+        final JSlider light_x_slid = new JSlider(JSlider.HORIZONTAL, 0, 80, (int)(filters_options_extra_vals[0][MainWindow.LIGHT_EFFECTS] / 1000000.0));
+        light_x_slid.setPreferredSize(new Dimension(240, 35));
+        light_x_slid.setBackground(MainWindow.bg_color);
+        light_x_slid.setFocusable(false);
+        light_x_slid.setToolTipText("Sets the light's x position.");
+        light_x_slid.setPaintLabels(true);
+        
+        table3 = new Hashtable<Integer, JLabel>();
+        table3.put(0, new JLabel("0"));
+        table3.put(20, new JLabel("25"));
+        table3.put(40, new JLabel("50"));
+        table3.put(60, new JLabel("75"));
+        table3.put(80, new JLabel("100"));
+        light_x_slid.setLabelTable(table3);
+        
+        light_x_panel.add(light_x_slid);
+        light_panel.add(light_x_panel);
+        
+        JPanel light_y_panel = new JPanel();
+        light_y_panel.setBackground(MainWindow.bg_color);
+        light_y_panel.setLayout(new FlowLayout(FlowLayout.RIGHT));
+        light_y_panel.add(new JLabel("Y:"));
+        
+        final JSlider light_y_slid = new JSlider(JSlider.HORIZONTAL, 0, 80, (int)(((int)(filters_options_extra_vals[0][MainWindow.LIGHT_EFFECTS] % 1000000.0)) / 10000.0));
+        light_y_slid.setPreferredSize(new Dimension(240, 35));
+        light_y_slid.setBackground(MainWindow.bg_color);
+        light_y_slid.setFocusable(false);
+        light_y_slid.setToolTipText("Sets the light's y position.");
+        light_y_slid.setPaintLabels(true);
+        
+        table3 = new Hashtable<Integer, JLabel>();
+        table3.put(0, new JLabel("0"));
+        table3.put(20, new JLabel("25"));
+        table3.put(40, new JLabel("50"));
+        table3.put(60, new JLabel("75"));
+        table3.put(80, new JLabel("100"));
+        light_y_slid.setLabelTable(table3);
+        
+        light_y_panel.add(light_y_slid);
+        light_panel.add(light_y_panel);
+        
+        JPanel light_cone_angle_panel = new JPanel();
+        light_cone_angle_panel.setBackground(MainWindow.bg_color);
+        light_cone_angle_panel.setLayout(new FlowLayout(FlowLayout.RIGHT));
+        light_cone_angle_panel.add(new JLabel("Cone Angle:"));
+        
+        final JSlider light_cone_angle_slid = new JSlider(JSlider.HORIZONTAL, 0, 80, (int)(((int)(((int)(filters_options_extra_vals[0][MainWindow.LIGHT_EFFECTS] % 1000000.0)) % 10000.0)) / 100.0));
+        light_cone_angle_slid.setPreferredSize(new Dimension(240, 35));
+        light_cone_angle_slid.setBackground(MainWindow.bg_color);
+        light_cone_angle_slid.setFocusable(false);
+        light_cone_angle_slid.setToolTipText("Sets the light's cone angle.");
+        light_cone_angle_slid.setPaintLabels(true);
+
+        table3 = new Hashtable<Integer, JLabel>();
+        table3.put(0, new JLabel("0"));
+        table3.put(40, new JLabel("45"));
+        table3.put(80, new JLabel("90"));
+        light_cone_angle_slid.setLabelTable(table3);
+        
+        light_cone_angle_panel.add(light_cone_angle_slid);
+        light_panel.add(light_cone_angle_panel);
+        
+        JPanel light_focus_panel = new JPanel();
+        light_focus_panel.setBackground(MainWindow.bg_color);
+        light_focus_panel.setLayout(new FlowLayout(FlowLayout.RIGHT));
+        light_focus_panel.add(new JLabel("Focus:"));
+        
+        final JSlider light_focus_slid = new JSlider(JSlider.HORIZONTAL, 0, 80, (int)(((int)(((int)(filters_options_extra_vals[0][MainWindow.LIGHT_EFFECTS] % 1000000.0)) % 10000.0)) % 100.0));
+        light_focus_slid.setPreferredSize(new Dimension(240, 35));
+        light_focus_slid.setBackground(MainWindow.bg_color);
+        light_focus_slid.setFocusable(false);
+        light_focus_slid.setToolTipText("Sets the light's focus.");
+        light_focus_slid.setPaintLabels(true);
+
+        table3 = new Hashtable<Integer, JLabel>();
+        table3.put(0, new JLabel("0.00"));
+        table3.put(20, new JLabel("0.25"));
+        table3.put(40, new JLabel("0.50"));
+        table3.put(60, new JLabel("0.75"));
+        table3.put(80, new JLabel("1.00"));
+        light_focus_slid.setLabelTable(table3);
+        
+        light_focus_panel.add(light_focus_slid);
+        light_panel.add(light_focus_panel);
+        
+        if(light_box.getSelectedIndex() == 0) {
+            light_cone_angle_slid.setEnabled(false);
+            light_focus_slid.setEnabled(false);
+        }
+        else if(light_box.getSelectedIndex() == 1) {
+            light_cone_angle_slid.setEnabled(false);
+            light_focus_slid.setEnabled(false);
+            light_x_slid.setEnabled(false);
+            light_y_slid.setEnabled(false);
+        }
+        
+        light_box.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(light_box.getSelectedIndex() == 0) {
+                    light_cone_angle_slid.setEnabled(false);
+                    light_focus_slid.setEnabled(false);
+                    light_x_slid.setEnabled(true);
+                    light_y_slid.setEnabled(true);
+                }
+                else if(light_box.getSelectedIndex() == 1) {
+                    light_cone_angle_slid.setEnabled(false);
+                    light_focus_slid.setEnabled(false);
+                    light_x_slid.setEnabled(false);
+                    light_y_slid.setEnabled(false);
+                }
+                else {
+                    light_cone_angle_slid.setEnabled(true);
+                    light_focus_slid.setEnabled(true);
+                    light_x_slid.setEnabled(true);
+                    light_y_slid.setEnabled(true);
+                }
+            }
+            
+        });
+        
+        final JLabel filter_color_label6 = new JLabel();
+                
+        filter_color_label6.setPreferredSize(new Dimension(22, 22));
+        filter_color_label6.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
+        filter_color_label6.setBackground(filters_colors[MainWindow.LIGHT_EFFECTS]);
+        filter_color_label6.setOpaque(true);
+        filter_color_label6.setToolTipText("Changes the light's color.");
+        
+        filter_color_label6.addMouseListener(new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {           
+                new ColorChooserFrame(ptra2, this_frame, "Light Color", filter_color_label6, -1);
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                
+            }
+            
+        });
+        
+        JPanel filter_color_panel6 = new JPanel();
+        filter_color_panel6.setBackground(MainWindow.bg_color);
+        filter_color_panel6.add(new JLabel("Color: "));
+        filter_color_panel6.add(filter_color_label6);
+        
+        light_panel.add(filter_color_panel6);
+
+        ((JPanel)components_filters[MainWindow.LIGHT_EFFECTS]).add(light_panel);
+        ((JPanel)components_filters[MainWindow.LIGHT_EFFECTS]).add(material_panel);
+        ((JPanel)components_filters[MainWindow.LIGHT_EFFECTS]).add(bumps_panel);
+        panels[MainWindow.LIGHT_EFFECTS].add(((JPanel)components_filters[MainWindow.LIGHT_EFFECTS]));
+        panels[MainWindow.LIGHT_EFFECTS].setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Light Effects", TitledBorder.DEFAULT_POSITION, TitledBorder.DEFAULT_POSITION));
+
+        JPanel material_colors = new JPanel();
+        material_colors.setBackground(MainWindow.bg_color);
+        material_colors.setLayout(new GridLayout(3, 2));
+        material_colors.add(new JLabel("Colors from:"));
+        material_colors.add(new JLabel(""));
+        
+        final JRadioButton source_image = new JRadioButton("Source Image");
+        source_image.setFocusable(false);
+        source_image.setToolTipText("Sets the color source from the image.");
+        source_image.setBackground(MainWindow.bg_color);
+        
+        final JRadioButton constant_color = new JRadioButton("Constant Color:");
+        constant_color.setFocusable(false);
+        source_image.setToolTipText("Sets a constant color source.");
+        constant_color.setBackground(MainWindow.bg_color);
+        
+        if((int)(filters_options_extra_vals[1][MainWindow.LIGHT_EFFECTS] / 10000000.0) == 0) {
+            source_image.setSelected(true);
+            constant_color.setSelected(false);
+        }
+        else {
+            source_image.setSelected(false);
+            constant_color.setSelected(true);
+        }
+        
+        source_image.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(source_image.isSelected()) {
+                    constant_color.setSelected(false);
+                }
+                else {
+                    constant_color.setSelected(true);
+                }
+            }         
+        });
+        
+        constant_color.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(constant_color.isSelected()) {
+                    source_image.setSelected(false);
+                }
+                else {
+                    source_image.setSelected(true);
+                }
+            }         
+        });
+               
+        material_colors.add(source_image);
+        material_colors.add(new JLabel(""));
+        
+        material_colors.add(constant_color);
+        
+        final JLabel filter_color_label7 = new JLabel();
+                
+        filter_color_label7.setPreferredSize(new Dimension(22, 22));
+        filter_color_label7.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
+        filter_color_label7.setBackground(filters_extra_colors[0][MainWindow.LIGHT_EFFECTS]);
+        filter_color_label7.setOpaque(true);
+        filter_color_label7.setToolTipText("Changes the material's diffuse color.");
+        
+        filter_color_label7.addMouseListener(new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {           
+                new ColorChooserFrame(ptra2, this_frame, "Diffuse Color", filter_color_label7, -1);
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                
+            }
+            
+        });
+        
+        JPanel filter_color_panel7 = new JPanel();
+        filter_color_panel7.setBackground(MainWindow.bg_color);
+        filter_color_panel7.add(new JLabel("Diffuse: "));
+        filter_color_panel7.add(filter_color_label7);
+        
+        final JLabel filter_color_label8 = new JLabel();
+                
+        filter_color_label8.setPreferredSize(new Dimension(22, 22));
+        filter_color_label8.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
+        filter_color_label8.setBackground(filters_extra_colors[1][MainWindow.LIGHT_EFFECTS]);
+        filter_color_label8.setOpaque(true);
+        filter_color_label8.setToolTipText("Changes the material's specular color.");
+        
+        filter_color_label8.addMouseListener(new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {           
+                new ColorChooserFrame(ptra2, this_frame, "Specular Color", filter_color_label8, -1);
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                
+            }
+            
+        });
+        
+        JPanel filter_color_panel8 = new JPanel();
+        filter_color_panel8.setBackground(MainWindow.bg_color);
+        filter_color_panel8.add(new JLabel("Specular Color: "));
+        filter_color_panel8.add(filter_color_label8);
+        
+        material_colors.add(filter_color_panel7);
+        
+        material_panel.add(material_colors);
+        
+        JPanel material_shininess_panel = new JPanel();
+        material_shininess_panel.setBackground(MainWindow.bg_color);
+        material_shininess_panel.setLayout(new FlowLayout(FlowLayout.RIGHT));
+        material_shininess_panel.add(new JLabel("Shininess:"));
+        
+        final JSlider material_shininess_slid = new JSlider(JSlider.HORIZONTAL, 0, 80, (int)(((int)(filters_options_extra_vals[1][MainWindow.LIGHT_EFFECTS] % 10000000.0)) / 100000.0));
+        material_shininess_slid.setPreferredSize(new Dimension(240, 35));
+        material_shininess_slid.setBackground(MainWindow.bg_color);
+        material_shininess_slid.setFocusable(false);
+        material_shininess_slid.setToolTipText("Sets the material's shininess.");
+        material_shininess_slid.setPaintLabels(true);
+        
+        table3 = new Hashtable<Integer, JLabel>();
+        table3.put(0, new JLabel("0.0"));
+        table3.put(20, new JLabel("2.5"));
+        table3.put(40, new JLabel("5.0"));
+        table3.put(60, new JLabel("7.5"));
+        table3.put(80, new JLabel("10.0"));
+        material_shininess_slid.setLabelTable(table3);
+        
+        material_shininess_panel.add(material_shininess_slid);
+        
+        material_panel.add(material_shininess_panel);
+        material_panel.add(filter_color_panel8);
+        
+        
+        material_panel.add(new JLabel());
+  
+        String[] bump_str = {"Normal", "Outer", "Inner", "Pillow", "Up", "Down"};
+
+        final JComboBox bump_box = new JComboBox(bump_str);
+        bump_box.setSelectedIndex((int)(((int)(((int)(filters_options_extra_vals[1][MainWindow.LIGHT_EFFECTS] % 10000000.0)) % 100000.0)) / 10000.0));
+        bump_box.setFocusable(false);
+        bump_box.setToolTipText("Sets the bump's shape.");
+        
+        JPanel bump_shape_panel = new JPanel();
+        bump_shape_panel.setBackground(MainWindow.bg_color);
+        bump_shape_panel.add(new JLabel("Shape: "));
+        bump_shape_panel.add(bump_box);
+        
+        bumps_panel.add(bump_shape_panel);
+        
+        JPanel bump_height_panel = new JPanel();
+        bump_height_panel.setBackground(MainWindow.bg_color);
+        bump_height_panel.setLayout(new FlowLayout(FlowLayout.RIGHT));
+        bump_height_panel.add(new JLabel("Height:"));
+        
+        final JSlider bump_height_slid = new JSlider(JSlider.HORIZONTAL, 0, 80, (int)(((int)(((int)(((int)(filters_options_extra_vals[1][MainWindow.LIGHT_EFFECTS] % 10000000.0)) % 100000.0)) % 10000.0)) / 100.0));
+        bump_height_slid.setPreferredSize(new Dimension(240, 35));
+        bump_height_slid.setBackground(MainWindow.bg_color);
+        bump_height_slid.setFocusable(false);
+        bump_height_slid.setToolTipText("Sets the bump's height.");
+        bump_height_slid.setPaintLabels(true);
+
+        table3 = new Hashtable<Integer, JLabel>();
+        table3.put(0, new JLabel("-5.0"));
+        table3.put(20, new JLabel("-2.5"));
+        table3.put(40, new JLabel("0.0"));
+        table3.put(60, new JLabel("2.5"));
+        table3.put(80, new JLabel("5.0"));
+        bump_height_slid.setLabelTable(table3);
+        
+        bump_height_panel.add(bump_height_slid);
+        bumps_panel.add(bump_height_panel);
+        
+        JPanel bump_softness_panel = new JPanel();
+        bump_softness_panel.setBackground(MainWindow.bg_color);
+        bump_softness_panel.setLayout(new FlowLayout(FlowLayout.RIGHT));
+        bump_softness_panel.add(new JLabel("Softness:"));
+        
+        final JSlider bump_softness_slid = new JSlider(JSlider.HORIZONTAL, 0, 80, (int)(((int)(((int)(((int)(filters_options_extra_vals[1][MainWindow.LIGHT_EFFECTS] % 10000000.0)) % 100000.0)) % 10000.0)) % 100.0));
+        bump_softness_slid.setPreferredSize(new Dimension(240, 35));
+        bump_softness_slid.setBackground(MainWindow.bg_color);
+        bump_softness_slid.setFocusable(false);
+        bump_softness_slid.setToolTipText("Sets the bump's softness.");
+        bump_softness_slid.setPaintLabels(true);
+        
+        table3 = new Hashtable<Integer, JLabel>();
+        table3.put(0, new JLabel("0"));
+        table3.put(20, new JLabel("25"));
+        table3.put(40, new JLabel("50"));
+        table3.put(60, new JLabel("75"));
+        table3.put(80, new JLabel("100"));
+        bump_softness_slid.setLabelTable(table3);
+        
+        bump_softness_panel.add(bump_softness_slid);
+        bumps_panel.add(bump_softness_panel);
+        bumps_panel.add(new JLabel());
+        bumps_panel.add(new JLabel());
+        bumps_panel.add(new JLabel());
+        bumps_panel.add(new JLabel());
         
         panel_details.setLayout(new GridLayout(2, 4));
         
@@ -2038,6 +2589,9 @@ public class FiltersOptionsFrame extends JFrame {
         panel_texture.add(panels[MainWindow.MARBLE]);
         panel_texture.add(panels[MainWindow.WEAVE]);
         panel_texture.add(panels[MainWindow.SPARKLE]);
+        
+        panel_lighting.setLayout(new GridLayout(1, 1));
+        panel_lighting.add(panels[MainWindow.LIGHT_EFFECTS]);
         
         panel.add(tabbedPane);
 
@@ -2134,13 +2688,22 @@ public class FiltersOptionsFrame extends JFrame {
                             filters_options_vals[k] = green_red_slid.getValue() * 1000000 + red_blue_slid.getValue() * 1000 + blue_green_slid.getValue();
                             filters_colors[k] = new Color(to_red_slid.getValue(), to_green_slid.getValue(), to_blue_slid.getValue());
                         }
+                        else if(k == MainWindow.LIGHT_EFFECTS) {
+                            filters_options_vals[k] = light_box.getSelectedIndex() * 100000000 + light_direction_slid.getValue() * 1000000 + light_elevation_slid.getValue() * 10000 + light_distance_slid.getValue() * 100 + light_intensity_slid.getValue();
+                            filters_options_extra_vals[0][k] = light_x_slid.getValue() * 1000000 + light_y_slid.getValue() * 10000 + light_cone_angle_slid.getValue() * 100 + light_focus_slid.getValue();
+                            int source = source_image.isSelected() ? 0 : 1;
+                            filters_options_extra_vals[1][k] = source * 10000000 + material_shininess_slid.getValue() * 100000 + bump_box.getSelectedIndex() * 10000 + bump_height_slid.getValue() * 100 + bump_softness_slid.getValue();
+                            filters_colors[k] = filter_color_label6.getBackground();
+                            filters_extra_colors[0][MainWindow.LIGHT_EFFECTS] = filter_color_label7.getBackground();
+                            filters_extra_colors[1][MainWindow.LIGHT_EFFECTS] = filter_color_label8.getBackground();
+                        }
                         else if ( components_filters[k] instanceof JComboBox){
                             filters_options_vals[k] = ((JComboBox)components_filters[k]).getSelectedIndex();
                         }
                     }
                 }
 
-                ptra2.filtersOptionsChanged(filters_options_vals, filters_colors);
+                ptra2.filtersOptionsChanged(filters_options_vals, filters_options_extra_vals, filters_colors, filters_extra_colors);
                 
                 tab_index = tabbedPane.getSelectedIndex();
 
@@ -2178,7 +2741,7 @@ public class FiltersOptionsFrame extends JFrame {
 
                 ptra2.defaultFilters(false);
                 
-                ptra2.filtersOptionsChanged(filters_options_vals, filters_colors);
+                ptra2.filtersOptionsChanged(filters_options_vals, filters_options_extra_vals, filters_colors, filters_extra_colors);
                 
                 tab_index = tabbedPane.getSelectedIndex();
                 

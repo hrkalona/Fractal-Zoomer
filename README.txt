@@ -1,4 +1,4 @@
-Fractal Zoomer 1.0.6.3
+Fractal Zoomer 1.0.6.4
 
 The most complete fractal generating software using java!
 
@@ -11,6 +11,7 @@ Over 120 different fractal generating functions
 
 Includes:
 User Formulas
+Custom user functions (code written by the user)
 Plane transformations
 Rotation
 Perturbation

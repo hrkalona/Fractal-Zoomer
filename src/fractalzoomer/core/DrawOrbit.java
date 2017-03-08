@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2015 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2017 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -132,6 +132,14 @@ import fractalzoomer.functions.formulas.m_like_generalization.zab_zde_fg.Formula
 import fractalzoomer.functions.formulas.m_like_generalization.zab_zde_fg.Formula41;
 import fractalzoomer.functions.root_finding_methods.halley.HalleyFormula;
 import fractalzoomer.functions.root_finding_methods.householder.HouseholderFormula;
+import fractalzoomer.functions.root_finding_methods.muller.Muller3;
+import fractalzoomer.functions.root_finding_methods.muller.Muller4;
+import fractalzoomer.functions.root_finding_methods.muller.MullerCos;
+import fractalzoomer.functions.root_finding_methods.muller.MullerFormula;
+import fractalzoomer.functions.root_finding_methods.muller.MullerGeneralized3;
+import fractalzoomer.functions.root_finding_methods.muller.MullerGeneralized8;
+import fractalzoomer.functions.root_finding_methods.muller.MullerPoly;
+import fractalzoomer.functions.root_finding_methods.muller.MullerSin;
 import fractalzoomer.functions.root_finding_methods.newton.NewtonFormula;
 import fractalzoomer.functions.root_finding_methods.schroder.SchroderFormula;
 import fractalzoomer.functions.user_formulas.UserFormulaConverging;
@@ -661,6 +669,30 @@ public class DrawOrbit extends Thread {
             case MainWindow.COUPLED_MANDELBROT_BURNING_SHIP:
                 pixel_orbit = new CoupledMandelbrotBurningShip(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
                 break;
+            case MainWindow.MULLER3:
+                pixel_orbit = new Muller3(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                break;
+            case MainWindow.MULLER4:
+                pixel_orbit = new Muller4(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                break;
+            case MainWindow.MULLERGENERALIZED3:
+                pixel_orbit = new MullerGeneralized3(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                break;
+            case MainWindow.MULLERGENERALIZED8:
+                pixel_orbit = new MullerGeneralized8(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                break;
+            case MainWindow.MULLERSIN:
+                pixel_orbit = new MullerSin(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                break;
+            case MainWindow.MULLERCOS:
+                pixel_orbit = new MullerCos(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                break;
+            case MainWindow.MULLERPOLY:
+                pixel_orbit = new MullerPoly(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, coefficients, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                break;
+            case MainWindow.MULLERFORMULA:
+                pixel_orbit = new MullerFormula(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, user_fz_formula);
+                break;
             
         }
         
@@ -1109,6 +1141,30 @@ public class DrawOrbit extends Thread {
                 break;
             case MainWindow.COUPLED_MANDELBROT_BURNING_SHIP:
                 pixel_orbit = new CoupledMandelbrotBurningShip(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                break;
+            case MainWindow.MULLER3:
+                pixel_orbit = new Muller3(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                break;
+            case MainWindow.MULLER4:
+                pixel_orbit = new Muller4(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                break;
+            case MainWindow.MULLERGENERALIZED3:
+                pixel_orbit = new MullerGeneralized3(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                break;
+            case MainWindow.MULLERGENERALIZED8:
+                pixel_orbit = new MullerGeneralized8(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                break;
+            case MainWindow.MULLERSIN:
+                pixel_orbit = new MullerSin(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                break;
+            case MainWindow.MULLERCOS:
+                pixel_orbit = new MullerCos(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                break;
+            case MainWindow.MULLERPOLY:
+                pixel_orbit = new MullerPoly(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, coefficients, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+                break;
+            case MainWindow.MULLERFORMULA:
+                pixel_orbit = new MullerFormula(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, user_fz_formula);
                 break;
             
         }

@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2015 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2017 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -51,13 +51,13 @@ import java.util.ArrayList;
  *
  * @author hrkalona2
  */
-public class HalleyPoly extends RootFindingMethods {
+public class HalleyPoly extends HalleyRootFindingMethod {
 
     private double[] coefficients;
 
-    public HalleyPoly(double xCenter, double yCenter, double size, int max_iterations, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, double[] coefficients, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula,  double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int converging_smooth_algorithm) {
+    public HalleyPoly(double xCenter, double yCenter, double size, int max_iterations, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, boolean[] user_outcoloring_special_color, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean[] user_incoloring_special_color, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, double[] coefficients, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula,  double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int converging_smooth_algorithm) {
 
-        super(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula,  plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+        super(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, user_outcoloring_special_color, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula,  plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
 
         this.coefficients = coefficients;
 
@@ -112,10 +112,10 @@ public class HalleyPoly extends RootFindingMethods {
             case MainWindow.USER_OUTCOLORING_ALGORITHM:
                 convergent_bailout = 1E-7;
                 if(user_out_coloring_algorithm == 0) {
-                    out_color_algorithm = new UserOutColorAlgorithmRootFindingMethod(outcoloring_formula, convergent_bailout);
+                    out_color_algorithm = new UserOutColorAlgorithmRootFindingMethod(outcoloring_formula, convergent_bailout, max_iterations);
                 }
                 else {
-                    out_color_algorithm = new UserConditionalOutColorAlgorithmRootFindingMethod(user_outcoloring_conditions, user_outcoloring_condition_formula, convergent_bailout);
+                    out_color_algorithm = new UserConditionalOutColorAlgorithmRootFindingMethod(user_outcoloring_conditions, user_outcoloring_condition_formula, user_outcoloring_special_color, convergent_bailout, max_iterations);
                 }
                 break;
 
@@ -158,7 +158,7 @@ public class HalleyPoly extends RootFindingMethods {
                     in_color_algorithm = new UserInColorAlgorithm(incoloring_formula, max_iterations);
                 }
                 else {
-                    in_color_algorithm = new UserConditionalInColorAlgorithm(user_incoloring_conditions, user_incoloring_condition_formula, max_iterations);
+                    in_color_algorithm = new UserConditionalInColorAlgorithm(user_incoloring_conditions, user_incoloring_condition_formula, user_incoloring_special_color, max_iterations);
                 }
                 break;
 
@@ -182,7 +182,7 @@ public class HalleyPoly extends RootFindingMethods {
         Complex dfz = complex[0].ninth().times_mutable(10 * coefficients[0]).plus_mutable(complex[0].eighth().times_mutable(9 * coefficients[1])).plus_mutable(complex[0].seventh().times_mutable(8 * coefficients[2])).plus_mutable(complex[0].sixth().times_mutable(7 * coefficients[3])).plus_mutable(complex[0].fifth().times_mutable(6 * coefficients[4])).plus_mutable(complex[0].fourth().times_mutable(5 * coefficients[5])).plus_mutable(complex[0].cube().times_mutable(4 * coefficients[6])).plus_mutable(complex[0].square().times_mutable(3 * coefficients[7])).plus_mutable(complex[0].times(2 * coefficients[8])).plus_mutable(coefficients[9]);
         Complex ddfz = complex[0].eighth().times_mutable(90 * coefficients[0]).plus_mutable(complex[0].seventh().times_mutable(72 * coefficients[1])).plus_mutable(complex[0].sixth().times_mutable(56 * coefficients[2])).plus_mutable(complex[0].fifth().times_mutable(42 * coefficients[3])).plus_mutable(complex[0].fourth().times_mutable(30 * coefficients[4])).plus_mutable(complex[0].cube().times_mutable(20 * coefficients[5])).plus_mutable(complex[0].square().times_mutable(12 * coefficients[6])).plus_mutable(complex[0].times(6 * coefficients[7])).plus_mutable(2 * coefficients[8]);
 
-        complex[0].sub_mutable((fz.times(dfz).times_mutable(2)).divide_mutable((dfz.square_mutable().times_mutable(2)).sub_mutable(fz.times_mutable(ddfz)))); //halley
+        halleyMethod(complex[0], fz, dfz, ddfz);
 
     }
 

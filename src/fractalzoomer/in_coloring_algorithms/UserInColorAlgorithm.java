@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2015 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2017 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,7 +37,12 @@ public class UserInColorAlgorithm extends InColorAlgorithm {
         
         parser = new Parser();
         expr = parser.parse(incoloring_formula);
-        c_max_iterations = new Complex(max_iterations, 0);
+        c_max_iterations = new Complex(max_iterations, 0);  
+                
+        if(parser.foundMaxn()) {
+            parser.setMaxnvalue(c_max_iterations);
+        }
+        
         this.max_iterations = max_iterations;
         
     }
@@ -45,21 +50,29 @@ public class UserInColorAlgorithm extends InColorAlgorithm {
     @Override
     public double getResult(Object[] object) {
         
-        if(parser.foundMaxn()) {
-            parser.setMaxnvalue(c_max_iterations);
-        }
-        
         if(parser.foundZ()) {
             parser.setZvalue(((Complex)object[0]));
+        }
+        
+        if(parser.foundC()) {
+            parser.setCvalue(((Complex)object[3]));
+        }
+        
+        if(parser.foundS()) {
+            parser.setSvalue(((Complex)object[4]));
         }
         
         if(parser.foundP()) {
             parser.setPvalue(((Complex)object[1]));
         }
         
+        if(parser.foundPP()) {
+            parser.setPPvalue(((Complex)object[2]));
+        }
+        
         double temp = expr.getValue().getAbsRe();
         
-        return temp == max_iterations ? max_iterations : temp + 100820;
+        return temp == max_iterations ? max_iterations : temp + MAGIC_OFFSET_NUMBER;
         
     }
     

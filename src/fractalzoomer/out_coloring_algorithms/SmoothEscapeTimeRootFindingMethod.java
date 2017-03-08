@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2015 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2017 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -41,7 +41,7 @@ public class SmoothEscapeTimeRootFindingMethod extends OutColorAlgorithm {
 
         if(algorithm == 0) {
             double temp = Math.log(((Complex)object[3]).distance_squared((Complex)object[4]));
-            return (Integer)object[0] + (log_convergent_bailout - temp) / (Math.log((Double)object[2]) - temp) + 100800;
+            return (Integer)object[0] + (log_convergent_bailout - temp) / (Math.log((Double)object[2]) - temp) + MAGIC_OFFSET_NUMBER;
         }
         else {
             double temp4 = Math.log(((Double)object[2]) + 1e-33);
@@ -52,15 +52,8 @@ public class SmoothEscapeTimeRootFindingMethod extends OutColorAlgorithm {
             
             double f = Math.log(log_convergent_bailout / temp4) / Math.log(power);
 
-            return (Integer)object[0] + f + 100800;
+            return (Integer)object[0] + f + MAGIC_OFFSET_NUMBER;
         }
-
-    }
-
-    @Override
-    public double getResult3D(Object[] object) {
-
-        return getResult(object);
 
     }
 }

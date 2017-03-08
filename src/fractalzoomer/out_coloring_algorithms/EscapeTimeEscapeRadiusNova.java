@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2015 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2017 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,15 +38,8 @@ public class EscapeTimeEscapeRadiusNova extends EscapeTimeEscapeRadius {
         double zabs = Math.abs(Math.log(((Complex)object[1]).norm_squared()) / log_bailout_squared - 1.0f);
         double zarg = (((Complex)object[1]).arg() / (pi2) + 1.0f) % 1.0;
         
-        return (Integer)object[0] + 100800 + zabs + zarg;
+        return (Integer)object[0] + MAGIC_OFFSET_NUMBER + zabs + zarg;
 
-    }
-    
-    @Override
-    public double getResult3D(Object[] object) {
-        
-        return  getResult(object);
-        
     }
     
 }

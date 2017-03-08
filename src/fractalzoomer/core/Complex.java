@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2015 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2017 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,8 +15,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package fractalzoomer.core;
-
-import java.util.Random;
 
 public final class Complex {
 
@@ -441,6 +439,106 @@ public final class Complex {
 
         return this;
 
+    }
+    
+   /*
+    * z = z1 % z2
+    */
+    public final Complex remainder(Complex z) {
+        
+        return this.sub(z.times(this.divide(z).trunc()));
+        
+    }
+    
+    /*
+    * z1 = z1 % z2
+    */
+    public final Complex remainder_mutable(Complex z) {
+        
+        return this.sub_mutable(z.times(this.divide(z).trunc_mutable()));
+        
+    }
+    
+    /*
+    * z = z1 % Real
+    */
+    public final Complex remainder(double real) {
+        
+        return this.sub(this.divide(real).trunc().times(real));
+        
+    }
+    
+    /*
+    * z1 = z1 % Real
+    */
+    public final Complex remainder_mutable(double real) {
+        
+        return this.sub_mutable(this.divide(real).trunc_mutable().times_mutable(real));
+        
+    }
+    
+    /*
+    * z = z1 % Imaginary
+    */
+    public final Complex remainder_i(double imaginary) {
+        
+        return this.sub(this.divide_i(imaginary).trunc().times_i(imaginary));
+        
+    }
+    
+    /*
+    * z1 = z1 % Imaginary
+    */
+    public final Complex remainder_i_mutable(double imaginary) {
+        
+        return this.sub_mutable(this.divide_i(imaginary).trunc_mutable().times_i_mutable(imaginary));
+        
+    }
+    
+    /*
+    * z = Real % z1
+    */
+    public final Complex r_remainder(double real) {
+        
+        return (this.r_divide(real).trunc().times(this)).r_sub(real);
+        
+    }
+    
+    /*
+    * z1 = Real % z1
+    */
+    public final Complex r_remainder_mutable(double real) {
+        
+        Complex a = (this.r_divide(real).trunc().times(this)).r_sub(real);
+        
+        re = a.re;
+        im = a.im;
+        
+        return this;
+        
+    }
+    
+    /*
+    * z = Imaginary % z1
+    */
+    public final Complex i_remainder(double imaginary) {
+        
+        return (this.i_divide(imaginary).trunc().times(this)).i_sub(imaginary);
+        
+    }
+    
+    /*
+    * z1 = Imaginary % z1
+    */
+    public final Complex i_remainder_mutable(double imaginary) {
+        
+        Complex a = (this.i_divide(imaginary).trunc().times(this)).i_sub(imaginary);
+        
+        re = a.re;
+        im = a.im;
+        
+        return this;
+        
     }
      
 
@@ -1444,6 +1542,9 @@ public final class Complex {
 
     /*
      *  lexicographical comparison between two complex numbers
+     * -1 when z1 > z2
+     *  1 when z1 < z2
+     *  0 when z1 == z2
      */
     public final int compare(Complex z2) {
 
@@ -1613,20 +1714,16 @@ public final class Complex {
 
     }
 
-    public final Complex toBiPolar(double a) {
-        double d1_2, d2_2;
-
-        d1_2 = this.distance_squared(-a);
-        d2_2 = this.distance_squared(a);
-
-        return new Complex(0.5 * Math.log(d1_2 / d2_2), Math.acos((d1_2 + d2_2 - 4 * a * a) / (2 * Math.sqrt(d1_2 * d2_2))));
-
+    public final Complex toBiPolar(Complex a) {
+        
+        return this.times(0.5).cot().times(a).times_i(1);
+        
     }
 
-    public final Complex fromBiPolar(double a) {
-
-        return this.times_i(0.5).cot().times_i(a);
-
+    public final Complex fromBiPolar(Complex a) {
+        
+         return this.divide(a.times_i(1)).acot().times(2);
+         
     }
     
     /* Series approximation of the error function */
@@ -1655,7 +1752,14 @@ public final class Complex {
         return sum;
   
     }
-  
+    
+    public final Complex inflection(Complex inf) {
+        
+        Complex diff = this.sub(inf);
+         
+        return inf.plus(diff.times_mutable(diff));
+        
+    }
 
     public static final String toString2(double real, double imaginary) {
         String temp = "";
@@ -1760,9 +1864,9 @@ public final class Complex {
         }
     }
 
-    public final Complex shear(double shx, double shy) {
+    public final Complex shear(Complex sh) {
 
-        return new Complex(re + (im * shx), im + (re * shy));
+        return new Complex(re + (im * sh.re), im + (re * sh.im));
 
     }
 
