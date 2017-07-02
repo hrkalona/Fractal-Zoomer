@@ -376,7 +376,7 @@ public class FunctionExpressionNode implements ExpressionNode {
         this.function = function;
         this.argument = argument;
 
-        if (function >= F1 && function <= (F1 + USER_FUNCS.length)) {
+        if (function >= F1 && function < (F1 + USER_FUNCS.length)) {
             getUserFunction();
         }
 

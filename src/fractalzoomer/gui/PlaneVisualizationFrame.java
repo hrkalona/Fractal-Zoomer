@@ -49,7 +49,7 @@ public class PlaneVisualizationFrame extends JFrame {
     private MainWindow ptra2;
     private PlaneVisualizationFrame thiss;
     
-    public PlaneVisualizationFrame(MainWindow ptra, final int plane_type, final String user_plane, final int user_plane_algorithm, final String[] user_plane_conditions, final String[] user_plane_condition_formula, final double[] plane_transform_center, final double plane_transform_angle, final double plane_transform_radius, final double[] plane_transform_scales, final double plane_transform_angle2, final int plane_transform_sides, final double plane_transform_amount) {
+    public PlaneVisualizationFrame(MainWindow ptra, final int plane_type, final String user_plane, final int user_plane_algorithm, final String[] user_plane_conditions, final String[] user_plane_condition_formula, final double[] plane_transform_center, final double plane_transform_angle, final double plane_transform_radius, final double[] plane_transform_scales, final double plane_transform_angle2, final int plane_transform_sides, final double plane_transform_amount, final int max_iterations) {
         
         super();
 
@@ -104,7 +104,7 @@ public class PlaneVisualizationFrame extends JFrame {
         
         double size = 5;
         try {
-            new PlaneVisualizer(plane_mu_image, new_plane_image, plane_type, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, size).visualizePlanes(0, 0);
+            new PlaneVisualizer(plane_mu_image, new_plane_image, plane_type, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, 0, 0, size, max_iterations).visualizePlanes(0, 0);
         } catch (ParserException e) {
             JOptionPane.showMessageDialog(thiss, e.getMessage() + "\nThe application will terminate.", "Error!", JOptionPane.ERROR_MESSAGE);
             ptra2.savePreferences();
@@ -121,7 +121,7 @@ public class PlaneVisualizationFrame extends JFrame {
             public void stateChanged(ChangeEvent e) {
                 double size = Math.pow(1.3, (20 - size_slid.getValue()) - 10) * 5;
                 try {
-                    new PlaneVisualizer(plane_mu_image, new_plane_image, plane_type, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, size).visualizePlanes(0, 0);
+                    new PlaneVisualizer(plane_mu_image, new_plane_image, plane_type, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, 0, 0, size, max_iterations).visualizePlanes(0, 0);
                 } catch (ParserException ex) {
                     JOptionPane.showMessageDialog(thiss, ex.getMessage() + "\nThe application will terminate.", "Error!", JOptionPane.ERROR_MESSAGE);
                     ptra2.savePreferences();

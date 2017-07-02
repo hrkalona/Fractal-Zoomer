@@ -22,6 +22,7 @@ import fractalzoomer.filters_utils.image.ContrastFilter;
 import fractalzoomer.filters_utils.image.CrystallizeFilter;
 import fractalzoomer.filters_utils.image.DiffusionFilter;
 import fractalzoomer.filters_utils.image.DitherFilter;
+import fractalzoomer.filters_utils.image.EdgeFilter;
 import fractalzoomer.filters_utils.image.EmbossFilter;
 import fractalzoomer.filters_utils.image.ExposureFilter;
 import fractalzoomer.filters_utils.image.GainFilter;
@@ -67,12 +68,12 @@ public class ImageFilters {
     private static final float[] thin_edges = {-1.0f, -1.0f, -1.0f, -1.0f, 8.0f, -1.0f, -1.0f, -1.0f, -1.0f};
     private static final float[] sharpness_high = {-0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, 3.4f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f};
     private static float[] sharpness_low = {0.0f, -0.2f, 0.0f, -0.2f, 1.8f, -0.2f, 0.0f, -0.2f, 0.0f};
-    private static final float[] EMBOSS = {1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, -1.0f};    
+    private static final float[] EMBOSS = {1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, -1.0f};
 
     private static void filterEmboss(BufferedImage image, int filter_value) {
 
         int image_size = image.getHeight();
-        
+
         int algorithm = (int)(((int)(((int)(filter_value % 100000.0)) % 1000.0)) % 10.0);
 
         if(algorithm == 2) {
@@ -97,56 +98,55 @@ public class ImageFilters {
         }
         else if(algorithm == 3) {
             BumpFilter f = new BumpFilter();
-            
+
             f.filter(image, image);
         }
         else {
             /*int[] raster = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
 
-            for(int i = image_size - 1; i >= 0; i--) {
-                for(int j = image_size - 1, loc = i * image_size + j; j >= 0; j--, loc--) {
-                    int current = raster[loc];
+             for(int i = image_size - 1; i >= 0; i--) {
+             for(int j = image_size - 1, loc = i * image_size + j; j >= 0; j--, loc--) {
+             int current = raster[loc];
 
-                    int upperLeft = 0;
-                    if(i > 0 && j > 0) {
-                        upperLeft = raster[loc - image_size - 1];
-                    }
+             int upperLeft = 0;
+             if(i > 0 && j > 0) {
+             upperLeft = raster[loc - image_size - 1];
+             }
 
-                    int rDiff = ((current >> 16) & 0xff) - ((upperLeft >> 16) & 0xff);
-                    int gDiff = ((current >> 8) & 0xff) - ((upperLeft >> 8) & 0xff);
-                    int bDiff = (current & 0xff) - (upperLeft & 0xff);
+             int rDiff = ((current >> 16) & 0xff) - ((upperLeft >> 16) & 0xff);
+             int gDiff = ((current >> 8) & 0xff) - ((upperLeft >> 8) & 0xff);
+             int bDiff = (current & 0xff) - (upperLeft & 0xff);
 
-                    int diff = rDiff;
-                    if(Math.abs(gDiff) > Math.abs(diff)) {
-                        diff = gDiff;
-                    }
-                    if(Math.abs(bDiff) > Math.abs(diff)) {
-                        diff = bDiff;
-                    }
+             int diff = rDiff;
+             if(Math.abs(gDiff) > Math.abs(diff)) {
+             diff = gDiff;
+             }
+             if(Math.abs(bDiff) > Math.abs(diff)) {
+             diff = bDiff;
+             }
 
-                    int grayLevel = Math.max(Math.min(128 + diff, 255), 0);
-                    raster[loc] = 0xff000000 | ((grayLevel << 16) + (grayLevel << 8) + grayLevel);
-                }
-            }*/
-            
+             int grayLevel = Math.max(Math.min(128 + diff, 255), 0);
+             raster[loc] = 0xff000000 | ((grayLevel << 16) + (grayLevel << 8) + grayLevel);
+             }
+             }*/
+
             double direction = (((int)(((int)(((int)(filter_value % 100000.0)) % 1000.0)) / 10.0)) / 80.0 * 360) * Math.PI / 180.0;
             double elevation = (((int)(((int)(filter_value % 100000.0)) / 1000.0)) / 80.0 * 90) * Math.PI / 180.0;
             double bump_height = ((int)(filter_value / 100000.0)) / 80.0;
-            
+
             EmbossFilter f = new EmbossFilter();
-            
+
             f.setAzimuth((float)direction);
             f.setElevation((float)elevation);
             f.setBumpHeight((float)bump_height);
-            
+
             if(algorithm == 0) {
                 f.setEmboss(false);
             }
             else {
                 f.setEmboss(true);
             }
-            
-            
+
             f.filter(image, image);
         }
 
@@ -167,10 +167,9 @@ public class ImageFilters {
          -2.0f, -4.0f, 44.0f, -4.0f, -2.0f,
          -1.0f, -2.0f, -4.0f, -2.0f, -1.0f,
          -1.0f, -1.0f, -2.0f, -1.0f, -1.0f};*/
-        
         int sensitivity = (int)(filter_value / 100.0);
         int thickness = (int)(filter_value % 100.0);
-        
+
         float[] EDGES = null;
 
         if(thickness == 1) {
@@ -199,10 +198,10 @@ public class ImageFilters {
         int condition = image_size * image_size;
 
         for(int p = 0; p < condition; p++) {
-            
+
             int r = (raster[p] >> 16) & 0xff;
             int g = (raster[p] >> 8) & 0xff;
-            int b = raster[p] & 0xff;          
+            int b = raster[p] & 0xff;
             if(r <= sensitivity && g <= sensitivity && b <= sensitivity) {//(0xff000000 | raster[p]) == black
                 rgbs[p] = filter_color.getRGB();
             }
@@ -249,56 +248,53 @@ public class ImageFilters {
     }
 
     private static void filterBlurring(BufferedImage image, int filter_value) { //OLD antialiasing method (blurring)
-        
+
         int alg = ((int)(filter_value / 1000.0));
-        
- 
-        
-        if(alg >= 0 && alg < 6) {  
+
+        if(alg >= 0 && alg < 6) {
             /*     float b = 0.05f;
-         float a = 1.0f - (8.0f * b);
+             float a = 1.0f - (8.0f * b);
         
         
-         float[] AA = {b, b, b,    // low-pass filter
-         b, a, b,
-         b, b, b};
+             float[] AA = {b, b, b,    // low-pass filter
+             b, a, b,
+             b, b, b};
         
         
-         /* float c = 0.00390625f;
-         float b = 0.046875f;
-         float a = 1.0f - (16.0f * c + 8.0f * b);
+             /* float c = 0.00390625f;
+             float b = 0.046875f;
+             float a = 1.0f - (16.0f * c + 8.0f * b);
         
-         float[] AA = {c, c, c, c, c,    // low-pass filter
-         c, b, b, b, c,
-         c, b, a, b, c,
-         c, b, b, b, c,
-         c, c, c, c, c};*/
-        /*  float d = 1.0f / 3096.0f;
-         float c = 12.0f * d;
-         float b = 12.0f * c;
-         float a = 1.0f - (24.0f * d + 16.0f * c + 8.0f * b);
+             float[] AA = {c, c, c, c, c,    // low-pass filter
+             c, b, b, b, c,
+             c, b, a, b, c,
+             c, b, b, b, c,
+             c, c, c, c, c};*/
+            /*  float d = 1.0f / 3096.0f;
+             float c = 12.0f * d;
+             float b = 12.0f * c;
+             float a = 1.0f - (24.0f * d + 16.0f * c + 8.0f * b);
         
-         float[] AA = {d, d, d, d, d, d, d,    // low-pass filter
-         d, c, c, c, c, c, d,
-         d, c, b, b, b, c, d,
-         d, c, b, a, b, c, d,
-         d, c, b, b, b, c, d,
-         d, c, c, c, c, c, d,
-         d, d, d, d, d, d, d};*/
+             float[] AA = {d, d, d, d, d, d, d,    // low-pass filter
+             d, c, c, c, c, c, d,
+             d, c, b, b, b, c, d,
+             d, c, b, a, b, c, d,
+             d, c, b, b, b, c, d,
+             d, c, c, c, c, c, d,
+             d, d, d, d, d, d, d};*/
+
+            /*if(blurring == 1) {
+             float[] MOTION_BLUR = {0.2f,  0.0f,  0.0f, 0.0f,  0.0f,
+             0.0f,   0.2f,  0.0f, 0.0f,  0.0f,
+             0.0f,   0.0f,  0.2f, 0.0f,  0.0f,
+             0.0f,   0.0f,  0.0f, 0.2f,  0.0f,
+             0.0f,   0.0f,  0.0f, 0.0f,  0.2f};
         
-   
-        /*if(blurring == 1) {
-         float[] MOTION_BLUR = {0.2f,  0.0f,  0.0f, 0.0f,  0.0f,
-         0.0f,   0.2f,  0.0f, 0.0f,  0.0f,
-         0.0f,   0.0f,  0.2f, 0.0f,  0.0f,
-         0.0f,   0.0f,  0.0f, 0.2f,  0.0f,
-         0.0f,   0.0f,  0.0f, 0.0f,  0.2f};
-        
-         blur = MOTION_BLUR;
-         }*/
-        //else {
+             blur = MOTION_BLUR;
+             }*/
+            //else {
             float[] blur = null;
-            
+
             if(alg == 0) {
                 float e = 1.0f / 37184.0f;
                 float d = 12.0f * e;
@@ -319,87 +315,84 @@ public class ImageFilters {
                 blur = NORMAL_BLUR;
             }
             else {
-                 int radius = alg;
-                 double weight = ((int)(filter_value % 1000.0)) / 100.0 * 40;
-                 blur = createGaussianKernel((radius - 1) * 2 + 3, weight);
+                int radius = alg;
+                double weight = ((int)(filter_value % 1000.0)) / 100.0 * 40;
+                blur = createGaussianKernel((radius - 1) * 2 + 3, weight);
             }
-            
+
                 // }
+            /*float h = 1.0f / 64260344.0f;
+             float g = 12.0f * h;
+             float f = 12.0f * g;
+             float e = 12.0f * f;
+             float d = 12.0f * e;
+             float c = 12.0f * d;
+             float b = 12.0f * c;
+             float a = 1.0f - (56.0f * h + 48.0f * g + 40.0f * f + 32.0f * e + 24.0f * d + 16.0f * c + 8.0f * b);
 
+             float[] AA  = {h, h, h, h, h, h, h, h, h, h, h, h, h, h, h,    // low-pass filter
+             h, g, g, g, g, g, g, g, g, g, g, g, g, g, h,
+             h, g, f, f, f, f, f, f, f, f, f, f, f, g, h,
+             h, g, f, e, e, e, e, e, e, e, e, e, f, g, h,
+             h, g, f, e, d, d, d, d, d, d, d, e, f, g, h,
+             h, g, f, e, d, c, c, c, c, c, d, e, f, g, h,
+             h, g, f, e, d, c, b, b, b, c, d, e, f, g, h,
+             h, g, f, e, d, c, b, a, b, c, d, e, f, g, h,
+             h, g, f, e, d, c, b, b, b, c, d, e, f, g, h,
+             h, g, f, e, d, c, c, c, c, c, d, e, f, g, h,
+             h, g, f, e, d, d, d, d, d, d, d, e, f, g, h,
+             h, g, f, e, e, e, e, e, e, e, e, e, f, g, h,
+             h, g, f, f, f, f, f, f, f, f, f, f, f, g, h,
+             h, g, g, g, g, g, g, g, g, g, g, g, g, g, h,
+             h, h, h, h, h, h, h, h, h, h, h, h, h, h, h};*/
+            //resize the picture to cover the image edges
+            int kernelWidth = (int)Math.sqrt((double)blur.length);
+            int kernelHeight = kernelWidth;
+            int xOffset = (kernelWidth - 1) / 2;
+            int yOffset = xOffset;
 
-           /*float h = 1.0f / 64260344.0f;
-            float g = 12.0f * h;
-            float f = 12.0f * g;
-            float e = 12.0f * f;
-            float d = 12.0f * e;
-            float c = 12.0f * d;
-            float b = 12.0f * c;
-            float a = 1.0f - (56.0f * h + 48.0f * g + 40.0f * f + 32.0f * e + 24.0f * d + 16.0f * c + 8.0f * b);
+            int image_size = image.getHeight();
 
-            float[] AA  = {h, h, h, h, h, h, h, h, h, h, h, h, h, h, h,    // low-pass filter
-            h, g, g, g, g, g, g, g, g, g, g, g, g, g, h,
-            h, g, f, f, f, f, f, f, f, f, f, f, f, g, h,
-            h, g, f, e, e, e, e, e, e, e, e, e, f, g, h,
-            h, g, f, e, d, d, d, d, d, d, d, e, f, g, h,
-            h, g, f, e, d, c, c, c, c, c, d, e, f, g, h,
-            h, g, f, e, d, c, b, b, b, c, d, e, f, g, h,
-            h, g, f, e, d, c, b, a, b, c, d, e, f, g, h,
-            h, g, f, e, d, c, b, b, b, c, d, e, f, g, h,
-            h, g, f, e, d, c, c, c, c, c, d, e, f, g, h,
-            h, g, f, e, d, d, d, d, d, d, d, e, f, g, h,
-            h, g, f, e, e, e, e, e, e, e, e, e, f, g, h,
-            h, g, f, f, f, f, f, f, f, f, f, f, f, g, h,
-            h, g, g, g, g, g, g, g, g, g, g, g, g, g, h,
-            h, h, h, h, h, h, h, h, h, h, h, h, h, h, h};*/
-           //resize the picture to cover the image edges
-           int kernelWidth = (int)Math.sqrt((double)blur.length);
-           int kernelHeight = kernelWidth;
-           int xOffset = (kernelWidth - 1) / 2;
-           int yOffset = xOffset;
+            BufferedImage newSource = new BufferedImage(image_size + kernelWidth - 1, image_size + kernelHeight - 1, BufferedImage.TYPE_INT_RGB);
+            Graphics2D graphics = newSource.createGraphics();
+            graphics.drawImage(image, xOffset, yOffset, null);
 
-           int image_size = image.getHeight();
+            Kernel kernel = new Kernel(kernelWidth, kernelHeight, blur);
+            ConvolveOp cop = new ConvolveOp(kernel, ConvolveOp.EDGE_NO_OP, null);
+            cop.filter(newSource, image);
 
-           BufferedImage newSource = new BufferedImage(image_size + kernelWidth - 1, image_size + kernelHeight - 1, BufferedImage.TYPE_INT_RGB);
-           Graphics2D graphics = newSource.createGraphics();
-           graphics.drawImage(image, xOffset, yOffset, null);
-
-           Kernel kernel = new Kernel(kernelWidth, kernelHeight, blur);
-           ConvolveOp cop = new ConvolveOp(kernel, ConvolveOp.EDGE_NO_OP, null);
-           cop.filter(newSource, image);
-
-           graphics.dispose();
-           graphics = null;
-           blur = null;
-           kernel = null;
-           cop = null;
-           newSource = null;
+            graphics.dispose();
+            graphics = null;
+            blur = null;
+            kernel = null;
+            cop = null;
+            newSource = null;
         }
         else if(alg == 6) {
             MaximumFilter f = new MaximumFilter();
-            
+
             f.filter(image, image);
         }
         else if(alg == 7) {
             MedianFilter f = new MedianFilter();
-            
+
             f.filter(image, image);
         }
         else if(alg == 8) {
             MinimumFilter f = new MinimumFilter();
-            
+
             f.filter(image, image);
         }
         else if(alg == 9) {
             double weight = ((int)(filter_value % 1000.0));
-            
+
             HighPassFilter f = new HighPassFilter();
-            
+
             f.setRadius((float)weight);
-            
+
             f.filter(image, image);
         }
 
-       
     }
 
     private static void filterInvertColors(BufferedImage image, int filter_value) {
@@ -417,7 +410,7 @@ public class ImageFilters {
             if(filter_value == 0) {
                 raster[p] = ~(raster[p] & 0x00ffffff);
             }
-            else if(filter_value == 1){ // Brightness
+            else if(filter_value == 1) { // Brightness
                 r = (raster[p] >> 16) & 0xff;
                 g = (raster[p] >> 8) & 0xff;
                 b = raster[p] & 0xff;
@@ -428,7 +421,7 @@ public class ImageFilters {
 
                 raster[p] = Color.HSBtoRGB(res[0], res[1], 1.0f - res[2]);
             }
-            else if(filter_value == 2){ // Hue
+            else if(filter_value == 2) { // Hue
                 r = (raster[p] >> 16) & 0xff;
                 g = (raster[p] >> 8) & 0xff;
                 b = raster[p] & 0xff;
@@ -439,7 +432,7 @@ public class ImageFilters {
 
                 raster[p] = Color.HSBtoRGB(1.0f - res[0], res[1], res[2]);
             }
-            else if(filter_value == 3){ // Saturation
+            else if(filter_value == 3) { // Saturation
                 r = (raster[p] >> 16) & 0xff;
                 g = (raster[p] >> 8) & 0xff;
                 b = raster[p] & 0xff;
@@ -471,7 +464,7 @@ public class ImageFilters {
 
         MaskFilter f = new MaskFilter();
         f.setMask(mask);
-        
+
         f.filter(image, image);
 
     }
@@ -479,7 +472,7 @@ public class ImageFilters {
     private static void filterFadeOut(BufferedImage image) {
 
         GrayFilter f = new GrayFilter();
-        
+
         f.filter(image, image);
 
     }
@@ -517,27 +510,26 @@ public class ImageFilters {
 
     }
 
-   private static void filterContrastBrightness(BufferedImage image, int filter_value) {
+    private static void filterContrastBrightness(BufferedImage image, int filter_value) {
 
         double contrast = (((int)(filter_value / 1000.0)) / 100.0) * 2.0;
         double brightness = (((int)(filter_value % 1000.0)) / 100.0) * 2.0;
-        
+
         ContrastFilter f = new ContrastFilter();
         f.setContrast((float)contrast);
         f.setBrightness((float)brightness);
-        
+
         f.filter(image, image);
 
     }
 
     private static void filterColorTemperature(BufferedImage image, int filter_value) {
-   
+
         TemperatureFilter f = new TemperatureFilter();
-        
+
         f.setTemperature((float)filter_value);
-        
+
         f.filter(image, image);
-                
 
     }
 
@@ -1048,34 +1040,33 @@ public class ImageFilters {
 
                 double temp = hist[(int)(res[1] * hist_len + 0.5)] / ((double)hist_len);
 
-                raster[p] = Color.HSBtoRGB(res[0], (float)temp , res[2]);
+                raster[p] = Color.HSBtoRGB(res[0], (float)temp, res[2]);
             }
 
         }
-        
+
     }
 
     private static void filterColorChannelSwizzling(BufferedImage image, int filter_value) {
 
-        
         int[] matrix = {
-        1, 0, 0, 0, 0,
-        0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0
-    };
-        
+            1, 0, 0, 0, 0,
+            0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0
+        };
+
         for(int j = 0; j < 12; j++) {
-        
+
             if(((filter_value >> j) & 0x1) == 1) {
                 matrix[j + 6 + j / 4] = 1;
             }
 
         }
-        
+
         SwizzleFilter f = new SwizzleFilter();
         f.setMatrix(matrix);
-        
+
         f.filter(image, image);
 
     }
@@ -1085,23 +1076,23 @@ public class ImageFilters {
         double rFactor = 2 * ((int)(filter_value / 1000000.0)) / 100.0;
         double gFactor = 2 * ((int)(((int)(filter_value % 1000000.0)) / 1000)) / 100.0;
         double bFactor = 2 * ((int)(((int)(filter_value % 1000000.0)) % 1000)) / 100.0;
-        
+
         RGBAdjustFilter f = new RGBAdjustFilter();
-        
+
         f.setRFactor((float)rFactor - 1);
         f.setGFactor((float)gFactor - 1);
         f.setBFactor((float)bFactor - 1);
-        
+
         f.filter(image, image);
     }
 
     private static void filterDither(BufferedImage image, int filter_value) {
-            
+
         int levels = (int)(((int)(((int)(filter_value % 100000.0)) % 10000.0)) % 1000.0);
         int dither_mat_number = (int)(((int)(((int)(filter_value % 100000.0)) % 10000.0)) / 1000.0);
         int diffusion = (int)(((int)(filter_value % 100000.0)) / 10000.0);
         int serpentine = ((int)(filter_value / 100000.0));
-       
+
         if(diffusion == 0) {
             DitherFilter f = new DitherFilter();
 
@@ -1144,19 +1135,17 @@ public class ImageFilters {
         }
         else {
             DiffusionFilter f = new DiffusionFilter();
-            
+
             if(serpentine == 1) {
                 f.setSerpentine(true);
             }
             else {
                 f.setSerpentine(false);
             }
-            
+
             f.setLevels(levels);
             f.filter(image, image);
         }
-        
-        
 
     }
 
@@ -1170,17 +1159,17 @@ public class ImageFilters {
         f.setHFactor((float)hFactor);
         f.setSFactor((float)sFactor);
         f.setBFactor((float)bFactor);
-        
+
         f.filter(image, image);
     }
 
     private static void filterPosterize(BufferedImage image, int filter_value) {
-      
+
         int numLevels = filter_value;
-        
+
         PosterizeFilter f = new PosterizeFilter();
         f.setNumLevels(numLevels);
-        
+
         f.filter(image, image);
 
     }
@@ -1188,9 +1177,9 @@ public class ImageFilters {
     private static void filterSolarize(BufferedImage image) {
 
         SolarizeFilter f = new SolarizeFilter();
-        
+
         f.filter(image, image);
-        
+
     }
 
     private static void filterGain(BufferedImage image, int filter_value) {
@@ -1201,7 +1190,7 @@ public class ImageFilters {
         GainFilter f = new GainFilter();
         f.setGain((float)gain);
         f.setBias((float)bias);
-        
+
         f.filter(image, image);
 
     }
@@ -1209,12 +1198,12 @@ public class ImageFilters {
     private static void filterGamma(BufferedImage image, int filter_value) {
 
         double gamma = filter_value / 100.0 * 3.0;
-        
+
         GammaFilter f = new GammaFilter();
         f.setGamma((float)gamma);
-        
+
         f.filter(image, image);
-        
+
     }
 
     private static void filterExposure(BufferedImage image, int filter_value) {
@@ -1223,232 +1212,231 @@ public class ImageFilters {
 
         ExposureFilter f = new ExposureFilter();
         f.setExposure((float)exposure);
-        
+
         f.filter(image, image);
 
     }
-    
+
     private static void filterCrystallize(BufferedImage image, int filter_value, Color filter_color) {
-       
+
         double size = (((int)(((int)(((int)(((int)(filter_value % 10000000.0)) % 1000000.0)) % 10000.0)) % 100.0)) / 80.0) * 100;
-        double randomness = ((int)(((int)(((int)(((int)(filter_value % 10000000.0)) % 1000000.0)) % 10000.0)) / 100.0)) / 80.0;       
+        double randomness = ((int)(((int)(((int)(((int)(filter_value % 10000000.0)) % 1000000.0)) % 10000.0)) / 100.0)) / 80.0;
         double edge_size = ((int)(((int)(((int)(filter_value % 10000000.0)) % 1000000.0)) / 10000.0)) / 80.0;
         int shape = ((int)(((int)(filter_value % 10000000.0)) / 1000000.0));
-        int fade_edges = (int)(filter_value / 10000000.0); 
-        
+        int fade_edges = (int)(filter_value / 10000000.0);
+
         CrystallizeFilter f = new CrystallizeFilter();
-        
+
         if(fade_edges == 1) {
             f.setFadeEdges(true);
         }
         else {
             f.setFadeEdges(false);
         }
-                 
-        f.setGridType(shape);      
-        f.setEdgeThickness((float)edge_size);      
-        f.setRandomness((float)randomness);        
-        f.setScale((float)size);    
+
+        f.setGridType(shape);
+        f.setEdgeThickness((float)edge_size);
+        f.setRandomness((float)randomness);
+        f.setScale((float)size);
         f.setEdgeColor(filter_color.getRGB());
-   
-        f.filter(image, image);   
-        
+
+        f.filter(image, image);
+
     }
-    
+
     private static void filterMarble(BufferedImage image, int filter_value) {
-       
+
         MarbleTexFilter f = new MarbleTexFilter();
-        
+
         double turbulence_factor = ((int)(filter_value / 10000000.0)) / 80.0;
         double turbulence = ((int)(((int)(filter_value % 10000000.0)) / 1000000.0)) / 8.0 * 8;
         double stretch = ((int)(((int)(((int)(filter_value % 10000000.0)) % 1000000.0)) / 10000.0)) / 80.0 * 50;
         double angle = ((int)(((int)(((int)(((int)(filter_value % 10000000.0)) % 1000000.0)) % 10000.0)) / 100.0)) / 80.0 * 360;
         double scale = ((int)(((int)(((int)(((int)(filter_value % 10000000.0)) % 1000000.0)) % 10000.0)) % 100.0)) / 80.0 * 300;
-        
+
         f.setTurbulenceFactor((float)turbulence_factor);
         f.setTurbulence((float)turbulence);
         f.setStretch((float)stretch);
         f.setAngle((float)Math.toRadians(angle));
         f.setScale((float)scale);
-                
+
         f.filter(image, image);
-        
-        
+
     }
-    
+
     private static void filterPointillize(BufferedImage image, int filter_value, Color filter_color) {
-       
+
         PointillizeFilter f = new PointillizeFilter();
-        
+
         int fill = (int)(filter_value / 1000000000.0);
         int shape = (int)(((int)(filter_value % 1000000000.0)) / 100000000.0);
         double point_size = ((int)(((int)(((int)(filter_value % 1000000000.0)) % 100000000.0)) / 1000000.0)) / 80.0;
         double fuzziness = ((int)(((int)(((int)(((int)(filter_value % 1000000000.0)) % 100000000.0)) % 1000000.0)) / 10000.0)) / 80.0;
         double randomness = ((int)(((int)(((int)(((int)(((int)(filter_value % 1000000000.0)) % 100000000.0)) % 1000000.0)) % 10000.0)) / 100.0)) / 80.0;
         double grid_size = ((int)(((int)(((int)(((int)(((int)(filter_value % 1000000000.0)) % 100000000.0)) % 1000000.0)) % 10000.0)) % 100.0)) / 80.0 * 100;
-        
+
         if(fill == 1) {
             f.setFadeEdges(true);
         }
         else {
             f.setFadeEdges(false);
         }
-        
-        f.setScale((float)grid_size); 
+
+        f.setScale((float)grid_size);
         f.setFuzziness((float)fuzziness);
         f.setEdgeColor(filter_color.getRGB());
         f.setRandomness((float)randomness);
         f.setGridType(shape);
         f.setEdgeThickness((float)point_size);
-        
+
         f.filter(image, image);
-        
+
     }
-    
+
     private static void filterOil(BufferedImage image, int filter_value) {
-       
+
         OilFilter f = new OilFilter();
-        
+
         int levels = (int)(filter_value / 100.0);
         int range = (int)(filter_value % 100.0);
-        
+
         f.setRange(range);
         f.setLevels(levels);
-     
+
         f.filter(image, image);
-        
+
     }
-    
+
     private static void filterWeave(BufferedImage image, int filter_value, Color filter_color) {
-       
-        WeaveFilter f = new WeaveFilter();    
-        
+
+        WeaveFilter f = new WeaveFilter();
+
         double x_width = ((int)(((int)(((int)(((int)(((int)(filter_value % 1000000000.0)) % 100000000.0)) % 1000000.0)) % 10000.0)) % 100.0)) / 80.0 * 256;
         double y_width = ((int)(((int)(((int)(((int)(((int)(filter_value % 1000000000.0)) % 100000000.0)) % 1000000.0)) % 10000.0)) / 100.0)) / 80.0 * 256;
         double x_gap = ((int)(((int)(((int)(((int)(filter_value % 1000000000.0)) % 100000000.0)) % 1000000.0)) / 10000.0)) / 80.0 * 256;
         double y_gap = ((int)(((int)(((int)(filter_value % 1000000000.0)) % 100000000.0)) / 1000000.0)) / 80.0 * 256;
-        
+
         int round_threads = (int)(((int)(filter_value % 1000000000.0)) / 100000000.0);
         int shade_crossings = (int)(filter_value / 1000000000.0);
-        
+
         if(round_threads == 1) {
             f.setRoundThreads(true);
         }
         else {
             f.setRoundThreads(false);
         }
-        
+
         if(shade_crossings == 1) {
             f.setShadeCrossings(true);
         }
         else {
             f.setShadeCrossings(false);
         }
-        
+
         f.setXWidth((float)x_width);
         f.setYWidth((float)y_width);
         f.setXGap((float)x_gap);
         f.setYGap((float)y_gap);
-        
+
         f.setColor(filter_color.getRGB());
-        
+
         f.setUseImageColors(true);
-        
-        f.filter(image, image);     
-        
+
+        f.filter(image, image);
+
     }
-    
+
     private static void filterSparkle(BufferedImage image, int filter_value, Color filter_color) {
-       
+
         SparkleFilter f = new SparkleFilter();
-        
+
         double rays = (int)(((int)(((int)(filter_value % 1000000.0)) % 10000.0)) % 100.0) / 80.0 * 300;
         double radius = (int)(((int)(((int)(filter_value % 1000000.0)) % 10000.0)) / 100.0) / 80.0 * 300;
         double shine = (int)(((int)(filter_value % 1000000.0)) / 10000.0) / 80.0 * 100;
         double randomness = (int)(filter_value / 1000000.0) / 80.0 * 50;
-        
+
         f.setRays((int)rays);
         f.setRadius((int)radius);
         f.setAmount((int)shine);
         f.setRandomness((int)randomness);
         f.setColor(filter_color.getRGB());
-        
+
         f.filter(image, image);
-        
+
     }
-    
+
     private static void filterGlow(BufferedImage image, int filter_value) {
-        
+
         double softness = ((int)(filter_value / 1000.0));
         double amount = ((int)(filter_value % 1000.0)) / 100.0;
-        
+
         GlowFilter f = new GlowFilter();
-        
+
         f.setAmount((float)amount);
         f.setRadius((float)softness);
-        
+
         f.filter(image, image);
-        
+
     }
-    
+
     private static void filterNoise(BufferedImage image, int filter_value) {
-        
+
         NoiseFilter f = new NoiseFilter();
-        
+
         double density = ((int)(((int)(((int)(filter_value % 10000000.0)) % 1000000.0)) / 1000.0)) / 100.0;
         int amount = (int)(((int)(((int)(filter_value % 10000000.0)) % 1000000.0)) / 1000.0);
         int distribution = (int)(((int)(filter_value % 10000000.0)) / 1000000.0);
         int monochrome = (int)(filter_value / 10000000.0);
-        
+
         if(monochrome == 1) {
             f.setMonochrome(true);
         }
         else {
             f.setMonochrome(false);
         }
-        
-        f.setDistribution(distribution);       
-        f.setAmount(amount);      
+
+        f.setDistribution(distribution);
+        f.setAmount(amount);
         f.setDensity((float)density);
-        
+
         f.filter(image, image);
-        
+
     }
-    
+
     private static void filterColorChannelScaling(BufferedImage image, int filter_value) {
-        
+
         double scale = filter_value / 100.0 * 5;
-        
+
         RescaleFilter f = new RescaleFilter();
         f.setScale((float)scale);
-        
+
         f.filter(image, image);
-        
+
     }
-    
+
     private static void filterLightEffects(BufferedImage image, int filter_value, int filter_value2, int filter_value3, Color filter_color, Color filter_color2, Color filter_color3) {
-           
+
         LightFilter f = new LightFilter();
-        
+
         int light_type = (int)(filter_value / 100000000.0);
         double direction = (int)(((int)(filter_value % 100000000.0)) / 1000000.0) / 80.0 * 360.0 * Math.PI / 180.0;
         double elevation = (int)(((int)(((int)(filter_value % 100000000.0)) % 1000000.0)) / 10000.0) / 80.0 * Math.PI / 2;
         double distance = (int)(((int)(((int)(((int)(filter_value % 100000000.0)) % 1000000.0)) % 10000.0)) / 100) / 80.0 * 1000;
         double intensity = (int)(((int)(((int)(((int)(filter_value % 100000000.0)) % 1000000.0)) % 10000.0)) % 100) / 80.0;
-        
+
         double x = (int)(filter_value2 / 1000000.0) / 80.0;
         double y = (int)(((int)(filter_value2 % 1000000.0)) / 10000.0) / 80.0;
         double cone_angle = (int)(((int)(((int)(filter_value2 % 1000000.0)) % 10000.0)) / 100.0) / 80.0 * Math.PI / 2;
         double focus = (int)(((int)(((int)(filter_value2 % 1000000.0)) % 10000.0)) % 100.0) / 80.0;
-        
+
         int source = (int)(filter_value3 / 10000000.0);
-        double shininess =  10 - (int)(((int)(filter_value3 % 10000000.0)) / 100000.0) / 80.0 * 10.0;   
+        double shininess = 10 - (int)(((int)(filter_value3 % 10000000.0)) / 100000.0) / 80.0 * 10.0;
         int bump_shape = (int)(((int)(((int)(filter_value3 % 10000000.0)) % 100000.0)) / 10000.0);
         double bump_height = (int)(((int)(((int)(((int)(filter_value3 % 10000000.0)) % 100000.0)) % 10000.0)) / 100.0) / 80.0 * 10 - 5;
         double bump_softness = (int)(((int)(((int)(((int)(filter_value3 % 10000000.0)) % 100000.0)) % 10000.0)) % 100.0) / 80.0 * 100.0;
-        
+
         f.removeAllLights();
-        
+
         Light l1 = f.addLight(light_type);
         l1.setFocus((float)focus);
         l1.setConeAngle((float)cone_angle);
@@ -1459,43 +1447,54 @@ public class ImageFilters {
         l1.setColor(filter_color.getRGB());
         l1.setCentreX((float)x);
         l1.setCentreY((float)y);
-        
+
         Material m = f.getMaterial();
         m.setShininess((float)shininess);
         m.setDiffuseColor(filter_color2.getRGB());
         m.setSpecularColor(filter_color3.getRGB());
-        
+
         f.setBumpShape(bump_shape);
         f.setBumpHeight((float)bump_height);
         f.setBumpSoftness((float)bump_softness);
-        
+
         f.setColorSource(source);
-  
+
         f.filter(image, image);
-        
+
     }
-    
+
     private static void filterColorChannelMixing(BufferedImage image, int filter_value, Color filter_color) {
-        
+
         ChannelMixFilter f = new ChannelMixFilter();
-        
+
         int intoRed = filter_color.getRed();
         int intoGreen = filter_color.getGreen();
         int intoBlue = filter_color.getBlue();
-        
+
         int blueGreen = (int)(((int)(filter_value % 1000000.0)) % 1000.0);
         int redBlue = (int)(((int)(filter_value % 1000000.0)) / 1000.0);
         int greenRed = (int)(filter_value / 1000000.0);
-        
+
         f.setBlueGreen(blueGreen);
         f.setRedBlue(redBlue);
         f.setGreenRed(greenRed);
         f.setIntoR(intoRed);
         f.setIntoG(intoGreen);
         f.setIntoB(intoBlue);
-   
+
         f.filter(image, image);
+
+    }
+    
+    private static void filterEdgeDetection2(BufferedImage image, int filter_value) {
+        int horizontal = (int)(filter_value / 10.0);
+        int vertical = (int)(filter_value % 10.0);
         
+        EdgeFilter f = new EdgeFilter();
+        f.setHorizontalAlgorithm(horizontal);
+        f.setVerticalAlgorithm(vertical);
+
+        f.filter(image, image);
     }
     
     private static float[] createGaussianKernel(int length, double weight) {
@@ -1521,141 +1520,182 @@ public class ImageFilters {
                 gaussian_kernel[y * length + x] = (float)(gaussian_kernel[y * length + x] * (1.0 / sumTotal));
             }
         }
-        
+
         return gaussian_kernel;
 
     }
-    
-    public static void filter(BufferedImage image, boolean[] filters, int[] filters_options_vals, int[][] filters_options_extra_vals, Color[] filters_colors, Color[][] filters_extra_colors) {
-           
-        if(filters[MainWindow.CRYSTALLIZE]) {
-            ImageFilters.filterCrystallize(image, filters_options_vals[MainWindow.CRYSTALLIZE], filters_colors[MainWindow.CRYSTALLIZE]);
-        }
-        
-        if(filters[MainWindow.POINTILLIZE]) {
-            ImageFilters.filterPointillize(image, filters_options_vals[MainWindow.POINTILLIZE], filters_colors[MainWindow.POINTILLIZE]);
-        }
-        
-        if(filters[MainWindow.LIGHT_EFFECTS]) {
-            ImageFilters.filterLightEffects(image, filters_options_vals[MainWindow.LIGHT_EFFECTS], filters_options_extra_vals[0][MainWindow.LIGHT_EFFECTS], filters_options_extra_vals[1][MainWindow.LIGHT_EFFECTS], filters_colors[MainWindow.LIGHT_EFFECTS], filters_extra_colors[0][MainWindow.LIGHT_EFFECTS], filters_extra_colors[1][MainWindow.LIGHT_EFFECTS]);
-        }
-        
-        if(filters[MainWindow.OIL]) {
-            ImageFilters.filterOil(image, filters_options_vals[MainWindow.OIL]);
-        }
-        
-        if(filters[MainWindow.MARBLE]) {
-            ImageFilters.filterMarble(image, filters_options_vals[MainWindow.MARBLE]);
-        }
-        
-        if(filters[MainWindow.WEAVE]) {
-            ImageFilters.filterWeave(image, filters_options_vals[MainWindow.WEAVE], filters_colors[MainWindow.WEAVE]);
-        }
-        
-        if(filters[MainWindow.SPARKLE]) {
-            ImageFilters.filterSparkle(image, filters_options_vals[MainWindow.SPARKLE], filters_colors[MainWindow.SPARKLE]);
-        }
 
-        if(filters[MainWindow.COLOR_CHANNEL_SWAPPING]) {
-            ImageFilters.filterColorChannelSwapping(image, filters_options_vals[MainWindow.COLOR_CHANNEL_SWAPPING]);
+    public static void filter(BufferedImage image, boolean[] filters, int[] filters_options_vals, int[][] filters_options_extra_vals, Color[] filters_colors, Color[][] filters_extra_colors, int[] filters_order) {
+         //filterEdge(image);
+        for(int i = 0; i < filters_order.length; i++) {
+            switch (filters_order[i]) {
+                case MainWindow.CRYSTALLIZE:
+                    if(filters[MainWindow.CRYSTALLIZE]) {
+                        ImageFilters.filterCrystallize(image, filters_options_vals[MainWindow.CRYSTALLIZE], filters_colors[MainWindow.CRYSTALLIZE]);
+                    }
+                    break;
+                case MainWindow.POINTILLIZE:
+                    if(filters[MainWindow.POINTILLIZE]) {
+                        ImageFilters.filterPointillize(image, filters_options_vals[MainWindow.POINTILLIZE], filters_colors[MainWindow.POINTILLIZE]);
+                    }
+                    break;
+                case MainWindow.LIGHT_EFFECTS:
+                    if(filters[MainWindow.LIGHT_EFFECTS]) {
+                        ImageFilters.filterLightEffects(image, filters_options_vals[MainWindow.LIGHT_EFFECTS], filters_options_extra_vals[0][MainWindow.LIGHT_EFFECTS], filters_options_extra_vals[1][MainWindow.LIGHT_EFFECTS], filters_colors[MainWindow.LIGHT_EFFECTS], filters_extra_colors[0][MainWindow.LIGHT_EFFECTS], filters_extra_colors[1][MainWindow.LIGHT_EFFECTS]);
+                    }
+                    break;
+                case MainWindow.OIL:
+                    if(filters[MainWindow.OIL]) {
+                        ImageFilters.filterOil(image, filters_options_vals[MainWindow.OIL]);
+                    }
+                    break;
+                case MainWindow.MARBLE:
+                    if(filters[MainWindow.MARBLE]) {
+                        ImageFilters.filterMarble(image, filters_options_vals[MainWindow.MARBLE]);
+                    }
+                    break;
+                case MainWindow.WEAVE:
+                    if(filters[MainWindow.WEAVE]) {
+                        ImageFilters.filterWeave(image, filters_options_vals[MainWindow.WEAVE], filters_colors[MainWindow.WEAVE]);
+                    }
+                    break;
+                case MainWindow.SPARKLE:
+                    if(filters[MainWindow.SPARKLE]) {
+                        ImageFilters.filterSparkle(image, filters_options_vals[MainWindow.SPARKLE], filters_colors[MainWindow.SPARKLE]);
+                    }
+                    break;
+                case MainWindow.COLOR_CHANNEL_SWAPPING:
+                    if(filters[MainWindow.COLOR_CHANNEL_SWAPPING]) {
+                        ImageFilters.filterColorChannelSwapping(image, filters_options_vals[MainWindow.COLOR_CHANNEL_SWAPPING]);
+                    }
+                    break;
+                case MainWindow.COLOR_CHANNEL_SWIZZLING:
+                    if(filters[MainWindow.COLOR_CHANNEL_SWIZZLING]) {
+                        ImageFilters.filterColorChannelSwizzling(image, filters_options_vals[MainWindow.COLOR_CHANNEL_SWIZZLING]);
+                    }
+                    break;
+                case MainWindow.COLOR_CHANNEL_MIXING:
+                    if(filters[MainWindow.COLOR_CHANNEL_MIXING]) {
+                        ImageFilters.filterColorChannelMixing(image, filters_options_vals[MainWindow.COLOR_CHANNEL_MIXING], filters_colors[MainWindow.COLOR_CHANNEL_MIXING]);
+                    }
+                    break;
+                case MainWindow.COLOR_CHANNEL_ADJUSTING:
+                    if(filters[MainWindow.COLOR_CHANNEL_ADJUSTING]) {
+                        ImageFilters.filterColorChannelAdjusting(image, filters_options_vals[MainWindow.COLOR_CHANNEL_ADJUSTING]);
+                    }
+                    break;
+                case MainWindow.COLOR_CHANNEL_HSB_ADJUSTING:
+                    if(filters[MainWindow.COLOR_CHANNEL_HSB_ADJUSTING]) {
+                        ImageFilters.filterHSBcolorChannelAdjusting(image, filters_options_vals[MainWindow.COLOR_CHANNEL_HSB_ADJUSTING]);
+                    }
+                    break;
+                case MainWindow.COLOR_CHANNEL_SCALING:
+                    if(filters[MainWindow.COLOR_CHANNEL_SCALING]) {
+                        ImageFilters.filterColorChannelScaling(image, filters_options_vals[MainWindow.COLOR_CHANNEL_SCALING]);
+                    }
+                    break;
+                case MainWindow.GRAYSCALE:
+                    if(filters[MainWindow.GRAYSCALE]) {
+                        ImageFilters.filterGrayscale(image, filters_options_vals[MainWindow.GRAYSCALE]);
+                    }
+                    break;
+                case MainWindow.POSTERIZE:
+                    if(filters[MainWindow.POSTERIZE]) {
+                        ImageFilters.filterPosterize(image, filters_options_vals[MainWindow.POSTERIZE]);
+                    }
+                    break;
+                case MainWindow.DITHER:
+                    if(filters[MainWindow.DITHER]) {
+                        ImageFilters.filterDither(image, filters_options_vals[MainWindow.DITHER]);
+                    }
+                    break;
+                case MainWindow.INVERT_COLORS:
+                    if(filters[MainWindow.INVERT_COLORS]) {
+                        ImageFilters.filterInvertColors(image, filters_options_vals[MainWindow.INVERT_COLORS]);
+                    }
+                    break;
+                case MainWindow.SOLARIZE:
+                    if(filters[MainWindow.SOLARIZE]) {
+                        ImageFilters.filterSolarize(image);
+                    }
+                    break;
+                case MainWindow.COLOR_TEMPERATURE:
+                    if(filters[MainWindow.COLOR_TEMPERATURE]) {
+                        ImageFilters.filterColorTemperature(image, filters_options_vals[MainWindow.COLOR_TEMPERATURE]);
+                    }
+                    break;
+                case MainWindow.CONTRAST_BRIGHTNESS:
+                    if(filters[MainWindow.CONTRAST_BRIGHTNESS]) {
+                        ImageFilters.filterContrastBrightness(image, filters_options_vals[MainWindow.CONTRAST_BRIGHTNESS]);
+                    }
+                    break;
+                case MainWindow.GAIN:
+                    if(filters[MainWindow.GAIN]) {
+                        ImageFilters.filterGain(image, filters_options_vals[MainWindow.GAIN]);
+                    }
+                    break;
+                case MainWindow.GAMMA:
+                    if(filters[MainWindow.GAMMA]) {
+                        ImageFilters.filterGamma(image, filters_options_vals[MainWindow.GAMMA]);
+                    }
+                    break;
+                case MainWindow.EXPOSURE:
+                    if(filters[MainWindow.EXPOSURE]) {
+                        ImageFilters.filterExposure(image, filters_options_vals[MainWindow.EXPOSURE]);
+                    }
+                    break;
+                case MainWindow.HISTOGRAM_EQUALIZATION:
+                    if(filters[MainWindow.HISTOGRAM_EQUALIZATION]) {
+                        ImageFilters.filterHistogramEqualization(image, filters_options_vals[MainWindow.HISTOGRAM_EQUALIZATION]);
+                    }
+                    break;
+                case MainWindow.COLOR_CHANNEL_MASKING:
+                    if(filters[MainWindow.COLOR_CHANNEL_MASKING]) {
+                        ImageFilters.filterMaskColors(image, filters_options_vals[MainWindow.COLOR_CHANNEL_MASKING]);
+                    }
+                    break;
+                case MainWindow.NOISE:
+                    if(filters[MainWindow.NOISE]) {
+                        ImageFilters.filterNoise(image, filters_options_vals[MainWindow.NOISE]);
+                    }
+                    break;
+                case MainWindow.SHARPNESS:
+                    if(filters[MainWindow.SHARPNESS]) {
+                        ImageFilters.filterSharpness(image, filters_options_vals[MainWindow.SHARPNESS]);
+                    }
+                    break;
+                case MainWindow.BLURRING:
+                    if(filters[MainWindow.BLURRING]) {
+                        ImageFilters.filterBlurring(image, filters_options_vals[MainWindow.BLURRING]);
+                    }
+                    break;
+                case MainWindow.GLOW:
+                    if(filters[MainWindow.GLOW]) {
+                        ImageFilters.filterGlow(image, filters_options_vals[MainWindow.GLOW]);
+                    }
+                    break;
+                case MainWindow.EMBOSS:
+                    if(filters[MainWindow.EMBOSS]) {
+                        ImageFilters.filterEmboss(image, filters_options_vals[MainWindow.EMBOSS]);
+                    }
+                    break;
+                case MainWindow.EDGE_DETECTION:
+                    if(filters[MainWindow.EDGE_DETECTION]) {
+                        ImageFilters.filterEdgeDetection(image, filters_options_vals[MainWindow.EDGE_DETECTION], filters_colors[MainWindow.EDGE_DETECTION]);
+                    }
+                    break;
+                case MainWindow.EDGE_DETECTION2:
+                    if(filters[MainWindow.EDGE_DETECTION2]) {
+                        ImageFilters.filterEdgeDetection2(image, filters_options_vals[MainWindow.EDGE_DETECTION2]);
+                    }
+                    break;
+                case MainWindow.FADE_OUT:
+                    if(filters[MainWindow.FADE_OUT]) {
+                        ImageFilters.filterFadeOut(image);
+                    }
+                    break;
+            }
         }
-
-        if(filters[MainWindow.COLOR_CHANNEL_SWIZZLING]) {
-            ImageFilters.filterColorChannelSwizzling(image, filters_options_vals[MainWindow.COLOR_CHANNEL_SWIZZLING]);
-        }
-        
-        if(filters[MainWindow.COLOR_CHANNEL_MIXING]) {
-            ImageFilters.filterColorChannelMixing(image, filters_options_vals[MainWindow.COLOR_CHANNEL_MIXING], filters_colors[MainWindow.COLOR_CHANNEL_MIXING]);
-        }
-
-        if(filters[MainWindow.COLOR_CHANNEL_ADJUSTING]) {
-            ImageFilters.filterColorChannelAdjusting(image, filters_options_vals[MainWindow.COLOR_CHANNEL_ADJUSTING]);
-        }
-
-        if(filters[MainWindow.COLOR_CHANNEL_HSB_ADJUSTING]) {
-            ImageFilters.filterHSBcolorChannelAdjusting(image, filters_options_vals[MainWindow.COLOR_CHANNEL_HSB_ADJUSTING]);
-        }
-        
-        if(filters[MainWindow.COLOR_CHANNEL_SCALING]) {
-            ImageFilters.filterColorChannelScaling(image, filters_options_vals[MainWindow.COLOR_CHANNEL_SCALING]);
-        }
-
-        if(filters[MainWindow.GRAYSCALE]) {
-            ImageFilters.filterGrayscale(image, filters_options_vals[MainWindow.GRAYSCALE]);
-        }
-
-        if(filters[MainWindow.POSTERIZE]) {
-            ImageFilters.filterPosterize(image, filters_options_vals[MainWindow.POSTERIZE]);
-        }
-
-        if(filters[MainWindow.DITHER]) {
-            ImageFilters.filterDither(image, filters_options_vals[MainWindow.DITHER]);
-        }
-
-        if(filters[MainWindow.INVERT_COLORS]) {
-            ImageFilters.filterInvertColors(image, filters_options_vals[MainWindow.INVERT_COLORS]);
-        }
-
-        if(filters[MainWindow.SOLARIZE]) {
-            ImageFilters.filterSolarize(image);
-        }
-
-        if(filters[MainWindow.COLOR_TEMPERATURE]) {
-            ImageFilters.filterColorTemperature(image, filters_options_vals[MainWindow.COLOR_TEMPERATURE]);
-        }
-
-        if(filters[MainWindow.CONTRAST_BRIGHTNESS]) {
-            ImageFilters.filterContrastBrightness(image, filters_options_vals[MainWindow.CONTRAST_BRIGHTNESS]);
-        }
-
-        if(filters[MainWindow.GAIN]) {
-            ImageFilters.filterGain(image, filters_options_vals[MainWindow.GAIN]);
-        }
-
-        if(filters[MainWindow.GAMMA]) {
-            ImageFilters.filterGamma(image, filters_options_vals[MainWindow.GAMMA]);
-        }
-
-        if(filters[MainWindow.EXPOSURE]) {
-            ImageFilters.filterExposure(image, filters_options_vals[MainWindow.EXPOSURE]);
-        }
-
-        if(filters[MainWindow.HISTOGRAM_EQUALIZATION]) {
-            ImageFilters.filterHistogramEqualization(image, filters_options_vals[MainWindow.HISTOGRAM_EQUALIZATION]);
-        }
-
-        if(filters[MainWindow.COLOR_CHANNEL_MASKING]) {
-            ImageFilters.filterMaskColors(image, filters_options_vals[MainWindow.COLOR_CHANNEL_MASKING]);
-        }
-        
-        if(filters[MainWindow.NOISE]) {
-            ImageFilters.filterNoise(image, filters_options_vals[MainWindow.NOISE]);
-        }
-
-        if(filters[MainWindow.SHARPNESS]) {
-            ImageFilters.filterSharpness(image, filters_options_vals[MainWindow.SHARPNESS]);
-        }
-
-        if(filters[MainWindow.BLURRING]) {
-            ImageFilters.filterBlurring(image, filters_options_vals[MainWindow.BLURRING]);
-        }
-        
-        if(filters[MainWindow.GLOW]) {
-            ImageFilters.filterGlow(image, filters_options_vals[MainWindow.GLOW]);
-        }
-
-        if(filters[MainWindow.EMBOSS]) {
-            ImageFilters.filterEmboss(image, filters_options_vals[MainWindow.EMBOSS]);
-        }
-        
-        if(filters[MainWindow.EDGE_DETECTION]) {
-            ImageFilters.filterEdgeDetection(image, filters_options_vals[MainWindow.EDGE_DETECTION], filters_colors[MainWindow.EDGE_DETECTION]);
-        }
-
-        if(filters[MainWindow.FADE_OUT]) {
-            ImageFilters.filterFadeOut(image);
-        }
-      
     }
-   
+
 }

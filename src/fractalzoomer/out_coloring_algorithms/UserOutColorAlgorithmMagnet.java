@@ -18,16 +18,20 @@
 package fractalzoomer.out_coloring_algorithms;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.parser.Parser;
 
 /**
  *
  * @author hrkalona2
  */
 public class UserOutColorAlgorithmMagnet extends  UserOutColorAlgorithm {
+    protected int max_iterations;
+    
+    public UserOutColorAlgorithmMagnet(String outcoloring_formula, double bailout, int max_iterations, double xCenter, double yCenter, double size) {
 
-    public UserOutColorAlgorithmMagnet(String outcoloring_formula, double bailout, int max_iterations) {
-
-        super(outcoloring_formula, bailout, max_iterations);
+        super(outcoloring_formula, bailout, max_iterations, xCenter, yCenter, size);
+        
+        this.max_iterations = max_iterations;
 
     }
 
@@ -57,11 +61,26 @@ public class UserOutColorAlgorithmMagnet extends  UserOutColorAlgorithm {
         if(parser.foundPP()) {
             parser.setPPvalue(((Complex)object[5]));
         }
-
-        double temp = expr.getValue().getAbsRe();
         
-        return (Boolean)object[2] ? temp + MAGIC_OFFSET_NUMBER + 106  : temp + MAGIC_OFFSET_NUMBER;
+        Complex[] vars = (Complex[])object[8];
+        for(int i = 0; i < Parser.EXTRA_VARS; i++) {
+            if(parser.foundVar(i)) {
+                parser.setVarsvalue(i, vars[i]);
+            }
+        }
         
+        double result = expr.getValue().getRe();
+        
+        if(result == -max_iterations) {
+            return result;
+        }
+   
+        if(result < 0) {
+            return (Boolean)object[2] ? result - MAGIC_OFFSET_NUMBER - 106  : result - MAGIC_OFFSET_NUMBER;
+        }
+        else {
+            return (Boolean)object[2] ? result + MAGIC_OFFSET_NUMBER + 106  : result + MAGIC_OFFSET_NUMBER;
+        }
     }
 
 }

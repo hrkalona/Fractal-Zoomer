@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package fractalzoomer.out_coloring_algorithms;
 
 import fractalzoomer.core.Complex;
@@ -33,12 +32,16 @@ public class UserConditionalOutColorAlgorithm extends OutColorAlgorithm {
     protected Parser[] parser2;
     protected Complex c_bailout;
     protected Complex c_max_iterations;
-    protected boolean[] user_outcoloring_special_color;
+    private Complex c_center;
+    private Complex c_size;
+    protected int max_iterations;
 
-    public UserConditionalOutColorAlgorithm(String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, boolean[] user_outcoloring_special_color, double bailout, int max_iterations) {
+    public UserConditionalOutColorAlgorithm(String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, double bailout, int max_iterations, double xCenter, double yCenter, double size) {
 
         super();
 
+        this.max_iterations = max_iterations;
+        
         parser = new Parser[user_outcoloring_conditions.length];
         expr = new ExpressionNode[user_outcoloring_conditions.length];
 
@@ -55,50 +58,92 @@ public class UserConditionalOutColorAlgorithm extends OutColorAlgorithm {
             expr2[i] = parser2[i].parse(user_outcoloring_condition_formula[i]);
         }
 
-        c_bailout  = new Complex(bailout, 0);
-        
-        this.user_outcoloring_special_color = user_outcoloring_special_color;
-                
+        c_bailout = new Complex(bailout, 0);
+
         if(parser[0].foundBail()) {
             parser[0].setBailvalue(c_bailout);
         }
-        
+
         if(parser[1].foundBail()) {
             parser[1].setBailvalue(c_bailout);
         }
-        
+
         if(parser2[0].foundBail()) {
             parser2[0].setBailvalue(c_bailout);
         }
-        
+
         if(parser2[1].foundBail()) {
             parser2[1].setBailvalue(c_bailout);
         }
-        
+
         if(parser2[2].foundBail()) {
             parser2[2].setBailvalue(c_bailout);
         }
-        
+
         c_max_iterations = new Complex(max_iterations, 0);
-                         
+
         if(parser[0].foundMaxn()) {
             parser[0].setMaxnvalue(c_max_iterations);
-        }      
-                
+        }
+
         if(parser[1].foundMaxn()) {
             parser[1].setMaxnvalue(c_max_iterations);
         }
-        
+
         if(parser2[0].foundMaxn()) {
             parser2[0].setMaxnvalue(c_max_iterations);
         }
-        
+
         if(parser2[1].foundMaxn()) {
             parser2[1].setMaxnvalue(c_max_iterations);
         }
-        
+
         if(parser2[2].foundMaxn()) {
             parser2[2].setMaxnvalue(c_max_iterations);
+        }
+
+        c_center = new Complex(xCenter, yCenter);
+
+        if(parser[0].foundCenter()) {
+            parser[0].setCentervalue(c_center);
+        }
+
+        if(parser[1].foundCenter()) {
+            parser[1].setCentervalue(c_center);
+        }
+
+        if(parser2[0].foundCenter()) {
+            parser2[0].setCentervalue(c_center);
+        }
+
+        if(parser2[1].foundCenter()) {
+            parser2[1].setCentervalue(c_center);
+        }
+
+        if(parser2[2].foundCenter()) {
+            parser2[2].setCentervalue(c_center);
+        }
+
+        c_size = new Complex(size, 0);
+
+        if(parser[0].foundSize()) {
+            parser[0].setSizevalue(c_size);
+        }
+
+        if(parser[1].foundSize()) {
+            parser[1].setSizevalue(c_size);
+        }
+
+        if(parser2[0].foundSize()) {
+            parser2[0].setSizevalue(c_size);
+        }
+
+        if(parser2[1].foundSize()) {
+            parser2[1].setSizevalue(c_size);
+        }
+
+        if(parser2[2].foundSize()) {
+            parser2[2].setSizevalue(c_size);
         }
 
     }
@@ -114,11 +159,11 @@ public class UserConditionalOutColorAlgorithm extends OutColorAlgorithm {
         if(parser[0].foundZ()) {
             parser[0].setZvalue(((Complex)object[1]));
         }
-        
+
         if(parser[0].foundC()) {
             parser[0].setCvalue(((Complex)object[4]));
         }
-        
+
         if(parser[0].foundS()) {
             parser[0].setSvalue(((Complex)object[5]));
         }
@@ -126,9 +171,16 @@ public class UserConditionalOutColorAlgorithm extends OutColorAlgorithm {
         if(parser[0].foundP()) {
             parser[0].setPvalue(((Complex)object[2]));
         }
-        
+
         if(parser[0].foundPP()) {
             parser[0].setPPvalue(((Complex)object[3]));
+        }
+
+        Complex[] vars = (Complex[])object[6];
+        for(int i = 0; i < Parser.EXTRA_VARS; i++) {
+            if(parser[0].foundVar(i)) {
+                parser[0].setVarsvalue(i, vars[i]);
+            }
         }
 
 
@@ -140,11 +192,11 @@ public class UserConditionalOutColorAlgorithm extends OutColorAlgorithm {
         if(parser[1].foundZ()) {
             parser[1].setZvalue(((Complex)object[1]));
         }
-        
+
         if(parser[1].foundC()) {
             parser[1].setCvalue(((Complex)object[4]));
         }
-        
+
         if(parser[1].foundS()) {
             parser[1].setSvalue(((Complex)object[5]));
         }
@@ -152,9 +204,15 @@ public class UserConditionalOutColorAlgorithm extends OutColorAlgorithm {
         if(parser[1].foundP()) {
             parser[1].setPvalue(((Complex)object[2]));
         }
-        
+
         if(parser[1].foundPP()) {
             parser[1].setPPvalue(((Complex)object[3]));
+        }
+
+        for(int i = 0; i < Parser.EXTRA_VARS; i++) {
+            if(parser[1].foundVar(i)) {
+                parser[1].setVarsvalue(i, vars[i]);
+            }
         }
 
         int result = expr[0].getValue().compare(expr[1].getValue());
@@ -167,11 +225,11 @@ public class UserConditionalOutColorAlgorithm extends OutColorAlgorithm {
             if(parser2[0].foundZ()) {
                 parser2[0].setZvalue(((Complex)object[1]));
             }
-            
+
             if(parser2[0].foundC()) {
                 parser2[0].setCvalue(((Complex)object[4]));
             }
-            
+
             if(parser2[0].foundS()) {
                 parser2[0].setSvalue(((Complex)object[5]));
             }
@@ -179,13 +237,29 @@ public class UserConditionalOutColorAlgorithm extends OutColorAlgorithm {
             if(parser2[0].foundP()) {
                 parser2[0].setPvalue(((Complex)object[2]));
             }
-            
+
             if(parser2[0].foundPP()) {
                 parser2[0].setPPvalue(((Complex)object[3]));
             }
 
-            double num = expr2[0].getValue().getAbsRe() + MAGIC_OFFSET_NUMBER;
-            return user_outcoloring_special_color[0] ? -num: num;
+            for(int i = 0; i < Parser.EXTRA_VARS; i++) {
+                if(parser2[0].foundVar(i)) {
+                    parser2[0].setVarsvalue(i, vars[i]);
+                }
+            }
+            
+            double result2 = expr2[0].getValue().getRe();
+        
+            if(result2 == -max_iterations) {
+                return result2;
+            }
+
+            if(result2 < 0) {
+                return result2 - MAGIC_OFFSET_NUMBER;
+            }
+            else {
+                return result2 + MAGIC_OFFSET_NUMBER;
+            }     
         }
         else if(result == 1) { // right > left
             if(parser2[1].foundN()) {
@@ -195,11 +269,11 @@ public class UserConditionalOutColorAlgorithm extends OutColorAlgorithm {
             if(parser2[1].foundZ()) {
                 parser2[1].setZvalue(((Complex)object[1]));
             }
-            
+
             if(parser2[1].foundC()) {
                 parser2[1].setCvalue(((Complex)object[4]));
             }
-            
+
             if(parser2[1].foundS()) {
                 parser2[1].setSvalue(((Complex)object[5]));
             }
@@ -207,15 +281,31 @@ public class UserConditionalOutColorAlgorithm extends OutColorAlgorithm {
             if(parser2[1].foundP()) {
                 parser2[1].setPvalue(((Complex)object[2]));
             }
-            
+
             if(parser2[1].foundPP()) {
                 parser2[1].setPPvalue(((Complex)object[3]));
             }
+            
+            for(int i = 0; i < Parser.EXTRA_VARS; i++) {
+                if(parser2[1].foundVar(i)) {
+                    parser2[1].setVarsvalue(i, vars[i]);
+                }
+            }
 
-            double num = expr2[1].getValue().getAbsRe() + MAGIC_OFFSET_NUMBER;
-            return user_outcoloring_special_color[1] ? -num: num;
+            double result2 = expr2[1].getValue().getRe();
+        
+            if(result2 == -max_iterations) {
+                return result2;
+            }
+
+            if(result2 < 0) {
+                return result2 - MAGIC_OFFSET_NUMBER;
+            }
+            else {
+                return result2 + MAGIC_OFFSET_NUMBER;
+            }   
         }
-        else if (result == 0) { //left == right
+        else if(result == 0) { //left == right
             if(parser2[2].foundN()) {
                 parser2[2].setNvalue(new Complex((Integer)object[0], 0));
             }
@@ -223,11 +313,11 @@ public class UserConditionalOutColorAlgorithm extends OutColorAlgorithm {
             if(parser2[2].foundZ()) {
                 parser2[2].setZvalue(((Complex)object[1]));
             }
-            
+
             if(parser2[2].foundC()) {
                 parser2[2].setCvalue(((Complex)object[4]));
             }
-            
+
             if(parser2[2].foundS()) {
                 parser2[2].setSvalue(((Complex)object[5]));
             }
@@ -235,15 +325,31 @@ public class UserConditionalOutColorAlgorithm extends OutColorAlgorithm {
             if(parser2[2].foundP()) {
                 parser2[2].setPvalue(((Complex)object[2]));
             }
-            
+
             if(parser2[2].foundPP()) {
                 parser2[2].setPPvalue(((Complex)object[3]));
             }
+            
+            for(int i = 0; i < Parser.EXTRA_VARS; i++) {
+                if(parser2[2].foundVar(i)) {
+                    parser2[2].setVarsvalue(i, vars[i]);
+                }
+            }
 
-            double num = expr2[2].getValue().getAbsRe() + MAGIC_OFFSET_NUMBER;
-            return user_outcoloring_special_color[2] ? -num: num;
-        }
+            double result2 = expr2[2].getValue().getRe();
         
+            if(result2 == -max_iterations) {
+                return result2;
+            }
+
+            if(result2 < 0) {
+                return result2 - MAGIC_OFFSET_NUMBER;
+            }
+            else {
+                return result2 + MAGIC_OFFSET_NUMBER;
+            }   
+        }
+
         return 0;
 
     }

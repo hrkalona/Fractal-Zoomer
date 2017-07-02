@@ -12,7 +12,7 @@ import fractalzoomer.core.Complex;
  *        -You may define your own helper functions, which can have variable arguments and return type but they must be static.
  *        -Any exception thrown during the execution will be translated a the function returned a Complex number with the value of zero.
  *        -Do not break the code! (Infinite loops or whatever crazy thing comes to your mind).
- *        -Please refer to the Complex class in order to see all the available operations.
+ *        -Please refer to the Complex.java file, contained in the executable directory, in order to see all the available operations.
  *        -Note that the evaluation of the code is left to right and does not follow the stardard order of operations.
  *         This means that z.plus(3).times(new Complex(2, 3)); is equivalent to (z + 3) * (2 + 3i). If you want to enforce the correct order 
  *         change the order of the code or use brackets. For instance z.plus(new Complex(2, 3).times(3)) is equivalent to z + ((2 + 3i) * 3).
@@ -275,33 +275,94 @@ public class UserDefinedFunctions {
 	
 	}
 	
-	public static Complex m3(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10) {
+	public static Complex m3(Complex z, Complex c, Complex n, Complex maxn, Complex sum, Complex sum2, Complex z7, Complex z8, Complex z9, Complex z10) {
 	
 		return new Complex();
 	
 	}
 	
-	public static Complex m4(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10) {
+	//out coloring (usage with Triange Inequality/Stripe/Curvate Average Coloring), use it in the user out coloring formula like this: m4(v1, v2, n, z, bail, p) * 100 + n
+	public static Complex m4(Complex sum, Complex sum2, Complex n, Complex z, Complex bail, Complex p, Complex z7, Complex z8, Complex z9, Complex z10) {
 	
-		return new Complex();
+	
+	    double temp = p.norm_squared();
+        double temp2 = z.norm_squared();
+	
+        temp += 0.000000001;
+        temp = Math.log(temp);
+	
+        double f = 1 - (Math.log(bail.getRe() * bail.getRe()) - temp) / (Math.log(temp2) - temp);
+	
+	    if(n.getRe() < 2)
+			return new Complex(f, 0);
+	
+	   sum.setRe( sum.getRe() / n.getRe());
+	   sum2.setRe( sum2.getRe() / (n.getRe() - 1));
+	
+	
+	
+	   return sum.plus((sum2.sub(sum)).times(f));
+	
 	
 	}
 	
-	public static Complex m5(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10) {
+	//Triangle Inequality Average Coloring, use it in the user formula like this: m5(z, c, n, v1, v2, v3)
 	
-		return new Complex();
+	public static Complex m5(Complex z, Complex c, Complex n, Complex sum, Complex sum2, Complex mc, Complex z7, Complex z8, Complex z9, Complex z10) {
+	
+	
+		Complex temp = z.square();
+		Complex temp2 = temp.plus(c);
+	
+		if(n.getRe() == 0)
+			mc.setRe(c.norm());
+	
+		sum2.assign(sum);
+		if(n.getRe() != 0) {
+			double mp = temp.norm();
+			double m = Math.abs(mp - mc.getRe());
+			double M = mp + mc.getRe();
+			sum.setRe(sum.getRe() + (temp2.norm() - m) / (M - m));
+	
+		}
+	
+		return temp2;
 	
 	}
 	
-	public static Complex m6(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10) {
+	//Stripe Average Coloring, use it in the user formula like this: m6(z, c, n, v1, v2)
 	
-		return new Complex();
+	public static Complex m6(Complex z, Complex c, Complex n, Complex sum, Complex sum2, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10) {
+	
+		Complex temp = z.square().plus(c);
+	
+		sum2.assign(sum);
+		if(n.getRe() != 0) {
+			double s = 3;
+			sum.setRe(0.5 * Math.sin(s * Math.atan(temp.getIm() / temp.getRe())) + 0.5);
+	
+		}
+	
+		return temp;
 	
 	}
 	
-	public static Complex m7(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10) {
+	//Curvature Average Coloring, use it in the user formula like this: m7(z, c, n, v1, v2, p)
+	public static Complex m7(Complex z, Complex c, Complex n, Complex sum, Complex sum2, Complex p, Complex z7, Complex z8, Complex z9, Complex z10) {
 	
-		return new Complex();
+		Complex temp = z.square().plus(c);
+	
+		sum2.assign(sum);
+		if(n.getRe() != 0) {
+	
+			Complex a = temp.sub(z);
+			Complex b = z.sub(p);
+			Complex d = a.divide(b);
+			sum.setRe(Math.abs(Math.atan(d.getIm() / d.getRe())));
+	
+		}
+	
+		return temp;
 	
 	}
 	

@@ -110,10 +110,12 @@ public abstract class Julia extends Fractal {
         Complex zold = new Complex();
         Complex zold2 = new Complex();
         Complex start = new Complex(complex[0]);
+        
+        Complex[] vars = createGlobalVars();
 
         for(; iterations < max_iterations; iterations++) {
-            if(bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
-                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start};
+            if(bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, vars)) {
+                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, vars};
                 return out_color_algorithm.getResult(object);
             }
             zold2.assign(zold);
@@ -138,10 +140,12 @@ public abstract class Julia extends Fractal {
         Complex zold = new Complex();
         Complex zold2 = new Complex();
         Complex start = new Complex(complex[0]);
+        
+        Complex[] vars = createGlobalVars();
 
         for(; iterations < max_iterations; iterations++) {
-            if(bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
-                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start};
+            if(bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, vars)) {
+                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, vars};
                 return out_color_algorithm.getResult(object);
             }
             zold2.assign(zold);
@@ -150,7 +154,7 @@ public abstract class Julia extends Fractal {
 
         }
 
-        Object[] object = {complex[0], zold, zold2, complex[1], start};
+        Object[] object = {complex[0], zold, zold2, complex[1], start, vars};
         return in_color_algorithm.getResult(object);
 
     }
@@ -175,10 +179,12 @@ public abstract class Julia extends Fractal {
         Complex start = new Complex(complex[0]);
 
         double temp;
+        
+        Complex[] vars = createGlobalVars();
 
         for(; iterations < max_iterations; iterations++) {
-            if(bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
-                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start};
+            if(bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, vars)) {
+                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, vars};
                 temp = out_color_algorithm.getResult(object);
                 double[] array = {out_color_algorithm.transformResultToHeight(temp), temp};
                 return array;
@@ -210,10 +216,12 @@ public abstract class Julia extends Fractal {
         Complex start = new Complex(complex[0]);
 
         double temp;
+        
+        Complex[] vars = createGlobalVars();
 
         for(; iterations < max_iterations; iterations++) {
-            if(bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
-                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start};
+            if(bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, vars)) {
+                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, vars};
                 temp = out_color_algorithm.getResult(object);
                 double[] array = {out_color_algorithm.transformResultToHeight(temp), temp};
                 return array;
@@ -224,7 +232,7 @@ public abstract class Julia extends Fractal {
 
         }
 
-        Object[] object = {complex[0], zold, zold2, complex[1], start};
+        Object[] object = {complex[0], zold, zold2, complex[1], start, vars};
         temp = in_color_algorithm.getResult(object);
         double[] array = {in_color_algorithm.transformResultToHeight(temp, max_iterations), temp};
         return array;

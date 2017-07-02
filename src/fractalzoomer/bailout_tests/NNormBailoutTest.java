@@ -34,7 +34,7 @@ public class NNormBailoutTest extends BailoutTest {
     }
     
      @Override //N norm
-     public boolean escaped(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start) {
+     public boolean escaped(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex[] vars) {
          
         return Math.pow(Math.pow(z.getAbsRe(), n_norm) + Math.pow(z.getAbsIm(), n_norm), 1 / n_norm) >= bound;
          

@@ -14,20 +14,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package fractalzoomer.out_coloring_algorithms;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.parser.Parser;
 
 /**
  *
  * @author hrkalona2
  */
 public class UserConditionalOutColorAlgorithmMagnet extends UserConditionalOutColorAlgorithm {
-    
-    public UserConditionalOutColorAlgorithmMagnet(String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, boolean[] user_outcoloring_special_color, double bailout, int max_iterations) {
 
-        super(user_outcoloring_conditions, user_outcoloring_condition_formula, user_outcoloring_special_color, bailout, max_iterations);
+    protected int max_iterations;
+    
+    public UserConditionalOutColorAlgorithmMagnet(String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, double bailout, int max_iterations, double xCenter, double yCenter, double size) {
+
+        super(user_outcoloring_conditions, user_outcoloring_condition_formula, bailout, max_iterations, xCenter, yCenter, size);
+        this.max_iterations = max_iterations;
         
     }
 
@@ -42,11 +45,11 @@ public class UserConditionalOutColorAlgorithmMagnet extends UserConditionalOutCo
         if(parser[0].foundZ()) {
             parser[0].setZvalue(((Complex)object[1]));
         }
-        
+
         if(parser[0].foundC()) {
             parser[0].setCvalue(((Complex)object[6]));
         }
-        
+
         if(parser[0].foundS()) {
             parser[0].setSvalue(((Complex)object[7]));
         }
@@ -54,9 +57,16 @@ public class UserConditionalOutColorAlgorithmMagnet extends UserConditionalOutCo
         if(parser[0].foundP()) {
             parser[0].setPvalue(((Complex)object[4]));
         }
-        
+
         if(parser[0].foundPP()) {
             parser[0].setPPvalue(((Complex)object[5]));
+        }
+
+        Complex[] vars = (Complex[])object[8];
+        for(int i = 0; i < Parser.EXTRA_VARS; i++) {
+            if(parser[0].foundVar(i)) {
+                parser[0].setVarsvalue(i, vars[i]);
+            }
         }
 
         /* RIGHT */
@@ -67,11 +77,11 @@ public class UserConditionalOutColorAlgorithmMagnet extends UserConditionalOutCo
         if(parser[1].foundZ()) {
             parser[1].setZvalue(((Complex)object[1]));
         }
-        
+
         if(parser[1].foundC()) {
             parser[1].setCvalue(((Complex)object[6]));
         }
-        
+
         if(parser[1].foundS()) {
             parser[1].setSvalue(((Complex)object[7]));
         }
@@ -79,9 +89,15 @@ public class UserConditionalOutColorAlgorithmMagnet extends UserConditionalOutCo
         if(parser[1].foundP()) {
             parser[1].setPvalue(((Complex)object[4]));
         }
-        
+
         if(parser[1].foundPP()) {
             parser[1].setPPvalue(((Complex)object[5]));
+        }
+
+        for(int i = 0; i < Parser.EXTRA_VARS; i++) {
+            if(parser[1].foundVar(i)) {
+                parser[1].setVarsvalue(i, vars[i]);
+            }
         }
 
         int result = expr[0].getValue().compare(expr[1].getValue());
@@ -94,11 +110,11 @@ public class UserConditionalOutColorAlgorithmMagnet extends UserConditionalOutCo
             if(parser2[0].foundZ()) {
                 parser2[0].setZvalue(((Complex)object[1]));
             }
-            
+
             if(parser2[0].foundC()) {
                 parser2[0].setCvalue(((Complex)object[6]));
             }
-            
+
             if(parser2[0].foundS()) {
                 parser2[0].setSvalue(((Complex)object[7]));
             }
@@ -106,15 +122,29 @@ public class UserConditionalOutColorAlgorithmMagnet extends UserConditionalOutCo
             if(parser2[0].foundP()) {
                 parser2[0].setPvalue(((Complex)object[4]));
             }
-            
+
             if(parser2[0].foundPP()) {
                 parser2[0].setPPvalue(((Complex)object[5]));
             }
 
-            double temp = expr2[0].getValue().getAbsRe();
+            for(int i = 0; i < Parser.EXTRA_VARS; i++) {
+                if(parser2[0].foundVar(i)) {
+                    parser2[0].setVarsvalue(i, vars[i]);
+                }
+            }
             
-            double num = (Boolean)object[2] ? temp + MAGIC_OFFSET_NUMBER + 106  : temp + MAGIC_OFFSET_NUMBER;
-            return user_outcoloring_special_color[0] ? -num: num;
+            double result2 = expr2[0].getValue().getRe();
+        
+            if(result2 == -max_iterations) {
+                return result2;
+            }
+
+            if(result2 < 0) {
+                return (Boolean)object[2] ? result2 - MAGIC_OFFSET_NUMBER - 106  : result2 - MAGIC_OFFSET_NUMBER;
+            }
+            else {
+                return (Boolean)object[2] ? result2 + MAGIC_OFFSET_NUMBER + 106  : result2 + MAGIC_OFFSET_NUMBER;
+            }
         }
         else if(result == 1) { // right > left
             if(parser2[1].foundN()) {
@@ -124,11 +154,11 @@ public class UserConditionalOutColorAlgorithmMagnet extends UserConditionalOutCo
             if(parser2[1].foundZ()) {
                 parser2[1].setZvalue(((Complex)object[1]));
             }
-            
+
             if(parser2[1].foundC()) {
                 parser2[1].setCvalue(((Complex)object[6]));
             }
-            
+
             if(parser2[1].foundS()) {
                 parser2[1].setSvalue(((Complex)object[7]));
             }
@@ -136,17 +166,31 @@ public class UserConditionalOutColorAlgorithmMagnet extends UserConditionalOutCo
             if(parser2[1].foundP()) {
                 parser2[1].setPvalue(((Complex)object[4]));
             }
-            
+
             if(parser2[1].foundPP()) {
                 parser2[1].setPPvalue(((Complex)object[5]));
             }
             
-            double temp = expr2[1].getValue().getAbsRe();
-            
-            double num = (Boolean)object[2] ? temp + MAGIC_OFFSET_NUMBER + 106  : temp + MAGIC_OFFSET_NUMBER;
-            return user_outcoloring_special_color[1] ? -num: num;
+            for(int i = 0; i < Parser.EXTRA_VARS; i++) {
+                if(parser2[1].foundVar(i)) {
+                    parser2[1].setVarsvalue(i, vars[i]);
+                }
+            }
+
+            double result2 = expr2[1].getValue().getRe();
+        
+            if(result2 == -max_iterations) {
+                return result2;
+            }
+
+            if(result2 < 0) {
+                return (Boolean)object[2] ? result2 - MAGIC_OFFSET_NUMBER - 106  : result2 - MAGIC_OFFSET_NUMBER;
+            }
+            else {
+                return (Boolean)object[2] ? result2 + MAGIC_OFFSET_NUMBER + 106  : result2 + MAGIC_OFFSET_NUMBER;
+            }
         }
-        else if (result == 0) { //left == right
+        else if(result == 0) { //left == right
             if(parser2[2].foundN()) {
                 parser2[2].setNvalue(new Complex((Integer)object[0], 0));
             }
@@ -154,11 +198,11 @@ public class UserConditionalOutColorAlgorithmMagnet extends UserConditionalOutCo
             if(parser2[2].foundZ()) {
                 parser2[2].setZvalue(((Complex)object[1]));
             }
-            
+
             if(parser2[2].foundC()) {
                 parser2[2].setCvalue(((Complex)object[6]));
             }
-            
+
             if(parser2[2].foundS()) {
                 parser2[2].setSvalue(((Complex)object[7]));
             }
@@ -166,17 +210,31 @@ public class UserConditionalOutColorAlgorithmMagnet extends UserConditionalOutCo
             if(parser2[2].foundP()) {
                 parser2[2].setPvalue(((Complex)object[4]));
             }
-            
+
             if(parser2[2].foundPP()) {
                 parser2[2].setPPvalue(((Complex)object[5]));
             }
-
-            double temp = expr2[2].getValue().getAbsRe();
             
-            double num = (Boolean)object[2] ? temp + MAGIC_OFFSET_NUMBER + 106  : temp + MAGIC_OFFSET_NUMBER;
-            return user_outcoloring_special_color[2] ? -num: num;
-        }
+            for(int i = 0; i < Parser.EXTRA_VARS; i++) {
+                if(parser2[2].foundVar(i)) {
+                    parser2[2].setVarsvalue(i, vars[i]);
+                }
+            }
+
+            double result2 = expr2[2].getValue().getRe();
         
+            if(result2 == -max_iterations) {
+                return result2;
+            }
+
+            if(result2 < 0) {
+                return (Boolean)object[2] ? result2 - MAGIC_OFFSET_NUMBER - 106  : result2 - MAGIC_OFFSET_NUMBER;
+            }
+            else {
+                return (Boolean)object[2] ? result2 + MAGIC_OFFSET_NUMBER + 106  : result2 + MAGIC_OFFSET_NUMBER;
+            }
+        }
+
         return 0;
 
     }

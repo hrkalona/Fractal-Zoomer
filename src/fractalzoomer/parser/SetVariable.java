@@ -50,7 +50,7 @@ public class SetVariable implements ExpressionNodeVisitor
   public void visit(VariableExpressionNode node)
   {
     if (node.getName().equals(name))
-      node.setValue(value);
+      node.setValue(new Complex(value));
   }
 
   /** Do nothing */

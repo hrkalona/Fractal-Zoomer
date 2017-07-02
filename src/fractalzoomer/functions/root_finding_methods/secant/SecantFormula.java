@@ -60,10 +60,11 @@ public class SecantFormula extends SecantRootFindingMethod {
     private ExpressionNode expr;
     private Parser parser;
     private int iterations;
+    private Complex[] vars;
 
-    public SecantFormula(double xCenter, double yCenter, double size, int max_iterations, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, boolean[] user_outcoloring_special_color, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean[] user_incoloring_special_color, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula,  double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int converging_smooth_algorithm, String user_fz_formula) {
+    public SecantFormula(double xCenter, double yCenter, double size, int max_iterations, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula,  double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int converging_smooth_algorithm, String user_fz_formula) {
 
-        super(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, user_outcoloring_special_color, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula,  plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+        super(xCenter, yCenter, size, max_iterations,  plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula,  plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
 
         switch (out_coloring_algorithm) {
 
@@ -115,10 +116,10 @@ public class SecantFormula extends SecantRootFindingMethod {
             case MainWindow.USER_OUTCOLORING_ALGORITHM:
                 convergent_bailout = 1E-7;
                 if(user_out_coloring_algorithm == 0) {
-                    out_color_algorithm = new UserOutColorAlgorithmRootFindingMethod(outcoloring_formula, convergent_bailout, max_iterations);
+                    out_color_algorithm = new UserOutColorAlgorithmRootFindingMethod(outcoloring_formula, convergent_bailout, max_iterations, xCenter, yCenter, size);
                 }
                 else {
-                    out_color_algorithm = new UserConditionalOutColorAlgorithmRootFindingMethod(user_outcoloring_conditions, user_outcoloring_condition_formula, user_outcoloring_special_color, convergent_bailout, max_iterations);
+                    out_color_algorithm = new UserConditionalOutColorAlgorithmRootFindingMethod(user_outcoloring_conditions, user_outcoloring_condition_formula, convergent_bailout, max_iterations, xCenter, yCenter, size);
                 }
                 break;
 
@@ -158,10 +159,10 @@ public class SecantFormula extends SecantRootFindingMethod {
                 break;
             case MainWindow.USER_INCOLORING_ALGORITHM:
                 if(user_in_coloring_algorithm == 0) {
-                    in_color_algorithm = new UserInColorAlgorithm(incoloring_formula, max_iterations);
+                    in_color_algorithm = new UserInColorAlgorithm(incoloring_formula, max_iterations, xCenter, yCenter, size);
                 }
                 else {
-                    in_color_algorithm = new UserConditionalInColorAlgorithm(user_incoloring_conditions, user_incoloring_condition_formula, user_incoloring_special_color, max_iterations);
+                    in_color_algorithm = new UserConditionalInColorAlgorithm(user_incoloring_conditions, user_incoloring_condition_formula, max_iterations, xCenter, yCenter, size);
                 }
                 break;
 
@@ -192,6 +193,12 @@ public class SecantFormula extends SecantRootFindingMethod {
         if(parser.foundN()) {
             parser.setNvalue(new Complex(iterations, 0));
         }
+        
+        for(int i = 0; i < Parser.EXTRA_VARS; i++) {
+            if(parser.foundVar(i)) {
+                parser.setVarsvalue(i, vars[i]);
+            }
+        }
 
         Complex fz1 = expr.getValue();
 
@@ -216,52 +223,27 @@ public class SecantFormula extends SecantRootFindingMethod {
         Complex zold2 = new Complex();
         Complex start = new Complex(complex[0]);
         
-        if(parser.foundZ()) {
-            parser.setZvalue(complex[1]);
-        }
-
-        if(parser.foundN()) {
-            parser.setNvalue(new Complex(iterations, 0));
-        }
+        vars = createGlobalVars();//set it before init variables
         
-        if(parser.foundMaxn()) {
-            parser.setMaxnvalue(new Complex(max_iterations, 0));
-        }
-        
-        if(parser.foundS()) {
-            parser.setSvalue(start);
-        }
-
-        if(parser.foundP()) {
-            parser.setPvalue(zold);
-        }
-        
-        if(parser.foundPP()) {
-            parser.setPPvalue(zold2);
-        }
+        setInitVariables(start, zold, zold2, complex[1]);
        
         complex[2] = expr.getValue();
 
 
         for(; iterations < max_iterations; iterations++) {
             if((temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
-                Object[] object = {iterations, complex[0], temp, zold, zold2, pixel, start};
+                Object[] object = {iterations, complex[0], temp, zold, zold2, pixel, start, vars};
                 return out_color_algorithm.getResult(object);
             }
             zold2.assign(zold);
             zold.assign(complex[0]);
             function(complex);
 
-            if(parser.foundP()) {
-                parser.setPvalue(zold);
-            }
-            if(parser.foundPP()) {
-                parser.setPPvalue(zold2);
-            }
+            setVariables(zold, zold2);
             
         }
 
-        Object[] object = {complex[0], zold, zold2, pixel, start};
+        Object[] object = {complex[0], zold, zold2, pixel, start, vars};
         return in_color_algorithm.getResult(object);
 
     }
@@ -279,36 +261,16 @@ public class SecantFormula extends SecantRootFindingMethod {
         Complex zold2 = new Complex();
         Complex start = new Complex(complex[0]);
         
-        if(parser.foundZ()) {
-            parser.setZvalue(complex[1]);
-        }
-
-        if(parser.foundN()) {
-            parser.setNvalue(new Complex(iterations, 0));
-        }
+        vars = createGlobalVars();//set it before init variables
         
-        if(parser.foundMaxn()) {
-            parser.setMaxnvalue(new Complex(max_iterations, 0));
-        }
-        
-        if(parser.foundS()) {
-            parser.setSvalue(start);
-        }
-
-        if(parser.foundP()) {
-            parser.setPvalue(zold);
-        }
-        
-        if(parser.foundPP()) {
-            parser.setPPvalue(zold2);
-        }
+        setInitVariables(start, zold, zold2, complex[1]);
        
         complex[2] = expr.getValue();    
 
 
         for(; iterations < max_iterations; iterations++) {
             if((temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
-                Object[] object = {iterations, complex[0], temp, zold, zold2, pixel, start};
+                Object[] object = {iterations, complex[0], temp, zold, zold2, pixel, start, vars};
                 double[] array = {out_color_algorithm.transformResultToHeight(out_color_algorithm.getResult3D(object)), out_color_algorithm.getResult(object)};
                 return array;
             }
@@ -316,16 +278,10 @@ public class SecantFormula extends SecantRootFindingMethod {
             zold.assign(complex[0]);
             function(complex);
 
-            if(parser.foundP()) {
-                parser.setPvalue(zold);
-            }
-            
-            if(parser.foundPP()) {
-                parser.setPPvalue(zold2);
-            }
+            setVariables(zold, zold2);
         }
 
-        Object[] object = {complex[0], zold, zold2, pixel, start};
+        Object[] object = {complex[0], zold, zold2, pixel, start, vars};
         double temp2 = in_color_algorithm.getResult(object);
         double[] array = {in_color_algorithm.transformResultToHeight(temp2, max_iterations), temp2};
         return array;
@@ -345,29 +301,9 @@ public class SecantFormula extends SecantRootFindingMethod {
         Complex zold2 = new Complex();
         Complex start = new Complex(complex[0]);
         
-        if(parser.foundZ()) {
-            parser.setZvalue(complex[1]);
-        }
-
-        if(parser.foundN()) {
-            parser.setNvalue(new Complex(iterations, 0));
-        }
+        vars = createGlobalVars();//set it before init variables
         
-        if(parser.foundMaxn()) {
-            parser.setMaxnvalue(new Complex(max_iterations, 0));
-        }
-        
-        if(parser.foundS()) {
-            parser.setSvalue(start);
-        }
-
-        if(parser.foundP()) {
-            parser.setPvalue(zold);
-        }
-        
-        if(parser.foundPP()) {
-            parser.setPPvalue(zold2);
-        }
+        setInitVariables(start, zold, zold2, complex[1]);
        
         complex[2] = expr.getValue();
 
@@ -378,13 +314,7 @@ public class SecantFormula extends SecantRootFindingMethod {
             zold.assign(complex[0]);
             function(complex);
 
-            if(parser.foundP()) {
-                parser.setPvalue(zold);
-            }
-            
-            if(parser.foundPP()) {
-                parser.setPPvalue(zold2);
-            }
+            setVariables(zold, zold2);
 
             temp = rotation.getPixel(complex[0], true);
 
@@ -409,29 +339,9 @@ public class SecantFormula extends SecantRootFindingMethod {
         Complex zold2 = new Complex();
         Complex start = new Complex(complex[0]);
         
-        if(parser.foundZ()) {
-            parser.setZvalue(complex[1]);
-        }
-
-        if(parser.foundN()) {
-            parser.setNvalue(new Complex(iterations, 0));
-        }
+        vars = createGlobalVars();//set it before init variables
         
-        if(parser.foundMaxn()) {
-            parser.setMaxnvalue(new Complex(max_iterations, 0));
-        }
-        
-        if(parser.foundS()) {
-            parser.setSvalue(start);
-        }
-
-        if(parser.foundP()) {
-            parser.setPvalue(zold);
-        }
-        
-        if(parser.foundPP()) {
-            parser.setPPvalue(zold2);
-        }
+        setInitVariables(start, zold, zold2, complex[1]);
        
         complex[2] = expr.getValue();
         
@@ -441,16 +351,64 @@ public class SecantFormula extends SecantRootFindingMethod {
             zold.assign(complex[0]);
             function(complex);
 
-            if(parser.foundP()) {
-                parser.setPvalue(zold);
-            }
-            
-            if(parser.foundPP()) {
-                parser.setPPvalue(zold2);
-            }
+            setVariables(zold, zold2);
         }
 
         return complex[0];
+
+    }
+    
+    private void setVariables(Complex zold, Complex zold2) {
+
+        if(parser.foundP()) {
+            parser.setPvalue(zold);
+        }
+
+        if(parser.foundPP()) {
+            parser.setPPvalue(zold2);
+        }
+
+    }
+
+    private void setInitVariables(Complex start, Complex zold, Complex zold2, Complex pixel) {
+        
+        if(parser.foundZ()) {
+            parser.setZvalue(pixel);
+        }
+
+        if(parser.foundN()) {
+            parser.setNvalue(new Complex(iterations, 0));
+        }
+        
+        if(parser.foundS()) {
+            parser.setSvalue(start);
+        }
+
+        if(parser.foundMaxn()) {
+            parser.setMaxnvalue(new Complex(max_iterations, 0));
+        }
+
+        if(parser.foundP()) {
+            parser.setPvalue(zold);
+        }
+
+        if(parser.foundPP()) {
+            parser.setPPvalue(zold2);
+        }
+  
+        if(parser.foundCenter()) {
+            parser.setCentervalue(new Complex(xCenter, yCenter));
+        }
+
+        if(parser.foundSize()) {
+            parser.setSizevalue(new Complex(size, 0));
+        }
+        
+        for(int i = 0; i < Parser.EXTRA_VARS; i++) {
+            if(parser.foundVar(i)) {
+                parser.setVarsvalue(i, vars[i]);
+            }
+        }
 
     }
 

@@ -31,7 +31,7 @@ import java.util.ArrayList;
 public abstract class RootFindingMethods extends Fractal { 
   protected double convergent_bailout;
 
-    public RootFindingMethods(double xCenter, double yCenter, double size, int max_iterations, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, boolean[] user_outcoloring_special_color, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula,  double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double [] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount) {
+    public RootFindingMethods(double xCenter, double yCenter, double size, int max_iterations, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula,  double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double [] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount) {
 
         super(xCenter, yCenter, size, max_iterations, 0, 0, "", "", 0, 0, false, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula,  plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
 
@@ -58,10 +58,12 @@ public abstract class RootFindingMethods extends Fractal {
         Complex zold = new Complex();
         Complex zold2 = new Complex();
         Complex start = new Complex(complex[0]);
+        
+        Complex[] vars = createGlobalVars();
 
         for (; iterations < max_iterations; iterations++) {
             if((temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
-                Object[] object = {iterations, complex[0], temp, zold, zold2, pixel, start};
+                Object[] object = {iterations, complex[0], temp, zold, zold2, pixel, start, vars};
                 return out_color_algorithm.getResult(object);
             }
             zold2.assign(zold);
@@ -70,7 +72,7 @@ public abstract class RootFindingMethods extends Fractal {
  
         }
 
-        Object[] object = {complex[0], zold, zold2, pixel, start};
+        Object[] object = {complex[0], zold, zold2, pixel, start, vars};
         return in_color_algorithm.getResult(object);
         
     }
@@ -86,10 +88,12 @@ public abstract class RootFindingMethods extends Fractal {
         Complex zold = new Complex();
         Complex zold2 = new Complex();
         Complex start = new Complex(complex[0]);
+        
+        Complex[] vars = createGlobalVars();
 
         for (; iterations < max_iterations; iterations++) {
             if((temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
-                Object[] object = {iterations, complex[0], temp, zold, zold2, pixel, start};
+                Object[] object = {iterations, complex[0], temp, zold, zold2, pixel, start, vars};
                 double[] array = {out_color_algorithm.transformResultToHeight(out_color_algorithm.getResult3D(object)), out_color_algorithm.getResult(object)};
                 return array;
             }
@@ -99,7 +103,7 @@ public abstract class RootFindingMethods extends Fractal {
  
         }
 
-        Object[] object = {complex[0], zold, zold2, pixel, start};
+        Object[] object = {complex[0], zold, zold2, pixel, start, vars};
         double temp2 = in_color_algorithm.getResult(object);
         double[] array = {in_color_algorithm.transformResultToHeight(temp2, max_iterations), temp2};
         return array;

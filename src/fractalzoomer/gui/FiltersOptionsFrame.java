@@ -34,6 +34,7 @@ import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -58,13 +59,16 @@ public class FiltersOptionsFrame extends JFrame {
    private Color[] filters_colors;
    private Color[][] filters_extra_colors;
    private FiltersOptionsFrame this_frame;
+   private FilterOrderSelectionPanel order_panel;
+   private boolean[] mActiveFilters;
    private static int tab_index;
+   
    
    static {
        tab_index = 0;
    }
    
-    public FiltersOptionsFrame(MainWindow ptra, int[] filters_options_vals2, int[][] filters_options_extra_vals2, Color[] filters_colors2, Color[][] filters_extra_colors2) {
+    public FiltersOptionsFrame(MainWindow ptra, int[] filters_options_vals2, int[][] filters_options_extra_vals2, Color[] filters_colors2, Color[][] filters_extra_colors2, JCheckBoxMenuItem[] filter_names, int[] filter_order, boolean[] active_filters) {
         
         super();
 
@@ -73,12 +77,19 @@ public class FiltersOptionsFrame extends JFrame {
         filters_options_extra_vals = filters_options_extra_vals2;
         filters_colors = filters_colors2;
         filters_extra_colors = filters_extra_colors2;
+        
+        mActiveFilters = new boolean[active_filters.length];
+        
+        for(int i = 0; i < mActiveFilters.length; i++) {
+            mActiveFilters[i] = active_filters[i];
+        }
+        
         this_frame = this;
         
         components_filters = new Object[filters_options_vals.length];
         
         ptra2.setEnabled(false);
-        int filters_options_window_width = 1150;
+        int filters_options_window_width = 1180;
         int filters_options_window_height = 720;
         setTitle("Filters Options");
         setIconImage(getIcon("/fractalzoomer/icons/filter_options.png").getImage());
@@ -104,6 +115,8 @@ public class FiltersOptionsFrame extends JFrame {
         JPanel panel = new JPanel();
         panel.setBackground(MainWindow.bg_color);
         
+        JPanel panel_filters = new ActiveFiltersPanel(filter_names, mActiveFilters);
+        panel_filters.setBackground(MainWindow.bg_color);
         JPanel panel_details = new JPanel();
         panel_details.setBackground(MainWindow.bg_color);
         JPanel panel_colors = new JPanel();
@@ -112,24 +125,31 @@ public class FiltersOptionsFrame extends JFrame {
         panel_texture.setBackground(MainWindow.bg_color);
         JPanel panel_lighting = new JPanel();
         panel_lighting.setBackground(MainWindow.bg_color);
+        order_panel = new FilterOrderSelectionPanel(filter_names, filter_order, mActiveFilters);
+        order_panel.setBackground(MainWindow.bg_color);
         
        
         tabbedPane.setFocusable(false);
-        tabbedPane.setPreferredSize(new Dimension(1020, 550));
+        tabbedPane.setPreferredSize(new Dimension(1050, 550));
         tabbedPane.setBackground(MainWindow.bg_color);     
-        
+
+        tabbedPane.addTab("Active Filters", panel_filters);
+        tabbedPane.setIconAt(0, getIcon("/fractalzoomer/icons/list2.png"));
+        tabbedPane.addTab("Order", order_panel);
+        tabbedPane.setIconAt(1, getIcon("/fractalzoomer/icons/list.png"));
         tabbedPane.addTab("Details", panel_details);
-        tabbedPane.setIconAt(0, getIcon("/fractalzoomer/icons/filter_details.png"));
+        tabbedPane.setIconAt(2, getIcon("/fractalzoomer/icons/filter_details.png"));
         tabbedPane.addTab("Colors", panel_colors);
-        tabbedPane.setIconAt(1, getIcon("/fractalzoomer/icons/filter_colors.png"));
+        tabbedPane.setIconAt(3, getIcon("/fractalzoomer/icons/filter_colors.png"));
         tabbedPane.addTab("Texture", panel_texture);
-        tabbedPane.setIconAt(2, getIcon("/fractalzoomer/icons/filter_texture.png"));
+        tabbedPane.setIconAt(4, getIcon("/fractalzoomer/icons/filter_texture.png"));
         tabbedPane.addTab("Lighting", panel_lighting);
-        tabbedPane.setIconAt(3, getIcon("/fractalzoomer/icons/filter_lighting.png"));
+        tabbedPane.setIconAt(5, getIcon("/fractalzoomer/icons/filter_lighting.png"));     
+        
         
         tabbedPane.setSelectedIndex(tab_index);
 
-        panel.setPreferredSize(new Dimension(1040, 580));
+        panel.setPreferredSize(new Dimension(1070, 580));
 
         JPanel[] panels = new JPanel[components_filters.length];
 
@@ -235,6 +255,43 @@ public class FiltersOptionsFrame extends JFrame {
         panels[MainWindow.EDGE_DETECTION].add(((JPanel)components_filters[MainWindow.EDGE_DETECTION]));
         panels[MainWindow.EDGE_DETECTION].setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Edge Detection", TitledBorder.DEFAULT_POSITION, TitledBorder.DEFAULT_POSITION));
 
+        
+        panels[MainWindow.EDGE_DETECTION2] = new JPanel();
+        panels[MainWindow.EDGE_DETECTION2].setBackground(MainWindow.bg_color);
+        
+        components_filters[MainWindow.EDGE_DETECTION2] = new JPanel();
+       ((JPanel)components_filters[MainWindow.EDGE_DETECTION2]).setBackground(MainWindow.bg_color);
+       ((JPanel)components_filters[MainWindow.EDGE_DETECTION2]).setLayout(new GridLayout(2, 1));
+       
+        String[] horizontal_str = {"Sobel", "Roberts", "Prewitt", "Frei-Chen"};
+
+        final JComboBox horizontal_edge_alg = new JComboBox(horizontal_str);
+        horizontal_edge_alg.setSelectedIndex((int)(filters_options_vals[MainWindow.EDGE_DETECTION2] / 10.0));
+        horizontal_edge_alg.setFocusable(false);
+        horizontal_edge_alg.setToolTipText("Sets the horizontal edge algorithm.");
+        
+        final JComboBox vertical_edge_alg = new JComboBox(horizontal_str);
+        vertical_edge_alg.setSelectedIndex((int)(filters_options_vals[MainWindow.EDGE_DETECTION2] % 10.0));
+        vertical_edge_alg.setFocusable(false);
+        vertical_edge_alg.setToolTipText("Sets the vertical edge algorithm.");
+        
+        JPanel p1 = new JPanel();
+        p1.setBackground(MainWindow.bg_color);
+        
+        JPanel p2 = new JPanel();
+        p2.setBackground(MainWindow.bg_color);
+ 
+        p1.add(new JLabel("Horizontal:"));
+        p1.add(horizontal_edge_alg);
+        p2.add(new JLabel("Vertical:"));
+        p2.add(vertical_edge_alg);
+        
+        ((JPanel)components_filters[MainWindow.EDGE_DETECTION2]).add(p1);
+        ((JPanel)components_filters[MainWindow.EDGE_DETECTION2]).add(p2);
+        
+        panels[MainWindow.EDGE_DETECTION2].add(((JPanel)components_filters[MainWindow.EDGE_DETECTION2]));
+        panels[MainWindow.EDGE_DETECTION2].setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Edge Detection 2", TitledBorder.DEFAULT_POSITION, TitledBorder.DEFAULT_POSITION));
+       
         panels[MainWindow.SHARPNESS] = new JPanel();
         panels[MainWindow.SHARPNESS].setBackground(MainWindow.bg_color);
         String[] sharpness_str = {"Low", "High"};
@@ -605,7 +662,7 @@ public class FiltersOptionsFrame extends JFrame {
         ((JPanel)components_filters[MainWindow.COLOR_CHANNEL_ADJUSTING]).setLayout(new GridLayout(1, 3));
 
         final JSlider slid1 = new JSlider(JSlider.VERTICAL, 0, 100, (int)(filters_options_vals[MainWindow.COLOR_CHANNEL_ADJUSTING] / 1000000.0));
-        slid1.setPreferredSize(new Dimension(30, 85));
+        slid1.setPreferredSize(new Dimension(40, 85));
         slid1.setBackground(MainWindow.bg_color);
         slid1.setFocusable(false);
         slid1.setToolTipText("Sets the red channel adjusting.");
@@ -626,7 +683,7 @@ public class FiltersOptionsFrame extends JFrame {
         ((JPanel)components_filters[MainWindow.COLOR_CHANNEL_ADJUSTING]).add(panel3);
 
         final JSlider slid2 = new JSlider(JSlider.VERTICAL, 0, 100, (int)(((int)(filters_options_vals[MainWindow.COLOR_CHANNEL_ADJUSTING] % 1000000.0)) / 1000.0));
-        slid2.setPreferredSize(new Dimension(30, 85));
+        slid2.setPreferredSize(new Dimension(40, 85));
         slid2.setBackground(MainWindow.bg_color);
         slid2.setFocusable(false);
         slid2.setToolTipText("Sets the green channel adjusting.");
@@ -647,7 +704,7 @@ public class FiltersOptionsFrame extends JFrame {
         ((JPanel)components_filters[MainWindow.COLOR_CHANNEL_ADJUSTING]).add(panel4);
 
         final JSlider slid3 = new JSlider(JSlider.VERTICAL, 0, 100, (int)(((int)(filters_options_vals[MainWindow.COLOR_CHANNEL_ADJUSTING] % 1000000.0)) % 1000.0));
-        slid3.setPreferredSize(new Dimension(30, 85));
+        slid3.setPreferredSize(new Dimension(40, 85));
         slid3.setBackground(MainWindow.bg_color);
         slid3.setFocusable(false);
         slid3.setToolTipText("Sets the blue channel adjusting.");
@@ -679,7 +736,7 @@ public class FiltersOptionsFrame extends JFrame {
         ((JPanel)components_filters[MainWindow.COLOR_CHANNEL_HSB_ADJUSTING]).setLayout(new GridLayout(1, 3));
 
         final JSlider slid4 = new JSlider(JSlider.VERTICAL, 0, 100, (int)(filters_options_vals[MainWindow.COLOR_CHANNEL_HSB_ADJUSTING] / 1000000.0));
-        slid4.setPreferredSize(new Dimension(30, 85));
+        slid4.setPreferredSize(new Dimension(40, 85));
         slid4.setBackground(MainWindow.bg_color);
         slid4.setFocusable(false);
         slid4.setToolTipText("Sets the hue channel adjusting.");
@@ -699,7 +756,7 @@ public class FiltersOptionsFrame extends JFrame {
         ((JPanel)components_filters[MainWindow.COLOR_CHANNEL_HSB_ADJUSTING]).add(panel6);
 
         final JSlider slid5 = new JSlider(JSlider.VERTICAL, 0, 100, (int)(((int)(filters_options_vals[MainWindow.COLOR_CHANNEL_HSB_ADJUSTING] % 1000000.0)) / 1000.0));
-        slid5.setPreferredSize(new Dimension(30, 85));
+        slid5.setPreferredSize(new Dimension(40, 85));
         slid5.setBackground(MainWindow.bg_color);
         slid5.setFocusable(false);
         slid5.setToolTipText("Sets the saturation channel adjusting.");
@@ -719,7 +776,7 @@ public class FiltersOptionsFrame extends JFrame {
         ((JPanel)components_filters[MainWindow.COLOR_CHANNEL_HSB_ADJUSTING]).add(panel7);
 
         final JSlider slid6 = new JSlider(JSlider.VERTICAL, 0, 100, (int)(((int)(filters_options_vals[MainWindow.COLOR_CHANNEL_HSB_ADJUSTING] % 1000000.0)) % 1000.0));
-        slid6.setPreferredSize(new Dimension(30, 85));
+        slid6.setPreferredSize(new Dimension(40, 85));
         slid6.setBackground(MainWindow.bg_color);
         slid6.setFocusable(false);
         slid6.setToolTipText("Sets the brightness channel adjusting.");
@@ -2554,6 +2611,7 @@ public class FiltersOptionsFrame extends JFrame {
         
         panel_details.add(panels[MainWindow.ANTIALIASING]);
         panel_details.add(panels[MainWindow.EDGE_DETECTION]);
+        panel_details.add(panels[MainWindow.EDGE_DETECTION2]);
         panel_details.add(panels[MainWindow.SHARPNESS]);
         panel_details.add(panels[MainWindow.BLURRING]);
         panel_details.add(panels[MainWindow.EMBOSS]);
@@ -2697,13 +2755,16 @@ public class FiltersOptionsFrame extends JFrame {
                             filters_extra_colors[0][MainWindow.LIGHT_EFFECTS] = filter_color_label7.getBackground();
                             filters_extra_colors[1][MainWindow.LIGHT_EFFECTS] = filter_color_label8.getBackground();
                         }
+                        else if(k == MainWindow.EDGE_DETECTION2) {
+                            filters_options_vals[k] = horizontal_edge_alg.getSelectedIndex() * 10 + vertical_edge_alg.getSelectedIndex();
+                        }
                         else if ( components_filters[k] instanceof JComboBox){
                             filters_options_vals[k] = ((JComboBox)components_filters[k]).getSelectedIndex();
                         }
                     }
                 }
 
-                ptra2.filtersOptionsChanged(filters_options_vals, filters_options_extra_vals, filters_colors, filters_extra_colors);
+                ptra2.filtersOptionsChanged(filters_options_vals, filters_options_extra_vals, filters_colors, filters_extra_colors, order_panel.getFilterOrder(), mActiveFilters);
                 
                 tab_index = tabbedPane.getSelectedIndex();
 
@@ -2738,10 +2799,8 @@ public class FiltersOptionsFrame extends JFrame {
         reset.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
-
-                ptra2.defaultFilters(false);
                 
-                ptra2.filtersOptionsChanged(filters_options_vals, filters_options_extra_vals, filters_colors, filters_extra_colors);
+                ptra2.filtersOptionsChanged(null, null, null, null, null, null);
                 
                 tab_index = tabbedPane.getSelectedIndex();
                 
@@ -2756,7 +2815,7 @@ public class FiltersOptionsFrame extends JFrame {
 
         RoundedPanel round_panel = new RoundedPanel(true, true, true, 15);
         round_panel.setBackground(MainWindow.bg_color);
-        round_panel.setPreferredSize(new Dimension(1080, 630));
+        round_panel.setPreferredSize(new Dimension(1110, 630));
         round_panel.setLayout(new GridBagLayout());
 
         GridBagConstraints con = new GridBagConstraints();

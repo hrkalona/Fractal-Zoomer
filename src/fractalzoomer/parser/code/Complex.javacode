@@ -58,6 +58,18 @@ public final class Complex {
         return im;
 
     }
+    
+    public final void setRe(double re) {
+
+        this.re = re;
+
+    }
+
+    public final void setIm(double im ) {
+
+        this.im = im;
+
+    }
 
     public final void assign(Complex z) {
 
@@ -1918,7 +1930,63 @@ public final class Complex {
         return new Complex(center.re + (re - center.re) * temp, center.im + (im - center.im) * temp);
 
     }
+    
+    public final Complex fuzz(Complex distance) {
+        double random;
 
+        Complex out = new Complex(re, im);     
+        //Real modifier
+        random = Math.random();
+        if(random < 0.5) {
+            random = Math.random() * distance.re;
+            out.re -= random;
+        } 
+        else {
+            random = Math.random() * distance.re;
+            out.re += random;
+        }
+
+        //Imaginary modifier
+        random = Math.random();
+        if(random < 0.5) {
+            random = Math.random() * distance.im;
+            out.im -= random;
+        } 
+        else {
+            random = Math.random() * distance.im;
+            out.im += random;
+        }
+
+        return out;
+    }
+    
+    public final Complex fuzz_mutable(Complex distance) {
+        double random;
+        //Real modifier
+        random = Math.random();
+        if(random < 0.5) {
+            random = Math.random() * distance.re;
+            re -= random;
+        } 
+        else {
+            random = Math.random() * distance.re;
+            re += random;
+        }
+        
+        //Imaginary modifier
+        random = Math.random();
+        if(random < 0.5) {
+            random = Math.random() * distance.im;
+            im -= random;
+        } 
+        else {
+            random = Math.random() * distance.im;
+            im += random;
+        }
+
+        return this;
+    }
+    
     private double triangle(double x) {
         double r = mod(x, 1.0f);
         return 2.0f * (r < 0.5 ? r : 1 - r);

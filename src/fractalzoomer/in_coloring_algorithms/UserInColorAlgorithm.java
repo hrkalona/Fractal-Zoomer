@@ -28,19 +28,25 @@ import fractalzoomer.parser.Parser;
 public class UserInColorAlgorithm extends InColorAlgorithm {
     private ExpressionNode expr;
     private Parser parser;
-    private Complex c_max_iterations;
     private int max_iterations;
     
-    public UserInColorAlgorithm(String incoloring_formula, int max_iterations) {
+    public UserInColorAlgorithm(String incoloring_formula, int max_iterations, double xCenter, double yCenter, double size) {
         
         super();
         
         parser = new Parser();
-        expr = parser.parse(incoloring_formula);
-        c_max_iterations = new Complex(max_iterations, 0);  
+        expr = parser.parse(incoloring_formula); 
                 
         if(parser.foundMaxn()) {
-            parser.setMaxnvalue(c_max_iterations);
+            parser.setMaxnvalue(new Complex(max_iterations, 0));
+        }
+        
+        if(parser.foundCenter()) {
+            parser.setCentervalue(new Complex(xCenter, yCenter));
+        }
+        
+        if(parser.foundSize()) {
+            parser.setSizevalue(new Complex(size, 0));
         }
         
         this.max_iterations = max_iterations;
@@ -49,7 +55,7 @@ public class UserInColorAlgorithm extends InColorAlgorithm {
 
     @Override
     public double getResult(Object[] object) {
-        
+
         if(parser.foundZ()) {
             parser.setZvalue(((Complex)object[0]));
         }
@@ -70,9 +76,25 @@ public class UserInColorAlgorithm extends InColorAlgorithm {
             parser.setPPvalue(((Complex)object[2]));
         }
         
-        double temp = expr.getValue().getAbsRe();
+        Complex[] vars = (Complex[])object[5];
+        for(int i = 0; i < Parser.EXTRA_VARS; i++) {
+            if(parser.foundVar(i)) {
+                parser.setVarsvalue(i, vars[i]);
+            }
+        }
         
-        return temp == max_iterations ? max_iterations : temp + MAGIC_OFFSET_NUMBER;
+        double result = expr.getValue().getRe();
+ 
+        if(Math.abs(result) == max_iterations) {
+            return result;
+        }
+        
+        if(result < 0) {
+            return result - MAGIC_OFFSET_NUMBER;
+        }
+        else {
+            return result + MAGIC_OFFSET_NUMBER;
+        }
         
     }
     

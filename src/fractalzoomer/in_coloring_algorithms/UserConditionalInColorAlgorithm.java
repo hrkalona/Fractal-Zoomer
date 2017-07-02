@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package fractalzoomer.in_coloring_algorithms;
 
 import fractalzoomer.core.Complex;
@@ -26,17 +25,18 @@ import fractalzoomer.parser.Parser;
  * @author hrkalona2
  */
 public class UserConditionalInColorAlgorithm extends InColorAlgorithm {
-    
+
     private ExpressionNode[] expr;
     private Parser[] parser;
     private ExpressionNode[] expr2;
     private Parser[] parser2;
     private int max_iterations;
     private Complex c_max_iterations;
-    private boolean[] user_incoloring_special_color;
-    
-    public UserConditionalInColorAlgorithm(String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean[] user_incoloring_special_color, int max_iterations) {
-        
+    private Complex c_center;
+    private Complex c_size;
+
+    public UserConditionalInColorAlgorithm(String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, int max_iterations, double xCenter, double yCenter, double size) {
+
         super();
 
         parser = new Parser[user_incoloring_conditions.length];
@@ -56,55 +56,104 @@ public class UserConditionalInColorAlgorithm extends InColorAlgorithm {
         }
 
         c_max_iterations = new Complex(max_iterations, 0);
-        
-        this.user_incoloring_special_color = user_incoloring_special_color;
-        
+
         if(parser[0].foundMaxn()) {
             parser[0].setMaxnvalue(c_max_iterations);
         }
-        
+
         if(parser[1].foundMaxn()) {
             parser[1].setMaxnvalue(c_max_iterations);
         }
-        
+
         if(parser2[0].foundMaxn()) {
             parser2[0].setMaxnvalue(c_max_iterations);
         }
-        
+
         if(parser2[1].foundMaxn()) {
             parser2[1].setMaxnvalue(c_max_iterations);
         }
-        
+
         if(parser2[2].foundMaxn()) {
             parser2[2].setMaxnvalue(c_max_iterations);
         }
-        
+
+        c_center = new Complex(xCenter, yCenter);
+
+        if(parser[0].foundCenter()) {
+            parser[0].setCentervalue(c_center);
+        }
+
+        if(parser[1].foundCenter()) {
+            parser[1].setCentervalue(c_center);
+        }
+
+        if(parser2[0].foundCenter()) {
+            parser2[0].setCentervalue(c_center);
+        }
+
+        if(parser2[1].foundCenter()) {
+            parser2[1].setCentervalue(c_center);
+        }
+
+        if(parser2[2].foundCenter()) {
+            parser2[2].setCentervalue(c_center);
+        }
+
+        c_size = new Complex(size, 0);
+
+        if(parser[0].foundSize()) {
+            parser[0].setSizevalue(c_size);
+        }
+
+        if(parser[1].foundSize()) {
+            parser[1].setSizevalue(c_size);
+        }
+
+        if(parser2[0].foundSize()) {
+            parser2[0].setSizevalue(c_size);
+        }
+
+        if(parser2[1].foundSize()) {
+            parser2[1].setSizevalue(c_size);
+        }
+
+        if(parser2[2].foundSize()) {
+            parser2[2].setSizevalue(c_size);
+        }
+
         this.max_iterations = max_iterations;
-        
+
     }
 
     @Override
     public double getResult(Object[] object) {
-        
+
         /* LEFT */
         if(parser[0].foundZ()) {
             parser[0].setZvalue(((Complex)object[0]));
         }
-        
+
         if(parser[0].foundC()) {
             parser[0].setCvalue(((Complex)object[3]));
         }
-        
+
         if(parser[0].foundS()) {
             parser[0].setSvalue(((Complex)object[4]));
         }
-        
+
         if(parser[0].foundP()) {
             parser[0].setPvalue(((Complex)object[1]));
         }
-        
+
         if(parser[0].foundPP()) {
             parser[0].setPPvalue(((Complex)object[2]));
+        }
+
+        Complex[] vars = (Complex[])object[5];
+        for(int i = 0; i < Parser.EXTRA_VARS; i++) {
+            if(parser[0].foundVar(i)) {
+                parser[0].setVarsvalue(i, vars[i]);
+            }
         }
 
 
@@ -112,21 +161,27 @@ public class UserConditionalInColorAlgorithm extends InColorAlgorithm {
         if(parser[1].foundZ()) {
             parser[1].setZvalue(((Complex)object[0]));
         }
-        
+
         if(parser[1].foundC()) {
             parser[1].setCvalue(((Complex)object[3]));
         }
-        
+
         if(parser[1].foundS()) {
             parser[1].setSvalue(((Complex)object[4]));
         }
-        
+
         if(parser[1].foundP()) {
             parser[1].setPvalue(((Complex)object[1]));
         }
-        
+
         if(parser[1].foundPP()) {
             parser[1].setPPvalue(((Complex)object[2]));
+        }
+
+        for(int i = 0; i < Parser.EXTRA_VARS; i++) {
+            if(parser[1].foundVar(i)) {
+                parser[1].setVarsvalue(i, vars[i]);
+            }
         }
 
         int result = expr[0].getValue().compare(expr[1].getValue());
@@ -135,80 +190,125 @@ public class UserConditionalInColorAlgorithm extends InColorAlgorithm {
             if(parser2[0].foundZ()) {
                 parser2[0].setZvalue(((Complex)object[0]));
             }
-            
+
             if(parser2[0].foundC()) {
                 parser2[0].setCvalue(((Complex)object[3]));
             }
-            
+
             if(parser2[0].foundS()) {
                 parser2[0].setSvalue(((Complex)object[4]));
             }
-            
+
             if(parser2[0].foundP()) {
                 parser2[0].setPvalue(((Complex)object[1]));
             }
-            
+
             if(parser2[0].foundPP()) {
                 parser2[0].setPPvalue(((Complex)object[2]));
             }
-            
-            double temp = expr2[0].getValue().getAbsRe();
 
-            return temp == max_iterations ? max_iterations : user_incoloring_special_color[0] ? -(temp + MAGIC_OFFSET_NUMBER) : temp + MAGIC_OFFSET_NUMBER;
+            for(int i = 0; i < Parser.EXTRA_VARS; i++) {
+                if(parser2[0].foundVar(i)) {
+                    parser2[0].setVarsvalue(i, vars[i]);
+                }
+            }
+
+            double result2 = expr2[0].getValue().getRe();
+ 
+            if(Math.abs(result2) == max_iterations) {
+                return result2;
+            }
+        
+            if(result2 < 0) {
+                return result2 - MAGIC_OFFSET_NUMBER;
+            }
+            else {
+                return result2 + MAGIC_OFFSET_NUMBER;
+            }        
         }
         else if(result == 1) { // right > left
             if(parser2[1].foundZ()) {
                 parser2[1].setZvalue(((Complex)object[0]));
             }
-            
+
             if(parser2[1].foundC()) {
                 parser2[1].setCvalue(((Complex)object[3]));
             }
-            
+
             if(parser2[1].foundS()) {
                 parser2[1].setSvalue(((Complex)object[4]));
             }
-            
+
             if(parser2[1].foundP()) {
                 parser2[1].setPvalue(((Complex)object[1]));
             }
-            
+
             if(parser2[1].foundPP()) {
                 parser2[1].setPPvalue(((Complex)object[2]));
             }
             
-            double temp = expr2[1].getValue().getAbsRe();
+            for(int i = 0; i < Parser.EXTRA_VARS; i++) {
+                if(parser2[1].foundVar(i)) {
+                    parser2[1].setVarsvalue(i, vars[i]);
+                }
+            }
 
-            return temp == max_iterations ? max_iterations : user_incoloring_special_color[1] ? -(temp + MAGIC_OFFSET_NUMBER) : temp + MAGIC_OFFSET_NUMBER;
+           double result2 = expr2[1].getValue().getRe();
+ 
+            if(Math.abs(result2) == max_iterations) {
+                return result2;
+            }
+        
+            if(result2 < 0) {
+                return result2 - MAGIC_OFFSET_NUMBER;
+            }
+            else {
+                return result2 + MAGIC_OFFSET_NUMBER;
+            }  
         }
-        else if (result == 0) { //left == right
+        else if(result == 0) { //left == right
             if(parser2[2].foundZ()) {
                 parser2[2].setZvalue(((Complex)object[0]));
             }
-            
+
             if(parser2[2].foundC()) {
                 parser2[2].setCvalue(((Complex)object[3]));
             }
-            
+
             if(parser2[2].foundS()) {
                 parser2[2].setSvalue(((Complex)object[4]));
             }
-            
+
             if(parser2[2].foundP()) {
                 parser2[2].setPvalue(((Complex)object[1]));
             }
-            
+
             if(parser2[2].foundPP()) {
                 parser2[2].setPPvalue(((Complex)object[2]));
             }
             
-            double temp = expr2[2].getValue().getAbsRe();
+            for(int i = 0; i < Parser.EXTRA_VARS; i++) {
+                if(parser2[2].foundVar(i)) {
+                    parser2[2].setVarsvalue(i, vars[i]);
+                }
+            }
 
-            return temp == max_iterations ? max_iterations : user_incoloring_special_color[2] ? -(temp + MAGIC_OFFSET_NUMBER) : temp + MAGIC_OFFSET_NUMBER;
+            double result2 = expr2[2].getValue().getRe();
+ 
+            if(Math.abs(result2) == max_iterations) {
+                return result2;
+            }
+        
+            if(result2 < 0) {
+                return result2 - MAGIC_OFFSET_NUMBER;
+            }
+            else {
+                return result2 + MAGIC_OFFSET_NUMBER;
+            }  
         }
-        
+
         return max_iterations;
-        
+
     }
-    
+
 }

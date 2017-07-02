@@ -20,6 +20,7 @@ import fractalzoomer.main.MainWindow;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
@@ -37,6 +38,10 @@ public class FiltersMenu extends JMenu {
     private JMenu light_filters_menu;
     private JCheckBoxMenuItem[] filters_opt;
     private MainWindow ptr;
+    private static ArrayList<String> detail_list;
+    private static ArrayList<String> color_list;
+    private static ArrayList<String> texture_list;
+    private static ArrayList<String> lighting_list;
 
     public FiltersMenu(MainWindow ptr2, String name) {
 
@@ -53,10 +58,11 @@ public class FiltersMenu extends JMenu {
         light_filters_menu = new JMenu("Lighting");
         light_filters_menu.setIcon(getIcon("/fractalzoomer/icons/filter_lighting.png"));
 
-        filters_opt = new JCheckBoxMenuItem[33];
+        filters_opt = new JCheckBoxMenuItem[34];
 
         filters_opt[MainWindow.ANTIALIASING] = new JCheckBoxMenuItem("Anti-Aliasing");
         filters_opt[MainWindow.EDGE_DETECTION] = new JCheckBoxMenuItem("Edge Detection");
+        filters_opt[MainWindow.EDGE_DETECTION2] = new JCheckBoxMenuItem("Edge Detection 2");
         filters_opt[MainWindow.SHARPNESS] = new JCheckBoxMenuItem("Sharpness");
         filters_opt[MainWindow.BLURRING] = new JCheckBoxMenuItem("Blurring");
         filters_opt[MainWindow.EMBOSS] = new JCheckBoxMenuItem("Emboss");
@@ -91,6 +97,7 @@ public class FiltersMenu extends JMenu {
 
         filters_opt[MainWindow.ANTIALIASING].setToolTipText("Smooths the jagged look of the image.");
         filters_opt[MainWindow.EDGE_DETECTION].setToolTipText("Detects the edges of the image.");
+        filters_opt[MainWindow.EDGE_DETECTION2].setToolTipText("Detects the edges of the image.");
         filters_opt[MainWindow.SHARPNESS].setToolTipText("Makes the edges of the image more sharp.");
         filters_opt[MainWindow.EMBOSS].setToolTipText("Raises the light colored areas and carves the dark ones, using gray scale.");
         filters_opt[MainWindow.INVERT_COLORS].setToolTipText("Inverts the colors of the image.");
@@ -124,7 +131,8 @@ public class FiltersMenu extends JMenu {
         filters_opt[MainWindow.LIGHT_EFFECTS].setToolTipText("Adds light effects to the image.");
 
         filters_opt[MainWindow.ANTIALIASING].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G, 0));
-        filters_opt[MainWindow.EDGE_DETECTION].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, ActionEvent.CTRL_MASK));
+        filters_opt[MainWindow.EDGE_DETECTION].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, ActionEvent.CTRL_MASK)); 
+        filters_opt[MainWindow.EDGE_DETECTION2].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_2, ActionEvent.CTRL_MASK));      
         filters_opt[MainWindow.SHARPNESS].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, ActionEvent.ALT_MASK));
         filters_opt[MainWindow.EMBOSS].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_M, ActionEvent.CTRL_MASK));
         filters_opt[MainWindow.INVERT_COLORS].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, ActionEvent.ALT_MASK));
@@ -174,6 +182,16 @@ public class FiltersMenu extends JMenu {
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFilter(MainWindow.EDGE_DETECTION);
+
+            }
+        });
+        
+        filters_opt[MainWindow.EDGE_DETECTION2].addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFilter(MainWindow.EDGE_DETECTION2);
 
             }
         });
@@ -492,6 +510,8 @@ public class FiltersMenu extends JMenu {
         detail_filters_menu.addSeparator();
         detail_filters_menu.add(filters_opt[MainWindow.EDGE_DETECTION]);
         detail_filters_menu.addSeparator();
+        detail_filters_menu.add(filters_opt[MainWindow.EDGE_DETECTION2]);
+        detail_filters_menu.addSeparator();
         detail_filters_menu.add(filters_opt[MainWindow.SHARPNESS]);
         detail_filters_menu.addSeparator();
         detail_filters_menu.add(filters_opt[MainWindow.BLURRING]);
@@ -561,7 +581,12 @@ public class FiltersMenu extends JMenu {
         add(texture_filters_menu);
         addSeparator();
         add(light_filters_menu);
-
+        
+        createDetailFilterNames();
+        createColorFilterNames();
+        createTextureFilterNames();
+        createLightingFilterNames();
+        
     }
 
     public JCheckBoxMenuItem[] getFilters() {
@@ -599,6 +624,80 @@ public class FiltersMenu extends JMenu {
     public JMenu getTextureFiltersMenu() {
         
         return texture_filters_menu;
+        
+    }
+    
+    public JMenu getLightingFiltersMenu() {
+        
+        return light_filters_menu;
+        
+    }
+    
+    private void createDetailFilterNames() {
+        
+        detail_list = new ArrayList<String>();
+        
+        for(int i = 0; i < detail_filters_menu.getMenuComponentCount(); i++) {
+            if(detail_filters_menu.getMenuComponent(i) instanceof JCheckBoxMenuItem) {
+                detail_list.add(((JCheckBoxMenuItem)(detail_filters_menu.getMenuComponent(i))).getText());
+            }
+        }
+    }
+    
+    private void createColorFilterNames() {
+        
+        color_list = new ArrayList<String>();
+        
+        for(int i = 0; i < color_filters_menu.getMenuComponentCount(); i++) {
+            if(color_filters_menu.getMenuComponent(i) instanceof JCheckBoxMenuItem) {
+                color_list.add(((JCheckBoxMenuItem)(color_filters_menu.getMenuComponent(i))).getText());
+            }
+        }
+    }
+    
+    private void createTextureFilterNames() {
+        
+        texture_list = new ArrayList<String>();
+        
+        for(int i = 0; i < texture_filters_menu.getMenuComponentCount(); i++) {
+            if(texture_filters_menu.getMenuComponent(i) instanceof JCheckBoxMenuItem) {
+                texture_list.add(((JCheckBoxMenuItem)(texture_filters_menu.getMenuComponent(i))).getText());
+            }
+        }
+    }
+    
+    private void createLightingFilterNames() {
+        
+        lighting_list = new ArrayList<String>();
+        
+        for(int i = 0; i < light_filters_menu.getMenuComponentCount(); i++) {
+            if(light_filters_menu.getMenuComponent(i) instanceof JCheckBoxMenuItem) {
+                lighting_list.add(((JCheckBoxMenuItem)(light_filters_menu.getMenuComponent(i))).getText());
+            }
+        }
+    }
+    
+    public static ArrayList<String> getDetailNamesList() {
+        
+        return detail_list;
+        
+    }
+    
+    public static ArrayList<String> getColorNamesList() {
+        
+        return color_list;
+        
+    }
+    
+    public static ArrayList<String> getTextureNamesList() {
+        
+        return texture_list;
+        
+    }
+    
+    public static ArrayList<String> getLightingNamesList() {
+        
+        return lighting_list;
         
     }
 

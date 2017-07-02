@@ -53,9 +53,9 @@ import java.util.ArrayList;
  */
 public class MullerGeneralized8 extends MullerRootFindingMethod {
 
-    public MullerGeneralized8(double xCenter, double yCenter, double size, int max_iterations, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, boolean[] user_outcoloring_special_color, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean[] user_incoloring_special_color, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula,  double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int converging_smooth_algorithm) {
+    public MullerGeneralized8(double xCenter, double yCenter, double size, int max_iterations, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula,  double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int converging_smooth_algorithm) {
 
-        super(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, user_outcoloring_special_color, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula,  plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+        super(xCenter, yCenter, size, max_iterations,  plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula,  plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
 
         switch (out_coloring_algorithm) {
 
@@ -107,10 +107,10 @@ public class MullerGeneralized8 extends MullerRootFindingMethod {
             case MainWindow.USER_OUTCOLORING_ALGORITHM:
                 convergent_bailout = 1E-7;
                 if(user_out_coloring_algorithm == 0) {
-                    out_color_algorithm = new UserOutColorAlgorithmRootFindingMethod(outcoloring_formula, convergent_bailout, max_iterations);
+                    out_color_algorithm = new UserOutColorAlgorithmRootFindingMethod(outcoloring_formula, convergent_bailout, max_iterations, xCenter, yCenter, size);
                 }
                 else {
-                    out_color_algorithm = new UserConditionalOutColorAlgorithmRootFindingMethod(user_outcoloring_conditions, user_outcoloring_condition_formula, user_outcoloring_special_color, convergent_bailout, max_iterations);
+                    out_color_algorithm = new UserConditionalOutColorAlgorithmRootFindingMethod(user_outcoloring_conditions, user_outcoloring_condition_formula, convergent_bailout, max_iterations, xCenter, yCenter, size);
                 }
                 break;
 
@@ -150,10 +150,10 @@ public class MullerGeneralized8 extends MullerRootFindingMethod {
                 break;
             case MainWindow.USER_INCOLORING_ALGORITHM:
                 if(user_in_coloring_algorithm == 0) {
-                    in_color_algorithm = new UserInColorAlgorithm(incoloring_formula, max_iterations);
+                    in_color_algorithm = new UserInColorAlgorithm(incoloring_formula, max_iterations, xCenter, yCenter, size);
                 }
                 else {
-                    in_color_algorithm = new UserConditionalInColorAlgorithm(user_incoloring_conditions, user_incoloring_condition_formula, user_incoloring_special_color, max_iterations);
+                    in_color_algorithm = new UserConditionalInColorAlgorithm(user_incoloring_conditions, user_incoloring_condition_formula, max_iterations, xCenter, yCenter, size);
                 }
                 break;
 
@@ -184,10 +184,12 @@ public class MullerGeneralized8 extends MullerRootFindingMethod {
         Complex zold2 = new Complex();
         
         Complex start = new Complex(complex[0]);
+        
+        Complex[] vars = createGlobalVars();
 
         for (; iterations < max_iterations; iterations++) {
             if((temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
-                Object[] object = {iterations, complex[0], temp, zold, zold2, pixel, start};
+                Object[] object = {iterations, complex[0], temp, zold, zold2, pixel, start, vars};
                 return out_color_algorithm.getResult(object);
             }
             zold2.assign(zold);
@@ -196,7 +198,7 @@ public class MullerGeneralized8 extends MullerRootFindingMethod {
  
         }
 
-        Object[] object = {complex[0], zold, zold2, pixel, start};
+        Object[] object = {complex[0], zold, zold2, pixel, start, vars};
         return in_color_algorithm.getResult(object);
         
     }
@@ -263,10 +265,12 @@ public class MullerGeneralized8 extends MullerRootFindingMethod {
         Complex zold = new Complex();
         Complex zold2 = new Complex();
         Complex start = new Complex(complex[0]);
+        
+        Complex[] vars = createGlobalVars();
 
         for (; iterations < max_iterations; iterations++) {
             if((temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
-                Object[] object = {iterations, complex[0], temp, zold, zold2, pixel, start};
+                Object[] object = {iterations, complex[0], temp, zold, zold2, pixel, start, vars};
                 double[] array = {out_color_algorithm.transformResultToHeight(out_color_algorithm.getResult3D(object)), out_color_algorithm.getResult(object)};
                 return array;
             }
@@ -276,7 +280,7 @@ public class MullerGeneralized8 extends MullerRootFindingMethod {
  
         }
 
-        Object[] object = {complex[0], zold, zold2, pixel, start};
+        Object[] object = {complex[0], zold, zold2, pixel, start, vars};
         double temp2 = in_color_algorithm.getResult(object);
         double[] array = {in_color_algorithm.transformResultToHeight(temp2, max_iterations), temp2};
         return array;

@@ -32,7 +32,7 @@ public class UserPlaneConditional extends Plane {
     private ExpressionNode[] expr2;
     private Parser[] parser2;
     
-    public UserPlaneConditional(String[] user_plane_conditions, String[] user_plane_condition_formula) {
+    public UserPlaneConditional(String[] user_plane_conditions, String[] user_plane_condition_formula, double xCenter, double yCenter, double size, int max_iterations) {
         
         super();
         
@@ -50,6 +50,69 @@ public class UserPlaneConditional extends Plane {
         for(int i = 0; i < parser2.length; i++) {
             parser2[i] = new Parser();
             expr2[i] = parser2[i].parse(user_plane_condition_formula[i]);
+        }
+        
+        Complex c_max_iterations = new Complex(max_iterations, 0);
+        if(parser[0].foundMaxn()) {
+            parser[0].setMaxnvalue(c_max_iterations);
+        }
+        
+        if(parser[1].foundMaxn()) {
+            parser[1].setMaxnvalue(c_max_iterations);
+        }
+        
+        if(parser2[0].foundMaxn()) {
+            parser2[0].setMaxnvalue(c_max_iterations);
+        }
+        
+        if(parser2[1].foundMaxn()) {
+            parser2[1].setMaxnvalue(c_max_iterations);
+        }
+        
+        if(parser2[2].foundMaxn()) {
+            parser2[2].setMaxnvalue(c_max_iterations);
+        }
+
+        Complex c_center = new Complex(xCenter, yCenter);
+        if(parser[0].foundCenter()) {
+            parser[0].setCentervalue(c_center);
+        }
+        
+        if(parser[1].foundCenter()) {
+            parser[1].setCentervalue(c_center);
+        }
+        
+        if(parser2[0].foundCenter()) {
+            parser2[0].setCentervalue(c_center);
+        }
+        
+        if(parser2[1].foundCenter()) {
+            parser2[1].setCentervalue(c_center);
+        }
+        
+        if(parser2[2].foundCenter()) {
+            parser2[2].setCentervalue(c_center);
+        }
+        
+        Complex c_size = new Complex(size, 0);
+        if(parser[0].foundSize()) {
+            parser[0].setSizevalue(c_size);
+        }
+        
+        if(parser[1].foundSize()) {
+            parser[1].setSizevalue(c_size);
+        }
+        
+        if(parser2[0].foundSize()) {
+            parser2[0].setSizevalue(c_size);
+        }
+        
+        if(parser2[1].foundSize()) {
+            parser2[1].setSizevalue(c_size);
+        }
+        
+        if(parser2[2].foundSize()) {
+            parser2[2].setSizevalue(c_size);
         }
         
     }

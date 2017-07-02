@@ -29,24 +29,31 @@ public class UserOutColorAlgorithmRootFindingMethod extends OutColorAlgorithm {
     
     private ExpressionNode expr;
     private Parser parser;
-    private Complex c_convergent_bailout;
-    protected Complex c_max_iterations;
+    protected int max_iterations;
     
-    public UserOutColorAlgorithmRootFindingMethod(String outcoloring_formula, double convergent_bailout, int max_iterations) {
+    public UserOutColorAlgorithmRootFindingMethod(String outcoloring_formula, double convergent_bailout, int max_iterations, double xCenter, double yCenter, double size) {
+        
+        super();
+        
+        this.max_iterations = max_iterations;
         
         parser = new Parser();
         expr = parser.parse(outcoloring_formula);
-        c_convergent_bailout = new Complex(convergent_bailout, 0);
-        
-               
+                   
         if(parser.foundCbail()) {
-            parser.setCbailvalue(c_convergent_bailout);
+            parser.setCbailvalue(new Complex(convergent_bailout, 0));
         }
         
-        c_max_iterations = new Complex(max_iterations, 0);
-        
         if(parser.foundMaxn()) {
-            parser.setMaxnvalue(c_max_iterations);
+            parser.setMaxnvalue(new Complex(max_iterations, 0));
+        }
+        
+        if(parser.foundCenter()) {
+            parser.setCentervalue(new Complex(xCenter, yCenter));
+        }
+        
+        if(parser.foundSize()) {
+            parser.setSizevalue(new Complex(size, 0));
         }
         
     }
@@ -77,8 +84,26 @@ public class UserOutColorAlgorithmRootFindingMethod extends OutColorAlgorithm {
         if(parser.foundPP()) {
             parser.setPPvalue(((Complex)object[4]));
         }
-
-        return expr.getValue().getAbsRe() + MAGIC_OFFSET_NUMBER;
+        
+        Complex[] vars = (Complex[])object[7];
+        for(int i = 0; i < Parser.EXTRA_VARS; i++) {
+            if(parser.foundVar(i)) {
+                parser.setVarsvalue(i, vars[i]);
+            }
+        }
+        
+        double result = expr.getValue().getRe();
+        
+        if(result == -max_iterations) {
+            return result;
+        }
+        
+        if(result < 0) {
+            return result - MAGIC_OFFSET_NUMBER;
+        }
+        else {
+            return result + MAGIC_OFFSET_NUMBER;
+        }
         
     }
     

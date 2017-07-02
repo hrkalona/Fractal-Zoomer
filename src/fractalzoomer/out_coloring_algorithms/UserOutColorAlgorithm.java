@@ -28,25 +28,31 @@ import fractalzoomer.parser.Parser;
 public class UserOutColorAlgorithm extends OutColorAlgorithm {
     protected ExpressionNode expr;
     protected Parser parser;
-    protected Complex c_bailout;
-    protected Complex c_max_iterations;
+    protected int max_iterations;
 
-    public UserOutColorAlgorithm(String outcoloring_formula, double bailout, int max_iterations) {
+    public UserOutColorAlgorithm(String outcoloring_formula, double bailout, int max_iterations, double xCenter, double yCenter, double size) {
 
         super();
         
+        this.max_iterations = max_iterations;
+        
         parser = new Parser();
-        expr = parser.parse(outcoloring_formula);
-        c_bailout = new Complex(bailout, 0);    
+        expr = parser.parse(outcoloring_formula);  
                 
         if(parser.foundBail()) {
-            parser.setBailvalue(c_bailout);
+            parser.setBailvalue(new Complex(bailout, 0));
+        }
+
+        if(parser.foundMaxn()) {
+            parser.setMaxnvalue(new Complex(max_iterations, 0));
         }
         
-        c_max_iterations = new Complex(max_iterations, 0);
-                    
-        if(parser.foundMaxn()) {
-            parser.setMaxnvalue(c_max_iterations);
+        if(parser.foundCenter()) {
+            parser.setCentervalue(new Complex(xCenter, yCenter));
+        }
+        
+        if(parser.foundSize()) {
+            parser.setSizevalue(new Complex(size, 0));
         }
 
     }
@@ -77,8 +83,26 @@ public class UserOutColorAlgorithm extends OutColorAlgorithm {
         if(parser.foundPP()) {
             parser.setPPvalue(((Complex)object[3]));
         }
+        
+        Complex[] vars = (Complex[])object[6];
+        for(int i = 0; i < Parser.EXTRA_VARS; i++) {
+            if(parser.foundVar(i)) {
+                parser.setVarsvalue(i, vars[i]);
+            }
+        }
 
-        return expr.getValue().getAbsRe() + MAGIC_OFFSET_NUMBER;
+        double result = expr.getValue().getRe();
+        
+        if(result == -max_iterations) {
+            return result;
+        }
+        
+        if(result < 0) {
+            return result - MAGIC_OFFSET_NUMBER;
+        }
+        else {
+            return result + MAGIC_OFFSET_NUMBER;
+        }
         
     }
 

@@ -28,6 +28,7 @@ import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.GradientPaint;
 import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
@@ -66,6 +67,7 @@ import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Random;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.JCheckBox;
 import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
@@ -115,6 +117,7 @@ public class CustomPaletteEditorFrame extends JFrame {
     private JComboBox combo_box_color_interp;
     private JCheckBox check_box_reveres_palette;
     private JComboBox combo_box_processing;
+    private JLabel length_label;
     private JSpinner offset_textfield;
     private JSlider scale_factor_palette_slid;
     private JFileChooser file_chooser;
@@ -132,7 +135,7 @@ public class CustomPaletteEditorFrame extends JFrame {
 
     private static int random_palette_algorithm;
     private static boolean equal_hues;
-    
+
     public static final int[][][] editor_default_palettes = {{{12, 0, 10, 20}, {12, 50, 100, 240}, {12, 20, 3, 26}, {12, 230, 60, 20}, {12, 25, 10, 9}, {12, 230, 170, 0}, {12, 20, 40, 10}, {12, 0, 100, 0}, {12, 5, 10, 10}, {12, 210, 70, 30}, {12, 90, 0, 50}, {12, 180, 90, 120}, {12, 0, 20, 40}, {12, 30, 70, 200}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}},
     {{22, 0, 24, 255}, {21, 202, 0, 255}, {21, 255, 0, 82}, {22, 255, 133, 0}, {21, 151, 255, 0}, {21, 0, 255, 75}, {22, 0, 209, 255}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}},
     {{15, 0, 0, 191}, {8, 123, 0, 255}, {6, 165, 0, 139}, {5, 214, 109, 0}, {5, 255, 200, 0}, {10, 243, 255, 0}, {7, 201, 0, 0}, {8, 172, 0, 112}, {5, 204, 0, 239}, {12, 208, 11, 255}, {5, 255, 138, 193}, {8, 200, 170, 178}, {5, 55, 255, 217}, {5, 0, 206, 231}, {6, 0, 124, 255}, {9, 0, 26, 173}, {12, 0, 116, 51}, {5, 0, 235, 226}, {7, 30, 255, 255}, {8, 134, 191, 255}, {5, 254, 186, 255}, {5, 242, 185, 255}, {17, 235, 184, 244}, {5, 130, 42, 57}, {8, 99, 0, 116}, {8, 50, 64, 210}, {12, 0, 128, 167}, {4, 64, 223, 102}, {9, 86, 255, 137}, {13, 134, 191, 217}, {6, 204, 99, 140}, {10, 117, 57, 105}},
@@ -172,8 +175,8 @@ public class CustomPaletteEditorFrame extends JFrame {
         processing_alg = processing_alg2;
 
         ptra2.setEnabled(false);
-        int custom_palette_window_width = 910;
-        int custom_palette_window_height = 660;
+        int custom_palette_window_width = 1010;
+        int custom_palette_window_height = 670;
         setTitle("Custom Palette Editor");
         setIconImage(getIcon("/fractalzoomer/icons/palette.png").getImage());
         setSize(custom_palette_window_width, custom_palette_window_height);
@@ -214,21 +217,17 @@ public class CustomPaletteEditorFrame extends JFrame {
         JPanel editor_panel = new JPanel();
         JPanel tools = new JPanel();
         JPanel palette_colors = new JPanel();
-        JPanel hues = new JPanel();
         JPanel buttons = new JPanel();
 
-        editor_panel.setPreferredSize(new Dimension(810, 513));
+        editor_panel.setPreferredSize(new Dimension(910, 523));
         editor_panel.setLayout(new FlowLayout());
         editor_panel.setBackground(MainWindow.bg_color);
         tools.setLayout(new FlowLayout());
-        tools.setPreferredSize(new Dimension(790, 100));
+        tools.setPreferredSize(new Dimension(890, 100));
         tools.setBackground(MainWindow.bg_color);
         palette_colors.setLayout(new FlowLayout());
-        palette_colors.setPreferredSize(new Dimension(790, 60));
+        palette_colors.setPreferredSize(new Dimension(890, 80));
         palette_colors.setBackground(MainWindow.bg_color);
-        hues.setLayout(new FlowLayout());
-        hues.setPreferredSize(new Dimension(790, 60));
-        hues.setBackground(MainWindow.bg_color);
         buttons.setLayout(new FlowLayout());
         buttons.setBackground(MainWindow.bg_color);
 
@@ -237,7 +236,7 @@ public class CustomPaletteEditorFrame extends JFrame {
 
         for(k = 0; k < labels.length; k++) {
             labels[k] = new JLabel("");
-            labels[k].setPreferredSize(new Dimension(19, 19));
+            labels[k].setPreferredSize(new Dimension(22, 22));
             labels[k].setOpaque(true);
             labels[k].setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
             labels[k].setBackground(new Color(temp_custom_palette[k][1], temp_custom_palette[k][2], temp_custom_palette[k][3]));
@@ -298,6 +297,7 @@ public class CustomPaletteEditorFrame extends JFrame {
                                     paintGradientAndGraph(c);
                                 }
                                 catch(ArithmeticException ex) {
+                                    length_label.setText("0");
                                     Graphics2D g = colors.createGraphics();
                                     g.setColor(Color.LIGHT_GRAY);
                                     g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
@@ -386,6 +386,7 @@ public class CustomPaletteEditorFrame extends JFrame {
                                 paintGradientAndGraph(c);
                             }
                             catch(ArithmeticException ex) {
+                                length_label.setText("0");
                                 Graphics2D g = colors.createGraphics();
                                 g.setColor(Color.LIGHT_GRAY);
                                 g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
@@ -421,6 +422,7 @@ public class CustomPaletteEditorFrame extends JFrame {
                                 paintGradientAndGraph(c);
                             }
                             catch(ArithmeticException ex) {
+                                length_label.setText("0");
                                 Graphics2D g = colors.createGraphics();
                                 g.setColor(Color.LIGHT_GRAY);
                                 g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
@@ -448,10 +450,14 @@ public class CustomPaletteEditorFrame extends JFrame {
                 }
             });
             palette_colors.add(labels[k]);
+        }
+
+        for(k = 0; k < labels.length; k++) {
 
             textfields[k] = new JTextField();
-            textfields[k].setPreferredSize(new Dimension(19, 19));
+            textfields[k].setPreferredSize(new Dimension(22, 22));
             textfields[k].setText("" + temp_custom_palette[k][0]);
+            textfields[k].setFont(new Font("Arial", Font.PLAIN, 12));
             textfields[k].getDocument().addDocumentListener(new DocumentListener() {
 
                 int temp2 = k;
@@ -463,9 +469,10 @@ public class CustomPaletteEditorFrame extends JFrame {
 
                         int temp3 = Integer.parseInt(textfields[temp2].getText());
 
-                        if(temp3 < 0 || temp3 > 24) {
+                        if(temp3 < 0 || temp3 > 27) {
                             temp_custom_palette[temp2][0] = -1;
 
+                            length_label.setText("0");
                             Graphics2D g = colors.createGraphics();
                             g.setColor(Color.LIGHT_GRAY);
                             g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
@@ -489,6 +496,7 @@ public class CustomPaletteEditorFrame extends JFrame {
                         paintGradientAndGraph(c);
                     }
                     catch(ArithmeticException ex) {
+                        length_label.setText("0");
                         Graphics2D g = colors.createGraphics();
                         g.setColor(Color.LIGHT_GRAY);
                         g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
@@ -502,6 +510,7 @@ public class CustomPaletteEditorFrame extends JFrame {
                     catch(NumberFormatException ex) {
                         temp_custom_palette[temp2][0] = -1;
 
+                        length_label.setText("0");
                         Graphics2D g = colors.createGraphics();
                         g.setColor(Color.LIGHT_GRAY);
                         g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
@@ -520,9 +529,10 @@ public class CustomPaletteEditorFrame extends JFrame {
 
                         int temp3 = Integer.parseInt(textfields[temp2].getText());
 
-                        if(temp3 < 0 || temp3 > 24) {
+                        if(temp3 < 0 || temp3 > 27) {
                             temp_custom_palette[temp2][0] = -1;
 
+                            length_label.setText("0");
                             Graphics2D g = colors.createGraphics();
                             g.setColor(Color.LIGHT_GRAY);
                             g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
@@ -546,6 +556,7 @@ public class CustomPaletteEditorFrame extends JFrame {
                         paintGradientAndGraph(c);
                     }
                     catch(ArithmeticException ex) {
+                        length_label.setText("0");
                         Graphics2D g = colors.createGraphics();
                         g.setColor(Color.LIGHT_GRAY);
                         g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
@@ -557,6 +568,7 @@ public class CustomPaletteEditorFrame extends JFrame {
                         graph.repaint();
                     }
                     catch(NumberFormatException ex) {
+                        length_label.setText("0");
                         temp_custom_palette[temp2][0] = -1;
 
                         Graphics2D g = colors.createGraphics();
@@ -575,7 +587,7 @@ public class CustomPaletteEditorFrame extends JFrame {
                 public void changedUpdate(DocumentEvent e) {
                 }
             });
-            hues.add(textfields[k]);
+            palette_colors.add(textfields[k]);
         }
 
         JButton palette_ok = new JButton("Ok");
@@ -597,8 +609,8 @@ public class CustomPaletteEditorFrame extends JFrame {
                         return;
                     }
 
-                    if(temp2 < 0 || temp2 > 24) {
-                        JOptionPane.showMessageDialog(this_frame, "The hues values must between 1 and 24,\nfor that color to be included in the palette,\nor 0 for that color not to be included.", "Error!", JOptionPane.ERROR_MESSAGE);
+                    if(temp2 < 0 || temp2 > 27) {
+                        JOptionPane.showMessageDialog(this_frame, "The hues values must between 1 and 27,\nfor that color to be included in the palette,\nor 0 for that color not to be included.", "Error!", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
                     else if(temp2 == 0) {
@@ -636,6 +648,7 @@ public class CustomPaletteEditorFrame extends JFrame {
                     c = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
                 }
                 catch(Exception ex) {
+                    length_label.setText("0");
                     Graphics2D g = colors.createGraphics();
                     g.setColor(Color.LIGHT_GRAY);
                     g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
@@ -700,11 +713,14 @@ public class CustomPaletteEditorFrame extends JFrame {
 
         buttons.add(palette_cancel);
 
-        colors = new BufferedImage(768, 36, BufferedImage.TYPE_INT_ARGB);
+        colors = new BufferedImage(868, 36, BufferedImage.TYPE_INT_ARGB);
 
-        colors2 = new BufferedImage(768, 100, BufferedImage.TYPE_INT_ARGB);
+        colors2 = new BufferedImage(868, 145, BufferedImage.TYPE_INT_ARGB);
 
         Color[] c = CustomPalette.getPalette(temp_custom_palette, color_interpolation, color_space, reversed_palette, temp_color_cycling_location, scale_factor_palette_val, processing_alg);
+
+        length_label = new JLabel();
+        length_label.setText("" + c.length);
 
         try {
             Graphics2D g = colors.createGraphics();
@@ -721,6 +737,7 @@ public class CustomPaletteEditorFrame extends JFrame {
             }
         }
         catch(Exception ex) {
+            length_label.setText("0");
             Graphics2D g = colors.createGraphics();
             g.setColor(Color.LIGHT_GRAY);
             g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
@@ -733,23 +750,30 @@ public class CustomPaletteEditorFrame extends JFrame {
             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             for(int i = 0; i < c.length; i++) {
                 g.setColor(Color.RED);
-                g.drawLine(1 + i * colors2.getWidth() / c.length, 10 + colors2.getHeight() / 5 - (int)(((colors2.getHeight() / 5) / 255.0) * c[i].getRed()), (i + 1) * colors2.getWidth() / c.length, 10 + colors2.getHeight() / 5 - (int)(((colors2.getHeight() / 5) / 255.0) * c[(i + 1) % c.length].getRed()));
+                g.drawLine(1 + i * colors2.getWidth() / c.length, 10 + colors2.getHeight() / 5 + 5 - (int)(((colors2.getHeight() / 5) / 255.0) * c[i].getRed()), (i + 1) * colors2.getWidth() / c.length, 10 + colors2.getHeight() / 5 + 5 - (int)(((colors2.getHeight() / 5) / 255.0) * c[(i + 1) % c.length].getRed()));
+
+                g.setColor(Color.LIGHT_GRAY);
+                g.drawLine(0, 10 + colors2.getHeight() / 5 + 10, colors2.getWidth(), 10 + colors2.getHeight() / 5 + 10);
 
                 g.setColor(Color.GREEN);
-                g.drawLine(1 + i * colors2.getWidth() / c.length, 20 + 2 * colors2.getHeight() / 5 - (int)(((colors2.getHeight() / 5) / 255.0) * c[i].getGreen()), (i + 1) * colors2.getWidth() / c.length, 20 + 2 * colors2.getHeight() / 5 - (int)(((colors2.getHeight() / 5) / 255.0) * c[(i + 1) % c.length].getGreen()));
+                g.drawLine(1 + i * colors2.getWidth() / c.length, 20 + 2 * (colors2.getHeight() / 5 + 5) - (int)(((colors2.getHeight() / 5) / 255.0) * c[i].getGreen()), (i + 1) * colors2.getWidth() / c.length, 20 + 2 * (colors2.getHeight() / 5 + 5) - (int)(((colors2.getHeight() / 5) / 255.0) * c[(i + 1) % c.length].getGreen()));
+
+                g.setColor(Color.LIGHT_GRAY);
+                g.drawLine(0, 20 + 2 * (colors2.getHeight() / 5 + 10), colors2.getWidth(), 20 + 2 * (colors2.getHeight() / 5 + 10));
 
                 g.setColor(Color.BLUE);
-                g.drawLine(1 + i * colors2.getWidth() / c.length, 30 + 3 * colors2.getHeight() / 5 - (int)(((colors2.getHeight() / 5) / 255.0) * c[i].getBlue()), (i + 1) * colors2.getWidth() / c.length, 30 + 3 * colors2.getHeight() / 5 - (int)(((colors2.getHeight() / 5) / 255.0) * c[(i + 1) % c.length].getBlue()));
+                g.drawLine(1 + i * colors2.getWidth() / c.length, 30 + 3 * (colors2.getHeight() / 5 + 5) - (int)(((colors2.getHeight() / 5) / 255.0) * c[i].getBlue()), (i + 1) * colors2.getWidth() / c.length, 30 + 3 * (colors2.getHeight() / 5 + 5) - (int)(((colors2.getHeight() / 5) / 255.0) * c[(i + 1) % c.length].getBlue()));
             }
         }
         catch(Exception ex) {
+            length_label.setText("0");
             Graphics2D g = colors2.createGraphics();
             g.setColor(Color.WHITE);
             g.fillRect(0, 0, colors2.getWidth(), colors2.getHeight());
         }
 
         JPanel options_panel = new JPanel();
-        options_panel.setPreferredSize(new Dimension(300, 60));
+        options_panel.setPreferredSize(new Dimension(325, 60));
         options_panel.setLayout(new FlowLayout());
         options_panel.setBackground(MainWindow.bg_color);
 
@@ -769,6 +793,7 @@ public class CustomPaletteEditorFrame extends JFrame {
                     paintGradientAndGraph(c);
                 }
                 catch(ArithmeticException ex) {
+                    length_label.setText("0");
                     Graphics2D g = colors.createGraphics();
                     g.setColor(Color.LIGHT_GRAY);
                     g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
@@ -788,11 +813,13 @@ public class CustomPaletteEditorFrame extends JFrame {
 
         options_panel.add(offset_label);
 
-        SpinnerModel spinnerModel = new SpinnerNumberModel();
+        SpinnerModel spinnerModel = new SpinnerNumberModel(temp_color_cycling_location, //initial value
+                0, //min
+                Integer.MAX_VALUE, //max
+                1);
 
         offset_textfield = new JSpinner(spinnerModel);
-        offset_textfield.setPreferredSize(new Dimension(70, 22));
-        ((DefaultEditor)offset_textfield.getEditor()).getTextField().setText("" + temp_color_cycling_location);
+        offset_textfield.setPreferredSize(new Dimension(70, 26));        
         offset_textfield.setToolTipText("Adds an offset to the current palette.");
         ((DefaultEditor)offset_textfield.getEditor()).getTextField().getDocument().addDocumentListener(new DocumentListener() {
 
@@ -806,6 +833,7 @@ public class CustomPaletteEditorFrame extends JFrame {
                     if(temp3 < 0) {
                         temp_color_cycling_location = -1;
 
+                        length_label.setText("0");
                         Graphics2D g = colors.createGraphics();
                         g.setColor(Color.LIGHT_GRAY);
                         g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
@@ -825,6 +853,7 @@ public class CustomPaletteEditorFrame extends JFrame {
                     paintGradientAndGraph(c);
                 }
                 catch(ArithmeticException ex) {
+                    length_label.setText("0");
                     Graphics2D g = colors.createGraphics();
                     g.setColor(Color.LIGHT_GRAY);
                     g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
@@ -838,6 +867,7 @@ public class CustomPaletteEditorFrame extends JFrame {
                 catch(NumberFormatException ex) {
                     temp_color_cycling_location = -1;
 
+                    length_label.setText("0");
                     Graphics2D g = colors.createGraphics();
                     g.setColor(Color.LIGHT_GRAY);
                     g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
@@ -859,6 +889,7 @@ public class CustomPaletteEditorFrame extends JFrame {
                     if(temp3 < 0) {
                         temp_color_cycling_location = -1;
 
+                        length_label.setText("0");
                         Graphics2D g = colors.createGraphics();
                         g.setColor(Color.LIGHT_GRAY);
                         g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
@@ -878,6 +909,7 @@ public class CustomPaletteEditorFrame extends JFrame {
                     paintGradientAndGraph(c);
                 }
                 catch(ArithmeticException ex) {
+                    length_label.setText("0");
                     Graphics2D g = colors.createGraphics();
                     g.setColor(Color.LIGHT_GRAY);
                     g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
@@ -891,6 +923,7 @@ public class CustomPaletteEditorFrame extends JFrame {
                 catch(NumberFormatException ex) {
                     temp_color_cycling_location = -1;
 
+                    length_label.setText("0");
                     Graphics2D g = colors.createGraphics();
                     g.setColor(Color.LIGHT_GRAY);
                     g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
@@ -913,6 +946,7 @@ public class CustomPaletteEditorFrame extends JFrame {
                     if(temp3 < 0) {
                         temp_color_cycling_location = -1;
 
+                        length_label.setText("0");
                         Graphics2D g = colors.createGraphics();
                         g.setColor(Color.LIGHT_GRAY);
                         g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
@@ -932,6 +966,7 @@ public class CustomPaletteEditorFrame extends JFrame {
                     paintGradientAndGraph(c);
                 }
                 catch(ArithmeticException ex) {
+                    length_label.setText("0");
                     Graphics2D g = colors.createGraphics();
                     g.setColor(Color.LIGHT_GRAY);
                     g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
@@ -945,6 +980,7 @@ public class CustomPaletteEditorFrame extends JFrame {
                 catch(NumberFormatException ex) {
                     temp_color_cycling_location = -1;
 
+                    length_label.setText("0");
                     Graphics2D g = colors.createGraphics();
                     g.setColor(Color.LIGHT_GRAY);
                     g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
@@ -962,11 +998,11 @@ public class CustomPaletteEditorFrame extends JFrame {
         options_panel.add(offset_textfield);
 
         JPanel color_space_panel = new JPanel();
-        color_space_panel.setPreferredSize(new Dimension(115, 60));
+        color_space_panel.setPreferredSize(new Dimension(140, 60));
         color_space_panel.setLayout(new FlowLayout());
         color_space_panel.setBackground(MainWindow.bg_color);
 
-        String[] color_space_str = {"RGB", "HSB", "Exp", "Square", "Sqrt", "RYB", "LAB", "XYZ", "LCH"};
+        String[] color_space_str = {"RGB", "HSB", "Exp", "Square", "Sqrt", "RYB", "LAB", "XYZ", "LCH", "Bezier RGB"};
 
         combo_box_color_space = new JComboBox(color_space_str);
         combo_box_color_space.setSelectedIndex(color_space);
@@ -983,6 +1019,7 @@ public class CustomPaletteEditorFrame extends JFrame {
                     paintGradientAndGraph(c);
                 }
                 catch(ArithmeticException ex) {
+                    length_label.setText("0");
                     Graphics2D g = colors.createGraphics();
                     g.setColor(Color.LIGHT_GRAY);
                     g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
@@ -999,7 +1036,7 @@ public class CustomPaletteEditorFrame extends JFrame {
         color_space_panel.add(combo_box_color_space);
 
         JPanel color_interp_panel = new JPanel();
-        color_interp_panel.setPreferredSize(new Dimension(140, 60));
+        color_interp_panel.setPreferredSize(new Dimension(165, 60));
         color_interp_panel.setLayout(new FlowLayout());
         color_interp_panel.setBackground(MainWindow.bg_color);
 
@@ -1020,6 +1057,7 @@ public class CustomPaletteEditorFrame extends JFrame {
                     paintGradientAndGraph(c);
                 }
                 catch(ArithmeticException ex) {
+                    length_label.setText("0");
                     Graphics2D g = colors.createGraphics();
                     g.setColor(Color.LIGHT_GRAY);
                     g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
@@ -1036,7 +1074,7 @@ public class CustomPaletteEditorFrame extends JFrame {
         color_interp_panel.add(combo_box_color_interp);
 
         JPanel random_palette_alg = new JPanel();
-        random_palette_alg.setPreferredSize(new Dimension(180, 60));
+        random_palette_alg.setPreferredSize(new Dimension(230, 60));
         random_palette_alg.setLayout(new FlowLayout());
         random_palette_alg.setBackground(MainWindow.bg_color);
 
@@ -1057,7 +1095,7 @@ public class CustomPaletteEditorFrame extends JFrame {
         random_palette_alg.add(same_hues);
 
         JPanel processing_palette = new JPanel();
-        processing_palette.setPreferredSize(new Dimension(219, 60));
+        processing_palette.setPreferredSize(new Dimension(244, 60));
         processing_palette.setBackground(MainWindow.bg_color);
 
         scale_factor_palette_slid = new JSlider(JSlider.HORIZONTAL, 0, 100, (int)(scale_factor_palette_val * 100 / 2 + 100 / 2));
@@ -1100,6 +1138,7 @@ public class CustomPaletteEditorFrame extends JFrame {
                     paintGradientAndGraph(c);
                 }
                 catch(ArithmeticException ex) {
+                    length_label.setText("0");
                     Graphics2D g = colors.createGraphics();
                     g.setColor(Color.LIGHT_GRAY);
                     g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
@@ -1124,6 +1163,7 @@ public class CustomPaletteEditorFrame extends JFrame {
                     paintGradientAndGraph(c);
                 }
                 catch(ArithmeticException ex) {
+                    length_label.setText("0");
                     Graphics2D g = colors.createGraphics();
                     g.setColor(Color.LIGHT_GRAY);
                     g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
@@ -1214,6 +1254,7 @@ public class CustomPaletteEditorFrame extends JFrame {
                         paintGradientAndGraph(c);
                     }
                     catch(ArithmeticException ex) {
+                        length_label.setText("0");
                         Graphics2D g = colors.createGraphics();
                         g.setColor(Color.LIGHT_GRAY);
                         g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
@@ -1291,6 +1332,7 @@ public class CustomPaletteEditorFrame extends JFrame {
                     paintGradientAndGraph(c);
                 }
                 catch(ArithmeticException ex) {
+                    length_label.setText("0");
                     Graphics2D g = colors.createGraphics();
                     g.setColor(Color.LIGHT_GRAY);
                     g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
@@ -1332,6 +1374,7 @@ public class CustomPaletteEditorFrame extends JFrame {
                     paintGradientAndGraph(c);
                 }
                 catch(ArithmeticException ex) {
+                    length_label.setText("0");
                     Graphics2D g = colors.createGraphics();
                     g.setColor(Color.LIGHT_GRAY);
                     g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
@@ -1364,7 +1407,7 @@ public class CustomPaletteEditorFrame extends JFrame {
                     try {
                         temp2 = Integer.parseInt(textfields[m].getText());
 
-                        if(temp2 > 0 && temp2 < 23) {
+                        if(temp2 > 0 && temp2 < 28) {
                             temp_custom_palette[m][0] = temp2;
                         }
                         else {
@@ -1408,6 +1451,7 @@ public class CustomPaletteEditorFrame extends JFrame {
                     paintGradientAndGraph(c);
                 }
                 catch(ArithmeticException ex) {
+                    length_label.setText("0");
                     Graphics2D g = colors.createGraphics();
                     g.setColor(Color.LIGHT_GRAY);
                     g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
@@ -1437,6 +1481,11 @@ public class CustomPaletteEditorFrame extends JFrame {
 
                 Color[] c = randomPalette(temp_custom_palette, combo_box_random_palette_alg.getSelectedIndex(), same_hues.isSelected(), combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
 
+                if(c == null) {
+                    JOptionPane.showMessageDialog(this_frame, "Please select a valid palette offset.", "Error!", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                
                 for(int m = 0; m < labels.length; m++) {
                     labels[m].setBackground(new Color(temp_custom_palette[m][1], temp_custom_palette[m][2], temp_custom_palette[m][3]));
                     textfields[m].setText("" + temp_custom_palette[m][0]);
@@ -1546,7 +1595,7 @@ public class CustomPaletteEditorFrame extends JFrame {
 
                 RoundedPanel round_panel = new RoundedPanel(true, true, true, 15);
                 round_panel.setBackground(MainWindow.bg_color);
-                round_panel.setPreferredSize(new Dimension(360, 160));
+                round_panel.setPreferredSize(new Dimension(370, 160));
                 round_panel.setLayout(new GridBagLayout());
 
                 GridBagConstraints con = new GridBagConstraints();
@@ -1627,6 +1676,7 @@ public class CustomPaletteEditorFrame extends JFrame {
                                         paintGradientAndGraph(c);
                                     }
                                     catch(ArithmeticException ex) {
+                                        length_label.setText("0");
                                         Graphics2D g = colors.createGraphics();
                                         g.setColor(Color.LIGHT_GRAY);
                                         g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
@@ -1687,13 +1737,15 @@ public class CustomPaletteEditorFrame extends JFrame {
         tools.add(color_picker);
 
         JPanel preset_palettes_panel = new JPanel();
-        preset_palettes_panel.setPreferredSize(new Dimension(130, 60));
+        preset_palettes_panel.setPreferredSize(new Dimension(180, 60));
         preset_palettes_panel.setBackground(MainWindow.bg_color);
 
-        String[] preset_palettes_str = new String[coloring_option.length - 1];
-        for(int l = 0; l < preset_palettes_str.length; l++) {
-            preset_palettes_str[l] = coloring_option[l];
+        String[] preset_palettes_str = new String[coloring_option.length];
+        for(int l = 1; l < preset_palettes_str.length; l++) {
+            preset_palettes_str[l] = coloring_option[l - 1];
         }
+
+        preset_palettes_str[0] = "Editor";
 
         combo_box_preset_palettes = new JComboBox(preset_palettes_str);
         combo_box_preset_palettes.setSelectedIndex(0);
@@ -1704,13 +1756,26 @@ public class CustomPaletteEditorFrame extends JFrame {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                for(int m = 0; m < labels.length; m++) {
-                    temp_custom_palette[m][0] = editor_default_palettes[combo_box_preset_palettes.getSelectedIndex()][m][0];
-                    temp_custom_palette[m][1] = editor_default_palettes[combo_box_preset_palettes.getSelectedIndex()][m][1];
-                    temp_custom_palette[m][2] = editor_default_palettes[combo_box_preset_palettes.getSelectedIndex()][m][2];
-                    temp_custom_palette[m][3] = editor_default_palettes[combo_box_preset_palettes.getSelectedIndex()][m][3];
-                    labels[m].setBackground(new Color(temp_custom_palette[m][1], temp_custom_palette[m][2], temp_custom_palette[m][3]));
-                    textfields[m].setText("" + temp_custom_palette[m][0]);
+                if(combo_box_preset_palettes.getSelectedIndex() == 0) {
+                    int[][] temp_custom_palette1 = {{12, 255, 0, 0}, {12, 255, 127, 0}, {12, 255, 255, 0}, {12, 0, 255, 0}, {12, 0, 0, 255}, {12, 75, 0, 130}, {12, 143, 0, 255}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}};
+                    for(int m = 0; m < labels.length; m++) {
+                        temp_custom_palette[m][0] = temp_custom_palette1[m][0];
+                        temp_custom_palette[m][1] = temp_custom_palette1[m][1];
+                        temp_custom_palette[m][2] = temp_custom_palette1[m][2];
+                        temp_custom_palette[m][3] = temp_custom_palette1[m][3];
+                        labels[m].setBackground(new Color(temp_custom_palette[m][1], temp_custom_palette[m][2], temp_custom_palette[m][3]));
+                        textfields[m].setText("" + temp_custom_palette[m][0]);
+                    }
+                }
+                else {
+                    for(int m = 0; m < labels.length; m++) {
+                        temp_custom_palette[m][0] = editor_default_palettes[combo_box_preset_palettes.getSelectedIndex() - 1][m][0];
+                        temp_custom_palette[m][1] = editor_default_palettes[combo_box_preset_palettes.getSelectedIndex() - 1][m][1];
+                        temp_custom_palette[m][2] = editor_default_palettes[combo_box_preset_palettes.getSelectedIndex() - 1][m][2];
+                        temp_custom_palette[m][3] = editor_default_palettes[combo_box_preset_palettes.getSelectedIndex() - 1][m][3];
+                        labels[m].setBackground(new Color(temp_custom_palette[m][1], temp_custom_palette[m][2], temp_custom_palette[m][3]));
+                        textfields[m].setText("" + temp_custom_palette[m][0]);
+                    }
                 }
 
                 try {
@@ -1719,6 +1784,7 @@ public class CustomPaletteEditorFrame extends JFrame {
                     paintGradientAndGraph(c);
                 }
                 catch(ArithmeticException ex) {
+                    length_label.setText("0");
                     Graphics2D g = colors.createGraphics();
                     g.setColor(Color.LIGHT_GRAY);
                     g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
@@ -1753,6 +1819,7 @@ public class CustomPaletteEditorFrame extends JFrame {
                     paintGradientAndGraph(c);
                 }
                 catch(ArithmeticException ex) {
+                    length_label.setText("0");
                     Graphics2D g = colors.createGraphics();
                     g.setColor(Color.LIGHT_GRAY);
                     g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
@@ -1776,16 +1843,17 @@ public class CustomPaletteEditorFrame extends JFrame {
 
         JPanel palette_panel = new JPanel();
         palette_panel.setBackground(MainWindow.bg_color);
-        palette_panel.setPreferredSize(new Dimension(790, 178));
+        palette_panel.setPreferredSize(new Dimension(890, 238));
 
         palette_panel.add(gradient);
         palette_panel.add(graph);
+        palette_panel.add(new JLabel("Palette Length: "));
+        palette_panel.add(length_label);
 
         editor_panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Custom Palette Editor", TitledBorder.CENTER, TitledBorder.CENTER));
         tools.setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Tools", TitledBorder.DEFAULT_POSITION, TitledBorder.DEFAULT_POSITION));
         preset_palettes_panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Preset Palettes", TitledBorder.DEFAULT_POSITION, TitledBorder.DEFAULT_POSITION));
-        palette_colors.setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Colors", TitledBorder.DEFAULT_POSITION, TitledBorder.DEFAULT_POSITION));
-        hues.setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Hues", TitledBorder.DEFAULT_POSITION, TitledBorder.DEFAULT_POSITION));
+        palette_colors.setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Colors/Hues", TitledBorder.DEFAULT_POSITION, TitledBorder.DEFAULT_POSITION));
         color_space_panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Color Space", TitledBorder.DEFAULT_POSITION, TitledBorder.DEFAULT_POSITION));
         color_interp_panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Color Interpolation", TitledBorder.DEFAULT_POSITION, TitledBorder.DEFAULT_POSITION));
         random_palette_alg.setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Random Algorithm", TitledBorder.DEFAULT_POSITION, TitledBorder.DEFAULT_POSITION));
@@ -1796,7 +1864,6 @@ public class CustomPaletteEditorFrame extends JFrame {
 
         editor_panel.add(tools);
         editor_panel.add(palette_colors);
-        editor_panel.add(hues);
         editor_panel.add(options_panel);
         editor_panel.add(color_space_panel);
         editor_panel.add(color_interp_panel);
@@ -1805,7 +1872,7 @@ public class CustomPaletteEditorFrame extends JFrame {
 
         RoundedPanel round_panel = new RoundedPanel(true, true, true, 15);
         round_panel.setBackground(MainWindow.bg_color);
-        round_panel.setPreferredSize(new Dimension(840, 570));
+        round_panel.setPreferredSize(new Dimension(940, 580));
         round_panel.setLayout(new GridBagLayout());
 
         GridBagConstraints con = new GridBagConstraints();
@@ -1844,7 +1911,10 @@ public class CustomPaletteEditorFrame extends JFrame {
 
     private void paintGradientAndGraph(Color[] c) {
 
+        
+
         try {
+            length_label.setText("" + c.length);
             Graphics2D g = colors.createGraphics();
             for(int i = 0; i < c.length; i++) {
                 if(check_box_preview_smooth_color.isSelected()) {
@@ -1859,6 +1929,7 @@ public class CustomPaletteEditorFrame extends JFrame {
             }
         }
         catch(Exception ex) {
+            length_label.setText("0");
             Graphics2D g = colors.createGraphics();
             g.setColor(Color.LIGHT_GRAY);
             g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
@@ -1873,16 +1944,23 @@ public class CustomPaletteEditorFrame extends JFrame {
             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
             for(int i = 0; i < c.length; i++) {
                 g.setColor(Color.RED);
-                g.drawLine(1 + i * colors2.getWidth() / c.length, 10 + colors2.getHeight() / 5 - (int)(((colors2.getHeight() / 5) / 255.0) * c[i].getRed()), (i + 1) * colors2.getWidth() / c.length, 10 + colors2.getHeight() / 5 - (int)(((colors2.getHeight() / 5) / 255.0) * c[(i + 1) % c.length].getRed()));
+                g.drawLine(1 + i * colors2.getWidth() / c.length, 10 + colors2.getHeight() / 5 + 5 - (int)(((colors2.getHeight() / 5) / 255.0) * c[i].getRed()), (i + 1) * colors2.getWidth() / c.length, 10 + colors2.getHeight() / 5 + 5 - (int)(((colors2.getHeight() / 5) / 255.0) * c[(i + 1) % c.length].getRed()));
+                
+                g.setColor(Color.LIGHT_GRAY);
+                g.drawLine(0, 10 + colors2.getHeight() / 5 + 10, colors2.getWidth(), 10 + colors2.getHeight() / 5 + 10);
 
                 g.setColor(Color.GREEN);
-                g.drawLine(1 + i * colors2.getWidth() / c.length, 20 + 2 * colors2.getHeight() / 5 - (int)(((colors2.getHeight() / 5) / 255.0) * c[i].getGreen()), (i + 1) * colors2.getWidth() / c.length, 20 + 2 * colors2.getHeight() / 5 - (int)(((colors2.getHeight() / 5) / 255.0) * c[(i + 1) % c.length].getGreen()));
+                g.drawLine(1 + i * colors2.getWidth() / c.length, 20 + 2 * (colors2.getHeight() / 5 + 5) - (int)(((colors2.getHeight() / 5) / 255.0) * c[i].getGreen()), (i + 1) * colors2.getWidth() / c.length, 20 + 2 * (colors2.getHeight() / 5 + 5) - (int)(((colors2.getHeight() / 5) / 255.0) * c[(i + 1) % c.length].getGreen()));
+
+                g.setColor(Color.LIGHT_GRAY);
+                g.drawLine(0, 20 + 2 * (colors2.getHeight() / 5 + 10), colors2.getWidth(), 20 + 2 * (colors2.getHeight() / 5 + 10));
 
                 g.setColor(Color.BLUE);
-                g.drawLine(1 + i * colors2.getWidth() / c.length, 30 + 3 * colors2.getHeight() / 5 - (int)(((colors2.getHeight() / 5) / 255.0) * c[i].getBlue()), (i + 1) * colors2.getWidth() / c.length, 30 + 3 * colors2.getHeight() / 5 - (int)(((colors2.getHeight() / 5) / 255.0) * c[(i + 1) % c.length].getBlue()));
+                g.drawLine(1 + i * colors2.getWidth() / c.length, 30 + 3 * (colors2.getHeight() / 5 + 5) - (int)(((colors2.getHeight() / 5) / 255.0) * c[i].getBlue()), (i + 1) * colors2.getWidth() / c.length, 30 + 3 * (colors2.getHeight() / 5 + 5) - (int)(((colors2.getHeight() / 5) / 255.0) * c[(i + 1) % c.length].getBlue()));
             }
         }
         catch(Exception ex) {
+            length_label.setText("0");
             Graphics2D g = colors2.createGraphics();
             g.setColor(Color.WHITE);
             g.fillRect(0, 0, colors2.getWidth(), colors2.getHeight());
@@ -2106,344 +2184,348 @@ public class CustomPaletteEditorFrame extends JFrame {
         return equal_hues;
 
     }
-    
+
     public static Color[] randomPalette(int[][] palette, int random_palette_alg, boolean same_hues, int color_interpolation, int color_space, boolean reverse_palette, int color_cycling, double processing_val, int processing_alg) {
+
+        if(color_cycling < 0) {     
+            return null;
+        }
         
         Random generator = new Random(System.currentTimeMillis());
-                Color[] c;
+        Color[] c;
 
-                double golden_ratio_conjugate = 0.6180339887498949;//(1 + Math.sqrt(5)) / 2.0 - 1;
+        double golden_ratio_conjugate = 0.6180339887498949;//(1 + Math.sqrt(5)) / 2.0 - 1;
 
-                boolean same_colors;
+        boolean same_colors;
 
-                int hues = generator.nextInt(12) + 7;
+        int hues = generator.nextInt(12) + 7;
 
-                if(random_palette_alg == 0) {
-                    //float hue = generator.nextFloat();
-                    double brightness = generator.nextFloat();
+        if(random_palette_alg == 0) {
+            //float hue = generator.nextFloat();
+            double brightness = generator.nextFloat();
 
-                    int counter = 0;
+            int counter = 0;
 
-                    ColorSpaceConverter con = new ColorSpaceConverter();
+            ColorSpaceConverter con = new ColorSpaceConverter();
 
-                    do {
-                        for(int m = 0; m < palette.length; m++) {
-                            //hue += golden_ratio_conjugate;
-                            //hue %= 1;
-                            brightness += golden_ratio_conjugate;
-                            brightness %= 1;
+            do {
+                for(int m = 0; m < palette.length; m++) {
+                    //hue += golden_ratio_conjugate;
+                    //hue %= 1;
+                    brightness += golden_ratio_conjugate;
+                    brightness %= 1;
 
-                            int[] res = null;
+                    int[] res = null;
 
-                            if(color_space == MainWindow.COLOR_SPACE_LCH) {
-                                res = con.LCHtoRGB(brightness * 100.0, generator.nextDouble() * 140.0, generator.nextDouble() * 360.0);
-                            }
-                            else if(color_space == MainWindow.COLOR_SPACE_LAB) {
-                                res = con.LABtoRGB(brightness * 100.0, (2 * generator.nextDouble() - 1) * 100, (2 * generator.nextDouble() - 1) * 100);
-                            }
-                            else {
-                                res = con.HSBtoRGB(generator.nextDouble(), generator.nextDouble(), brightness);
-                            }
+                    if(color_space == MainWindow.COLOR_SPACE_LCH) {
+                        res = con.LCHtoRGB(brightness * 100.0, generator.nextDouble() * 140.0, generator.nextDouble() * 360.0);
+                    }
+                    else if(color_space == MainWindow.COLOR_SPACE_LAB) {
+                        res = con.LABtoRGB(brightness * 100.0, (2 * generator.nextDouble() - 1) * 100, (2 * generator.nextDouble() - 1) * 100);
+                    }
+                    else {
+                        res = con.HSBtoRGB(generator.nextDouble(), generator.nextDouble(), brightness);
+                    }
 
-                            palette[m][0] = same_hues ? hues : generator.nextInt(12) + 7;
-                            palette[m][1] = ColorSpaceConverter.clamp(res[0]);
-                            palette[m][2] = ColorSpaceConverter.clamp(res[1]);
-                            palette[m][3] = ColorSpaceConverter.clamp(res[2]);
-    
-                        }
+                    palette[m][0] = same_hues ? hues : generator.nextInt(12) + 7;
+                    palette[m][1] = ColorSpaceConverter.clamp(res[0]);
+                    palette[m][2] = ColorSpaceConverter.clamp(res[1]);
+                    palette[m][3] = ColorSpaceConverter.clamp(res[2]);
 
-                        same_colors = false;
-
-                        c = CustomPalette.getPalette(palette, color_interpolation, color_space, reverse_palette, color_cycling, processing_val, processing_alg);
-
-                        for(int m = 0; m < c.length; m++) {
-                            if(c[m].getRGB() == c[(m + 1) % c.length].getRGB()) {
-                                same_colors = true;
-                                break;
-                            }
-                        }
-
-                        if(counter == 300) {
-                            break;
-                        }
-
-                        counter++;
-                    } while(same_colors);
                 }
-                else if(random_palette_alg == 1) {
-                    int counter = 0;
 
-                    double random_a = generator.nextDouble() * 1000;
-                    double random_b = generator.nextDouble() * 1000;
-                    double random_c = generator.nextDouble() * 1000;
+                same_colors = false;
 
-                    double a_coeff = generator.nextInt(11) + generator.nextDouble() + 1;
-                    double b_coeff = generator.nextInt(11) + generator.nextDouble() + 1;
-                    double c_coeff = generator.nextInt(11) + generator.nextDouble() + 1;
+                c = CustomPalette.getPalette(palette, color_interpolation, color_space, reverse_palette, color_cycling, processing_val, processing_alg);
 
-                    ColorSpaceConverter con = new ColorSpaceConverter();
-
-                    do {
-                        for(int m = 0; m < palette.length; m++) {
-                            palette[m][0] = same_hues ? hues : generator.nextInt(12) + 7;
-
-                            int[] res = null;
-
-                            if(color_space == MainWindow.COLOR_SPACE_HSB) {
-                                res = con.HSBtoRGB((0.5 * (Math.sin(Math.PI / a_coeff * (m + 1) + random_a) + 1)), (0.5 * (Math.sin(Math.PI / b_coeff * (m + 1) + random_b) + 1)), (0.5 * (Math.sin(Math.PI / c_coeff * (m + 1) + random_c) + 1)));
-                            }
-                            else if(color_space == MainWindow.COLOR_SPACE_RYB) {
-                                res = con.RYBtoRGB((0.5 * (Math.sin(Math.PI / a_coeff * (m + 1) + random_a) + 1)), (0.5 * (Math.sin(Math.PI / b_coeff * (m + 1) + random_b) + 1)), (0.5 * (Math.sin(Math.PI / c_coeff * (m + 1) + random_c) + 1)));
-                            }
-                            else if(color_space == MainWindow.COLOR_SPACE_LAB) {
-                                res = con.LABtoRGB((50 * (Math.sin(Math.PI / a_coeff * (m + 1) + random_a) + 1)), (100 * (Math.sin(Math.PI / b_coeff * (m + 1) + random_b))), (100 * (Math.sin(Math.PI / c_coeff * (m + 1) + random_c))));
-                            }
-                            else if(color_space == MainWindow.COLOR_SPACE_XYZ) {
-                                res = con.XYZtoRGB((50 * (Math.sin(Math.PI / a_coeff * (m + 1) + random_a) + 1)), (50 * (Math.sin(Math.PI / b_coeff * (m + 1) + random_b) + 1)), (50 * (Math.sin(Math.PI / c_coeff * (m + 1) + random_c) + 1)));
-                            }
-                            else if(color_space == MainWindow.COLOR_SPACE_LCH) {
-                                res = con.LCHtoRGB((50 * (Math.sin(Math.PI / a_coeff * (m + 1) + random_a) + 1)), (70 * (Math.sin(Math.PI / b_coeff * (m + 1) + random_b) + 1)), (180 * (Math.sin(Math.PI / c_coeff * (m + 1) + random_c) + 1)));
-                            }
-                            else {
-                                res = new int[3];
-                                res[0] = (int)(127.5 * (Math.sin(Math.PI / a_coeff * (m + 1) + random_a) + 1) + 0.5);
-                                res[1] = (int)(127.5 * (Math.sin(Math.PI / b_coeff * (m + 1) + random_b) + 1) + 0.5);
-                                res[2] = (int)(127.5 * (Math.sin(Math.PI / c_coeff * (m + 1) + random_c) + 1) + 0.5);
-                            }
-
-                            palette[m][1] = ColorSpaceConverter.clamp(res[0]);
-                            palette[m][2] = ColorSpaceConverter.clamp(res[1]);
-                            palette[m][3] = ColorSpaceConverter.clamp(res[2]);
-                        }
-
-                        same_colors = false;
-
-                        c = CustomPalette.getPalette(palette, color_interpolation, color_space, reverse_palette, color_cycling, processing_val, processing_alg);
-
-                        for(int m = 0; m < c.length; m++) {
-                            if(c[m].getRGB() == c[(m + 1) % c.length].getRGB()) {
-                                same_colors = true;
-                                break;
-                            }
-                        }
-
-                        if(counter == 300) {
-                            break;
-                        }
-
-                        counter++;
-                    } while(same_colors);
+                for(int m = 0; m < c.length; m++) {
+                    if(c[m].getRGB() == c[(m + 1) % c.length].getRGB()) {
+                        same_colors = true;
+                        break;
+                    }
                 }
-                else if(random_palette_alg == 2) {
-                    int counter = 0;
 
-                    do {
-
-                        List<Color> list = ColorGenerator.generate(600, generator.nextInt(600), 0);
-                        for(int m = 0; m < palette.length; m++) {
-                            palette[m][0] = same_hues ? hues : generator.nextInt(12) + 7;
-                            palette[m][1] = list.get(m).getRed();
-                            palette[m][2] = list.get(m).getGreen();
-                            palette[m][3] = list.get(m).getBlue();
-                        }
-
-                        same_colors = false;
-
-                        c = CustomPalette.getPalette(palette, color_interpolation, color_space, reverse_palette, color_cycling, processing_val, processing_alg);
-
-                        for(int m = 0; m < c.length; m++) {
-                            if(c[m].getRGB() == c[(m + 1) % c.length].getRGB()) {
-                                same_colors = true;
-                                break;
-                            }
-                        }
-
-                        if(counter == 300) {
-                            break;
-                        }
-
-                        counter++;
-                    } while(same_colors);
+                if(counter == 300) {
+                    break;
                 }
-                else if(random_palette_alg == 3) {
-                    int counter = 0;
 
-                    do {
-                        ColorSpaceConverter con = new ColorSpaceConverter();
+                counter++;
+            } while(same_colors);
+        }
+        else if(random_palette_alg == 1) {
+            int counter = 0;
 
-                        double hue, sat, bright;
+            double random_a = generator.nextDouble() * 1000;
+            double random_b = generator.nextDouble() * 1000;
+            double random_c = generator.nextDouble() * 1000;
 
-                        hue = generator.nextDouble();
-                        sat = generator.nextDouble();
-                        bright = generator.nextDouble();
+            double a_coeff = generator.nextInt(11) + generator.nextDouble() + 1;
+            double b_coeff = generator.nextInt(11) + generator.nextDouble() + 1;
+            double c_coeff = generator.nextInt(11) + generator.nextDouble() + 1;
 
-                        int cnt = 0;
+            ColorSpaceConverter con = new ColorSpaceConverter();
 
-                        double hue_distance = (generator.nextInt(3) + 3) / 12.0;
+            do {
+                for(int m = 0; m < palette.length; m++) {
+                    palette[m][0] = same_hues ? hues : generator.nextInt(12) + 7;
 
-                        int[] res;
+                    int[] res = null;
 
-                        for(int l = 0; l < 11; cnt++, l++) {
+                    if(color_space == MainWindow.COLOR_SPACE_HSB) {
+                        res = con.HSBtoRGB((0.5 * (Math.sin(Math.PI / a_coeff * (m + 1) + random_a) + 1)), (0.5 * (Math.sin(Math.PI / b_coeff * (m + 1) + random_b) + 1)), (0.5 * (Math.sin(Math.PI / c_coeff * (m + 1) + random_c) + 1)));
+                    }
+                    else if(color_space == MainWindow.COLOR_SPACE_RYB) {
+                        res = con.RYBtoRGB((0.5 * (Math.sin(Math.PI / a_coeff * (m + 1) + random_a) + 1)), (0.5 * (Math.sin(Math.PI / b_coeff * (m + 1) + random_b) + 1)), (0.5 * (Math.sin(Math.PI / c_coeff * (m + 1) + random_c) + 1)));
+                    }
+                    else if(color_space == MainWindow.COLOR_SPACE_LAB) {
+                        res = con.LABtoRGB((50 * (Math.sin(Math.PI / a_coeff * (m + 1) + random_a) + 1)), (100 * (Math.sin(Math.PI / b_coeff * (m + 1) + random_b))), (100 * (Math.sin(Math.PI / c_coeff * (m + 1) + random_c))));
+                    }
+                    else if(color_space == MainWindow.COLOR_SPACE_XYZ) {
+                        res = con.XYZtoRGB((50 * (Math.sin(Math.PI / a_coeff * (m + 1) + random_a) + 1)), (50 * (Math.sin(Math.PI / b_coeff * (m + 1) + random_b) + 1)), (50 * (Math.sin(Math.PI / c_coeff * (m + 1) + random_c) + 1)));
+                    }
+                    else if(color_space == MainWindow.COLOR_SPACE_LCH) {
+                        res = con.LCHtoRGB((50 * (Math.sin(Math.PI / a_coeff * (m + 1) + random_a) + 1)), (70 * (Math.sin(Math.PI / b_coeff * (m + 1) + random_b) + 1)), (180 * (Math.sin(Math.PI / c_coeff * (m + 1) + random_c) + 1)));
+                    }
+                    else {
+                        res = new int[3];
+                        res[0] = (int)(127.5 * (Math.sin(Math.PI / a_coeff * (m + 1) + random_a) + 1) + 0.5);
+                        res[1] = (int)(127.5 * (Math.sin(Math.PI / b_coeff * (m + 1) + random_b) + 1) + 0.5);
+                        res[2] = (int)(127.5 * (Math.sin(Math.PI / c_coeff * (m + 1) + random_c) + 1) + 0.5);
+                    }
 
-                            res = con.HSBtoRGB(hue, (sat + 1.0 / 11 * l) % 1.0, (bright + 1.0 / 11 * l) % 1.0);
-                            palette[cnt][0] = same_hues ? hues : generator.nextInt(12) + 7;
-                            palette[cnt][1] = res[0];
-                            palette[cnt][2] = res[1];
-                            palette[cnt][3] = res[2];
-                        }
-
-                        for(int l = 0; l < 10; cnt++, l++) {
-
-                            res = con.HSBtoRGB((hue + hue_distance) % 1.0, (sat + 1.0 / 10 * l) % 1.0, (bright + 1.0 / 10 * l) % 1.0);
-                            palette[cnt][0] = same_hues ? hues : generator.nextInt(12) + 7;
-                            palette[cnt][1] = res[0];
-                            palette[cnt][2] = res[1];
-                            palette[cnt][3] = res[2];
-                        }
-
-                        for(int l = 0; l < 11; cnt++, l++) {
-
-                            double temp = hue - hue_distance < 0 ? 1 - (hue - hue_distance) : hue - hue_distance;
-                            res = con.HSBtoRGB((temp) % 1.0, (sat + 1.0 / 11 * l) % 1.0, (bright + 1.0 / 11 * l) % 1.0);
-                            palette[cnt][0] = same_hues ? hues : generator.nextInt(12) + 7;
-                            palette[cnt][1] = res[0];
-                            palette[cnt][2] = res[1];
-                            palette[cnt][3] = res[2];
-                        }
-
-                        same_colors = false;
-
-                        c = CustomPalette.getPalette(palette, color_interpolation, color_space, reverse_palette, color_cycling, processing_val, processing_alg);
-
-                        for(int m = 0; m < c.length; m++) {
-                            if(c[m].getRGB() == c[(m + 1) % c.length].getRGB()) {
-                                same_colors = true;
-                                break;
-                            }
-                        }
-
-                        if(counter == 300) {
-                            break;
-                        }
-
-                        counter++;
-                    } while(same_colors);
+                    palette[m][1] = ColorSpaceConverter.clamp(res[0]);
+                    palette[m][2] = ColorSpaceConverter.clamp(res[1]);
+                    palette[m][3] = ColorSpaceConverter.clamp(res[2]);
                 }
-                else if(random_palette_alg == 4) {
-                    int counter = 0;
 
-                    do {
-                        ColorSpaceConverter con = new ColorSpaceConverter();
+                same_colors = false;
 
-                        double hue, sat, bright;
+                c = CustomPalette.getPalette(palette, color_interpolation, color_space, reverse_palette, color_cycling, processing_val, processing_alg);
 
-                        hue = generator.nextDouble();
-                        sat = generator.nextDouble();
-                        bright = generator.nextDouble();
-
-                        int cnt = 0;
-
-                        double hue_distance = (generator.nextInt(3) + 1) / 12.0;
-
-                        int[] res;
-
-                        for(int l = 0; l < 8; cnt++, l++) {
-
-                            res = con.HSBtoRGB(hue, (sat + 1.0 / 8 * l) % 1.0, (bright + 1.0 / 8 * l) % 1.0);
-                            palette[cnt][0] = same_hues ? hues : generator.nextInt(12) + 7;
-                            palette[cnt][1] = res[0];
-                            palette[cnt][2] = res[1];
-                            palette[cnt][3] = res[2];
-                        }
-
-                        for(int l = 0; l < 8; cnt++, l++) {
-
-                            res = con.HSBtoRGB((hue + 0.5) % 1.0, (sat + 1.0 / 8 * l) % 1.0, (bright + 1.0 / 8 * l) % 1.0);
-                            palette[cnt][0] = same_hues ? hues : generator.nextInt(12) + 7;
-                            palette[cnt][1] = res[0];
-                            palette[cnt][2] = res[1];
-                            palette[cnt][3] = res[2];
-                        }
-
-                        for(int l = 0; l < 8; cnt++, l++) {
-
-                            res = con.HSBtoRGB((hue + 0.5 + hue_distance) % 1.0, (sat + 1.0 / 8 * l) % 1.0, (bright + 1.0 / 8 * l) % 1.0);
-                            palette[cnt][0] = same_hues ? hues : generator.nextInt(12) + 7;
-                            palette[cnt][1] = res[0];
-                            palette[cnt][2] = res[1];
-                            palette[cnt][3] = res[2];
-                        }
-
-                        for(int l = 0; l < 8; cnt++, l++) {
-
-                            res = con.HSBtoRGB((hue + hue_distance) % 1.0, (sat + 1.0 / 8 * l) % 1.0, (bright + 1.0 / 8 * l) % 1.0);
-                            palette[cnt][0] = same_hues ? hues : generator.nextInt(12) + 7;
-                            palette[cnt][1] = res[0];
-                            palette[cnt][2] = res[1];
-                            palette[cnt][3] = res[2];
-                        }
-
-                        same_colors = false;
-
-                        c = CustomPalette.getPalette(palette, color_interpolation, color_space, reverse_palette, color_cycling, processing_val, processing_alg);
-
-                        for(int m = 0; m < c.length; m++) {
-                            if(c[m].getRGB() == c[(m + 1) % c.length].getRGB()) {
-                                same_colors = true;
-                                break;
-                            }
-                        }
-
-                        if(counter == 300) {
-                            break;
-                        }
-
-                        counter++;
-                    } while(same_colors);
+                for(int m = 0; m < c.length; m++) {
+                    if(c[m].getRGB() == c[(m + 1) % c.length].getRGB()) {
+                        same_colors = true;
+                        break;
+                    }
                 }
-                else {
-                    int counter = 0;
 
-                    do {
-                        Color[] col = GoogleMaterialDesignPalette.generate();
-                        for(int m = 0; m < palette.length; m++) {
-                            
-                            if(m >= col.length) {
-                                palette[m][0] = 0;
-                                palette[m][1] = 0;
-                                palette[m][2] = 0;
-                                palette[m][3] = 0;
-                            }
-                            else {
-                                palette[m][0] = same_hues ? hues : generator.nextInt(12) + 7;
-                                palette[m][1] = col[m].getRed();
-                                palette[m][2] = col[m].getGreen();
-                                palette[m][3] = col[m].getBlue();
-                            }
-                            
-                        }
-
-                        same_colors = false;
-
-                        c = CustomPalette.getPalette(palette, color_interpolation, color_space, reverse_palette, color_cycling, processing_val, processing_alg);
-
-                        for(int m = 0; m < c.length; m++) {
-                            if(c[m].getRGB() == c[(m + 1) % c.length].getRGB()) {
-                                same_colors = true;
-                                break;
-                            }
-                        }
-
-                        if(counter == 300) {
-                            break;
-                        }
-
-                        counter++;
-                    } while(same_colors);
+                if(counter == 300) {
+                    break;
                 }
-                
-                return c;
-                
+
+                counter++;
+            } while(same_colors);
+        }
+        else if(random_palette_alg == 2) {
+            int counter = 0;
+
+            do {
+
+                List<Color> list = ColorGenerator.generate(600, generator.nextInt(600), 0);
+                for(int m = 0; m < palette.length; m++) {
+                    palette[m][0] = same_hues ? hues : generator.nextInt(12) + 7;
+                    palette[m][1] = list.get(m).getRed();
+                    palette[m][2] = list.get(m).getGreen();
+                    palette[m][3] = list.get(m).getBlue();
+                }
+
+                same_colors = false;
+
+                c = CustomPalette.getPalette(palette, color_interpolation, color_space, reverse_palette, color_cycling, processing_val, processing_alg);
+
+                for(int m = 0; m < c.length; m++) {
+                    if(c[m].getRGB() == c[(m + 1) % c.length].getRGB()) {
+                        same_colors = true;
+                        break;
+                    }
+                }
+
+                if(counter == 300) {
+                    break;
+                }
+
+                counter++;
+            } while(same_colors);
+        }
+        else if(random_palette_alg == 3) {
+            int counter = 0;
+
+            do {
+                ColorSpaceConverter con = new ColorSpaceConverter();
+
+                double hue, sat, bright;
+
+                hue = generator.nextDouble();
+                sat = generator.nextDouble();
+                bright = generator.nextDouble();
+
+                int cnt = 0;
+
+                double hue_distance = (generator.nextInt(3) + 3) / 12.0;
+
+                int[] res;
+
+                for(int l = 0; l < 11; cnt++, l++) {
+
+                    res = con.HSBtoRGB(hue, (sat + 1.0 / 11 * l) % 1.0, (bright + 1.0 / 11 * l) % 1.0);
+                    palette[cnt][0] = same_hues ? hues : generator.nextInt(12) + 7;
+                    palette[cnt][1] = res[0];
+                    palette[cnt][2] = res[1];
+                    palette[cnt][3] = res[2];
+                }
+
+                for(int l = 0; l < 10; cnt++, l++) {
+
+                    res = con.HSBtoRGB((hue + hue_distance) % 1.0, (sat + 1.0 / 10 * l) % 1.0, (bright + 1.0 / 10 * l) % 1.0);
+                    palette[cnt][0] = same_hues ? hues : generator.nextInt(12) + 7;
+                    palette[cnt][1] = res[0];
+                    palette[cnt][2] = res[1];
+                    palette[cnt][3] = res[2];
+                }
+
+                for(int l = 0; l < 11; cnt++, l++) {
+
+                    double temp = hue - hue_distance < 0 ? 1 - (hue - hue_distance) : hue - hue_distance;
+                    res = con.HSBtoRGB((temp) % 1.0, (sat + 1.0 / 11 * l) % 1.0, (bright + 1.0 / 11 * l) % 1.0);
+                    palette[cnt][0] = same_hues ? hues : generator.nextInt(12) + 7;
+                    palette[cnt][1] = res[0];
+                    palette[cnt][2] = res[1];
+                    palette[cnt][3] = res[2];
+                }
+
+                same_colors = false;
+
+                c = CustomPalette.getPalette(palette, color_interpolation, color_space, reverse_palette, color_cycling, processing_val, processing_alg);
+
+                for(int m = 0; m < c.length; m++) {
+                    if(c[m].getRGB() == c[(m + 1) % c.length].getRGB()) {
+                        same_colors = true;
+                        break;
+                    }
+                }
+
+                if(counter == 300) {
+                    break;
+                }
+
+                counter++;
+            } while(same_colors);
+        }
+        else if(random_palette_alg == 4) {
+            int counter = 0;
+
+            do {
+                ColorSpaceConverter con = new ColorSpaceConverter();
+
+                double hue, sat, bright;
+
+                hue = generator.nextDouble();
+                sat = generator.nextDouble();
+                bright = generator.nextDouble();
+
+                int cnt = 0;
+
+                double hue_distance = (generator.nextInt(3) + 1) / 12.0;
+
+                int[] res;
+
+                for(int l = 0; l < 8; cnt++, l++) {
+
+                    res = con.HSBtoRGB(hue, (sat + 1.0 / 8 * l) % 1.0, (bright + 1.0 / 8 * l) % 1.0);
+                    palette[cnt][0] = same_hues ? hues : generator.nextInt(12) + 7;
+                    palette[cnt][1] = res[0];
+                    palette[cnt][2] = res[1];
+                    palette[cnt][3] = res[2];
+                }
+
+                for(int l = 0; l < 8; cnt++, l++) {
+
+                    res = con.HSBtoRGB((hue + 0.5) % 1.0, (sat + 1.0 / 8 * l) % 1.0, (bright + 1.0 / 8 * l) % 1.0);
+                    palette[cnt][0] = same_hues ? hues : generator.nextInt(12) + 7;
+                    palette[cnt][1] = res[0];
+                    palette[cnt][2] = res[1];
+                    palette[cnt][3] = res[2];
+                }
+
+                for(int l = 0; l < 8; cnt++, l++) {
+
+                    res = con.HSBtoRGB((hue + 0.5 + hue_distance) % 1.0, (sat + 1.0 / 8 * l) % 1.0, (bright + 1.0 / 8 * l) % 1.0);
+                    palette[cnt][0] = same_hues ? hues : generator.nextInt(12) + 7;
+                    palette[cnt][1] = res[0];
+                    palette[cnt][2] = res[1];
+                    palette[cnt][3] = res[2];
+                }
+
+                for(int l = 0; l < 8; cnt++, l++) {
+
+                    res = con.HSBtoRGB((hue + hue_distance) % 1.0, (sat + 1.0 / 8 * l) % 1.0, (bright + 1.0 / 8 * l) % 1.0);
+                    palette[cnt][0] = same_hues ? hues : generator.nextInt(12) + 7;
+                    palette[cnt][1] = res[0];
+                    palette[cnt][2] = res[1];
+                    palette[cnt][3] = res[2];
+                }
+
+                same_colors = false;
+
+                c = CustomPalette.getPalette(palette, color_interpolation, color_space, reverse_palette, color_cycling, processing_val, processing_alg);
+
+                for(int m = 0; m < c.length; m++) {
+                    if(c[m].getRGB() == c[(m + 1) % c.length].getRGB()) {
+                        same_colors = true;
+                        break;
+                    }
+                }
+
+                if(counter == 300) {
+                    break;
+                }
+
+                counter++;
+            } while(same_colors);
+        }
+        else {
+            int counter = 0;
+
+            do {
+                Color[] col = GoogleMaterialDesignPalette.generate();
+                for(int m = 0; m < palette.length; m++) {
+
+                    if(m >= col.length) {
+                        palette[m][0] = 0;
+                        palette[m][1] = 0;
+                        palette[m][2] = 0;
+                        palette[m][3] = 0;
+                    }
+                    else {
+                        palette[m][0] = same_hues ? hues : generator.nextInt(12) + 7;
+                        palette[m][1] = col[m].getRed();
+                        palette[m][2] = col[m].getGreen();
+                        palette[m][3] = col[m].getBlue();
+                    }
+
+                }
+
+                same_colors = false;
+
+                c = CustomPalette.getPalette(palette, color_interpolation, color_space, reverse_palette, color_cycling, processing_val, processing_alg);
+
+                for(int m = 0; m < c.length; m++) {
+                    if(c[m].getRGB() == c[(m + 1) % c.length].getRGB()) {
+                        same_colors = true;
+                        break;
+                    }
+                }
+
+                if(counter == 300) {
+                    break;
+                }
+
+                counter++;
+            } while(same_colors);
+        }
+
+        return c;
+
     }
 
 }

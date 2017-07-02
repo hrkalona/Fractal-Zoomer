@@ -33,7 +33,7 @@ public class StripBailoutTest extends BailoutTest {
     }
     
      @Override
-     public boolean escaped(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start) {
+     public boolean escaped(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex[] vars) {
 
         return z.getAbsRe() >= bound;
          

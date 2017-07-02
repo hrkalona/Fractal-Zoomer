@@ -209,6 +209,11 @@ public class Function2ArgumentsExpressionNode implements ExpressionNode {
      * function id for the user g20 function
      */
     public static final int G20 = 37;
+    
+    /**
+     * function id for the user fuzz function
+     */
+    public static final int FUZZ = 38;
 
     /**
      * the id of the function to apply to the argument
@@ -242,7 +247,7 @@ public class Function2ArgumentsExpressionNode implements ExpressionNode {
         this.argument = argument;
         this.argument2 = argument2;
 
-        if (function >= G1 && function <= (G1 + USER_FUNCS.length)) {
+        if (function >= G1 && function < (G1 + USER_FUNCS.length)) {
             getUserFunction();
         }
     }
@@ -335,6 +340,10 @@ public class Function2ArgumentsExpressionNode implements ExpressionNode {
         if (str.equals("logn")) {
             return Function2ArgumentsExpressionNode.LOGN;
         }
+        
+        if (str.equals("fuzz")) {
+            return Function2ArgumentsExpressionNode.FUZZ;
+        } 
 
         for (int i = 0; i < USER_FUNCS.length; i++) {
             if (str.equals(USER_FUNCS[i])) {
@@ -359,7 +368,7 @@ public class Function2ArgumentsExpressionNode implements ExpressionNode {
             temp_str += "|" + USER_FUNCS[i];
         }
 
-        return "bipol|ibipol|inflect|foldu|foldd|foldl|foldr|foldi|foldo|shear|cmp|add|sub|mul|div|rem|pow|logn" + temp_str;
+        return "bipol|ibipol|inflect|foldu|foldd|foldl|foldr|foldi|foldo|shear|cmp|add|sub|mul|div|rem|pow|logn|fuzz" + temp_str;
     }
 
     /**
@@ -424,6 +433,9 @@ public class Function2ArgumentsExpressionNode implements ExpressionNode {
 
             case LOGN:
                 return argument.getValue().log().divide(argument2.getValue().log());
+                
+            case FUZZ:
+                return argument.getValue().fuzz(argument2.getValue());
 
             case G1:
             case G2:

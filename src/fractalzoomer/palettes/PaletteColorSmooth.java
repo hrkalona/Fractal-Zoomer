@@ -16,13 +16,51 @@
  */
 package fractalzoomer.palettes;
 
+import fractalzoomer.main.MainWindow;
+import fractalzoomer.palettes.interpolation.AccelerationInterpolation;
+import fractalzoomer.palettes.interpolation.CatmullRom2Interpolation;
+import fractalzoomer.palettes.interpolation.CatmullRomInterpolation;
+import fractalzoomer.palettes.interpolation.CosineInterpolation;
+import fractalzoomer.palettes.interpolation.DecelerationInterpolation;
+import fractalzoomer.palettes.interpolation.ExponentialInterpolation;
+import fractalzoomer.palettes.interpolation.LinearInterpolation;
+import fractalzoomer.palettes.interpolation.SigmoidInterpolation;
+import fractalzoomer.palettes.interpolation.SmoothInterpolationMethod;
 import java.awt.Color;
 
 public class PaletteColorSmooth extends PaletteColor {
+    private SmoothInterpolationMethod interpolator;
 
-    public PaletteColorSmooth(int[] palette, double color_intensity, Color special_color) {
+    public PaletteColorSmooth(int[] palette, double color_intensity, Color special_color, int color_smoothing_method) {
 
         super(palette, color_intensity, special_color);
+        
+        switch(color_smoothing_method) {
+            case MainWindow.INTERPOLATION_LINEAR:
+                interpolator = new LinearInterpolation();
+                break;
+            case MainWindow.INTERPOLATION_COSINE:
+                interpolator = new CosineInterpolation();
+                break;
+            case MainWindow.INTERPOLATION_ACCELERATION:
+                interpolator = new AccelerationInterpolation();
+                break;
+             case MainWindow.INTERPOLATION_DECELERATION:
+                 interpolator = new DecelerationInterpolation();
+                 break;
+             case MainWindow.INTERPOLATION_EXPONENTIAL:
+                 interpolator = new ExponentialInterpolation();
+                 break;
+             case MainWindow.INTERPOLATION_CATMULLROM:
+                 interpolator = new CatmullRomInterpolation();
+                 break;
+             case MainWindow.INTERPOLATION_CATMULLROM2:
+                 interpolator = new CatmullRom2Interpolation();
+                 break;
+             case MainWindow.INTERPOLATION_SIGMOID:
+                 interpolator = new SigmoidInterpolation();
+                 break;
+        }     
 
     }
 
@@ -34,63 +72,12 @@ public class PaletteColorSmooth extends PaletteColor {
                 return special_color[((int)(result * (-1))) % special_color.length];
             }
             else {
-                result *= -1;
-
-                result *= 256 * color_intensity;
-                int temp = ((int)(result / 256 + mod_offset * color_intensity));
-
-                int color = getColor(temp);
-                int color2 = getColor(temp - 1);
-
-                int color_red = (color >> 16) & 0xff;
-                int color_green = (color >> 8) & 0xff;
-                int color_blue = color & 0xff;
-
-                int color2_red = (color2 >> 16) & 0xff;
-                int color2_green = (color2 >> 8) & 0xff;
-                int color2_blue = color2 & 0xff;
-
-                int k1 = (int)result % 256;
-                int k2 = 255 - k1;
-
-                int red = (k1 * color_red + k2 * color2_red) / 255;
-                int green = (k1 * color_green + k2 * color2_green) / 255;
-                int blue = (k1 * color_blue + k2 * color2_blue) / 255;
-
-                return 0xff000000 | (red << 16) | (green << 8) | blue;
+                return calculateFinalColor(-result);
             }
         }
         else {
-            result *= 256 * color_intensity;
-            int temp = ((int)(result / 256 + mod_offset * color_intensity));
-
-            int color = getColor(temp);
-            int color2 = getColor(temp - 1);
-
-            int color_red = (color >> 16) & 0xff;
-            int color_green = (color >> 8) & 0xff;
-            int color_blue = color & 0xff;
-
-            int color2_red = (color2 >> 16) & 0xff;
-            int color2_green = (color2 >> 8) & 0xff;
-            int color2_blue = color2 & 0xff;
-
-            int k1 = (int)result % 256;
-            int k2 = 255 - k1;
-
-            int red = (k1 * color_red + k2 * color2_red) / 255;
-            int green = (k1 * color_green + k2 * color2_green) / 255;
-            int blue = (k1 * color_blue + k2 * color2_blue) / 255;
-
-            return 0xff000000 | (red << 16) | (green << 8) | blue;
+            return calculateFinalColor(result);
         }
-
-        //try {
-        // return new Color(red, green, blue);
-        //}
-        //catch(Exception ex) {
-        // return new Color(red > 255 ? red % 256 : (red < 0 ? 0 : red), green > 255 ? green % 256 : (green < 0 ? 0 : green), blue > 255 ? blue % 256 : (blue < 0 ? 0 : blue));  
-        //}
     }
 
     private int getColor(int i) {
@@ -99,5 +86,27 @@ public class PaletteColorSmooth extends PaletteColor {
         return palette[((int)((i + palette.length))) % palette.length];
 
     }
-    
+
+    private int calculateFinalColor(double result) {
+        
+        result *= color_intensity;
+        int temp = ((int)(result + mod_offset * color_intensity));
+
+        int color2 = getColor(temp);
+        int color = getColor(temp - 1);
+
+        int color_red = (color >> 16) & 0xff;
+        int color_green = (color >> 8) & 0xff;
+        int color_blue = color & 0xff;
+
+        int color2_red = (color2 >> 16) & 0xff;
+        int color2_green = (color2 >> 8) & 0xff;
+        int color2_blue = color2 & 0xff;
+
+        double coef = result - (int)result; //fractional part
+        
+        return interpolator.interpolate(color_red, color_green, color_blue, color2_red, color2_green, color2_blue, coef);
+        
+    }
+
 }

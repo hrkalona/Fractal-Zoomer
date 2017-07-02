@@ -32,8 +32,10 @@ public class UserBailoutTest extends BailoutTest {
     private int bailout_test_comparison;
     private Complex cbound;
     private Complex c_max_iterations;
+    private Complex c_center;
+    private Complex c_size;
 
-    public UserBailoutTest(double bound, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, int max_iterations) {
+    public UserBailoutTest(double bound, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, int max_iterations, double xCenter, double yCenter, double size) {
 
         super(bound);
 
@@ -67,11 +69,31 @@ public class UserBailoutTest extends BailoutTest {
         if(parser[1].foundMaxn()) {
             parser[1].setMaxnvalue(c_max_iterations);
         }
+        
+        c_center = new Complex(xCenter, yCenter);
+        
+        if(parser[0].foundCenter()) {
+            parser[0].setCentervalue(c_center);
+        }
+        
+        if(parser[1].foundCenter()) {
+            parser[1].setCentervalue(c_center);
+        }
+        
+        c_size = new Complex(size, 0);
+        
+        if(parser[0].foundSize()) {
+            parser[0].setSizevalue(c_size);
+        }
+        
+        if(parser[1].foundSize()) {
+            parser[1].setSizevalue(c_size);
+        }
 
     }
 
     @Override
-    public boolean escaped(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start) {
+    public boolean escaped(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex[] vars) {
         
         /*LEFT*/
         if(parser[0].foundN()) {
@@ -98,6 +120,12 @@ public class UserBailoutTest extends BailoutTest {
             parser[0].setPPvalue(zold2);
         }
         
+        for(int i = 0; i < Parser.EXTRA_VARS; i++) {
+            if(parser[0].foundVar(i)) {
+                parser[0].setVarsvalue(i, vars[i]);
+            }
+        }
+        
         /*RIGHT*/
         if(parser[1].foundN()) {
             parser[1].setNvalue(new Complex(iterations, 0));
@@ -121,6 +149,12 @@ public class UserBailoutTest extends BailoutTest {
         
         if(parser[1].foundPP()) {
             parser[1].setPPvalue(zold2);
+        }
+        
+        for(int i = 0; i < Parser.EXTRA_VARS; i++) {
+            if(parser[1].foundVar(i)) {
+                parser[1].setVarsvalue(i, vars[i]);
+            }
         }
 
         int res = expr[0].getValue().compare(expr[1].getValue());

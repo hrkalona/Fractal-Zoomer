@@ -86,8 +86,9 @@ public class UserFormulaConverging extends Julia {
     private ExpressionNode expr2;
     private Parser parser2;
     private int iterations;
+    private Complex[] vars;
 
-    public UserFormulaConverging(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, boolean[] user_outcoloring_special_color, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean[] user_incoloring_special_color, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_value, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, String user_formula, String user_formula2, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int converging_smooth_algorithm) {
+    public UserFormulaConverging(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_value, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, String user_formula, String user_formula2, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int converging_smooth_algorithm) {
 
         super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, false, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
 
@@ -96,10 +97,10 @@ public class UserFormulaConverging extends Julia {
         if(perturbation) {
             if(variable_perturbation) {
                 if(user_perturbation_algorithm == 0) {
-                    pertur_val = new VariablePerturbation(perturbation_user_formula);
+                    pertur_val = new VariablePerturbation(perturbation_user_formula, xCenter, yCenter, size, max_iterations);
                 }
                 else {
-                    pertur_val = new VariableConditionalPerturbation(user_perturbation_conditions, user_perturbation_condition_formula);
+                    pertur_val = new VariableConditionalPerturbation(user_perturbation_conditions, user_perturbation_condition_formula, xCenter, yCenter, size, max_iterations);
                 }
             }
             else {
@@ -113,10 +114,10 @@ public class UserFormulaConverging extends Julia {
         if(init_value) {
             if(variable_init_value) {
                 if(user_initial_value_algorithm == 0) {
-                    init_val = new VariableInitialValue(initial_value_user_formula);
+                    init_val = new VariableInitialValue(initial_value_user_formula, xCenter, yCenter, size, max_iterations);
                 }
                 else {
-                    init_val = new VariableConditionalInitialValue(user_initial_value_conditions, user_initial_value_condition_formula);
+                    init_val = new VariableConditionalInitialValue(user_initial_value_conditions, user_initial_value_condition_formula, xCenter, yCenter, size, max_iterations);
                 }
             }
             else {
@@ -226,10 +227,10 @@ public class UserFormulaConverging extends Julia {
                 break;
             case MainWindow.USER_OUTCOLORING_ALGORITHM:
                 if(user_out_coloring_algorithm == 0) {
-                    out_color_algorithm = new UserOutColorAlgorithmRootFindingMethod(outcoloring_formula, convergent_bailout, max_iterations);
+                    out_color_algorithm = new UserOutColorAlgorithmRootFindingMethod(outcoloring_formula, convergent_bailout, max_iterations, xCenter, yCenter, size);
                 }
                 else {
-                    out_color_algorithm = new UserConditionalOutColorAlgorithmRootFindingMethod(user_outcoloring_conditions, user_outcoloring_condition_formula, user_outcoloring_special_color, convergent_bailout, max_iterations);
+                    out_color_algorithm = new UserConditionalOutColorAlgorithmRootFindingMethod(user_outcoloring_conditions, user_outcoloring_condition_formula, convergent_bailout, max_iterations, xCenter, yCenter, size);
                 }
                 break;
 
@@ -269,10 +270,10 @@ public class UserFormulaConverging extends Julia {
                 break;
             case MainWindow.USER_INCOLORING_ALGORITHM:
                 if(user_in_coloring_algorithm == 0) {
-                    in_color_algorithm = new UserInColorAlgorithm(incoloring_formula, max_iterations);
+                    in_color_algorithm = new UserInColorAlgorithm(incoloring_formula, max_iterations, xCenter, yCenter, size);
                 }
                 else {
-                    in_color_algorithm = new UserConditionalInColorAlgorithm(user_incoloring_conditions, user_incoloring_condition_formula, user_incoloring_special_color, max_iterations);
+                    in_color_algorithm = new UserConditionalInColorAlgorithm(user_incoloring_conditions, user_incoloring_condition_formula, max_iterations, xCenter, yCenter, size);
                 }
                 break;
 
@@ -286,7 +287,7 @@ public class UserFormulaConverging extends Julia {
 
     }
 
-    public UserFormulaConverging(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, boolean[] user_outcoloring_special_color, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean[] user_incoloring_special_color, boolean smoothing, int plane_type, boolean apply_plane_on_julia, double[] rotation_vals, double[] rotation_center, String user_formula, String user_formula2, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int converging_smooth_algorithm, double xJuliaCenter, double yJuliaCenter) {
+    public UserFormulaConverging(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, int plane_type, boolean apply_plane_on_julia, double[] rotation_vals, double[] rotation_center, String user_formula, String user_formula2, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int converging_smooth_algorithm, double xJuliaCenter, double yJuliaCenter) {
 
         super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, false, plane_type, apply_plane_on_julia, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
 
@@ -395,10 +396,10 @@ public class UserFormulaConverging extends Julia {
             case MainWindow.USER_OUTCOLORING_ALGORITHM:
                 convergent_bailout = 1E-7;
                 if(user_out_coloring_algorithm == 0) {
-                    out_color_algorithm = new UserOutColorAlgorithmRootFindingMethod(outcoloring_formula, convergent_bailout, max_iterations);
+                    out_color_algorithm = new UserOutColorAlgorithmRootFindingMethod(outcoloring_formula, convergent_bailout, max_iterations, xCenter, yCenter, size);
                 }
                 else {
-                    out_color_algorithm = new UserConditionalOutColorAlgorithmRootFindingMethod(user_outcoloring_conditions, user_outcoloring_condition_formula, user_outcoloring_special_color, convergent_bailout, max_iterations);
+                    out_color_algorithm = new UserConditionalOutColorAlgorithmRootFindingMethod(user_outcoloring_conditions, user_outcoloring_condition_formula, convergent_bailout, max_iterations, xCenter, yCenter, size);
                 }
                 break;
 
@@ -438,10 +439,10 @@ public class UserFormulaConverging extends Julia {
                 break;
             case MainWindow.USER_INCOLORING_ALGORITHM:
                 if(user_in_coloring_algorithm == 0) {
-                    in_color_algorithm = new UserInColorAlgorithm(incoloring_formula, max_iterations);
+                    in_color_algorithm = new UserInColorAlgorithm(incoloring_formula, max_iterations, xCenter, yCenter, size);
                 }
                 else {
-                    in_color_algorithm = new UserConditionalInColorAlgorithm(user_incoloring_conditions, user_incoloring_condition_formula, user_incoloring_special_color, max_iterations);
+                    in_color_algorithm = new UserConditionalInColorAlgorithm(user_incoloring_conditions, user_incoloring_condition_formula, max_iterations, xCenter, yCenter, size);
                 }
                 break;
 
@@ -463,10 +464,10 @@ public class UserFormulaConverging extends Julia {
         if(perturbation) {
             if(variable_perturbation) {
                 if(user_perturbation_algorithm == 0) {
-                    pertur_val = new VariablePerturbation(perturbation_user_formula);
+                    pertur_val = new VariablePerturbation(perturbation_user_formula, xCenter, yCenter, size, max_iterations);
                 }
                 else {
-                    pertur_val = new VariableConditionalPerturbation(user_perturbation_conditions, user_perturbation_condition_formula);
+                    pertur_val = new VariableConditionalPerturbation(user_perturbation_conditions, user_perturbation_condition_formula, xCenter, yCenter, size, max_iterations);
                 }
             }
             else {
@@ -480,10 +481,10 @@ public class UserFormulaConverging extends Julia {
         if(init_value) {
             if(variable_init_value) {
                 if(user_initial_value_algorithm == 0) {
-                    init_val = new VariableInitialValue(initial_value_user_formula);
+                    init_val = new VariableInitialValue(initial_value_user_formula, xCenter, yCenter, size, max_iterations);
                 }
                 else {
-                    init_val = new VariableConditionalInitialValue(user_initial_value_conditions, user_initial_value_condition_formula);
+                    init_val = new VariableConditionalInitialValue(user_initial_value_conditions, user_initial_value_condition_formula, xCenter, yCenter, size, max_iterations);
                 }
             }
             else {
@@ -533,6 +534,12 @@ public class UserFormulaConverging extends Julia {
             //expr.accept(new SetVariable("c", complex[1]));
             parser.setCvalue(complex[1]);
         }
+        
+        for(int i = 0; i < Parser.EXTRA_VARS; i++) {
+            if(parser.foundVar(i)) {
+                parser.setVarsvalue(i, vars[i]);
+            }
+        }
 
         complex[0] = expr.getValue();
         /**
@@ -551,6 +558,12 @@ public class UserFormulaConverging extends Julia {
 
         if(parser2.foundC()) {
             parser2.setCvalue(complex[1]);
+        }
+        
+        for(int i = 0; i < Parser.EXTRA_VARS; i++) {
+            if(parser2.foundVar(i)) {
+                parser2.setVarsvalue(i, vars[i]);
+            }
         }
 
         complex[1] = expr2.getValue();
@@ -574,66 +587,24 @@ public class UserFormulaConverging extends Julia {
         Complex zold2 = new Complex();
         Complex start = new Complex(complex[0]);
 
-        if(parser.foundS()) {
-            parser.setSvalue(start);
-        }
-
-        if(parser2.foundS()) {
-            parser2.setSvalue(start);
-        }
+        setInitVariables(start, zold, zold2);
         
-        if(parser.foundMaxn()) {
-            parser.setMaxnvalue(new Complex(max_iterations, 0));
-        }
-        
-        if(parser2.foundMaxn()) {
-            parser2.setMaxnvalue(new Complex(max_iterations, 0));
-        }
-
-        if(parser.foundP()) {
-            parser.setPvalue(zold);
-        }
-
-        if(parser2.foundP()) {
-            parser2.setPvalue(zold);
-        }
-
-        if(parser.foundPP()) {
-            parser.setPPvalue(zold2);
-        }
-
-        if(parser2.foundPP()) {
-            parser2.setPPvalue(zold2);
-        }
+        vars = createGlobalVars();
 
         for(; iterations < max_iterations; iterations++) {
             if((temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
-                Object[] object = {iterations, complex[0], temp, zold, zold2, complex[1], start};
+                Object[] object = {iterations, complex[0], temp, zold, zold2, complex[1], start, vars};
                 return out_color_algorithm.getResult(object);
             }
             zold2.assign(zold);
             zold.assign(complex[0]);
             function(complex);
 
-            if(parser.foundP()) {
-                parser.setPvalue(zold);
-            }
-
-            if(parser2.foundP()) {
-                parser2.setPvalue(zold);
-            }
-
-            if(parser.foundPP()) {
-                parser.setPPvalue(zold2);
-            }
-
-            if(parser2.foundPP()) {
-                parser2.setPPvalue(zold2);
-            }
+            setVariables(zold, zold2);
 
         }
 
-        Object[] object = {complex[0], zold, zold2, complex[1], start};
+        Object[] object = {complex[0], zold, zold2, complex[1], start, vars};
         return in_color_algorithm.getResult(object);
 
     }
@@ -651,66 +622,24 @@ public class UserFormulaConverging extends Julia {
         Complex zold2 = new Complex();
         Complex start = new Complex(complex[0]);
 
-        if(parser.foundS()) {
-            parser.setSvalue(start);
-        }
-
-        if(parser2.foundS()) {
-            parser2.setSvalue(start);
-        }
+        setInitVariables(start, zold, zold2);
         
-        if(parser.foundMaxn()) {
-            parser.setMaxnvalue(new Complex(max_iterations, 0));
-        }
-        
-        if(parser2.foundMaxn()) {
-            parser2.setMaxnvalue(new Complex(max_iterations, 0));
-        }
-
-        if(parser.foundP()) {
-            parser.setPvalue(zold);
-        }
-
-        if(parser2.foundP()) {
-            parser2.setPvalue(zold);
-        }
-
-        if(parser.foundPP()) {
-            parser.setPPvalue(zold2);
-        }
-
-        if(parser2.foundPP()) {
-            parser2.setPPvalue(zold2);
-        }
+        vars = createGlobalVars();
 
         for(; iterations < max_iterations; iterations++) {
             if((temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
-                Object[] object = {iterations, complex[0], temp, zold, zold2, complex[1], start};
+                Object[] object = {iterations, complex[0], temp, zold, zold2, complex[1], start, vars};
                 return out_color_algorithm.getResult(object);
             }
             zold2.assign(zold);
             zold.assign(complex[0]);
             function(complex);
 
-            if(parser.foundP()) {
-                parser.setPvalue(zold);
-            }
-
-            if(parser2.foundP()) {
-                parser2.setPvalue(zold);
-            }
-
-            if(parser.foundPP()) {
-                parser.setPPvalue(zold2);
-            }
-
-            if(parser2.foundPP()) {
-                parser2.setPPvalue(zold2);
-            }
+            setVariables(zold, zold2);
 
         }
 
-        Object[] object = {complex[0], zold, zold2, complex[1], start};
+        Object[] object = {complex[0], zold, zold2, complex[1], start, vars};
         return in_color_algorithm.getResult(object);
 
     }
@@ -730,43 +659,15 @@ public class UserFormulaConverging extends Julia {
         Complex zold2 = new Complex();
         Complex start = new Complex(complex[0]);
 
-        if(parser.foundS()) {
-            parser.setSvalue(start);
-        }
-
-        if(parser2.foundS()) {
-            parser2.setSvalue(start);
-        }
+        setInitVariables(start, zold, zold2);
         
-        if(parser.foundMaxn()) {
-            parser.setMaxnvalue(new Complex(max_iterations, 0));
-        }
-        
-        if(parser2.foundMaxn()) {
-            parser2.setMaxnvalue(new Complex(max_iterations, 0));
-        }
-
-        if(parser.foundP()) {
-            parser.setPvalue(zold);
-        }
-
-        if(parser2.foundP()) {
-            parser2.setPvalue(zold);
-        }
-
-        if(parser.foundPP()) {
-            parser.setPPvalue(zold2);
-        }
-
-        if(parser2.foundPP()) {
-            parser2.setPPvalue(zold2);
-        }
+        vars = createGlobalVars();
 
         double temp2;
 
         for(; iterations < max_iterations; iterations++) {
             if((temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
-                Object[] object = {iterations, complex[0], temp, zold, zold2, complex[1], start};
+                Object[] object = {iterations, complex[0], temp, zold, zold2, complex[1], start, vars};
                 double[] array = {out_color_algorithm.transformResultToHeight(out_color_algorithm.getResult3D(object)), out_color_algorithm.getResult(object)};
                 return array;
             }
@@ -774,25 +675,11 @@ public class UserFormulaConverging extends Julia {
             zold.assign(complex[0]);
             function(complex);
 
-            if(parser.foundP()) {
-                parser.setPvalue(zold);
-            }
-
-            if(parser2.foundP()) {
-                parser2.setPvalue(zold);
-            }
-
-            if(parser.foundPP()) {
-                parser.setPPvalue(zold2);
-            }
-
-            if(parser2.foundPP()) {
-                parser2.setPPvalue(zold2);
-            }
+            setVariables(zold, zold2);
 
         }
 
-        Object[] object = {complex[0], zold, zold2, complex[1], start};
+        Object[] object = {complex[0], zold, zold2, complex[1], start, vars};
         temp2 = in_color_algorithm.getResult(object);
         double[] array = {in_color_algorithm.transformResultToHeight(temp2, max_iterations), temp2};
         return array;
@@ -812,41 +699,13 @@ public class UserFormulaConverging extends Julia {
         Complex zold2 = new Complex();
         Complex start = new Complex(complex[0]);
 
-        if(parser.foundS()) {
-            parser.setSvalue(start);
-        }
-
-        if(parser2.foundS()) {
-            parser2.setSvalue(start);
-        }
+        setInitVariables(start, zold, zold2);
         
-        if(parser.foundMaxn()) {
-            parser.setMaxnvalue(new Complex(max_iterations, 0));
-        }
-        
-        if(parser2.foundMaxn()) {
-            parser2.setMaxnvalue(new Complex(max_iterations, 0));
-        }
-
-        if(parser.foundP()) {
-            parser.setPvalue(zold);
-        }
-
-        if(parser2.foundP()) {
-            parser2.setPvalue(zold);
-        }
-
-        if(parser.foundPP()) {
-            parser.setPPvalue(zold2);
-        }
-
-        if(parser2.foundPP()) {
-            parser2.setPPvalue(zold2);
-        }
+        vars = createGlobalVars();
 
         for(; iterations < max_iterations; iterations++) {
             if((temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
-                Object[] object = {iterations, complex[0], temp, zold, zold2, complex[1], start};
+                Object[] object = {iterations, complex[0], temp, zold, zold2, complex[1], start, vars};
                 double[] array = {out_color_algorithm.transformResultToHeight(out_color_algorithm.getResult3D(object)), out_color_algorithm.getResult(object)};
                 return array;
             }
@@ -854,25 +713,11 @@ public class UserFormulaConverging extends Julia {
             zold.assign(complex[0]);
             function(complex);
 
-            if(parser.foundP()) {
-                parser.setPvalue(zold);
-            }
-
-            if(parser2.foundP()) {
-                parser2.setPvalue(zold);
-            }
-
-            if(parser.foundPP()) {
-                parser.setPPvalue(zold2);
-            }
-
-            if(parser2.foundPP()) {
-                parser2.setPPvalue(zold2);
-            }
+            setVariables(zold, zold2);
 
         }
 
-        Object[] object = {complex[0], zold, zold2, complex[1], start};
+        Object[] object = {complex[0], zold, zold2, complex[1], start, vars};
         double temp2 = in_color_algorithm.getResult(object);
         double[] array = {in_color_algorithm.transformResultToHeight(temp2, max_iterations), temp2};
         return array;
@@ -893,58 +738,16 @@ public class UserFormulaConverging extends Julia {
         Complex zold2 = new Complex();
         Complex start = new Complex(complex[0]);
 
-        if(parser.foundS()) {
-            parser.setSvalue(start);
-        }
-
-        if(parser2.foundS()) {
-            parser2.setSvalue(start);
-        }
+        setInitVariables(start, zold, zold2);
         
-        if(parser.foundMaxn()) {
-            parser.setMaxnvalue(new Complex(max_iterations, 0));
-        }
-        
-        if(parser2.foundMaxn()) {
-            parser2.setMaxnvalue(new Complex(max_iterations, 0));
-        }
-
-        if(parser.foundP()) {
-            parser.setPvalue(zold);
-        }
-
-        if(parser2.foundP()) {
-            parser2.setPvalue(zold);
-        }
-
-        if(parser.foundPP()) {
-            parser.setPPvalue(zold2);
-        }
-
-        if(parser2.foundPP()) {
-            parser2.setPPvalue(zold2);
-        }
+        vars = createGlobalVars();
 
         for(; iterations < max_iterations; iterations++) {
             zold2.assign(zold);
             zold.assign(complex[0]);
             function(complex);
 
-            if(parser.foundP()) {
-                parser.setPvalue(zold);
-            }
-
-            if(parser2.foundP()) {
-                parser2.setPvalue(zold);
-            }
-
-            if(parser.foundPP()) {
-                parser.setPPvalue(zold2);
-            }
-
-            if(parser2.foundPP()) {
-                parser2.setPPvalue(zold2);
-            }
+            setVariables(zold, zold2);
 
             temp = rotation.getPixel(complex[0], true);
 
@@ -971,58 +774,16 @@ public class UserFormulaConverging extends Julia {
         Complex zold2 = new Complex();
         Complex start = new Complex(complex[0]);
 
-        if(parser.foundS()) {
-            parser.setSvalue(start);
-        }
-
-        if(parser2.foundS()) {
-            parser2.setSvalue(start);
-        }
+        setInitVariables(start, zold, zold2);
         
-        if(parser.foundMaxn()) {
-            parser.setMaxnvalue(new Complex(max_iterations, 0));
-        }
-        
-        if(parser2.foundMaxn()) {
-            parser2.setMaxnvalue(new Complex(max_iterations, 0));
-        }
-
-        if(parser.foundP()) {
-            parser.setPvalue(zold);
-        }
-
-        if(parser2.foundP()) {
-            parser2.setPvalue(zold);
-        }
-
-        if(parser.foundPP()) {
-            parser.setPPvalue(zold2);
-        }
-
-        if(parser2.foundPP()) {
-            parser2.setPPvalue(zold2);
-        }
+        vars = createGlobalVars();
 
         for(; iterations < max_iterations; iterations++) {
             zold2.assign(zold);
             zold.assign(complex[0]);
             function(complex);
 
-            if(parser.foundP()) {
-                parser.setPvalue(zold);
-            }
-
-            if(parser2.foundP()) {
-                parser2.setPvalue(zold);
-            }
-
-            if(parser.foundPP()) {
-                parser.setPPvalue(zold2);
-            }
-
-            if(parser2.foundPP()) {
-                parser2.setPPvalue(zold2);
-            }
+            setVariables(zold, zold2);
 
             temp = rotation.getPixel(complex[0], true);
 
@@ -1049,37 +810,9 @@ public class UserFormulaConverging extends Julia {
         Complex zold2 = new Complex();
         Complex start = new Complex(complex[0]);
 
-        if(parser.foundS()) {
-            parser.setSvalue(start);
-        }
-
-        if(parser2.foundS()) {
-            parser2.setSvalue(start);
-        }
+        setInitVariables(start, zold, zold2);
         
-        if(parser.foundMaxn()) {
-            parser.setMaxnvalue(new Complex(max_iterations, 0));
-        }
-        
-        if(parser2.foundMaxn()) {
-            parser2.setMaxnvalue(new Complex(max_iterations, 0));
-        }
-
-        if(parser.foundP()) {
-            parser.setPvalue(zold);
-        }
-
-        if(parser2.foundP()) {
-            parser2.setPvalue(zold);
-        }
-
-        if(parser.foundPP()) {
-            parser.setPPvalue(zold2);
-        }
-
-        if(parser2.foundPP()) {
-            parser2.setPPvalue(zold2);
-        }
+        vars = createGlobalVars();
 
         for(; iterations < max_iterations; iterations++) {
 
@@ -1087,21 +820,7 @@ public class UserFormulaConverging extends Julia {
             zold.assign(complex[0]);
             function(complex);
 
-            if(parser.foundP()) {
-                parser.setPvalue(zold);
-            }
-
-            if(parser2.foundP()) {
-                parser2.setPvalue(zold);
-            }
-
-            if(parser.foundPP()) {
-                parser.setPPvalue(zold2);
-            }
-
-            if(parser2.foundPP()) {
-                parser2.setPPvalue(zold2);
-            }
+            setVariables(zold, zold2);
 
         }
 
@@ -1120,6 +839,45 @@ public class UserFormulaConverging extends Julia {
         Complex zold = new Complex();
         Complex zold2 = new Complex();
         Complex start = new Complex(complex[0]);
+        
+        setInitVariables(start, zold, zold2);
+        
+        vars = createGlobalVars();
+
+        for(; iterations < max_iterations; iterations++) {
+
+            zold2.assign(zold);
+            zold.assign(complex[0]);
+            function(complex);
+
+            setVariables(zold, zold2);
+        }
+
+        return complex[0];
+
+    }
+
+    private void setVariables(Complex zold, Complex zold2) {
+
+        if(parser.foundP()) {
+            parser.setPvalue(zold);
+        }
+
+        if(parser2.foundP()) {
+            parser2.setPvalue(zold);
+        }
+
+        if(parser.foundPP()) {
+            parser.setPPvalue(zold2);
+        }
+
+        if(parser2.foundPP()) {
+            parser2.setPPvalue(zold2);
+        }
+
+    }
+
+    private void setInitVariables(Complex start, Complex zold, Complex zold2) {
 
         if(parser.foundS()) {
             parser.setSvalue(start);
@@ -1128,11 +886,11 @@ public class UserFormulaConverging extends Julia {
         if(parser2.foundS()) {
             parser2.setSvalue(start);
         }
-        
+
         if(parser.foundMaxn()) {
             parser.setMaxnvalue(new Complex(max_iterations, 0));
         }
-        
+
         if(parser2.foundMaxn()) {
             parser2.setMaxnvalue(new Complex(max_iterations, 0));
         }
@@ -1144,7 +902,7 @@ public class UserFormulaConverging extends Julia {
         if(parser2.foundP()) {
             parser2.setPvalue(zold);
         }
-        
+
         if(parser.foundPP()) {
             parser.setPPvalue(zold2);
         }
@@ -1152,32 +910,21 @@ public class UserFormulaConverging extends Julia {
         if(parser2.foundPP()) {
             parser2.setPPvalue(zold2);
         }
-
-        for(; iterations < max_iterations; iterations++) {
-
-            zold2.assign(zold);
-            zold.assign(complex[0]);
-            function(complex);
-
-            if(parser.foundP()) {
-                parser.setPvalue(zold);
-            }
-
-            if(parser2.foundP()) {
-                parser2.setPvalue(zold);
-            }
-
-            if(parser.foundPP()) {
-                parser.setPPvalue(zold2);
-            }
-
-            if(parser2.foundPP()) {
-                parser2.setPPvalue(zold2);
-            }
-
+        
+        if(parser.foundCenter()) {
+            parser.setCentervalue(new Complex(xCenter, yCenter));
         }
 
-        return complex[0];
+        if(parser2.foundCenter()) {
+            parser2.setCentervalue(new Complex(xCenter, yCenter));
+        }
+        
+        if(parser.foundSize()) {
+            parser.setSizevalue(new Complex(size, 0));
+        }
 
+        if(parser2.foundSize()) {
+            parser2.setSizevalue(new Complex(size, 0));
+        }
     }
 }

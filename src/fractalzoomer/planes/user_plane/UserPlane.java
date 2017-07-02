@@ -31,12 +31,24 @@ public class UserPlane extends Plane {
     private ExpressionNode expr;
     private Parser parser;
 
-    public UserPlane(String user_plane) {
+    public UserPlane(String user_plane, double xCenter, double yCenter, double size, int max_iterations) {
 
         super();
 
         parser = new Parser();
         expr = parser.parse(user_plane);
+        
+        if(parser.foundMaxn()) {
+            parser.setMaxnvalue(new Complex(max_iterations, 0));
+        }
+        
+        if(parser.foundCenter()) {
+            parser.setCentervalue(new Complex(xCenter, yCenter));
+        }
+        
+        if(parser.foundSize()) {
+            parser.setSizevalue(new Complex(size, 0));
+        }
 
     }
 

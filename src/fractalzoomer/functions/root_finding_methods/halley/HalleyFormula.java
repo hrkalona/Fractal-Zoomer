@@ -21,7 +21,6 @@ import fractalzoomer.out_coloring_algorithms.BinaryDecomposition;
 import fractalzoomer.out_coloring_algorithms.BinaryDecomposition2;
 import fractalzoomer.out_coloring_algorithms.ColorDecompositionRootFindingMethod;
 import fractalzoomer.core.Complex;
-import fractalzoomer.functions.root_finding_methods.RootFindingMethods;
 import fractalzoomer.in_coloring_algorithms.CosMag;
 import fractalzoomer.in_coloring_algorithms.DecompositionLike;
 
@@ -63,10 +62,11 @@ public class HalleyFormula extends HalleyRootFindingMethod {
     private ExpressionNode expr3;
     private Parser parser3;
     private int iterations;
+    private Complex[] vars;
 
-    public HalleyFormula(double xCenter, double yCenter, double size, int max_iterations, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, boolean[] user_outcoloring_special_color, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean[] user_incoloring_special_color, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int converging_smooth_algorithm, String user_fz_formula, String user_dfz_formula, String user_ddfz_formula) {
+    public HalleyFormula(double xCenter, double yCenter, double size, int max_iterations, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int converging_smooth_algorithm, String user_fz_formula, String user_dfz_formula, String user_ddfz_formula) {
 
-        super(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, user_outcoloring_special_color, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+        super(xCenter, yCenter, size, max_iterations,  plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
 
         switch (out_coloring_algorithm) {
 
@@ -118,10 +118,10 @@ public class HalleyFormula extends HalleyRootFindingMethod {
             case MainWindow.USER_OUTCOLORING_ALGORITHM:
                 convergent_bailout = 1E-7;
                 if(user_out_coloring_algorithm == 0) {
-                    out_color_algorithm = new UserOutColorAlgorithmRootFindingMethod(outcoloring_formula, convergent_bailout, max_iterations);
+                    out_color_algorithm = new UserOutColorAlgorithmRootFindingMethod(outcoloring_formula, convergent_bailout, max_iterations, xCenter, yCenter, size);
                 }
                 else {
-                    out_color_algorithm = new UserConditionalOutColorAlgorithmRootFindingMethod(user_outcoloring_conditions, user_outcoloring_condition_formula, user_outcoloring_special_color, convergent_bailout, max_iterations);
+                    out_color_algorithm = new UserConditionalOutColorAlgorithmRootFindingMethod(user_outcoloring_conditions, user_outcoloring_condition_formula, convergent_bailout, max_iterations, xCenter, yCenter, size);
                 }
                 break;
 
@@ -161,10 +161,10 @@ public class HalleyFormula extends HalleyRootFindingMethod {
                 break;
             case MainWindow.USER_INCOLORING_ALGORITHM:
                 if(user_in_coloring_algorithm == 0) {
-                    in_color_algorithm = new UserInColorAlgorithm(incoloring_formula, max_iterations);
+                    in_color_algorithm = new UserInColorAlgorithm(incoloring_formula, max_iterations, xCenter, yCenter, size);
                 }
                 else {
-                    in_color_algorithm = new UserConditionalInColorAlgorithm(user_incoloring_conditions, user_incoloring_condition_formula, user_incoloring_special_color, max_iterations);
+                    in_color_algorithm = new UserConditionalInColorAlgorithm(user_incoloring_conditions, user_incoloring_condition_formula, max_iterations, xCenter, yCenter, size);
                 }
                 break;
 
@@ -207,6 +207,12 @@ public class HalleyFormula extends HalleyRootFindingMethod {
             parser.setNvalue(new Complex(iterations, 0));
         }
 
+        for(int i = 0; i < Parser.EXTRA_VARS; i++) {
+            if(parser.foundVar(i)) {
+                parser.setVarsvalue(i, vars[i]);
+            }
+        }
+
         Complex fz = expr.getValue();
 
         if(parser2.foundZ()) {
@@ -215,6 +221,12 @@ public class HalleyFormula extends HalleyRootFindingMethod {
 
         if(parser2.foundN()) {
             parser2.setNvalue(new Complex(iterations, 0));
+        }
+        
+        for(int i = 0; i < Parser.EXTRA_VARS; i++) {
+            if(parser2.foundVar(i)) {
+                parser2.setVarsvalue(i, vars[i]);
+            }
         }
 
         Complex dfz = expr2.getValue();
@@ -225,6 +237,12 @@ public class HalleyFormula extends HalleyRootFindingMethod {
 
         if(parser3.foundN()) {
             parser3.setNvalue(new Complex(iterations, 0));
+        }
+        
+        for(int i = 0; i < Parser.EXTRA_VARS; i++) {
+            if(parser3.foundVar(i)) {
+                parser3.setVarsvalue(i, vars[i]);
+            }
         }
 
         Complex ddfz = expr3.getValue();
@@ -244,90 +262,24 @@ public class HalleyFormula extends HalleyRootFindingMethod {
         Complex zold2 = new Complex();
         Complex start = new Complex(complex[0]);
 
-        if(parser.foundS()) {
-            parser.setSvalue(start);
-        }
+        setInitVariables(start, zold, zold2);
 
-        if(parser2.foundS()) {
-            parser2.setSvalue(start);
-        }
-
-        if(parser3.foundS()) {
-            parser3.setSvalue(start);
-        }
-
-        if(parser.foundMaxn()) {
-            parser.setMaxnvalue(new Complex(max_iterations, 0));
-        }
-
-        if(parser2.foundMaxn()) {
-            parser2.setMaxnvalue(new Complex(max_iterations, 0));
-        }
-
-        if(parser3.foundMaxn()) {
-            parser3.setMaxnvalue(new Complex(max_iterations, 0));
-        }
-
-        if(parser.foundP()) {
-            parser.setPvalue(zold);
-        }
-
-        if(parser2.foundP()) {
-            parser2.setPvalue(zold);
-        }
-
-        if(parser3.foundP()) {
-            parser3.setPvalue(zold);
-        }
-        
-        if(parser.foundPP()) {
-            parser.setPPvalue(zold2);
-        }
-
-        if(parser2.foundPP()) {
-            parser2.setPPvalue(zold2);
-        }
-
-        if(parser3.foundPP()) {
-            parser3.setPPvalue(zold2);
-        }
+        vars = createGlobalVars();
 
         for(; iterations < max_iterations; iterations++) {
             if((temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
-                Object[] object = {iterations, complex[0], temp, zold, zold2, pixel, start};
+                Object[] object = {iterations, complex[0], temp, zold, zold2, pixel, start, vars};
                 return out_color_algorithm.getResult(object);
             }
             zold2.assign(zold);
             zold.assign(complex[0]);
             function(complex);
 
-            if(parser.foundP()) {
-                parser.setPvalue(zold);
-            }
-
-            if(parser2.foundP()) {
-                parser2.setPvalue(zold);
-            }
-
-            if(parser3.foundP()) {
-                parser3.setPvalue(zold);
-            }
-
-            if(parser.foundPP()) {
-                parser.setPPvalue(zold2);
-            }
-
-            if(parser2.foundPP()) {
-                parser2.setPPvalue(zold2);
-            }
-
-            if(parser3.foundPP()) {
-                parser3.setPPvalue(zold2);
-            }
+            setVariables(zold, zold2);
 
         }
 
-        Object[] object = {complex[0], zold, zold2, pixel, start};
+        Object[] object = {complex[0], zold, zold2, pixel, start, vars};
         return in_color_algorithm.getResult(object);
 
     }
@@ -344,57 +296,13 @@ public class HalleyFormula extends HalleyRootFindingMethod {
         Complex zold2 = new Complex();
         Complex start = new Complex(complex[0]);
 
-        if(parser.foundS()) {
-            parser.setSvalue(start);
-        }
+        setInitVariables(start, zold, zold2);
 
-        if(parser2.foundS()) {
-            parser2.setSvalue(start);
-        }
-
-        if(parser3.foundS()) {
-            parser3.setSvalue(start);
-        }
-
-        if(parser.foundMaxn()) {
-            parser.setMaxnvalue(new Complex(max_iterations, 0));
-        }
-
-        if(parser2.foundMaxn()) {
-            parser2.setMaxnvalue(new Complex(max_iterations, 0));
-        }
-
-        if(parser3.foundMaxn()) {
-            parser3.setMaxnvalue(new Complex(max_iterations, 0));
-        }
-
-        if(parser.foundP()) {
-            parser.setPvalue(zold);
-        }
-
-        if(parser2.foundP()) {
-            parser2.setPvalue(zold);
-        }
-
-        if(parser3.foundP()) {
-            parser3.setPvalue(zold);
-        }
-
-        if(parser.foundPP()) {
-            parser.setPPvalue(zold2);
-        }
-
-        if(parser2.foundPP()) {
-            parser2.setPPvalue(zold2);
-        }
-
-        if(parser3.foundPP()) {
-            parser3.setPPvalue(zold2);
-        }
+        vars = createGlobalVars();
 
         for(; iterations < max_iterations; iterations++) {
             if((temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
-                Object[] object = {iterations, complex[0], temp, zold, zold2, pixel, start};
+                Object[] object = {iterations, complex[0], temp, zold, zold2, pixel, start, vars};
                 double[] array = {out_color_algorithm.transformResultToHeight(out_color_algorithm.getResult3D(object)), out_color_algorithm.getResult(object)};
                 return array;
             }
@@ -402,33 +310,11 @@ public class HalleyFormula extends HalleyRootFindingMethod {
             zold.assign(complex[0]);
             function(complex);
 
-            if(parser.foundP()) {
-                parser.setPvalue(zold);
-            }
-
-            if(parser2.foundP()) {
-                parser2.setPvalue(zold);
-            }
-
-            if(parser3.foundP()) {
-                parser3.setPvalue(zold);
-            }
-
-            if(parser.foundPP()) {
-                parser.setPPvalue(zold2);
-            }
-
-            if(parser2.foundPP()) {
-                parser2.setPPvalue(zold2);
-            }
-
-            if(parser3.foundPP()) {
-                parser3.setPPvalue(zold2);
-            }
+            setVariables(zold, zold2);
 
         }
 
-        Object[] object = {complex[0], zold, zold2, pixel, start};
+        Object[] object = {complex[0], zold, zold2, pixel, start, vars};
         double temp2 = in_color_algorithm.getResult(object);
         double[] array = {in_color_algorithm.transformResultToHeight(temp2, max_iterations), temp2};
         return array;
@@ -448,82 +334,16 @@ public class HalleyFormula extends HalleyRootFindingMethod {
         Complex zold2 = new Complex();
         Complex start = new Complex(complex[0]);
 
-        if(parser.foundS()) {
-            parser.setSvalue(start);
-        }
+        setInitVariables(start, zold, zold2);
 
-        if(parser2.foundS()) {
-            parser2.setSvalue(start);
-        }
-
-        if(parser3.foundS()) {
-            parser3.setSvalue(start);
-        }
-
-        if(parser.foundMaxn()) {
-            parser.setMaxnvalue(new Complex(max_iterations, 0));
-        }
-
-        if(parser2.foundMaxn()) {
-            parser2.setMaxnvalue(new Complex(max_iterations, 0));
-        }
-
-        if(parser3.foundMaxn()) {
-            parser3.setMaxnvalue(new Complex(max_iterations, 0));
-        }
-
-        if(parser.foundP()) {
-            parser.setPvalue(zold);
-        }
-
-        if(parser2.foundP()) {
-            parser2.setPvalue(zold);
-        }
-
-        if(parser3.foundP()) {
-            parser3.setPvalue(zold);
-        }
-
-        if(parser.foundPP()) {
-            parser.setPPvalue(zold2);
-        }
-
-        if(parser2.foundPP()) {
-            parser2.setPPvalue(zold2);
-        }
-
-        if(parser3.foundPP()) {
-            parser3.setPPvalue(zold2);
-        }
+        vars = createGlobalVars();
 
         for(; iterations < max_iterations; iterations++) {
             zold2.assign(zold);
             zold.assign(complex[0]);
             function(complex);
 
-            if(parser.foundP()) {
-                parser.setPvalue(zold);
-            }
-
-            if(parser2.foundP()) {
-                parser2.setPvalue(zold);
-            }
-
-            if(parser3.foundP()) {
-                parser3.setPvalue(zold);
-            }
-
-            if(parser.foundPP()) {
-                parser.setPPvalue(zold2);
-            }
-
-            if(parser2.foundPP()) {
-                parser2.setPPvalue(zold2);
-            }
-
-            if(parser3.foundPP()) {
-                parser3.setPPvalue(zold2);
-            }
+            setVariables(zold, zold2);
 
             temp = rotation.getPixel(complex[0], true);
 
@@ -547,6 +367,54 @@ public class HalleyFormula extends HalleyRootFindingMethod {
         Complex zold2 = new Complex();
         Complex start = new Complex(complex[0]);
 
+        setInitVariables(start, zold, zold2);
+
+        vars = createGlobalVars();
+
+        for(; iterations < max_iterations; iterations++) {
+
+            zold2.assign(zold);
+            zold.assign(complex[0]);
+            function(complex);
+
+            setVariables(zold, zold2);
+
+        }
+
+        return complex[0];
+
+    }
+
+    private void setVariables(Complex zold, Complex zold2) {
+
+        if(parser.foundP()) {
+            parser.setPvalue(zold);
+        }
+
+        if(parser2.foundP()) {
+            parser2.setPvalue(zold);
+        }
+
+        if(parser3.foundP()) {
+            parser3.setPvalue(zold);
+        }
+
+        if(parser.foundPP()) {
+            parser.setPPvalue(zold2);
+        }
+
+        if(parser2.foundPP()) {
+            parser2.setPPvalue(zold2);
+        }
+
+        if(parser3.foundPP()) {
+            parser3.setPPvalue(zold2);
+        }
+
+    }
+
+    private void setInitVariables(Complex start, Complex zold, Complex zold2) {
+
         if(parser.foundS()) {
             parser.setSvalue(start);
         }
@@ -595,40 +463,29 @@ public class HalleyFormula extends HalleyRootFindingMethod {
             parser3.setPPvalue(zold2);
         }
 
-        for(; iterations < max_iterations; iterations++) {
-
-            zold2.assign(zold);
-            zold.assign(complex[0]);
-            function(complex);
-
-            if(parser.foundP()) {
-                parser.setPvalue(zold);
-            }
-
-            if(parser2.foundP()) {
-                parser2.setPvalue(zold);
-            }
-
-            if(parser3.foundP()) {
-                parser3.setPvalue(zold);
-            }
-
-            if(parser.foundPP()) {
-                parser.setPPvalue(zold2);
-            }
-
-            if(parser2.foundPP()) {
-                parser2.setPPvalue(zold2);
-            }
-
-            if(parser3.foundPP()) {
-                parser3.setPPvalue(zold2);
-            }
-
+        if(parser.foundCenter()) {
+            parser.setCentervalue(new Complex(xCenter, yCenter));
         }
 
-        return complex[0];
+        if(parser2.foundCenter()) {
+            parser2.setCentervalue(new Complex(xCenter, yCenter));
+        }
 
+        if(parser3.foundCenter()) {
+            parser3.setCentervalue(new Complex(xCenter, yCenter));
+        }
+
+        if(parser.foundSize()) {
+            parser.setSizevalue(new Complex(size, 0));
+        }
+
+        if(parser2.foundSize()) {
+            parser2.setSizevalue(new Complex(size, 0));
+        }
+
+        if(parser3.foundSize()) {
+            parser3.setSizevalue(new Complex(size, 0));
+        }
     }
 
 }

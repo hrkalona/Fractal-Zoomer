@@ -29,12 +29,24 @@ public class VariableInitialValue extends PlanePointOption {
     private ExpressionNode expr;
     private Parser parser;
 
-    public VariableInitialValue(String initial_value_user_formula) {
+    public VariableInitialValue(String initial_value_user_formula, double xCenter, double yCenter, double size, int max_iterations) {
 
         super();
         
         parser = new Parser();
         expr = parser.parse(initial_value_user_formula);
+     
+        if(parser.foundMaxn()) {
+            parser.setMaxnvalue(new Complex(max_iterations, 0));
+        }
+        
+        if(parser.foundCenter()) {
+            parser.setCentervalue(new Complex(xCenter, yCenter));
+        }
+        
+        if(parser.foundSize()) {
+            parser.setSizevalue(new Complex(size, 0));
+        }
 
     }
 
