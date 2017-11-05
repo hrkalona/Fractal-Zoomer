@@ -30,6 +30,8 @@ public class AtanReTimesImTimesAbsReTimesAbsIm extends InColorAlgorithm {
         
         super();
         
+        InNotUsingIncrement = true;
+        
     }
     
     @Override

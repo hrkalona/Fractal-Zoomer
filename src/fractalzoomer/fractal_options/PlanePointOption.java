@@ -28,6 +28,6 @@ public abstract class PlanePointOption {
         
     }
     
-    public abstract Complex getPixel(Complex pixel);
+    public abstract Complex getValue(Complex pixel);
     
 }

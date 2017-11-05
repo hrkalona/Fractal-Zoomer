@@ -29,6 +29,7 @@ public abstract class Julia extends Fractal {
 
     protected Complex seed;
     protected boolean apply_plane_on_julia;
+    protected boolean apply_plane_on_julia_seed;
 
     public Julia(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula,  double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount) {
 
@@ -36,11 +37,16 @@ public abstract class Julia extends Fractal {
 
     }
 
-    public Julia(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, boolean periodicity_checking, int plane_type, boolean apply_plane_on_julia, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula,  double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, double xJuliaCenter, double yJuliaCenter) {
+    public Julia(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, boolean periodicity_checking, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula,  double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, double xJuliaCenter, double yJuliaCenter) {
 
         super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula,  plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
 
-        seed = plane.getPixel(new Complex(xJuliaCenter, yJuliaCenter));
+        if(apply_plane_on_julia_seed) {
+            seed = plane.transform(new Complex(xJuliaCenter, yJuliaCenter));
+        }
+        else {
+            seed = new Complex(xJuliaCenter, yJuliaCenter);
+        }
         
         this.apply_plane_on_julia = apply_plane_on_julia;
  
@@ -53,17 +59,22 @@ public abstract class Julia extends Fractal {
 
     }
 
-    public Julia(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, boolean apply_plane_on_julia, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula,  double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, double xJuliaCenter, double yJuliaCenter) {
+    public Julia(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula,  double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, double xJuliaCenter, double yJuliaCenter) {
 
         super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula,  plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
 
-        seed = plane.getPixel(new Complex(xJuliaCenter, yJuliaCenter));
+        if(apply_plane_on_julia_seed) {
+            seed = plane.transform(new Complex(xJuliaCenter, yJuliaCenter));
+        }
+        else {
+            seed = new Complex(xJuliaCenter, yJuliaCenter);
+        }
         
         this.apply_plane_on_julia = apply_plane_on_julia;
 
-        if(!apply_plane_on_julia) {
+        if(!apply_plane_on_julia) { // recalculate the initial pixel because the transform was added to the super constructor
             pixel_orbit = this.complex_orbit.get(0);
-            pixel_orbit = rotation.getPixel(pixel_orbit, false);
+            pixel_orbit = rotation.rotate(pixel_orbit);
         }
 
     }
@@ -72,10 +83,10 @@ public abstract class Julia extends Fractal {
     public double calculateJulia(Complex pixel) {
 
         if(apply_plane_on_julia) {
-            return periodicity_checking ? calculateJuliaWithPeriodicity(plane.getPixel(rotation.getPixel(pixel, false))) : calculateJuliaWithoutPeriodicity(plane.getPixel(rotation.getPixel(pixel, false)));
+            return periodicity_checking ? calculateJuliaWithPeriodicity(plane.transform(rotation.rotate(pixel))) : calculateJuliaWithoutPeriodicity(plane.transform(rotation.rotate(pixel)));
         }
         else {
-            return periodicity_checking ? calculateJuliaWithPeriodicity(rotation.getPixel(pixel, false)) : calculateJuliaWithoutPeriodicity(rotation.getPixel(pixel, false));
+            return periodicity_checking ? calculateJuliaWithPeriodicity(rotation.rotate(pixel)) : calculateJuliaWithoutPeriodicity(rotation.rotate(pixel));
         }
 
     }
@@ -84,15 +95,15 @@ public abstract class Julia extends Fractal {
     public double[] calculateJulia3D(Complex pixel) {
 
         if(apply_plane_on_julia) {
-            return periodicity_checking ? calculateJulia3DWithPeriodicity(plane.getPixel(rotation.getPixel(pixel, false))) : calculateJulia3DWithoutPeriodicity(plane.getPixel(rotation.getPixel(pixel, false)));
+            return periodicity_checking ? calculateJulia3DWithPeriodicity(plane.transform(rotation.rotate(pixel))) : calculateJulia3DWithoutPeriodicity(plane.transform(rotation.rotate(pixel)));
         }
         else {
-            return periodicity_checking ? calculateJulia3DWithPeriodicity(rotation.getPixel(pixel, false)) : calculateJulia3DWithoutPeriodicity(rotation.getPixel(pixel, false));
+            return periodicity_checking ? calculateJulia3DWithPeriodicity(rotation.rotate(pixel)) : calculateJulia3DWithoutPeriodicity(rotation.rotate(pixel));
         }
 
     }
 
-    public double calculateJuliaWithPeriodicity(Complex pixel) {
+    protected double calculateJuliaWithPeriodicity(Complex pixel) {
         int iterations = 0;
 
         check = 3;
@@ -130,7 +141,7 @@ public abstract class Julia extends Fractal {
         return max_iterations;
     }
 
-    public double calculateJuliaWithoutPeriodicity(Complex pixel) {
+    protected double calculateJuliaWithoutPeriodicity(Complex pixel) {
         int iterations = 0;
 
         Complex[] complex = new Complex[2];
@@ -159,7 +170,7 @@ public abstract class Julia extends Fractal {
 
     }
 
-    public double[] calculateJulia3DWithPeriodicity(Complex pixel) {
+    protected double[] calculateJulia3DWithPeriodicity(Complex pixel) {
         int iterations = 0;
 
         check = 3;
@@ -204,7 +215,7 @@ public abstract class Julia extends Fractal {
 
     }
 
-    public double[] calculateJulia3DWithoutPeriodicity(Complex pixel) {
+    protected double[] calculateJulia3DWithoutPeriodicity(Complex pixel) {
         int iterations = 0;
 
         Complex[] complex = new Complex[2];
@@ -251,7 +262,7 @@ public abstract class Julia extends Fractal {
 
         for(; iterations < max_iterations; iterations++) {
             function(complex);
-            temp = rotation.getPixel(complex[0], true);
+            temp = rotation.rotateInverse(complex[0]);
 
             if(Double.isNaN(temp.getRe()) || Double.isNaN(temp.getIm()) || Double.isInfinite(temp.getRe()) || Double.isInfinite(temp.getIm())) {
                 break;
@@ -266,15 +277,15 @@ public abstract class Julia extends Fractal {
     public Complex calculateJuliaDomain(Complex pixel) {
         
         if(apply_plane_on_julia) {
-            return iterateJuliaDomain(plane.getPixel(rotation.getPixel(pixel, false)));
+            return iterateJuliaDomain(plane.transform(rotation.rotate(pixel)));
         }
         else {
-            return iterateJuliaDomain(rotation.getPixel(pixel, false));
+            return iterateJuliaDomain(rotation.rotate(pixel));
         }
      
     }
     
-    public Complex iterateJuliaDomain(Complex pixel) {
+    protected Complex iterateJuliaDomain(Complex pixel) {
         int iterations = 0;
 
         Complex[] complex = new Complex[2];

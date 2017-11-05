@@ -34,6 +34,7 @@ public class Squares extends InColorAlgorithm {
         
         pi2 = 2 * Math.PI;
         pi59 = 59 * Math.PI;
+        InNotUsingIncrement = true;
         
     }
     

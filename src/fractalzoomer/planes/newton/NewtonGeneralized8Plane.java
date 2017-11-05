@@ -33,7 +33,7 @@ public class NewtonGeneralized8Plane extends Plane {
     }
 
     @Override
-    public Complex getPixel(Complex pixel) {
+    public Complex transform(Complex pixel) {
         
         Complex temp = pixel;
         

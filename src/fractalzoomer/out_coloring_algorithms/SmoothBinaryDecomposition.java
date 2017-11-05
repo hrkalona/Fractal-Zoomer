@@ -33,6 +33,8 @@ public class SmoothBinaryDecomposition extends OutColorAlgorithm {
         super();
         this.log_bailout_squared = log_bailout_squared;
         this.algorithm = algorithm;
+        
+        OutNotUsingIncrement = false;
 
     }
 
@@ -48,7 +50,7 @@ public class SmoothBinaryDecomposition extends OutColorAlgorithm {
 
             double temp3 = (Integer)object[0] + (log_bailout_squared - temp) / (Math.log(temp2) - temp);
 
-            return ((Complex)object[1]).getIm() < 0 ? -(temp3 + MAGIC_OFFSET_NUMBER + 50) : temp3 + MAGIC_OFFSET_NUMBER;
+            return ((Complex)object[1]).getIm() < 0 ? -(temp3 + MAGIC_OFFSET_NUMBER + INCREMENT) : temp3 + MAGIC_OFFSET_NUMBER;
         }
         else {
             double temp = ((Complex)object[2]).norm_squared();
@@ -64,7 +66,7 @@ public class SmoothBinaryDecomposition extends OutColorAlgorithm {
             
             double temp3 = (Integer)object[0] + 1 - f;
             
-            return ((Complex)object[1]).getIm() < 0 ? -(temp3 + MAGIC_OFFSET_NUMBER + 50) : temp3 + MAGIC_OFFSET_NUMBER;
+            return ((Complex)object[1]).getIm() < 0 ? -(temp3 + MAGIC_OFFSET_NUMBER + INCREMENT) : temp3 + MAGIC_OFFSET_NUMBER;
         }
 
     }

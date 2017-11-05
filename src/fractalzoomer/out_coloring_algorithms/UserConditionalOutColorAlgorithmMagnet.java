@@ -27,10 +27,11 @@ public class UserConditionalOutColorAlgorithmMagnet extends UserConditionalOutCo
 
     protected int max_iterations;
     
-    public UserConditionalOutColorAlgorithmMagnet(String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, double bailout, int max_iterations, double xCenter, double yCenter, double size) {
+    public UserConditionalOutColorAlgorithmMagnet(String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, double bailout, int max_iterations, double xCenter, double yCenter, double size, double[] point) {
 
-        super(user_outcoloring_conditions, user_outcoloring_condition_formula, bailout, max_iterations, xCenter, yCenter, size);
+        super(user_outcoloring_conditions, user_outcoloring_condition_formula, bailout, max_iterations, xCenter, yCenter, size, point);
         this.max_iterations = max_iterations;
+        OutNotUsingIncrement = true;
         
     }
 

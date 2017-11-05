@@ -96,12 +96,19 @@ public class PlaneVisualizer {
     private BufferedImage new_plane_image;
     private Plane plane;
     private double size;
+    private double xCenter;
+    private double yCenter;
+    private boolean usesCenter;
 
     public PlaneVisualizer(BufferedImage plane_mu_image, BufferedImage new_plane_image, int plane_type, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, double xCenter, double yCenter, double size, int max_iterations) {
 
         this.plane_mu_image = plane_mu_image;
         this.new_plane_image = new_plane_image;
         this.size = size;
+        this.xCenter = xCenter;
+        this.yCenter = yCenter;
+        
+        usesCenter = false;
 
         switch (plane_type) {
             case MainWindow.MU_PLANE:
@@ -250,10 +257,12 @@ public class PlaneVisualizer {
                 break;
             case MainWindow.USER_PLANE:
                 if(user_plane_algorithm == 0) {
-                    plane = new UserPlane(user_plane, xCenter, yCenter, size, max_iterations);
+                    plane = new UserPlane(user_plane, xCenter, yCenter, size, max_iterations, plane_transform_center);
+                    usesCenter = ((UserPlane)plane).usesCenter();
                 }
                 else {
-                    plane = new UserPlaneConditional(user_plane_conditions, user_plane_condition_formula, xCenter, yCenter, size, max_iterations);
+                    plane = new UserPlaneConditional(user_plane_conditions, user_plane_condition_formula, xCenter, yCenter, size, max_iterations, plane_transform_center);
+                    usesCenter = ((UserPlaneConditional)plane).usesCenter();
                 }
                 break;
             case MainWindow.GAMMA_PLANE:
@@ -299,7 +308,7 @@ public class PlaneVisualizer {
 
     }
 
-    public void visualizePlanes(double xCenter, double yCenter) {
+    public void visualizePlanes(int color_mode) {
 
         int image_size = plane_mu_image.getHeight();
         int[] rgbs = ((DataBufferInt)plane_mu_image.getRaster().getDataBuffer()).getData();
@@ -308,13 +317,21 @@ public class PlaneVisualizer {
         Arrays.fill(rgbs, 0, image_size * image_size, Color.WHITE.getRGB());
         Arrays.fill(rgbs2, 0, image_size * image_size, Color.WHITE.getRGB());
 
+        double x_center = 0;
+        double y_center = 0;
+        
+        if(usesCenter) {
+            x_center = xCenter;
+            y_center = yCenter;
+        }
+        
         double size_2 = size * 0.5;
-        double temp_xcenter_size = xCenter - size_2;
-        double temp_ycenter_size = yCenter + size_2;
+        double temp_xcenter_size = x_center - size_2;
+        double temp_ycenter_size = y_center+ size_2;
 
         double temp_size_image_size = size / image_size;
 
-        int step = 10;
+        int step = 20;
         int color_step = image_size / step;
 
         int FROMx = 0;
@@ -334,15 +351,34 @@ public class PlaneVisualizer {
                     int y0 = new_y;
 
                     if(x0 >= 0 && x0 < image_size && y0 >= 0 && y0 < image_size) {
-                        rgbs[y0 * image_size + x0] = Color.HSBtoRGB((float)(new_x / step * 1.0 / color_step), (float)(new_x / step * 1.0 / color_step) * 0.5f + (float)(new_y / step * 1.0 / color_step) * 0.5f, 0.2f + 0.8f * (float)(new_y / step * 1.0 / color_step));
+                        if(color_mode == 1 ) {
+                            rgbs[y0 * image_size + x0] = Color.HSBtoRGB((float)(new_x / step * 1.0 / color_step), (float)(new_x / step * 1.0 / color_step) * 0.5f + (float)(new_y / step * 1.0 / color_step) * 0.5f, 0.2f + 0.8f * (float)(new_y / step * 1.0 / color_step));
+                        }
+                        else {
+                            if(new_y % step == 0) {
+                                rgbs[y0 * image_size + x0] = new Color(255, 76, 0).getRGB();
+                            }
+                            else {
+                                rgbs[y0 * image_size + x0] = new Color(63, 61, 153).getRGB();
+                            }
+                        }
                     }
 
                     int x1 = new_x + 1;
                     int y1 = new_y + 1;
 
                     if(x1 >= 0 && x1 < image_size && y1 >= 0 && y1 < image_size) {
-
-                        rgbs[y1 * image_size + x1] = Color.HSBtoRGB((float)(new_x / step * 1.0 / color_step), (float)(new_x / step * 1.0 / color_step) * 0.5f + (float)(new_y / step * 1.0 / color_step) * 0.5f, 0.2f + 0.8f * (float)(new_y / step * 1.0 / color_step));
+                        if(color_mode == 1 ) {
+                            rgbs[y1 * image_size + x1] = Color.HSBtoRGB((float)(new_x / step * 1.0 / color_step), (float)(new_x / step * 1.0 / color_step) * 0.5f + (float)(new_y / step * 1.0 / color_step) * 0.5f, 0.2f + 0.8f * (float)(new_y / step * 1.0 / color_step));
+                        }
+                        else {
+                            if(new_y % step == 0) {
+                                rgbs[y1 * image_size + x1] = new Color(255, 76, 0).getRGB();
+                            }
+                            else {
+                                rgbs[y1 * image_size + x1] = new Color(63, 61, 153).getRGB();
+                            }
+                        }
                     }
                 }
             }
@@ -355,22 +391,42 @@ public class PlaneVisualizer {
                 int new_y = y;
 
                 if(new_x % step == 0 || new_y % step == 0) {
-                    Complex new_complex = plane.getPixel(new Complex(temp_xcenter_size + new_x * temp_size_image_size, temp_ycenter_size - new_y * temp_size_image_size));
+                    Complex new_complex = plane.transform(new Complex(temp_xcenter_size + new_x * temp_size_image_size, temp_ycenter_size - new_y * temp_size_image_size));
 
                     int x0 = (int)((new_complex.getRe() - temp_xcenter_size) / temp_size_image_size + 0.5);
                     int y0 = (int)((-new_complex.getIm() + temp_ycenter_size) / temp_size_image_size + 0.5);
 
                     if(x0 >= 0 && x0 < image_size && y0 >= 0 && y0 < image_size) {
-                        rgbs2[y0 * image_size + x0] = Color.HSBtoRGB((float)(new_x / step * 1.0 / color_step), (float)(new_x / step * 1.0 / color_step) * 0.5f + (float)(new_y / step * 1.0 / color_step) * 0.5f, 0.2f + 0.8f * (float)(new_y / step * 1.0 / color_step));
+                        if(color_mode == 1 ) {
+                            rgbs2[y0 * image_size + x0] = Color.HSBtoRGB((float)(new_x / step * 1.0 / color_step), (float)(new_x / step * 1.0 / color_step) * 0.5f + (float)(new_y / step * 1.0 / color_step) * 0.5f, 0.2f + 0.8f * (float)(new_y / step * 1.0 / color_step));
+                        }
+                        else {
+                            if(new_y % step == 0) {
+                                rgbs2[y0 * image_size + x0] = new Color(255, 76, 0).getRGB();
+                            }
+                            else {
+                                rgbs2[y0 * image_size + x0] = new Color(63, 61, 153).getRGB();
+                            }
+                        }
                     }
 
-                    Complex new_complex2 = plane.getPixel(new Complex(temp_xcenter_size + (new_x + 1) * temp_size_image_size, temp_ycenter_size - (new_y + 1) * temp_size_image_size));
+                    Complex new_complex2 = plane.transform(new Complex(temp_xcenter_size + (new_x + 1) * temp_size_image_size, temp_ycenter_size - (new_y + 1) * temp_size_image_size));
 
                     int x1 = (int)((new_complex2.getRe() - temp_xcenter_size) / temp_size_image_size + 0.5);
                     int y1 = (int)((-new_complex2.getIm() + temp_ycenter_size) / temp_size_image_size + 0.5);
 
                     if(x1 >= 0 && x1 < image_size && y1 >= 0 && y1 < image_size) {
-                        rgbs2[y1 * image_size + x1] = Color.HSBtoRGB((float)(new_x / step * 1.0 / color_step), (float)(new_x / step * 1.0 / color_step) * 0.5f + (float)(new_y / step * 1.0 / color_step) * 0.5f, 0.2f + 0.8f * (float)(new_y / step * 1.0 / color_step));
+                        if(color_mode == 1 ) {
+                            rgbs2[y1 * image_size + x1] = Color.HSBtoRGB((float)(new_x / step * 1.0 / color_step), (float)(new_x / step * 1.0 / color_step) * 0.5f + (float)(new_y / step * 1.0 / color_step) * 0.5f, 0.2f + 0.8f * (float)(new_y / step * 1.0 / color_step));
+                        }
+                        else {
+                            if(new_y % step == 0) {
+                                rgbs2[y1 * image_size + x1] = new Color(255, 76, 0).getRGB();
+                            }
+                            else {
+                                rgbs2[y1 * image_size + x1] = new Color(63, 61, 153).getRGB();
+                            }
+                        }
                     }
                 }
             }

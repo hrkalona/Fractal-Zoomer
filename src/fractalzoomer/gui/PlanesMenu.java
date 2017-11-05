@@ -21,6 +21,8 @@ import fractalzoomer.main.MainWindow;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import javax.swing.ButtonGroup;
+import javax.swing.ImageIcon;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JRadioButtonMenuItem;
@@ -41,15 +43,20 @@ public class PlanesMenu extends JMenu {
     private JMenu planes_math_inverse_trigonometric_menu;
     private MainWindow ptr;
     private JRadioButtonMenuItem[] planes;
-    private JCheckBoxMenuItem apply_plane_on_julia_opt;
+    private JCheckBoxMenuItem apply_plane_on_julia_seed_opt;
+    private JCheckBoxMenuItem apply_plane_on_whole_julia_opt;
 
-    public PlanesMenu(MainWindow ptr2, String name) {
+    public PlanesMenu(MainWindow ptr2, String name, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, int plane_type) {
 
         super(name);
 
         this.ptr = ptr2;
+        
+        setIcon(getIcon("/fractalzoomer/icons/planes.png"));
 
         planes = new JRadioButtonMenuItem[62];
+        
+        ButtonGroup planes_button_group = new ButtonGroup();
 
         planes_general_menu = new JMenu("General Planes");
         planes_fold_menu = new JMenu("Fold Planes");
@@ -59,11 +66,20 @@ public class PlanesMenu extends JMenu {
         planes_math_trigonometric_menu = new JMenu("Trigonometric Planes");
         planes_math_inverse_trigonometric_menu = new JMenu("Inverse Trigonometric Planes");
 
-        apply_plane_on_julia_opt = new JCheckBoxMenuItem("Apply Planes on Julia");
+        apply_plane_on_whole_julia_opt = new JCheckBoxMenuItem("Apply Planes on Julia Plane");
 
-        apply_plane_on_julia_opt.setToolTipText("Enables the application of the plane transformation to the julia set.");
+        apply_plane_on_whole_julia_opt.setToolTipText("Enables the application of the plane transformation to the julia set plane.");
 
-        apply_plane_on_julia_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, ActionEvent.ALT_MASK));
+        apply_plane_on_whole_julia_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_2, ActionEvent.ALT_MASK));
+        
+        apply_plane_on_julia_seed_opt = new JCheckBoxMenuItem("Apply Planes on Julia Seed");
+        
+        apply_plane_on_julia_seed_opt.setToolTipText("Enables the application of the plane transformation to the julia set seed.");
+
+        apply_plane_on_julia_seed_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_2, ActionEvent.SHIFT_MASK));
+        
+        apply_plane_on_whole_julia_opt.setSelected(apply_plane_on_julia);
+        apply_plane_on_julia_seed_opt.setSelected(apply_plane_on_julia_seed);
 
         add(planes_general_menu);
         addSeparator();
@@ -74,6 +90,26 @@ public class PlanesMenu extends JMenu {
         add(planes_newton_menu);
         addSeparator();
         add(planes_math_menu);
+        
+        apply_plane_on_whole_julia_opt.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setApplyPlaneOnWholeJulia();
+
+            }
+        });
+
+        apply_plane_on_julia_seed_opt.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setApplyPlaneOnJuliaSeed();
+
+            }
+        });
 
         planes[MainWindow.MU_PLANE] = new JRadioButtonMenuItem("mu");
         planes[MainWindow.MU_PLANE].setToolTipText("The default plane.");
@@ -86,6 +122,7 @@ public class PlanesMenu extends JMenu {
             }
         });
         planes_general_menu.add(planes[MainWindow.MU_PLANE]);
+        planes_button_group.add(planes[MainWindow.MU_PLANE]);
 
         planes[MainWindow.MU_SQUARED_PLANE] = new JRadioButtonMenuItem("mu^2");
         planes[MainWindow.MU_SQUARED_PLANE].setToolTipText("The mu squared plane.");
@@ -98,6 +135,7 @@ public class PlanesMenu extends JMenu {
             }
         });
         planes_general_menu.add(planes[MainWindow.MU_SQUARED_PLANE]);
+        planes_button_group.add(planes[MainWindow.MU_SQUARED_PLANE]);
 
         planes[MainWindow.MU_SQUARED_IMAGINARY_PLANE] = new JRadioButtonMenuItem("mu^2i");
         planes[MainWindow.MU_SQUARED_IMAGINARY_PLANE].setToolTipText("The mu squared imaginary plane.");
@@ -110,6 +148,7 @@ public class PlanesMenu extends JMenu {
             }
         });
         planes_general_menu.add(planes[MainWindow.MU_SQUARED_IMAGINARY_PLANE]);
+        planes_button_group.add(planes[MainWindow.MU_SQUARED_IMAGINARY_PLANE]);
 
         planes[MainWindow.INVERSED_MU_PLANE] = new JRadioButtonMenuItem("1 / mu");
         planes[MainWindow.INVERSED_MU_PLANE].setToolTipText("The inversed mu plane.");
@@ -122,6 +161,7 @@ public class PlanesMenu extends JMenu {
             }
         });
         planes_general_menu.add(planes[MainWindow.INVERSED_MU_PLANE]);
+        planes_button_group.add(planes[MainWindow.INVERSED_MU_PLANE]);
 
         planes[MainWindow.INVERSED_MU2_PLANE] = new JRadioButtonMenuItem("1 / (mu + 0.25)");
         planes[MainWindow.INVERSED_MU2_PLANE].setToolTipText("An inversed mu plane variation.");
@@ -134,6 +174,7 @@ public class PlanesMenu extends JMenu {
             }
         });
         planes_general_menu.add(planes[MainWindow.INVERSED_MU2_PLANE]);
+        planes_button_group.add(planes[MainWindow.INVERSED_MU2_PLANE]);
 
         planes[MainWindow.INVERSED_MU3_PLANE] = new JRadioButtonMenuItem("1 / (mu - 1.40115)");
         planes[MainWindow.INVERSED_MU3_PLANE].setToolTipText("An inversed mu plane variation.");
@@ -146,6 +187,7 @@ public class PlanesMenu extends JMenu {
             }
         });
         planes_general_menu.add(planes[MainWindow.INVERSED_MU3_PLANE]);
+        planes_button_group.add(planes[MainWindow.INVERSED_MU3_PLANE]);
 
         planes[MainWindow.INVERSED_MU4_PLANE] = new JRadioButtonMenuItem("1 / (mu - 2)");
         planes[MainWindow.INVERSED_MU4_PLANE].setToolTipText("An inversed mu plane variation.");
@@ -158,6 +200,7 @@ public class PlanesMenu extends JMenu {
             }
         });
         planes_general_menu.add(planes[MainWindow.INVERSED_MU4_PLANE]);
+        planes_button_group.add(planes[MainWindow.INVERSED_MU4_PLANE]);
 
         planes[MainWindow.VARIATION_MU_PLANE] = new JRadioButtonMenuItem("(mu^2) / (mu^4 - 0.25)");
         planes[MainWindow.VARIATION_MU_PLANE].setToolTipText("An mu plane variation.");
@@ -170,6 +213,7 @@ public class PlanesMenu extends JMenu {
             }
         });
         planes_general_menu.add(planes[MainWindow.VARIATION_MU_PLANE]);
+        planes_button_group.add(planes[MainWindow.VARIATION_MU_PLANE]);
 
         planes[MainWindow.LAMBDA_PLANE] = new JRadioButtonMenuItem("lambda");
         planes[MainWindow.LAMBDA_PLANE].setToolTipText("The lambda plane.");
@@ -182,6 +226,7 @@ public class PlanesMenu extends JMenu {
             }
         });
         planes_general_menu.add(planes[MainWindow.LAMBDA_PLANE]);
+        planes_button_group.add(planes[MainWindow.LAMBDA_PLANE]);
 
         planes[MainWindow.INVERSED_LAMBDA_PLANE] = new JRadioButtonMenuItem("1 / lambda");
         planes[MainWindow.INVERSED_LAMBDA_PLANE].setToolTipText("The inversed lambda plane.");
@@ -194,6 +239,7 @@ public class PlanesMenu extends JMenu {
             }
         });
         planes_general_menu.add(planes[MainWindow.INVERSED_LAMBDA_PLANE]);
+        planes_button_group.add(planes[MainWindow.INVERSED_LAMBDA_PLANE]);
 
         planes[MainWindow.INVERSED_LAMBDA2_PLANE] = new JRadioButtonMenuItem("1 / (lambda - 1)");
         planes[MainWindow.INVERSED_LAMBDA2_PLANE].setToolTipText("An inversed lambda plane variation.");
@@ -206,6 +252,7 @@ public class PlanesMenu extends JMenu {
             }
         });
         planes_general_menu.add(planes[MainWindow.INVERSED_LAMBDA2_PLANE]);
+        planes_button_group.add(planes[MainWindow.INVERSED_LAMBDA2_PLANE]);
 
         planes[MainWindow.BIPOLAR_PLANE] = new JRadioButtonMenuItem("Bipolar");
         planes[MainWindow.BIPOLAR_PLANE].setToolTipText("The bipolar plane.");
@@ -218,6 +265,7 @@ public class PlanesMenu extends JMenu {
             }
         });
         planes_general_menu.add(planes[MainWindow.BIPOLAR_PLANE]);
+        planes_button_group.add(planes[MainWindow.BIPOLAR_PLANE]);
 
         planes[MainWindow.INVERSED_BIPOLAR_PLANE] = new JRadioButtonMenuItem("Inversed Bipolar");
         planes[MainWindow.INVERSED_BIPOLAR_PLANE].setToolTipText("The inversed bipolar plane.");
@@ -230,6 +278,7 @@ public class PlanesMenu extends JMenu {
             }
         });
         planes_general_menu.add(planes[MainWindow.INVERSED_BIPOLAR_PLANE]);
+        planes_button_group.add(planes[MainWindow.INVERSED_BIPOLAR_PLANE]);
 
         planes[MainWindow.CIRCLEINVERSION_PLANE] = new JRadioButtonMenuItem("Circle Inversion");
         planes[MainWindow.CIRCLEINVERSION_PLANE].setToolTipText("The circle inversion plane.");
@@ -242,6 +291,7 @@ public class PlanesMenu extends JMenu {
             }
         });
         planes_general_menu.add(planes[MainWindow.CIRCLEINVERSION_PLANE]);
+        planes_button_group.add(planes[MainWindow.CIRCLEINVERSION_PLANE]);
         
         planes[MainWindow.INFLECTION_PLANE] = new JRadioButtonMenuItem("Inflection");
         planes[MainWindow.INFLECTION_PLANE].setToolTipText("The inflection plane.");
@@ -254,6 +304,7 @@ public class PlanesMenu extends JMenu {
             }
         });
         planes_general_menu.add(planes[MainWindow.INFLECTION_PLANE]);
+        planes_button_group.add(planes[MainWindow.INFLECTION_PLANE]);
 
         planes[MainWindow.FOLDUP_PLANE] = new JRadioButtonMenuItem("Fold up");
         planes[MainWindow.FOLDUP_PLANE].setToolTipText("The fold up plane.");
@@ -266,6 +317,7 @@ public class PlanesMenu extends JMenu {
             }
         });
         planes_fold_menu.add(planes[MainWindow.FOLDUP_PLANE]);
+        planes_button_group.add(planes[MainWindow.FOLDUP_PLANE]);
 
         planes[MainWindow.FOLDDOWN_PLANE] = new JRadioButtonMenuItem("Fold down");
         planes[MainWindow.FOLDDOWN_PLANE].setToolTipText("The fold down plane.");
@@ -278,6 +330,7 @@ public class PlanesMenu extends JMenu {
             }
         });
         planes_fold_menu.add(planes[MainWindow.FOLDDOWN_PLANE]);
+        planes_button_group.add(planes[MainWindow.FOLDDOWN_PLANE]);
 
         planes[MainWindow.FOLDRIGHT_PLANE] = new JRadioButtonMenuItem("Fold right");
         planes[MainWindow.FOLDRIGHT_PLANE].setToolTipText("The fold right plane.");
@@ -290,6 +343,7 @@ public class PlanesMenu extends JMenu {
             }
         });
         planes_fold_menu.add(planes[MainWindow.FOLDRIGHT_PLANE]);
+        planes_button_group.add(planes[MainWindow.FOLDRIGHT_PLANE]);
 
         planes[MainWindow.FOLDLEFT_PLANE] = new JRadioButtonMenuItem("Fold left");
         planes[MainWindow.FOLDLEFT_PLANE].setToolTipText("The fold left plane.");
@@ -302,6 +356,7 @@ public class PlanesMenu extends JMenu {
             }
         });
         planes_fold_menu.add(planes[MainWindow.FOLDLEFT_PLANE]);
+        planes_button_group.add(planes[MainWindow.FOLDLEFT_PLANE]);
 
         planes[MainWindow.FOLDIN_PLANE] = new JRadioButtonMenuItem("Fold in");
         planes[MainWindow.FOLDIN_PLANE].setToolTipText("The fold in plane.");
@@ -314,6 +369,7 @@ public class PlanesMenu extends JMenu {
             }
         });
         planes_fold_menu.add(planes[MainWindow.FOLDIN_PLANE]);
+        planes_button_group.add(planes[MainWindow.FOLDIN_PLANE]);
 
         planes[MainWindow.FOLDOUT_PLANE] = new JRadioButtonMenuItem("Fold out");
         planes[MainWindow.FOLDOUT_PLANE].setToolTipText("The fold out plane.");
@@ -326,6 +382,7 @@ public class PlanesMenu extends JMenu {
             }
         });
         planes_fold_menu.add(planes[MainWindow.FOLDOUT_PLANE]);
+        planes_button_group.add(planes[MainWindow.FOLDOUT_PLANE]);
 
         planes[MainWindow.TWIRL_PLANE] = new JRadioButtonMenuItem("Twirl");
         planes[MainWindow.TWIRL_PLANE].setToolTipText("The twirl plane.");
@@ -338,6 +395,7 @@ public class PlanesMenu extends JMenu {
             }
         });
         planes_distort_menu.add(planes[MainWindow.TWIRL_PLANE]);
+        planes_button_group.add(planes[MainWindow.TWIRL_PLANE]);
 
         planes[MainWindow.SHEAR_PLANE] = new JRadioButtonMenuItem("Shear");
         planes[MainWindow.SHEAR_PLANE].setToolTipText("The shear plane.");
@@ -350,6 +408,7 @@ public class PlanesMenu extends JMenu {
             }
         });
         planes_distort_menu.add(planes[MainWindow.SHEAR_PLANE]);
+        planes_button_group.add(planes[MainWindow.SHEAR_PLANE]);
 
         planes[MainWindow.KALEIDOSCOPE_PLANE] = new JRadioButtonMenuItem("Kaleidoscope");
         planes[MainWindow.KALEIDOSCOPE_PLANE].setToolTipText("The kaleidoscope plane.");
@@ -362,6 +421,7 @@ public class PlanesMenu extends JMenu {
             }
         });
         planes_distort_menu.add(planes[MainWindow.KALEIDOSCOPE_PLANE]);
+        planes_button_group.add(planes[MainWindow.KALEIDOSCOPE_PLANE]);
 
         planes[MainWindow.PINCH_PLANE] = new JRadioButtonMenuItem("Pinch");
         planes[MainWindow.PINCH_PLANE].setToolTipText("The pinch plane.");
@@ -374,6 +434,7 @@ public class PlanesMenu extends JMenu {
             }
         });
         planes_distort_menu.add(planes[MainWindow.PINCH_PLANE]);
+        planes_button_group.add(planes[MainWindow.PINCH_PLANE]);
 
         planes[MainWindow.NEWTON3_PLANE] = new JRadioButtonMenuItem("Newton 3");
         planes[MainWindow.NEWTON3_PLANE].setToolTipText("The Newton 3 plane.");
@@ -386,6 +447,7 @@ public class PlanesMenu extends JMenu {
             }
         });
         planes_newton_menu.add(planes[MainWindow.NEWTON3_PLANE]);
+        planes_button_group.add(planes[MainWindow.NEWTON3_PLANE]);
 
         planes[MainWindow.NEWTON4_PLANE] = new JRadioButtonMenuItem("Newton 4");
         planes[MainWindow.NEWTON4_PLANE].setToolTipText("The Newton 4 plane.");
@@ -398,6 +460,7 @@ public class PlanesMenu extends JMenu {
             }
         });
         planes_newton_menu.add(planes[MainWindow.NEWTON4_PLANE]);
+        planes_button_group.add(planes[MainWindow.NEWTON4_PLANE]);
 
         planes[MainWindow.NEWTONGENERALIZED3_PLANE] = new JRadioButtonMenuItem("Newton Generalized 3");
         planes[MainWindow.NEWTONGENERALIZED3_PLANE].setToolTipText("The Newton Generalized 3 plane.");
@@ -410,6 +473,7 @@ public class PlanesMenu extends JMenu {
             }
         });
         planes_newton_menu.add(planes[MainWindow.NEWTONGENERALIZED3_PLANE]);
+        planes_button_group.add(planes[MainWindow.NEWTONGENERALIZED3_PLANE]);
 
         planes[MainWindow.NEWTONGENERALIZED8_PLANE] = new JRadioButtonMenuItem("Newton Generalized 8");
         planes[MainWindow.NEWTONGENERALIZED8_PLANE].setToolTipText("The Newton Generalized 8 plane.");
@@ -422,6 +486,7 @@ public class PlanesMenu extends JMenu {
             }
         });
         planes_newton_menu.add(planes[MainWindow.NEWTONGENERALIZED8_PLANE]);
+        planes_button_group.add(planes[MainWindow.NEWTONGENERALIZED8_PLANE]);
 
         planes[MainWindow.EXP_PLANE] = new JRadioButtonMenuItem("exp");
         planes[MainWindow.EXP_PLANE].setToolTipText("The exponential plane.");
@@ -434,6 +499,7 @@ public class PlanesMenu extends JMenu {
             }
         });
         planes_math_menu.add(planes[MainWindow.EXP_PLANE]);
+        planes_button_group.add(planes[MainWindow.EXP_PLANE]);
 
         planes[MainWindow.LOG_PLANE] = new JRadioButtonMenuItem("log");
         planes[MainWindow.LOG_PLANE].setToolTipText("The logarithmic plane.");
@@ -446,6 +512,7 @@ public class PlanesMenu extends JMenu {
             }
         });
         planes_math_menu.add(planes[MainWindow.LOG_PLANE]);
+        planes_button_group.add(planes[MainWindow.LOG_PLANE]);
 
         planes[MainWindow.SQRT_PLANE] = new JRadioButtonMenuItem("sqrt");
         planes[MainWindow.SQRT_PLANE].setToolTipText("The square root plane.");
@@ -458,6 +525,7 @@ public class PlanesMenu extends JMenu {
             }
         });
         planes_math_menu.add(planes[MainWindow.SQRT_PLANE]);
+        planes_button_group.add(planes[MainWindow.SQRT_PLANE]);
 
         planes[MainWindow.ABS_PLANE] = new JRadioButtonMenuItem("abs");
         planes[MainWindow.ABS_PLANE].setToolTipText("The absolute value plane.");
@@ -470,6 +538,7 @@ public class PlanesMenu extends JMenu {
             }
         });
         planes_math_menu.add(planes[MainWindow.ABS_PLANE]);
+        planes_button_group.add(planes[MainWindow.ABS_PLANE]);
 
         planes[MainWindow.GAMMA_PLANE] = new JRadioButtonMenuItem("gamma");
         planes[MainWindow.GAMMA_PLANE].setToolTipText("The gamma function plane.");
@@ -482,6 +551,7 @@ public class PlanesMenu extends JMenu {
             }
         });
         planes_math_menu.add(planes[MainWindow.GAMMA_PLANE]);
+        planes_button_group.add(planes[MainWindow.GAMMA_PLANE]);
 
         planes[MainWindow.FACT_PLANE] = new JRadioButtonMenuItem("factorial");
         planes[MainWindow.FACT_PLANE].setToolTipText("The factorial plane.");
@@ -494,6 +564,7 @@ public class PlanesMenu extends JMenu {
             }
         });
         planes_math_menu.add(planes[MainWindow.FACT_PLANE]);
+        planes_button_group.add(planes[MainWindow.FACT_PLANE]);
         
         planes[MainWindow.ERF_PLANE] = new JRadioButtonMenuItem("erf");
         planes[MainWindow.ERF_PLANE].setToolTipText("The error function plane.");
@@ -506,6 +577,7 @@ public class PlanesMenu extends JMenu {
             }
         });
         planes_math_menu.add(planes[MainWindow.ERF_PLANE]);
+        planes_button_group.add(planes[MainWindow.ERF_PLANE]);
         
         planes[MainWindow.RZETA_PLANE] = new JRadioButtonMenuItem("riemann zeta");
         planes[MainWindow.RZETA_PLANE].setToolTipText("The riemann zeta plane.");
@@ -518,6 +590,7 @@ public class PlanesMenu extends JMenu {
             }
         });
         planes_math_menu.add(planes[MainWindow.RZETA_PLANE]);
+        planes_button_group.add(planes[MainWindow.RZETA_PLANE]);
 
         planes[MainWindow.SIN_PLANE] = new JRadioButtonMenuItem("sin");
         planes[MainWindow.SIN_PLANE].setToolTipText("The sin plane.");
@@ -530,6 +603,7 @@ public class PlanesMenu extends JMenu {
             }
         });
         planes_math_trigonometric_menu.add(planes[MainWindow.SIN_PLANE]);
+        planes_button_group.add(planes[MainWindow.SIN_PLANE]);
 
         planes[MainWindow.COS_PLANE] = new JRadioButtonMenuItem("cos");
         planes[MainWindow.COS_PLANE].setToolTipText("The cos plane.");
@@ -542,6 +616,7 @@ public class PlanesMenu extends JMenu {
             }
         });
         planes_math_trigonometric_menu.add(planes[MainWindow.COS_PLANE]);
+        planes_button_group.add(planes[MainWindow.COS_PLANE]);
 
         planes[MainWindow.TAN_PLANE] = new JRadioButtonMenuItem("tan");
         planes[MainWindow.TAN_PLANE].setToolTipText("The tan plane.");
@@ -554,6 +629,7 @@ public class PlanesMenu extends JMenu {
             }
         });
         planes_math_trigonometric_menu.add(planes[MainWindow.TAN_PLANE]);
+        planes_button_group.add(planes[MainWindow.TAN_PLANE]);
 
         planes[MainWindow.COT_PLANE] = new JRadioButtonMenuItem("cot");
         planes[MainWindow.COT_PLANE].setToolTipText("The cot plane.");
@@ -566,6 +642,7 @@ public class PlanesMenu extends JMenu {
             }
         });
         planes_math_trigonometric_menu.add(planes[MainWindow.COT_PLANE]);
+        planes_button_group.add(planes[MainWindow.COT_PLANE]);
 
         planes[MainWindow.SINH_PLANE] = new JRadioButtonMenuItem("sinh");
         planes[MainWindow.SINH_PLANE].setToolTipText("The hyperbolic sin plane.");
@@ -578,6 +655,7 @@ public class PlanesMenu extends JMenu {
             }
         });
         planes_math_trigonometric_menu.add(planes[MainWindow.SINH_PLANE]);
+        planes_button_group.add(planes[MainWindow.SINH_PLANE]);
 
         planes[MainWindow.COSH_PLANE] = new JRadioButtonMenuItem("cosh");
         planes[MainWindow.COSH_PLANE].setToolTipText("The hyperbolic cos plane.");
@@ -590,6 +668,7 @@ public class PlanesMenu extends JMenu {
             }
         });
         planes_math_trigonometric_menu.add(planes[MainWindow.COSH_PLANE]);
+        planes_button_group.add(planes[MainWindow.COSH_PLANE]);
 
         planes[MainWindow.TANH_PLANE] = new JRadioButtonMenuItem("tanh");
         planes[MainWindow.TANH_PLANE].setToolTipText("The hyperbolic tan plane.");
@@ -602,6 +681,7 @@ public class PlanesMenu extends JMenu {
             }
         });
         planes_math_trigonometric_menu.add(planes[MainWindow.TANH_PLANE]);
+        planes_button_group.add(planes[MainWindow.TANH_PLANE]);
 
         planes[MainWindow.COTH_PLANE] = new JRadioButtonMenuItem("coth");
         planes[MainWindow.COTH_PLANE].setToolTipText("The hyperbolic cot plane.");
@@ -614,6 +694,7 @@ public class PlanesMenu extends JMenu {
             }
         });
         planes_math_trigonometric_menu.add(planes[MainWindow.COTH_PLANE]);
+        planes_button_group.add(planes[MainWindow.COTH_PLANE]);
 
         planes[MainWindow.SEC_PLANE] = new JRadioButtonMenuItem("sec");
         planes[MainWindow.SEC_PLANE].setToolTipText("The sec plane.");
@@ -626,6 +707,7 @@ public class PlanesMenu extends JMenu {
             }
         });
         planes_math_trigonometric_menu.add(planes[MainWindow.SEC_PLANE]);
+        planes_button_group.add(planes[MainWindow.SEC_PLANE]);
 
         planes[MainWindow.CSC_PLANE] = new JRadioButtonMenuItem("csc");
         planes[MainWindow.CSC_PLANE].setToolTipText("The csc plane.");
@@ -638,6 +720,7 @@ public class PlanesMenu extends JMenu {
             }
         });
         planes_math_trigonometric_menu.add(planes[MainWindow.CSC_PLANE]);
+        planes_button_group.add(planes[MainWindow.CSC_PLANE]);
 
         planes[MainWindow.SECH_PLANE] = new JRadioButtonMenuItem("sech");
         planes[MainWindow.SECH_PLANE].setToolTipText("The hyperbolic sec plane.");
@@ -650,6 +733,7 @@ public class PlanesMenu extends JMenu {
             }
         });
         planes_math_trigonometric_menu.add(planes[MainWindow.SECH_PLANE]);
+        planes_button_group.add(planes[MainWindow.SECH_PLANE]);
 
         planes[MainWindow.CSCH_PLANE] = new JRadioButtonMenuItem("csch");
         planes[MainWindow.CSCH_PLANE].setToolTipText("The hyperbolic csc plane.");
@@ -662,6 +746,7 @@ public class PlanesMenu extends JMenu {
             }
         });
         planes_math_trigonometric_menu.add(planes[MainWindow.CSCH_PLANE]);
+        planes_button_group.add(planes[MainWindow.CSCH_PLANE]);
 
         planes[MainWindow.ASIN_PLANE] = new JRadioButtonMenuItem("asin");
         planes[MainWindow.ASIN_PLANE].setToolTipText("The inverse sin plane.");
@@ -674,6 +759,7 @@ public class PlanesMenu extends JMenu {
             }
         });
         planes_math_inverse_trigonometric_menu.add(planes[MainWindow.ASIN_PLANE]);
+        planes_button_group.add(planes[MainWindow.ASIN_PLANE]);
 
         planes[MainWindow.ACOS_PLANE] = new JRadioButtonMenuItem("acos");
         planes[MainWindow.ACOS_PLANE].setToolTipText("The inverse cos plane.");
@@ -686,6 +772,7 @@ public class PlanesMenu extends JMenu {
             }
         });
         planes_math_inverse_trigonometric_menu.add(planes[MainWindow.ACOS_PLANE]);
+        planes_button_group.add(planes[MainWindow.ACOS_PLANE]);
 
         planes[MainWindow.ATAN_PLANE] = new JRadioButtonMenuItem("atan");
         planes[MainWindow.ATAN_PLANE].setToolTipText("The inverse tan plane.");
@@ -698,6 +785,7 @@ public class PlanesMenu extends JMenu {
             }
         });
         planes_math_inverse_trigonometric_menu.add(planes[MainWindow.ATAN_PLANE]);
+        planes_button_group.add(planes[MainWindow.ATAN_PLANE]);
 
         planes[MainWindow.ACOT_PLANE] = new JRadioButtonMenuItem("acot");
         planes[MainWindow.ACOT_PLANE].setToolTipText("The inverse cot plane.");
@@ -710,6 +798,7 @@ public class PlanesMenu extends JMenu {
             }
         });
         planes_math_inverse_trigonometric_menu.add(planes[MainWindow.ACOT_PLANE]);
+        planes_button_group.add(planes[MainWindow.ACOT_PLANE]);
 
         planes[MainWindow.ASINH_PLANE] = new JRadioButtonMenuItem("asinh");
         planes[MainWindow.ASINH_PLANE].setToolTipText("The inverse hyperbolic sin plane.");
@@ -722,6 +811,7 @@ public class PlanesMenu extends JMenu {
             }
         });
         planes_math_inverse_trigonometric_menu.add(planes[MainWindow.ASINH_PLANE]);
+        planes_button_group.add(planes[MainWindow.ASINH_PLANE]);
 
         planes[MainWindow.ACOSH_PLANE] = new JRadioButtonMenuItem("acosh");
         planes[MainWindow.ACOSH_PLANE].setToolTipText("The inverse hyperbolic cos plane.");
@@ -734,6 +824,7 @@ public class PlanesMenu extends JMenu {
             }
         });
         planes_math_inverse_trigonometric_menu.add(planes[MainWindow.ACOSH_PLANE]);
+        planes_button_group.add(planes[MainWindow.ACOSH_PLANE]);
 
         planes[MainWindow.ATANH_PLANE] = new JRadioButtonMenuItem("atanh");
         planes[MainWindow.ATANH_PLANE].setToolTipText("The inverse hyperbolic tan plane.");
@@ -746,6 +837,7 @@ public class PlanesMenu extends JMenu {
             }
         });
         planes_math_inverse_trigonometric_menu.add(planes[MainWindow.ATANH_PLANE]);
+        planes_button_group.add(planes[MainWindow.ATANH_PLANE]);
 
         planes[MainWindow.ACOTH_PLANE] = new JRadioButtonMenuItem("acoth");
         planes[MainWindow.ACOTH_PLANE].setToolTipText("The inverse hyperbolic cot plane.");
@@ -758,6 +850,7 @@ public class PlanesMenu extends JMenu {
             }
         });
         planes_math_inverse_trigonometric_menu.add(planes[MainWindow.ACOTH_PLANE]);
+        planes_button_group.add(planes[MainWindow.ACOTH_PLANE]);
 
         planes[MainWindow.ASEC_PLANE] = new JRadioButtonMenuItem("asec");
         planes[MainWindow.ASEC_PLANE].setToolTipText("The inverse sec plane.");
@@ -770,6 +863,7 @@ public class PlanesMenu extends JMenu {
             }
         });
         planes_math_inverse_trigonometric_menu.add(planes[MainWindow.ASEC_PLANE]);
+        planes_button_group.add(planes[MainWindow.ASEC_PLANE]);
 
         planes[MainWindow.ACSC_PLANE] = new JRadioButtonMenuItem("acsc");
         planes[MainWindow.ACSC_PLANE].setToolTipText("The inverse csc plane.");
@@ -782,6 +876,7 @@ public class PlanesMenu extends JMenu {
             }
         });
         planes_math_inverse_trigonometric_menu.add(planes[MainWindow.ACSC_PLANE]);
+        planes_button_group.add(planes[MainWindow.ACSC_PLANE]);
 
         planes[MainWindow.ASECH_PLANE] = new JRadioButtonMenuItem("asech");
         planes[MainWindow.ASECH_PLANE].setToolTipText("The inverse hyperbolic sec plane.");
@@ -794,6 +889,7 @@ public class PlanesMenu extends JMenu {
             }
         });
         planes_math_inverse_trigonometric_menu.add(planes[MainWindow.ASECH_PLANE]);
+        planes_button_group.add(planes[MainWindow.ASECH_PLANE]);
 
         planes[MainWindow.ACSCH_PLANE] = new JRadioButtonMenuItem("acsch");
         planes[MainWindow.ACSCH_PLANE].setToolTipText("The inverse hyperbolic csc plane.");
@@ -806,6 +902,7 @@ public class PlanesMenu extends JMenu {
             }
         });
         planes_math_inverse_trigonometric_menu.add(planes[MainWindow.ACSCH_PLANE]);
+        planes_button_group.add(planes[MainWindow.ACSCH_PLANE]);
 
         planes_math_menu.addSeparator();
         planes_math_menu.add(planes_math_trigonometric_menu);
@@ -825,8 +922,14 @@ public class PlanesMenu extends JMenu {
         });
         addSeparator();
         add(planes[MainWindow.USER_PLANE]);
+        planes_button_group.add(planes[MainWindow.USER_PLANE]);
+        
         addSeparator();
-        add(apply_plane_on_julia_opt);
+        add(apply_plane_on_julia_seed_opt);  
+        addSeparator();
+        add(apply_plane_on_whole_julia_opt);
+        
+        planes[plane_type].setSelected(true);
 
     }
 
@@ -836,9 +939,21 @@ public class PlanesMenu extends JMenu {
 
     }
 
-    public JCheckBoxMenuItem getApplyPlaneOnJuliaOpt() {
+    public JCheckBoxMenuItem getApplyPlaneOnWholeJuliaOpt() {
 
-        return apply_plane_on_julia_opt;
+        return apply_plane_on_whole_julia_opt;
+
+    }
+    
+    public JCheckBoxMenuItem getApplyPlaneOnJuliaSeedOpt() {
+
+        return apply_plane_on_julia_seed_opt;
+
+    }
+    
+    private ImageIcon getIcon(String path) {
+
+        return new ImageIcon(getClass().getResource(path));
 
     }
 }

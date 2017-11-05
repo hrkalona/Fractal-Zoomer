@@ -31,7 +31,7 @@ public class GammaFunctionPlane extends Plane {
     }
 
     @Override
-    public Complex getPixel(Complex pixel) {
+    public Complex transform(Complex pixel) {
         
         return pixel.gamma_la();
         

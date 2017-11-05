@@ -31,10 +31,13 @@ public class UserPlaneConditional extends Plane {
     private Parser[] parser;
     private ExpressionNode[] expr2;
     private Parser[] parser2;
+    private boolean usesCenter;
     
-    public UserPlaneConditional(String[] user_plane_conditions, String[] user_plane_condition_formula, double xCenter, double yCenter, double size, int max_iterations) {
+    public UserPlaneConditional(String[] user_plane_conditions, String[] user_plane_condition_formula, double xCenter, double yCenter, double size, int max_iterations, double[] point) {
         
         super();
+        
+        usesCenter = false;
         
         parser = new Parser[user_plane_conditions.length];
         expr = new ExpressionNode[user_plane_conditions.length];
@@ -76,22 +79,27 @@ public class UserPlaneConditional extends Plane {
         Complex c_center = new Complex(xCenter, yCenter);
         if(parser[0].foundCenter()) {
             parser[0].setCentervalue(c_center);
+            usesCenter = true;
         }
         
         if(parser[1].foundCenter()) {
             parser[1].setCentervalue(c_center);
+            usesCenter = true;
         }
         
         if(parser2[0].foundCenter()) {
             parser2[0].setCentervalue(c_center);
+            usesCenter = true;
         }
         
         if(parser2[1].foundCenter()) {
             parser2[1].setCentervalue(c_center);
+            usesCenter = true;
         }
         
         if(parser2[2].foundCenter()) {
             parser2[2].setCentervalue(c_center);
+            usesCenter = true;
         }
         
         Complex c_size = new Complex(size, 0);
@@ -115,10 +123,33 @@ public class UserPlaneConditional extends Plane {
             parser2[2].setSizevalue(c_size);
         }
         
+ 
+        
+        Complex c_point = new Complex(point[0], point[1]);
+        if(parser[0].foundPoint()) {
+            parser[0].setPointvalue(c_point);
+        }
+        
+        if(parser[1].foundPoint()) {
+            parser[1].setPointvalue(c_point);
+        }
+        
+        if(parser2[0].foundPoint()) {
+            parser2[0].setPointvalue(c_point);
+        }
+        
+        if(parser2[1].foundPoint()) {
+            parser2[1].setPointvalue(c_point);
+        }
+        
+        if(parser2[2].foundPoint()) {
+            parser2[2].setPointvalue(c_point);
+        }
+        
     }
     
     @Override
-    public Complex getPixel(Complex pixel) {
+    public Complex transform(Complex pixel) {
         
         /* LEFT */
         if(parser[0].foundZ()) {
@@ -155,6 +186,12 @@ public class UserPlaneConditional extends Plane {
         }
         
         return pixel;
+    }
+    
+    public boolean usesCenter() {
+        
+        return usesCenter;
+        
     }
     
 }

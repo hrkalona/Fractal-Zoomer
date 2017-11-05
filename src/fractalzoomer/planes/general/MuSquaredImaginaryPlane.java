@@ -25,17 +25,19 @@ import fractalzoomer.planes.Plane;
  * @author hrkalona2
  */
 public class MuSquaredImaginaryPlane extends Plane {
+    private Complex exponent;
     
     public MuSquaredImaginaryPlane() {
 
         super();
+        exponent = new Complex(0, 2);
 
     }
 
     @Override
-    public Complex getPixel(Complex pixel) {
+    public Complex transform(Complex pixel) {
 
-        return pixel.pow(new Complex(0, 2));
+        return pixel.pow(exponent);
 
     }
     

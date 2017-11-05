@@ -1,0 +1,256 @@
+Version 1.0.6.6
+    -Added the entropy coloring method.
+    -Added the offset coloring method.
+    -Added the greyscale coloring method.
+    -Increased the custom user compilable functions from 20 to 40(for every type).
+    -Increased the available global variables from 10 to 20.
+    -Added more trigonometric functions in the user formulas.
+    -Added the new variable "point" that can be selected by the user (alt+left click).
+    -Added more functions in the user formulas.
+    -Added a new greedy drawing algorithm, Divide and Conquer.
+    -Added more options for the Greedy Drawing algorithms, in order to better visualize their effect.
+    -Re-implemented some of the Domain Coloring algorithms.
+    -Added more options for the application of a plane transformation to a Julia set.
+    -Changed the look and feel for Linux to the swing default, and fixed the visual bugs.
+    -UI updates, major code refactoring, and general bug fixes.
+
+Version 1.0.6.5
+    -Added quick render with scroll-in/scroll-out.
+    -Added quick rotate with shift+left click.
+    -Added quick image move with ctrl+left click.
+    -Added new global variables that can store values through the iteration and then be used at the out/in coloring algorithms.
+    -Added more variables to the user formulas.
+    -Added more functions to the user formulas.
+    -Added the option to change the order of the applied filters.
+    -Added a new filter.
+    -Changed the options filter dialog to let the user active or deactivate multiple filters at once.
+    -Added a coefficient to bump mapping and rainbow palette that will decrease the noise in the produced images.
+    -Added some color interpolation methods to the color smoothing.
+    -UI updates and general bug fixes.
+
+Version 1.0.6.4
+    -Added new root finding method, Muller's method.
+    -Added more variables to all the user formulas.
+    -Added two argument functions to user formulas.
+    -Added the remainder operator to user formulas.
+    -Added new custom functions to user formulas that can be written and compiled by the user.
+    -Added new image filter, light effects.
+    -Added new options to Distance estimation and Fake distance estimation.
+    -Added more coloring options to domain coloring.
+    -Added new plane transformations.
+    -Added new random palette generation algorithm.
+    -Improved the user formulas parser.
+    -Atom domain was removed from the out coloring algorithms.
+    -Bipolar and inversed bipolar functions was moved to two argument functions, in user formulas. Old settings using these will not be supported anymore.
+    -UI changes.
+    -Minor bug fixes.
+
+Version 1.0.6.3
+    -Added new coupled formulas.
+    -Added user coupled formula.
+    -Added new functions to the every user formula editor.
+    -Added new plane transformations.
+    -Added new image filters & changed some of the old.
+    -Added new tool, Plane Visualization.
+    -Added new tool, Domain Coloring.
+    -Added more palette processing options.
+    -Changed color cycling to use threads.
+    -Updated the overview window.
+    -The application now saves the user's preferences into a file.
+    -Up and Down options now work also for polar projection.
+    -Made some changes to the UI.
+    -Various bug fixes.
+
+Version 1.0.6.2
+    -Added new color option, Rainbow Palette.
+    -Added new Image Filters and more options.
+    -Added more processing to the custom palette editor.
+    -Added navigation buttons.
+    -Added the ability to save the image filters.
+    -Changed the 3D options.
+    -Fixed a coordinate bug (All the images should now be displayed mirrored to the real axis).
+    -Various bug fixes and gui changes.
+
+Version 1.0.6.1
+    -Revamped the 3D editor.
+    -Added 2 more colors in the fractal colors window distance estimator color and a special algorithm color.
+    -Added a color cycling speed option.
+    -Added a smooth color palette preview option.
+    -Added a software update notifier.
+    -Added some useful links.
+    -GUI changes.
+    -Minor bug fixes.
+
+Version 1.0.6.0
+    -Added a settings overview report creator.
+
+Version 1.0.5.9
+    -Added more tools to the palette editor.
+    -Removed the menubar from the palette editor.
+    -The palettes can now be also saved as RGB triplets.
+    -Changed some of the preset palettes.
+
+Version 1.0.5.8
+    -Added conditional user plane formula.
+    -Added conditional user initial value formula.
+    -Added conditional user perturbation formula.
+    -Changed the user bailout test to include a second editable textfield.
+    -Added a new variable to the user bailout test, and the user in-coloring method.
+    -Added a user formula function to every root finding method.
+    -Added the steffensen polynomial function.
+    -Minor bug fixes.
+
+Version 1.0.5.7
+    -Added user out coloring method.
+    -Added user in coloring method.
+    -Added an option to apply a plane transformation to a julia set. Previously was only applied to the julia seed.
+    -Added an alternative polar projection zooming option in order to create panoramas.
+    -GUI improvements.
+    -Changed the image memory reallocation method.
+    -Minor bug fixes.
+
+Version 1.0.5.6
+    -Added user formula for the initial value option.
+    -Added user formula for the perturbation option.
+    -Added user formula for the bailout test option.
+    -Added new formula.
+    -Added new plane transformation.
+    -Added 2 new random palette color generation algorithms.
+    -Various bug fixes.
+
+Version 1.0.5.5
+    -Added Fake Distance Estimation as a color option.
+    -Added a new Outcoloring algorithm.
+    -Updated the Histogram Equalization.
+    -Added 2 new Filters.
+    -Updated some of the filter options.
+    -Bug fixes.
+
+Version 1.0.5.4
+    -Added Bump-Mapping as a color option.
+    -Added new smoothing algorithms.
+    -Added a new tool, Polar projection.
+    -Added back again the color intensity option.
+    -Various bug fixes.
+
+Version 1.0.5.3
+    -Added new plane transformations & changed some of the old ones.
+    -Added a new option to skew the image, Height Ratio.
+    -Fixed a bug in rotation.
+    -Orbit can now be picked via Go To in File Menu.
+    -Added some extra options in 3D window.
+    -Changed 2 of the old palettes.
+    -Removed the Distance Estimator 2, out coloring algorithm; The Atom Domain algorithm was added in its place.
+    -Distance Estimator 2 was changed to Distance Estimation, in colors menu.
+    -Added new color interpolation algorithms.
+    -Added new image filter, Histogram Equalization.
+    -Fixed a bug that was incorrectly updating the grid, window title, and location, before the creation of the new image.
+
+Version 1.0.5.2
+    -New formulas added.
+    -New functions, variables, and constants added to the user formulas.
+    -New tools added.
+    -Changed the load/save windows to have the right file extensions.
+    -Changed the random palette creation for some options.
+    -Bug fixes.
+
+Version 1.0.5.1
+    -Added new plane transformations.
+    -Added new functions and constants to the user formula editors.
+    -Added new color spaces.
+    -Added new random color palette generator.
+    -Changed the custom palette gui.
+
+Version 1.0.5.0
+    -Add new User Formula, conditional.
+    -Add new Formulas.
+    -Minor bug fixes.
+
+Version 1.0.4.9
+    -Added a new user formula, iteration based.
+    -Added new variables to the user formulas and user planes.
+    -Added new out coloring algorithm.
+    -Fixed a bug on magnet 2 smoothing.
+    -Fixed a problem with saved settings. Setting from version 1.0.4.8 and above will now be loaded correctly in higher versions.
+
+Version 1.0.4.8
+    -User Formulas feature added.
+    -User Plane Transformations feature added.
+    -Added new formula.
+    -Added new out coloring algorithms.
+    -Added new palette.
+    -Added new random palette generating algorithm, waves.
+    -Changed the gui for polynomial inputs.
+    -Added new options for the 3D rendering.
+    -Minor bug fixes.
+
+Version 1.0.4.7
+    -Added new options to the custom palette window.
+    -Added new fractal function.
+    -Added new out coloring method, Distance Estimator.
+    -Minor bug fixes.
+
+Version 1.0.4.6
+    -Replaced some old default palettes.
+    -Changed the random palette generation algorithm.
+    -Added the option to use more samples in antialiasing options.
+    -Added new bailout test.
+    -Minor bug and gui fixes.
+
+Version 1.0.4.5
+    -Added the option to change the rotation center.
+    -Changed the palette editor, added color interpolation options & different color space interpolation.
+    -Changed the random palette algorithms for better coloring results.
+    -Fixed a bug on memory allocation that would prevent the application from executing.
+    -Added new plane transformations.
+    -Minor bug fixes.
+
+Version 1.0.4.4
+    -Fixed many performance issues.
+    -Added new formulas.
+    -Added new in coloring algorithm.
+    -Added 3D Heightmap option.
+    -Added an option about the size of the grid.
+    -Minor bug fixes.
+
+Version 1.0.4.3
+    -Minor bug fixes.
+
+Version 1.0.4.2
+    -Minor bug fixes.
+
+Version 1.0.4.1
+    -Added new root finding methods.
+    -Added the nova function.
+    -Added more formulas.
+    -Added a new mandel variation, mandel grass.
+    -Added new image filters.
+    -Added a new palette.
+    -Updated the image filters options.
+    -Fixed a bug concerning the color smoothing on some root finding methods.
+    -Altered the way that color smoothing works.
+    -Fixed a bug on orbit tracking.
+    -Minor bug fixes.
+    -Some gui changes.
+
+Version 1.0.4.0
+    -New Fractal Function added.
+    -New Planes added.
+    -New Out Coloring Algorithms added.
+    -New Image Filters added.
+    -Added Image Filters options.
+    -GUI updates.
+    -Bug fixes.
+
+Version 1.0.3.9
+    -Added 30 new fractal functions.
+    -Added new plane transformation.
+    -Added new out coloring algorithm.
+    -Updated GUI.
+    -Fixed a bug about saving julia sets.
+    -Updated some of the out coloring algorithms. They now use the smoothing algorithm.
+
+Version 1.0.3.8
+    -Added some information on the Square Bailout Test (Infinity Norm).
+    -Added new Bailout Test Rhombus (One Norm).
+    -Fixed Perturbation, the old perturbation is now changed to Initial Value.

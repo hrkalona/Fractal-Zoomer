@@ -27,11 +27,12 @@ import fractalzoomer.parser.Parser;
 public class UserOutColorAlgorithmMagnet extends  UserOutColorAlgorithm {
     protected int max_iterations;
     
-    public UserOutColorAlgorithmMagnet(String outcoloring_formula, double bailout, int max_iterations, double xCenter, double yCenter, double size) {
+    public UserOutColorAlgorithmMagnet(String outcoloring_formula, double bailout, int max_iterations, double xCenter, double yCenter, double size, double[] point) {
 
-        super(outcoloring_formula, bailout, max_iterations, xCenter, yCenter, size);
+        super(outcoloring_formula, bailout, max_iterations, xCenter, yCenter, size, point);
         
         this.max_iterations = max_iterations;
+        OutNotUsingIncrement = true;
 
     }
 

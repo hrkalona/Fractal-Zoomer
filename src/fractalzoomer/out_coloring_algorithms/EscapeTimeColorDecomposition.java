@@ -32,6 +32,7 @@ public class EscapeTimeColorDecomposition extends OutColorAlgorithm {
         
         pi2 = 2 * Math.PI;
         pi59 = Math.PI * 59;
+        OutNotUsingIncrement = true;
         
     }
 

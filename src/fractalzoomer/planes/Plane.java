@@ -29,15 +29,6 @@ public abstract class Plane {
 
     }
 
-    public abstract Complex getPixel(Complex pixel);
-    
-    public Complex getPixelIterative(Complex pixel) {
-        
-        for(int i = 0; i < 5; i++) {
-            pixel = getPixel(pixel);
-        }
-        
-        return pixel;
-    }
+    public abstract Complex transform(Complex pixel);
 
 }

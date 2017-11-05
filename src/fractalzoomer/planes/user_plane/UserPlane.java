@@ -30,11 +30,14 @@ public class UserPlane extends Plane {
 
     private ExpressionNode expr;
     private Parser parser;
+    private boolean usesCenter;
 
-    public UserPlane(String user_plane, double xCenter, double yCenter, double size, int max_iterations) {
+    public UserPlane(String user_plane, double xCenter, double yCenter, double size, int max_iterations, double[] point) {
 
         super();
 
+        usesCenter = false;
+        
         parser = new Parser();
         expr = parser.parse(user_plane);
         
@@ -44,16 +47,21 @@ public class UserPlane extends Plane {
         
         if(parser.foundCenter()) {
             parser.setCentervalue(new Complex(xCenter, yCenter));
+            usesCenter = true;
         }
         
         if(parser.foundSize()) {
             parser.setSizevalue(new Complex(size, 0));
         }
+        
+        if(parser.foundPoint()) {
+            parser.setPointvalue(new Complex(point[0], point[1]));
+        }
 
     }
 
     @Override
-    public Complex getPixel(Complex pixel) {
+    public Complex transform(Complex pixel) {
 
         //expr.accept(new SetVariable("z", pixel));
         //expr.accept(new SetVariable("z", complex[0]));
@@ -62,6 +70,12 @@ public class UserPlane extends Plane {
         }
         return expr.getValue();
 
+    }
+    
+    public boolean usesCenter() {
+        
+        return usesCenter;
+        
     }
 
 }

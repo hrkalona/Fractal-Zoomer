@@ -44,6 +44,10 @@ public interface ExpressionNode
   public static final int FUNCTION_2_ARG_NODE = 8;
   /** Node id for function nodes multiple arguments made by the user */
   public static final int FUNCTION_USER_MULTI_ARG_NODE = 9;
+  /** Node id for function nodes one argument made by the user */
+  public static final int FUNCTION_USER_ONE_ARG_NODE = 10;
+  /** Node id for function nodes two arguments made by the user */
+  public static final int FUNCTION_USER_TWO_ARG_NODE = 11;
 
   /**
    * Returns the type of the node.ExpressionNode

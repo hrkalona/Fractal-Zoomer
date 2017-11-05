@@ -36,7 +36,7 @@ public class UserConditionalOutColorAlgorithmRootFindingMethod extends OutColorA
     private Complex c_size;
     protected int max_iterations;
 
-    public UserConditionalOutColorAlgorithmRootFindingMethod(String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, double convergent_bailout, int max_iterations, double xCenter, double yCenter, double size) {
+    public UserConditionalOutColorAlgorithmRootFindingMethod(String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, double convergent_bailout, int max_iterations, double xCenter, double yCenter, double size, double[] point) {
 
         super();
 
@@ -145,6 +145,29 @@ public class UserConditionalOutColorAlgorithmRootFindingMethod extends OutColorA
         if(parser2[2].foundSize()) {
             parser2[2].setSizevalue(c_size);
         }
+        
+        Complex c_point = new Complex(point[0], point[1]);
+        if(parser[0].foundPoint()) {
+            parser[0].setPointvalue(c_point);
+        }
+        
+        if(parser[1].foundPoint()) {
+            parser[1].setPointvalue(c_point);
+        }
+        
+        if(parser2[0].foundPoint()) {
+            parser2[0].setPointvalue(c_point);
+        }
+        
+        if(parser2[1].foundPoint()) {
+            parser2[1].setPointvalue(c_point);
+        }
+        
+        if(parser2[2].foundPoint()) {
+            parser2[2].setPointvalue(c_point);
+        }
+        
+        OutNotUsingIncrement = true;
 
     }
 

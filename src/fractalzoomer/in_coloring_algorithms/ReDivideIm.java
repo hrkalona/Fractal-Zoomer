@@ -28,6 +28,7 @@ public class ReDivideIm extends InColorAlgorithm {
     public ReDivideIm() { 
         
         super();
+        InNotUsingIncrement = true;
     
     }
     

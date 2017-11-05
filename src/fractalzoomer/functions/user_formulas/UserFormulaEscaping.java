@@ -84,6 +84,7 @@ public class UserFormulaEscaping extends Julia {
     private Parser parser2;
     private int iterations;
     private Complex[] vars;
+    private Complex point;
 
     public UserFormulaEscaping(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_value, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, String user_formula, String user_formula2, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm) {
 
@@ -92,10 +93,10 @@ public class UserFormulaEscaping extends Julia {
         if(perturbation) {
             if(variable_perturbation) {
                 if(user_perturbation_algorithm == 0) {
-                    pertur_val = new VariablePerturbation(perturbation_user_formula, xCenter, yCenter, size, max_iterations);
+                    pertur_val = new VariablePerturbation(perturbation_user_formula, xCenter, yCenter, size, max_iterations, plane_transform_center);
                 }
                 else {
-                    pertur_val = new VariableConditionalPerturbation(user_perturbation_conditions, user_perturbation_condition_formula, xCenter, yCenter, size, max_iterations);
+                    pertur_val = new VariableConditionalPerturbation(user_perturbation_conditions, user_perturbation_condition_formula, xCenter, yCenter, size, max_iterations, plane_transform_center);
                 }
             }
             else {
@@ -109,10 +110,10 @@ public class UserFormulaEscaping extends Julia {
         if(init_value) {
             if(variable_init_value) {
                 if(user_initial_value_algorithm == 0) {
-                    init_val = new VariableInitialValue(initial_value_user_formula, xCenter, yCenter, size, max_iterations);
+                    init_val = new VariableInitialValue(initial_value_user_formula, xCenter, yCenter, size, max_iterations, plane_transform_center);
                 }
                 else {
-                    init_val = new VariableConditionalInitialValue(user_initial_value_conditions, user_initial_value_condition_formula, xCenter, yCenter, size, max_iterations);
+                    init_val = new VariableConditionalInitialValue(user_initial_value_conditions, user_initial_value_condition_formula, xCenter, yCenter, size, max_iterations, plane_transform_center);
                 }
             }
             else {
@@ -212,10 +213,10 @@ public class UserFormulaEscaping extends Julia {
                 break;
             case MainWindow.USER_OUTCOLORING_ALGORITHM:
                 if(user_out_coloring_algorithm == 0) {
-                    out_color_algorithm = new UserOutColorAlgorithm(outcoloring_formula, bailout, max_iterations, xCenter, yCenter, size);
+                    out_color_algorithm = new UserOutColorAlgorithm(outcoloring_formula, bailout, max_iterations, xCenter, yCenter, size, plane_transform_center);
                 }
                 else {
-                    out_color_algorithm = new UserConditionalOutColorAlgorithm(user_outcoloring_conditions, user_outcoloring_condition_formula, bailout, max_iterations, xCenter, yCenter, size);
+                    out_color_algorithm = new UserConditionalOutColorAlgorithm(user_outcoloring_conditions, user_outcoloring_condition_formula, bailout, max_iterations, xCenter, yCenter, size, plane_transform_center);
                 }
                 break;
 
@@ -255,10 +256,10 @@ public class UserFormulaEscaping extends Julia {
                 break;
             case MainWindow.USER_INCOLORING_ALGORITHM:
                 if(user_in_coloring_algorithm == 0) {
-                    in_color_algorithm = new UserInColorAlgorithm(incoloring_formula, max_iterations, xCenter, yCenter, size);
+                    in_color_algorithm = new UserInColorAlgorithm(incoloring_formula, max_iterations, xCenter, yCenter, size, plane_transform_center);
                 }
                 else {
-                    in_color_algorithm = new UserConditionalInColorAlgorithm(user_incoloring_conditions, user_incoloring_condition_formula, max_iterations, xCenter, yCenter, size);
+                    in_color_algorithm = new UserConditionalInColorAlgorithm(user_incoloring_conditions, user_incoloring_condition_formula, max_iterations, xCenter, yCenter, size, plane_transform_center);
                 }
                 break;
 
@@ -269,12 +270,14 @@ public class UserFormulaEscaping extends Julia {
 
         parser2 = new Parser();
         expr2 = parser2.parse(user_formula2);
+        
+        point = new Complex(plane_transform_center[0], plane_transform_center[1]);
 
     }
 
-    public UserFormulaEscaping(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, int plane_type, boolean apply_plane_on_julia, double[] rotation_vals, double[] rotation_center, String user_formula, String user_formula2, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, double xJuliaCenter, double yJuliaCenter) {
+    public UserFormulaEscaping(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, String user_formula, String user_formula2, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, double xJuliaCenter, double yJuliaCenter) {
 
-        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, periodicity_checking, plane_type, apply_plane_on_julia, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, periodicity_checking, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
 
         switch (out_coloring_algorithm) {
 
@@ -365,10 +368,10 @@ public class UserFormulaEscaping extends Julia {
                 break;
             case MainWindow.USER_OUTCOLORING_ALGORITHM:
                 if(user_out_coloring_algorithm == 0) {
-                    out_color_algorithm = new UserOutColorAlgorithm(outcoloring_formula, bailout, max_iterations, xCenter, yCenter, size);
+                    out_color_algorithm = new UserOutColorAlgorithm(outcoloring_formula, bailout, max_iterations, xCenter, yCenter, size, plane_transform_center);
                 }
                 else {
-                    out_color_algorithm = new UserConditionalOutColorAlgorithm(user_outcoloring_conditions, user_outcoloring_condition_formula, bailout, max_iterations, xCenter, yCenter, size);
+                    out_color_algorithm = new UserConditionalOutColorAlgorithm(user_outcoloring_conditions, user_outcoloring_condition_formula, bailout, max_iterations, xCenter, yCenter, size, plane_transform_center);
                 }
                 break;
 
@@ -408,10 +411,10 @@ public class UserFormulaEscaping extends Julia {
                 break;
             case MainWindow.USER_INCOLORING_ALGORITHM:
                 if(user_in_coloring_algorithm == 0) {
-                    in_color_algorithm = new UserInColorAlgorithm(incoloring_formula, max_iterations, xCenter, yCenter, size);
+                    in_color_algorithm = new UserInColorAlgorithm(incoloring_formula, max_iterations, xCenter, yCenter, size, plane_transform_center);
                 }
                 else {
-                    in_color_algorithm = new UserConditionalInColorAlgorithm(user_incoloring_conditions, user_incoloring_condition_formula, max_iterations, xCenter, yCenter, size);
+                    in_color_algorithm = new UserConditionalInColorAlgorithm(user_incoloring_conditions, user_incoloring_condition_formula, max_iterations, xCenter, yCenter, size, plane_transform_center);
                 }
                 break;
 
@@ -422,6 +425,8 @@ public class UserFormulaEscaping extends Julia {
 
         parser2 = new Parser();
         expr2 = parser2.parse(user_formula2);
+        
+        point = new Complex(plane_transform_center[0], plane_transform_center[1]);
 
     }
 
@@ -433,10 +438,10 @@ public class UserFormulaEscaping extends Julia {
         if(perturbation) {
             if(variable_perturbation) {
                 if(user_perturbation_algorithm == 0) {
-                    pertur_val = new VariablePerturbation(perturbation_user_formula, xCenter, yCenter, size, max_iterations);
+                    pertur_val = new VariablePerturbation(perturbation_user_formula, xCenter, yCenter, size, max_iterations, plane_transform_center);
                 }
                 else {
-                    pertur_val = new VariableConditionalPerturbation(user_perturbation_conditions, user_perturbation_condition_formula, xCenter, yCenter, size, max_iterations);
+                    pertur_val = new VariableConditionalPerturbation(user_perturbation_conditions, user_perturbation_condition_formula, xCenter, yCenter, size, max_iterations, plane_transform_center);
                 }
             }
             else {
@@ -450,10 +455,10 @@ public class UserFormulaEscaping extends Julia {
         if(init_value) {
             if(variable_init_value) {
                 if(user_initial_value_algorithm == 0) {
-                    init_val = new VariableInitialValue(initial_value_user_formula, xCenter, yCenter, size, max_iterations);
+                    init_val = new VariableInitialValue(initial_value_user_formula, xCenter, yCenter, size, max_iterations, plane_transform_center);
                 }
                 else {
-                    init_val = new VariableConditionalInitialValue(user_initial_value_conditions, user_initial_value_condition_formula, xCenter, yCenter, size, max_iterations);
+                    init_val = new VariableConditionalInitialValue(user_initial_value_conditions, user_initial_value_condition_formula, xCenter, yCenter, size, max_iterations, plane_transform_center);
                 }
             }
             else {
@@ -469,18 +474,22 @@ public class UserFormulaEscaping extends Julia {
 
         parser2 = new Parser();
         expr2 = parser2.parse(user_formula2);
+        
+        point = new Complex(plane_transform_center[0], plane_transform_center[1]);
 
     }
 
-    public UserFormulaEscaping(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, boolean apply_plane_on_julia, double[] rotation_vals, double[] rotation_center, String user_formula, String user_formula2, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, double xJuliaCenter, double yJuliaCenter) {
+    public UserFormulaEscaping(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, String user_formula, String user_formula2, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, double xJuliaCenter, double yJuliaCenter) {
 
-        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, apply_plane_on_julia, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
+        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
 
         parser = new Parser();
         expr = parser.parse(user_formula);
 
         parser2 = new Parser();
         expr2 = parser2.parse(user_formula2);
+        
+        point = new Complex(plane_transform_center[0], plane_transform_center[1]);
 
     }
 
@@ -546,7 +555,7 @@ public class UserFormulaEscaping extends Julia {
 
         iterations = 0;
 
-        Complex tempz = new Complex(pertur_val.getPixel(init_val.getPixel(pixel)));
+        Complex tempz = new Complex(pertur_val.getValue(init_val.getValue(pixel)));
 
         Complex[] complex = new Complex[2];
         complex[0] = tempz;//z
@@ -592,7 +601,7 @@ public class UserFormulaEscaping extends Julia {
 
         period = new Complex();
 
-        Complex tempz = new Complex(pertur_val.getPixel(init_val.getPixel(pixel)));
+        Complex tempz = new Complex(pertur_val.getValue(init_val.getValue(pixel)));
 
         Complex[] complex = new Complex[2];
         complex[0] = tempz;//z
@@ -641,7 +650,7 @@ public class UserFormulaEscaping extends Julia {
 
         period = new Complex();
 
-        Complex tempz = new Complex(pertur_val.getPixel(init_val.getPixel(pixel)));
+        Complex tempz = new Complex(pertur_val.getValue(init_val.getValue(pixel)));
 
         Complex[] complex = new Complex[2];
         complex[0] = tempz;//z
@@ -687,7 +696,7 @@ public class UserFormulaEscaping extends Julia {
 
         iterations = 0;
 
-        Complex tempz = new Complex(pertur_val.getPixel(init_val.getPixel(pixel)));
+        Complex tempz = new Complex(pertur_val.getValue(init_val.getValue(pixel)));
 
         Complex[] complex = new Complex[2];
         complex[0] = tempz;//z
@@ -732,7 +741,7 @@ public class UserFormulaEscaping extends Julia {
         iterations = 0;
 
         Complex[] complex = new Complex[2];
-        complex[0] = new Complex(pertur_val.getPixel(init_val.getPixel(pixel_orbit)));//z
+        complex[0] = new Complex(pertur_val.getValue(init_val.getValue(pixel_orbit)));//z
         complex[1] = new Complex(pixel_orbit);//c
 
         Complex temp = null;
@@ -752,7 +761,7 @@ public class UserFormulaEscaping extends Julia {
 
             setVariables(zold, zold2);
 
-            temp = rotation.getPixel(complex[0], true);
+            temp = rotation.rotateInverse(complex[0]);
 
             if(Double.isNaN(temp.getRe()) || Double.isNaN(temp.getIm()) || Double.isInfinite(temp.getRe()) || Double.isInfinite(temp.getIm())) {
                 break;
@@ -955,7 +964,7 @@ public class UserFormulaEscaping extends Julia {
 
             setVariables(zold, zold2);
 
-            temp = rotation.getPixel(complex[0], true);
+            temp = rotation.rotateInverse(complex[0]);
 
             if(Double.isNaN(temp.getRe()) || Double.isNaN(temp.getIm()) || Double.isInfinite(temp.getRe()) || Double.isInfinite(temp.getIm())) {
                 break;
@@ -971,7 +980,7 @@ public class UserFormulaEscaping extends Julia {
 
         iterations = 0;
 
-        Complex tempz = new Complex(pertur_val.getPixel(init_val.getPixel(pixel)));
+        Complex tempz = new Complex(pertur_val.getValue(init_val.getValue(pixel)));
 
         Complex[] complex = new Complex[2];
         complex[0] = tempz;//z
@@ -1083,20 +1092,32 @@ public class UserFormulaEscaping extends Julia {
             parser2.setPPvalue(zold2);
         }
         
+        Complex c_center = new Complex(xCenter, yCenter);
+        
         if(parser.foundCenter()) {
-            parser.setCentervalue(new Complex(xCenter, yCenter));
+            parser.setCentervalue(c_center);
         }
 
         if(parser2.foundCenter()) {
-            parser2.setCentervalue(new Complex(xCenter, yCenter));
+            parser2.setCentervalue(c_center);
         }
         
+        Complex c_size = new Complex(size, 0);
+        
         if(parser.foundSize()) {
-            parser.setSizevalue(new Complex(size, 0));
+            parser.setSizevalue(c_size);
         }
 
         if(parser2.foundSize()) {
-            parser2.setSizevalue(new Complex(size, 0));
+            parser2.setSizevalue(c_size);
+        }
+        
+        if(parser.foundPoint()) {
+            parser.setPointvalue(point);
+        }
+        
+        if(parser2.foundPoint()) {
+            parser2.setPointvalue(point);
         }
     }
 }

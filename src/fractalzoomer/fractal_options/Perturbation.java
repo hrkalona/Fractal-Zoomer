@@ -36,7 +36,7 @@ public class Perturbation extends PlanePointOption {
 
 
     @Override
-    public Complex getPixel(Complex pixel) {
+    public Complex getValue(Complex pixel) {
         
         return this.pixel.plus(pixel);
         

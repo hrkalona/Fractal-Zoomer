@@ -138,6 +138,106 @@ public class FunctionUserMultiArgumentExpressionNode implements ExpressionNode {
     public static final int M20 = 19;
 
     /**
+     * function id for the user m21 function
+     */
+    public static final int M21 = 20;
+
+    /**
+     * function id for the user m22 function
+     */
+    public static final int M22 = 21;
+
+    /**
+     * function id for the user m23 function
+     */
+    public static final int M23 = 22;
+
+    /**
+     * function id for the user M24 function
+     */
+    public static final int M24 = 23;
+
+    /**
+     * function id for the user m25 function
+     */
+    public static final int M25 = 24;
+
+    /**
+     * function id for the user m26 function
+     */
+    public static final int M26 = 25;
+
+    /**
+     * function id for the user m27 function
+     */
+    public static final int M27 = 26;
+
+    /**
+     * function id for the user m28 function
+     */
+    public static final int M28 = 27;
+
+    /**
+     * function id for the user m29 function
+     */
+    public static final int M29 = 28;
+
+    /**
+     * function id for the user m30 function
+     */
+    public static final int M30 = 29;
+
+    /**
+     * function id for the user m31 function
+     */
+    public static final int M31 = 30;
+
+    /**
+     * function id for the user m32 function
+     */
+    public static final int M32 = 31;
+
+    /**
+     * function id for the user m33 function
+     */
+    public static final int M33 = 32;
+
+    /**
+     * function id for the user m34 function
+     */
+    public static final int M34 = 33;
+
+    /**
+     * function id for the user m35 function
+     */
+    public static final int M35 = 34;
+
+    /**
+     * function id for the user m36 function
+     */
+    public static final int M36 = 35;
+
+    /**
+     * function id for the user m37 function
+     */
+    public static final int M37 = 36;
+
+    /**
+     * function id for the user m38 function
+     */
+    public static final int M38 = 37;
+
+    /**
+     * function id for the user m39 function
+     */
+    public static final int M39 = 38;
+
+    /**
+     * function id for the user m40 function
+     */
+    public static final int M40 = 39;
+
+    /**
      * the id of the function to apply to the argument
      */
     private int function;
@@ -147,7 +247,8 @@ public class FunctionUserMultiArgumentExpressionNode implements ExpressionNode {
      */
     private ExpressionNode[] arguments;
 
-    private final static String[] USER_FUNCS = {"m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m10", "m11", "m12", "m13", "m14", "m15", "m16", "m17", "m18", "m19", "m20"};
+    private final static String[] USER_FUNCS = {"m1", "m2", "m3", "m4", "m5", "m6", "m7", "m8", "m9", "m10", "m11", "m12", "m13", "m14", "m15", "m16", "m17", "m18", "m19", "m20",
+        "m21", "m22", "m23", "m24", "m25", "m26", "m27", "m28", "m29", "m30", "m31", "m32", "m33", "m34", "m35", "m36", "m37", "m38", "m39", "m40"};
 
     private Method method;
 
@@ -222,49 +323,25 @@ public class FunctionUserMultiArgumentExpressionNode implements ExpressionNode {
      * resulting value.
      */
     public Complex getValue() {
-        switch (function) {
-            case M1:
-            case M2:
-            case M3:
-            case M4:
-            case M5:
-            case M6:
-            case M7:
-            case M8:
-            case M9:
-            case M10:
-            case M11:
-            case M12:
-            case M13:
-            case M14:
-            case M15:
-            case M16:
-            case M17:
-            case M18:
-            case M19:
-            case M20:
+        Complex[] values = new Complex[arguments.length];
 
-                Complex[] values = new Complex[arguments.length];
-
-                for(int i = 0; i < arguments.length; i++) {
-                    if(arguments[i] == null) {
-                        values[i] = new Complex(); //zero arg default
-                    }
-                    else {
-                        values[i] = arguments[i].getValue();
-                    }
-                }
-
-                try {
-                    return (Complex)method.invoke(null, values[0], values[1], values[2], values[3], values[4], values[5], values[6], values[7], values[8], values[9]);
-                }
-                catch(Exception ex) {
-                    return new Complex();
-                }
-
+        for(int i = 0; i < arguments.length; i++) {
+            if(arguments[i] == null) {
+                values[i] = new Complex(); //zero arg default
+            }
+            else {
+                values[i] = arguments[i].getValue();
+            }
         }
 
-        throw new EvaluationException("Invalid function id " + function + "!");
+        try {
+            return (Complex)method.invoke(null, values[0], values[1], values[2], values[3], values[4], values[5], values[6], values[7], values[8], values[9]);
+        }
+        catch(Exception ex) {
+            return new Complex();
+        }
+
+        //throw new EvaluationException("Invalid function id " + function + "!");
     }
 
     /**

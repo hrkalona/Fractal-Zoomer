@@ -285,10 +285,10 @@ public abstract class Fractal {
                 break;
             case MainWindow.USER_PLANE:
                 if(user_plane_algorithm == 0) {
-                    plane = new UserPlane(user_plane, xCenter, yCenter, size, max_iterations);
+                    plane = new UserPlane(user_plane, xCenter, yCenter, size, max_iterations, plane_transform_center);
                 }
                 else {
-                    plane = new UserPlaneConditional(user_plane_conditions, user_plane_condition_formula, xCenter, yCenter, size, max_iterations);
+                    plane = new UserPlaneConditional(user_plane_conditions, user_plane_condition_formula, xCenter, yCenter, size, max_iterations, plane_transform_center);
                 }
                 break;
             case MainWindow.GAMMA_PLANE:
@@ -353,7 +353,7 @@ public abstract class Fractal {
                 bailout_algorithm = new NNormBailoutTest(bailout, n_norm);
                 break;
             case MainWindow.BAILOUT_TEST_USER:
-                bailout_algorithm = new UserBailoutTest(bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, max_iterations, xCenter, yCenter, size);
+                bailout_algorithm = new UserBailoutTest(bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, max_iterations, xCenter, yCenter, size, plane_transform_center);
                 break;
 
         }
@@ -519,10 +519,10 @@ public abstract class Fractal {
                 break;
             case MainWindow.USER_PLANE:
                 if(user_plane_algorithm == 0) {
-                    plane = new UserPlane(user_plane, xCenter, yCenter, size, max_iterations);
+                    plane = new UserPlane(user_plane, xCenter, yCenter, size, max_iterations, plane_transform_center);
                 }
                 else {
-                    plane = new UserPlaneConditional(user_plane_conditions, user_plane_condition_formula, xCenter, yCenter, size, max_iterations);
+                    plane = new UserPlaneConditional(user_plane_conditions, user_plane_condition_formula, xCenter, yCenter, size, max_iterations, plane_transform_center);
                 }
                 break;
             case MainWindow.GAMMA_PLANE:
@@ -567,7 +567,7 @@ public abstract class Fractal {
 
         }
 
-        pixel_orbit = plane.getPixel(rotation.getPixel(pixel_orbit, false));
+        pixel_orbit = plane.transform(rotation.rotate(pixel_orbit));
 
     }
 
@@ -608,13 +608,13 @@ public abstract class Fractal {
 
     public double calculateFractal(Complex pixel) {
 
-        return periodicity_checking ? calculateFractalWithPeriodicity(plane.getPixel(rotation.getPixel(pixel, false))) : calculateFractalWithoutPeriodicity(plane.getPixel(rotation.getPixel(pixel, false)));
+        return periodicity_checking ? calculateFractalWithPeriodicity(plane.transform(rotation.rotate(pixel))) : calculateFractalWithoutPeriodicity(plane.transform(rotation.rotate(pixel)));
 
     }
 
     public double[] calculateFractal3D(Complex pixel) {
 
-        return periodicity_checking ? calculateFractal3DWithPeriodicity(plane.getPixel(rotation.getPixel(pixel, false))) : calculateFractal3DWithoutPeriodicity(plane.getPixel(rotation.getPixel(pixel, false)));
+        return periodicity_checking ? calculateFractal3DWithPeriodicity(plane.transform(rotation.rotate(pixel))) : calculateFractal3DWithoutPeriodicity(plane.transform(rotation.rotate(pixel)));
 
     }
     
@@ -629,7 +629,7 @@ public abstract class Fractal {
         return vars;
     }
 
-    public double calculateFractalWithPeriodicity(Complex pixel) {
+    protected double calculateFractalWithPeriodicity(Complex pixel) {
 
         int iterations = 0;
 
@@ -641,7 +641,7 @@ public abstract class Fractal {
 
         period = new Complex();
 
-        Complex tempz = new Complex(pertur_val.getPixel(init_val.getPixel(pixel)));
+        Complex tempz = new Complex(pertur_val.getValue(init_val.getValue(pixel)));
 
         Complex[] complex = new Complex[2];
         complex[0] = tempz;//z
@@ -672,11 +672,11 @@ public abstract class Fractal {
 
     }
 
-    public double calculateFractalWithoutPeriodicity(Complex pixel) {
+    protected double calculateFractalWithoutPeriodicity(Complex pixel) {
 
         int iterations = 0;
 
-        Complex tempz = new Complex(pertur_val.getPixel(init_val.getPixel(pixel)));
+        Complex tempz = new Complex(pertur_val.getValue(init_val.getValue(pixel)));
 
         Complex[] complex = new Complex[2];
         complex[0] = tempz;//z
@@ -747,7 +747,7 @@ public abstract class Fractal {
          return max_iterations;*/
     }
 
-    public double[] calculateFractal3DWithPeriodicity(Complex pixel) {
+    protected double[] calculateFractal3DWithPeriodicity(Complex pixel) {
 
         int iterations = 0;
 
@@ -759,7 +759,7 @@ public abstract class Fractal {
 
         period = new Complex();
 
-        Complex tempz = new Complex(pertur_val.getPixel(init_val.getPixel(pixel)));
+        Complex tempz = new Complex(pertur_val.getValue(init_val.getValue(pixel)));
 
         Complex[] complex = new Complex[2];
         complex[0] = tempz;//z
@@ -796,11 +796,11 @@ public abstract class Fractal {
 
     }
 
-    public double[] calculateFractal3DWithoutPeriodicity(Complex pixel) {
+    protected double[] calculateFractal3DWithoutPeriodicity(Complex pixel) {
 
         int iterations = 0;
 
-        Complex tempz = new Complex(pertur_val.getPixel(init_val.getPixel(pixel)));
+        Complex tempz = new Complex(pertur_val.getValue(init_val.getValue(pixel)));
 
         Complex[] complex = new Complex[2];
         complex[0] = tempz;//z
@@ -879,14 +879,14 @@ public abstract class Fractal {
         int iterations = 0;
 
         Complex[] complex = new Complex[2];
-        complex[0] = new Complex(pertur_val.getPixel(init_val.getPixel(pixel_orbit)));//z
+        complex[0] = new Complex(pertur_val.getValue(init_val.getValue(pixel_orbit)));//z
         complex[1] = new Complex(pixel_orbit);//c
 
         Complex temp = null;
 
         for(; iterations < max_iterations; iterations++) {
             function(complex);
-            temp = rotation.getPixel(complex[0], true);
+            temp = rotation.rotateInverse(complex[0]);
 
             if(Double.isNaN(temp.getRe()) || Double.isNaN(temp.getIm()) || Double.isInfinite(temp.getRe()) || Double.isInfinite(temp.getIm())) {
                 break;
@@ -901,7 +901,7 @@ public abstract class Fractal {
         int iterations = 0;
 
         Complex[] complex = new Complex[2];
-        complex[0] = new Complex(pertur_val.getPixel(init_val.getPixel(pixel)));//z
+        complex[0] = new Complex(pertur_val.getValue(init_val.getValue(pixel)));//z
         complex[1] = new Complex(pixel);//c
         
         ArrayList<Complex> complex_orbit = new ArrayList<Complex>();
@@ -911,7 +911,7 @@ public abstract class Fractal {
 
         for(; iterations < max_iterations; iterations++) {
             function(complex);
-            temp = rotation.getPixel(complex[0], true);
+            temp = rotation.rotateInverse(complex[0]);
 
             if(Double.isNaN(temp.getRe()) || Double.isNaN(temp.getIm()) || Double.isInfinite(temp.getRe()) || Double.isInfinite(temp.getIm())) {
                 break;
@@ -926,15 +926,15 @@ public abstract class Fractal {
     
     public Complex calculateFractalDomain(Complex pixel) {
 
-        return iterateFractalDomain(plane.getPixel(rotation.getPixel(pixel, false)));
+        return iterateFractalDomain(plane.transform(rotation.rotate(pixel)));
      
     }
     
-    public Complex iterateFractalDomain(Complex pixel) {
+    protected Complex iterateFractalDomain(Complex pixel) {
         
         int iterations = 0;
 
-        Complex tempz = new Complex(pertur_val.getPixel(init_val.getPixel(pixel)));
+        Complex tempz = new Complex(pertur_val.getValue(init_val.getValue(pixel)));
 
         Complex[] complex = new Complex[2];
         complex[0] = tempz;//z
@@ -984,7 +984,7 @@ public abstract class Fractal {
 
     public Complex getTransformedNumber(Complex z) {
 
-        return plane.getPixel(z);
+        return plane.transform(z);
 
     }
     
@@ -993,6 +993,11 @@ public abstract class Fractal {
         return init_val;
         
     }
-  
+    
+    public OutColorAlgorithm getOutColorAlgorithm() {
+        
+        return out_color_algorithm;
+        
+    }
 
 }

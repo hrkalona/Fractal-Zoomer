@@ -29,7 +29,7 @@ public class VariablePerturbation extends PlanePointOption {
     private ExpressionNode expr;
     private Parser parser;
     
-    public VariablePerturbation(String perturbation_user_formula, double xCenter, double yCenter, double size, int max_iterations) {
+    public VariablePerturbation(String perturbation_user_formula, double xCenter, double yCenter, double size, int max_iterations, double[] point) {
     
         super();
         
@@ -48,11 +48,15 @@ public class VariablePerturbation extends PlanePointOption {
             parser.setSizevalue(new Complex(size, 0));
         }
         
+        if(parser.foundPoint()) {
+            parser.setPointvalue(new Complex(point[0], point[1]));
+        }
+        
     }
 
 
     @Override
-    public Complex getPixel(Complex pixel) {
+    public Complex getValue(Complex pixel) {
         
         if(parser.foundC()) {
             parser.setCvalue(pixel);

@@ -32,6 +32,7 @@ public class SmoothBinaryDecomposition2Magnet extends SmoothBinaryDecomposition2
         super(log_bailout_squared, algorithm);
         this.log_convergent_bailout = log_convergent_bailout;
         this.algorithm2 = algorithm2;
+        OutNotUsingIncrement = false;
 
     }
 
@@ -78,7 +79,7 @@ public class SmoothBinaryDecomposition2Magnet extends SmoothBinaryDecomposition2
             }
         }
         
-        return ((Boolean)object[2] ? (((Complex)object[1]).getRe() < 0 ? -(temp3 + MAGIC_OFFSET_NUMBER + 50) : temp3 + MAGIC_OFFSET_NUMBER + 106) : ((Complex)object[1]).getRe() < 0 ? -(temp3 + MAGIC_OFFSET_NUMBER + 50) : temp3 + MAGIC_OFFSET_NUMBER);
+        return ((Boolean)object[2] ? (((Complex)object[1]).getRe() < 0 ? -(temp3 + MAGIC_OFFSET_NUMBER + INCREMENT) : temp3 + MAGIC_OFFSET_NUMBER + 106) : ((Complex)object[1]).getRe() < 0 ? -(temp3 + MAGIC_OFFSET_NUMBER + INCREMENT) : temp3 + MAGIC_OFFSET_NUMBER);
 
     }
 }

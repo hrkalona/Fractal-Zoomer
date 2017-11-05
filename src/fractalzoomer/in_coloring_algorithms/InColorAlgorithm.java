@@ -17,8 +17,9 @@
 
 package fractalzoomer.in_coloring_algorithms;
 
-public abstract class InColorAlgorithm {
-    public static final int MAGIC_OFFSET_NUMBER = 100820;
+import fractalzoomer.utils.ColorAlgorithm;
+
+public abstract class InColorAlgorithm extends ColorAlgorithm {
     
     public abstract double getResult(Object[] object);
     

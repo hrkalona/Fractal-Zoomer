@@ -34,7 +34,7 @@ public class DefaultPerturbation extends PlanePointOption {
 
 
     @Override
-    public Complex getPixel(Complex pixel) {
+    public Complex getValue(Complex pixel) {
         
         return pixel;
         

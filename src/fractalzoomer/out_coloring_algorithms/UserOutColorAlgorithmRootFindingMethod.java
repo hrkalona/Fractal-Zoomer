@@ -31,7 +31,7 @@ public class UserOutColorAlgorithmRootFindingMethod extends OutColorAlgorithm {
     private Parser parser;
     protected int max_iterations;
     
-    public UserOutColorAlgorithmRootFindingMethod(String outcoloring_formula, double convergent_bailout, int max_iterations, double xCenter, double yCenter, double size) {
+    public UserOutColorAlgorithmRootFindingMethod(String outcoloring_formula, double convergent_bailout, int max_iterations, double xCenter, double yCenter, double size, double[] point) {
         
         super();
         
@@ -55,6 +55,12 @@ public class UserOutColorAlgorithmRootFindingMethod extends OutColorAlgorithm {
         if(parser.foundSize()) {
             parser.setSizevalue(new Complex(size, 0));
         }
+        
+        if(parser.foundPoint()) {
+            parser.setPointvalue(new Complex(point[0], point[1]));
+        }
+        
+        OutNotUsingIncrement = true;
         
     }
 

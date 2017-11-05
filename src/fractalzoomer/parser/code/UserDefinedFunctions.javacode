@@ -2,18 +2,20 @@ import fractalzoomer.core.Complex;
 
 /**
  * You may change this class as you please.
- * Only 20 one argument functions, 20 two argument functions and 20 ten argument functions (using the names f1 to f20, g1 to g20, and m1 to m20)
+ * Only 40 one argument functions, 40 two argument functions and 40 ten argument functions (using the names f1 to f40, g1 to g40, and m1 to m40)
  * will be used by the software (at least for now!).
- * Rules: -Functions f1 to f20 must always have one Complex argument and always return a Complex number.
- *        -Functions g1 to g20 must always have two Complex arguments and always return a Complex number.
- *        -Functions m1 to m20 must always have ten Complex arguments and always return a Complex number. 
+ * Rules: -Functions f1 to f40 must always have one Complex argument and always return a Complex number.
+ *        -Functions g1 to g40 must always have two Complex arguments and always return a Complex number.
+ *        -Functions m1 to m40 must always have ten Complex arguments and always return a Complex number. 
  *         (when calling these 'M' functions through the user formulas you can skip the arguments you are not using, eg m1(1+3i, 2+1i))
- *        -Functions f1 to f20, g1 to g20, and m1 to m20 must be public and static.
+ *        -Functions f1 to f40, g1 to g40, and m1 to m40 must be public and static.
+ *        -If you want to save a value into one of the arguments, please use the assing Complex function and not the = operator.
+ *         This functionality was mainly designed to work with the variables v1 - v20. Please check some of the examples in the 'M' functions.
  *        -You may define your own helper functions, which can have variable arguments and return type but they must be static.
  *        -Any exception thrown during the execution will be translated a the function returned a Complex number with the value of zero.
  *        -Do not break the code! (Infinite loops or whatever crazy thing comes to your mind).
  *        -Please refer to the Complex.java file, contained in the executable directory, in order to see all the available operations.
- *        -Note that the evaluation of the code is left to right and does not follow the stardard order of operations.
+ *        -Note that the evaluation of the code is left to right and does not follow the standard order of operations.
  *         This means that z.plus(3).times(new Complex(2, 3)); is equivalent to (z + 3) * (2 + 3i). If you want to enforce the correct order 
  *         change the order of the code or use brackets. For instance z.plus(new Complex(2, 3).times(3)) is equivalent to z + ((2 + 3i) * 3).
  *        -If you somehow break the code and you dont know how to make it work, just delete the UserDefinedFunctions.java file and restart the application.
@@ -141,6 +143,125 @@ public class UserDefinedFunctions {
 		return new Complex();
 		
 	}
+	public static Complex f21(Complex z) {
+	
+		return new Complex();
+		
+	}
+	
+	public static Complex f22(Complex z) {
+	
+		return new Complex();
+		
+	}
+	
+	public static Complex f23(Complex z) {
+	
+		return new Complex();
+		
+	}
+	
+	public static Complex f24(Complex z) {
+	
+		return new Complex();
+		
+	}
+	
+	public static Complex f25(Complex z) {
+	
+		return new Complex();
+		
+	}
+	
+	public static Complex f26(Complex z) {
+	
+		return new Complex();
+		
+	}
+	
+	public static Complex f27(Complex z) {
+	
+		return new Complex();
+		
+	}
+	
+	public static Complex f28(Complex z) {
+	
+		return new Complex();
+		
+	}
+	
+	public static Complex f29(Complex z) {
+	
+		return new Complex();
+		
+	}
+	
+	public static Complex f30(Complex z) {
+	
+		return new Complex();
+		
+	}
+	
+	public static Complex f31(Complex z) {
+	
+		return new Complex();
+		
+	}
+	
+	public static Complex f32(Complex z) {
+	
+		return new Complex();
+		
+	}
+	
+	public static Complex f33(Complex z) {
+	
+		return new Complex();
+		
+	}
+	
+	public static Complex f34(Complex z) {
+	
+		return new Complex();
+		
+	}
+	
+	public static Complex f35(Complex z) {
+	
+		return new Complex();
+		
+	}
+	
+	public static Complex f36(Complex z) {
+	
+		return new Complex();
+		
+	}
+	
+	public static Complex f37(Complex z) {
+	
+		return new Complex();
+		
+	}
+	
+	public static Complex f38(Complex z) {
+	
+		return new Complex();
+		
+	}
+	
+	public static Complex f39(Complex z) {
+	
+		return new Complex();
+		
+	}
+	
+	public static Complex f40(Complex z) {
+	
+		return new Complex();
+		
+	}
 	
 	/* Two argument functions */
 	public static Complex g1(Complex z, Complex w) {
@@ -262,6 +383,125 @@ public class UserDefinedFunctions {
 		return new Complex();
 		
 	}
+	public static Complex g21(Complex z, Complex w) {
+	
+		return new Complex();
+	
+	}
+	
+	public static Complex g22(Complex z, Complex w) {
+	
+		return new Complex();
+		
+	}
+	
+	public static Complex g23(Complex z, Complex w) {
+	
+		return new Complex();
+		
+	}
+	
+	public static Complex g24(Complex z, Complex w) {
+	
+		return new Complex();
+		
+	}
+	
+	public static Complex g25(Complex z, Complex w) {
+	
+		return new Complex();
+		
+	}
+	
+	public static Complex g26(Complex z, Complex w) {
+	
+		return new Complex();
+		
+	}
+	
+	public static Complex g27(Complex z, Complex w) {
+	
+		return new Complex();
+		
+	}
+	
+	public static Complex g28(Complex z, Complex w) {
+	
+		return new Complex();
+		
+	}
+	
+	public static Complex g29(Complex z, Complex w) {
+	
+		return new Complex();
+		
+	}
+	
+	public static Complex g30(Complex z, Complex w) {
+	
+		return new Complex();
+		
+	}
+	
+	public static Complex g31(Complex z, Complex w) {
+	
+		return new Complex();
+	
+	}
+	
+	public static Complex g32(Complex z, Complex w) {
+	
+		return new Complex();
+		
+	}
+	
+	public static Complex g33(Complex z, Complex w) {
+	
+		return new Complex();
+		
+	}
+	
+	public static Complex g34(Complex z, Complex w) {
+	
+		return new Complex();
+		
+	}
+	
+	public static Complex g35(Complex z, Complex w) {
+	
+		return new Complex();
+		
+	}
+	
+	public static Complex g36(Complex z, Complex w) {
+	
+		return new Complex();
+		
+	}
+	
+	public static Complex g37(Complex z, Complex w) {
+	
+		return new Complex();
+		
+	}
+	
+	public static Complex g38(Complex z, Complex w) {
+	
+		return new Complex();
+		
+	}
+	
+	public static Complex g39(Complex z, Complex w) {
+	
+		return new Complex();
+		
+	}
+	
+	public static Complex g40(Complex z, Complex w) {
+	
+		return new Complex();
+		
+	}
 	/* Multi argument functions */
 	public static Complex m1(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10) {
 	
@@ -366,15 +606,38 @@ public class UserDefinedFunctions {
 	
 	}
 	
-	public static Complex m8(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10) {
+	// Normal map, use it in the user formula like this: m8(z, c, v1, n)
+	public static Complex m8(Complex z, Complex c, Complex der, Complex n, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10) {
 	
-		return new Complex();
+		Complex dc = new Complex(1, 0);
+	
+		if(n.getRe() == 0) {
+			der.assign(dc);
+		}
+		
+		Complex new_z = z.square().plus(c);
+		Complex new_der = der.times(2).times(z).plus(dc);
+	
+		z = new_z;
+		der.assign(new_der);
+	
+		return z;
 	
 	}
 	
-	public static Complex m9(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10) {
+	//out coloring (usage with Normal Map), use it in the user out coloring formula like this: m9(z, v1)  * 'Current Palette Lenght'
+	public static Complex m9(Complex z, Complex der, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10) {
 	
-		return new Complex();
+		double h2 = 1.5;  // height factor of the incoming light
+		double angle = 45;  // incoming direction of light
+		Complex v = new Complex(0, angle*2*Math.PI/360).exp();  // unit 2D vector in this direction
+		
+		Complex u = z.divide(der);
+		u = u.divide(u.norm());  // normal vector: (u.re,u.im,1) 
+		double t = u.getRe()*v.getRe() + u.getIm()*v.getIm() + h2;  // dot product with the incoming light
+		t = t/(1+h2);  // rescale so that t does not get bigger than 1
+	
+		return new Complex(t, 0);
 	
 	}
 	
@@ -439,6 +702,125 @@ public class UserDefinedFunctions {
 	}
 	
 	public static Complex m20(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10) {
+	
+		return new Complex();
+	
+	}
+	public static Complex m21(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10) {
+	
+		return new Complex();
+	
+	}
+	
+	public static Complex m22(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10) {
+	
+		return new Complex();
+	
+	}
+	
+	public static Complex m23(Complex z, Complex c, Complex n, Complex maxn, Complex sum, Complex sum2, Complex z7, Complex z8, Complex z9, Complex z10) {
+	
+		return new Complex();
+	
+	}
+	
+	public static Complex m24(Complex sum, Complex sum2, Complex n, Complex z, Complex bail, Complex p, Complex z7, Complex z8, Complex z9, Complex z10) {
+	
+		return new Complex();
+	
+	}
+	
+	public static Complex m25(Complex sum, Complex sum2, Complex n, Complex z, Complex bail, Complex p, Complex z7, Complex z8, Complex z9, Complex z10) {
+	
+		return new Complex();
+	
+	}
+	
+	public static Complex m26(Complex sum, Complex sum2, Complex n, Complex z, Complex bail, Complex p, Complex z7, Complex z8, Complex z9, Complex z10) {
+	
+		return new Complex();
+	
+	}
+	
+	public static Complex m27(Complex sum, Complex sum2, Complex n, Complex z, Complex bail, Complex p, Complex z7, Complex z8, Complex z9, Complex z10) {
+	
+		return new Complex();
+	
+	}
+	
+	public static Complex m28(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10) {
+	
+		return new Complex();
+	
+	}
+	
+	public static Complex m29(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10) {
+	
+		return new Complex();
+	
+	}
+	
+	public static Complex m30(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10) {
+	
+		return new Complex();
+	
+	}
+	
+	public static Complex m31(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10) {
+	
+		return new Complex();
+	
+	}
+	
+	public static Complex m32(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10) {
+	
+		return new Complex();
+	
+	}
+	
+	public static Complex m33(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10) {
+	
+		return new Complex();
+	
+	}
+	
+	public static Complex m34(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10) {
+	
+		return new Complex();
+	
+	}
+	
+	public static Complex m35(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10) {
+	
+		return new Complex();
+	
+	}
+	
+	public static Complex m36(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10) {
+	
+		return new Complex();
+	
+	}
+	
+	public static Complex m37(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10) {
+	
+		return new Complex();
+	
+	}
+	
+	public static Complex m38(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10) {
+	
+		return new Complex();
+	
+	}
+	
+	public static Complex m39(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10) {
+	
+		return new Complex();
+	
+	}
+	
+	public static Complex m40(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10) {
 	
 		return new Complex();
 	

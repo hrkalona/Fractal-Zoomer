@@ -35,7 +35,7 @@ public class UserBailoutTest extends BailoutTest {
     private Complex c_center;
     private Complex c_size;
 
-    public UserBailoutTest(double bound, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, int max_iterations, double xCenter, double yCenter, double size) {
+    public UserBailoutTest(double bound, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, int max_iterations, double xCenter, double yCenter, double size, double[] point) {
 
         super(bound);
 
@@ -88,6 +88,16 @@ public class UserBailoutTest extends BailoutTest {
         
         if(parser[1].foundSize()) {
             parser[1].setSizevalue(c_size);
+        }
+        
+        Complex c_point = new Complex(point[0], point[1]);
+        
+        if(parser[0].foundPoint()) {
+            parser[0].setPointvalue(c_point);
+        }
+        
+        if(parser[1].foundPoint()) {
+            parser[1].setPointvalue(c_point);
         }
 
     }

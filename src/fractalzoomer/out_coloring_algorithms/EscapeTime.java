@@ -21,6 +21,7 @@ public class EscapeTime extends OutColorAlgorithm {
 
     public EscapeTime() {
         super();
+        OutNotUsingIncrement = true;
     }
 
     @Override

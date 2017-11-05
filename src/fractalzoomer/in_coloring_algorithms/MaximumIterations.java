@@ -27,6 +27,7 @@ public class MaximumIterations extends InColorAlgorithm {
     public MaximumIterations(int max_iterations) { 
         super();
         this.max_iterations = max_iterations;
+        InNotUsingIncrement = true;
     }
     
     @Override

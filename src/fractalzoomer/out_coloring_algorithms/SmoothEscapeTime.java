@@ -33,6 +33,7 @@ public class SmoothEscapeTime extends OutColorAlgorithm {
         super();
         this.log_bailout_squared = log_bailout_squared;
         this.algorithm = algorithm;
+        OutNotUsingIncrement = true;
 
     }
 

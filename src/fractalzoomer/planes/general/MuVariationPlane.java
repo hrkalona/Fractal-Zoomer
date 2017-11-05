@@ -33,7 +33,7 @@ public class MuVariationPlane extends Plane {
     }
 
     @Override
-    public Complex getPixel(Complex pixel) {
+    public Complex transform(Complex pixel) {
 
         return pixel.square().divide(pixel.fourth().sub(0.25));
 

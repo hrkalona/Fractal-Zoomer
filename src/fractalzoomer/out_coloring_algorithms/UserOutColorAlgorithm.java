@@ -30,7 +30,7 @@ public class UserOutColorAlgorithm extends OutColorAlgorithm {
     protected Parser parser;
     protected int max_iterations;
 
-    public UserOutColorAlgorithm(String outcoloring_formula, double bailout, int max_iterations, double xCenter, double yCenter, double size) {
+    public UserOutColorAlgorithm(String outcoloring_formula, double bailout, int max_iterations, double xCenter, double yCenter, double size, double[] point) {
 
         super();
         
@@ -55,6 +55,11 @@ public class UserOutColorAlgorithm extends OutColorAlgorithm {
             parser.setSizevalue(new Complex(size, 0));
         }
 
+        if(parser.foundPoint()) {
+            parser.setPointvalue(new Complex(point[0], point[1]));
+        }
+        
+        OutNotUsingIncrement = true;
     }
 
     @Override

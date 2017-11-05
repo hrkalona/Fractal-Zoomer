@@ -36,7 +36,7 @@ public class ShearPlane extends Plane {
     }
 
     @Override
-    public Complex getPixel(Complex pixel) {
+    public Complex transform(Complex pixel) {
 
         return pixel.shear(new Complex(plane_transform_scales[0], plane_transform_scales[1]));
 

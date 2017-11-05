@@ -22,7 +22,6 @@ import fractalzoomer.out_coloring_algorithms.BinaryDecomposition;
 import fractalzoomer.out_coloring_algorithms.BinaryDecomposition2;
 import fractalzoomer.out_coloring_algorithms.ColorDecompositionRootFindingMethod;
 import fractalzoomer.core.Complex;
-import fractalzoomer.functions.root_finding_methods.RootFindingMethods;
 import fractalzoomer.in_coloring_algorithms.CosMag;
 import fractalzoomer.in_coloring_algorithms.DecompositionLike;
 
@@ -61,6 +60,7 @@ public class SteffensenFormula extends SteffensenRootFindingMethod {
     private Parser parser;
     private int iterations;
     private Complex[] vars;
+    private Complex point;
 
     public SteffensenFormula(double xCenter, double yCenter, double size, int max_iterations, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula,  double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int converging_smooth_algorithm, String user_fz_formula) {
 
@@ -116,10 +116,10 @@ public class SteffensenFormula extends SteffensenRootFindingMethod {
             case MainWindow.USER_OUTCOLORING_ALGORITHM:
                 convergent_bailout = 1E-7;
                 if(user_out_coloring_algorithm == 0) {
-                    out_color_algorithm = new UserOutColorAlgorithmRootFindingMethod(outcoloring_formula, convergent_bailout, max_iterations, xCenter, yCenter, size);
+                    out_color_algorithm = new UserOutColorAlgorithmRootFindingMethod(outcoloring_formula, convergent_bailout, max_iterations, xCenter, yCenter, size, plane_transform_center);
                 }
                 else {
-                    out_color_algorithm = new UserConditionalOutColorAlgorithmRootFindingMethod(user_outcoloring_conditions, user_outcoloring_condition_formula, convergent_bailout, max_iterations, xCenter, yCenter, size);
+                    out_color_algorithm = new UserConditionalOutColorAlgorithmRootFindingMethod(user_outcoloring_conditions, user_outcoloring_condition_formula, convergent_bailout, max_iterations, xCenter, yCenter, size, plane_transform_center);
                 }
                 break;
 
@@ -159,10 +159,10 @@ public class SteffensenFormula extends SteffensenRootFindingMethod {
                 break;
             case MainWindow.USER_INCOLORING_ALGORITHM:
                 if(user_in_coloring_algorithm == 0) {
-                    in_color_algorithm = new UserInColorAlgorithm(incoloring_formula, max_iterations, xCenter, yCenter, size);
+                    in_color_algorithm = new UserInColorAlgorithm(incoloring_formula, max_iterations, xCenter, yCenter, size, plane_transform_center);
                 }
                 else {
-                    in_color_algorithm = new UserConditionalInColorAlgorithm(user_incoloring_conditions, user_incoloring_condition_formula, max_iterations, xCenter, yCenter, size);
+                    in_color_algorithm = new UserConditionalInColorAlgorithm(user_incoloring_conditions, user_incoloring_condition_formula, max_iterations, xCenter, yCenter, size, plane_transform_center);
                 }
                 break;
 
@@ -170,6 +170,8 @@ public class SteffensenFormula extends SteffensenRootFindingMethod {
 
         parser = new Parser();
         expr = parser.parse(user_fz_formula);
+        
+        point = new Complex(plane_transform_center[0], plane_transform_center[1]);
 
     }
 
@@ -180,6 +182,8 @@ public class SteffensenFormula extends SteffensenRootFindingMethod {
 
         parser = new Parser();
         expr = parser.parse(user_fz_formula);
+        
+        point = new Complex(plane_transform_center[0], plane_transform_center[1]);
 
     }
 
@@ -309,7 +313,7 @@ public class SteffensenFormula extends SteffensenRootFindingMethod {
 
             setVariables(zold, zold2);
 
-            temp = rotation.getPixel(complex[0], true);
+            temp = rotation.rotateInverse(complex[0]);
 
             if(Double.isNaN(temp.getRe()) || Double.isNaN(temp.getIm()) || Double.isInfinite(temp.getRe()) || Double.isInfinite(temp.getIm())) {
                 break;
@@ -385,6 +389,10 @@ public class SteffensenFormula extends SteffensenRootFindingMethod {
 
         if(parser.foundSize()) {
             parser.setSizevalue(new Complex(size, 0));
+        }
+        
+        if(parser.foundPoint()) {
+            parser.setPointvalue(point);
         }
 
     }

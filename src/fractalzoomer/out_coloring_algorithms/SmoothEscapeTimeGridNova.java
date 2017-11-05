@@ -37,6 +37,7 @@ public class SmoothEscapeTimeGridNova extends OutColorAlgorithm {
         pi2 = Math.PI * 2;
         log_bailout_squared = Math.log(4.0);
         this.algorithm = algorithm;
+        OutNotUsingIncrement = false;
 
     }
 
@@ -72,7 +73,7 @@ public class SmoothEscapeTimeGridNova extends OutColorAlgorithm {
             temp3 = (Integer)object[0] + f;
         }
 
-        return grid ? temp3 + MAGIC_OFFSET_NUMBER : -(temp3 + MAGIC_OFFSET_NUMBER + 50);
+        return grid ? temp3 + MAGIC_OFFSET_NUMBER : -(temp3 + MAGIC_OFFSET_NUMBER + INCREMENT);
 
     }
     

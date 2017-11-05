@@ -29,6 +29,7 @@ public class MagTimesCosReSquared extends InColorAlgorithm {
     public MagTimesCosReSquared() { 
        
         super();
+        InNotUsingIncrement = true;
     
     }
     

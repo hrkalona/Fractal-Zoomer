@@ -40,6 +40,7 @@ public class SmoothEscapeTimeEscapeRadiusMagnet extends OutColorAlgorithm {
         pi2 = Math.PI * 2;
         this.algorithm = algorithm;
         this.algorithm2 = algorithm2;
+        OutNotUsingIncrement = true;
 
     }
 

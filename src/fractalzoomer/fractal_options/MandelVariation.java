@@ -30,6 +30,6 @@ public abstract class MandelVariation {
 
     }
 
-    public abstract Complex getPixel(Complex pixel);
+    public abstract Complex getValue(Complex pixel);
     
 }

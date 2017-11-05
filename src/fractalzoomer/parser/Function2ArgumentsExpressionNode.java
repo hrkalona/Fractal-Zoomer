@@ -6,12 +6,6 @@
 package fractalzoomer.parser;
 
 import fractalzoomer.core.Complex;
-import java.io.File;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
 
 /**
  * An ExpressionNode that handles mathematical functions with 2 arguments.
@@ -111,109 +105,19 @@ public class Function2ArgumentsExpressionNode implements ExpressionNode {
     public static final int LOGN = 17;
 
     /**
-     * function id for the user g1 function
+     * function id for the fuzz function
      */
-    public static final int G1 = 18;
-
-    /**
-     * function id for the user g2 function
-     */
-    public static final int G2 = 19;
-
-    /**
-     * function id for the user g3 function
-     */
-    public static final int G3 = 20;
-
-    /**
-     * function id for the user g4 function
-     */
-    public static final int G4 = 21;
-
-    /**
-     * function id for the user g5 function
-     */
-    public static final int G5 = 22;
-
-    /**
-     * function id for the user g6 function
-     */
-    public static final int G6 = 23;
-
-    /**
-     * function id for the user g7 function
-     */
-    public static final int G7 = 24;
-
-    /**
-     * function id for the user g8 function
-     */
-    public static final int G8 = 25;
-
-    /**
-     * function id for the user g9 function
-     */
-    public static final int G9 = 26;
-
-    /**
-     * function id for the user g10 function
-     */
-    public static final int G10 = 27;
+    public static final int FUZZ = 18;
     
     /**
-     * function id for the user g11 function
+     * function id for the norm-n function
      */
-    public static final int G11 = 28;
-
-    /**
-     * function id for the user g12 function
-     */
-    public static final int G12 = 29;
-
-    /**
-     * function id for the user g13 function
-     */
-    public static final int G13 = 30;
-
-    /**
-     * function id for the user g14 function
-     */
-    public static final int G14 = 31;
-
-    /**
-     * function id for the user g15 function
-     */
-    public static final int G15 = 32;
-
-    /**
-     * function id for the user g16 function
-     */
-    public static final int G16 = 33;
-
-    /**
-     * function id for the user g17 function
-     */
-    public static final int G17 = 34;
-
-    /**
-     * function id for the user g18 function
-     */
-    public static final int G18 = 35;
-
-    /**
-     * function id for the user g19 function
-     */
-    public static final int G19 = 36;
-
-    /**
-     * function id for the user g20 function
-     */
-    public static final int G20 = 37;
+    public static final int NORMN = 19;
     
     /**
-     * function id for the user fuzz function
+     * function id for the rotation function
      */
-    public static final int FUZZ = 38;
+    public static final int ROT = 20;
 
     /**
      * the id of the function to apply to the argument
@@ -230,10 +134,6 @@ public class Function2ArgumentsExpressionNode implements ExpressionNode {
      */
     private ExpressionNode argument2;
 
-    private final static String[] USER_FUNCS = {"g1", "g2", "g3", "g4", "g5", "g6", "g7", "g8", "g9", "g10", "g11", "g12", "g13", "g14", "g15", "g16", "g17", "g18", "g19", "g20"};
-
-    private Method method;
-
     /**
      * Construct a function by id and argument.
      *
@@ -246,10 +146,6 @@ public class Function2ArgumentsExpressionNode implements ExpressionNode {
         this.function = function;
         this.argument = argument;
         this.argument2 = argument2;
-
-        if (function >= G1 && function < (G1 + USER_FUNCS.length)) {
-            getUserFunction();
-        }
     }
 
     /**
@@ -343,13 +239,15 @@ public class Function2ArgumentsExpressionNode implements ExpressionNode {
         
         if (str.equals("fuzz")) {
             return Function2ArgumentsExpressionNode.FUZZ;
-        } 
-
-        for (int i = 0; i < USER_FUNCS.length; i++) {
-            if (str.equals(USER_FUNCS[i])) {
-                return Function2ArgumentsExpressionNode.G1 + i;
-            }
         }
+        
+        if (str.equals("normn")) {
+            return Function2ArgumentsExpressionNode.NORMN;
+        } 
+        
+        if (str.equals("rot")) {
+            return Function2ArgumentsExpressionNode.ROT;
+        } 
 
         throw new ParserException("Unexpected Function " + str + " found.");
     }
@@ -363,12 +261,7 @@ public class Function2ArgumentsExpressionNode implements ExpressionNode {
      * @return a string containing all the function names
      */
     public static String getAllFunctions() {
-        String temp_str = "";
-        for (int i = 0; i < USER_FUNCS.length; i++) {
-            temp_str += "|" + USER_FUNCS[i];
-        }
-
-        return "bipol|ibipol|inflect|foldu|foldd|foldl|foldr|foldi|foldo|shear|cmp|add|sub|mul|div|rem|pow|logn|fuzz" + temp_str;
+        return "bipol|ibipol|inflect|foldu|foldd|foldl|foldr|foldi|foldo|shear|cmp|add|sub|mul|div|rem|pow|logn|fuzz|normn|rot";
     }
 
     /**
@@ -436,32 +329,12 @@ public class Function2ArgumentsExpressionNode implements ExpressionNode {
                 
             case FUZZ:
                 return argument.getValue().fuzz(argument2.getValue());
-
-            case G1:
-            case G2:
-            case G3:
-            case G4:
-            case G5:
-            case G6:
-            case G7:
-            case G8:
-            case G9:
-            case G10:
-            case G11:
-            case G12:
-            case G13:
-            case G14:
-            case G15:
-            case G16:
-            case G17:
-            case G18:
-            case G19:
-            case G20:
-                try {
-                    return (Complex) method.invoke(null, argument.getValue(), argument2.getValue());
-                } catch (Exception ex) {
-                    return new Complex();
-                }
+                
+            case NORMN:
+                return argument.getValue().nnorm(argument2.getValue());
+                
+            case ROT:
+                return argument.getValue().rotate(argument2.getValue());
 
         }
 
@@ -481,36 +354,4 @@ public class Function2ArgumentsExpressionNode implements ExpressionNode {
         argument.accept(visitor);
         argument2.accept(visitor);
     }
-
-    private void getUserFunction() {
-
-        try {
-            int i = function - G1;
-            File file = new File("");
-            URL url = file.toURI().toURL();
-            URLClassLoader loader = new URLClassLoader(new URL[]{url});
-            Class<?> userClass = loader.loadClass("UserDefinedFunctions");
-            method = userClass.getMethod("g" + (i + 1), Complex.class, Complex.class);
-
-            if (!Modifier.isStatic(method.getModifiers())) {
-                throw new ParserException("Method modifier error: Method " + method.getName() + " must be declared static.");
-            }
-
-            if (!method.getReturnType().equals(Complex.class)) {
-                throw new ParserException("Return type error: Method " + method.getName() + " must have a Complex return type.");
-            }
-        } catch (NoSuchMethodException ex) {
-            throw new ParserException("Method not found error: " + ex.getMessage());
-        } catch (SecurityException ex) {
-            throw new ParserException("Security error: " + ex.getMessage());
-        } catch (IllegalArgumentException ex) {
-            throw new ParserException("Illegal Argument error: " + ex.getMessage());
-        } catch (ClassNotFoundException ex) {
-            throw new ParserException("Class not found error: " + ex.getMessage());
-        } catch (MalformedURLException ex) {
-            throw new ParserException("File not found error: " + ex.getMessage());
-        }
-
-    }
-
 }

@@ -17,9 +17,9 @@
 
 package fractalzoomer.out_coloring_algorithms;
 
-public abstract class OutColorAlgorithm {
-    public static final int MAGIC_OFFSET_NUMBER = 100800;
+import fractalzoomer.utils.ColorAlgorithm;
 
+public abstract class OutColorAlgorithm extends ColorAlgorithm {
     public abstract double getResult(Object[] object);
     
     public double getResult3D(Object[] object) {
@@ -33,11 +33,5 @@ public abstract class OutColorAlgorithm {
         return Math.abs(result) - MAGIC_OFFSET_NUMBER;
         
     }
-    
-    public static double transformResultToColor(double result) {
-        
-        return result + MAGIC_OFFSET_NUMBER;
-        
-    }
-
+ 
 }

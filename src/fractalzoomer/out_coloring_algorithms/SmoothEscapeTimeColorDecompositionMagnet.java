@@ -33,6 +33,7 @@ public class SmoothEscapeTimeColorDecompositionMagnet extends ColorDecomposition
         super();
         this.log_convergent_bailout = log_convergent_bailout;
         this.algorithm = algorithm;
+        OutNotUsingIncrement = true;
 
     }
 

@@ -33,6 +33,7 @@ public class SmoothBinaryDecompositionRootFindingMethod extends OutColorAlgorith
         super();
         this.log_convergent_bailout = log_convergent_bailout;
         this.algorithm = algorithm;
+        OutNotUsingIncrement = false;
 
     }
 
@@ -43,7 +44,7 @@ public class SmoothBinaryDecompositionRootFindingMethod extends OutColorAlgorith
             double temp = Math.log(((Complex)object[3]).distance_squared((Complex)object[4]));
             double temp3 = (Integer)object[0] + (log_convergent_bailout - temp) / (Math.log((Double)object[2]) - temp);
 
-            return ((Complex)object[1]).getIm() < 0 ? -(temp3 + MAGIC_OFFSET_NUMBER + 50) : temp3 + MAGIC_OFFSET_NUMBER;
+            return ((Complex)object[1]).getIm() < 0 ? -(temp3 + MAGIC_OFFSET_NUMBER + INCREMENT) : temp3 + MAGIC_OFFSET_NUMBER;
         }
         else {
             double temp4 = Math.log(((Double)object[2]) + 1e-33);
@@ -54,7 +55,7 @@ public class SmoothBinaryDecompositionRootFindingMethod extends OutColorAlgorith
 
             double temp3 = (Integer)object[0] + Math.log(log_convergent_bailout / temp4) / Math.log(power);
 
-            return ((Complex)object[1]).getIm() < 0 ? -(temp3 + MAGIC_OFFSET_NUMBER + 50) : temp3 + MAGIC_OFFSET_NUMBER;
+            return ((Complex)object[1]).getIm() < 0 ? -(temp3 + MAGIC_OFFSET_NUMBER + INCREMENT) : temp3 + MAGIC_OFFSET_NUMBER;
         }
 
     }

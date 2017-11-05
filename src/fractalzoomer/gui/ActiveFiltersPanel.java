@@ -72,7 +72,7 @@ public class ActiveFiltersPanel extends JPanel {
         detail_filters_tab.setBackground(MainWindow.bg_color);  
         
         detail_filters.setBackground(MainWindow.bg_color);
-        detail_filters.setPreferredSize(new Dimension(1000, 85));
+        detail_filters.setPreferredSize(new Dimension(1060, 85));
         detail_filters.setLayout(new GridLayout(1, 8));
     
         
@@ -95,7 +95,7 @@ public class ActiveFiltersPanel extends JPanel {
         
         color_filters.setBackground(MainWindow.bg_color);
         color_filters.setLayout(new GridLayout(3, 6));
-        color_filters.setPreferredSize(new Dimension(1000, 170));
+        color_filters.setPreferredSize(new Dimension(1060, 170));
         
         color_filters.add(filters_opt[MainWindow.HISTOGRAM_EQUALIZATION]);;
         color_filters.add(filters_opt[MainWindow.POSTERIZE]);
@@ -125,7 +125,7 @@ public class ActiveFiltersPanel extends JPanel {
         texture_filters_tab.setBackground(MainWindow.bg_color);  
         
         texture_filters.setBackground(MainWindow.bg_color);    
-        texture_filters.setPreferredSize(new Dimension(865, 85));
+        texture_filters.setPreferredSize(new Dimension(925, 85));
         texture_filters.setLayout(new GridLayout(1, 7));
         
         texture_filters.add(filters_opt[MainWindow.DITHER]);

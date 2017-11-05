@@ -111,7 +111,7 @@ public static class BezierSpline
 		for (int i = 1; i < n - 1; ++i)
 			rhs[i] = 4 * knots[i].x + 2 * knots[i + 1].x;
 		rhs[0] = knots[0].x + 2 * knots[1].x;
-		rhs[n - 1] = (8 * knots[n - 1].x + knots[n].x) / 2.0;
+		rhs[n - 1] = (8 * knots[n - 1].x + knots[n].x) * 0.5;
 		// Get first control points X-values
 		double[] x = GetFirstControlPoints(rhs);
 
@@ -119,7 +119,7 @@ public static class BezierSpline
 		for (int i = 1; i < n - 1; ++i)
 			rhs[i] = 4 * knots[i].y + 2 * knots[i + 1].y;
 		rhs[0] = knots[0].y + 2 * knots[1].y;
-		rhs[n - 1] = (8 * knots[n - 1].y + knots[n].y) / 2.0;
+		rhs[n - 1] = (8 * knots[n - 1].y + knots[n].y) * 0.5;
 		// Get first control points Y-values
 		double[] y = GetFirstControlPoints(rhs);
 

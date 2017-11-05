@@ -27,6 +27,7 @@ public class DistanceEstimator  extends OutColorAlgorithm {
     
     public DistanceEstimator() {
         super();
+        OutNotUsingIncrement = true;
     }
 
     @Override

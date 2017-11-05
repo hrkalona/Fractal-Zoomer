@@ -34,7 +34,7 @@ public class InversedLambdaPlane extends Plane {
     }
 
     @Override
-    public Complex getPixel(Complex pixel) {
+    public Complex transform(Complex pixel) {
         
         Complex temp = pixel.reciprocal();
         return temp.times(temp.r_sub(1));

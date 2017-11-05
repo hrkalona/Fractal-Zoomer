@@ -36,7 +36,7 @@ public class FoldLeftPlane extends Plane {
     }
 
     @Override
-    public Complex getPixel(Complex pixel) {
+    public Complex transform(Complex pixel) {
 
         return pixel.fold_left(center);
 

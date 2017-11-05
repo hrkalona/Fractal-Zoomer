@@ -29,6 +29,7 @@ public class SinReSquaredMinusImSquared extends InColorAlgorithm {
     public SinReSquaredMinusImSquared() { 
        
         super();
+        InNotUsingIncrement = true;
 
     }
     

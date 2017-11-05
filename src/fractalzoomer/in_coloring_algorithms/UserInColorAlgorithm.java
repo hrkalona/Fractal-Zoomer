@@ -30,7 +30,7 @@ public class UserInColorAlgorithm extends InColorAlgorithm {
     private Parser parser;
     private int max_iterations;
     
-    public UserInColorAlgorithm(String incoloring_formula, int max_iterations, double xCenter, double yCenter, double size) {
+    public UserInColorAlgorithm(String incoloring_formula, int max_iterations, double xCenter, double yCenter, double size, double[] point) {
         
         super();
         
@@ -49,7 +49,13 @@ public class UserInColorAlgorithm extends InColorAlgorithm {
             parser.setSizevalue(new Complex(size, 0));
         }
         
+        if(parser.foundPoint()) {
+            parser.setPointvalue(new Complex(point[0], point[1]));
+        }
+        
         this.max_iterations = max_iterations;
+        
+        InNotUsingIncrement = true;
         
     }
 

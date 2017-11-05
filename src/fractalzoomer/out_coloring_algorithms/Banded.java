@@ -27,6 +27,7 @@ public class Banded extends OutColorAlgorithm {
 
     public Banded() {
         super();
+        OutNotUsingIncrement = true;
     }
     
     @Override

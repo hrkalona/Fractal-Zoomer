@@ -31,6 +31,7 @@ public class Biomorphs extends OutColorAlgorithm {
 
         super();
         this.bailout = bailout;
+        OutNotUsingIncrement = false;
 
     }
 
@@ -39,7 +40,7 @@ public class Biomorphs extends OutColorAlgorithm {
 
         double temp = ((Complex)object[1]).getRe();
         double temp2 = ((Complex)object[1]).getIm();
-        return temp > -bailout && temp < bailout || temp2 > -bailout && temp2 < bailout ?  (Integer)object[0] + MAGIC_OFFSET_NUMBER : -((Integer)object[0] + MAGIC_OFFSET_NUMBER + 50);
+        return temp > -bailout && temp < bailout || temp2 > -bailout && temp2 < bailout ?  (Integer)object[0] + MAGIC_OFFSET_NUMBER : -((Integer)object[0] + MAGIC_OFFSET_NUMBER + INCREMENT);
 
     }
 

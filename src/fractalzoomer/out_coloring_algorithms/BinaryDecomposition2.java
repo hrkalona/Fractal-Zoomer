@@ -29,13 +29,14 @@ public class BinaryDecomposition2 extends OutColorAlgorithm {
     public BinaryDecomposition2() {
 
         super();
+        OutNotUsingIncrement = false;
         
     }
 
     @Override
     public double getResult(Object[] object) {
 
-        return ((Complex)object[1]).getRe() < 0 ? -((Integer)object[0] + MAGIC_OFFSET_NUMBER + 50) : (Integer)object[0] + MAGIC_OFFSET_NUMBER;
+        return ((Complex)object[1]).getRe() < 0 ? -((Integer)object[0] + MAGIC_OFFSET_NUMBER + INCREMENT) : (Integer)object[0] + MAGIC_OFFSET_NUMBER;
 
     }
     

@@ -38,7 +38,7 @@ public class CircleInversionPlane extends Plane {
     }
 
     @Override
-    public Complex getPixel(Complex pixel) {
+    public Complex transform(Complex pixel) {
         
         return pixel.circle_inversion(center, plane_transform_radius);
         

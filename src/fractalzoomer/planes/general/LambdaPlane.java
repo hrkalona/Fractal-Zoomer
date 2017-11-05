@@ -33,7 +33,7 @@ public class LambdaPlane extends Plane {
     }
 
     @Override
-    public Complex getPixel(Complex pixel) {
+    public Complex transform(Complex pixel) {
       
         return  pixel.times(pixel.r_sub(1));
         

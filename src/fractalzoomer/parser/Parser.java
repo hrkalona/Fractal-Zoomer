@@ -46,7 +46,7 @@ public class Parser {
     Token lookahead;
 
     /* Implemented for fractal zoomer purposes */
-    public static final int EXTRA_VARS = 10;
+    public static final int EXTRA_VARS = 20;
     boolean found_z;
     boolean found_c;
     boolean found_n;
@@ -58,6 +58,7 @@ public class Parser {
     boolean found_maxn;
     boolean found_center;
     boolean found_size;
+    boolean found_point;
     
     boolean found_vars[];
 
@@ -72,16 +73,8 @@ public class Parser {
     ArrayList<VariableExpressionNode> maxn_var;
     ArrayList<VariableExpressionNode> center_var;
     ArrayList<VariableExpressionNode> size_var;
-    ArrayList<VariableExpressionNode> var1_var;
-    ArrayList<VariableExpressionNode> var2_var;
-    ArrayList<VariableExpressionNode> var3_var;
-    ArrayList<VariableExpressionNode> var4_var;
-    ArrayList<VariableExpressionNode> var5_var;
-    ArrayList<VariableExpressionNode> var6_var;
-    ArrayList<VariableExpressionNode> var7_var;
-    ArrayList<VariableExpressionNode> var8_var;
-    ArrayList<VariableExpressionNode> var9_var;
-    ArrayList<VariableExpressionNode> var10_var;
+    ArrayList<ArrayList<VariableExpressionNode>> vars_var;
+    ArrayList<VariableExpressionNode> point_var;
 
     VariableExpressionNode[] z_var_arr;
     VariableExpressionNode[] c_var_arr;
@@ -94,17 +87,8 @@ public class Parser {
     VariableExpressionNode[] maxn_var_arr;
     VariableExpressionNode[] center_var_arr;
     VariableExpressionNode[] size_var_arr;
-    VariableExpressionNode[] var1_var_arr;
-    VariableExpressionNode[] var2_var_arr;
-    VariableExpressionNode[] var3_var_arr;
-    VariableExpressionNode[] var4_var_arr;
-    VariableExpressionNode[] var5_var_arr;
-    VariableExpressionNode[] var6_var_arr;
-    VariableExpressionNode[] var7_var_arr;
-    VariableExpressionNode[] var8_var_arr;
-    VariableExpressionNode[] var9_var_arr;
-    VariableExpressionNode[] var10_var_arr;
     VariableExpressionNode[][] vars_var_arr;
+    VariableExpressionNode[] point_var_arr;
 
     /**
      * ************************************
@@ -132,6 +116,7 @@ public class Parser {
         found_maxn = false;
         found_center = false;
         found_size = false;
+        found_point = false;
         
         found_vars = new boolean[EXTRA_VARS];
         
@@ -150,16 +135,13 @@ public class Parser {
         maxn_var = new ArrayList<VariableExpressionNode>();
         center_var = new ArrayList<VariableExpressionNode>();
         size_var = new ArrayList<VariableExpressionNode>();
-        var1_var = new ArrayList<VariableExpressionNode>();
-        var2_var = new ArrayList<VariableExpressionNode>();
-        var3_var = new ArrayList<VariableExpressionNode>();
-        var4_var = new ArrayList<VariableExpressionNode>();
-        var5_var = new ArrayList<VariableExpressionNode>();
-        var6_var = new ArrayList<VariableExpressionNode>();
-        var7_var = new ArrayList<VariableExpressionNode>();
-        var8_var = new ArrayList<VariableExpressionNode>();
-        var9_var = new ArrayList<VariableExpressionNode>();
-        var10_var = new ArrayList<VariableExpressionNode>();
+        vars_var = new ArrayList<ArrayList<VariableExpressionNode>>();
+        
+        for(int i = 0; i < EXTRA_VARS; i++) {
+            vars_var.add(new ArrayList<VariableExpressionNode>());
+        }
+        
+        point_var = new ArrayList<VariableExpressionNode>();
 
         Tokenizer tokenizer = Tokenizer.getExpressionTokenizer();
         tokenizer.tokenize(expression);
@@ -203,17 +185,8 @@ public class Parser {
         cbail_var_arr = new VariableExpressionNode[cbail_var.size()];
         maxn_var_arr = new VariableExpressionNode[maxn_var.size()];
         center_var_arr = new VariableExpressionNode[center_var.size()];
-        size_var_arr = new VariableExpressionNode[size_var.size()];
-        var1_var_arr = new VariableExpressionNode[var1_var.size()];
-        var2_var_arr = new VariableExpressionNode[var2_var.size()];
-        var3_var_arr = new VariableExpressionNode[var3_var.size()];
-        var4_var_arr = new VariableExpressionNode[var4_var.size()];
-        var5_var_arr = new VariableExpressionNode[var5_var.size()];
-        var6_var_arr = new VariableExpressionNode[var6_var.size()];
-        var7_var_arr = new VariableExpressionNode[var7_var.size()];
-        var8_var_arr = new VariableExpressionNode[var8_var.size()];
-        var9_var_arr = new VariableExpressionNode[var9_var.size()];
-        var10_var_arr = new VariableExpressionNode[var10_var.size()];
+        size_var_arr = new VariableExpressionNode[size_var.size()];     
+        point_var_arr = new VariableExpressionNode[point_var.size()];
 
         z_var_arr = z_var.toArray(z_var_arr);
         c_var_arr = c_var.toArray(c_var_arr);
@@ -226,28 +199,14 @@ public class Parser {
         maxn_var_arr = maxn_var.toArray(maxn_var_arr);
         center_var_arr = center_var.toArray(center_var_arr);
         size_var_arr = size_var.toArray(size_var_arr);
-        var1_var_arr = var1_var.toArray(var1_var_arr);
-        var2_var_arr = var2_var.toArray(var2_var_arr);
-        var3_var_arr = var3_var.toArray(var3_var_arr);
-        var4_var_arr = var4_var.toArray(var4_var_arr);
-        var5_var_arr = var5_var.toArray(var5_var_arr);
-        var6_var_arr = var6_var.toArray(var6_var_arr);
-        var7_var_arr = var7_var.toArray(var7_var_arr);
-        var8_var_arr = var8_var.toArray(var8_var_arr);
-        var9_var_arr = var9_var.toArray(var9_var_arr);
-        var10_var_arr = var10_var.toArray(var10_var_arr);
+        point_var_arr = point_var.toArray(point_var_arr);
 
         vars_var_arr = new VariableExpressionNode[EXTRA_VARS][];
-        vars_var_arr[0] = var1_var_arr;
-        vars_var_arr[1] = var2_var_arr;
-        vars_var_arr[2] = var3_var_arr;
-        vars_var_arr[3] = var4_var_arr;
-        vars_var_arr[4] = var5_var_arr;
-        vars_var_arr[5] = var6_var_arr;
-        vars_var_arr[6] = var7_var_arr;
-        vars_var_arr[7] = var8_var_arr;
-        vars_var_arr[8] = var9_var_arr;
-        vars_var_arr[9] = var10_var_arr;
+        
+        for(int i = 0; i < vars_var_arr.length; i++) {
+            vars_var_arr[i] = new VariableExpressionNode[vars_var.get(i).size()];
+            vars_var_arr[i] = vars_var.get(i).toArray(vars_var_arr[i]);
+        }
 
         return expr;
     }
@@ -429,6 +388,22 @@ public class Parser {
             ExpressionNode expr[] = functionArgument2();
             return new Function2ArgumentsExpressionNode(function, expr[0], expr[1]);
         }
+        // argument -> FUNCTION_USER_1_ARG argument
+        else if(lookahead.token == Token.FUNCTION_USER_ONE_ARGUMENT) {
+            int function = FunctionUser1ArgumentExpressionNode.stringToFunction(lookahead.sequence);
+
+            nextToken();
+            ExpressionNode expr = functionArgument();
+            return new FunctionUser1ArgumentExpressionNode(function, expr);
+        }
+        // argument -> FUNCTION_USER_2_ARG argument
+        else if(lookahead.token == Token.FUNCTION_USER_TWO_ARGUMENTS) {
+            int function = FunctionUser2ArgumentExpressionNode.stringToFunction(lookahead.sequence);
+
+            nextToken();
+            ExpressionNode expr[] = functionArgument2();
+            return new FunctionUser2ArgumentExpressionNode(function, expr[0], expr[1]);
+        }
         // argument -> FUNCTION_USER_MULTI_ARG argument
         else if(lookahead.token == Token.FUNCTION_USER_MULTI_ARGUMENTS) {
             int function = FunctionUserMultiArgumentExpressionNode.stringToFunction(lookahead.sequence);
@@ -548,10 +523,11 @@ public class Parser {
         if(lookahead.token == Token.VARIABLE) {
 
             String temp = lookahead.sequence;
-
+           
             if(!temp.equalsIgnoreCase("z") && !temp.equalsIgnoreCase("c") && !temp.equalsIgnoreCase("n") && !temp.equalsIgnoreCase("p") && !temp.equalsIgnoreCase("s") && !temp.equalsIgnoreCase("pp") && !temp.equalsIgnoreCase("bail") && !temp.equalsIgnoreCase("cbail") && !temp.equalsIgnoreCase("maxn") && !temp.equalsIgnoreCase("pi") && !temp.equalsIgnoreCase("e") && !temp.equalsIgnoreCase("c10")
                     && !temp.equalsIgnoreCase("phi") && !temp.equalsIgnoreCase("alpha") && !temp.equalsIgnoreCase("delta") && !temp.equalsIgnoreCase("center") && !temp.equalsIgnoreCase("size")
-                    && !temp.equalsIgnoreCase("v1") && !temp.equalsIgnoreCase("v2") && !temp.equalsIgnoreCase("v3") && !temp.equalsIgnoreCase("v4") && !temp.equalsIgnoreCase("v5") && !temp.equalsIgnoreCase("v6") && !temp.equalsIgnoreCase("v7") && !temp.equalsIgnoreCase("v8") && !temp.equalsIgnoreCase("v9") && !temp.equalsIgnoreCase("v10")) {
+                    && !temp.equalsIgnoreCase("v1") && !temp.equalsIgnoreCase("v2") && !temp.equalsIgnoreCase("v3") && !temp.equalsIgnoreCase("v4") && !temp.equalsIgnoreCase("v5") && !temp.equalsIgnoreCase("v6") && !temp.equalsIgnoreCase("v7") && !temp.equalsIgnoreCase("v8") && !temp.equalsIgnoreCase("v9") && !temp.equalsIgnoreCase("v10")
+                    && !temp.equalsIgnoreCase("v11") && !temp.equalsIgnoreCase("v12") && !temp.equalsIgnoreCase("v13") && !temp.equalsIgnoreCase("v14") && !temp.equalsIgnoreCase("v15") && !temp.equalsIgnoreCase("v16") && !temp.equalsIgnoreCase("v17") && !temp.equalsIgnoreCase("v18") && !temp.equalsIgnoreCase("v19") && !temp.equalsIgnoreCase("v20")&& !temp.equalsIgnoreCase("point")) {
                 throw new ParserException("Unrecognized variable %s found.", lookahead);
             }
 
@@ -612,54 +588,17 @@ public class Parser {
                 maxn_var.add((VariableExpressionNode)expr);
             }
 
-            if(temp.equalsIgnoreCase("v1")) {
-                found_vars[0] = true;
-                var1_var.add((VariableExpressionNode)expr);
+            for(int i = 0; i < vars_var.size(); i++) {
+                if(temp.equalsIgnoreCase("v" + (i + 1))) {
+                    found_vars[i] = true;
+                    vars_var.get(i).add((VariableExpressionNode)expr);
+                    break;
+                }
             }
 
-            if(temp.equalsIgnoreCase("v2")) {
-                found_vars[1] = true;
-                var2_var.add((VariableExpressionNode)expr);
-            }
-
-            if(temp.equalsIgnoreCase("v3")) {
-                found_vars[2] = true;
-                var3_var.add((VariableExpressionNode)expr);
-            }
-
-            if(temp.equalsIgnoreCase("v4")) {
-                found_vars[3] = true;
-                var4_var.add((VariableExpressionNode)expr);
-            }
-
-            if(temp.equalsIgnoreCase("v5")) {
-                found_vars[4] = true;
-                var5_var.add((VariableExpressionNode)expr);
-            }
-            
-            if(temp.equalsIgnoreCase("v5")) {
-                found_vars[4] = true;
-                var5_var.add((VariableExpressionNode)expr);
-            }
-            
-            if(temp.equalsIgnoreCase("v6")) {
-                found_vars[5] = true;
-                var6_var.add((VariableExpressionNode)expr);
-            }
-            
-            if(temp.equalsIgnoreCase("v8")) {
-                found_vars[7] = true;
-                var8_var.add((VariableExpressionNode)expr);
-            }
-            
-            if(temp.equalsIgnoreCase("v9")) {
-                found_vars[8] = true;
-                var9_var.add((VariableExpressionNode)expr);
-            }
-            
-            if(temp.equalsIgnoreCase("v10")) {
-                found_vars[9] = true;
-                var10_var.add((VariableExpressionNode)expr);
+            if(temp.equalsIgnoreCase("point")) {
+                found_point = true;
+                point_var.add((VariableExpressionNode)expr);
             }
 
             if(temp.equalsIgnoreCase("pi")) {
@@ -727,7 +666,7 @@ public class Parser {
             }
         }
         else {
-            throw new ParserException("Java Compiler was not found.\nUser code cannot be compiled.");
+            throw new ParserException("Java Compiler was not found.\nUser code cannot be compiled.\nMake sure that you have a JDK installed.");
         }
     }
 
@@ -774,6 +713,10 @@ public class Parser {
 
     public boolean foundSize() {
         return found_size;
+    }
+    
+    public boolean foundPoint() {
+        return found_point;
     }
 
     public boolean foundVar(int i) {
@@ -885,6 +828,14 @@ public class Parser {
 
         for(int i = 0; i < size_var_arr.length; i++) {
             size_var_arr[i].setValue(new Complex(value));
+        }
+
+    }
+    
+    public void setPointvalue(Complex value) {
+
+        for(int i = 0; i < point_var_arr.length; i++) {
+            point_var_arr[i].setValue(new Complex(value));
         }
 
     }

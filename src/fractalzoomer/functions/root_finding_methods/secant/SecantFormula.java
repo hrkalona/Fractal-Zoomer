@@ -61,6 +61,7 @@ public class SecantFormula extends SecantRootFindingMethod {
     private Parser parser;
     private int iterations;
     private Complex[] vars;
+    private Complex point;
 
     public SecantFormula(double xCenter, double yCenter, double size, int max_iterations, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula,  double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int converging_smooth_algorithm, String user_fz_formula) {
 
@@ -116,10 +117,10 @@ public class SecantFormula extends SecantRootFindingMethod {
             case MainWindow.USER_OUTCOLORING_ALGORITHM:
                 convergent_bailout = 1E-7;
                 if(user_out_coloring_algorithm == 0) {
-                    out_color_algorithm = new UserOutColorAlgorithmRootFindingMethod(outcoloring_formula, convergent_bailout, max_iterations, xCenter, yCenter, size);
+                    out_color_algorithm = new UserOutColorAlgorithmRootFindingMethod(outcoloring_formula, convergent_bailout, max_iterations, xCenter, yCenter, size, plane_transform_center);
                 }
                 else {
-                    out_color_algorithm = new UserConditionalOutColorAlgorithmRootFindingMethod(user_outcoloring_conditions, user_outcoloring_condition_formula, convergent_bailout, max_iterations, xCenter, yCenter, size);
+                    out_color_algorithm = new UserConditionalOutColorAlgorithmRootFindingMethod(user_outcoloring_conditions, user_outcoloring_condition_formula, convergent_bailout, max_iterations, xCenter, yCenter, size, plane_transform_center);
                 }
                 break;
 
@@ -159,10 +160,10 @@ public class SecantFormula extends SecantRootFindingMethod {
                 break;
             case MainWindow.USER_INCOLORING_ALGORITHM:
                 if(user_in_coloring_algorithm == 0) {
-                    in_color_algorithm = new UserInColorAlgorithm(incoloring_formula, max_iterations, xCenter, yCenter, size);
+                    in_color_algorithm = new UserInColorAlgorithm(incoloring_formula, max_iterations, xCenter, yCenter, size, plane_transform_center);
                 }
                 else {
-                    in_color_algorithm = new UserConditionalInColorAlgorithm(user_incoloring_conditions, user_incoloring_condition_formula, max_iterations, xCenter, yCenter, size);
+                    in_color_algorithm = new UserConditionalInColorAlgorithm(user_incoloring_conditions, user_incoloring_condition_formula, max_iterations, xCenter, yCenter, size, plane_transform_center);
                 }
                 break;
 
@@ -170,6 +171,8 @@ public class SecantFormula extends SecantRootFindingMethod {
 
         parser = new Parser();
         expr = parser.parse(user_fz_formula);
+        
+        point = new Complex(plane_transform_center[0], plane_transform_center[1]);
 
     }
 
@@ -180,6 +183,8 @@ public class SecantFormula extends SecantRootFindingMethod {
 
         parser = new Parser();
         expr = parser.parse(user_fz_formula);
+        
+        point = new Complex(plane_transform_center[0], plane_transform_center[1]);
 
     }
 
@@ -316,7 +321,7 @@ public class SecantFormula extends SecantRootFindingMethod {
 
             setVariables(zold, zold2);
 
-            temp = rotation.getPixel(complex[0], true);
+            temp = rotation.rotateInverse(complex[0]);
 
             if(Double.isNaN(temp.getRe()) || Double.isNaN(temp.getIm()) || Double.isInfinite(temp.getRe()) || Double.isInfinite(temp.getIm())) {
                 break;
@@ -408,6 +413,10 @@ public class SecantFormula extends SecantRootFindingMethod {
             if(parser.foundVar(i)) {
                 parser.setVarsvalue(i, vars[i]);
             }
+        }
+        
+        if(parser.foundPoint()) {
+            parser.setPointvalue(point);
         }
 
     }

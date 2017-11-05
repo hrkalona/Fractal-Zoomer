@@ -33,6 +33,7 @@ public class SmoothEscapeTimeGridMagnet extends SmoothEscapeTimeGrid {
         super(log_bailout_squared, algorithm);
         this.log_convergent_bailout = log_convergent_bailout;
         this.algorithm2 = algorithm2;
+        OutNotUsingIncrement = false;
 
     }
 
@@ -50,7 +51,7 @@ public class SmoothEscapeTimeGridMagnet extends SmoothEscapeTimeGrid {
 
         boolean grid = grid_weight < zabs && zabs < (1.0 - grid_weight) && (grid_weight * k) < zarg && zarg < (1.0 - grid_weight * k);
 
-        double temp3 = grid ? (Integer)object[0] : (Integer)object[0] + 50;
+        double temp3 = grid ? (Integer)object[0] : (Integer)object[0] + INCREMENT;
 
         if((Boolean)object[2]) {
             if(algorithm == 0) {

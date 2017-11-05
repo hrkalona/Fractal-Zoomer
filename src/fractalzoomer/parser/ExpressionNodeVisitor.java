@@ -45,4 +45,10 @@ public interface ExpressionNodeVisitor
   
   /**  Visit a FunctionUserMultiArgumentExpressionNode */
   public void visit(FunctionUserMultiArgumentExpressionNode node);
+  
+  /**  Visit a FunctionUserOneArgumentExpressionNode */
+  public void visit(FunctionUser1ArgumentExpressionNode node);
+  
+  /**  Visit a FunctionUser2ArgumentExpressionNode */
+  public void visit(FunctionUser2ArgumentExpressionNode node);
 }

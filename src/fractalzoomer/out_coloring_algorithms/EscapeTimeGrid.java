@@ -32,6 +32,7 @@ public class EscapeTimeGrid extends OutColorAlgorithm {
         super();
         this.log_bailout_squared = log_bailout_squared;
         pi2 = Math.PI * 2;
+        OutNotUsingIncrement = false;
 
     }
 
@@ -42,7 +43,7 @@ public class EscapeTimeGrid extends OutColorAlgorithm {
         double zarg = (((Complex)object[1]).arg() / (pi2) + 1.0f) % 1.0;
         boolean grid = 0.05 < zabs && zabs < 0.95 && 0.05 < zarg && zarg < 0.95;
         
-        return grid ? (Integer)object[0] + MAGIC_OFFSET_NUMBER : -((Integer)object[0] + MAGIC_OFFSET_NUMBER + 50);
+        return grid ? (Integer)object[0] + MAGIC_OFFSET_NUMBER : -((Integer)object[0] + MAGIC_OFFSET_NUMBER + INCREMENT);
 
     }
     

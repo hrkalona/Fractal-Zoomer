@@ -31,6 +31,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Hashtable;
 import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -89,7 +90,7 @@ public class FiltersOptionsFrame extends JFrame {
         components_filters = new Object[filters_options_vals.length];
         
         ptra2.setEnabled(false);
-        int filters_options_window_width = 1180;
+        int filters_options_window_width = 1240;
         int filters_options_window_height = 720;
         setTitle("Filters Options");
         setIconImage(getIcon("/fractalzoomer/icons/filter_options.png").getImage());
@@ -130,7 +131,7 @@ public class FiltersOptionsFrame extends JFrame {
         
        
         tabbedPane.setFocusable(false);
-        tabbedPane.setPreferredSize(new Dimension(1050, 550));
+        tabbedPane.setPreferredSize(new Dimension(1110, 550));
         tabbedPane.setBackground(MainWindow.bg_color);     
 
         tabbedPane.addTab("Active Filters", panel_filters);
@@ -149,7 +150,7 @@ public class FiltersOptionsFrame extends JFrame {
         
         tabbedPane.setSelectedIndex(tab_index);
 
-        panel.setPreferredSize(new Dimension(1070, 580));
+        panel.setPreferredSize(new Dimension(1130, 580));
 
         JPanel[] panels = new JPanel[components_filters.length];
 
@@ -1207,7 +1208,7 @@ public class FiltersOptionsFrame extends JFrame {
         ((JPanel)components_filters[MainWindow.POINTILLIZE]).setLayout(new GridLayout(6, 1));
         
         final JSlider grid_point_size_slid = new JSlider(JSlider.HORIZONTAL, 1, 80, (int)(((int)(((int)(((int)(((int)(filters_options_vals[MainWindow.POINTILLIZE] % 1000000000.0)) % 100000000.0)) % 1000000.0)) % 10000.0)) % 100.0));
-        grid_point_size_slid.setPreferredSize(new Dimension(200, 35));
+        grid_point_size_slid.setPreferredSize(new Dimension(190, 35));
         grid_point_size_slid.setBackground(MainWindow.bg_color);
         grid_point_size_slid.setFocusable(false);
         grid_point_size_slid.setToolTipText("Sets the grid's size.");
@@ -1220,7 +1221,7 @@ public class FiltersOptionsFrame extends JFrame {
         grid_point_size_slid.setLabelTable(table3);
         
         final JSlider point_randomness_slid = new JSlider(JSlider.HORIZONTAL, 0, 80, (int)(((int)(((int)(((int)(((int)(filters_options_vals[MainWindow.POINTILLIZE] % 1000000000.0)) % 100000000.0)) % 1000000.0)) % 10000.0)) / 100.0));
-        point_randomness_slid.setPreferredSize(new Dimension(100, 35));
+        point_randomness_slid.setPreferredSize(new Dimension(95, 35));
         point_randomness_slid.setBackground(MainWindow.bg_color);
         point_randomness_slid.setFocusable(false);
         point_randomness_slid.setToolTipText("Sets the point's randomness.");
@@ -1233,7 +1234,7 @@ public class FiltersOptionsFrame extends JFrame {
         point_randomness_slid.setLabelTable(table3);
         
         final JSlider point_fuzziness_slid = new JSlider(JSlider.HORIZONTAL, 0, 80, (int)(((int)(((int)(((int)(filters_options_vals[MainWindow.POINTILLIZE] % 1000000000.0)) % 100000000.0)) % 1000000.0)) / 10000.0));
-        point_fuzziness_slid.setPreferredSize(new Dimension(100, 35));
+        point_fuzziness_slid.setPreferredSize(new Dimension(95, 35));
         point_fuzziness_slid.setBackground(MainWindow.bg_color);
         point_fuzziness_slid.setFocusable(false);
         point_fuzziness_slid.setToolTipText("Sets the point's fuzziness.");
@@ -1246,7 +1247,7 @@ public class FiltersOptionsFrame extends JFrame {
         point_fuzziness_slid.setLabelTable(table3);
         
         final JSlider point_size_slid = new JSlider(JSlider.HORIZONTAL, 0, 80, (int)(((int)(((int)(filters_options_vals[MainWindow.POINTILLIZE] % 1000000000.0)) % 100000000.0)) / 1000000.0));
-        point_size_slid.setPreferredSize(new Dimension(200, 35));
+        point_size_slid.setPreferredSize(new Dimension(190, 35));
         point_size_slid.setBackground(MainWindow.bg_color);
         point_size_slid.setFocusable(false);
         point_size_slid.setToolTipText("Sets the point's size.");
@@ -1329,7 +1330,7 @@ public class FiltersOptionsFrame extends JFrame {
         
         JPanel pointi_label_panel = new JPanel();
         pointi_label_panel.setBackground(MainWindow.bg_color);
-        pointi_label_panel.add(new JLabel("Grid Size, Randomness-Fuzziness, Point Size:"));
+        pointi_label_panel.add(new JLabel("Grid Size, Random-Fuzzy Factors, Point Size:"));
         
         ((JPanel)components_filters[MainWindow.POINTILLIZE]).add(pointi_label_panel);
         ((JPanel)components_filters[MainWindow.POINTILLIZE]).add(grid_point_size_slid);
@@ -2389,41 +2390,17 @@ public class FiltersOptionsFrame extends JFrame {
         source_image.setToolTipText("Sets a constant color source.");
         constant_color.setBackground(MainWindow.bg_color);
         
+        ButtonGroup button_group = new ButtonGroup();
+        button_group.add(source_image);
+        button_group.add(constant_color);
+        
         if((int)(filters_options_extra_vals[1][MainWindow.LIGHT_EFFECTS] / 10000000.0) == 0) {
             source_image.setSelected(true);
-            constant_color.setSelected(false);
         }
         else {
-            source_image.setSelected(false);
             constant_color.setSelected(true);
         }
         
-        source_image.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if(source_image.isSelected()) {
-                    constant_color.setSelected(false);
-                }
-                else {
-                    constant_color.setSelected(true);
-                }
-            }         
-        });
-        
-        constant_color.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if(constant_color.isSelected()) {
-                    source_image.setSelected(false);
-                }
-                else {
-                    source_image.setSelected(true);
-                }
-            }         
-        });
-               
         material_colors.add(source_image);
         material_colors.add(new JLabel(""));
         
@@ -2815,7 +2792,7 @@ public class FiltersOptionsFrame extends JFrame {
 
         RoundedPanel round_panel = new RoundedPanel(true, true, true, 15);
         round_panel.setBackground(MainWindow.bg_color);
-        round_panel.setPreferredSize(new Dimension(1110, 630));
+        round_panel.setPreferredSize(new Dimension(1170, 630));
         round_panel.setLayout(new GridBagLayout());
 
         GridBagConstraints con = new GridBagConstraints();

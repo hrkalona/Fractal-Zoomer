@@ -28,6 +28,7 @@ public class EscapeTimeGridMagnet extends EscapeTimeGrid {
     public EscapeTimeGridMagnet(double log_bailout_squared) {
 
         super(log_bailout_squared);
+        OutNotUsingIncrement = false;
 
     }
 
@@ -38,7 +39,7 @@ public class EscapeTimeGridMagnet extends EscapeTimeGrid {
         double zarg = (((Complex)object[1]).arg() / (pi2) + 1.0f) % 1.0;
         boolean grid = 0.05 < zabs && zabs < 0.95 && 0.05 < zarg && zarg < 0.95;
         
-        double temp = grid ? (Integer)object[0] : (Integer)object[0] + 50;
+        double temp = grid ? (Integer)object[0] : (Integer)object[0] + INCREMENT;
         
         return (Boolean)object[2] ? temp + MAGIC_OFFSET_NUMBER + 106 : temp + MAGIC_OFFSET_NUMBER;
 

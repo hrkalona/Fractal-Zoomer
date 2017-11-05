@@ -28,6 +28,7 @@ public class ColorDecompositionRootFindingMethod extends ColorDecomposition {
     
     public ColorDecompositionRootFindingMethod() {
         super();
+        OutNotUsingIncrement = true;
     }
 
     @Override

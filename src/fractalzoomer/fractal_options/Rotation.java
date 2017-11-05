@@ -37,10 +37,17 @@ public class Rotation {
         
     }
     
-    public Complex getPixel(Complex pixel, boolean inv) {
+    public Complex rotate(Complex pixel) {
         
          Complex temp = pixel.sub(center);
-         return inv == true ? temp.times(inv_rotation).plus_mutable(center) : temp.times(rotation).plus_mutable(center);
+         return temp.times(rotation).plus_mutable(center);
+         
+    }
+    
+    public Complex rotateInverse(Complex pixel) {
+        
+         Complex temp = pixel.sub(center);
+         return temp.times(inv_rotation).plus_mutable(center);
          
     }
     

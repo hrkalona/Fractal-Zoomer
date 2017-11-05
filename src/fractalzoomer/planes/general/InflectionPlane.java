@@ -34,7 +34,7 @@ public class InflectionPlane extends Plane {
     }
 
     @Override
-    public Complex getPixel(Complex pixel) {
+    public Complex transform(Complex pixel) {
       
         return  pixel.inflection(center);
         

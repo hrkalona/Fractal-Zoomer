@@ -17,12 +17,6 @@
 package fractalzoomer.parser;
 
 import fractalzoomer.core.Complex;
-import java.io.File;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
 
 /**
  * An ExpressionNode that handles mathematical functions.
@@ -250,110 +244,106 @@ public class FunctionExpressionNode implements ExpressionNode {
      * function id for the riemann zeta function
      */
     public static final int R_ZETA = 48;
-
+      
     /**
-     * function id for the user f1 function
+     * function id for the versine function
      */
-    public static final int F1 = 49;
-
-    /**
-     * function id for the user f2 function
-     */
-    public static final int F2 = 50;
-
-    /**
-     * function id for the user f3 function
-     */
-    public static final int F3 = 51;
-
-    /**
-     * function id for the user f4 function
-     */
-    public static final int F4 = 52;
-
-    /**
-     * function id for the user f5 function
-     */
-    public static final int F5 = 53;
-
-    /**
-     * function id for the user f6 function
-     */
-    public static final int F6 = 54;
-
-    /**
-     * function id for the user f7 function
-     */
-    public static final int F7 = 55;
-
-    /**
-     * function id for the user f8 function
-     */
-    public static final int F8 = 56;
-
-    /**
-     * function id for the user f9 function
-     */
-    public static final int F9 = 57;
-
-    /**
-     * function id for the user f10 function
-     */
-    public static final int F10 = 58;
+    public static final int VSIN = 49;
     
     /**
-     * function id for the user f11 function
+     * function id for the arc versine function
      */
-    public static final int F11 = 59;
-
+    public static final int AVSIN = 50;
+    
     /**
-     * function id for the user f12 function
+     * function id for the vercosine function
      */
-    public static final int F12 = 60;
-
+    public static final int VCOS = 51;
+    
     /**
-     * function id for the user f13 function
+     * function id for the arc vercosine function
      */
-    public static final int F13 = 61;
-
+    public static final int AVCOS = 52;
+    
     /**
-     * function id for the user f14 function
+     * function id for the coversine function
      */
-    public static final int F14 = 62;
-
+    public static final int CVSIN = 53;
+    
     /**
-     * function id for the user f15 function
+     * function id for the arc coversine function
      */
-    public static final int F15 = 63;
-
+    public static final int ACVSIN = 54;
+    
     /**
-     * function id for the user f16 function
+     * function id for the covercosine function
      */
-    public static final int F16 = 64;
-
+    public static final int CVCOS = 55;
+    
     /**
-     * function id for the user f17 function
+     * function id for the arc covercosine function
      */
-    public static final int F17 = 65;
-
+    public static final int ACVCOS = 56;
+    
     /**
-     * function id for the user f18 function
+     * function id for the haversine function
      */
-    public static final int F18 = 66;
-
+    public static final int HVSIN = 57;
+    
     /**
-     * function id for the user f19 function
+     * function id for the arc haversine function
      */
-    public static final int F19 = 67;
-
+    public static final int AHVSIN = 58;
+    
     /**
-     * function id for the user f20 function
+     * function id for the havercosine function
      */
-    public static final int F20 = 68;
-
-    private final static String[] USER_FUNCS = {"f1", "f2", "f3", "f4", "f5", "f6", "f7", "f8", "f9", "f10", "f11", "f12", "f13", "f14", "f15", "f16", "f17", "f18", "f19", "f20"};
-
-    private Method method;
+    public static final int HVCOS = 59;
+    
+    /**
+     * function id for the arc havercosine function
+     */
+    public static final int AHVCOS = 60;
+    
+    /**
+     * function id for the hacoversine function
+     */
+    public static final int HCVSIN = 61;
+    
+    /**
+     * function id for the arc hacoversine function
+     */
+    public static final int AHCVSIN = 62;
+    
+    /**
+     * function id for the hacovercosine function
+     */
+    public static final int HCVCOS = 63;
+    
+    /**
+     * function id for the arc hacovercosine function
+     */
+    public static final int AHCVCOS = 64;
+    
+    /**
+     * function id for the exsecant function
+     */
+    public static final int EXSEC = 65;
+    
+    /**
+     * function id for the arc exsecant function
+     */
+    public static final int AEXSEC = 66;
+    
+    /**
+     * function id for the excosecant function
+     */
+    public static final int EXCSC = 67;
+    
+    /**
+     * function id for the arc excosecant function
+     */
+    public static final int AEXCSC = 68;
 
     /**
      * the id of the function to apply to the argument
@@ -375,11 +365,6 @@ public class FunctionExpressionNode implements ExpressionNode {
         super();
         this.function = function;
         this.argument = argument;
-
-        if (function >= F1 && function < (F1 + USER_FUNCS.length)) {
-            getUserFunction();
-        }
-
     }
 
     /**
@@ -565,11 +550,85 @@ public class FunctionExpressionNode implements ExpressionNode {
         if (str.equals("rzeta")) {
             return FunctionExpressionNode.R_ZETA;
         }
-
-        for (int i = 0; i < USER_FUNCS.length; i++) {
-            if (str.equals(USER_FUNCS[i])) {
-                return FunctionExpressionNode.F1 + i;
-            }
+        
+        if (str.equals("vsin")) {
+            return FunctionExpressionNode.VSIN;
+        }
+        
+        if (str.equals("avsin")) {
+            return FunctionExpressionNode.AVSIN;
+        }
+        
+        if (str.equals("vcos")) {
+            return FunctionExpressionNode.VCOS;
+        }
+        
+        if (str.equals("avcos")) {
+            return FunctionExpressionNode.AVCOS;
+        }
+        
+        if (str.equals("cvsin")) {
+            return FunctionExpressionNode.CVSIN;
+        }
+        
+        if (str.equals("acvsin")) {
+            return FunctionExpressionNode.ACVSIN;
+        }
+        
+        if (str.equals("cvcos")) {
+            return FunctionExpressionNode.CVCOS;
+        }
+        
+        if (str.equals("acvcos")) {
+            return FunctionExpressionNode.ACVCOS;
+        }
+        
+        if (str.equals("hvsin")) {
+            return FunctionExpressionNode.HVSIN;
+        }
+        
+        if (str.equals("ahvsin")) {
+            return FunctionExpressionNode.AHVSIN;
+        }
+        
+        if (str.equals("hvcos")) {
+            return FunctionExpressionNode.HVCOS;
+        }
+        
+        if (str.equals("ahvcos")) {
+            return FunctionExpressionNode.AHVCOS;
+        }
+        
+        if (str.equals("hcvsin")) {
+            return FunctionExpressionNode.HCVSIN;
+        }
+        
+        if (str.equals("ahcvsin")) {
+            return FunctionExpressionNode.AHCVSIN;
+        }
+        
+        if (str.equals("hcvcos")) {
+            return FunctionExpressionNode.HCVCOS;
+        }
+        
+        if (str.equals("ahcvcos")) {
+            return FunctionExpressionNode.AHCVCOS;
+        }
+        
+        if (str.equals("exsec")) {
+            return FunctionExpressionNode.EXSEC;
+        }
+        
+        if (str.equals("aexsec")) {
+            return FunctionExpressionNode.AEXSEC;
+        }
+        
+        if (str.equals("excsc")) {
+            return FunctionExpressionNode.EXCSC;
+        }
+        
+        if (str.equals("aexcsc")) {
+            return FunctionExpressionNode.AEXCSC;
         }
 
         throw new ParserException("Unexpected Function " + str + " found.");
@@ -584,12 +643,10 @@ public class FunctionExpressionNode implements ExpressionNode {
      * @return a string containing all the function names
      */
     public static String getAllFunctions() {
-        String temp_str = "";
-        for (int i = 0; i < USER_FUNCS.length; i++) {
-            temp_str += "|" + USER_FUNCS[i];
-        }
 
-        return "sin|sinh|asin|asinh|cos|cosh|acos|acosh|tan|tanh|atan|atanh|cot|coth|acot|acoth|sec|sech|asec|asech|csc|csch|acsc|acsch|sqrt|exp|log|log10|log2|abs|conj|re|im|norm|arg|gamma|fact|absre|absim|gi|rec|flip|round|ceil|floor|trunc|erf|rzeta" + temp_str;
+        return "sin|sinh|asin|asinh|cos|cosh|acos|acosh|tan|tanh|atan|atanh|cot|coth|acot|acoth|sec|sech|asec|asech|csc|csch|acsc|acsch|sqrt|exp|log|log10|log2|abs|conj|re|im|norm|arg|gamma|fact|absre|absim|gi|rec|flip|round|ceil|floor|trunc|erf|rzeta" 
+                + "|vsin|avsin|vcos|avcos|cvsin|acvsin|cvcos|acvcos|hvsin|ahvsin|hvcos|ahvcos|hcvsin|ahcvsin|hcvcos|ahcvcos|exsec|aexsec|excsc|aexcsc";
+        
     }
 
     /**
@@ -720,32 +777,66 @@ public class FunctionExpressionNode implements ExpressionNode {
 
             case R_ZETA:
                 return argument.getValue().riemann_zeta();
-
-            case F1:
-            case F2:
-            case F3:
-            case F4:
-            case F5:
-            case F6:
-            case F7:
-            case F8:
-            case F9:
-            case F10:
-            case F11:
-            case F12:
-            case F13:
-            case F14:
-            case F15:
-            case F16:
-            case F17:
-            case F18:
-            case F19:
-            case F20:
-                try {
-                    return (Complex) method.invoke(null, argument.getValue());
-                } catch (Exception ex) {
-                    return new Complex();
-                }
+                
+            case VSIN:
+                return argument.getValue().vsin();
+                
+            case AVSIN:
+                return argument.getValue().avsin();
+                
+            case VCOS:
+                return argument.getValue().vcos();
+                
+            case AVCOS:
+                return argument.getValue().avcos();
+                
+            case CVSIN:
+                return argument.getValue().cvsin();
+                
+            case ACVSIN:
+                return argument.getValue().acvsin();
+                
+            case CVCOS:
+                return argument.getValue().cvcos();
+                
+            case ACVCOS:
+                return argument.getValue().acvcos();
+                
+            case HVSIN:
+                return argument.getValue().hvsin();
+                
+            case AHVSIN:
+                return argument.getValue().ahvsin();
+                
+            case HVCOS:
+                return argument.getValue().hvcos();
+                
+            case AHVCOS:
+                return argument.getValue().ahvcos();
+                
+            case HCVSIN:
+                return argument.getValue().hcvsin();
+                
+            case AHCVSIN:
+                return argument.getValue().ahcvsin();
+                
+            case HCVCOS:
+                return argument.getValue().hcvcos();
+                
+            case AHCVCOS:
+                return argument.getValue().ahcvcos();
+                
+            case EXSEC:
+                return argument.getValue().exsec();
+                
+            case AEXSEC:
+                return argument.getValue().aexsec();
+            
+            case EXCSC:
+                return argument.getValue().excsc();
+                
+            case AEXCSC:
+                return argument.getValue().aexcsc();
 
         }
 
@@ -763,36 +854,6 @@ public class FunctionExpressionNode implements ExpressionNode {
     public void accept(ExpressionNodeVisitor visitor) {
         visitor.visit(this);
         argument.accept(visitor);
-    }
-
-    private void getUserFunction() {
-
-        try {
-            int i = function - F1;
-            File file = new File("");
-            URL url = file.toURI().toURL();
-            URLClassLoader loader = new URLClassLoader(new URL[]{url});
-            Class<?> userClass = loader.loadClass("UserDefinedFunctions");
-            method = userClass.getMethod("f" + (i + 1), Complex.class);
-
-            if (!Modifier.isStatic(method.getModifiers())) {
-                throw new ParserException("Method modifier error: Method " + method.getName() + " must be declared static.");
-            }
-
-            if (!method.getReturnType().equals(Complex.class)) {
-                throw new ParserException("Return type error: Method " + method.getName() + " must have a Complex return type.");
-            }
-        } catch (NoSuchMethodException ex) {
-            throw new ParserException("Method not found error: " + ex.getMessage());
-        } catch (SecurityException ex) {
-            throw new ParserException("Security error: " + ex.getMessage());
-        } catch (IllegalArgumentException ex) {
-            throw new ParserException("Illegal Argument error: " + ex.getMessage());
-        } catch (ClassNotFoundException ex) {
-            throw new ParserException("Class not found error: " + ex.getMessage());
-        } catch (MalformedURLException ex) {
-            throw new ParserException("File not found error: " + ex.getMessage());
-        }
     }
 
 }

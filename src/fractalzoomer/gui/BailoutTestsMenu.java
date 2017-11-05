@@ -20,6 +20,8 @@ package fractalzoomer.gui;
 import fractalzoomer.main.MainWindow;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import javax.swing.ButtonGroup;
+import javax.swing.ImageIcon;
 import javax.swing.JMenu;
 import javax.swing.JRadioButtonMenuItem;
 
@@ -31,13 +33,17 @@ public class BailoutTestsMenu extends JMenu {
     private MainWindow ptr;
     private JRadioButtonMenuItem[] bailout_tests;
     
-    public BailoutTestsMenu(MainWindow ptr2, String name) {
+    public BailoutTestsMenu(MainWindow ptr2, String name, int bailout_test_algorithm) {
         
         super(name);
         
         this.ptr = ptr2;
         
+        setIcon(getIcon("/fractalzoomer/icons/bailout_tests.png"));
+        
         bailout_tests = new JRadioButtonMenuItem[7];
+        
+        ButtonGroup bailout_tests_group = new ButtonGroup();
 
         bailout_tests[MainWindow.BAILOUT_TEST_CIRCLE] = new JRadioButtonMenuItem("Circle (Euclidean norm)");
         bailout_tests[MainWindow.BAILOUT_TEST_CIRCLE].setToolTipText("The default bailout test.");
@@ -50,6 +56,7 @@ public class BailoutTestsMenu extends JMenu {
             }
         });
         add(bailout_tests[MainWindow.BAILOUT_TEST_CIRCLE]);
+        bailout_tests_group.add(bailout_tests[MainWindow.BAILOUT_TEST_CIRCLE]);
 
         bailout_tests[MainWindow.BAILOUT_TEST_SQUARE] = new JRadioButtonMenuItem("Square (Infinity norm)");
         bailout_tests[MainWindow.BAILOUT_TEST_SQUARE].setToolTipText("The square bailout test.");
@@ -62,6 +69,7 @@ public class BailoutTestsMenu extends JMenu {
             }
         });
         add(bailout_tests[MainWindow.BAILOUT_TEST_SQUARE]);
+        bailout_tests_group.add(bailout_tests[MainWindow.BAILOUT_TEST_SQUARE]);
 
         bailout_tests[MainWindow.BAILOUT_TEST_RHOMBUS] = new JRadioButtonMenuItem("Rhombus (One norm)");
         bailout_tests[MainWindow.BAILOUT_TEST_RHOMBUS].setToolTipText("The rhombus bailout test.");
@@ -74,6 +82,7 @@ public class BailoutTestsMenu extends JMenu {
             }
         });
         add(bailout_tests[MainWindow.BAILOUT_TEST_RHOMBUS]);
+        bailout_tests_group.add(bailout_tests[MainWindow.BAILOUT_TEST_RHOMBUS]);
 
         bailout_tests[MainWindow.BAILOUT_TEST_NNORM] = new JRadioButtonMenuItem("N-Norm");
         bailout_tests[MainWindow.BAILOUT_TEST_NNORM].setToolTipText("The Nth norm test.");
@@ -86,6 +95,7 @@ public class BailoutTestsMenu extends JMenu {
             }
         });
         add(bailout_tests[MainWindow.BAILOUT_TEST_NNORM]);
+        bailout_tests_group.add(bailout_tests[MainWindow.BAILOUT_TEST_NNORM]);
 
         bailout_tests[MainWindow.BAILOUT_TEST_STRIP] = new JRadioButtonMenuItem("Strip");
         bailout_tests[MainWindow.BAILOUT_TEST_STRIP].setToolTipText("The strip bailout test.");
@@ -98,6 +108,7 @@ public class BailoutTestsMenu extends JMenu {
             }
         });
         add(bailout_tests[MainWindow.BAILOUT_TEST_STRIP]);
+        bailout_tests_group.add(bailout_tests[MainWindow.BAILOUT_TEST_STRIP]);
 
         bailout_tests[MainWindow.BAILOUT_TEST_HALFPLANE] = new JRadioButtonMenuItem("Halfplane");
         bailout_tests[MainWindow.BAILOUT_TEST_HALFPLANE].setToolTipText("The halfplane bailout test.");
@@ -110,6 +121,7 @@ public class BailoutTestsMenu extends JMenu {
             }
         });
         add(bailout_tests[MainWindow.BAILOUT_TEST_HALFPLANE]);
+        bailout_tests_group.add(bailout_tests[MainWindow.BAILOUT_TEST_HALFPLANE]);
 
         bailout_tests[MainWindow.BAILOUT_TEST_USER] = new JRadioButtonMenuItem("User Test");
         bailout_tests[MainWindow.BAILOUT_TEST_USER].setToolTipText("A bailout test defined by the user.");
@@ -122,6 +134,9 @@ public class BailoutTestsMenu extends JMenu {
             }
         });
         add(bailout_tests[MainWindow.BAILOUT_TEST_USER]);
+        bailout_tests_group.add(bailout_tests[MainWindow.BAILOUT_TEST_USER]);
+        
+        bailout_tests[bailout_test_algorithm].setSelected(true);
 
     }
     
@@ -129,6 +144,12 @@ public class BailoutTestsMenu extends JMenu {
         
         return bailout_tests;
         
+    }
+    
+    private ImageIcon getIcon(String path) {
+
+        return new ImageIcon(getClass().getResource(path));
+
     }
     
 }

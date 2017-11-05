@@ -28,13 +28,14 @@ public class BinaryDecompositionMagnet extends BinaryDecomposition {
     public BinaryDecompositionMagnet() {
 
         super();
+        OutNotUsingIncrement = false;
         
     }
 
     @Override
     public double getResult(Object[] object) {
 
-        return ((Boolean)object[2] ? (((Complex)object[1]).getIm() < 0 ? -((Integer)object[0] + MAGIC_OFFSET_NUMBER + 50) : (Integer)object[0] + MAGIC_OFFSET_NUMBER + 106) : ((Complex)object[1]).getIm() < 0 ? -((Integer)object[0] + MAGIC_OFFSET_NUMBER + 50) : (Integer)object[0] + MAGIC_OFFSET_NUMBER);
+        return ((Boolean)object[2] ? (((Complex)object[1]).getIm() < 0 ? -((Integer)object[0] + MAGIC_OFFSET_NUMBER + INCREMENT) : (Integer)object[0] + MAGIC_OFFSET_NUMBER + 106) : ((Complex)object[1]).getIm() < 0 ? -((Integer)object[0] + MAGIC_OFFSET_NUMBER + INCREMENT) : (Integer)object[0] + MAGIC_OFFSET_NUMBER);
 
     } 
     

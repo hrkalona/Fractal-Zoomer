@@ -35,7 +35,7 @@ public class UserConditionalInColorAlgorithm extends InColorAlgorithm {
     private Complex c_center;
     private Complex c_size;
 
-    public UserConditionalInColorAlgorithm(String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, int max_iterations, double xCenter, double yCenter, double size) {
+    public UserConditionalInColorAlgorithm(String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, int max_iterations, double xCenter, double yCenter, double size, double[] point) {
 
         super();
 
@@ -120,8 +120,30 @@ public class UserConditionalInColorAlgorithm extends InColorAlgorithm {
         if(parser2[2].foundSize()) {
             parser2[2].setSizevalue(c_size);
         }
+        
+        Complex c_point = new Complex(point[0], point[1]);
+        if(parser[0].foundPoint()) {
+            parser[0].setPointvalue(c_point);
+        }
+        
+        if(parser[1].foundPoint()) {
+            parser[1].setPointvalue(c_point);
+        }
+        
+        if(parser2[0].foundPoint()) {
+            parser2[0].setPointvalue(c_point);
+        }
+        
+        if(parser2[1].foundPoint()) {
+            parser2[1].setPointvalue(c_point);
+        }
+        
+        if(parser2[2].foundPoint()) {
+            parser2[2].setPointvalue(c_point);
+        }
 
         this.max_iterations = max_iterations;
+        InNotUsingIncrement = true;
 
     }
 

@@ -57,6 +57,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.ConvolveOp;
 import java.awt.image.DataBufferInt;
 import java.awt.image.Kernel;
+import javax.swing.JProgressBar;
 
 /**
  *
@@ -1524,174 +1525,319 @@ public class ImageFilters {
         return gaussian_kernel;
 
     }
+    
+    private static void setProgress(JProgressBar progressbar, int count) {
+        
+        progressbar.setValue(count);
+        progressbar.setString("Image Filters: " + count +"/"+progressbar.getMaximum());
+        
+    }
 
-    public static void filter(BufferedImage image, boolean[] filters, int[] filters_options_vals, int[][] filters_options_extra_vals, Color[] filters_colors, Color[][] filters_extra_colors, int[] filters_order) {
-         //filterEdge(image);
+    public static void filter(BufferedImage image, boolean[] filters, int[] filters_options_vals, int[][] filters_options_extra_vals, Color[] filters_colors, Color[][] filters_extra_colors, int[] filters_order, JProgressBar progressbar) {
+        
+        int active = 0;
+        if(filters[MainWindow.ANTIALIASING] && progressbar != null) {
+            active++;
+            setProgress(progressbar, active);
+        }
+        
         for(int i = 0; i < filters_order.length; i++) {
             switch (filters_order[i]) {
                 case MainWindow.CRYSTALLIZE:
                     if(filters[MainWindow.CRYSTALLIZE]) {
                         ImageFilters.filterCrystallize(image, filters_options_vals[MainWindow.CRYSTALLIZE], filters_colors[MainWindow.CRYSTALLIZE]);
+                        if(progressbar != null) {
+                            active++;
+                            setProgress(progressbar, active);
+                        }
                     }
                     break;
                 case MainWindow.POINTILLIZE:
                     if(filters[MainWindow.POINTILLIZE]) {
                         ImageFilters.filterPointillize(image, filters_options_vals[MainWindow.POINTILLIZE], filters_colors[MainWindow.POINTILLIZE]);
+                        if(progressbar != null) {
+                            active++;
+                            setProgress(progressbar, active);
+                        }
                     }
                     break;
                 case MainWindow.LIGHT_EFFECTS:
                     if(filters[MainWindow.LIGHT_EFFECTS]) {
                         ImageFilters.filterLightEffects(image, filters_options_vals[MainWindow.LIGHT_EFFECTS], filters_options_extra_vals[0][MainWindow.LIGHT_EFFECTS], filters_options_extra_vals[1][MainWindow.LIGHT_EFFECTS], filters_colors[MainWindow.LIGHT_EFFECTS], filters_extra_colors[0][MainWindow.LIGHT_EFFECTS], filters_extra_colors[1][MainWindow.LIGHT_EFFECTS]);
+                        if(progressbar != null) {
+                            active++;
+                            setProgress(progressbar, active);
+                        }
                     }
                     break;
                 case MainWindow.OIL:
                     if(filters[MainWindow.OIL]) {
                         ImageFilters.filterOil(image, filters_options_vals[MainWindow.OIL]);
+                        if(progressbar != null) {
+                            active++;
+                            setProgress(progressbar, active);
+                        }
                     }
                     break;
                 case MainWindow.MARBLE:
                     if(filters[MainWindow.MARBLE]) {
                         ImageFilters.filterMarble(image, filters_options_vals[MainWindow.MARBLE]);
+                        if(progressbar != null) {
+                            active++;
+                            setProgress(progressbar, active);
+                        }
                     }
                     break;
                 case MainWindow.WEAVE:
                     if(filters[MainWindow.WEAVE]) {
                         ImageFilters.filterWeave(image, filters_options_vals[MainWindow.WEAVE], filters_colors[MainWindow.WEAVE]);
+                        if(progressbar != null) {
+                            active++;
+                            setProgress(progressbar, active);
+                        }
                     }
                     break;
                 case MainWindow.SPARKLE:
                     if(filters[MainWindow.SPARKLE]) {
                         ImageFilters.filterSparkle(image, filters_options_vals[MainWindow.SPARKLE], filters_colors[MainWindow.SPARKLE]);
+                        if(progressbar != null) {
+                            active++;
+                            setProgress(progressbar, active);
+                        }
                     }
                     break;
                 case MainWindow.COLOR_CHANNEL_SWAPPING:
                     if(filters[MainWindow.COLOR_CHANNEL_SWAPPING]) {
                         ImageFilters.filterColorChannelSwapping(image, filters_options_vals[MainWindow.COLOR_CHANNEL_SWAPPING]);
+                        if(progressbar != null) {
+                            active++;
+                            setProgress(progressbar, active);
+                        }
                     }
                     break;
                 case MainWindow.COLOR_CHANNEL_SWIZZLING:
                     if(filters[MainWindow.COLOR_CHANNEL_SWIZZLING]) {
                         ImageFilters.filterColorChannelSwizzling(image, filters_options_vals[MainWindow.COLOR_CHANNEL_SWIZZLING]);
+                        if(progressbar != null) {
+                            active++;
+                            setProgress(progressbar, active);
+                        }
                     }
                     break;
                 case MainWindow.COLOR_CHANNEL_MIXING:
                     if(filters[MainWindow.COLOR_CHANNEL_MIXING]) {
                         ImageFilters.filterColorChannelMixing(image, filters_options_vals[MainWindow.COLOR_CHANNEL_MIXING], filters_colors[MainWindow.COLOR_CHANNEL_MIXING]);
+                        if(progressbar != null) {
+                            active++;
+                            setProgress(progressbar, active);
+                        }
                     }
                     break;
                 case MainWindow.COLOR_CHANNEL_ADJUSTING:
                     if(filters[MainWindow.COLOR_CHANNEL_ADJUSTING]) {
                         ImageFilters.filterColorChannelAdjusting(image, filters_options_vals[MainWindow.COLOR_CHANNEL_ADJUSTING]);
+                        if(progressbar != null) {
+                            active++;
+                            setProgress(progressbar, active);
+                        }
                     }
                     break;
                 case MainWindow.COLOR_CHANNEL_HSB_ADJUSTING:
                     if(filters[MainWindow.COLOR_CHANNEL_HSB_ADJUSTING]) {
                         ImageFilters.filterHSBcolorChannelAdjusting(image, filters_options_vals[MainWindow.COLOR_CHANNEL_HSB_ADJUSTING]);
+                        if(progressbar != null) {
+                            active++;
+                            setProgress(progressbar, active);
+                        }
                     }
                     break;
                 case MainWindow.COLOR_CHANNEL_SCALING:
                     if(filters[MainWindow.COLOR_CHANNEL_SCALING]) {
                         ImageFilters.filterColorChannelScaling(image, filters_options_vals[MainWindow.COLOR_CHANNEL_SCALING]);
+                        if(progressbar != null) {
+                            active++;
+                            setProgress(progressbar, active);
+                        }
                     }
                     break;
                 case MainWindow.GRAYSCALE:
                     if(filters[MainWindow.GRAYSCALE]) {
                         ImageFilters.filterGrayscale(image, filters_options_vals[MainWindow.GRAYSCALE]);
+                        if(progressbar != null) {
+                            active++;
+                            setProgress(progressbar, active);
+                        }
                     }
                     break;
                 case MainWindow.POSTERIZE:
                     if(filters[MainWindow.POSTERIZE]) {
                         ImageFilters.filterPosterize(image, filters_options_vals[MainWindow.POSTERIZE]);
+                        if(progressbar != null) {
+                            active++;
+                            setProgress(progressbar, active);
+                        }
                     }
                     break;
                 case MainWindow.DITHER:
                     if(filters[MainWindow.DITHER]) {
                         ImageFilters.filterDither(image, filters_options_vals[MainWindow.DITHER]);
+                        if(progressbar != null) {
+                            active++;
+                            setProgress(progressbar, active);
+                        }
                     }
                     break;
                 case MainWindow.INVERT_COLORS:
                     if(filters[MainWindow.INVERT_COLORS]) {
                         ImageFilters.filterInvertColors(image, filters_options_vals[MainWindow.INVERT_COLORS]);
+                        if(progressbar != null) {
+                            active++;
+                            setProgress(progressbar, active);
+                        }
                     }
                     break;
                 case MainWindow.SOLARIZE:
                     if(filters[MainWindow.SOLARIZE]) {
                         ImageFilters.filterSolarize(image);
+                        if(progressbar != null) {
+                            active++;
+                            setProgress(progressbar, active);
+                        }
                     }
                     break;
                 case MainWindow.COLOR_TEMPERATURE:
                     if(filters[MainWindow.COLOR_TEMPERATURE]) {
                         ImageFilters.filterColorTemperature(image, filters_options_vals[MainWindow.COLOR_TEMPERATURE]);
+                        if(progressbar != null) {
+                            active++;
+                            setProgress(progressbar, active);
+                        }
                     }
                     break;
                 case MainWindow.CONTRAST_BRIGHTNESS:
                     if(filters[MainWindow.CONTRAST_BRIGHTNESS]) {
                         ImageFilters.filterContrastBrightness(image, filters_options_vals[MainWindow.CONTRAST_BRIGHTNESS]);
+                        if(progressbar != null) {
+                            active++;
+                            setProgress(progressbar, active);
+                        }
                     }
                     break;
                 case MainWindow.GAIN:
                     if(filters[MainWindow.GAIN]) {
                         ImageFilters.filterGain(image, filters_options_vals[MainWindow.GAIN]);
+                        if(progressbar != null) {
+                            active++;
+                            setProgress(progressbar, active);
+                        }
                     }
                     break;
                 case MainWindow.GAMMA:
                     if(filters[MainWindow.GAMMA]) {
                         ImageFilters.filterGamma(image, filters_options_vals[MainWindow.GAMMA]);
+                        if(progressbar != null) {
+                            active++;
+                            setProgress(progressbar, active);
+                        }
                     }
                     break;
                 case MainWindow.EXPOSURE:
                     if(filters[MainWindow.EXPOSURE]) {
                         ImageFilters.filterExposure(image, filters_options_vals[MainWindow.EXPOSURE]);
+                        if(progressbar != null) {
+                            active++;
+                            setProgress(progressbar, active);
+                        }
                     }
                     break;
                 case MainWindow.HISTOGRAM_EQUALIZATION:
                     if(filters[MainWindow.HISTOGRAM_EQUALIZATION]) {
                         ImageFilters.filterHistogramEqualization(image, filters_options_vals[MainWindow.HISTOGRAM_EQUALIZATION]);
+                        if(progressbar != null) {
+                            active++;
+                            setProgress(progressbar, active);
+                        }
                     }
                     break;
                 case MainWindow.COLOR_CHANNEL_MASKING:
                     if(filters[MainWindow.COLOR_CHANNEL_MASKING]) {
                         ImageFilters.filterMaskColors(image, filters_options_vals[MainWindow.COLOR_CHANNEL_MASKING]);
+                        if(progressbar != null) {
+                            active++;
+                            setProgress(progressbar, active);
+                        }
                     }
                     break;
                 case MainWindow.NOISE:
                     if(filters[MainWindow.NOISE]) {
                         ImageFilters.filterNoise(image, filters_options_vals[MainWindow.NOISE]);
+                        if(progressbar != null) {
+                            active++;
+                            setProgress(progressbar, active);
+                        }
                     }
                     break;
                 case MainWindow.SHARPNESS:
                     if(filters[MainWindow.SHARPNESS]) {
                         ImageFilters.filterSharpness(image, filters_options_vals[MainWindow.SHARPNESS]);
+                        if(progressbar != null) {
+                            active++;
+                            setProgress(progressbar, active);
+                        }
                     }
                     break;
                 case MainWindow.BLURRING:
                     if(filters[MainWindow.BLURRING]) {
                         ImageFilters.filterBlurring(image, filters_options_vals[MainWindow.BLURRING]);
+                        if(progressbar != null) {
+                            active++;
+                            setProgress(progressbar, active);
+                        }
                     }
                     break;
                 case MainWindow.GLOW:
                     if(filters[MainWindow.GLOW]) {
                         ImageFilters.filterGlow(image, filters_options_vals[MainWindow.GLOW]);
+                        if(progressbar != null) {
+                            active++;
+                            setProgress(progressbar, active);
+                        }
                     }
                     break;
                 case MainWindow.EMBOSS:
                     if(filters[MainWindow.EMBOSS]) {
                         ImageFilters.filterEmboss(image, filters_options_vals[MainWindow.EMBOSS]);
+                        if(progressbar != null) {
+                            active++;
+                            setProgress(progressbar, active);
+                        }
                     }
                     break;
                 case MainWindow.EDGE_DETECTION:
                     if(filters[MainWindow.EDGE_DETECTION]) {
                         ImageFilters.filterEdgeDetection(image, filters_options_vals[MainWindow.EDGE_DETECTION], filters_colors[MainWindow.EDGE_DETECTION]);
+                        if(progressbar != null) {
+                            active++;
+                            setProgress(progressbar, active);
+                        }
                     }
                     break;
                 case MainWindow.EDGE_DETECTION2:
                     if(filters[MainWindow.EDGE_DETECTION2]) {
                         ImageFilters.filterEdgeDetection2(image, filters_options_vals[MainWindow.EDGE_DETECTION2]);
+                        if(progressbar != null) {
+                            active++;
+                            setProgress(progressbar, active);
+                        }
                     }
                     break;
                 case MainWindow.FADE_OUT:
                     if(filters[MainWindow.FADE_OUT]) {
                         ImageFilters.filterFadeOut(image);
+                        if(progressbar != null) {
+                            active++;
+                            setProgress(progressbar, active);
+                        }
                     }
                     break;
             }

@@ -20,6 +20,8 @@ package fractalzoomer.gui;
 import fractalzoomer.main.MainWindow;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import javax.swing.ButtonGroup;
+import javax.swing.ImageIcon;
 import javax.swing.JMenu;
 import javax.swing.JRadioButtonMenuItem;
 
@@ -31,13 +33,17 @@ public class OutColoringModesMenu extends JMenu {
     private MainWindow ptr;
     private JRadioButtonMenuItem[] out_coloring_modes;
     
-    public OutColoringModesMenu(MainWindow ptr2, String name) {
+    public OutColoringModesMenu(MainWindow ptr2, String name, int out_coloring_algorithm) {
         
         super(name);
         
         this.ptr = ptr2;
         
+        setIcon(getIcon("/fractalzoomer/icons/out_coloring_mode.png"));
+        
         out_coloring_modes = new JRadioButtonMenuItem[23];
+        
+        ButtonGroup outcoloring_button_group = new ButtonGroup();
         
         out_coloring_modes[MainWindow.ESCAPE_TIME] = new JRadioButtonMenuItem("Escape Time");
         out_coloring_modes[MainWindow.ESCAPE_TIME].setToolTipText("Sets the out-coloring method, using the iterations.");
@@ -50,6 +56,7 @@ public class OutColoringModesMenu extends JMenu {
             }
         });
         add(out_coloring_modes[MainWindow.ESCAPE_TIME]);
+        outcoloring_button_group.add(out_coloring_modes[MainWindow.ESCAPE_TIME]);
 
         out_coloring_modes[MainWindow.BINARY_DECOMPOSITION] = new JRadioButtonMenuItem("Binary Decomposition");
         out_coloring_modes[MainWindow.BINARY_DECOMPOSITION].setToolTipText("Sets the out-coloring method, using binary decomposition.");
@@ -62,6 +69,7 @@ public class OutColoringModesMenu extends JMenu {
             }
         });
         add(out_coloring_modes[MainWindow.BINARY_DECOMPOSITION]);
+        outcoloring_button_group.add(out_coloring_modes[MainWindow.BINARY_DECOMPOSITION]);
 
         out_coloring_modes[MainWindow.BINARY_DECOMPOSITION2] = new JRadioButtonMenuItem("Binary Decomposition 2");
         out_coloring_modes[MainWindow.BINARY_DECOMPOSITION2].setToolTipText("Sets the out-coloring method, using binary decomposition 2.");
@@ -74,6 +82,7 @@ public class OutColoringModesMenu extends JMenu {
             }
         });
         add(out_coloring_modes[MainWindow.BINARY_DECOMPOSITION2]);
+        outcoloring_button_group.add(out_coloring_modes[MainWindow.BINARY_DECOMPOSITION2]);
 
         out_coloring_modes[MainWindow.ITERATIONS_PLUS_RE] = new JRadioButtonMenuItem("Escape Time + Re");
         out_coloring_modes[MainWindow.ITERATIONS_PLUS_RE].setToolTipText("Sets the out-coloring method, using the iterations + Re(z).");
@@ -86,6 +95,7 @@ public class OutColoringModesMenu extends JMenu {
             }
         });
         add(out_coloring_modes[MainWindow.ITERATIONS_PLUS_RE]);
+        outcoloring_button_group.add(out_coloring_modes[MainWindow.ITERATIONS_PLUS_RE]);
 
         out_coloring_modes[MainWindow.ITERATIONS_PLUS_IM] = new JRadioButtonMenuItem("Escape Time + Im");
         out_coloring_modes[MainWindow.ITERATIONS_PLUS_IM].setToolTipText("Sets the out-coloring method, using the iterations + Im(z).");
@@ -98,6 +108,7 @@ public class OutColoringModesMenu extends JMenu {
             }
         });
         add(out_coloring_modes[MainWindow.ITERATIONS_PLUS_IM]);
+        outcoloring_button_group.add(out_coloring_modes[MainWindow.ITERATIONS_PLUS_IM]);
 
         out_coloring_modes[MainWindow.ITERATIONS_PLUS_RE_DIVIDE_IM] = new JRadioButtonMenuItem("Escape Time + Re / Im");
         out_coloring_modes[MainWindow.ITERATIONS_PLUS_RE_DIVIDE_IM].setToolTipText("Sets the out-coloring method, using the iterations + Re(z)/Im(z).");
@@ -110,6 +121,7 @@ public class OutColoringModesMenu extends JMenu {
             }
         });
         add(out_coloring_modes[MainWindow.ITERATIONS_PLUS_RE_DIVIDE_IM]);
+        outcoloring_button_group.add(out_coloring_modes[MainWindow.ITERATIONS_PLUS_RE_DIVIDE_IM]);
 
         out_coloring_modes[MainWindow.ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM] = new JRadioButtonMenuItem("Escape Time + Re + Im + Re / Im");
         out_coloring_modes[MainWindow.ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setToolTipText("Sets the out-coloring method, using the iterations + Re(z) + Im(z) + Re(z)/Im(z).");
@@ -122,6 +134,7 @@ public class OutColoringModesMenu extends JMenu {
             }
         });
         add(out_coloring_modes[MainWindow.ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM]);
+        outcoloring_button_group.add(out_coloring_modes[MainWindow.ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM]);
 
         out_coloring_modes[MainWindow.BIOMORPH] = new JRadioButtonMenuItem("Biomorph");
         out_coloring_modes[MainWindow.BIOMORPH].setToolTipText("Sets the out-coloring method, using biomorph.");
@@ -134,6 +147,7 @@ public class OutColoringModesMenu extends JMenu {
             }
         });
         add(out_coloring_modes[MainWindow.BIOMORPH]);
+        outcoloring_button_group.add(out_coloring_modes[MainWindow.BIOMORPH]);
 
         out_coloring_modes[MainWindow.COLOR_DECOMPOSITION] = new JRadioButtonMenuItem("Color Decomposition");
         out_coloring_modes[MainWindow.COLOR_DECOMPOSITION].setToolTipText("Sets the out-coloring method, using color decomposition.");
@@ -146,6 +160,7 @@ public class OutColoringModesMenu extends JMenu {
             }
         });
         add(out_coloring_modes[MainWindow.COLOR_DECOMPOSITION]);
+        outcoloring_button_group.add(out_coloring_modes[MainWindow.COLOR_DECOMPOSITION]);
 
         out_coloring_modes[MainWindow.ESCAPE_TIME_COLOR_DECOMPOSITION] = new JRadioButtonMenuItem("Escape Time + Color Decomposition");
         out_coloring_modes[MainWindow.ESCAPE_TIME_COLOR_DECOMPOSITION].setToolTipText("Sets the out-coloring method, using iterations + color decomposition.");
@@ -158,6 +173,7 @@ public class OutColoringModesMenu extends JMenu {
             }
         });
         add(out_coloring_modes[MainWindow.ESCAPE_TIME_COLOR_DECOMPOSITION]);
+        outcoloring_button_group.add(out_coloring_modes[MainWindow.ESCAPE_TIME_COLOR_DECOMPOSITION]);
 
         out_coloring_modes[MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER] = new JRadioButtonMenuItem("Escape Time + Gaussian Integer");
         out_coloring_modes[MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER].setToolTipText("Sets the out-coloring method, using Escape Time + Gaussian Integer.");
@@ -170,6 +186,7 @@ public class OutColoringModesMenu extends JMenu {
             }
         });
         add(out_coloring_modes[MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER]);
+        outcoloring_button_group.add(out_coloring_modes[MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER]);
 
         out_coloring_modes[MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER2] = new JRadioButtonMenuItem("Escape Time + Gaussian Integer 2");
         out_coloring_modes[MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER2].setToolTipText("Sets the out-coloring method, using Escape Time + Gaussian Integer 2.");
@@ -182,6 +199,7 @@ public class OutColoringModesMenu extends JMenu {
             }
         });
         add(out_coloring_modes[MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER2]);
+        outcoloring_button_group.add(out_coloring_modes[MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER2]);
 
         out_coloring_modes[MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER3] = new JRadioButtonMenuItem("Escape Time + Gaussian Integer 3");
         out_coloring_modes[MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER3].setToolTipText("Sets the out-coloring method, using Escape Time + Gaussian Integer 3.");
@@ -194,6 +212,7 @@ public class OutColoringModesMenu extends JMenu {
             }
         });
         add(out_coloring_modes[MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER3]);
+        outcoloring_button_group.add(out_coloring_modes[MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER3]);
 
         out_coloring_modes[MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER4] = new JRadioButtonMenuItem("Escape Time + Gaussian Integer 4");
         out_coloring_modes[MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER4].setToolTipText("Sets the out-coloring method, using Escape Time + Gaussian Integer 4.");
@@ -206,6 +225,7 @@ public class OutColoringModesMenu extends JMenu {
             }
         });
         add(out_coloring_modes[MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER4]);
+        outcoloring_button_group.add(out_coloring_modes[MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER4]);
 
         out_coloring_modes[MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER5] = new JRadioButtonMenuItem("Escape Time + Gaussian Integer 5");
         out_coloring_modes[MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER5].setToolTipText("Sets the out-coloring method, using Escape Time + Gaussian Integer 5.");
@@ -218,6 +238,7 @@ public class OutColoringModesMenu extends JMenu {
             }
         });
         add(out_coloring_modes[MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER5]);
+        outcoloring_button_group.add(out_coloring_modes[MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER5]);
 
         out_coloring_modes[MainWindow.ESCAPE_TIME_ALGORITHM] = new JRadioButtonMenuItem("Escape Time + Algorithm");
         out_coloring_modes[MainWindow.ESCAPE_TIME_ALGORITHM].setToolTipText("Sets the out-coloring method, using Escape Time + Algorithm.");
@@ -230,6 +251,7 @@ public class OutColoringModesMenu extends JMenu {
             }
         });
         add(out_coloring_modes[MainWindow.ESCAPE_TIME_ALGORITHM]);
+        outcoloring_button_group.add(out_coloring_modes[MainWindow.ESCAPE_TIME_ALGORITHM]);
 
         out_coloring_modes[MainWindow.ESCAPE_TIME_ALGORITHM2] = new JRadioButtonMenuItem("Escape Time + Algorithm 2");
         out_coloring_modes[MainWindow.ESCAPE_TIME_ALGORITHM2].setToolTipText("Sets the out-coloring method, using Escape Time + Algorithm 2.");
@@ -242,6 +264,7 @@ public class OutColoringModesMenu extends JMenu {
             }
         });
         add(out_coloring_modes[MainWindow.ESCAPE_TIME_ALGORITHM2]);
+        outcoloring_button_group.add(out_coloring_modes[MainWindow.ESCAPE_TIME_ALGORITHM2]);
 
         out_coloring_modes[MainWindow.DISTANCE_ESTIMATOR] = new JRadioButtonMenuItem("Distance Estimator");
         out_coloring_modes[MainWindow.DISTANCE_ESTIMATOR].setToolTipText("Sets the out-coloring method, using Distance Estimator.");
@@ -254,6 +277,7 @@ public class OutColoringModesMenu extends JMenu {
             }
         });
         add(out_coloring_modes[MainWindow.DISTANCE_ESTIMATOR]);
+        outcoloring_button_group.add(out_coloring_modes[MainWindow.DISTANCE_ESTIMATOR]);
 
         out_coloring_modes[MainWindow.ESCAPE_TIME_ESCAPE_RADIUS] = new JRadioButtonMenuItem("Escape Time + Escape Radius");
         out_coloring_modes[MainWindow.ESCAPE_TIME_ESCAPE_RADIUS].setToolTipText("Sets the out-coloring method, using Escape Time + Escape Radius.");
@@ -266,6 +290,7 @@ public class OutColoringModesMenu extends JMenu {
             }
         });
         add(out_coloring_modes[MainWindow.ESCAPE_TIME_ESCAPE_RADIUS]);
+        outcoloring_button_group.add(out_coloring_modes[MainWindow.ESCAPE_TIME_ESCAPE_RADIUS]);
 
         out_coloring_modes[MainWindow.ESCAPE_TIME_GRID] = new JRadioButtonMenuItem("Escape Time + Grid");
         out_coloring_modes[MainWindow.ESCAPE_TIME_GRID].setToolTipText("Sets the out-coloring method, using Escape Time + Grid.");
@@ -278,6 +303,7 @@ public class OutColoringModesMenu extends JMenu {
             }
         });
         add(out_coloring_modes[MainWindow.ESCAPE_TIME_GRID]);
+        outcoloring_button_group.add(out_coloring_modes[MainWindow.ESCAPE_TIME_GRID]);
 
         /*out_coloring_modes[MainWindow.ATOM_DOMAIN] = new JRadioButtonMenuItem("Atom Domain");
         out_coloring_modes[MainWindow.ATOM_DOMAIN].setToolTipText("Sets the out-coloring method, using atom domain.");
@@ -289,7 +315,8 @@ public class OutColoringModesMenu extends JMenu {
 
             }
         });
-        add(out_coloring_modes[MainWindow.ATOM_DOMAIN]);*/
+        add(out_coloring_modes[MainWindow.ATOM_DOMAIN]);
+        outcoloring_button_group.add(out_coloring_modes[MainWindow.ATOM_DOMAIN]);*/
 
         out_coloring_modes[MainWindow.BANDED] = new JRadioButtonMenuItem("Banded");
         out_coloring_modes[MainWindow.BANDED].setToolTipText("Sets the out-coloring method, using an iteration based coloring.");
@@ -302,6 +329,7 @@ public class OutColoringModesMenu extends JMenu {
             }
         });
         add(out_coloring_modes[MainWindow.BANDED]);
+        outcoloring_button_group.add(out_coloring_modes[MainWindow.BANDED]);
 
         out_coloring_modes[MainWindow.USER_OUTCOLORING_ALGORITHM] = new JRadioButtonMenuItem("User Out Coloring Method");
         out_coloring_modes[MainWindow.USER_OUTCOLORING_ALGORITHM].setToolTipText("A user defined out-coloring method.");
@@ -314,6 +342,9 @@ public class OutColoringModesMenu extends JMenu {
             }
         });
         add(out_coloring_modes[MainWindow.USER_OUTCOLORING_ALGORITHM]);
+        outcoloring_button_group.add(out_coloring_modes[MainWindow.USER_OUTCOLORING_ALGORITHM]);
+        
+        out_coloring_modes[out_coloring_algorithm].setSelected(true);
         
     }
     
@@ -321,6 +352,12 @@ public class OutColoringModesMenu extends JMenu {
         
         return out_coloring_modes;
         
+    }
+    
+    private ImageIcon getIcon(String path) {
+
+        return new ImageIcon(getClass().getResource(path));
+
     }
     
 }

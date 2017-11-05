@@ -63,6 +63,7 @@ public class SchroderFormula extends SchroderRootFindingMethod {
     private Parser parser3;
     private int iterations;
     private Complex[] vars;
+    private Complex point;
 
     public SchroderFormula(double xCenter, double yCenter, double size, int max_iterations, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int converging_smooth_algorithm, String user_fz_formula, String user_dfz_formula, String user_ddfz_formula) {
 
@@ -118,10 +119,10 @@ public class SchroderFormula extends SchroderRootFindingMethod {
             case MainWindow.USER_OUTCOLORING_ALGORITHM:
                 convergent_bailout = 1E-7;
                 if(user_out_coloring_algorithm == 0) {
-                    out_color_algorithm = new UserOutColorAlgorithmRootFindingMethod(outcoloring_formula, convergent_bailout, max_iterations, xCenter, yCenter, size);
+                    out_color_algorithm = new UserOutColorAlgorithmRootFindingMethod(outcoloring_formula, convergent_bailout, max_iterations, xCenter, yCenter, size, plane_transform_center);
                 }
                 else {
-                    out_color_algorithm = new UserConditionalOutColorAlgorithmRootFindingMethod(user_outcoloring_conditions, user_outcoloring_condition_formula, convergent_bailout, max_iterations, xCenter, yCenter, size);
+                    out_color_algorithm = new UserConditionalOutColorAlgorithmRootFindingMethod(user_outcoloring_conditions, user_outcoloring_condition_formula, convergent_bailout, max_iterations, xCenter, yCenter, size, plane_transform_center);
                 }
                 break;
 
@@ -161,10 +162,10 @@ public class SchroderFormula extends SchroderRootFindingMethod {
                 break;
             case MainWindow.USER_INCOLORING_ALGORITHM:
                 if(user_in_coloring_algorithm == 0) {
-                    in_color_algorithm = new UserInColorAlgorithm(incoloring_formula, max_iterations, xCenter, yCenter, size);
+                    in_color_algorithm = new UserInColorAlgorithm(incoloring_formula, max_iterations, xCenter, yCenter, size, plane_transform_center);
                 }
                 else {
-                    in_color_algorithm = new UserConditionalInColorAlgorithm(user_incoloring_conditions, user_incoloring_condition_formula, max_iterations, xCenter, yCenter, size);
+                    in_color_algorithm = new UserConditionalInColorAlgorithm(user_incoloring_conditions, user_incoloring_condition_formula, max_iterations, xCenter, yCenter, size, plane_transform_center);
                 }
                 break;
 
@@ -178,6 +179,8 @@ public class SchroderFormula extends SchroderRootFindingMethod {
 
         parser3 = new Parser();
         expr3 = parser3.parse(user_ddfz_formula);
+        
+        point = new Complex(plane_transform_center[0], plane_transform_center[1]);
 
     }
 
@@ -194,6 +197,8 @@ public class SchroderFormula extends SchroderRootFindingMethod {
 
         parser3 = new Parser();
         expr3 = parser3.parse(user_ddfz_formula);
+        
+        point = new Complex(plane_transform_center[0], plane_transform_center[1]);
     }
 
     @Override
@@ -345,7 +350,7 @@ public class SchroderFormula extends SchroderRootFindingMethod {
 
             setVariables(zold, zold2);
 
-            temp = rotation.getPixel(complex[0], true);
+            temp = rotation.rotateInverse(complex[0]);
 
             if(Double.isNaN(temp.getRe()) || Double.isNaN(temp.getIm()) || Double.isInfinite(temp.getRe()) || Double.isInfinite(temp.getIm())) {
                 break;
@@ -463,28 +468,44 @@ public class SchroderFormula extends SchroderRootFindingMethod {
             parser3.setPPvalue(zold2);
         }
         
+        Complex c_center = new Complex(xCenter, yCenter);
+        
         if(parser.foundCenter()) {
-            parser.setCentervalue(new Complex(xCenter, yCenter));
+            parser.setCentervalue(c_center);
         }
 
         if(parser2.foundCenter()) {
-            parser2.setCentervalue(new Complex(xCenter, yCenter));
+            parser2.setCentervalue(c_center);
         }
 
         if(parser3.foundCenter()) {
-            parser3.setCentervalue(new Complex(xCenter, yCenter));
+            parser3.setCentervalue(c_center);
         }
         
+        Complex c_size = new Complex(size, 0);
+        
         if(parser.foundSize()) {
-            parser.setSizevalue(new Complex(size, 0));
+            parser.setSizevalue(c_size);
         }
 
         if(parser2.foundSize()) {
-            parser2.setSizevalue(new Complex(size, 0));
+            parser2.setSizevalue(c_size);
         }
 
         if(parser3.foundSize()) {
-            parser3.setSizevalue(new Complex(size, 0));
+            parser3.setSizevalue(c_size);
+        }
+        
+        if(parser.foundPoint()) {
+            parser.setPointvalue(point);
+        }
+
+        if(parser2.foundPoint()) {
+            parser2.setPointvalue(point);
+        }
+        
+        if(parser3.foundPoint()) {
+            parser3.setPointvalue(point);
         }
     }
 

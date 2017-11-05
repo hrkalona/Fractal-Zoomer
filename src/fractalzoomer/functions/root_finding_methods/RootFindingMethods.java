@@ -121,7 +121,7 @@ public abstract class RootFindingMethods extends Fractal {
         
         for (; iterations < max_iterations; iterations++) {
            function(complex);
-           temp = rotation.getPixel(complex[0], true);
+           temp = rotation.rotateInverse(complex[0]);
            
            if(Double.isNaN(temp.getRe()) || Double.isNaN(temp.getIm()) || Double.isInfinite(temp.getRe()) || Double.isInfinite(temp.getIm())) {
                break;

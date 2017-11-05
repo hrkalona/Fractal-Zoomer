@@ -31,6 +31,7 @@ public class SmoothBiomorphsNova extends SmoothBiomorphs {
 
         super(0, 2.0, algorithm);
         this.log_convergent_bailout = log_convergent_bailout;
+        OutNotUsingIncrement = false;
 
     }
 
@@ -57,7 +58,7 @@ public class SmoothBiomorphsNova extends SmoothBiomorphs {
         double temp4 = ((Complex)object[1]).getRe();
         double temp5 = ((Complex)object[1]).getIm();
 
-        return temp4 > -bailout && temp4 < bailout || temp5 > -bailout && temp5 < bailout ? temp3 + MAGIC_OFFSET_NUMBER : -(temp3 + MAGIC_OFFSET_NUMBER + 50);
+        return temp4 > -bailout && temp4 < bailout || temp5 > -bailout && temp5 < bailout ? temp3 + MAGIC_OFFSET_NUMBER : -(temp3 + MAGIC_OFFSET_NUMBER + INCREMENT);
 
     }
 }

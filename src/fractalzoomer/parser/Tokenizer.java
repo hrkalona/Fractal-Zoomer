@@ -101,6 +101,8 @@ public class Tokenizer
 
     tokenizer.add("(" + FunctionExpressionNode.getAllFunctions() + ")(?!\\w)", Token.FUNCTION);
     tokenizer.add("(" + Function2ArgumentsExpressionNode.getAllFunctions() + ")(?!\\w)", Token.FUNCTION_2ARGUMENTS);
+    tokenizer.add("(" + FunctionUser1ArgumentExpressionNode.getAllFunctions() + ")(?!\\w)", Token.FUNCTION_USER_ONE_ARGUMENT);
+    tokenizer.add("(" + FunctionUser2ArgumentExpressionNode.getAllFunctions() + ")(?!\\w)", Token.FUNCTION_USER_TWO_ARGUMENTS);
     tokenizer.add("(" + FunctionUserMultiArgumentExpressionNode.getAllFunctions() + ")(?!\\w)", Token.FUNCTION_USER_MULTI_ARGUMENTS);
 
     tokenizer.add("\\(", Token.OPEN_BRACKET);

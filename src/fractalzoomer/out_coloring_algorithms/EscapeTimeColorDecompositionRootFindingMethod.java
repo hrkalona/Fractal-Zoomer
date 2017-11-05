@@ -27,6 +27,7 @@ public class EscapeTimeColorDecompositionRootFindingMethod extends EscapeTimeCol
     
     public EscapeTimeColorDecompositionRootFindingMethod() {
         super();    
+        OutNotUsingIncrement = true;
     }
 
     @Override
