@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2017 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2018 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,10 +14,10 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package fractalzoomer.fractal_options;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.core.ThreadDraw;
 import fractalzoomer.parser.ExpressionNode;
 import fractalzoomer.parser.Parser;
 
@@ -26,29 +26,34 @@ import fractalzoomer.parser.Parser;
  * @author hrkalona2
  */
 public class VariableInitialValue extends PlanePointOption {
+
     private ExpressionNode expr;
     private Parser parser;
 
     public VariableInitialValue(String initial_value_user_formula, double xCenter, double yCenter, double size, int max_iterations, double[] point) {
 
         super();
-        
+
         parser = new Parser();
         expr = parser.parse(initial_value_user_formula);
-     
-        if(parser.foundMaxn()) {
+
+        if (parser.foundMaxn()) {
             parser.setMaxnvalue(new Complex(max_iterations, 0));
         }
-        
-        if(parser.foundCenter()) {
+
+        if (parser.foundCenter()) {
             parser.setCentervalue(new Complex(xCenter, yCenter));
         }
-        
-        if(parser.foundSize()) {
+
+        if (parser.foundSize()) {
             parser.setSizevalue(new Complex(size, 0));
         }
+
+        if (parser.foundISize()) {
+            parser.setISizevalue(new Complex(ThreadDraw.IMAGE_SIZE, 0));
+        }
         
-        if(parser.foundPoint()) {
+        if (parser.foundPoint()) {
             parser.setPointvalue(new Complex(point[0], point[1]));
         }
 
@@ -57,19 +62,25 @@ public class VariableInitialValue extends PlanePointOption {
     @Override
     public Complex getValue(Complex pixel) {
 
-        if(parser.foundC()) {
+        if (parser.foundC()) {
             parser.setCvalue(pixel);
+        }
+
+        for (int i = 0; i < Parser.EXTRA_VARS; i++) {
+            if (parser.foundVar(i)) {
+                parser.setVarsvalue(i, globalVars[i]);
+            }
         }
 
         return expr.getValue();
 
     }
-    
+
     @Override
     public String toString() {
-        
+
         return "";
-        
+
     }
 
 }

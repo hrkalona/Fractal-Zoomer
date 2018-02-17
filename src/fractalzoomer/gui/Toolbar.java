@@ -1,5 +1,5 @@
 /*
- * Fractal Zoomer, Copyright (C) 2017 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2018 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -110,7 +110,7 @@ public class Toolbar extends JToolBar {
         save_image_button = new JButton();
         save_image_button.setIcon(getIcon("/fractalzoomer/icons/save_image.png"));
         save_image_button.setFocusable(false);
-        save_image_button.setToolTipText("Saves a bmp, jpg, or png image.");
+        save_image_button.setToolTipText("Saves a png image.");
 
         save_image_button.addActionListener(new ActionListener() {
 

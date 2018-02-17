@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2017 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2018 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,21 +14,21 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package fractalzoomer.functions;
 
 import fractalzoomer.planes.math.AbsPlane;
-import fractalzoomer.bailout_tests.BailoutTest;
-import fractalzoomer.bailout_tests.CircleBailoutTest;
+import fractalzoomer.bailout_conditions.BailoutCondition;
+import fractalzoomer.bailout_conditions.CircleBailoutCondition;
+import fractalzoomer.bailout_conditions.FieldLinesBailoutCondition;
 import fractalzoomer.core.Complex;
 import fractalzoomer.planes.math.trigonometric.CosPlane;
 import fractalzoomer.planes.math.trigonometric.CoshPlane;
 import fractalzoomer.planes.math.trigonometric.CotPlane;
 import fractalzoomer.planes.math.trigonometric.CothPlane;
 import fractalzoomer.planes.math.ExpPlane;
-import fractalzoomer.bailout_tests.HalfplaneBailoutTest;
-import fractalzoomer.bailout_tests.NNormBailoutTest;
-import fractalzoomer.bailout_tests.RhombusBailoutTest;
+import fractalzoomer.bailout_conditions.HalfplaneBailoutCondition;
+import fractalzoomer.bailout_conditions.NNormBailoutCondition;
+import fractalzoomer.bailout_conditions.RhombusBailoutCondition;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.fractal_options.Rotation;
 import fractalzoomer.out_coloring_algorithms.OutColorAlgorithm;
@@ -43,15 +43,59 @@ import fractalzoomer.planes.general.LambdaPlane;
 import fractalzoomer.planes.general.MuSquaredPlane;
 import fractalzoomer.planes.Plane;
 import fractalzoomer.planes.general.MuPlane;
-import fractalzoomer.bailout_tests.StripBailoutTest;
-import fractalzoomer.bailout_tests.SquareBailoutTest;
-import fractalzoomer.bailout_tests.UserBailoutTest;
+import fractalzoomer.bailout_conditions.StripBailoutCondition;
+import fractalzoomer.bailout_conditions.SquareBailoutCondition;
+import fractalzoomer.bailout_conditions.UserBailoutCondition;
 import fractalzoomer.fractal_options.PlanePointOption;
+import fractalzoomer.in_coloring_algorithms.AtanReTimesImTimesAbsReTimesAbsIm;
+import fractalzoomer.in_coloring_algorithms.CosMag;
+import fractalzoomer.in_coloring_algorithms.DecompositionLike;
+import fractalzoomer.in_coloring_algorithms.MagTimesCosReSquared;
+import fractalzoomer.in_coloring_algorithms.MaximumIterations;
+import fractalzoomer.in_coloring_algorithms.ReDivideIm;
+import fractalzoomer.in_coloring_algorithms.SinReSquaredMinusImSquared;
+import fractalzoomer.in_coloring_algorithms.Squares;
+import fractalzoomer.in_coloring_algorithms.Squares2;
+import fractalzoomer.in_coloring_algorithms.UserConditionalInColorAlgorithm;
+import fractalzoomer.in_coloring_algorithms.UserInColorAlgorithm;
+import fractalzoomer.in_coloring_algorithms.ZMag;
+import fractalzoomer.out_coloring_algorithms.Banded;
+import fractalzoomer.out_coloring_algorithms.BinaryDecomposition;
+import fractalzoomer.out_coloring_algorithms.BinaryDecomposition2;
+import fractalzoomer.out_coloring_algorithms.Biomorphs;
+import fractalzoomer.out_coloring_algorithms.ColorDecomposition;
+import fractalzoomer.out_coloring_algorithms.EscapeTime;
+import fractalzoomer.out_coloring_algorithms.EscapeTimeAlgorithm1;
+import fractalzoomer.out_coloring_algorithms.EscapeTimeAlgorithm2;
+import fractalzoomer.out_coloring_algorithms.EscapeTimeColorDecomposition;
+import fractalzoomer.out_coloring_algorithms.EscapeTimeEscapeRadius;
+import fractalzoomer.out_coloring_algorithms.EscapeTimeFieldLines;
+import fractalzoomer.out_coloring_algorithms.EscapeTimeFieldLines2;
+import fractalzoomer.out_coloring_algorithms.EscapeTimeGaussianInteger;
+import fractalzoomer.out_coloring_algorithms.EscapeTimeGaussianInteger2;
+import fractalzoomer.out_coloring_algorithms.EscapeTimeGaussianInteger3;
+import fractalzoomer.out_coloring_algorithms.EscapeTimeGaussianInteger4;
+import fractalzoomer.out_coloring_algorithms.EscapeTimeGaussianInteger5;
+import fractalzoomer.out_coloring_algorithms.EscapeTimeGrid;
+import fractalzoomer.out_coloring_algorithms.EscapeTimePlusIm;
+import fractalzoomer.out_coloring_algorithms.EscapeTimePlusRe;
+import fractalzoomer.out_coloring_algorithms.EscapeTimePlusReDivideIm;
+import fractalzoomer.out_coloring_algorithms.EscapeTimePlusRePlusImPlusReDivideIm;
+import fractalzoomer.out_coloring_algorithms.SmoothBinaryDecomposition;
+import fractalzoomer.out_coloring_algorithms.SmoothBinaryDecomposition2;
+import fractalzoomer.out_coloring_algorithms.SmoothBiomorphs;
+import fractalzoomer.out_coloring_algorithms.SmoothEscapeTime;
+import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeFieldLines;
+import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeFieldLines2;
+import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeGrid;
+import fractalzoomer.out_coloring_algorithms.UserConditionalOutColorAlgorithm;
+import fractalzoomer.out_coloring_algorithms.UserOutColorAlgorithm;
 import fractalzoomer.parser.Parser;
 import fractalzoomer.planes.user_plane.UserPlane;
 import fractalzoomer.planes.user_plane.UserPlaneConditional;
 import fractalzoomer.planes.distort.KaleidoscopePlane;
 import fractalzoomer.planes.distort.PinchPlane;
+import fractalzoomer.planes.distort.RipplesPlane;
 import fractalzoomer.planes.fold.FoldInPlane;
 import fractalzoomer.planes.fold.FoldOutPlane;
 import fractalzoomer.planes.fold.FoldRightPlane;
@@ -112,7 +156,7 @@ public abstract class Fractal {
     protected double bailout_squared;
     protected OutColorAlgorithm out_color_algorithm;
     protected InColorAlgorithm in_color_algorithm;
-    protected BailoutTest bailout_algorithm;
+    protected BailoutCondition bailout_algorithm;
     protected Plane plane;
     protected Rotation rotation;
     protected PlanePointOption init_val;
@@ -125,8 +169,9 @@ public abstract class Fractal {
     protected int update;
     protected int update_counter;
     protected Complex period;
+    protected Complex[] vars;
 
-    public Fractal(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula,  double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount) {
+    public Fractal(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount) {
 
         this.xCenter = xCenter;
         this.yCenter = yCenter;
@@ -330,30 +375,36 @@ public abstract class Fractal {
             case MainWindow.INFLECTION_PLANE:
                 plane = new InflectionPlane(plane_transform_center);
                 break;
+            case MainWindow.RIPPLES_PLANE:
+                plane = new RipplesPlane(plane_transform_scales, plane_transform_wavelength, waveType);
+                break;
         }
 
         switch (bailout_test_algorithm) {
 
-            case MainWindow.BAILOUT_TEST_CIRCLE:
-                bailout_algorithm = new CircleBailoutTest(bailout_squared);
+            case MainWindow.BAILOUT_CONDITION_CIRCLE:
+                bailout_algorithm = new CircleBailoutCondition(bailout_squared);
                 break;
-            case MainWindow.BAILOUT_TEST_SQUARE:
-                bailout_algorithm = new SquareBailoutTest(bailout);
+            case MainWindow.BAILOUT_CONDITION_SQUARE:
+                bailout_algorithm = new SquareBailoutCondition(bailout);
                 break;
-            case MainWindow.BAILOUT_TEST_RHOMBUS:
-                bailout_algorithm = new RhombusBailoutTest(bailout);
+            case MainWindow.BAILOUT_CONDITION_RHOMBUS:
+                bailout_algorithm = new RhombusBailoutCondition(bailout);
                 break;
-            case MainWindow.BAILOUT_TEST_STRIP:
-                bailout_algorithm = new StripBailoutTest(bailout);
+            case MainWindow.BAILOUT_CONDITION_STRIP:
+                bailout_algorithm = new StripBailoutCondition(bailout);
                 break;
-            case MainWindow.BAILOUT_TEST_HALFPLANE:
-                bailout_algorithm = new HalfplaneBailoutTest(bailout);
+            case MainWindow.BAILOUT_CONDITION_HALFPLANE:
+                bailout_algorithm = new HalfplaneBailoutCondition(bailout);
                 break;
-            case MainWindow.BAILOUT_TEST_NNORM:
-                bailout_algorithm = new NNormBailoutTest(bailout, n_norm);
+            case MainWindow.BAILOUT_CONDITION_NNORM:
+                bailout_algorithm = new NNormBailoutCondition(bailout, n_norm);
                 break;
-            case MainWindow.BAILOUT_TEST_USER:
-                bailout_algorithm = new UserBailoutTest(bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, max_iterations, xCenter, yCenter, size, plane_transform_center);
+            case MainWindow.BAILOUT_CONDITION_USER:
+                bailout_algorithm = new UserBailoutCondition(bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, max_iterations, xCenter, yCenter, size, plane_transform_center);
+                break;
+            case MainWindow.BAILOUT_CONDITION_FIELD_LINES:
+                bailout_algorithm = new FieldLinesBailoutCondition(bailout);
                 break;
 
         }
@@ -361,7 +412,7 @@ public abstract class Fractal {
     }
 
     //orbit
-    public Fractal(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula,  double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount) {
+    public Fractal(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount) {
 
         this.xCenter = xCenter;
         this.yCenter = yCenter;
@@ -564,8 +615,14 @@ public abstract class Fractal {
             case MainWindow.INFLECTION_PLANE:
                 plane = new InflectionPlane(plane_transform_center);
                 break;
+            case MainWindow.RIPPLES_PLANE:
+                plane = new RipplesPlane(plane_transform_scales, plane_transform_wavelength, waveType);
+                break;
 
         }
+
+        vars = createGlobalVars();
+        plane.setGlobalVars(vars);
 
         pixel_orbit = plane.transform(rotation.rotate(pixel_orbit));
 
@@ -608,24 +665,30 @@ public abstract class Fractal {
 
     public double calculateFractal(Complex pixel) {
 
+        vars = createGlobalVars();
+        plane.setGlobalVars(vars);
+
         return periodicity_checking ? calculateFractalWithPeriodicity(plane.transform(rotation.rotate(pixel))) : calculateFractalWithoutPeriodicity(plane.transform(rotation.rotate(pixel)));
 
     }
 
     public double[] calculateFractal3D(Complex pixel) {
 
+        vars = createGlobalVars();
+        plane.setGlobalVars(vars);
+
         return periodicity_checking ? calculateFractal3DWithPeriodicity(plane.transform(rotation.rotate(pixel))) : calculateFractal3DWithoutPeriodicity(plane.transform(rotation.rotate(pixel)));
 
     }
-    
+
     protected Complex[] createGlobalVars() {
-        
+
         Complex[] vars = new Complex[Parser.EXTRA_VARS];
-        
+
         for(int i = 0; i < vars.length; i++) {
             vars[i] = new Complex();
         }
-        
+
         return vars;
     }
 
@@ -641,6 +704,9 @@ public abstract class Fractal {
 
         period = new Complex();
 
+        pertur_val.setGlobalVars(vars);
+        init_val.setGlobalVars(vars);
+
         Complex tempz = new Complex(pertur_val.getValue(init_val.getValue(pixel)));
 
         Complex[] complex = new Complex[2];
@@ -650,8 +716,6 @@ public abstract class Fractal {
         Complex zold = new Complex();
         Complex zold2 = new Complex();
         Complex start = new Complex(complex[0]);
-        
-        Complex[] vars = createGlobalVars();
 
         for(; iterations < max_iterations; iterations++) {
             if(bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, vars)) {
@@ -676,6 +740,9 @@ public abstract class Fractal {
 
         int iterations = 0;
 
+        pertur_val.setGlobalVars(vars);
+        init_val.setGlobalVars(vars);
+
         Complex tempz = new Complex(pertur_val.getValue(init_val.getValue(pixel)));
 
         Complex[] complex = new Complex[2];
@@ -685,8 +752,6 @@ public abstract class Fractal {
         Complex zold = new Complex();
         Complex zold2 = new Complex();
         Complex start = new Complex(complex[0]);
-        
-        Complex[] vars = createGlobalVars();
 
         for(; iterations < max_iterations; iterations++) {
 
@@ -759,6 +824,9 @@ public abstract class Fractal {
 
         period = new Complex();
 
+        pertur_val.setGlobalVars(vars);
+        init_val.setGlobalVars(vars);
+
         Complex tempz = new Complex(pertur_val.getValue(init_val.getValue(pixel)));
 
         Complex[] complex = new Complex[2];
@@ -770,14 +838,12 @@ public abstract class Fractal {
         Complex start = new Complex(complex[0]);
 
         double temp;
-        
-        Complex[] vars = createGlobalVars();
 
         for(; iterations < max_iterations; iterations++) {
             if(bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, vars)) {
                 Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, vars};
                 temp = out_color_algorithm.getResult(object);
-                double[] array = {out_color_algorithm.transformResultToHeight(temp), temp};
+                double[] array = {out_color_algorithm.transformResultToHeight(temp, max_iterations), temp};
                 return array;
             }
             zold2.assign(zold);
@@ -800,6 +866,9 @@ public abstract class Fractal {
 
         int iterations = 0;
 
+        pertur_val.setGlobalVars(vars);
+        init_val.setGlobalVars(vars);
+
         Complex tempz = new Complex(pertur_val.getValue(init_val.getValue(pixel)));
 
         Complex[] complex = new Complex[2];
@@ -810,15 +879,13 @@ public abstract class Fractal {
         Complex zold2 = new Complex();
         Complex start = new Complex(complex[0]);
         double temp;
-        
-        Complex[] vars = createGlobalVars();
 
         for(; iterations < max_iterations; iterations++) {
 
             if(bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, vars)) {
                 Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, vars};
                 temp = out_color_algorithm.getResult(object);
-                double[] array = {out_color_algorithm.transformResultToHeight(temp), temp};
+                double[] array = {out_color_algorithm.transformResultToHeight(temp, max_iterations), temp};
                 return array;
 
             }
@@ -829,7 +896,7 @@ public abstract class Fractal {
         }
 
         Object[] object = {complex[0], zold, zold2, complex[1], start, vars};
-        temp = in_color_algorithm.getResult(object);        
+        temp = in_color_algorithm.getResult(object);
         double[] array = {in_color_algorithm.transformResultToHeight(temp, max_iterations), temp};
         return array;
 
@@ -878,6 +945,9 @@ public abstract class Fractal {
     public void calculateFractalOrbit() {
         int iterations = 0;
 
+        pertur_val.setGlobalVars(vars);
+        init_val.setGlobalVars(vars);
+
         Complex[] complex = new Complex[2];
         complex[0] = new Complex(pertur_val.getValue(init_val.getValue(pixel_orbit)));//z
         complex[1] = new Complex(pixel_orbit);//c
@@ -896,43 +966,51 @@ public abstract class Fractal {
         }
 
     }
-    
+
     /*public ArrayList<Complex> calculateFractalOrbit2(Complex pixel) {
-        int iterations = 0;
+     int iterations = 0;
 
-        Complex[] complex = new Complex[2];
-        complex[0] = new Complex(pertur_val.getValue(init_val.getValue(pixel)));//z
-        complex[1] = new Complex(pixel);//c
-        
-        ArrayList<Complex> complex_orbit = new ArrayList<Complex>();
-        complex_orbit.add(pixel);
-
-        Complex temp = null;
-
-        for(; iterations < max_iterations; iterations++) {
-            function(complex);
-            temp = rotation.rotateInverse(complex[0]);
-
-            if(Double.isNaN(temp.getRe()) || Double.isNaN(temp.getIm()) || Double.isInfinite(temp.getRe()) || Double.isInfinite(temp.getIm())) {
-                break;
-            }
-
-            complex_orbit.add(temp);
-        }
-        
-        return complex_orbit;
-
-    }*/
+     pertur_val.setGlobalVars(vars);
+     init_val.setGlobalVars(vars);
     
+     Complex[] complex = new Complex[2];
+     complex[0] = new Complex(pertur_val.getValue(init_val.getValue(pixel)));//z
+     complex[1] = new Complex(pixel);//c
+        
+     ArrayList<Complex> complex_orbit = new ArrayList<Complex>();
+     complex_orbit.add(pixel);
+
+     Complex temp = null;
+
+     for(; iterations < max_iterations; iterations++) {
+     function(complex);
+     temp = rotation.rotateInverse(complex[0]);
+
+     if(Double.isNaN(temp.getRe()) || Double.isNaN(temp.getIm()) || Double.isInfinite(temp.getRe()) || Double.isInfinite(temp.getIm())) {
+     break;
+     }
+
+     complex_orbit.add(temp);
+     }
+        
+     return complex_orbit;
+
+     }*/
     public Complex calculateFractalDomain(Complex pixel) {
 
+        vars = createGlobalVars();
+        plane.setGlobalVars(vars);
+
         return iterateFractalDomain(plane.transform(rotation.rotate(pixel)));
-     
+
     }
-    
+
     protected Complex iterateFractalDomain(Complex pixel) {
-        
+
         int iterations = 0;
+
+        pertur_val.setGlobalVars(vars);
+        init_val.setGlobalVars(vars);
 
         Complex tempz = new Complex(pertur_val.getValue(init_val.getValue(pixel)));
 
@@ -941,13 +1019,13 @@ public abstract class Fractal {
         complex[1] = new Complex(pixel);//c
 
         for(; iterations < max_iterations; iterations++) {
-            
+
             function(complex);
 
         }
 
         return complex[0];
-        
+
     }
 
     public abstract void calculateJuliaOrbit();
@@ -955,7 +1033,7 @@ public abstract class Fractal {
     public abstract double calculateJulia(Complex pixel);
 
     public abstract double[] calculateJulia3D(Complex pixel);
-    
+
     public abstract Complex calculateJuliaDomain(Complex pixel);
 
     public double getXCenter() {
@@ -987,17 +1065,185 @@ public abstract class Fractal {
         return plane.transform(z);
 
     }
-    
-    public PlanePointOption getInitialValue() {
-        
-        return init_val;
-        
-    }
-    
-    public OutColorAlgorithm getOutColorAlgorithm() {
-        
-        return out_color_algorithm;
-        
+
+    public String getInitialValue() {
+
+        return init_val != null ? init_val.toString() : "c";
+
     }
 
+    public OutColorAlgorithm getOutColorAlgorithm() {
+
+        return out_color_algorithm;
+
+    }
+
+    public double getConvergentBailout() {
+
+        return 0;
+
+    }
+
+    protected void OutColoringAlgorithmFactory(int out_coloring_algorithm, boolean smoothing, int escaping_smooth_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, double[] plane_transform_center) {
+        switch (out_coloring_algorithm) {
+
+            case MainWindow.ESCAPE_TIME:
+                if(!smoothing) {
+                    out_color_algorithm = new EscapeTime();
+                }
+                else {
+                    out_color_algorithm = new SmoothEscapeTime(Math.log(bailout_squared), escaping_smooth_algorithm);
+                }
+                break;
+            case MainWindow.BINARY_DECOMPOSITION:
+                if(!smoothing) {
+                    out_color_algorithm = new BinaryDecomposition();
+                }
+                else {
+                    out_color_algorithm = new SmoothBinaryDecomposition(Math.log(bailout_squared), escaping_smooth_algorithm);
+                }
+                break;
+            case MainWindow.BINARY_DECOMPOSITION2:
+                if(!smoothing) {
+                    out_color_algorithm = new BinaryDecomposition2();
+                }
+                else {
+                    out_color_algorithm = new SmoothBinaryDecomposition2(Math.log(bailout_squared), escaping_smooth_algorithm);
+                }
+                break;
+            case MainWindow.ITERATIONS_PLUS_RE:
+                out_color_algorithm = new EscapeTimePlusRe();
+                break;
+            case MainWindow.ITERATIONS_PLUS_IM:
+                out_color_algorithm = new EscapeTimePlusIm();
+                break;
+            case MainWindow.ITERATIONS_PLUS_RE_DIVIDE_IM:
+                out_color_algorithm = new EscapeTimePlusReDivideIm();
+                break;
+            case MainWindow.ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM:
+                out_color_algorithm = new EscapeTimePlusRePlusImPlusReDivideIm();
+                break;
+            case MainWindow.BIOMORPH:
+                if(!smoothing) {
+                    out_color_algorithm = new Biomorphs(bailout);
+                }
+                else {
+                    out_color_algorithm = new SmoothBiomorphs(Math.log(bailout_squared), bailout, escaping_smooth_algorithm);
+                }
+                break;
+            case MainWindow.COLOR_DECOMPOSITION:
+                out_color_algorithm = new ColorDecomposition();
+                break;
+            case MainWindow.ESCAPE_TIME_COLOR_DECOMPOSITION:
+                out_color_algorithm = new EscapeTimeColorDecomposition();
+                break;
+            case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER:
+                out_color_algorithm = new EscapeTimeGaussianInteger();
+                break;
+            case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER2:
+                out_color_algorithm = new EscapeTimeGaussianInteger2();
+                break;
+            case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER3:
+                out_color_algorithm = new EscapeTimeGaussianInteger3();
+                break;
+            case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER4:
+                out_color_algorithm = new EscapeTimeGaussianInteger4();
+                break;
+            case MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER5:
+                out_color_algorithm = new EscapeTimeGaussianInteger5();
+                break;
+            case MainWindow.ESCAPE_TIME_ALGORITHM:
+                out_color_algorithm = new EscapeTimeAlgorithm1(2);
+                break;
+            case MainWindow.ESCAPE_TIME_ALGORITHM2:
+                out_color_algorithm = new EscapeTimeAlgorithm2();
+                break;
+            case MainWindow.ESCAPE_TIME_ESCAPE_RADIUS:
+                out_color_algorithm = new EscapeTimeEscapeRadius(Math.log(bailout_squared));
+                break;
+            case MainWindow.ESCAPE_TIME_GRID:
+                if(!smoothing) {
+                    out_color_algorithm = new EscapeTimeGrid(Math.log(bailout_squared));
+                }
+                else {
+                    out_color_algorithm = new SmoothEscapeTimeGrid(Math.log(bailout_squared), escaping_smooth_algorithm);
+                }
+                break;
+            case MainWindow.BANDED:
+                out_color_algorithm = new Banded();
+                break;
+            case MainWindow.ESCAPE_TIME_FIELD_LINES:
+                if(!smoothing) {
+                    out_color_algorithm = new EscapeTimeFieldLines(Math.log(bailout_squared));
+                }
+                else {
+                    out_color_algorithm = new SmoothEscapeTimeFieldLines(Math.log(bailout_squared), escaping_smooth_algorithm);
+                }
+                break;
+            case MainWindow.ESCAPE_TIME_FIELD_LINES2:
+                if(!smoothing) {
+                    out_color_algorithm = new EscapeTimeFieldLines2(Math.log(bailout_squared));
+                }
+                else {
+                    out_color_algorithm = new SmoothEscapeTimeFieldLines2(Math.log(bailout_squared), escaping_smooth_algorithm);
+                }
+                break;
+            case MainWindow.USER_OUTCOLORING_ALGORITHM:
+                if(user_out_coloring_algorithm == 0) {
+                    out_color_algorithm = new UserOutColorAlgorithm(outcoloring_formula, bailout, max_iterations, xCenter, yCenter, size, plane_transform_center);
+                }
+                else {
+                    out_color_algorithm = new UserConditionalOutColorAlgorithm(user_outcoloring_conditions, user_outcoloring_condition_formula, bailout, max_iterations, xCenter, yCenter, size, plane_transform_center);
+                }
+                break;
+
+        }
+    }
+
+    protected void InColoringAlgorithmFactory(int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, double[] plane_transform_center) {
+
+        switch (in_coloring_algorithm) {
+
+            case MainWindow.MAXIMUM_ITERATIONS:
+                in_color_algorithm = new MaximumIterations(max_iterations);
+                break;
+            case MainWindow.Z_MAG:
+                in_color_algorithm = new ZMag(max_iterations);
+                break;
+            case MainWindow.DECOMPOSITION_LIKE:
+                in_color_algorithm = new DecompositionLike();
+                break;
+            case MainWindow.RE_DIVIDE_IM:
+                in_color_algorithm = new ReDivideIm();
+                break;
+            case MainWindow.COS_MAG:
+                in_color_algorithm = new CosMag();
+                break;
+            case MainWindow.MAG_TIMES_COS_RE_SQUARED:
+                in_color_algorithm = new MagTimesCosReSquared();
+                break;
+            case MainWindow.SIN_RE_SQUARED_MINUS_IM_SQUARED:
+                in_color_algorithm = new SinReSquaredMinusImSquared();
+                break;
+            case MainWindow.ATAN_RE_TIMES_IM_TIMES_ABS_RE_TIMES_ABS_IM:
+                in_color_algorithm = new AtanReTimesImTimesAbsReTimesAbsIm();
+                break;
+            case MainWindow.SQUARES:
+                in_color_algorithm = new Squares();
+                break;
+            case MainWindow.SQUARES2:
+                in_color_algorithm = new Squares2();
+                break;
+            case MainWindow.USER_INCOLORING_ALGORITHM:
+                if(user_in_coloring_algorithm == 0) {
+                    in_color_algorithm = new UserInColorAlgorithm(incoloring_formula, max_iterations, xCenter, yCenter, size, plane_transform_center, bailout);
+                }
+                else {
+                    in_color_algorithm = new UserConditionalInColorAlgorithm(user_incoloring_conditions, user_incoloring_condition_formula, max_iterations, xCenter, yCenter, size, plane_transform_center, bailout);
+                }
+                break;
+
+        }
+
+    }
 }

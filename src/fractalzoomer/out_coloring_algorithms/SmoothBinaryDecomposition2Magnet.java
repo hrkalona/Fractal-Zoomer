@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2017 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2018 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,7 +46,7 @@ public class SmoothBinaryDecomposition2Magnet extends SmoothBinaryDecomposition2
                 double temp2 = ((Complex)object[1]).norm_squared();
                 temp += 0.000000001;
                 temp = Math.log(temp);
-                temp3 = (Integer)object[0] + (log_bailout_squared - temp) / (Math.log(temp2) - temp);
+                temp3 = (Integer)object[0] + (log_bailout_squared - temp) / (Math.log(temp2) - temp) + MAGNET_INCREMENT;
             }
             else {
                 double temp = ((Complex)object[4]).norm_squared();
@@ -60,7 +60,7 @@ public class SmoothBinaryDecomposition2Magnet extends SmoothBinaryDecomposition2
                 double a = Math.log(temp2 / log_bailout_squared);
                 double f = a / Math.log(p);
 
-                temp3 = (Integer)object[0] + 1 - f;
+                temp3 = (Integer)object[0] + 1 - f + MAGNET_INCREMENT;
             }
         }
         else {
@@ -79,7 +79,13 @@ public class SmoothBinaryDecomposition2Magnet extends SmoothBinaryDecomposition2
             }
         }
         
-        return ((Boolean)object[2] ? (((Complex)object[1]).getRe() < 0 ? -(temp3 + MAGIC_OFFSET_NUMBER + INCREMENT) : temp3 + MAGIC_OFFSET_NUMBER + 106) : ((Complex)object[1]).getRe() < 0 ? -(temp3 + MAGIC_OFFSET_NUMBER + INCREMENT) : temp3 + MAGIC_OFFSET_NUMBER);
+        double temp4 = ((Complex)object[1]).getRe() < 0 ? -(temp3 + INCREMENT) : temp3;
 
+        if(temp4 < 0) {
+            return temp4 - MAGIC_OFFSET_NUMBER;
+        }
+        else {
+            return temp4 + MAGIC_OFFSET_NUMBER;
+        }
     }
 }

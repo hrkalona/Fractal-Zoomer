@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2017 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2018 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,10 +39,14 @@ public class EscapeTimeGridMagnet extends EscapeTimeGrid {
         double zarg = (((Complex)object[1]).arg() / (pi2) + 1.0f) % 1.0;
         boolean grid = 0.05 < zabs && zabs < 0.95 && 0.05 < zarg && zarg < 0.95;
         
-        double temp = grid ? (Integer)object[0] : (Integer)object[0] + INCREMENT;
+        double temp = grid ? (Integer)object[0] : -((Integer)object[0] + INCREMENT);
         
-        return (Boolean)object[2] ? temp + MAGIC_OFFSET_NUMBER + 106 : temp + MAGIC_OFFSET_NUMBER;
-
+        if(temp < 0) {
+            return (Boolean)object[2] ? temp - MAGIC_OFFSET_NUMBER - MAGNET_INCREMENT : temp - MAGIC_OFFSET_NUMBER;
+        }
+        else {
+            return (Boolean)object[2] ? temp + MAGIC_OFFSET_NUMBER + MAGNET_INCREMENT : temp + MAGIC_OFFSET_NUMBER;
+        }
     }
     
 }

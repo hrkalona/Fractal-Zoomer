@@ -1,5 +1,5 @@
 /*
- * Fractal Zoomer, Copyright (C) 2017 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2018 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@ package fractalzoomer.gui;
 
 import fractalzoomer.main.MainWindow;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -40,10 +41,10 @@ import javax.swing.JScrollPane;
 public class ColorChooserFrame extends JFrame {
 
     private JFrame ptr2;
-    private MainWindow ptra2;
+    private Component ptra2;
     private Object obj2;
 
-    public ColorChooserFrame(MainWindow ptra, JFrame ptr, String title, Object obj, final int num) {
+    public ColorChooserFrame(Component ptra, JFrame ptr, String title, Object obj, final int num) {
 
         super();
 
@@ -92,8 +93,9 @@ public class ColorChooserFrame extends JFrame {
                     ((JLabel)obj2).setBackground(new Color(color_chooser.getColor().getRed(), color_chooser.getColor().getGreen(), color_chooser.getColor().getBlue()));
                 }
                 else if(obj2 instanceof Color) {
-
-                    ptra2.storeColor(num, color_chooser.getColor());
+                    if(ptra2 instanceof MainWindow) {
+                        ((MainWindow)ptra2).storeColor(num, color_chooser.getColor());
+                    }
                 }
 
                 ptr2.setEnabled(true);

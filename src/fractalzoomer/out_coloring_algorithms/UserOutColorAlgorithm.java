@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2017 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2018 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 package fractalzoomer.out_coloring_algorithms;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.core.ThreadDraw;
 import fractalzoomer.parser.ExpressionNode;
 import fractalzoomer.parser.Parser;
 
@@ -53,6 +54,10 @@ public class UserOutColorAlgorithm extends OutColorAlgorithm {
         
         if(parser.foundSize()) {
             parser.setSizevalue(new Complex(size, 0));
+        }
+        
+        if (parser.foundISize()) {
+            parser.setISizevalue(new Complex(ThreadDraw.IMAGE_SIZE, 0));
         }
 
         if(parser.foundPoint()) {
@@ -98,7 +103,7 @@ public class UserOutColorAlgorithm extends OutColorAlgorithm {
 
         double result = expr.getValue().getRe();
         
-        if(result == -max_iterations) {
+        if(Math.abs(result) == max_iterations) {
             return result;
         }
         

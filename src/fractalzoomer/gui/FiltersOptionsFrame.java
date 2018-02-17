@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 hrkalona
+ * Copyright (C) 2018 hrkalona
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -535,7 +535,7 @@ public class FiltersOptionsFrame extends JFrame {
 
         panels[MainWindow.INVERT_COLORS] = new JPanel();
         panels[MainWindow.INVERT_COLORS].setBackground(MainWindow.bg_color);
-        String[] color_invert_str = {"Colors", "Brightness", "Hue", "Saturation"};
+        String[] color_invert_str = {"Colors", "Brightness", "Hue", "Saturation", "Red", "Green", "Blue"};
 
         components_filters[MainWindow.INVERT_COLORS] = new JComboBox(color_invert_str);
         ((JComboBox)components_filters[MainWindow.INVERT_COLORS]).setSelectedIndex(filters_options_vals[MainWindow.INVERT_COLORS]);
@@ -1772,6 +1772,70 @@ public class FiltersOptionsFrame extends JFrame {
         panels[MainWindow.SPARKLE].setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Sparkle", TitledBorder.DEFAULT_POSITION, TitledBorder.DEFAULT_POSITION));
         
         
+        panels[MainWindow.MIRROR] = new JPanel();
+        panels[MainWindow.MIRROR].setBackground(MainWindow.bg_color);
+        
+        components_filters[MainWindow.MIRROR] = new JPanel();
+        ((JPanel)components_filters[MainWindow.MIRROR]).setBackground(MainWindow.bg_color);
+        ((JPanel)components_filters[MainWindow.MIRROR]).setLayout(new GridLayout(6, 1));
+        
+        final JSlider opacity_slid = new JSlider(JSlider.HORIZONTAL, 0, 100, (int)(filters_options_vals[MainWindow.MIRROR] / 1000000.0));
+        opacity_slid.setPreferredSize(new Dimension(200, 35));
+        opacity_slid.setBackground(MainWindow.bg_color);
+        opacity_slid.setFocusable(false);
+        opacity_slid.setToolTipText("Sets the mirror's opacity.");
+        opacity_slid.setPaintLabels(true);
+
+        table3 = new Hashtable<Integer, JLabel>();
+        table3.put(0, new JLabel("0"));
+        table3.put(25, new JLabel("25"));
+        table3.put(50, new JLabel("50"));
+        table3.put(75, new JLabel("75"));
+        table3.put(100, new JLabel("100"));
+        opacity_slid.setLabelTable(table3);
+        
+        final JSlider mirrory_slid = new JSlider(JSlider.HORIZONTAL, 0, 100, (int)(((int)(filters_options_vals[MainWindow.MIRROR] % 1000000.0)) / 1000.0));
+        mirrory_slid.setPreferredSize(new Dimension(200, 35));
+        mirrory_slid.setBackground(MainWindow.bg_color);
+        mirrory_slid.setFocusable(false);
+        mirrory_slid.setToolTipText("Sets the mirror's Y offset.");
+        mirrory_slid.setPaintLabels(true);
+
+    
+        mirrory_slid.setLabelTable(table3);
+        
+        final JSlider mirror_gap_slid = new JSlider(JSlider.HORIZONTAL, 0, 100, (int)(((int)(filters_options_vals[MainWindow.MIRROR] % 1000000.0)) % 1000.0));
+        mirror_gap_slid.setPreferredSize(new Dimension(200, 35));
+        mirror_gap_slid.setBackground(MainWindow.bg_color);
+        mirror_gap_slid.setFocusable(false);
+        mirror_gap_slid.setToolTipText("Sets the mirror's gap.");
+        mirror_gap_slid.setPaintLabels(true);
+        
+        mirror_gap_slid.setLabelTable(table3);
+
+        JPanel mirror_label_panel1 = new JPanel();
+        mirror_label_panel1.setBackground(MainWindow.bg_color);
+        mirror_label_panel1.add(new JLabel("Opacity:"));
+        
+        JPanel mirror_label_panel2 = new JPanel();
+        mirror_label_panel2.setBackground(MainWindow.bg_color);
+        mirror_label_panel2.add(new JLabel("Mirror Y:"));
+        
+        JPanel mirror_label_panel3 = new JPanel();
+        mirror_label_panel3.setBackground(MainWindow.bg_color);
+        mirror_label_panel3.add(new JLabel("Gap:"));
+        
+        ((JPanel)components_filters[MainWindow.MIRROR]).add(mirror_label_panel1);
+        ((JPanel)components_filters[MainWindow.MIRROR]).add(opacity_slid);
+        ((JPanel)components_filters[MainWindow.MIRROR]).add(mirror_label_panel2);
+        ((JPanel)components_filters[MainWindow.MIRROR]).add(mirrory_slid);
+        ((JPanel)components_filters[MainWindow.MIRROR]).add(mirror_label_panel3);
+        ((JPanel)components_filters[MainWindow.MIRROR]).add(mirror_gap_slid);
+        
+        panels[MainWindow.MIRROR].add(((JPanel)components_filters[MainWindow.MIRROR]));
+
+        panels[MainWindow.MIRROR].setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Mirror", TitledBorder.DEFAULT_POSITION, TitledBorder.DEFAULT_POSITION));
+        
         panels[MainWindow.GLOW] = new JPanel();
         panels[MainWindow.GLOW].setBackground(MainWindow.bg_color);
         
@@ -2624,6 +2688,7 @@ public class FiltersOptionsFrame extends JFrame {
         panel_texture.add(panels[MainWindow.MARBLE]);
         panel_texture.add(panels[MainWindow.WEAVE]);
         panel_texture.add(panels[MainWindow.SPARKLE]);
+        panel_texture.add(panels[MainWindow.MIRROR]);
         
         panel_lighting.setLayout(new GridLayout(1, 1));
         panel_lighting.add(panels[MainWindow.LIGHT_EFFECTS]);
@@ -2732,6 +2797,9 @@ public class FiltersOptionsFrame extends JFrame {
                             filters_extra_colors[0][MainWindow.LIGHT_EFFECTS] = filter_color_label7.getBackground();
                             filters_extra_colors[1][MainWindow.LIGHT_EFFECTS] = filter_color_label8.getBackground();
                         }
+                        else if(k == MainWindow.MIRROR) {
+                            filters_options_vals[k] = 1000000 * opacity_slid.getValue() + 1000 * mirrory_slid.getValue() + mirror_gap_slid.getValue();
+                        }                            
                         else if(k == MainWindow.EDGE_DETECTION2) {
                             filters_options_vals[k] = horizontal_edge_alg.getSelectedIndex() * 10 + vertical_edge_alg.getSelectedIndex();
                         }

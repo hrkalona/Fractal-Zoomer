@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2017 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2018 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 package fractalzoomer.in_coloring_algorithms;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.core.ThreadDraw;
 import fractalzoomer.parser.ExpressionNode;
 import fractalzoomer.parser.Parser;
 
@@ -31,11 +32,8 @@ public class UserConditionalInColorAlgorithm extends InColorAlgorithm {
     private ExpressionNode[] expr2;
     private Parser[] parser2;
     private int max_iterations;
-    private Complex c_max_iterations;
-    private Complex c_center;
-    private Complex c_size;
 
-    public UserConditionalInColorAlgorithm(String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, int max_iterations, double xCenter, double yCenter, double size, double[] point) {
+    public UserConditionalInColorAlgorithm(String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, int max_iterations, double xCenter, double yCenter, double size, double[] point, double genericBail) {
 
         super();
 
@@ -55,7 +53,7 @@ public class UserConditionalInColorAlgorithm extends InColorAlgorithm {
             expr2[i] = parser2[i].parse(user_incoloring_condition_formula[i]);
         }
 
-        c_max_iterations = new Complex(max_iterations, 0);
+        Complex c_max_iterations = new Complex(max_iterations, 0);
 
         if(parser[0].foundMaxn()) {
             parser[0].setMaxnvalue(c_max_iterations);
@@ -76,8 +74,28 @@ public class UserConditionalInColorAlgorithm extends InColorAlgorithm {
         if(parser2[2].foundMaxn()) {
             parser2[2].setMaxnvalue(c_max_iterations);
         }
+        
+        if(parser[0].foundN()) {
+            parser[0].setNvalue(c_max_iterations);
+        }
+        
+        if(parser[1].foundN()) {
+            parser[1].setNvalue(c_max_iterations);
+        }
 
-        c_center = new Complex(xCenter, yCenter);
+        if(parser2[0].foundN()) {
+            parser2[0].setNvalue(c_max_iterations);
+        }
+        
+        if(parser2[1].foundN()) {
+            parser2[1].setNvalue(c_max_iterations);
+        }
+        
+        if(parser2[2].foundN()) {
+            parser2[2].setNvalue(c_max_iterations);
+        }
+        
+        Complex c_center = new Complex(xCenter, yCenter);
 
         if(parser[0].foundCenter()) {
             parser[0].setCentervalue(c_center);
@@ -99,7 +117,7 @@ public class UserConditionalInColorAlgorithm extends InColorAlgorithm {
             parser2[2].setCentervalue(c_center);
         }
 
-        c_size = new Complex(size, 0);
+        Complex c_size = new Complex(size, 0);
 
         if(parser[0].foundSize()) {
             parser[0].setSizevalue(c_size);
@@ -121,6 +139,27 @@ public class UserConditionalInColorAlgorithm extends InColorAlgorithm {
             parser2[2].setSizevalue(c_size);
         }
         
+        Complex c_isize = new Complex(ThreadDraw.IMAGE_SIZE, 0);
+        if (parser[0].foundISize()) {
+            parser[0].setISizevalue(c_isize);
+        }
+
+        if (parser[1].foundISize()) {
+            parser[1].setISizevalue(c_isize);
+        }
+
+        if (parser2[0].foundISize()) {
+            parser2[0].setISizevalue(c_isize);
+        }
+
+        if (parser2[1].foundISize()) {
+            parser2[1].setISizevalue(c_isize);
+        }
+
+        if (parser2[2].foundISize()) {
+            parser2[2].setISizevalue(c_isize);
+        }
+        
         Complex c_point = new Complex(point[0], point[1]);
         if(parser[0].foundPoint()) {
             parser[0].setPointvalue(c_point);
@@ -140,6 +179,48 @@ public class UserConditionalInColorAlgorithm extends InColorAlgorithm {
         
         if(parser2[2].foundPoint()) {
             parser2[2].setPointvalue(c_point);
+        }
+        
+        Complex c_bail = new Complex(genericBail, 0);
+        if(parser[0].foundBail()) {
+            parser[0].setBailvalue(c_bail);
+        }
+        
+        if(parser[1].foundBail()) {
+            parser[1].setBailvalue(c_bail);
+        }
+        
+        if(parser2[0].foundBail()) {
+            parser2[0].setBailvalue(c_bail);
+        }
+        
+        if(parser2[1].foundBail()) {
+            parser2[1].setBailvalue(c_bail);
+        }
+        
+        if(parser2[2].foundBail()) {
+            parser2[2].setBailvalue(c_bail);
+        }
+        
+        
+        if(parser[0].foundCbail()) {
+            parser[0].setCbailvalue(c_bail);
+        }
+        
+        if(parser[1].foundCbail()) {
+            parser[1].setCbailvalue(c_bail);
+        }
+        
+        if(parser2[0].foundCbail()) {
+            parser2[0].setCbailvalue(c_bail);
+        }
+        
+        if(parser2[1].foundCbail()) {
+            parser2[1].setCbailvalue(c_bail);
+        }
+        
+        if(parser2[2].foundCbail()) {
+            parser2[2].setCbailvalue(c_bail);
         }
 
         this.max_iterations = max_iterations;

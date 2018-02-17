@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2017 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2018 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@ public class EscapeTimeGridNova extends EscapeTimeGrid {
     
     public EscapeTimeGridNova() {
 
-        super(Math.log(4.0));
+        super(Math.log(16.0));
         OutNotUsingIncrement = false;
 
     }

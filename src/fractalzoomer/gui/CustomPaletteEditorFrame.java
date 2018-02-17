@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 hrkalona
+ * Copyright (C) 2018 hrkalona
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,9 +20,11 @@ import fractalzoomer.main.MainWindow;
 import fractalzoomer.palettes.CustomPalette;
 import fractalzoomer.settings.SettingsPalette;
 import fractalzoomer.settings.SettingsPalette1062;
+import fractalzoomer.utils.ColorBrewerPalette;
 import fractalzoomer.utils.ColorGenerator;
 import fractalzoomer.utils.ColorSpaceConverter;
 import fractalzoomer.utils.GoogleMaterialDesignPalette;
+import fractalzoomer.utils.MixedGoogleColorBrewerPalette;
 import fractalzoomer.utils.PixelColor;
 import java.awt.Color;
 import java.awt.Cursor;
@@ -642,7 +644,7 @@ public class CustomPaletteEditorFrame extends JFrame {
                 for(int m = 0; m < temp_custom_palette.length; m++) {
                     temp_custom_palette[m][0] = temp_array[m];
                 }
-
+                
                 Color[] c = null;
                 try {
                     c = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
@@ -1078,7 +1080,7 @@ public class CustomPaletteEditorFrame extends JFrame {
         random_palette_alg.setLayout(new FlowLayout());
         random_palette_alg.setBackground(MainWindow.bg_color);
 
-        String[] random_palette_alg_str = {"Golden Ratio", "Waves", "Distance", "Triad", "Tetrad", "Google Material"};
+        String[] random_palette_alg_str = {"Golden Ratio", "Waves", "Distance", "Triad", "Tetrad", "Google Material", "ColorBrewer 1", "ColorBrewer 2", "Google-ColorBrewer"};
 
         combo_box_random_palette_alg = new JComboBox(random_palette_alg_str);
         combo_box_random_palette_alg.setSelectedIndex(random_palette_algorithm);
@@ -2190,7 +2192,7 @@ public class CustomPaletteEditorFrame extends JFrame {
         }
 
         Random generator = new Random(System.currentTimeMillis());
-        Color[] c;
+        Color[] c = null;
 
         double golden_ratio_conjugate = 0.6180339887498949;//(1 + Math.sqrt(5)) / 2.0 - 1;
 
@@ -2403,11 +2405,12 @@ public class CustomPaletteEditorFrame extends JFrame {
 
             c = CustomPalette.getPalette(palette, color_interpolation, color_space, reverse_palette, color_cycling, processing_val, processing_alg);
         }
-        else {
-            Color[] col = GoogleMaterialDesignPalette.generate();
+        else if(random_palette_alg == 5) {
+            Color[] col = GoogleMaterialDesignPalette.generate(palette.length);
+            
             for(int m = 0; m < palette.length; m++) {
 
-                if(m >= col.length) {
+                if(m >= col.length || col[m] == null) {
                     palette[m][0] = 0;
                     palette[m][1] = 0;
                     palette[m][2] = 0;
@@ -2424,6 +2427,72 @@ public class CustomPaletteEditorFrame extends JFrame {
 
             c = CustomPalette.getPalette(palette, color_interpolation, color_space, reverse_palette, color_cycling, processing_val, processing_alg);
         }
+        else if(random_palette_alg == 6) {
+            
+            Color[] col = ColorBrewerPalette.generate2(palette.length);
+            for(int m = 0; m < palette.length; m++) {
+
+                if(m >= col.length || col[m] == null) {
+                    palette[m][0] = 0;
+                    palette[m][1] = 0;
+                    palette[m][2] = 0;
+                    palette[m][3] = 0;
+                }
+                else {
+                    palette[m][0] = same_hues ? hues : generator.nextInt(12) + 7;
+                    palette[m][1] = col[m].getRed();
+                    palette[m][2] = col[m].getGreen();
+                    palette[m][3] = col[m].getBlue();
+                }
+
+            }
+
+            c = CustomPalette.getPalette(palette, color_interpolation, color_space, reverse_palette, color_cycling, processing_val, processing_alg);
+        }
+        else if(random_palette_alg == 7) {
+            
+            Color[] col = ColorBrewerPalette.generate(palette.length);
+            for(int m = 0; m < palette.length; m++) {
+
+                if(m >= col.length || col[m] == null) {
+                    palette[m][0] = 0;
+                    palette[m][1] = 0;
+                    palette[m][2] = 0;
+                    palette[m][3] = 0;
+                }
+                else {
+                    palette[m][0] = same_hues ? hues : generator.nextInt(12) + 7;
+                    palette[m][1] = col[m].getRed();
+                    palette[m][2] = col[m].getGreen();
+                    palette[m][3] = col[m].getBlue();
+                }
+
+            }
+
+            c = CustomPalette.getPalette(palette, color_interpolation, color_space, reverse_palette, color_cycling, processing_val, processing_alg);
+        }
+        else if(random_palette_alg == 8) {
+            
+            Color[] col = MixedGoogleColorBrewerPalette.generate(palette.length);
+            for(int m = 0; m < palette.length; m++) {
+
+                if(m >= col.length || col[m] == null) {
+                    palette[m][0] = 0;
+                    palette[m][1] = 0;
+                    palette[m][2] = 0;
+                    palette[m][3] = 0;
+                }
+                else {
+                    palette[m][0] = same_hues ? hues : generator.nextInt(12) + 7;
+                    palette[m][1] = col[m].getRed();
+                    palette[m][2] = col[m].getGreen();
+                    palette[m][3] = col[m].getBlue();
+                }
+
+            }
+
+            c = CustomPalette.getPalette(palette, color_interpolation, color_space, reverse_palette, color_cycling, processing_val, processing_alg);
+        }       
 
         return c;
 

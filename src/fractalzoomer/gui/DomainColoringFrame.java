@@ -1,0 +1,314 @@
+/*
+ * Copyright (C) 2018 hrkalona
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+package fractalzoomer.gui;
+
+import static fractalzoomer.main.Constants.domainAlgNames;
+import fractalzoomer.main.MainWindow;
+import fractalzoomer.main.app_settings.DomainColoringSettings;
+import fractalzoomer.main.app_settings.Settings;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import javax.swing.border.TitledBorder;
+
+/**
+ *
+ * @author kaloch
+ */
+public class DomainColoringFrame extends JFrame {
+
+    private MainWindow ptra2;
+    private DomainColoringFrame this_frame;
+
+    public DomainColoringFrame(MainWindow ptra, final Settings s, final boolean options) {
+
+        super();
+
+        ptra2 = ptra;
+
+        this_frame = this;
+
+        ptra2.setEnabled(false);
+        int custom_palette_window_width = 660;
+        int custom_palette_window_height = 310;
+        setTitle("Domain Coloring");
+        if(options) {
+            setIconImage(getIcon("/fractalzoomer/icons/domain_coloring_options.png").getImage());
+        }
+        else {
+            setIconImage(getIcon("/fractalzoomer/icons/domain_coloring.png").getImage());
+        }
+        setSize(custom_palette_window_width, custom_palette_window_height);
+        setLocation((int) (ptra2.getLocation().getX() + ptra2.getSize().getWidth() / 2) - (custom_palette_window_width / 2), (int) (ptra2.getLocation().getY() + ptra2.getSize().getHeight() / 2) - (custom_palette_window_height / 2));
+
+        addWindowListener(new WindowAdapter() {
+
+            @Override
+            public void windowClosing(WindowEvent e) {
+
+                if(!options) {                  
+                    ptra2.cancelDomainColoring();
+                }
+                ptra2.setEnabled(true);
+                dispose();
+
+            }
+        });
+
+        JPanel domain_coloring_panel = new JPanel();
+
+        domain_coloring_panel.setPreferredSize(new Dimension(560, 163));
+        domain_coloring_panel.setLayout(new GridLayout(2, 1));
+        domain_coloring_panel.setBackground(MainWindow.bg_color);
+
+        domain_coloring_panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Domain Coloring", TitledBorder.CENTER, TitledBorder.CENTER));
+
+        final JTextField iterations_textfield = new JTextField(10);
+        iterations_textfield.addAncestorListener(new RequestFocusListener());
+        iterations_textfield.setText("" + s.max_iterations);
+
+        JPanel settings_panel = new JPanel();
+        settings_panel.setLayout(new FlowLayout());
+        settings_panel.setBackground(MainWindow.bg_color);
+        settings_panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Settings", TitledBorder.DEFAULT_POSITION, TitledBorder.DEFAULT_POSITION));
+
+        final JCheckBox use_palette_dc = new JCheckBox("Use Current Palette");
+        use_palette_dc.setSelected(s.ds.use_palette_domain_coloring);
+        use_palette_dc.setBackground(MainWindow.bg_color);
+        use_palette_dc.setFocusable(false);
+        use_palette_dc.setToolTipText("Enables the use of the current palette.");
+
+        settings_panel.add(new JLabel("Maximum Iterations: "));
+        settings_panel.add(iterations_textfield);
+        settings_panel.add(use_palette_dc);
+
+        final JComboBox color_domain_algs_opt = new JComboBox(domainAlgNames);
+        color_domain_algs_opt.setSelectedIndex(s.ds.domain_coloring_alg);
+        color_domain_algs_opt.setFocusable(false);
+        color_domain_algs_opt.setToolTipText("Sets the domain coloring algorithm.");
+
+        ButtonGroup color_transfer_group = new ButtonGroup();
+        final JRadioButton presetButton = new JRadioButton("Preset");
+        presetButton.setBackground(MainWindow.bg_color);
+        presetButton.setFocusable(false);
+        presetButton.setToolTipText("Uses a preset domain coloring algorithm.");
+        final JRadioButton customButton = new JRadioButton("Custom");
+        customButton.setToolTipText("Uses a custom domain coloring algorithm.");
+        customButton.setBackground(MainWindow.bg_color);
+        customButton.setFocusable(false);
+
+        color_transfer_group.add(presetButton);
+        color_transfer_group.add(customButton);
+
+        final JButton custom = new JButton("");
+        custom.setToolTipText("Sets the custom domain coloring settings.");
+        custom.setPreferredSize(new Dimension(30, 30));
+        custom.setIcon(getIcon("/fractalzoomer/icons/domain_coloring.png"));
+        custom.setFocusable(false);
+
+        CustomDomainColoringFrame.setSettings(new DomainColoringSettings(s.ds));
+
+        custom.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new CustomDomainColoringFrame(this_frame);
+            }
+
+        });
+
+        if (s.ds.customDomainColoring) {
+            customButton.setSelected(true);
+            custom.setEnabled(true);
+            color_domain_algs_opt.setEnabled(false);
+        } else {
+            presetButton.setSelected(true);
+            custom.setEnabled(false);
+            color_domain_algs_opt.setEnabled(true);
+        }
+
+        customButton.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (customButton.isSelected()) {
+                    custom.setEnabled(true);
+                    color_domain_algs_opt.setEnabled(false);
+                } else {
+                    custom.setEnabled(false);
+                    color_domain_algs_opt.setEnabled(true);
+                }
+            }
+
+        });
+
+        presetButton.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (presetButton.isSelected()) {
+                    custom.setEnabled(false);
+                    color_domain_algs_opt.setEnabled(true);
+                } else {
+                    custom.setEnabled(true);
+                    color_domain_algs_opt.setEnabled(false);
+                }
+            }
+
+        });
+
+        
+        JPanel custom_panel = new JPanel();
+        custom_panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Domain Coloring Algorithm", TitledBorder.DEFAULT_POSITION, TitledBorder.DEFAULT_POSITION));
+        custom_panel.setLayout(new FlowLayout());
+        custom_panel.setBackground(MainWindow.bg_color);
+        custom_panel.add(presetButton);
+        custom_panel.add(color_domain_algs_opt);
+        custom_panel.add(customButton);
+        custom_panel.add(custom);
+        
+       
+        domain_coloring_panel.add(settings_panel);
+        domain_coloring_panel.add(custom_panel);
+
+        JPanel buttons = new JPanel();
+
+        buttons.setLayout(new FlowLayout());
+        buttons.setBackground(MainWindow.bg_color);
+
+        JButton palette_ok = new JButton("Ok");
+        palette_ok.setFocusable(false);
+        palette_ok.addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+                
+                int tempIterations;
+                
+                try {
+                    tempIterations = Integer.parseInt(iterations_textfield.getText());
+
+                    if (tempIterations <= 0) {
+                        JOptionPane.showMessageDialog(this_frame, "Maximum iterations number must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(this_frame, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                
+                s.ds = CustomDomainColoringFrame.getSettings();
+                
+                s.max_iterations = tempIterations;
+                
+                if (presetButton.isSelected()) {
+                    s.ds.customDomainColoring = false;
+                }
+                else {
+                    s.ds.customDomainColoring = true;
+                }
+                
+                s.ds.domain_coloring_alg = color_domain_algs_opt.getSelectedIndex();
+                s.ds.use_palette_domain_coloring = use_palette_dc.isSelected();
+
+                s.ds.domain_coloring = true;
+
+                ptra2.setDomainColoringSettings();
+                ptra2.setEnabled(true);
+                dispose();
+
+            }
+
+        });
+
+        buttons.add(palette_ok);
+
+        JButton palette_cancel = new JButton("Cancel");
+        palette_cancel.setFocusable(false);
+        palette_cancel.addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+
+                if(!options) {                  
+                    ptra2.cancelDomainColoring();
+                }
+                ptra2.setEnabled(true);
+                dispose();
+
+            }
+        });
+
+        buttons.add(palette_cancel);
+
+        RoundedPanel round_panel = new RoundedPanel(true, true, true, 15);
+        round_panel.setBackground(MainWindow.bg_color);
+        round_panel.setPreferredSize(new Dimension(590, 220));
+        round_panel.setLayout(new GridBagLayout());
+
+        GridBagConstraints con = new GridBagConstraints();
+
+        con.fill = GridBagConstraints.CENTER;
+        con.gridx = 0;
+        con.gridy = 0;
+
+        round_panel.add(domain_coloring_panel, con);
+
+        con.fill = GridBagConstraints.CENTER;
+        con.gridx = 0;
+        con.gridy = 1;
+
+        round_panel.add(buttons, con);
+
+        JPanel main_panel = new JPanel();
+        main_panel.setLayout(new GridBagLayout());
+        con.fill = GridBagConstraints.CENTER;
+        con.gridx = 0;
+        con.gridy = 0;
+        main_panel.add(round_panel, con);
+
+        JScrollPane scrollPane = new JScrollPane(main_panel);
+        add(scrollPane);
+
+        setVisible(true);
+    }
+
+    private ImageIcon getIcon(String path) {
+
+        return new ImageIcon(getClass().getResource(path));
+
+    }
+
+}

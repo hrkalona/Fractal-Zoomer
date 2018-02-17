@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2017 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2018 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -51,14 +51,20 @@ public class SmoothEscapeTimeGridMagnet extends SmoothEscapeTimeGrid {
 
         boolean grid = grid_weight < zabs && zabs < (1.0 - grid_weight) && (grid_weight * k) < zarg && zarg < (1.0 - grid_weight * k);
 
-        double temp3 = grid ? (Integer)object[0] : (Integer)object[0] + INCREMENT;
+        double temp3 = grid ? (Integer)object[0] : -((Integer)object[0] + INCREMENT);
 
         if((Boolean)object[2]) {
             if(algorithm == 0) {
                 double temp = ((Complex)object[4]).norm_squared();
                 temp += 0.000000001;
                 temp = Math.log(temp);
-                return temp3 + (log_bailout_squared - temp) / (temp3 - temp) + MAGIC_OFFSET_NUMBER + 106;
+                
+                if(temp3 < 0) {
+                    return temp3 -((log_bailout_squared - temp) / (temp3 - temp) + MAGIC_OFFSET_NUMBER + MAGNET_INCREMENT);
+                }
+                else {
+                    return temp3 + (log_bailout_squared - temp) / (temp3 - temp) + MAGIC_OFFSET_NUMBER + MAGNET_INCREMENT;
+                }           
             }
             else {
                 double temp = ((Complex)object[4]).norm_squared();
@@ -70,13 +76,24 @@ public class SmoothEscapeTimeGridMagnet extends SmoothEscapeTimeGrid {
                 double a = Math.log(temp2 / log_bailout_squared);
                 double f = a / Math.log(p);
 
-                return temp3 + 1 - f + MAGIC_OFFSET_NUMBER + 106;
+                if(temp3 < 0) {
+                    return temp3 - (1 - f + MAGIC_OFFSET_NUMBER + MAGNET_INCREMENT);                    
+                }
+                else {
+                    return temp3 + 1 - f + MAGIC_OFFSET_NUMBER + MAGNET_INCREMENT;
+                }               
             }
         }
         else {
             if(algorithm2 == 0) {
                 double temp = Math.log(((Complex)object[4]).distance_squared(1));
-                return temp3 + (log_convergent_bailout - temp) / (Math.log((Double)object[3]) - temp) + MAGIC_OFFSET_NUMBER;
+       
+                if(temp3 < 0) {
+                    return temp3 - ((log_convergent_bailout - temp) / (Math.log((Double)object[3]) - temp) + MAGIC_OFFSET_NUMBER);
+                }
+                else {
+                    return temp3 + (log_convergent_bailout - temp) / (Math.log((Double)object[3]) - temp) + MAGIC_OFFSET_NUMBER;
+                }
             }
             else {
                 double temp4 = Math.log(((Double)object[3]));
@@ -85,7 +102,12 @@ public class SmoothEscapeTimeGridMagnet extends SmoothEscapeTimeGrid {
 
                 double f = Math.log(log_convergent_bailout / temp4) / Math.log(power);
 
-                return temp3 + f + MAGIC_OFFSET_NUMBER;
+                if(temp3 < 0) {
+                    return temp3 - (f + MAGIC_OFFSET_NUMBER);
+                }
+                else {
+                    return temp3 + f + MAGIC_OFFSET_NUMBER;
+                }              
             }
         }
 

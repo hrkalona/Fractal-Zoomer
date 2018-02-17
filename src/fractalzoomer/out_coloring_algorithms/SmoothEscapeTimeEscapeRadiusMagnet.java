@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2017 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2018 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -58,7 +58,7 @@ public class SmoothEscapeTimeEscapeRadiusMagnet extends OutColorAlgorithm {
                 double temp = ((Complex)object[4]).norm_squared();
                 temp += 0.000000001;
                 temp = Math.log(temp);
-                return temp3 + (log_bailout_squared - temp) / (temp2 - temp) + MAGIC_OFFSET_NUMBER + 106;
+                return temp3 + (log_bailout_squared - temp) / (temp2 - temp) + MAGIC_OFFSET_NUMBER + MAGNET_INCREMENT;
             }
             else {
                 double temp = ((Complex)object[4]).norm_squared();
@@ -70,7 +70,7 @@ public class SmoothEscapeTimeEscapeRadiusMagnet extends OutColorAlgorithm {
                 double a = Math.log(temp2 / log_bailout_squared);
                 double f = a / Math.log(p);
 
-                return temp3 + 1 - f + MAGIC_OFFSET_NUMBER + 106;
+                return temp3 + 1 - f + MAGIC_OFFSET_NUMBER + MAGNET_INCREMENT;
             }
         }
         else {

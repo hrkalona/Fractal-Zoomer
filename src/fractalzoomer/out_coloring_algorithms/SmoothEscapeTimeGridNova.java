@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2017 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2018 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,7 +35,7 @@ public class SmoothEscapeTimeGridNova extends OutColorAlgorithm {
         super();
         this.log_convergent_bailout = log_convergent_bailout;
         pi2 = Math.PI * 2;
-        log_bailout_squared = Math.log(4.0);
+        log_bailout_squared = Math.log(16.0);
         this.algorithm = algorithm;
         OutNotUsingIncrement = false;
 

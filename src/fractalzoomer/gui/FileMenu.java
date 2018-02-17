@@ -1,5 +1,5 @@
 /*
- * Fractal Zoomer, Copyright (C) 2017 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2018 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,6 +37,7 @@ public class FileMenu extends JMenu {
     private JMenuItem go_to;
     private JMenuItem save_settings;
     private JMenuItem load_settings;
+    private JMenuItem save_settings_image;
     private JMenuItem code_editor;
     private JMenuItem compile_code;
     private JMenuItem zoom_in;
@@ -65,11 +66,13 @@ public class FileMenu extends JMenu {
         left = new JMenuItem("Left", getIcon("/fractalzoomer/icons/left.png"));
         right = new JMenuItem("Right", getIcon("/fractalzoomer/icons/right.png"));
 
-        save_settings = new JMenuItem("Save As...", getIcon("/fractalzoomer/icons/save.png"));
+        save_settings = new JMenuItem("Save Settings As...", getIcon("/fractalzoomer/icons/save.png"));
 
-        load_settings = new JMenuItem("Load", getIcon("/fractalzoomer/icons/load.png"));
+        load_settings = new JMenuItem("Load Settings", getIcon("/fractalzoomer/icons/load.png"));
 
         save_image = new JMenuItem("Save Image As...", getIcon("/fractalzoomer/icons/save_image.png"));
+        
+        save_settings_image = new JMenuItem("Save Settings and Image As...", getIcon("/fractalzoomer/icons/save_image_settings.png"));
 
         code_editor = new JMenuItem("Edit User Code", getIcon("/fractalzoomer/icons/code_editor.png"));
         compile_code = new JMenuItem("Compile User Code", getIcon("/fractalzoomer/icons/compile.png"));
@@ -86,7 +89,8 @@ public class FileMenu extends JMenu {
         right.setToolTipText("Moves one screen right.");
         save_settings.setToolTipText("<html>Saves the function, plane, center, size, color options, iterations,<br> rotation, perturbation, initial value, bailout, julia settings,<br>and image filters.</html>");
         load_settings.setToolTipText("<html>Loads the function, plane, center, size, color options, iterations,<br> rotation, perturbation, initial value, bailout, julia settings,<br>and image filters.</html>");
-        save_image.setToolTipText("Saves a bmp, jpg, or png image.");
+        save_image.setToolTipText("Saves a png image.");
+        save_settings_image.setToolTipText("Saves the current settings and a png image.");
         code_editor.setToolTipText("<html>Opens the java code, containing the user defined functions,<br>with a text editor.</html>");
         compile_code.setToolTipText("Compiles the java code, containing the user defined functions.");
         exit.setToolTipText("Exits the application.");
@@ -102,6 +106,7 @@ public class FileMenu extends JMenu {
         save_settings.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.CTRL_MASK));
         load_settings.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, ActionEvent.CTRL_MASK));
         save_image.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F5, ActionEvent.CTRL_MASK));
+        save_settings_image.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F5, ActionEvent.SHIFT_MASK));
         compile_code.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F5, 0));
         code_editor.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F6, 0));
         exit.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F4, ActionEvent.ALT_MASK));
@@ -152,6 +157,16 @@ public class FileMenu extends JMenu {
             public void actionPerformed(ActionEvent e) {
 
                 ptr.saveImage();
+
+            }
+        });
+        
+        save_settings_image.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.saveSettingsAndImage();
 
             }
         });
@@ -260,6 +275,7 @@ public class FileMenu extends JMenu {
         add(load_settings);
         addSeparator();
         add(save_image);
+        add(save_settings_image);
         addSeparator();
         add(code_editor);
         add(compile_code);
@@ -349,6 +365,12 @@ public class FileMenu extends JMenu {
     public JMenuItem getLoadSettings() {
         
         return load_settings;
+        
+    }
+    
+    public JMenuItem getSaveImageAndSettings() {
+        
+        return save_settings_image;
         
     }
     

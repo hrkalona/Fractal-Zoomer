@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2017 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2018 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,9 +20,9 @@ import java.awt.Color;
 
 public class PaletteColorNormal extends PaletteColor {
 
-    public PaletteColorNormal(int[] palette, double color_intensity, Color special_color) {
+    public PaletteColorNormal(int[] palette, Color special_color) {
 
-        super(palette, color_intensity, special_color);
+        super(palette, special_color);
 
     }
 
@@ -34,11 +34,11 @@ public class PaletteColorNormal extends PaletteColor {
                 return special_color[((int)(result * (-1))) % special_color.length];
             }
             else {
-                return palette[((int)((result * (-1) + mod_offset) * color_intensity)) % palette.length];
+                return palette[((int)(result * (-1) + mod_offset)) % palette.length];
             }
         }
         else {
-            return palette[((int)((result + mod_offset) * color_intensity)) % palette.length];
+            return palette[((int)(result + mod_offset)) % palette.length];
         }
 
     }

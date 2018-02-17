@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 hrkalona2
+ * Copyright (C) 2018 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@ package fractalzoomer.gui;
 
 import fractalzoomer.core.PlaneVisualizer;
 import fractalzoomer.main.MainWindow;
+import fractalzoomer.main.app_settings.Settings;
 import fractalzoomer.parser.ParserException;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
@@ -50,7 +51,7 @@ public class PlaneVisualizationFrame extends JFrame {
     private MainWindow ptra2;
     private PlaneVisualizationFrame thiss;
 
-    public PlaneVisualizationFrame(MainWindow ptra, final double xCenter, final double yCenter, final int plane_type, final String user_plane, final int user_plane_algorithm, final String[] user_plane_conditions, final String[] user_plane_condition_formula, final double[] plane_transform_center, final double plane_transform_angle, final double plane_transform_radius, final double[] plane_transform_scales, final double plane_transform_angle2, final int plane_transform_sides, final double plane_transform_amount, final int max_iterations, final double zoom_factor) {
+    public PlaneVisualizationFrame(MainWindow ptra, final Settings s, final double zoom_factor) {
 
         super();
 
@@ -106,7 +107,7 @@ public class PlaneVisualizationFrame extends JFrame {
 
         double size = Math.pow(zoom_factor, (size_slid.getMaximum() - size_slid.getValue()) - size_slid.getMaximum() / 2);
         try {
-            new PlaneVisualizer(plane_mu_image, new_plane_image, plane_type, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xCenter, yCenter, size, max_iterations).visualizePlanes(color_modes_opt.getSelectedIndex());
+            new PlaneVisualizer(plane_mu_image, new_plane_image, s, size).visualizePlanes(color_modes_opt.getSelectedIndex());
         }
         catch(ParserException e) {
             JOptionPane.showMessageDialog(thiss, e.getMessage() + "\nThe application will terminate.", "Error!", JOptionPane.ERROR_MESSAGE);
@@ -124,7 +125,7 @@ public class PlaneVisualizationFrame extends JFrame {
             public void stateChanged(ChangeEvent e) {
                 double size = Math.pow(zoom_factor, (size_slid.getMaximum() - size_slid.getValue()) - size_slid.getMaximum() / 2);
                 try {
-                    new PlaneVisualizer(plane_mu_image, new_plane_image, plane_type, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xCenter, yCenter, size, max_iterations).visualizePlanes(color_modes_opt.getSelectedIndex());
+                    new PlaneVisualizer(plane_mu_image, new_plane_image, s, size).visualizePlanes(color_modes_opt.getSelectedIndex());
                 }
                 catch(ParserException ex) {
                     JOptionPane.showMessageDialog(thiss, ex.getMessage() + "\nThe application will terminate.", "Error!", JOptionPane.ERROR_MESSAGE);
@@ -143,7 +144,7 @@ public class PlaneVisualizationFrame extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 double size = Math.pow(zoom_factor, (size_slid.getMaximum() - size_slid.getValue()) - size_slid.getMaximum() / 2);
                 try {                  
-                    new PlaneVisualizer(plane_mu_image, new_plane_image, plane_type, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xCenter, yCenter, size, max_iterations).visualizePlanes(color_modes_opt.getSelectedIndex());
+                    new PlaneVisualizer(plane_mu_image, new_plane_image, s, size).visualizePlanes(color_modes_opt.getSelectedIndex());
                 }
                 catch(ParserException ex) {
                     JOptionPane.showMessageDialog(thiss, ex.getMessage() + "\nThe application will terminate.", "Error!", JOptionPane.ERROR_MESSAGE);

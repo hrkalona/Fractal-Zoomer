@@ -1,5 +1,5 @@
 /*
- * Fractal Zoomer, Copyright (C) 2017 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2018 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,9 +23,29 @@ import java.awt.Color;
  * @author hrkalona2
  */
 public interface Constants {
-    public static final int VERSION = 1066;
+    public static final int VERSION = 1067;
     public static final int FAST_JULIA_IMAGE_SIZE = 252;
+    public static final int TOTAL_PALETTES = 19;
+    public static final int TOTAL_INCOLORING_ALGORITHMS = 11;
+    public static final int TOTAL_OUTCOLORING_ALGORITHMS = 25;
+    public static final int TOTAL_BAILOUT_CONDITIONS = 8;
+    public static final int TOTAL_PLANES = 63;
+    public static final int TOTAL_FUNCTIONS = 157;
+    public static final int TOTAL_FILTERS = 35;
+    public static final int TOTAL_COLOR_TRANSFER_FILTERS = 7;
+    public static final int TOTAL_COLOR_BLENDING = 18;
     
+    public static final String[] domainAlgNames = {"Black Grid, White Circles log2", "White Grid, Black Circles log2", "Black Grid", "White Grid", "Black Grid, Bright Contours log2", "White Grid, Dark Contours log2", "Norm, Black Grid, White Circles log2", "Norm, White Grid, Black Circles log2", "Norm, Black Grid", "Norm, White Grid", "Norm, Black Grid, Bright Contours log2", "Norm, White Grid, Dark Contours log2", "White Circles log2", "Black Circles log2", "Bright Contours log2", "Dark Contours log2", "Norm, White Circles log2", "Norm, Black Circles log2", "Norm, Bright Contours log2", "Norm, Dark Contours log2",
+    "Black Grid, Contours log2, Iso-Argument lines", "Norm, Black Grid, Contours log2, Iso-Argument lines", "Black Grid, Iso-Argument Contours", "Norm, Black Grid, Iso-Argument Contours", "Iso-Argument Contours, Contours log2", "Norm, Iso-Argument Contours, Contours log2",
+    "Grid Contours, Iso-Argument Lines", "Norm, Grid Contours, Iso-Argument Lines"};
+    public static final String[] waveTypes = {"Sine", "Sawtooth", "Triangle", "Noise"};
+    public static final String[] bumpTransferNames = {"1.5 / (x*factor + 1.5)", "1 / sqrt(x*factor + 1)", "1 / cbrt(x*factor + 1)", "2^(-x*factor)"};
+    public static final String[] color_interp_str = {"Linear", "Cosine", "Acceleration", "Deceleration", "Exponential", "Catmull-Rom", "Catmull-Rom 2", "Sigmoid"};
+    public static final String[] bumpProcessingMethod = {"Color Scaling", "Color Blending"};
+    public static final String[] domainColors = {"Argument", "Norm", "Re", "Im"};
+    public static final String[] domainContours = {"Norm", "Iso-Argument", "Norm, Iso-Argument", "Grid", "Grid, Norm", "Grid, Iso-Argument", "Grid, Norm, Iso-Argument"};
+    public static final String[] argumentLinesDistance = {"2 * pi", "pi", "pi / 2", "pi / 4", "pi / 6", "pi / 8", "pi / 10", "pi / 12", "pi / 14", "pi / 16"};
+     
     /**
      * ** FUNCTION ***
      */
@@ -170,6 +190,22 @@ public interface Constants {
     public static final int MULLERCOS = 138;
     public static final int MULLERPOLY = 139;
     public static final int MULLERFORMULA = 140;
+    public static final int PARHALLEY3 = 141;
+    public static final int PARHALLEY4 = 142;
+    public static final int PARHALLEYGENERALIZED3 = 143;
+    public static final int PARHALLEYGENERALIZED8 = 144;
+    public static final int PARHALLEYSIN = 145;
+    public static final int PARHALLEYCOS = 146;
+    public static final int PARHALLEYPOLY = 147;
+    public static final int PARHALLEYFORMULA = 148;
+    public static final int LAGUERRE3 = 149;
+    public static final int LAGUERRE4 = 150;
+    public static final int LAGUERREGENERALIZED3 = 151;
+    public static final int LAGUERREGENERALIZED8 = 152;
+    public static final int LAGUERRESIN = 153;
+    public static final int LAGUERRECOS = 154;
+    public static final int LAGUERREPOLY = 155;
+    public static final int LAGUERREFORMULA = 156;
     /**
      * ***************
      */
@@ -184,6 +220,8 @@ public interface Constants {
     public static final int NOVA_SECANT = 4;
     public static final int NOVA_STEFFENSEN = 5;
     public static final int NOVA_MULLER = 6;
+    public static final int NOVA_PARHALLEY = 7;
+    public static final int NOVA_LAGUERRE = 8;
     /**
      * *******************
      */
@@ -214,6 +252,8 @@ public interface Constants {
     public static final int ATOM_DOMAIN = 20;
     public static final int BANDED = 21;
     public static final int USER_OUTCOLORING_ALGORITHM = 22;
+    public static final int ESCAPE_TIME_FIELD_LINES = 23;
+    public static final int ESCAPE_TIME_FIELD_LINES2 = 24;
     /**
      * ***************************
      */
@@ -301,6 +341,7 @@ public interface Constants {
     public static final int ERF_PLANE = 59;
     public static final int RZETA_PLANE = 60;
     public static final int INFLECTION_PLANE = 61;
+    public static final int RIPPLES_PLANE = 62;
     /**
      * **************
      */
@@ -308,13 +349,14 @@ public interface Constants {
     /**
      * ** BAILOUT TESTS ***
      */
-    public static final int BAILOUT_TEST_CIRCLE = 0;
-    public static final int BAILOUT_TEST_SQUARE = 1;
-    public static final int BAILOUT_TEST_RHOMBUS = 2;
-    public static final int BAILOUT_TEST_NNORM = 3;
-    public static final int BAILOUT_TEST_STRIP = 4;
-    public static final int BAILOUT_TEST_HALFPLANE = 5;
-    public static final int BAILOUT_TEST_USER = 6;
+    public static final int BAILOUT_CONDITION_CIRCLE = 0;
+    public static final int BAILOUT_CONDITION_SQUARE = 1;
+    public static final int BAILOUT_CONDITION_RHOMBUS = 2;
+    public static final int BAILOUT_CONDITION_NNORM = 3;
+    public static final int BAILOUT_CONDITION_STRIP = 4;
+    public static final int BAILOUT_CONDITION_HALFPLANE = 5;
+    public static final int BAILOUT_CONDITION_USER = 6;
+    public static final int BAILOUT_CONDITION_FIELD_LINES = 7;
     /**
      * ********************
      */
@@ -356,6 +398,7 @@ public interface Constants {
     public static final int COLOR_CHANNEL_MIXING = 31;
     public static final int LIGHT_EFFECTS = 32;
     public static final int EDGE_DETECTION2 = 33;
+    public static final int MIRROR = 34;
     /**
      * *****************
      */
@@ -440,6 +483,59 @@ public interface Constants {
     public static final int SOLID_GUESSING = 4;
     /**
      * ***********************************
+     */
+    
+    /**
+     * *********COLOR TRANSFER FILTERS********
+     */
+    public static final int LINEAR = 0;
+    public static final int SQUARE_ROOT = 1;
+    public static final int CUBE_ROOT = 2;
+    public static final int FOURTH_ROOT = 3;
+    public static final int LOGARITHM = 4;
+    public static final int LOG_LOG = 5;
+    public static final int ATAN = 6;
+    /**
+     * **************************************
+     */
+    
+    /**
+     * *********COLOR BLENDING********
+     */
+    public static final int NORMAL_BLENDING = 0;
+    public static final int MULTIPLY_BLENDING = 1;
+    public static final int DIVIDE_BLENDING = 2;
+    public static final int ADDITION_BLENDING = 3;
+    public static final int SUBTRACTION_BLENDING = 4;
+    public static final int DIFFERENCE_BLENDING = 5;
+    public static final int VALUE_BLENDING = 6;
+    public static final int OVERLAY_BLENDING = 7;
+    public static final int SCREEN_BLENDING = 8;
+    public static final int DODGE_BLENDING = 9;
+    public static final int BURN_BLENDING = 10;
+    public static final int DARKEN_ONLY_BLENDING = 11;
+    public static final int LIGHTEN_ONLY_BLENDING = 12;
+    public static final int HARD_LIGHT_BLENDING = 13;
+    public static final int GRAIN_EXTRACT_BLENDING = 14;
+    public static final int GRAIN_MERGE_BLENDING = 15;
+    public static final int SATURATION_BLENDING = 16;
+    public static final int COLOR_BLENDING = 17;
+    
+    /**
+     * **************************************
+     */
+    
+    /**
+     * *********EQUALITY CHECK********
+     */
+    public static final int GREATER = 0;
+    public static final int GREATER_EQUAL = 1;
+    public static final int LOWER = 2;
+    public static final int LOWER_EQUAL = 3;
+    public static final int EQUAL = 4;
+    public static final int NOT_EQUAL = 5;
+     /**
+     * **************************************
      */
 
     public static final Color bg_color = Color.white;

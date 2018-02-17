@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2017 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2018 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 package fractalzoomer.out_coloring_algorithms;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.core.ThreadDraw;
 import fractalzoomer.parser.ExpressionNode;
 import fractalzoomer.parser.Parser;
 
@@ -146,6 +147,27 @@ public class UserConditionalOutColorAlgorithm extends OutColorAlgorithm {
             parser2[2].setSizevalue(c_size);
         }
         
+        Complex c_isize = new Complex(ThreadDraw.IMAGE_SIZE, 0);
+        if (parser[0].foundISize()) {
+            parser[0].setISizevalue(c_isize);
+        }
+
+        if (parser[1].foundISize()) {
+            parser[1].setISizevalue(c_isize);
+        }
+
+        if (parser2[0].foundISize()) {
+            parser2[0].setISizevalue(c_isize);
+        }
+
+        if (parser2[1].foundISize()) {
+            parser2[1].setISizevalue(c_isize);
+        }
+
+        if (parser2[2].foundISize()) {
+            parser2[2].setISizevalue(c_isize);
+        }
+        
         Complex c_point = new Complex(point[0], point[1]);
         if(parser[0].foundPoint()) {
             parser[0].setPointvalue(c_point);
@@ -273,7 +295,7 @@ public class UserConditionalOutColorAlgorithm extends OutColorAlgorithm {
             
             double result2 = expr2[0].getValue().getRe();
         
-            if(result2 == -max_iterations) {
+            if(Math.abs(result2) == max_iterations) {
                 return result2;
             }
 
@@ -317,7 +339,7 @@ public class UserConditionalOutColorAlgorithm extends OutColorAlgorithm {
 
             double result2 = expr2[1].getValue().getRe();
         
-            if(result2 == -max_iterations) {
+            if(Math.abs(result2) == max_iterations) {
                 return result2;
             }
 
@@ -361,7 +383,7 @@ public class UserConditionalOutColorAlgorithm extends OutColorAlgorithm {
 
             double result2 = expr2[2].getValue().getRe();
         
-            if(result2 == -max_iterations) {
+            if(Math.abs(result2) == max_iterations) {
                 return result2;
             }
 

@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2017 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2018 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,15 @@
  */
 package fractalzoomer.palettes;
 
+import fractalzoomer.core.interpolation.AccelerationInterpolation;
+import fractalzoomer.core.interpolation.CatmullRom2Interpolation;
+import fractalzoomer.core.interpolation.CatmullRomInterpolation;
+import fractalzoomer.core.interpolation.CosineInterpolation;
+import fractalzoomer.core.interpolation.DecelerationInterpolation;
+import fractalzoomer.core.interpolation.ExponentialInterpolation;
+import fractalzoomer.core.interpolation.InterpolationMethod;
+import fractalzoomer.core.interpolation.LinearInterpolation;
+import fractalzoomer.core.interpolation.SigmoidInterpolation;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.utils.ColorSpaceConverter;
 import fractalzoomer.utils.MathUtils.BezierSpline;
@@ -27,43 +36,44 @@ import java.awt.geom.Point2D;
  * @author hrkalona2
  */
 public class CustomPalette extends Palette {
+
     private static Point2D.Double[][] bezierControlPoints_red;
     private static Point2D.Double[][] bezierControlPoints_green;
     private static Point2D.Double[][] bezierControlPoints_blue;
-    
-    public CustomPalette(int[][] custom_palette, int color_interpolation, int color_space, boolean reverse, double scale_factor_palette_val, int processing_alg, boolean smoothing, double color_intensity, Color special_color, int color_smoothing_method) {
+
+    public CustomPalette(int[][] custom_palette, int color_interpolation, int color_space, boolean reverse, double scale_factor_palette_val, int processing_alg, boolean smoothing, Color special_color, int color_smoothing_method) {
         super();
-        
+
         int[] palette = createPalette(custom_palette, reverse, processing_alg, scale_factor_palette_val, color_interpolation, color_space, 0);
 
         if(!smoothing) {
-            palette_color = new PaletteColorNormal(palette, color_intensity, special_color);
+            palette_color = new PaletteColorNormal(palette, special_color);
         }
         else {
-            palette_color = new PaletteColorSmooth(palette, color_intensity, special_color, color_smoothing_method);
+            palette_color = new PaletteColorSmooth(palette, special_color, color_smoothing_method);
         }
     }
-    
+
     public static Color[] getPalette(int[][] custom_palette, int color_interpolation, int color_space, boolean reverse, int color_cycling_location, double scale_factor_palette_val, int processing_alg) {
 
         if(color_cycling_location < 0) {
             throw new ArithmeticException();
         }
-        
+
         int[] palette = createPalette(custom_palette, reverse, processing_alg, scale_factor_palette_val, color_interpolation, color_space, color_cycling_location);
 
         Color[] palette2 = new Color[palette.length];
-        
+
         for(int i = 0; i < palette2.length; i++) {
             palette2[i] = new Color(palette[i]);
         }
-        
+
         return palette2;
 
     }
-    
+
     private static int[] createPalette(int[][] custom_palette, boolean reverse, int processing_alg, double scale_factor_palette_val, int color_interpolation, int color_space, int color_cycling_location) {
-        
+
         int n = 0, counter = 0;
         for(int i = 0; i < custom_palette.length; i++) { // get the number of all colors
             n += custom_palette[i][0];
@@ -121,9 +131,38 @@ public class CustomPalette extends Palette {
         }
 
         int[] palette = new int[n]; // allocate pallete
-        
+
         if(color_space == MainWindow.COLOR_SPACE_BEZIER_RGB) {
             calculateBezierControlPoints(colors);
+        }
+
+        InterpolationMethod method = null;
+
+        switch (color_interpolation) {
+            case MainWindow.INTERPOLATION_LINEAR:
+                method = new LinearInterpolation();
+                break;
+            case MainWindow.INTERPOLATION_COSINE:
+                method = new CosineInterpolation();
+                break;
+            case MainWindow.INTERPOLATION_ACCELERATION:
+                method = new AccelerationInterpolation();
+                break;
+            case MainWindow.INTERPOLATION_DECELERATION:
+                method = new DecelerationInterpolation();
+                break;
+            case MainWindow.INTERPOLATION_EXPONENTIAL:
+                method = new ExponentialInterpolation();
+                break;
+            case MainWindow.INTERPOLATION_CATMULLROM:
+                method = new CatmullRomInterpolation();
+                break;
+            case MainWindow.INTERPOLATION_CATMULLROM2:
+                method = new CatmullRom2Interpolation();
+                break;
+            case MainWindow.INTERPOLATION_SIGMOID:
+                method = new SigmoidInterpolation();
+                break;
         }
 
         n = n - color_cycling_location % n;
@@ -143,39 +182,6 @@ public class CustomPalette extends Palette {
                 //(c1[1] * (c1[0] - 1 - j) + c2[1] * j) / (c1[0] - 1),(c1[2] * (c1[0] - 1 - j) + c2[2] * j) / (c1[0] - 1),(c1[3] * (c1[0] - 1 - j) + c2[3] * j) / (c1[0] - 1));
                 double coef = j;
 
-                switch (color_interpolation) {
-                    case MainWindow.INTERPOLATION_LINEAR:
-                        coef = j; // linear               
-                        break;
-                    case MainWindow.INTERPOLATION_COSINE:
-                        coef = -Math.cos(Math.PI * j) / 2 + 0.5; // cosine
-                        break;
-                    //case 2:
-                    //coef = j * j * (3 - 2 * j); // smooth step
-                    //break;
-                    case MainWindow.INTERPOLATION_ACCELERATION:
-                        coef = j * j; // acceleration
-                        break;
-                    case MainWindow.INTERPOLATION_DECELERATION:
-                        coef = 1 - (1 - j) * (1 - j); // deceleration
-                        break;
-                    case MainWindow.INTERPOLATION_EXPONENTIAL:
-                        coef = 1 - Math.exp(-3.6 * j);
-                        break;
-                    case MainWindow.INTERPOLATION_CATMULLROM:
-                        coef = catmullrom(j, 0.5, 0, 1, 0.5);
-                        break;
-                    case MainWindow.INTERPOLATION_CATMULLROM2:
-                        coef = catmullrom(j, -3.0, 0, 1, 4.0);
-                        break;
-                    case MainWindow.INTERPOLATION_SIGMOID:
-                        coef = 1 / (1 + Math.exp(-j * 12 + 6));
-                        break;
-                    //case 5:
-                    // coef = j < 0.5 ? 0 : 1; // step
-                    //break;
-                }
-
                 if(color_space == MainWindow.COLOR_SPACE_HSB) {
                     ColorSpaceConverter con = new ColorSpaceConverter();
 
@@ -183,8 +189,8 @@ public class CustomPalette extends Palette {
                     double[] c2_hsb = con.RGBtoHSB(c2[1], c2[2], c2[3]);
 
                     double h;
-                    double s = (c1_hsb[1] + (c2_hsb[1] - c1_hsb[1]) * coef);
-                    double b = (c1_hsb[2] + (c2_hsb[2] - c1_hsb[2]) * coef);
+                    double s = method.interpolate(c1_hsb[1], c2_hsb[1], coef);
+                    double b = method.interpolate(c1_hsb[2], c2_hsb[2], coef);
 
                     double d = c2_hsb[0] - c1_hsb[0];
 
@@ -199,10 +205,10 @@ public class CustomPalette extends Palette {
 
                     if(d > 0.5) {
                         c1_hsb[0] += 1;
-                        h = ((c1_hsb[0] + (c2_hsb[0] - c1_hsb[0]) * coef)) % 1;
+                        h = method.interpolate(c1_hsb[0], c2_hsb[0], coef) % 1.0;
                     }
                     else {
-                        h = ((c1_hsb[0] + coef * d));
+                        h = method.interpolate(c1_hsb[0], c2_hsb[0], coef);
                     }
 
                     int[] res = con.HSBtoRGB(h, s, b);
@@ -210,11 +216,7 @@ public class CustomPalette extends Palette {
                     palette[(n + k) % palette.length] = 0xff000000 | (res[0] << 16) | (res[1] << 8) | res[2];
                 }
                 else if(color_space == MainWindow.COLOR_SPACE_RGB) {
-                    red = (int)(c1[1] + (c2[1] - c1[1]) * coef);
-                    green = (int)(c1[2] + (c2[2] - c1[2]) * coef);
-                    blue = (int)(c1[3] + (c2[3] - c1[3]) * coef);
-
-                    palette[(n + k) % palette.length] = 0xff000000 | (red << 16) | (green << 8) | blue;
+                    palette[(n + k) % palette.length] = method.interpolate(c1[1], c1[2], c1[3], c2[1], c2[2], c2[3], coef);//0xff000000 | (red << 16) | (green << 8) | blue;
                     //System.out.print((0xff000000 | (red << 16) | (green << 8) | blue) + ", ");
                 }
                 else if(color_space == MainWindow.COLOR_SPACE_EXP) {
@@ -235,9 +237,9 @@ public class CustomPalette extends Palette {
                     double to_b = Math.log(c2_3);
                     double from_b = Math.log(c1_3);
 
-                    red = (int)(Math.exp(from_r + (to_r - from_r) * coef));
-                    green = (int)(Math.exp(from_g + (to_g - from_g) * coef));
-                    blue = (int)(Math.exp(from_b + (to_b - from_b) * coef));
+                    red = (int)(Math.exp(method.interpolate(from_r, to_r, coef)));
+                    green = (int)(Math.exp(method.interpolate(from_g, to_g, coef)));
+                    blue = (int)(Math.exp(method.interpolate(from_b, to_b, coef)));
 
                     palette[(n + k) % palette.length] = 0xff000000 | (red << 16) | (green << 8) | blue;
                 }
@@ -251,9 +253,9 @@ public class CustomPalette extends Palette {
                     double to_b = Math.sqrt(c2[3]);
                     double from_b = Math.sqrt(c1[3]);
 
-                    red = (int)(Math.pow(from_r + (to_r - from_r) * coef, 2));
-                    green = (int)(Math.pow(from_g + (to_g - from_g) * coef, 2));
-                    blue = (int)(Math.pow(from_b + (to_b - from_b) * coef, 2));
+                    red = (int)(Math.pow(method.interpolate(from_r, to_r, coef), 2));
+                    green = (int)(Math.pow(method.interpolate(from_g, to_g, coef), 2));
+                    blue = (int)(Math.pow(method.interpolate(from_b, to_b, coef), 2));
 
                     palette[(n + k) % palette.length] = 0xff000000 | (red << 16) | (green << 8) | blue;
                 }
@@ -267,9 +269,9 @@ public class CustomPalette extends Palette {
                     double to_b = c2[3] * c2[3];
                     double from_b = c1[3] * c1[3];
 
-                    red = (int)(Math.sqrt(from_r + (to_r - from_r) * coef));
-                    green = (int)(Math.sqrt(from_g + (to_g - from_g) * coef));
-                    blue = (int)(Math.sqrt(from_b + (to_b - from_b) * coef));
+                    red = (int)(Math.sqrt(method.interpolate(from_r, to_r, coef)));
+                    green = (int)(Math.sqrt(method.interpolate(from_g, to_g, coef)));
+                    blue = (int)(Math.sqrt(method.interpolate(from_b, to_b, coef)));
 
                     palette[(n + k) % palette.length] = 0xff000000 | (red << 16) | (green << 8) | blue;
                 }
@@ -279,9 +281,9 @@ public class CustomPalette extends Palette {
                     double[] ryb_from = con.RGBtoRYB(c1[1], c1[2], c1[3]);
                     double[] ryb_to = con.RGBtoRYB(c2[1], c2[2], c2[3]);
 
-                    double r = (ryb_from[0] + (ryb_to[0] - ryb_from[0]) * coef);
-                    double y = (ryb_from[1] + (ryb_to[1] - ryb_from[1]) * coef);
-                    double b = (ryb_from[2] + (ryb_to[2] - ryb_from[2]) * coef);
+                    double r = method.interpolate(ryb_from[0], ryb_to[0], coef);
+                    double y = method.interpolate(ryb_from[1], ryb_to[1], coef);
+                    double b = method.interpolate(ryb_from[2], ryb_to[2], coef);
 
                     int[] rgb = con.RYBtoRGB(r, y, b);
 
@@ -294,9 +296,9 @@ public class CustomPalette extends Palette {
 
                     double[] to = con.RGBtoLAB(c2[1], c2[2], c2[3]);
 
-                    double L = (from[0] + (to[0] - from[0]) * coef);
-                    double a = (from[1] + (to[1] - from[1]) * coef);
-                    double b = (from[2] + (to[2] - from[2]) * coef);
+                    double L = method.interpolate(from[0], to[0], coef);
+                    double a = method.interpolate(from[1], to[1], coef);
+                    double b = method.interpolate(from[2], to[2], coef);
 
                     int[] res = con.LABtoRGB(L, a, b);
 
@@ -313,9 +315,9 @@ public class CustomPalette extends Palette {
 
                     double[] to = con.RGBtoXYZ(c2[1], c2[2], c2[3]);
 
-                    double X = (from[0] + (to[0] - from[0]) * coef);
-                    double Y = (from[1] + (to[1] - from[1]) * coef);
-                    double Z = (from[2] + (to[2] - from[2]) * coef);
+                    double X = method.interpolate(from[0], to[0], coef);
+                    double Y = method.interpolate(from[1], to[1], coef);
+                    double Z = method.interpolate(from[2], to[2], coef);
 
                     int[] res = con.XYZtoRGB(X, Y, Z);
 
@@ -332,8 +334,8 @@ public class CustomPalette extends Palette {
 
                     double[] to = con.RGBtoLCH(c2[1], c2[2], c2[3]);
 
-                    double L = (from[0] + (to[0] - from[0]) * coef);
-                    double C = (from[1] + (to[1] - from[1]) * coef);
+                    double L = method.interpolate(from[0], to[0], coef);
+                    double C = method.interpolate(from[1], to[1], coef);
                     double H;
 
                     double d = to[2] - from[2];
@@ -349,10 +351,10 @@ public class CustomPalette extends Palette {
 
                     if(d > 180) {
                         from[2] += 360;
-                        H = ((from[2] + (to[2] - from[2]) * coef)) % 360.0;
+                        H = method.interpolate(from[2], to[2], coef) % 360.0;
                     }
                     else {
-                        H = ((from[2] + coef * d));
+                        H = method.interpolate(from[2], to[2], coef);
                     }
 
                     int[] res = con.LCHtoRGB(L, C, H);
@@ -364,10 +366,11 @@ public class CustomPalette extends Palette {
                     palette[(n + k) % palette.length] = 0xff000000 | ((int)(res[0]) << 16) | ((int)(res[1]) << 8) | (int)(res[2]);
                 }
                 else if(color_space == MainWindow.COLOR_SPACE_BEZIER_RGB) {
-                    red = ColorSpaceConverter.clamp((int)evaluateBezier(coef, c1[1], bezierControlPoints_red[0][i].y, bezierControlPoints_red[1][i].y, c2[1]));
-                    green = ColorSpaceConverter.clamp((int)evaluateBezier(coef, c1[2], bezierControlPoints_green[0][i].y, bezierControlPoints_green[1][i].y, c2[2]));
-                    blue = ColorSpaceConverter.clamp((int)evaluateBezier(coef, c1[3], bezierControlPoints_blue[0][i].y, bezierControlPoints_blue[1][i].y, c2[3]));
-                    
+                    double a = method.getCoef(coef);
+                    red = ColorSpaceConverter.clamp((int)evaluateBezier(a, c1[1], bezierControlPoints_red[0][i].y, bezierControlPoints_red[1][i].y, c2[1]));
+                    green = ColorSpaceConverter.clamp((int)evaluateBezier(a, c1[2], bezierControlPoints_green[0][i].y, bezierControlPoints_green[1][i].y, c2[2]));
+                    blue = ColorSpaceConverter.clamp((int)evaluateBezier(a, c1[3], bezierControlPoints_blue[0][i].y, bezierControlPoints_blue[1][i].y, c2[3]));
+
                     palette[(n + k) % palette.length] = 0xff000000 | (red << 16) | (green << 8) | blue;
                 }
                 //System.out.println(red + " " + green + " " + blue);
@@ -383,40 +386,33 @@ public class CustomPalette extends Palette {
         if(processing_alg == MainWindow.PROCESSING_HISTOGRAM) {
             histogramEqualization(palette);
         }
-        
+
         return palette;
-        
+
     }
 
-    public static double catmullrom(double t, double p0, double p1, double p2, double p3) {
-        return 0.5 * ((2 * p1)
-                + (-p0 + p2) * t
-                + (2 * p0 - 5 * p1 + 4 * p2 - p3) * t * t
-                + (-p0 + 3 * p1 - 3 * p2 + p3) * t * t * t);
-    }
-    
     private static void calculateBezierControlPoints(int[][] colors) {
-        
+
         Point2D.Double[] knots_red = new Point2D.Double[colors.length + 1];
         Point2D.Double[] knots_green = new Point2D.Double[colors.length + 1];
         Point2D.Double[] knots_blue = new Point2D.Double[colors.length + 1]; // +1 to cycle the palette
-        
-        for(int i = 0; i < knots_red.length; i++) {      
-            knots_red[i] = new Point2D.Double(i, colors[i%colors.length][1]);
-            knots_green[i] = new Point2D.Double(i, colors[i%colors.length][2]);
-            knots_blue[i] = new Point2D.Double(i, colors[i%colors.length][3]);
+
+        for(int i = 0; i < knots_red.length; i++) {
+            knots_red[i] = new Point2D.Double(i, colors[i % colors.length][1]);
+            knots_green[i] = new Point2D.Double(i, colors[i % colors.length][2]);
+            knots_blue[i] = new Point2D.Double(i, colors[i % colors.length][3]);
         }
-        
+
         bezierControlPoints_red = BezierSpline.GetCurveControlPoints(knots_red);
         bezierControlPoints_green = BezierSpline.GetCurveControlPoints(knots_green);
         bezierControlPoints_blue = BezierSpline.GetCurveControlPoints(knots_blue);
 
     }
-    
+
     private static double evaluateBezier(double t, double p0, double p1, double p2, double p3) {
-        
+
         return (1 - t) * (1 - t) * (1 - t) * p0 + 3 * (1 - t) * (1 - t) * t * p1 + 3 * (1 - t) * t * t * p2 + t * t * t * p3;
-        
+
     }
 
     private static void cycleBrightness(int[][] colors, double number, int alg) {
@@ -638,16 +634,16 @@ public class CustomPalette extends Palette {
     private static void cycleRYB(int[][] colors, double number, int alg) {
 
         int r, g, b;
-        
+
         ColorSpaceConverter con = new ColorSpaceConverter();
 
         for(int p = 0; p < colors.length; p++) {
             r = colors[p][1];
             g = colors[p][2];
             b = colors[p][3];
-            
+
             double res[] = con.RGBtoRYB(r, g, b);
-            
+
             double valr = res[0] + number;
             double valy = res[1] + number;
             double valb = res[2] + number;
@@ -704,7 +700,7 @@ public class CustomPalette extends Palette {
             }
 
             int[] temp = con.RYBtoRGB(valr, valy, valb);
-            
+
             int[] vec = new int[colors[p].length];
             vec[0] = colors[p][0];
             vec[1] = temp[0];

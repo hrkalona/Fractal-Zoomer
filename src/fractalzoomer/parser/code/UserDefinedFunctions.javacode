@@ -7,9 +7,9 @@ import fractalzoomer.core.Complex;
  * Rules: -Functions f1 to f40 must always have one Complex argument and always return a Complex number.
  *        -Functions g1 to g40 must always have two Complex arguments and always return a Complex number.
  *        -Functions m1 to m40 must always have ten Complex arguments and always return a Complex number. 
- *         (when calling these 'M' functions through the user formulas you can skip the arguments you are not using, eg m1(1+3i, 2+1i))
+ *         (when calling these 'M' functions through the user formulas you can skip the arguments you are not using, e.g. m1(1+3i, 2+1i))
  *        -Functions f1 to f40, g1 to g40, and m1 to m40 must be public and static.
- *        -If you want to save a value into one of the arguments, please use the assing Complex function and not the = operator.
+ *        -If you want to save a value into one of the arguments, please use the assign Complex function and not the = operator.
  *         This functionality was mainly designed to work with the variables v1 - v20. Please check some of the examples in the 'M' functions.
  *        -You may define your own helper functions, which can have variable arguments and return type but they must be static.
  *        -Any exception thrown during the execution will be translated a the function returned a Complex number with the value of zero.
@@ -18,7 +18,7 @@ import fractalzoomer.core.Complex;
  *        -Note that the evaluation of the code is left to right and does not follow the standard order of operations.
  *         This means that z.plus(3).times(new Complex(2, 3)); is equivalent to (z + 3) * (2 + 3i). If you want to enforce the correct order 
  *         change the order of the code or use brackets. For instance z.plus(new Complex(2, 3).times(3)) is equivalent to z + ((2 + 3i) * 3).
- *        -If you somehow break the code and you dont know how to make it work, just delete the UserDefinedFunctions.java file and restart the application.
+ *        -If you somehow break the code and you do not know how to make it work, just delete the UserDefinedFunctions.java file and restart the application.
  **/
 
 public class UserDefinedFunctions {
@@ -521,23 +521,23 @@ public class UserDefinedFunctions {
 	
 	}
 	
-	//out coloring (usage with Triange Inequality/Stripe/Curvate Average Coloring), use it in the user out coloring formula like this: m4(v1, v2, n, z, bail, p) * 100 + n
+	//out coloring (usage with Triangle Inequality/Stripe/Curvature Average Coloring), use it in the user out coloring formula like this: m4(v1, v2, n, z, bail, p) * 100 + n
 	public static Complex m4(Complex sum, Complex sum2, Complex n, Complex z, Complex bail, Complex p, Complex z7, Complex z8, Complex z9, Complex z10) {
 	
 	
-	    double temp = p.norm_squared();
-        double temp2 = z.norm_squared();
+		double temp = p.norm_squared();
+		double temp2 = z.norm_squared();
 	
-        temp += 0.000000001;
-        temp = Math.log(temp);
+		temp += 0.000000001;
+		temp = Math.log(temp);
 	
-        double f = 1 - (Math.log(bail.getRe() * bail.getRe()) - temp) / (Math.log(temp2) - temp);
+		double f = 1 - (Math.log(bail.getRe() * bail.getRe()) - temp) / (Math.log(temp2) - temp);
 	
-	    if(n.getRe() < 2)
+		if(n.getRe() < 2)
 			return new Complex(f, 0);
 	
-	   sum.setRe( sum.getRe() / n.getRe());
-	   sum2.setRe( sum2.getRe() / (n.getRe() - 1));
+		sum.setRe( sum.getRe() / n.getRe());
+		sum2.setRe( sum2.getRe() / (n.getRe() - 1));
 	
 	
 	
@@ -546,8 +546,7 @@ public class UserDefinedFunctions {
 	
 	}
 	
-	//Triangle Inequality Average Coloring, use it in the user formula like this: m5(z, c, n, v1, v2, v3)
-	
+	//Triangle Inequality Average Coloring, use it in the user formula like this: m5(z, c, n, v1, v2, v3)	
 	public static Complex m5(Complex z, Complex c, Complex n, Complex sum, Complex sum2, Complex mc, Complex z7, Complex z8, Complex z9, Complex z10) {
 	
 	
@@ -570,8 +569,7 @@ public class UserDefinedFunctions {
 	
 	}
 	
-	//Stripe Average Coloring, use it in the user formula like this: m6(z, c, n, v1, v2)
-	
+	//Stripe Average Coloring, use it in the user formula like this: m6(z, c, n, v1, v2)	
 	public static Complex m6(Complex z, Complex c, Complex n, Complex sum, Complex sum2, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10) {
 	
 		Complex temp = z.square().plus(c);
@@ -609,23 +607,18 @@ public class UserDefinedFunctions {
 	// Normal map, use it in the user formula like this: m8(z, c, v1, n)
 	public static Complex m8(Complex z, Complex c, Complex der, Complex n, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10) {
 	
-		Complex dc = new Complex(1, 0);
-	
 		if(n.getRe() == 0) {
-			der.assign(dc);
+		    der.assign(new Complex(1, 0));
 		}
 		
-		Complex new_z = z.square().plus(c);
-		Complex new_der = der.times(2).times(z).plus(dc);
-	
-		z = new_z;
-		der.assign(new_der);
+		der.assign(der.times(2).times(z).plus(1));
+		z = z.square().plus(c);
 	
 		return z;
 	
 	}
 	
-	//out coloring (usage with Normal Map), use it in the user out coloring formula like this: m9(z, v1)  * 'Current Palette Lenght'
+	//out coloring (usage with Normal Map), use it in the user out coloring formula like this: m9(z, v1)  * 'Current Palette Length'
 	public static Complex m9(Complex z, Complex der, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10) {
 	
 		double h2 = 1.5;  // height factor of the incoming light
@@ -641,21 +634,57 @@ public class UserDefinedFunctions {
 	
 	}
 	
-	public static Complex m10(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10) {
+        //out coloring (usage with Normal Map), use it in the user out coloring formula like this: m10(z, maxn, v1, n, size/sizei)
+	public static Complex m10(Complex z, Complex maxn, Complex dc, Complex n, Complex pixel_size, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10) {
+
+		if(n.getRe() == 0) {
+			return n;
+		}
+		double norm_z = z.norm();
+
+		Complex temp = z.times(Math.log(norm_z)).times(2).divide(dc);
+
+		if(Math.tanh(temp.norm()) < pixel_size.getRe()) {
+			return maxn.negative();
+		}
+
+		return new Complex(1/Math.tanh(temp.norm()), 0);
+		//double palette_size = 84;
+		//return new Complex(((1 + temp.arg() / (2 * Math.PI)) % 1.0) * palette_size, 0);
+
+	}
 	
-		return new Complex();
+	// Normal map 2, use it in the user formula like this: m11(z, c, v1, n, v2)
+	public static Complex m11(Complex z, Complex c, Complex der, Complex n, Complex der2, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10) {
+	
+		if(n.getRe() == 0) {
+			der.assign(new Complex(1, 0));
+			der2.assign(new Complex());
+		}
+		
+		der2.assign((der2.times(z).plus(der.square())).times(2));
+		der.assign(der.times(2).times(z).plus(1));
+		z = z.square().plus(c);
+	
+		return z;
 	
 	}
 	
-	public static Complex m11(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10) {
+	//out coloring (usage with Normal Map 2), use it in the user out coloring formula like this: m12(z, v1, v2)  * 'Current Palette Length'
+	public static Complex m12(Complex z, Complex der, Complex der2, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10) {
 	
-		return new Complex();
+		double h2 = 1.5;  // height factor of the incoming light
+		double angle = 45;  // incoming direction of light
+		Complex v = new Complex(0, angle*2*Math.PI/360).exp();  // unit 2D vector in this direction
+
+		double lo = 0.5 * Math.log(z.norm_squared());
+		Complex u = z.times(der).times(der.square().conjugate().times(1 + lo).sub(z.times(der2).conjugate().times(lo)));
+
+		u = u.divide(u.norm());  // normal vector: (u.re,u.im,1) 
+		double t = u.getRe()*v.getRe() + u.getIm()*v.getIm() + h2;  // dot product with the incoming light
+		t = t/(1+h2);  // rescale so that t does not get bigger than 1
 	
-	}
-	
-	public static Complex m12(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10) {
-	
-		return new Complex();
+		return new Complex(t, 0);
 	
 	}
 	

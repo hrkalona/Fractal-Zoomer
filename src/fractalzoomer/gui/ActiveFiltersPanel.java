@@ -1,5 +1,5 @@
 /*
- * Fractal Zoomer, Copyright (C) 2017 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2018 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -126,7 +126,7 @@ public class ActiveFiltersPanel extends JPanel {
         
         texture_filters.setBackground(MainWindow.bg_color);    
         texture_filters.setPreferredSize(new Dimension(925, 85));
-        texture_filters.setLayout(new GridLayout(1, 7));
+        texture_filters.setLayout(new GridLayout(1, 8));
         
         texture_filters.add(filters_opt[MainWindow.DITHER]);
         texture_filters.add(filters_opt[MainWindow.CRYSTALLIZE]);
@@ -135,6 +135,7 @@ public class ActiveFiltersPanel extends JPanel {
         texture_filters.add(filters_opt[MainWindow.MARBLE]);
         texture_filters.add(filters_opt[MainWindow.WEAVE]);
         texture_filters.add(filters_opt[MainWindow.SPARKLE]);
+        texture_filters.add(filters_opt[MainWindow.MIRROR]);
         
         JPanel lighting_filters = new JPanel();
         

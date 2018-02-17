@@ -1,5 +1,5 @@
 /*
- * Fractal Zoomer, Copyright (C) 2017 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2018 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -202,6 +202,7 @@ public class FilterOrderSelectionPanel extends JPanel {
         filter_order[30] = MainWindow.EDGE_DETECTION;
         filter_order[31] = MainWindow.EDGE_DETECTION2;
         filter_order[32] = MainWindow.FADE_OUT;
+        filter_order[33] = MainWindow.MIRROR;
         
     }
     

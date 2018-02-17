@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2017 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2018 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,9 +28,9 @@ public abstract class OutColorAlgorithm extends ColorAlgorithm {
         
     }
     
-    public double transformResultToHeight(double result) {
+    public double transformResultToHeight(double result, int max_iterations) {
         
-        return Math.abs(result) - MAGIC_OFFSET_NUMBER;
+        return Math.abs(result) == max_iterations ? max_iterations : getResultWithoutIncrement(result) - MAGIC_OFFSET_NUMBER;
         
     }
  

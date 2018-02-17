@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2017 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2018 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,23 +17,23 @@
 package fractalzoomer.palettes;
 
 import fractalzoomer.main.MainWindow;
-import fractalzoomer.palettes.interpolation.AccelerationInterpolation;
-import fractalzoomer.palettes.interpolation.CatmullRom2Interpolation;
-import fractalzoomer.palettes.interpolation.CatmullRomInterpolation;
-import fractalzoomer.palettes.interpolation.CosineInterpolation;
-import fractalzoomer.palettes.interpolation.DecelerationInterpolation;
-import fractalzoomer.palettes.interpolation.ExponentialInterpolation;
-import fractalzoomer.palettes.interpolation.LinearInterpolation;
-import fractalzoomer.palettes.interpolation.SigmoidInterpolation;
-import fractalzoomer.palettes.interpolation.SmoothInterpolationMethod;
+import fractalzoomer.core.interpolation.AccelerationInterpolation;
+import fractalzoomer.core.interpolation.CatmullRom2Interpolation;
+import fractalzoomer.core.interpolation.CatmullRomInterpolation;
+import fractalzoomer.core.interpolation.CosineInterpolation;
+import fractalzoomer.core.interpolation.DecelerationInterpolation;
+import fractalzoomer.core.interpolation.ExponentialInterpolation;
+import fractalzoomer.core.interpolation.LinearInterpolation;
+import fractalzoomer.core.interpolation.SigmoidInterpolation;
+import fractalzoomer.core.interpolation.InterpolationMethod;
 import java.awt.Color;
 
 public class PaletteColorSmooth extends PaletteColor {
-    private SmoothInterpolationMethod interpolator;
+    private InterpolationMethod interpolator;
 
-    public PaletteColorSmooth(int[] palette, double color_intensity, Color special_color, int color_smoothing_method) {
+    public PaletteColorSmooth(int[] palette, Color special_color, int color_smoothing_method) {
 
-        super(palette, color_intensity, special_color);
+        super(palette, special_color);
         
         switch(color_smoothing_method) {
             case MainWindow.INTERPOLATION_LINEAR:
@@ -72,28 +72,18 @@ public class PaletteColorSmooth extends PaletteColor {
                 return special_color[((int)(result * (-1))) % special_color.length];
             }
             else {
-                return calculateFinalColor(-result);
+                return calculateSmoothColor(-result);
             }
         }
         else {
-            return calculateFinalColor(result);
+            return calculateSmoothColor(result);
         }
     }
 
-    private int getColor(int i) {
+    private int calculateSmoothColor(double result) {
 
-        i = i + palette.length < 0 ? 0 : i + palette.length;
-        return palette[((int)((i + palette.length))) % palette.length];
-
-    }
-
-    private int calculateFinalColor(double result) {
-        
-        result *= color_intensity;
-        int temp = ((int)(result + mod_offset * color_intensity));
-
-        int color2 = getColor(temp);
-        int color = getColor(temp - 1);
+        int color2 = palette[((int)((result + mod_offset))) % palette.length];
+        int color = palette[((int)((result - 1 + palette.length + mod_offset))) % palette.length];
 
         int color_red = (color >> 16) & 0xff;
         int color_green = (color >> 8) & 0xff;
@@ -106,7 +96,7 @@ public class PaletteColorSmooth extends PaletteColor {
         double coef = result - (int)result; //fractional part
         
         return interpolator.interpolate(color_red, color_green, color_blue, color2_red, color2_green, color2_blue, coef);
-        
+
     }
 
 }

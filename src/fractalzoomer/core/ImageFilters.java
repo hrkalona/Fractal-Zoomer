@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 hrkalona
+ * Copyright (C) 2018 hrkalona
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,6 +39,7 @@ import fractalzoomer.filters_utils.image.MaskFilter;
 import fractalzoomer.filters_utils.image.MaximumFilter;
 import fractalzoomer.filters_utils.image.MedianFilter;
 import fractalzoomer.filters_utils.image.MinimumFilter;
+import fractalzoomer.filters_utils.image.MirrorFilter;
 import fractalzoomer.filters_utils.image.NoiseFilter;
 import fractalzoomer.filters_utils.image.OilFilter;
 import fractalzoomer.filters_utils.image.PointillizeFilter;
@@ -70,6 +71,7 @@ public class ImageFilters {
     private static final float[] sharpness_high = {-0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, 3.4f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f, -0.1f};
     private static float[] sharpness_low = {0.0f, -0.2f, 0.0f, -0.2f, 1.8f, -0.2f, 0.0f, -0.2f, 0.0f};
     private static final float[] EMBOSS = {1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, -1.0f};
+    public static final int IMAGE_SIZE_LIMIT = 4000;
 
     private static void filterEmboss(BufferedImage image, int filter_value) {
 
@@ -151,6 +153,10 @@ public class ImageFilters {
             f.filter(image, image);
         }
 
+        if(image_size > IMAGE_SIZE_LIMIT) {
+            System.gc();
+        }
+
     }
 
     private static void filterEdgeDetection(BufferedImage image, int filter_value, Color filter_color) {
@@ -213,6 +219,10 @@ public class ImageFilters {
         newSource = null;
         newSource2 = null;
 
+        if(image_size > IMAGE_SIZE_LIMIT) {
+            System.gc();
+        }
+
     }
 
     private static void filterSharpness(BufferedImage image, int filter_value) {
@@ -246,6 +256,10 @@ public class ImageFilters {
         kernel = null;
         cop = null;
         newSource = null;
+
+        if(image_size > IMAGE_SIZE_LIMIT) {
+            System.gc();
+        }
     }
 
     private static void filterBlurring(BufferedImage image, int filter_value) { //OLD antialiasing method (blurring)
@@ -318,7 +332,10 @@ public class ImageFilters {
             else {
                 int radius = alg;
                 double weight = ((int)(filter_value % 1000.0)) / 100.0 * 40;
-                blur = createGaussianKernel((radius - 1) * 2 + 3, weight);
+                
+                int kernelSize = (radius - 1) * 2 + 3;
+                //double weight = 0.3* ((kernelSize - 1) * 0.5 - 1) + 0.8;
+                blur = createGaussianKernel(kernelSize, weight);
             }
 
                 // }
@@ -394,6 +411,10 @@ public class ImageFilters {
             f.filter(image, image);
         }
 
+        if(image.getHeight() > IMAGE_SIZE_LIMIT) {
+            System.gc();
+        }
+
     }
 
     private static void filterInvertColors(BufferedImage image, int filter_value) {
@@ -444,6 +465,27 @@ public class ImageFilters {
 
                 raster[p] = Color.HSBtoRGB(res[0], 1.0f - res[1], res[2]);
             }
+            else if(filter_value == 4) { // Red
+                r = (raster[p] >> 16) & 0xff;
+                g = (raster[p] >> 8) & 0xff;
+                b = raster[p] & 0xff;
+                
+                raster[p] = 0xff000000 | (255 - r) << 16 | g << 8 | b;
+            }
+            else if(filter_value == 5) { // Green
+                r = (raster[p] >> 16) & 0xff;
+                g = (raster[p] >> 8) & 0xff;
+                b = raster[p] & 0xff;
+                
+                raster[p] = 0xff000000 | r << 16 | (255 - g) << 8 | b;
+            }
+            else if(filter_value == 6) { // Blue
+                r = (raster[p] >> 16) & 0xff;
+                g = (raster[p] >> 8) & 0xff;
+                b = raster[p] & 0xff;
+                
+                raster[p] = 0xff000000 | r << 16 | g << 8 | (255 - b);
+            }
 
         }
 
@@ -467,6 +509,10 @@ public class ImageFilters {
         f.setMask(mask);
 
         f.filter(image, image);
+        
+        if(image.getHeight() > IMAGE_SIZE_LIMIT) {
+            System.gc();
+        }
 
     }
 
@@ -475,6 +521,10 @@ public class ImageFilters {
         GrayFilter f = new GrayFilter();
 
         f.filter(image, image);
+        
+        if(image.getHeight() > IMAGE_SIZE_LIMIT) {
+            System.gc();
+        }
 
     }
 
@@ -521,6 +571,10 @@ public class ImageFilters {
         f.setBrightness((float)brightness);
 
         f.filter(image, image);
+        
+        if(image.getHeight() > IMAGE_SIZE_LIMIT) {
+            System.gc();
+        }
 
     }
 
@@ -531,6 +585,10 @@ public class ImageFilters {
         f.setTemperature((float)filter_value);
 
         f.filter(image, image);
+        
+        if(image.getHeight() > IMAGE_SIZE_LIMIT) {
+            System.gc();
+        }
 
     }
 
@@ -1045,6 +1103,10 @@ public class ImageFilters {
             }
 
         }
+        
+        if(image.getHeight() > IMAGE_SIZE_LIMIT) {
+            System.gc();
+        }
 
     }
 
@@ -1069,6 +1131,10 @@ public class ImageFilters {
         f.setMatrix(matrix);
 
         f.filter(image, image);
+        
+        if(image.getHeight() > IMAGE_SIZE_LIMIT) {
+            System.gc();
+        }
 
     }
 
@@ -1085,6 +1151,10 @@ public class ImageFilters {
         f.setBFactor((float)bFactor - 1);
 
         f.filter(image, image);
+        
+        if(image.getHeight() > IMAGE_SIZE_LIMIT) {
+            System.gc();
+        }
     }
 
     private static void filterDither(BufferedImage image, int filter_value) {
@@ -1147,6 +1217,10 @@ public class ImageFilters {
             f.setLevels(levels);
             f.filter(image, image);
         }
+        
+        if(image.getHeight() > IMAGE_SIZE_LIMIT) {
+            System.gc();
+        }
 
     }
 
@@ -1162,6 +1236,10 @@ public class ImageFilters {
         f.setBFactor((float)bFactor);
 
         f.filter(image, image);
+        
+        if(image.getHeight() > IMAGE_SIZE_LIMIT) {
+            System.gc();
+        }
     }
 
     private static void filterPosterize(BufferedImage image, int filter_value) {
@@ -1172,6 +1250,10 @@ public class ImageFilters {
         f.setNumLevels(numLevels);
 
         f.filter(image, image);
+        
+        if(image.getHeight() > IMAGE_SIZE_LIMIT) {
+            System.gc();
+        }
 
     }
 
@@ -1180,6 +1262,10 @@ public class ImageFilters {
         SolarizeFilter f = new SolarizeFilter();
 
         f.filter(image, image);
+        
+        if(image.getHeight() > IMAGE_SIZE_LIMIT) {
+            System.gc();
+        }
 
     }
 
@@ -1193,6 +1279,10 @@ public class ImageFilters {
         f.setBias((float)bias);
 
         f.filter(image, image);
+        
+        if(image.getHeight() > IMAGE_SIZE_LIMIT) {
+            System.gc();
+        }
 
     }
 
@@ -1204,6 +1294,10 @@ public class ImageFilters {
         f.setGamma((float)gamma);
 
         f.filter(image, image);
+        
+        if(image.getHeight() > IMAGE_SIZE_LIMIT) {
+            System.gc();
+        }
 
     }
 
@@ -1215,6 +1309,10 @@ public class ImageFilters {
         f.setExposure((float)exposure);
 
         f.filter(image, image);
+        
+        if(image.getHeight() > IMAGE_SIZE_LIMIT) {
+            System.gc();
+        }
 
     }
 
@@ -1243,6 +1341,9 @@ public class ImageFilters {
 
         f.filter(image, image);
 
+        if(image.getHeight() > IMAGE_SIZE_LIMIT) {
+            System.gc();
+        }
     }
 
     private static void filterMarble(BufferedImage image, int filter_value) {
@@ -1262,6 +1363,10 @@ public class ImageFilters {
         f.setScale((float)scale);
 
         f.filter(image, image);
+        
+        if(image.getHeight() > IMAGE_SIZE_LIMIT) {
+            System.gc();
+        }
 
     }
 
@@ -1291,6 +1396,10 @@ public class ImageFilters {
         f.setEdgeThickness((float)point_size);
 
         f.filter(image, image);
+        
+        if(image.getHeight() > IMAGE_SIZE_LIMIT) {
+            System.gc();
+        }
 
     }
 
@@ -1305,6 +1414,10 @@ public class ImageFilters {
         f.setLevels(levels);
 
         f.filter(image, image);
+        
+        if(image.getHeight() > IMAGE_SIZE_LIMIT) {
+            System.gc();
+        }
 
     }
 
@@ -1344,6 +1457,10 @@ public class ImageFilters {
         f.setUseImageColors(true);
 
         f.filter(image, image);
+        
+        if(image.getHeight() > IMAGE_SIZE_LIMIT) {
+            System.gc();
+        }
 
     }
 
@@ -1363,6 +1480,10 @@ public class ImageFilters {
         f.setColor(filter_color.getRGB());
 
         f.filter(image, image);
+        
+        if(image.getHeight() > IMAGE_SIZE_LIMIT) {
+            System.gc();
+        }
 
     }
 
@@ -1377,6 +1498,10 @@ public class ImageFilters {
         f.setRadius((float)softness);
 
         f.filter(image, image);
+        
+        if(image.getHeight() > IMAGE_SIZE_LIMIT) {
+            System.gc();
+        }
 
     }
 
@@ -1401,6 +1526,10 @@ public class ImageFilters {
         f.setDensity((float)density);
 
         f.filter(image, image);
+        
+        if(image.getHeight() > IMAGE_SIZE_LIMIT) {
+            System.gc();
+        }
 
     }
 
@@ -1412,7 +1541,31 @@ public class ImageFilters {
         f.setScale((float)scale);
 
         f.filter(image, image);
+        
+        if(image.getHeight() > IMAGE_SIZE_LIMIT) {
+            System.gc();
+        }
 
+    }
+    
+    private static void filterMirror(BufferedImage image, int filter_value) {
+        
+        int opacity = (int)(filter_value / 1000000.0);
+        int mirrory = (int)(((int)(filter_value % 1000000.0)) / 1000.0);
+        int gap = (int)(((int)(filter_value % 1000000.0)) % 1000.0);
+        
+        MirrorFilter f = new MirrorFilter();
+        
+        f.setOpacity(opacity / 100.0f);
+        f.setGap(gap / 100.0f);
+        f.setCentreY(mirrory / 100.0f);
+        
+        f.filter(image, image);
+        
+        if(image.getHeight() > IMAGE_SIZE_LIMIT) {
+            System.gc();
+        }
+        
     }
 
     private static void filterLightEffects(BufferedImage image, int filter_value, int filter_value2, int filter_value3, Color filter_color, Color filter_color2, Color filter_color3) {
@@ -1461,6 +1614,10 @@ public class ImageFilters {
         f.setColorSource(source);
 
         f.filter(image, image);
+        
+        if(image.getHeight() > IMAGE_SIZE_LIMIT) {
+            System.gc();
+        }
 
     }
 
@@ -1484,20 +1641,28 @@ public class ImageFilters {
         f.setIntoB(intoBlue);
 
         f.filter(image, image);
+        
+        if(image.getHeight() > IMAGE_SIZE_LIMIT) {
+            System.gc();
+        }
 
     }
-    
+
     private static void filterEdgeDetection2(BufferedImage image, int filter_value) {
         int horizontal = (int)(filter_value / 10.0);
         int vertical = (int)(filter_value % 10.0);
-        
+
         EdgeFilter f = new EdgeFilter();
         f.setHorizontalAlgorithm(horizontal);
         f.setVerticalAlgorithm(vertical);
 
         f.filter(image, image);
+        
+        if(image.getHeight() > IMAGE_SIZE_LIMIT) {
+            System.gc();
+        }
     }
-    
+
     private static float[] createGaussianKernel(int length, double weight) {
         float[] gaussian_kernel = new float[length * length];
         double sumTotal = 0;
@@ -1525,22 +1690,22 @@ public class ImageFilters {
         return gaussian_kernel;
 
     }
-    
+
     private static void setProgress(JProgressBar progressbar, int count) {
-        
+
         progressbar.setValue(count);
-        progressbar.setString("Image Filters: " + count +"/"+progressbar.getMaximum());
-        
+        progressbar.setString("Image Filters: " + count + "/" + progressbar.getMaximum());
+
     }
 
     public static void filter(BufferedImage image, boolean[] filters, int[] filters_options_vals, int[][] filters_options_extra_vals, Color[] filters_colors, Color[][] filters_extra_colors, int[] filters_order, JProgressBar progressbar) {
-        
+
         int active = 0;
         if(filters[MainWindow.ANTIALIASING] && progressbar != null) {
             active++;
             setProgress(progressbar, active);
         }
-        
+
         for(int i = 0; i < filters_order.length; i++) {
             switch (filters_order[i]) {
                 case MainWindow.CRYSTALLIZE:
@@ -1834,6 +1999,15 @@ public class ImageFilters {
                 case MainWindow.FADE_OUT:
                     if(filters[MainWindow.FADE_OUT]) {
                         ImageFilters.filterFadeOut(image);
+                        if(progressbar != null) {
+                            active++;
+                            setProgress(progressbar, active);
+                        }
+                    }
+                    break;
+                case MainWindow.MIRROR:
+                    if(filters[MainWindow.MIRROR]) {
+                        ImageFilters.filterMirror(image, filters_options_vals[MainWindow.MIRROR]);
                         if(progressbar != null) {
                             active++;
                             setProgress(progressbar, active);

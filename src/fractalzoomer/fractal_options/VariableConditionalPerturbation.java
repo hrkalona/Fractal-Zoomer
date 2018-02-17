@@ -1,5 +1,5 @@
 /*
- * Fractal Zoomer, Copyright (C) 2017 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2018 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 package fractalzoomer.fractal_options;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.core.ThreadDraw;
 import fractalzoomer.parser.ExpressionNode;
 import fractalzoomer.parser.Parser;
 
@@ -113,6 +114,27 @@ public class VariableConditionalPerturbation extends PlanePointOption {
             parser2[2].setSizevalue(c_size);
         }
         
+        Complex c_isize = new Complex(ThreadDraw.IMAGE_SIZE, 0);
+        if (parser[0].foundISize()) {
+            parser[0].setISizevalue(c_isize);
+        }
+
+        if (parser[1].foundISize()) {
+            parser[1].setISizevalue(c_isize);
+        }
+
+        if (parser2[0].foundISize()) {
+            parser2[0].setISizevalue(c_isize);
+        }
+
+        if (parser2[1].foundISize()) {
+            parser2[1].setISizevalue(c_isize);
+        }
+
+        if (parser2[2].foundISize()) {
+            parser2[2].setISizevalue(c_isize);
+        }
+        
         Complex c_point = new Complex(point[0], point[1]);
         if(parser[0].foundPoint()) {
             parser[0].setPointvalue(c_point);
@@ -148,12 +170,30 @@ public class VariableConditionalPerturbation extends PlanePointOption {
         if(parser[1].foundC()) {
             parser[1].setCvalue(pixel);
         }
+        
+        for (int i = 0; i < Parser.EXTRA_VARS; i++) {
+            if (parser[0].foundVar(i)) {
+                parser[0].setVarsvalue(i, globalVars[i]);
+            }
+        }
+
+        for (int i = 0; i < Parser.EXTRA_VARS; i++) {
+            if (parser[1].foundVar(i)) {
+                parser[1].setVarsvalue(i, globalVars[i]);
+            }
+        }
 
         int result = expr[0].getValue().compare(expr[1].getValue());
 
         if(result == -1) { // left > right
             if(parser2[0].foundC()) {
                 parser2[0].setCvalue(pixel);
+            }
+            
+            for (int i = 0; i < Parser.EXTRA_VARS; i++) {
+                if (parser2[0].foundVar(i)) {
+                    parser2[0].setVarsvalue(i, globalVars[i]);
+                }
             }
             
             return pixel.plus(expr2[0].getValue());
@@ -163,11 +203,23 @@ public class VariableConditionalPerturbation extends PlanePointOption {
                 parser2[1].setCvalue(pixel);
             }
             
+            for (int i = 0; i < Parser.EXTRA_VARS; i++) {
+                if (parser2[1].foundVar(i)) {
+                    parser2[1].setVarsvalue(i, globalVars[i]);
+                }
+            }
+            
             return pixel.plus(expr2[1].getValue());
         }
         else if (result == 0) { //left == right
             if(parser2[2].foundC()) {
                 parser2[2].setCvalue(pixel);
+            }
+            
+            for (int i = 0; i < Parser.EXTRA_VARS; i++) {
+                if (parser2[2].foundVar(i)) {
+                    parser2[2].setVarsvalue(i, globalVars[i]);
+                }
             }
 
             return pixel.plus(expr2[2].getValue());

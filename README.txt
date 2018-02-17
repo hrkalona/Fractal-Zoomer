@@ -1,4 +1,4 @@
-Fractal Zoomer 1.0.6.6
+Fractal Zoomer 1.0.6.7
 
 The most complete fractal generating software using java!
 
@@ -8,7 +8,7 @@ Divide and Conquer
 Periodicity Checking
 
 Functions:
-Over 120 different fractal generating functions
+Over 150 different fractal generating functions
 
 Includes:
 User Formulas

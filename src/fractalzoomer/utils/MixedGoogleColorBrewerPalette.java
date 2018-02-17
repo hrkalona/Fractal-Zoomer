@@ -1,0 +1,130 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package fractalzoomer.utils;
+
+import java.awt.Color;
+import java.util.ArrayList;
+import java.util.Random;
+
+/**
+ *
+ * @author kaloch
+ */
+public class MixedGoogleColorBrewerPalette {
+    
+    
+    public static Color[] generate(int max_colors) {
+        ArrayList<int[]> greens = new ArrayList<int[]>();
+        greens.add(ColorBrewerPalette.GREEN1);
+        greens.add(ColorBrewerPalette.GREEN2);
+        greens.add(ColorBrewerPalette.GREEN3);      
+        greens.add(GoogleMaterialDesignPalette.TEAL);
+        greens.add(GoogleMaterialDesignPalette.GREEN);      
+        greens.add(GoogleMaterialDesignPalette.LIGHT_GREEN);
+        greens.add(GoogleMaterialDesignPalette.LIME);
+
+        ArrayList<int[]> blues = new ArrayList<int[]>();
+        blues.add(ColorBrewerPalette.BLUE1);
+        blues.add(ColorBrewerPalette.BLUE2);
+        blues.add(ColorBrewerPalette.BLUE3);
+        blues.add(ColorBrewerPalette.BLUE4);
+        blues.add(ColorBrewerPalette.BLUE5);
+        blues.add(GoogleMaterialDesignPalette.INDIGO);
+        blues.add(GoogleMaterialDesignPalette.BLUE);
+        blues.add(GoogleMaterialDesignPalette.LIGHT_BLUE);
+        blues.add(GoogleMaterialDesignPalette.CYAN);
+
+        ArrayList<int[]> reds = new ArrayList<int[]>();
+        reds.add(ColorBrewerPalette.RED1);
+        reds.add(ColorBrewerPalette.RED2);
+        reds.add(ColorBrewerPalette.RED3);
+        reds.add(GoogleMaterialDesignPalette.RED);
+        reds.add(GoogleMaterialDesignPalette.PINK);
+
+        ArrayList<int[]> purples = new ArrayList<int[]>();
+        purples.add(ColorBrewerPalette.PURPLE1);
+        purples.add(ColorBrewerPalette.PURPLE2);
+        purples.add(ColorBrewerPalette.PURPLE3);
+        purples.add(ColorBrewerPalette.PURPLE4);
+        purples.add(GoogleMaterialDesignPalette.PURPLE);
+        purples.add(GoogleMaterialDesignPalette.DEEP_PURPLE);
+
+        ArrayList<int[]> oranges = new ArrayList<int[]>();
+        oranges.add(ColorBrewerPalette.ORANGE1);
+        oranges.add(ColorBrewerPalette.ORANGE2);
+        oranges.add(GoogleMaterialDesignPalette.ORANGE);
+        oranges.add(GoogleMaterialDesignPalette.DEEP_ORANGE);
+        
+        ArrayList<int[]> yellows = new ArrayList<int[]>();
+        yellows.add(GoogleMaterialDesignPalette.YELLOW);
+        yellows.add(GoogleMaterialDesignPalette.AMBER);
+        
+        ArrayList<int[]> greys = new ArrayList<int[]>();
+        greys.add(GoogleMaterialDesignPalette.GREY);
+        greys.add(GoogleMaterialDesignPalette.BLUE_GREY);
+        
+        ArrayList<int[]> browns = new ArrayList<int[]>();
+        browns.add(GoogleMaterialDesignPalette.BROWN);
+
+        ArrayList<int[]> blacks = new ArrayList<int[]>();
+        blacks.add(ColorBrewerPalette.BLACK);
+
+        ArrayList<ArrayList<int[]>> colors = new ArrayList<ArrayList<int[]>>();
+        colors.add(greens);
+        colors.add(blues);
+        colors.add(purples);
+        colors.add(reds);
+        colors.add(oranges);
+        colors.add(yellows);
+        colors.add(blacks);
+        colors.add(greys);
+        colors.add(browns);
+
+        int count = 0;
+
+        Random generator = new Random();
+
+        Color[] palette = new Color[max_colors];
+
+        while(true) {
+
+            if(count >= max_colors - 1 || colors.isEmpty()) {
+                break;
+            }
+
+            int k = generator.nextInt(colors.size());
+
+            ArrayList<int[]> category = colors.get(k);
+
+            int r = generator.nextInt(category.size());
+
+            int[] subcategory = category.get(r);
+
+            colors.remove(k);
+
+            int from = 0, to = 0;
+
+            while(Math.abs(from - to) < 2) {
+                from = generator.nextInt(subcategory.length);
+                to = generator.nextInt(subcategory.length);
+            }
+
+            if(from > to) {
+                for(int i = from; i >= to && count < max_colors; i--, count++) {
+                    palette[count] = new Color(subcategory[i]);
+                }
+            }
+            else {
+                for(int i = from; i <= to && count < max_colors; i++, count++) {
+                    palette[count] = new Color(subcategory[i]);
+                }
+            }
+
+        }
+
+        return palette;
+    }
+}

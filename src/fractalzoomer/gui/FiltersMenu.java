@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2017 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2018 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,6 +43,47 @@ public class FiltersMenu extends JMenu {
     private static ArrayList<String> texture_list;
     private static ArrayList<String> lighting_list;
 
+    public static String[] filterNames;
+
+    static {
+        filterNames = new String[MainWindow.TOTAL_FILTERS];
+        filterNames[MainWindow.ANTIALIASING] = "Anti-Aliasing";
+        filterNames[MainWindow.EDGE_DETECTION] = "Edge Detection";
+        filterNames[MainWindow.EMBOSS] = "Emboss";
+        filterNames[MainWindow.SHARPNESS] = "Sharpness";
+        filterNames[MainWindow.INVERT_COLORS] = "Inverted Colors";
+        filterNames[MainWindow.BLURRING] = "Blurring";
+        filterNames[MainWindow.COLOR_CHANNEL_MASKING] = "Mask Color Channel";
+        filterNames[MainWindow.FADE_OUT] = "Fade Out";
+        filterNames[MainWindow.COLOR_CHANNEL_SWAPPING] = "Color Channel Swapping";
+        filterNames[MainWindow.CONTRAST_BRIGHTNESS] = "Contrast/Brightness";
+        filterNames[MainWindow.GRAYSCALE] = "Grayscale";
+        filterNames[MainWindow.COLOR_TEMPERATURE] = "Color Temperature";
+        filterNames[MainWindow.COLOR_CHANNEL_SWIZZLING] = "Color Channel Swizzling";
+        filterNames[MainWindow.HISTOGRAM_EQUALIZATION] = "Histogram Equalization";
+        filterNames[MainWindow.POSTERIZE] = "Posterization";
+        filterNames[MainWindow.SOLARIZE] = "Solarization";
+        filterNames[MainWindow.COLOR_CHANNEL_ADJUSTING] = "Color Channel Adjusting";
+        filterNames[MainWindow.COLOR_CHANNEL_HSB_ADJUSTING] = "Color Channel HSB Adjusting";
+        filterNames[MainWindow.DITHER] = "Dither";
+        filterNames[MainWindow.GAIN] = "Gain/Bias";
+        filterNames[MainWindow.GAMMA] = "Gamma";
+        filterNames[MainWindow.EXPOSURE] = "Exposure";
+        filterNames[MainWindow.CRYSTALLIZE] = "Crystallize";
+        filterNames[MainWindow.POINTILLIZE] = "Pointillize";
+        filterNames[MainWindow.OIL] = "Oil";
+        filterNames[MainWindow.MARBLE] = "Marble";
+        filterNames[MainWindow.WEAVE] = "Weave";
+        filterNames[MainWindow.SPARKLE] = "Sparkle";
+        filterNames[MainWindow.GLOW] = "Glow";
+        filterNames[MainWindow.COLOR_CHANNEL_SCALING] = "Color Channel Scaling";
+        filterNames[MainWindow.NOISE] = "Noise";
+        filterNames[MainWindow.COLOR_CHANNEL_MIXING] = "Color Channel Mixing";
+        filterNames[MainWindow.LIGHT_EFFECTS] = "Light Effects";
+        filterNames[MainWindow.EDGE_DETECTION2] = "Edge Detection 2";
+        filterNames[MainWindow.MIRROR] = "Mirror";
+    }
+
     public FiltersMenu(MainWindow ptr2, String name) {
 
         super(name);
@@ -58,42 +99,43 @@ public class FiltersMenu extends JMenu {
         light_filters_menu = new JMenu("Lighting");
         light_filters_menu.setIcon(getIcon("/fractalzoomer/icons/filter_lighting.png"));
 
-        filters_opt = new JCheckBoxMenuItem[34];
+        filters_opt = new JCheckBoxMenuItem[filterNames.length];
 
-        filters_opt[MainWindow.ANTIALIASING] = new JCheckBoxMenuItem("Anti-Aliasing");
-        filters_opt[MainWindow.EDGE_DETECTION] = new JCheckBoxMenuItem("Edge Detection");
-        filters_opt[MainWindow.EDGE_DETECTION2] = new JCheckBoxMenuItem("Edge Detection 2");
-        filters_opt[MainWindow.SHARPNESS] = new JCheckBoxMenuItem("Sharpness");
-        filters_opt[MainWindow.BLURRING] = new JCheckBoxMenuItem("Blurring");
-        filters_opt[MainWindow.EMBOSS] = new JCheckBoxMenuItem("Emboss");
-        filters_opt[MainWindow.HISTOGRAM_EQUALIZATION] = new JCheckBoxMenuItem("Histogram Equalization");
-        filters_opt[MainWindow.CONTRAST_BRIGHTNESS] = new JCheckBoxMenuItem("Contrast/Brightness");
-        filters_opt[MainWindow.COLOR_TEMPERATURE] = new JCheckBoxMenuItem("Color Temperature");
-        filters_opt[MainWindow.POSTERIZE] = new JCheckBoxMenuItem("Posterization");
-        filters_opt[MainWindow.SOLARIZE] = new JCheckBoxMenuItem("Solarization");
-        filters_opt[MainWindow.FADE_OUT] = new JCheckBoxMenuItem("Fade Out");
-        filters_opt[MainWindow.INVERT_COLORS] = new JCheckBoxMenuItem("Inverted Colors");
-        filters_opt[MainWindow.COLOR_CHANNEL_MASKING] = new JCheckBoxMenuItem("Mask Color Channel");
-        filters_opt[MainWindow.COLOR_CHANNEL_SWAPPING] = new JCheckBoxMenuItem("Color Channel Swapping");
-        filters_opt[MainWindow.COLOR_CHANNEL_SWIZZLING] = new JCheckBoxMenuItem("Color Channel Swizzling");
-        filters_opt[MainWindow.COLOR_CHANNEL_ADJUSTING] = new JCheckBoxMenuItem("Color Channel Adjusting");
-        filters_opt[MainWindow.COLOR_CHANNEL_HSB_ADJUSTING] = new JCheckBoxMenuItem("Color Channel HSB Adjusting");
-        filters_opt[MainWindow.COLOR_CHANNEL_MIXING] = new JCheckBoxMenuItem("Color Channel Mixing");
-        filters_opt[MainWindow.GRAYSCALE] = new JCheckBoxMenuItem("Grayscale");
-        filters_opt[MainWindow.DITHER] = new JCheckBoxMenuItem("Dither");
-        filters_opt[MainWindow.GAIN] = new JCheckBoxMenuItem("Gain/Bias");
-        filters_opt[MainWindow.GAMMA] = new JCheckBoxMenuItem("Gamma");
-        filters_opt[MainWindow.EXPOSURE] = new JCheckBoxMenuItem("Exposure");
-        filters_opt[MainWindow.CRYSTALLIZE] = new JCheckBoxMenuItem("Crystallize");
-        filters_opt[MainWindow.POINTILLIZE] = new JCheckBoxMenuItem("Pointillize");
-        filters_opt[MainWindow.OIL] = new JCheckBoxMenuItem("Oil");
-        filters_opt[MainWindow.MARBLE] = new JCheckBoxMenuItem("Marble");
-        filters_opt[MainWindow.WEAVE] = new JCheckBoxMenuItem("Weave");
-        filters_opt[MainWindow.SPARKLE] = new JCheckBoxMenuItem("Sparkle");
-        filters_opt[MainWindow.GLOW] = new JCheckBoxMenuItem("Glow");
-        filters_opt[MainWindow.COLOR_CHANNEL_SCALING] = new JCheckBoxMenuItem("Color Channel Scaling");
-        filters_opt[MainWindow.NOISE] = new JCheckBoxMenuItem("Noise");
-        filters_opt[MainWindow.LIGHT_EFFECTS] = new JCheckBoxMenuItem("Light Effects");
+        filters_opt[MainWindow.ANTIALIASING] = new JCheckBoxMenuItem(filterNames[MainWindow.ANTIALIASING]);
+        filters_opt[MainWindow.EDGE_DETECTION] = new JCheckBoxMenuItem(filterNames[MainWindow.EDGE_DETECTION]);
+        filters_opt[MainWindow.EDGE_DETECTION2] = new JCheckBoxMenuItem(filterNames[MainWindow.EDGE_DETECTION2]);
+        filters_opt[MainWindow.SHARPNESS] = new JCheckBoxMenuItem(filterNames[MainWindow.SHARPNESS]);
+        filters_opt[MainWindow.BLURRING] = new JCheckBoxMenuItem(filterNames[MainWindow.BLURRING]);
+        filters_opt[MainWindow.EMBOSS] = new JCheckBoxMenuItem(filterNames[MainWindow.EMBOSS]);
+        filters_opt[MainWindow.HISTOGRAM_EQUALIZATION] = new JCheckBoxMenuItem(filterNames[MainWindow.HISTOGRAM_EQUALIZATION]);
+        filters_opt[MainWindow.CONTRAST_BRIGHTNESS] = new JCheckBoxMenuItem(filterNames[MainWindow.CONTRAST_BRIGHTNESS]);
+        filters_opt[MainWindow.COLOR_TEMPERATURE] = new JCheckBoxMenuItem(filterNames[MainWindow.COLOR_TEMPERATURE]);
+        filters_opt[MainWindow.POSTERIZE] = new JCheckBoxMenuItem(filterNames[MainWindow.POSTERIZE]);
+        filters_opt[MainWindow.SOLARIZE] = new JCheckBoxMenuItem(filterNames[MainWindow.SOLARIZE]);
+        filters_opt[MainWindow.FADE_OUT] = new JCheckBoxMenuItem(filterNames[MainWindow.FADE_OUT]);
+        filters_opt[MainWindow.INVERT_COLORS] = new JCheckBoxMenuItem(filterNames[MainWindow.INVERT_COLORS]);
+        filters_opt[MainWindow.COLOR_CHANNEL_MASKING] = new JCheckBoxMenuItem(filterNames[MainWindow.COLOR_CHANNEL_MASKING]);
+        filters_opt[MainWindow.COLOR_CHANNEL_SWAPPING] = new JCheckBoxMenuItem(filterNames[MainWindow.COLOR_CHANNEL_SWAPPING]);
+        filters_opt[MainWindow.COLOR_CHANNEL_SWIZZLING] = new JCheckBoxMenuItem(filterNames[MainWindow.COLOR_CHANNEL_SWIZZLING]);
+        filters_opt[MainWindow.COLOR_CHANNEL_ADJUSTING] = new JCheckBoxMenuItem(filterNames[MainWindow.COLOR_CHANNEL_ADJUSTING]);
+        filters_opt[MainWindow.COLOR_CHANNEL_HSB_ADJUSTING] = new JCheckBoxMenuItem(filterNames[MainWindow.COLOR_CHANNEL_HSB_ADJUSTING]);
+        filters_opt[MainWindow.COLOR_CHANNEL_MIXING] = new JCheckBoxMenuItem(filterNames[MainWindow.COLOR_CHANNEL_MIXING]);
+        filters_opt[MainWindow.GRAYSCALE] = new JCheckBoxMenuItem(filterNames[MainWindow.GRAYSCALE]);
+        filters_opt[MainWindow.DITHER] = new JCheckBoxMenuItem(filterNames[MainWindow.DITHER]);
+        filters_opt[MainWindow.GAIN] = new JCheckBoxMenuItem(filterNames[MainWindow.GAIN]);
+        filters_opt[MainWindow.GAMMA] = new JCheckBoxMenuItem(filterNames[MainWindow.GAMMA]);
+        filters_opt[MainWindow.EXPOSURE] = new JCheckBoxMenuItem(filterNames[MainWindow.EXPOSURE]);
+        filters_opt[MainWindow.CRYSTALLIZE] = new JCheckBoxMenuItem(filterNames[MainWindow.CRYSTALLIZE]);
+        filters_opt[MainWindow.POINTILLIZE] = new JCheckBoxMenuItem(filterNames[MainWindow.POINTILLIZE]);
+        filters_opt[MainWindow.OIL] = new JCheckBoxMenuItem(filterNames[MainWindow.OIL]);
+        filters_opt[MainWindow.MARBLE] = new JCheckBoxMenuItem(filterNames[MainWindow.MARBLE]);
+        filters_opt[MainWindow.WEAVE] = new JCheckBoxMenuItem(filterNames[MainWindow.WEAVE]);
+        filters_opt[MainWindow.SPARKLE] = new JCheckBoxMenuItem(filterNames[MainWindow.SPARKLE]);
+        filters_opt[MainWindow.GLOW] = new JCheckBoxMenuItem(filterNames[MainWindow.GLOW]);
+        filters_opt[MainWindow.COLOR_CHANNEL_SCALING] = new JCheckBoxMenuItem(filterNames[MainWindow.COLOR_CHANNEL_SCALING]);
+        filters_opt[MainWindow.NOISE] = new JCheckBoxMenuItem(filterNames[MainWindow.NOISE]);
+        filters_opt[MainWindow.LIGHT_EFFECTS] = new JCheckBoxMenuItem(filterNames[MainWindow.LIGHT_EFFECTS]);
+        filters_opt[MainWindow.MIRROR] = new JCheckBoxMenuItem(filterNames[MainWindow.MIRROR]);
 
         filters_opt[MainWindow.ANTIALIASING].setToolTipText("Smooths the jagged look of the image.");
         filters_opt[MainWindow.EDGE_DETECTION].setToolTipText("Detects the edges of the image.");
@@ -129,10 +171,11 @@ public class FiltersMenu extends JMenu {
         filters_opt[MainWindow.NOISE].setToolTipText("Adds noise to the image.");
         filters_opt[MainWindow.COLOR_CHANNEL_MIXING].setToolTipText("Mixes the color channels of the image.");
         filters_opt[MainWindow.LIGHT_EFFECTS].setToolTipText("Adds light effects to the image.");
-
+        filters_opt[MainWindow.MIRROR].setToolTipText("Creates a mirror effect with transparency.");
+        
         filters_opt[MainWindow.ANTIALIASING].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_G, 0));
-        filters_opt[MainWindow.EDGE_DETECTION].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, ActionEvent.CTRL_MASK)); 
-        filters_opt[MainWindow.EDGE_DETECTION2].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_2, ActionEvent.CTRL_MASK));      
+        filters_opt[MainWindow.EDGE_DETECTION].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, ActionEvent.CTRL_MASK));
+        filters_opt[MainWindow.EDGE_DETECTION2].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_2, ActionEvent.CTRL_MASK));
         filters_opt[MainWindow.SHARPNESS].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, ActionEvent.ALT_MASK));
         filters_opt[MainWindow.EMBOSS].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_M, ActionEvent.CTRL_MASK));
         filters_opt[MainWindow.INVERT_COLORS].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, ActionEvent.ALT_MASK));
@@ -164,8 +207,8 @@ public class FiltersMenu extends JMenu {
         filters_opt[MainWindow.NOISE].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, 0));
         filters_opt[MainWindow.COLOR_CHANNEL_MIXING].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, 0));
         filters_opt[MainWindow.LIGHT_EFFECTS].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_1, ActionEvent.CTRL_MASK));
-
-
+        filters_opt[MainWindow.MIRROR].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_3, ActionEvent.CTRL_MASK));
+        
         filters_opt[MainWindow.ANTIALIASING].addActionListener(new ActionListener() {
 
             @Override
@@ -185,7 +228,7 @@ public class FiltersMenu extends JMenu {
 
             }
         });
-        
+
         filters_opt[MainWindow.EDGE_DETECTION2].addActionListener(new ActionListener() {
 
             @Override
@@ -285,7 +328,7 @@ public class FiltersMenu extends JMenu {
 
             }
         });
-        
+
         filters_opt[MainWindow.GAIN].addActionListener(new ActionListener() {
 
             @Override
@@ -295,7 +338,7 @@ public class FiltersMenu extends JMenu {
 
             }
         });
-        
+
         filters_opt[MainWindow.GAMMA].addActionListener(new ActionListener() {
 
             @Override
@@ -305,7 +348,7 @@ public class FiltersMenu extends JMenu {
 
             }
         });
-        
+
         filters_opt[MainWindow.EXPOSURE].addActionListener(new ActionListener() {
 
             @Override
@@ -355,7 +398,7 @@ public class FiltersMenu extends JMenu {
 
             }
         });
-        
+
         filters_opt[MainWindow.DITHER].addActionListener(new ActionListener() {
 
             @Override
@@ -395,7 +438,7 @@ public class FiltersMenu extends JMenu {
 
             }
         });
-        
+
         filters_opt[MainWindow.COLOR_CHANNEL_MIXING].addActionListener(new ActionListener() {
 
             @Override
@@ -405,7 +448,7 @@ public class FiltersMenu extends JMenu {
 
             }
         });
-        
+
         filters_opt[MainWindow.CRYSTALLIZE].addActionListener(new ActionListener() {
 
             @Override
@@ -415,7 +458,7 @@ public class FiltersMenu extends JMenu {
 
             }
         });
-        
+
         filters_opt[MainWindow.POINTILLIZE].addActionListener(new ActionListener() {
 
             @Override
@@ -425,7 +468,7 @@ public class FiltersMenu extends JMenu {
 
             }
         });
-        
+
         filters_opt[MainWindow.OIL].addActionListener(new ActionListener() {
 
             @Override
@@ -435,7 +478,7 @@ public class FiltersMenu extends JMenu {
 
             }
         });
-        
+
         filters_opt[MainWindow.MARBLE].addActionListener(new ActionListener() {
 
             @Override
@@ -445,7 +488,7 @@ public class FiltersMenu extends JMenu {
 
             }
         });
-        
+
         filters_opt[MainWindow.WEAVE].addActionListener(new ActionListener() {
 
             @Override
@@ -455,7 +498,7 @@ public class FiltersMenu extends JMenu {
 
             }
         });
-        
+
         filters_opt[MainWindow.SPARKLE].addActionListener(new ActionListener() {
 
             @Override
@@ -465,7 +508,7 @@ public class FiltersMenu extends JMenu {
 
             }
         });
-        
+
         filters_opt[MainWindow.GLOW].addActionListener(new ActionListener() {
 
             @Override
@@ -475,7 +518,7 @@ public class FiltersMenu extends JMenu {
 
             }
         });
-        
+
         filters_opt[MainWindow.COLOR_CHANNEL_SCALING].addActionListener(new ActionListener() {
 
             @Override
@@ -485,7 +528,7 @@ public class FiltersMenu extends JMenu {
 
             }
         });
-        
+
         filters_opt[MainWindow.NOISE].addActionListener(new ActionListener() {
 
             @Override
@@ -496,6 +539,16 @@ public class FiltersMenu extends JMenu {
             }
         });
         
+        filters_opt[MainWindow.MIRROR].addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFilter(MainWindow.MIRROR);
+
+            }
+        });
+
         filters_opt[MainWindow.LIGHT_EFFECTS].addActionListener(new ActionListener() {
 
             @Override
@@ -551,13 +604,13 @@ public class FiltersMenu extends JMenu {
         color_filters_menu.add(filters_opt[MainWindow.COLOR_CHANNEL_ADJUSTING]);
         color_filters_menu.addSeparator();
         color_filters_menu.add(filters_opt[MainWindow.COLOR_CHANNEL_HSB_ADJUSTING]);
-        color_filters_menu.addSeparator();   
+        color_filters_menu.addSeparator();
         color_filters_menu.add(filters_opt[MainWindow.COLOR_CHANNEL_SCALING]);
         color_filters_menu.addSeparator();
         color_filters_menu.add(filters_opt[MainWindow.GRAYSCALE]);
         color_filters_menu.addSeparator();
         color_filters_menu.add(filters_opt[MainWindow.FADE_OUT]);
-        
+
         texture_filters_menu.add(filters_opt[MainWindow.DITHER]);
         texture_filters_menu.addSeparator();
         texture_filters_menu.add(filters_opt[MainWindow.CRYSTALLIZE]);
@@ -571,7 +624,9 @@ public class FiltersMenu extends JMenu {
         texture_filters_menu.add(filters_opt[MainWindow.WEAVE]);
         texture_filters_menu.addSeparator();
         texture_filters_menu.add(filters_opt[MainWindow.SPARKLE]);
-        
+        texture_filters_menu.addSeparator();
+        texture_filters_menu.add(filters_opt[MainWindow.MIRROR]);
+
         light_filters_menu.add(filters_opt[MainWindow.LIGHT_EFFECTS]);
 
         add(detail_filters_menu);
@@ -581,12 +636,12 @@ public class FiltersMenu extends JMenu {
         add(texture_filters_menu);
         addSeparator();
         add(light_filters_menu);
-        
+
         createDetailFilterNames();
         createColorFilterNames();
         createTextureFilterNames();
         createLightingFilterNames();
-        
+
     }
 
     public JCheckBoxMenuItem[] getFilters() {
@@ -600,105 +655,105 @@ public class FiltersMenu extends JMenu {
         return new ImageIcon(getClass().getResource(path));
 
     }
-    
+
     public void setCheckedFilters(boolean[] filters) {
-                
+
         for(int k = 0; k < filters_opt.length; k++) {
             filters_opt[k].setSelected(filters[k]);
         }
-        
+
     }
-    
+
     public JMenu getColorsFiltersMenu() {
-        
+
         return color_filters_menu;
-        
+
     }
-    
+
     public JMenu getDetailsFiltersMenu() {
-        
+
         return detail_filters_menu;
-        
+
     }
-    
+
     public JMenu getTextureFiltersMenu() {
-        
+
         return texture_filters_menu;
-        
+
     }
-    
+
     public JMenu getLightingFiltersMenu() {
-        
+
         return light_filters_menu;
-        
+
     }
-    
+
     private void createDetailFilterNames() {
-        
+
         detail_list = new ArrayList<String>();
-        
+
         for(int i = 0; i < detail_filters_menu.getMenuComponentCount(); i++) {
             if(detail_filters_menu.getMenuComponent(i) instanceof JCheckBoxMenuItem) {
                 detail_list.add(((JCheckBoxMenuItem)(detail_filters_menu.getMenuComponent(i))).getText());
             }
         }
     }
-    
+
     private void createColorFilterNames() {
-        
+
         color_list = new ArrayList<String>();
-        
+
         for(int i = 0; i < color_filters_menu.getMenuComponentCount(); i++) {
             if(color_filters_menu.getMenuComponent(i) instanceof JCheckBoxMenuItem) {
                 color_list.add(((JCheckBoxMenuItem)(color_filters_menu.getMenuComponent(i))).getText());
             }
         }
     }
-    
+
     private void createTextureFilterNames() {
-        
+
         texture_list = new ArrayList<String>();
-        
+
         for(int i = 0; i < texture_filters_menu.getMenuComponentCount(); i++) {
             if(texture_filters_menu.getMenuComponent(i) instanceof JCheckBoxMenuItem) {
                 texture_list.add(((JCheckBoxMenuItem)(texture_filters_menu.getMenuComponent(i))).getText());
             }
         }
     }
-    
+
     private void createLightingFilterNames() {
-        
+
         lighting_list = new ArrayList<String>();
-        
+
         for(int i = 0; i < light_filters_menu.getMenuComponentCount(); i++) {
             if(light_filters_menu.getMenuComponent(i) instanceof JCheckBoxMenuItem) {
                 lighting_list.add(((JCheckBoxMenuItem)(light_filters_menu.getMenuComponent(i))).getText());
             }
         }
     }
-    
+
     public static ArrayList<String> getDetailNamesList() {
-        
+
         return detail_list;
-        
+
     }
-    
+
     public static ArrayList<String> getColorNamesList() {
-        
+
         return color_list;
-        
+
     }
-    
+
     public static ArrayList<String> getTextureNamesList() {
-        
+
         return texture_list;
-        
+
     }
-    
+
     public static ArrayList<String> getLightingNamesList() {
-        
+
         return lighting_list;
-        
+
     }
 
 }

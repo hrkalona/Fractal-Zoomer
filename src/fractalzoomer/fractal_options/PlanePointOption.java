@@ -1,5 +1,5 @@
 /*
- * Fractal Zoomer, Copyright (C) 2017 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2018 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,11 +23,18 @@ import fractalzoomer.core.Complex;
  * @author hrkalona2
  */
 public abstract class PlanePointOption {
+    protected Complex[] globalVars;
     
     public PlanePointOption() {
         
     }
     
     public abstract Complex getValue(Complex pixel);
+    
+    public void setGlobalVars(Complex[] vars) {
+        
+        globalVars = vars;
+        
+    }
     
 }

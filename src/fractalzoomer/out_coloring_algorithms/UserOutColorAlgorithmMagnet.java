@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2017 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2018 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -72,15 +72,15 @@ public class UserOutColorAlgorithmMagnet extends  UserOutColorAlgorithm {
         
         double result = expr.getValue().getRe();
         
-        if(result == -max_iterations) {
+        if(Math.abs(result) == max_iterations) {
             return result;
         }
    
         if(result < 0) {
-            return (Boolean)object[2] ? result - MAGIC_OFFSET_NUMBER - 106  : result - MAGIC_OFFSET_NUMBER;
+            return (Boolean)object[2] ? result - MAGIC_OFFSET_NUMBER - MAGNET_INCREMENT  : result - MAGIC_OFFSET_NUMBER;
         }
         else {
-            return (Boolean)object[2] ? result + MAGIC_OFFSET_NUMBER + 106  : result + MAGIC_OFFSET_NUMBER;
+            return (Boolean)object[2] ? result + MAGIC_OFFSET_NUMBER + MAGNET_INCREMENT  : result + MAGIC_OFFSET_NUMBER;
         }
     }
 

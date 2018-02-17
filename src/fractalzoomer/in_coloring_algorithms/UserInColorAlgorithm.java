@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2017 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2018 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 package fractalzoomer.in_coloring_algorithms;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.core.ThreadDraw;
 import fractalzoomer.parser.ExpressionNode;
 import fractalzoomer.parser.Parser;
 
@@ -30,7 +31,7 @@ public class UserInColorAlgorithm extends InColorAlgorithm {
     private Parser parser;
     private int max_iterations;
     
-    public UserInColorAlgorithm(String incoloring_formula, int max_iterations, double xCenter, double yCenter, double size, double[] point) {
+    public UserInColorAlgorithm(String incoloring_formula, int max_iterations, double xCenter, double yCenter, double size, double[] point, double genericBail) {
         
         super();
         
@@ -41,6 +42,10 @@ public class UserInColorAlgorithm extends InColorAlgorithm {
             parser.setMaxnvalue(new Complex(max_iterations, 0));
         }
         
+        if(parser.foundN()) {
+            parser.setNvalue(new Complex(max_iterations, 0));
+        }
+        
         if(parser.foundCenter()) {
             parser.setCentervalue(new Complex(xCenter, yCenter));
         }
@@ -48,9 +53,21 @@ public class UserInColorAlgorithm extends InColorAlgorithm {
         if(parser.foundSize()) {
             parser.setSizevalue(new Complex(size, 0));
         }
-        
+
+        if (parser.foundISize()) {
+            parser.setISizevalue(new Complex(ThreadDraw.IMAGE_SIZE, 0));
+        }
+ 
         if(parser.foundPoint()) {
             parser.setPointvalue(new Complex(point[0], point[1]));
+        }
+        
+        if(parser.foundBail()) {
+            parser.setBailvalue(new Complex(genericBail, 0));
+        }
+        
+        if(parser.foundCbail()) {
+            parser.setCbailvalue(new Complex(genericBail, 0));
         }
         
         this.max_iterations = max_iterations;

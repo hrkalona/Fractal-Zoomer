@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2017 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2018 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
 package fractalzoomer.planes.user_plane;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.core.ThreadDraw;
 import fractalzoomer.parser.ExpressionNode;
 import fractalzoomer.parser.Parser;
 import fractalzoomer.planes.Plane;
@@ -53,6 +54,10 @@ public class UserPlane extends Plane {
         if(parser.foundSize()) {
             parser.setSizevalue(new Complex(size, 0));
         }
+
+        if (parser.foundISize()) {
+            parser.setISizevalue(new Complex(ThreadDraw.IMAGE_SIZE, 0));
+        } 
         
         if(parser.foundPoint()) {
             parser.setPointvalue(new Complex(point[0], point[1]));
@@ -68,6 +73,13 @@ public class UserPlane extends Plane {
         if(parser.foundZ()) {
             parser.setZvalue(pixel);
         }
+        
+        for (int i = 0; i < Parser.EXTRA_VARS; i++) {
+            if (parser.foundVar(i)) {
+                parser.setVarsvalue(i, globalVars[i]);
+            }
+        }
+        
         return expr.getValue();
 
     }

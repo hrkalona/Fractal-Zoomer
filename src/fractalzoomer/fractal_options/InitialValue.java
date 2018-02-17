@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2017 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2018 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@ import fractalzoomer.core.Complex;
  */
 public class InitialValue extends PlanePointOption {
 
-    private Complex pixel;
+    private Complex pixel; 
 
     public InitialValue(double re, double im) {
         
@@ -45,5 +45,5 @@ public class InitialValue extends PlanePointOption {
         
         return pixel.toString();
         
-    }
+    } 
 }

@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2017 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2018 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,8 +35,14 @@ public class BinaryDecomposition2Magnet extends BinaryDecomposition2 {
     @Override
     public double getResult(Object[] object) {
 
-        return ((Boolean)object[2] ? (((Complex)object[1]).getRe() < 0 ? -((Integer)object[0] + MAGIC_OFFSET_NUMBER + INCREMENT) : (Integer)object[0] + MAGIC_OFFSET_NUMBER + 106) : ((Complex)object[1]).getRe() < 0 ? -((Integer)object[0] + MAGIC_OFFSET_NUMBER + INCREMENT) : (Integer)object[0] + MAGIC_OFFSET_NUMBER);
+        double temp3 = ((Complex)object[1]).getRe() < 0 ? -((Integer)object[0] + INCREMENT) : (Integer)object[0];
 
+        if(temp3 < 0) {
+            return (Boolean)object[2] ? temp3 - MAGIC_OFFSET_NUMBER - MAGNET_INCREMENT : temp3 - MAGIC_OFFSET_NUMBER;
+        }
+        else {
+            return (Boolean)object[2] ? temp3 + MAGIC_OFFSET_NUMBER + MAGNET_INCREMENT : temp3 + MAGIC_OFFSET_NUMBER;
+        }
     } 
     
 }

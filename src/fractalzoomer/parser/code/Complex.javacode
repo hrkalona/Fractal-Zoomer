@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2017 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2018 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,10 @@
  */
 package fractalzoomer.core;
 
+import fractalzoomer.filters_utils.math.Noise;
+
 public final class Complex {
+
     private double re;
     private double im;
 
@@ -856,23 +859,32 @@ public final class Complex {
         return Math.sqrt(re * re + im * im);
 
     }
-    
-   /*
-    * n-norm
-    */
+
+    /*
+     * n-norm
+     */
     public final Complex nnorm(Complex n) {
 
         double tempRe = this.getAbsRe();
         double tempIm = this.getAbsIm();
-        
+
         tempRe = tempRe == 0 ? 1e-14 : tempRe;
         tempIm = tempIm == 0 ? 1e-14 : tempIm;
-        
+
         Complex a = new Complex(tempRe, 0);
         Complex b = new Complex(tempIm, 0);
-        
+
         return (a.pow(n).plus(b.pow(n))).pow(n.reciprocal());
-        
+
+    }
+    
+    /*
+     * n-norm
+     */
+    public final double nnorm(double n) {
+    
+        return Math.pow(Math.pow(Math.abs(re), n) + Math.pow(Math.abs(im), n), 1 / n);
+
     }
 
     /*
@@ -1406,185 +1418,185 @@ public final class Complex {
         return (((this.square().reciprocal()).plus(1).sqrt()).plus(this.reciprocal())).log();
 
     }
-    
+
     /*
      * versine(z) = 1 - cos(z)
      */
     public final Complex vsin() {
-        
+
         return this.cos().r_sub(1);
-                
+
     }
-    
+
     /*
      * arc versine(z) = acos(1 - z)
      */
     public final Complex avsin() {
-        
+
         return this.r_sub(1).acos();
-                
+
     }
-    
+
     /*
      * vercosine(z) = 1 + cos(z)
      */
     public final Complex vcos() {
-        
+
         return this.cos().plus(1);
-                
+
     }
-    
+
     /*
      * arc vercosine(z) = acos(1 + z)
      */
     public final Complex avcos() {
-        
+
         return this.plus(1).acos();
-                
+
     }
-    
+
     /*
      * coversine(z) = 1 - sin(z)
      */
     public final Complex cvsin() {
-        
+
         return this.sin().r_sub(1);
-                
+
     }
-    
+
     /*
      * arc coversine(z) = asin(1 - z)
      */
     public final Complex acvsin() {
-        
+
         return this.r_sub(1).asin();
-                
+
     }
-    
+
     /*
      * covercosine(z) = 1 + sin(z)
      */
     public final Complex cvcos() {
-        
+
         return this.sin().plus(1);
-                
+
     }
-    
+
     /*
      * arc covercosine(z) = asin(1 + z)
      */
     public final Complex acvcos() {
-        
+
         return this.plus(1).asin();
-                
+
     }
-    
+
     /*
      * haversine(z) = versine(z) / 2
      */
     public final Complex hvsin() {
-        
+
         return this.vsin().times(0.5);
-                
+
     }
-    
+
     /*
      * arc haversine(z) = 2 * asin(sqrt(z))
      */
     public final Complex ahvsin() {
-        
+
         return this.sqrt().asin().times(2);
-                
+
     }
-    
+
     /*
      * havercosine(z) = vercosine(z) / 2
      */
     public final Complex hvcos() {
-        
+
         return this.vcos().times(0.5);
-                
+
     }
-    
+
     /*
      * arc havercosine(z) = 2 * acos(sqrt(z))
      */
     public final Complex ahvcos() {
-        
+
         return this.sqrt().acos().times(2);
-                
+
     }
-    
+
     /*
      * hacoversine(z) = coversine(z) / 2
      */
     public final Complex hcvsin() {
-        
+
         return this.cvsin().times(0.5);
-                
+
     }
-    
+
     /*
      * arc hacoversine(z) = asin(1 - 2*z)
      */
     public final Complex ahcvsin() {
-        
+
         return this.times(2).r_sub(1).asin();
-               
+
     }
-    
+
     /*
      * hacovercosine(z) = covercosine(z) / 2
      */
     public final Complex hcvcos() {
-        
+
         return this.cvcos().times(0.5);
-                
+
     }
-    
+
     /*
      * arc hacovercosine(z) = asin(-1 - 2*z)
      */
     public final Complex ahcvcos() {
-        
+
         return this.times(-2).r_sub(1).asin();
-                
+
     }
-    
+
     /*
      * exsecant(z) = sec(z) - 1
      */
     public final Complex exsec() {
-        
+
         return this.sec().sub(1);
-        
+
     }
-    
+
     /*
      * arc exsecant(z) = asec(z + 1)
      */
     public final Complex aexsec() {
-        
+
         return this.plus(1).asec();
-        
+
     }
-    
+
     /*
      * excosecant(z) = csc(z) - 1
      */
     public final Complex excsc() {
-        
+
         return this.csc().sub(1);
-        
+
     }
-    
+
     /*
      * arc excosecant(z) = acsc(z + 1)
      */
     public final Complex aexcsc() {
-        
+
         return this.plus(1).acsc();
-        
+
     }
 
 
@@ -1954,25 +1966,34 @@ public final class Complex {
             Complex temp = this.r_sub(1);
             Complex temp2 = this.negative();
             Complex sum2 = new Complex();
-            
+
             for(int k = 1; k < 101; k++) {
-               sum2.plus_mutable((new Complex(-1, 0).pow(k - 1)).times(new Complex(k, 0).pow(temp2)));
+                sum2.plus_mutable((new Complex(-1, 0).pow(k - 1)).times(new Complex(k, 0).pow(temp2)));
             }
-            
-            sum = ((new Complex(1, 0).sub(new Complex(2, 0).pow(temp))).pow(-1)).times(sum2);
+
+            sum = sum2.divide((new Complex(1, 0).sub(new Complex(2, 0).pow(temp))));
         }
         else {
-             Complex temp = this.r_sub(1);
-            
-             Complex gamma = temp.gamma_la();
+            Complex temp = this.r_sub(1);
 
-             Complex sum2 = temp.riemann_zeta();
-                       
-             sum = (new Complex(2, 0).pow(this)).times(new Complex(Math.PI, 0).pow(this.sub(1))).times(gamma).times(this.times(Math.PI * 0.5).sin()).times(sum2);
+            Complex gamma = temp.gamma_la();
+
+            Complex sum2 = temp.riemann_zeta();
+
+            sum = (new Complex(2, 0).pow(this)).times(new Complex(Math.PI, 0).pow(this.sub(1))).times(gamma).times(this.times(Math.PI * 0.5).sin()).times(sum2);
         }
-   
+
         return sum;
 
+    }
+    
+    /*
+    * η(z) = (1 - 2^(1-z)) * ζ(z)
+    */
+    public final Complex dirichlet_eta() {
+        
+        return  ((new Complex(2, 0).pow(this.r_sub(1))).r_sub(1)).times(this.riemann_zeta());
+        
     }
 
     public final Complex inflection(Complex inf) {
@@ -2169,21 +2190,21 @@ public final class Complex {
 
         return out;
     }
-    
+
     public final Complex rotate(Complex degrees) {
-        
+
         Complex toDeg = degrees.divide(180.0).times(Math.PI);
-        
+
         return this.times((toDeg.times_i(1)).exp());
-        
+
     }
-    
+
     public final Complex rotate_mutable(Complex degrees) {
-        
+
         Complex toDeg = degrees.divide(180.0).times(Math.PI);
-        
+
         return this.times_mutable((toDeg.times_i(1)).exp());
-        
+
     }
 
     public final Complex fuzz_mutable(Complex distance) {
@@ -2211,6 +2232,35 @@ public final class Complex {
         }
 
         return this;
+    }
+
+    public final Complex ripples(Complex wavelength, Complex amplitude, int waveType) {
+
+        double nx = im / wavelength.re;
+        double ny = re / wavelength.im;
+        double fx, fy;
+        switch (waveType) {
+            case 0:
+            default:
+                fx = Math.sin(nx);
+                fy = Math.sin(ny);
+                break;
+            case 1:
+                fx = mod(nx, 1);
+                fy = mod(ny, 1);
+                break;
+            case 2:
+                fx = triangle(nx);
+                fy = triangle(ny);
+                break;
+            case 3:
+                fx = Noise.noise1((float)nx);
+                fy = Noise.noise1((float)ny);
+                break;
+        }
+
+        return new Complex(re + amplitude.re * fx, im + amplitude.im * fy);
+
     }
 
     private double triangle(double x) {

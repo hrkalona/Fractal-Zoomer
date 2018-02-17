@@ -39,6 +39,7 @@ public class UserFormulasHelpDialog {
                 + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>cbail</b></font>: convergent bailout.<br>"
                 + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>center</b></font>: current center.<br>"
                 + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>size</b></font>: current size.<br>"
+                + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>sizei</b></font>: current image size (size / sizei will yield the pixel size).<br>"
                 + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>v1</b></font>: placeholder variable 1.<br>"
                 + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>v2</b></font>: placeholder variable 2.<br>"
                 + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>v3</b></font>: placeholder variable 3.<br>"
@@ -170,6 +171,7 @@ public class UserFormulasHelpDialog {
                 + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>ceil</b></font>: math ceil function.<br>"
                 + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>floor</b></font>: math floor function.<br>"
                 + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>trunc</b></font>: math truncate function.<br>"
+                + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>deta</b></font>: dirichlet eta function.<br>"
                 + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>f1</b></font>: user function f1 which can be changed in UserDefinedFunctions.java (Compilation is required).<br>"
                 + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>f2</b></font>: user function f2 which can be changed in UserDefinedFunctions.java (Compilation is required).<br>"
                 + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>f3</b></font>: user function f3 which can be changed in UserDefinedFunctions.java (Compilation is required).<br>"
@@ -339,7 +341,7 @@ public class UserFormulasHelpDialog {
 
         textArea.setCaretPosition(0);
 
-        JOptionPane.showMessageDialog(scroll_pane, message, "User Formulas Help", JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(scroll_pane, message, "User Formulas Help", JOptionPane.QUESTION_MESSAGE);
         main_panel.repaint();
     }
     

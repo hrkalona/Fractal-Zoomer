@@ -1,5 +1,5 @@
 /*
- * Fractal Zoomer, Copyright (C) 2017 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2018 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,20 +24,22 @@ public class ColorAlgorithm {
 
     public static final int MAGIC_OFFSET_NUMBER = 100800;
     public static final int INCREMENT = 50;
+    public static final int MAGNET_INCREMENT = 106;
     public static boolean OutNotUsingIncrement = true;
     public static boolean InNotUsingIncrement = true;
+    public static boolean GlobalIncrementBypass = false;
 
     public static double getResultWithoutIncrement(double result) {
 
-        if(OutNotUsingIncrement && InNotUsingIncrement) {
-            return result;
+        if(OutNotUsingIncrement && InNotUsingIncrement && !GlobalIncrementBypass) {
+            return Math.abs(result);
         }
 
         if(result <= -MAGIC_OFFSET_NUMBER - INCREMENT) {
-            return result + INCREMENT;
+            return Math.abs(result + INCREMENT);
         }
 
-        return result;
+        return Math.abs(result);
 
     }
     

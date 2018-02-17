@@ -1,5 +1,5 @@
 /*
- * Fractal Zoomer, Copyright (C) 2017 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2018 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,18 +40,13 @@ public class ColorsMenu extends JMenu {
     private JMenuItem increase_roll_palette;
     private JMenuItem decrease_roll_palette;
     private JMenuItem color_intensity_opt;
-    private JMenuItem bump_map_opt;
-    private JMenuItem rainbow_palette_opt;
-    private JMenuItem fake_de_opt;
-    private JMenuItem entropy_coloring_opt;
-    private JMenuItem offset_coloring_opt;
-    private JMenuItem greyscale_coloring_opt;
-    private JMenuItem smoothing_opt;
-    private JMenuItem exterior_de_opt;
+    private ProcessingMenu processing;
     private OutColoringModesMenu out_coloring_mode_menu;
-    private InColoringModesMenu in_coloring_mode_menu;   
+    private InColoringModesMenu in_coloring_mode_menu;
+    private ColorTransferMenu color_transfer_menu;
+    private ColorBlendingMenu color_blending_menu;
     
-    public ColorsMenu(MainWindow ptr2, String name, int color_choice, boolean smoothing, int[][] custom_palette, int color_interpolation, int color_space, boolean reversed_palette, int color_cycling_location, double scale_factor_palette_val, int processing_alg, int out_coloring_algorithm, int in_coloring_algorithm) {
+    public ColorsMenu(MainWindow ptr2, String name, int color_choice, boolean smoothing, int[][] custom_palette, int color_interpolation, int color_space, boolean reversed_palette, int color_cycling_location, double scale_factor_palette_val, int processing_alg, int out_coloring_algorithm, int in_coloring_algorithm, int transfer_function, int color_blending) {
 
         super(name);
 
@@ -71,16 +66,12 @@ public class ColorsMenu extends JMenu {
         
         in_coloring_mode_menu = new InColoringModesMenu(ptr, "In Coloring Mode", in_coloring_algorithm);
         
-        smoothing_opt = new JMenuItem("Smoothing", getIcon("/fractalzoomer/icons/smoothing.png"));
-        exterior_de_opt = new JMenuItem("Distance Estimation", getIcon("/fractalzoomer/icons/distance_estimation.png"));
-        bump_map_opt = new JMenuItem("Bump Mapping", getIcon("/fractalzoomer/icons/bump_map.png"));
-        fake_de_opt = new JMenuItem("Fake Distance Estimation", getIcon("/fractalzoomer/icons/fake_distance_estimation.png"));
-        entropy_coloring_opt = new JMenuItem("Entropy Coloring", getIcon("/fractalzoomer/icons/entropy_coloring.png"));
-        offset_coloring_opt = new JMenuItem("Offset Coloring", getIcon("/fractalzoomer/icons/offset_coloring.png"));
-        greyscale_coloring_opt = new JMenuItem("Greyscale Coloring", getIcon("/fractalzoomer/icons/greyscale_coloring.png"));
-        rainbow_palette_opt = new JMenuItem("Rainbow Palette", getIcon("/fractalzoomer/icons/rainbow_palette.png"));
+        color_transfer_menu = new ColorTransferMenu(ptr, "Transfer Functions", transfer_function);
         
-                
+        processing = new ProcessingMenu(ptr, "Processing");      
+        
+        color_blending_menu = new ColorBlendingMenu(ptr, "Blending", color_blending);
+        
         roll_palette_menu = new JMenu("Palette Shifting");
         roll_palette_menu.setIcon(getIcon("/fractalzoomer/icons/shift_palette.png"));
 
@@ -89,15 +80,7 @@ public class ColorsMenu extends JMenu {
         increase_roll_palette = new JMenuItem("Shift Palette Forward", getIcon("/fractalzoomer/icons/plus.png"));
 
         decrease_roll_palette = new JMenuItem("Shift Palette Backward", getIcon("/fractalzoomer/icons/minus.png"));
-        
-        smoothing_opt.setToolTipText("Smooths the image's color transitions.");
-        exterior_de_opt.setToolTipText("<html>Sets some points near the boundary of<br>the set to the maximum iterations value.</html>");
-        bump_map_opt.setToolTipText("Emulates a light source to create a pseudo 3d image.");
-        fake_de_opt.setToolTipText("Emulates the effect of distance estimation.");
-        entropy_coloring_opt.setToolTipText("Calculates the entropy of neaby points to create a coloring effect.");
-        offset_coloring_opt.setToolTipText("Adds a palette offset, into areas with smooth iteration gradients.");
-        greyscale_coloring_opt.setToolTipText("Converts the areas with smooth iteration gradients, to greyscale.");
-        rainbow_palette_opt.setToolTipText("Creates a pseudo 3d image, by applying the palette colors as a rainbow.");
+     
         color_intensity_opt.setToolTipText("Changes the color intensity of the palette.");
         
         fract_color.setToolTipText("Sets the colors for maximum iterations, distance estimation and some color algorithms.");
@@ -105,15 +88,7 @@ public class ColorsMenu extends JMenu {
         roll_palette.setToolTipText("Shifts the chosen palette by a number.");
         increase_roll_palette.setToolTipText("Shifts the chosen palette forward by one.");
         decrease_roll_palette.setToolTipText("Shifts the chosen palette backward by one.");
-        
-        smoothing_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, 0));
-        exterior_de_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, 0));
-        bump_map_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, 0));
-        fake_de_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, 0));
-        entropy_coloring_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_2, 0));
-        offset_coloring_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_3, 0));
-        greyscale_coloring_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_4, 0));
-        rainbow_palette_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, 0));
+     
         color_intensity_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, ActionEvent.CTRL_MASK));
 
         fract_color.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T, 0));
@@ -121,71 +96,7 @@ public class ColorsMenu extends JMenu {
         roll_palette.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, ActionEvent.SHIFT_MASK));
         increase_roll_palette.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, ActionEvent.SHIFT_MASK));
         decrease_roll_palette.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, ActionEvent.SHIFT_MASK));
-        
-        smoothing_opt.addActionListener(new ActionListener() {
 
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                ptr.setSmoothing();
-            }
-        });
-
-        exterior_de_opt.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                ptr.setExteriorDistanceEstimation();
-            }
-        });
-
-        bump_map_opt.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                ptr.setBumpMap();
-            }
-        });
-
-        rainbow_palette_opt.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                ptr.setRainbowPalette();
-            }
-        });
-
-        fake_de_opt.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                ptr.setFakeDistanceEstimation();
-            }
-        });
-        
-        greyscale_coloring_opt.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                ptr.setGreyScaleColoring();
-            }
-        });
-
-        entropy_coloring_opt.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                ptr.setEntropyColoring();
-            }
-        });
-
-        offset_coloring_opt.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                ptr.setOffsetColoring();
-            }
-        });
-        
         fract_color.addActionListener(new ActionListener() {
 
             @Override
@@ -253,20 +164,17 @@ public class ColorsMenu extends JMenu {
         add(out_coloring_mode_menu);
         add(in_coloring_mode_menu);
         addSeparator();
-        add(smoothing_opt);
-        add(exterior_de_opt);
-        add(fake_de_opt);
-        add(entropy_coloring_opt);
-        add(offset_coloring_opt);
-        add(rainbow_palette_opt);
-        add(greyscale_coloring_opt);
-        add(bump_map_opt);
+        add(processing);
+        addSeparator();                
+        add(color_blending_menu); 
         addSeparator();
         add(fract_color);
         addSeparator();
         add(palette_menu);
         add(random_palette);
         add(roll_palette_menu);
+        addSeparator();
+        add(color_transfer_menu);    
         addSeparator();
         add(color_intensity_opt);
         
@@ -286,43 +194,49 @@ public class ColorsMenu extends JMenu {
     
     public JMenuItem getEntropyColoring() {
         
-        return entropy_coloring_opt;
+        return processing.getEntropyColoring();
         
     }
     
     public JMenuItem getOffsetColoring() {
         
-        return offset_coloring_opt;
+        return processing.getOffsetColoring();
         
     }
     
     public JMenuItem getGreyScaleColoring() {
         
-        return greyscale_coloring_opt;
+        return processing.getGreyScaleColoring();
         
     }
     
     public JMenuItem getRainbowPalette() {
         
-        return rainbow_palette_opt;
+        return processing.getRainbowPalette();
         
     }
     
     public JMenuItem getBumpMap() {
         
-        return bump_map_opt;
+        return processing.getBumpMap();
         
     }
     
     public JMenuItem getFakeDistanceEstimation() {
         
-        return fake_de_opt;
+        return processing.getFakeDistanceEstimation();
         
     }
     
     public JMenuItem getDistanceEstimation() {
         
-        return exterior_de_opt;
+        return processing.getDistanceEstimation();
+        
+    }
+    
+    public JMenuItem getSmoothing() {
+        
+        return processing.getSmoothing();
         
     }
     
@@ -344,6 +258,18 @@ public class ColorsMenu extends JMenu {
         
     }
     
+    public JRadioButtonMenuItem[] getBlendingModes() {
+        
+        return color_blending_menu.getBlendingModes();
+        
+    }
+    
+    public JRadioButtonMenuItem[] getTranferFunctions() {
+        
+        return color_transfer_menu.getTranferFunctions();
+        
+    }
+    
     public OutColoringModesMenu getOutColoringMenu() {
         
         return out_coloring_mode_menu;
@@ -356,4 +282,45 @@ public class ColorsMenu extends JMenu {
         
     }
     
+    public ColorTransferMenu getColorTransferMenu() {
+        
+        return color_transfer_menu;
+        
+    }
+    
+    public JMenuItem getRandomPalette() {
+        
+        return random_palette;
+        
+    }
+    
+    public JMenu getRollPaletteMenu() {
+        
+        return roll_palette_menu;
+        
+    }
+    
+    public PaletteMenu getPaletteMenu() {
+        
+        return palette_menu;
+        
+    }
+    
+    public JMenuItem getColorIntensity() {
+        
+        return color_intensity_opt;
+        
+    } 
+    
+    public ProcessingMenu getProcessing() {
+        
+        return processing;
+        
+    }
+    
+    public ColorBlendingMenu getColorBlending() {
+        
+        return color_blending_menu;
+        
+    }
 }

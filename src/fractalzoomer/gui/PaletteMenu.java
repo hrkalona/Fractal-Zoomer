@@ -1,5 +1,5 @@
 /*
- * Fractal Zoomer, Copyright (C) 2017 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2018 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,6 +40,30 @@ public class PaletteMenu extends JMenu {
     private MainWindow ptr;
     private JRadioButtonMenuItem[] palette;
     private int i;
+    public static String[] paletteNames;
+    
+    static {
+        paletteNames = new String[MainWindow.TOTAL_PALETTES];
+        paletteNames[0] = "Default";
+        paletteNames[1] = "Spectrum";
+        paletteNames[2] = "Alternative";
+        paletteNames[3] = "Alternative 2";
+        paletteNames[4] = "Alternative 3";
+        paletteNames[5] = "Alternative 4";
+        paletteNames[6] = "Alternative 5";
+        paletteNames[7] = "Alternative 6";
+        paletteNames[8] = "Alternative 7";
+        paletteNames[9] = "Alternative 8";
+        paletteNames[10] = "Alternative 9";
+        paletteNames[11] = "Dusk";
+        paletteNames[12] = "Gray Scale";
+        paletteNames[13] = "Earth Sky";
+        paletteNames[14] = "Hot Cold";
+        paletteNames[15] = "Hot Cold 2";
+        paletteNames[16] = "Fire";
+        paletteNames[17] = "Jet";
+        paletteNames[18] = "Custom Palette";
+    }
     
     public PaletteMenu(MainWindow ptr2, String name, int color_choice, boolean smoothing, int[][] custom_palette, int color_interpolation, int color_space, boolean reversed_palette, int color_cycling_location, double scale_factor_palette_val, int processing_alg) {
 
@@ -47,30 +71,9 @@ public class PaletteMenu extends JMenu {
 
         this.ptr = ptr2;
         
-        setIcon(getIcon("/fractalzoomer/icons/palette.png"));
+        setIcon(getIcon("/fractalzoomer/icons/palette.png"));      
         
-        String[] coloring_option = new String[19];
-        coloring_option[0] = "Default";
-        coloring_option[1] = "Spectrum";
-        coloring_option[2] = "Alternative";
-        coloring_option[3] = "Alternative 2";
-        coloring_option[4] = "Alternative 3";
-        coloring_option[5] = "Alternative 4";
-        coloring_option[6] = "Alternative 5";
-        coloring_option[7] = "Alternative 6";
-        coloring_option[8] = "Alternative 7";
-        coloring_option[9] = "Alternative 8";
-        coloring_option[10] = "Alternative 9";
-        coloring_option[11] = "Dusk";
-        coloring_option[12] = "Gray Scale";
-        coloring_option[13] = "Earth Sky";
-        coloring_option[14] = "Hot Cold";
-        coloring_option[15] = "Hot Cold 2";
-        coloring_option[16] = "Fire";
-        coloring_option[17] = "Jet";
-        coloring_option[18] = "Custom Palette";
-        
-        palette = new JRadioButtonMenuItem[coloring_option.length];
+        palette = new JRadioButtonMenuItem[paletteNames.length];
 
         ButtonGroup palettes_group = new ButtonGroup();
 
@@ -91,7 +94,7 @@ public class PaletteMenu extends JMenu {
                 }
             }
 
-            palette[i] = new JRadioButtonMenuItem(coloring_option[i], new ImageIcon(palette_preview));
+            palette[i] = new JRadioButtonMenuItem(paletteNames[i], new ImageIcon(palette_preview));
 
             palette[i].addActionListener(new ActionListener() {
 
@@ -124,7 +127,7 @@ public class PaletteMenu extends JMenu {
             }
         }
         
-        palette[i] = new JRadioButtonMenuItem(coloring_option[i], new ImageIcon(palette_preview));
+        palette[i] = new JRadioButtonMenuItem(paletteNames[i], new ImageIcon(palette_preview));
 
         palette[i].addActionListener(new ActionListener() {
 

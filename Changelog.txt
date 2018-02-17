@@ -1,3 +1,20 @@
+Version 1.0.6.7
+    -Added Laguerre and Parhalley Root Finding Methods.
+    -Added new domain coloring algorithms.
+    -Added a custom domain coloring algorithm.
+    -Added palette color transfer functions.
+    -Added color blending methods, which affect domain coloring, 3d, bump mapping, entropy coloring, offset coloring.
+    -Created a new tool that can load the saved settings and can render larger images.
+    -Added a new filter, Mirror.
+    -Added more options for bump mapping.
+    -Added two new out coloring methods, Escape Time + Field Lines.
+    -Added a new bailout condition, Field Lines.
+    -Added new random palette algorithms.
+    -Added more variables and functions in user formulas.
+    -Added more template code UserDefinedFunctions.java
+    -Fixed a bug in mandelbrot's distance estimation algorithm.
+    -UI updates, major code refactoring, and general bug fixes.
+
 Version 1.0.6.6
     -Added the entropy coloring method.
     -Added the offset coloring method.

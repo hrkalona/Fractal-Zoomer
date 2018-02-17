@@ -1,5 +1,5 @@
 /*
- * Fractal Zoomer, Copyright (C) 2017 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2018 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@ public class OptionsMenu extends JMenu {
     private MainWindow ptr;
     private ColorsMenu colors_menu;
     private JMenu iterations_menu;
-    private BailoutTestsMenu bailout_test_menu;
+    private BailoutConditionsMenu bailout_condition_menu;
     private JMenu rotation_menu;
     private OptimizationsMenu optimizations_menu;
     private ToolsOptionsMenu tools_options_menu;
@@ -59,7 +59,7 @@ public class OptionsMenu extends JMenu {
     private JCheckBoxMenuItem statusbar_opt;
     private JCheckBoxMenuItem infobar_opt;
 
-    public OptionsMenu(MainWindow ptr2, String name, int color_choice, boolean smoothing, int[][] custom_palette, int color_interpolation, int color_space, boolean reversed_palette, int color_cycling_location, double scale_factor_palette_val, int processing_alg, boolean show_orbit_converging_point, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, int out_coloring_algorithm, int in_coloring_algorithm, int function, int plane_type, int bailout_test_algorithm) {
+    public OptionsMenu(MainWindow ptr2, String name, int color_choice, boolean smoothing, int[][] custom_palette, int color_interpolation, int color_space, boolean reversed_palette, int color_cycling_location, double scale_factor_palette_val, int processing_alg, boolean show_orbit_converging_point, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, int out_coloring_algorithm, int in_coloring_algorithm, int function, int plane_type, int bailout_test_algorithm, int transfer_function, int color_blending) {
 
         super(name);
 
@@ -76,7 +76,7 @@ public class OptionsMenu extends JMenu {
 
         iterations = new JMenuItem("Set Iterations", getIcon("/fractalzoomer/icons/iterations.png"));
 
-        bailout_test_menu = new BailoutTestsMenu(ptr, "Bailout Test", bailout_test_algorithm);
+        bailout_condition_menu = new BailoutConditionsMenu(ptr, "Bailout Condition", bailout_test_algorithm);
 
         bailout_number = new JMenuItem("Bailout", getIcon("/fractalzoomer/icons/bailout.png"));
 
@@ -106,7 +106,7 @@ public class OptionsMenu extends JMenu {
         window_menu = new JMenu("Window");
         window_menu.setIcon(getIcon("/fractalzoomer/icons/window.png"));
 
-        colors_menu = new ColorsMenu(ptr, "Colors", color_choice, smoothing, custom_palette, color_interpolation, color_space, reversed_palette, color_cycling_location, scale_factor_palette_val, processing_alg, out_coloring_algorithm, in_coloring_algorithm);
+        colors_menu = new ColorsMenu(ptr, "Colors", color_choice, smoothing, custom_palette, color_interpolation, color_space, reversed_palette, color_cycling_location, scale_factor_palette_val, processing_alg, out_coloring_algorithm, in_coloring_algorithm, transfer_function, color_blending);
 
         overview_opt = new JMenuItem("Options Overview", getIcon("/fractalzoomer/icons/overview.png"));
 
@@ -320,7 +320,7 @@ public class OptionsMenu extends JMenu {
         addSeparator();
         add(iterations_menu);
         addSeparator();
-        add(bailout_test_menu);
+        add(bailout_condition_menu);
         add(bailout_number);
         addSeparator();
         add(rotation_menu);
@@ -402,6 +402,12 @@ public class OptionsMenu extends JMenu {
 
         return colors_menu.getFakeDistanceEstimation();
 
+    }
+    
+    public JMenuItem getSmoothing() {
+        
+        return colors_menu.getSmoothing();
+        
     }
 
     public JMenuItem getDistanceEstimation() {
@@ -524,9 +530,9 @@ public class OptionsMenu extends JMenu {
 
     }
 
-    public BailoutTestsMenu getBailoutTestMenu() {
+    public BailoutConditionsMenu getBailoutConditionMenu() {
 
-        return bailout_test_menu;
+        return bailout_condition_menu;
 
     }
 
@@ -578,9 +584,9 @@ public class OptionsMenu extends JMenu {
 
     }
 
-    public JRadioButtonMenuItem[] getBailoutTests() {
+    public JRadioButtonMenuItem[] getBailoutConditions() {
 
-        return bailout_test_menu.getBailoutTests();
+        return bailout_condition_menu.getBailoutConditions();
 
     }
 
@@ -659,6 +665,60 @@ public class OptionsMenu extends JMenu {
     public ToolsOptionsMenu getToolsOptionsMenu() {
         
         return tools_options_menu;
+        
+    }
+    
+    public JMenuItem getRandomPalette() {
+        
+        return colors_menu.getRandomPalette();
+        
+    }
+    
+    public JMenu getRollPaletteMenu() {
+        
+        return colors_menu.getRollPaletteMenu();
+        
+    }
+    
+    public PaletteMenu getPaletteMenu() {
+        
+        return colors_menu.getPaletteMenu();
+        
+    }
+    
+    public ColorTransferMenu getColorTransferMenu() {
+        
+        return colors_menu.getColorTransferMenu();
+        
+    }
+    
+    public JMenuItem getColorIntensity() {
+        
+        return colors_menu.getColorIntensity();
+        
+    }
+    
+    public ProcessingMenu getProcessing() {
+        
+        return colors_menu.getProcessing();
+        
+    }
+    
+    public ColorBlendingMenu getColorBlending() {
+        
+        return colors_menu.getColorBlending();
+        
+    }
+
+    public JRadioButtonMenuItem[] getBlendingModes() {
+        
+        return colors_menu.getBlendingModes();
+        
+    }
+    
+    public JRadioButtonMenuItem[] getTranferFunctions() {
+        
+        return colors_menu.getTranferFunctions();
         
     }
 

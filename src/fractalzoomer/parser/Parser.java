@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2017 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2018 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -59,6 +59,7 @@ public class Parser {
     boolean found_center;
     boolean found_size;
     boolean found_point;
+    boolean found_isize;
     
     boolean found_vars[];
 
@@ -73,6 +74,7 @@ public class Parser {
     ArrayList<VariableExpressionNode> maxn_var;
     ArrayList<VariableExpressionNode> center_var;
     ArrayList<VariableExpressionNode> size_var;
+    ArrayList<VariableExpressionNode> isize_var;
     ArrayList<ArrayList<VariableExpressionNode>> vars_var;
     ArrayList<VariableExpressionNode> point_var;
 
@@ -87,6 +89,7 @@ public class Parser {
     VariableExpressionNode[] maxn_var_arr;
     VariableExpressionNode[] center_var_arr;
     VariableExpressionNode[] size_var_arr;
+    VariableExpressionNode[] isize_var_arr;
     VariableExpressionNode[][] vars_var_arr;
     VariableExpressionNode[] point_var_arr;
 
@@ -116,6 +119,7 @@ public class Parser {
         found_maxn = false;
         found_center = false;
         found_size = false;
+        found_isize = false;
         found_point = false;
         
         found_vars = new boolean[EXTRA_VARS];
@@ -135,6 +139,7 @@ public class Parser {
         maxn_var = new ArrayList<VariableExpressionNode>();
         center_var = new ArrayList<VariableExpressionNode>();
         size_var = new ArrayList<VariableExpressionNode>();
+        isize_var = new ArrayList<VariableExpressionNode>();
         vars_var = new ArrayList<ArrayList<VariableExpressionNode>>();
         
         for(int i = 0; i < EXTRA_VARS; i++) {
@@ -185,7 +190,8 @@ public class Parser {
         cbail_var_arr = new VariableExpressionNode[cbail_var.size()];
         maxn_var_arr = new VariableExpressionNode[maxn_var.size()];
         center_var_arr = new VariableExpressionNode[center_var.size()];
-        size_var_arr = new VariableExpressionNode[size_var.size()];     
+        size_var_arr = new VariableExpressionNode[size_var.size()];
+        isize_var_arr = new VariableExpressionNode[isize_var.size()]; 
         point_var_arr = new VariableExpressionNode[point_var.size()];
 
         z_var_arr = z_var.toArray(z_var_arr);
@@ -199,6 +205,7 @@ public class Parser {
         maxn_var_arr = maxn_var.toArray(maxn_var_arr);
         center_var_arr = center_var.toArray(center_var_arr);
         size_var_arr = size_var.toArray(size_var_arr);
+        isize_var_arr = isize_var.toArray(isize_var_arr);
         point_var_arr = point_var.toArray(point_var_arr);
 
         vars_var_arr = new VariableExpressionNode[EXTRA_VARS][];
@@ -527,7 +534,7 @@ public class Parser {
             if(!temp.equalsIgnoreCase("z") && !temp.equalsIgnoreCase("c") && !temp.equalsIgnoreCase("n") && !temp.equalsIgnoreCase("p") && !temp.equalsIgnoreCase("s") && !temp.equalsIgnoreCase("pp") && !temp.equalsIgnoreCase("bail") && !temp.equalsIgnoreCase("cbail") && !temp.equalsIgnoreCase("maxn") && !temp.equalsIgnoreCase("pi") && !temp.equalsIgnoreCase("e") && !temp.equalsIgnoreCase("c10")
                     && !temp.equalsIgnoreCase("phi") && !temp.equalsIgnoreCase("alpha") && !temp.equalsIgnoreCase("delta") && !temp.equalsIgnoreCase("center") && !temp.equalsIgnoreCase("size")
                     && !temp.equalsIgnoreCase("v1") && !temp.equalsIgnoreCase("v2") && !temp.equalsIgnoreCase("v3") && !temp.equalsIgnoreCase("v4") && !temp.equalsIgnoreCase("v5") && !temp.equalsIgnoreCase("v6") && !temp.equalsIgnoreCase("v7") && !temp.equalsIgnoreCase("v8") && !temp.equalsIgnoreCase("v9") && !temp.equalsIgnoreCase("v10")
-                    && !temp.equalsIgnoreCase("v11") && !temp.equalsIgnoreCase("v12") && !temp.equalsIgnoreCase("v13") && !temp.equalsIgnoreCase("v14") && !temp.equalsIgnoreCase("v15") && !temp.equalsIgnoreCase("v16") && !temp.equalsIgnoreCase("v17") && !temp.equalsIgnoreCase("v18") && !temp.equalsIgnoreCase("v19") && !temp.equalsIgnoreCase("v20")&& !temp.equalsIgnoreCase("point")) {
+                    && !temp.equalsIgnoreCase("v11") && !temp.equalsIgnoreCase("v12") && !temp.equalsIgnoreCase("v13") && !temp.equalsIgnoreCase("v14") && !temp.equalsIgnoreCase("v15") && !temp.equalsIgnoreCase("v16") && !temp.equalsIgnoreCase("v17") && !temp.equalsIgnoreCase("v18") && !temp.equalsIgnoreCase("v19") && !temp.equalsIgnoreCase("v20")&& !temp.equalsIgnoreCase("point") && !temp.equalsIgnoreCase("sizei")) {
                 throw new ParserException("Unrecognized variable %s found.", lookahead);
             }
 
@@ -581,6 +588,11 @@ public class Parser {
             if(temp.equalsIgnoreCase("size")) {
                 found_size = true;
                 size_var.add((VariableExpressionNode)expr);
+            }
+            
+            if(temp.equalsIgnoreCase("sizei")) {
+                found_isize = true;
+                isize_var.add((VariableExpressionNode)expr);
             }
 
             if(temp.equalsIgnoreCase("maxn")) {
@@ -715,6 +727,10 @@ public class Parser {
         return found_size;
     }
     
+    public boolean foundISize() {
+        return found_isize;
+    }
+    
     public boolean foundPoint() {
         return found_point;
     }
@@ -828,6 +844,14 @@ public class Parser {
 
         for(int i = 0; i < size_var_arr.length; i++) {
             size_var_arr[i].setValue(new Complex(value));
+        }
+
+    }
+    
+    public void setISizevalue(Complex value) {
+
+        for(int i = 0; i < isize_var_arr.length; i++) {
+            isize_var_arr[i].setValue(new Complex(value));
         }
 
     }

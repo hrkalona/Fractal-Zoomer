@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2017 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2018 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@ public class SmoothBiomorphsNova extends SmoothBiomorphs {
 
     public SmoothBiomorphsNova(double log_convergent_bailout, int algorithm) {
 
-        super(0, 2.0, algorithm);
+        super(0, 4.0, algorithm);
         this.log_convergent_bailout = log_convergent_bailout;
         OutNotUsingIncrement = false;
 

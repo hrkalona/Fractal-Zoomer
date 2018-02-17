@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2017 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2018 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,6 +50,10 @@ public class MainPanel extends JPanel {
 
        if(ptr.getWholeImageDone()) {
             g.drawImage(ptr.getImage(), 0, 0, null);
+            
+            if(ptr.getOrbit()) {
+                ptr.drawOrbit((Graphics2D)g);
+            }
                 
             if(ptr.getBoundaries()) {
                 ptr.drawBoundaries((Graphics2D)g, true);
@@ -61,7 +65,7 @@ public class MainPanel extends JPanel {
                 
             if(ptr.getZoomWindow()) {
                ptr.drawZoomWindow((Graphics2D)g);
-            }
+            }      
        }
        else {
             if(!ptr.getColorCycling()) {
