@@ -16,6 +16,7 @@
  */
 package fractalzoomer.main.app_settings;
 
+import fractalzoomer.main.Constants;
 import java.awt.Color;
 
 /**
@@ -37,8 +38,6 @@ public class DomainColoringSettings {
     public Color gridColor;
     public Color circlesColor;
     public Color isoLinesColor;
-    public Color contourColorA;
-    public Color contourColorB;
     public double contourBlending;
     public boolean drawColor;
     public boolean drawContour;
@@ -48,6 +47,7 @@ public class DomainColoringSettings {
     public boolean customDomainColoring;
     public int colorType;
     public int contourType;
+    public int[] domainOrder;
 
     public DomainColoringSettings(DomainColoringSettings copy ) {
         domain_coloring = copy.domain_coloring;
@@ -69,8 +69,6 @@ public class DomainColoringSettings {
         gridColor = new Color(copy.gridColor.getRGB());
         circlesColor = new Color(copy.circlesColor.getRGB());
         isoLinesColor = new Color(copy.isoLinesColor.getRGB());
-        contourColorA = new Color(copy.contourColorA.getRGB());
-        contourColorB = new Color(copy.contourColorB.getRGB());
  
         contourBlending = copy.contourBlending;
         
@@ -82,6 +80,8 @@ public class DomainColoringSettings {
         
         colorType = copy.colorType;
         contourType = copy.contourType;
+        
+        domainOrder = copy.domainOrder;
     }
     
     public DomainColoringSettings() {
@@ -105,8 +105,6 @@ public class DomainColoringSettings {
         gridColor = Color.BLACK;
         circlesColor = Color.WHITE;
         isoLinesColor = Color.WHITE;
-        contourColorA = Color.BLACK;
-        contourColorB = Color.WHITE;
  
         contourBlending = 0.5;
         
@@ -118,6 +116,11 @@ public class DomainColoringSettings {
         
         colorType = 0;
         contourType = 0;
+        
+        domainOrder = new int[3];
+        domainOrder[0] = Constants.GRID;
+        domainOrder[1] = Constants.CIRCLES;
+        domainOrder[2] = Constants.ISO_LINES;
         
     }
     

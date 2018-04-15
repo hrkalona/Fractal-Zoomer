@@ -21,8 +21,7 @@ package fractalzoomer.utils;
  * @author hrkalona2
  */
 public class ColorAlgorithm {
-
-    public static final int MAGIC_OFFSET_NUMBER = 100800;
+    public static final int MAXIMUM_ITERATIONS = 1234567890;
     public static final int INCREMENT = 50;
     public static final int MAGNET_INCREMENT = 106;
     public static boolean OutNotUsingIncrement = true;
@@ -35,17 +34,11 @@ public class ColorAlgorithm {
             return Math.abs(result);
         }
 
-        if(result <= -MAGIC_OFFSET_NUMBER - INCREMENT) {
+        if(result <= -INCREMENT) {
             return Math.abs(result + INCREMENT);
         }
 
         return Math.abs(result);
 
-    }
-    
-    public static double transformResultToColor(double result) {
-        
-        return result + MAGIC_OFFSET_NUMBER;
-        
     }
 }

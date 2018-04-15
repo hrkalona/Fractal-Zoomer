@@ -26,9 +26,9 @@ import fractalzoomer.core.Complex;
  */
 public class MultiplicationExpressionNode extends SequenceExpressionNode
 {
-    public static final int MULT = 0;
-    public static final int DIV = 1;
-    public static final int REM = 2;
+    public static final int MULT = 3;
+    public static final int DIV = 4;
+    public static final int REM = 5;
   /**
    * Default constructor.
    */
@@ -63,7 +63,8 @@ public class MultiplicationExpressionNode extends SequenceExpressionNode
    */
   public Complex getValue()
   {
-    Complex prod = new Complex(1.0, 0);
+    Complex prod = new Complex(firstNode.getValue());
+      
     for (Term t : terms)
     {
       if (t.mode == MULT)

@@ -27,7 +27,7 @@ public class EscapeTimeMagnet extends EscapeTime {
     @Override
     public double getResult(Object[] object) {
 
-        return  (Boolean)object[2] ? (Integer)object[0] + MAGIC_OFFSET_NUMBER + MAGNET_INCREMENT  : (Integer)object[0] + MAGIC_OFFSET_NUMBER;
+        return  (Boolean)object[2] ? (Integer)object[0] + MAGNET_INCREMENT  : (Integer)object[0];
 
     }
     

@@ -17,6 +17,7 @@
 package fractalzoomer.parser;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.parser.functions.*;
 
 /**
  * An ExpressionNode that handles mathematical functions.
@@ -351,25 +352,283 @@ public class FunctionExpressionNode implements ExpressionNode {
     public static final int D_ETA = 69;
 
     /**
-     * the id of the function to apply to the argument
+     * the function to apply the argument
      */
-    private int function;
-
+    private AbstractOneArgumentFunction function;
+    private int functionId;
     /**
      * the argument of the function
      */
     private ExpressionNode argument;
+   
 
     /**
      * Construct a function by id and argument.
      *
-     * @param function the id of the function to apply
+     * @param functionId the id of the function to apply
      * @param argument the argument of the function
      */
-    public FunctionExpressionNode(int function, ExpressionNode argument) {
+    public FunctionExpressionNode(int functionId, ExpressionNode argument) {
         super();
-        this.function = function;
         this.argument = argument;
+        
+        this.functionId = functionId;
+        
+        switch (functionId) {
+            case SIN:
+                function = new SinFunction();
+                break;
+            case SINH:
+                function = new SinhFunction();
+                break;
+            case ASIN:
+                function = new ASinFunction();
+                break;
+            case ASINH:
+                function = new ASinhFunction();
+                break;
+
+            case COS:
+                function = new CosFunction();
+                break;
+            case COSH:
+                function = new CoshFunction();
+                break;
+            case ACOS:
+                function = new ACosFunction();
+                break;
+            case ACOSH:
+                function = new ACoshFunction();
+                break;
+
+            case TAN:
+                function = new TanFunction();
+                break;
+            case TANH:
+                function = new TanhFunction();
+                break;
+            case ATAN:
+                function = new ATanFunction();
+                break;
+            case ATANH:
+                function = new ATanhFunction();
+                break;
+
+            case COT:
+                function = new CotFunction();
+                break;
+            case COTH:
+                function = new CothFunction();
+                break;
+            case ACOT:
+                function = new ACotFunction();
+                break;
+            case ACOTH:
+                function = new ACothFunction();
+                break;
+
+            case SEC:
+                function = new SecFunction();
+                break;
+            case SECH:
+                function = new SechFunction();
+                break;
+            case ASEC:
+                function = new ASecFunction();
+                break;
+            case ASECH:
+                function = new ASechFunction();
+                break;
+
+            case CSC:
+                function = new CscFunction();
+                break;
+            case CSCH:
+                function = new CschFunction();
+                break;
+            case ACSC:
+                function = new ACscFunction();
+                break;
+            case ACSCH:
+                function = new ACschFunction();
+                break;
+
+            case SQRT:
+                function = new SqrtFunction();
+                break;
+            case EXP:
+                function = new ExpFunction();
+                break;
+            case LN:
+                function = new LogFunction();
+                break;
+            case ABS:
+                function = new AbsFunction();
+                break;
+            case LOG:
+                function = new Log10Function();
+                break;
+            case LOG2:
+                function = new Log2Function();
+                break;
+
+            case CONJ:
+                function = new ConjFunction();
+                break;
+
+            case RE:
+                function = new ReFunction();
+                break;
+
+            case IM:
+                function = new ImFunction();
+                break;
+
+            case NORM:
+                function = new Norm2Function();
+                break;
+
+            case ARG:
+                function = new ArgFunction();
+                break;
+
+            case GAMMA:
+                function = new GammaFunction();
+                break;
+
+            case FACT:
+                function = new FactFunction();
+                break;
+
+            case ABSRE:
+                function = new AbsReFunction();
+                break;
+
+            case ABSIM:
+                function = new AbsImFunction();
+                break;
+
+            case GI:
+                function = new GiFunction();
+                break;
+
+            case REC:
+                function = new RecFunction();
+                break;
+
+            case FLIP:
+                function = new FlipFunction();
+                break;
+
+            case ROUND:
+                function = new RoundFunction();
+                break;
+
+            case CEIL:
+                function = new CeilFunction();
+                break;
+
+            case FLOOR:
+                function = new FloorFunction();
+                break;
+
+            case TRUNC:
+                function = new TruncFunction();
+                break;
+
+            case ERF:
+                function = new ErfFunction();
+                break;
+
+            case R_ZETA:
+                function = new RZetaFunction();
+                break;
+                
+            case VSIN:
+                function = new VSinFunction();
+                break;
+                
+            case AVSIN:
+                function = new AVSinFunction();
+                break;
+                
+            case VCOS:
+                function = new VCosFunction();
+                break;
+                
+            case AVCOS:
+                function = new AVCosFunction();
+                break;
+                
+            case CVSIN:
+                function = new CVSinFunction();
+                break;
+                
+            case ACVSIN:
+                function = new ACVSinFunction();
+                break;
+                
+            case CVCOS:
+                function = new CVCosFunction();
+                break;
+                
+            case ACVCOS:
+                function = new ACVCosFunction();
+                break;
+                
+            case HVSIN:
+                function = new HVSinFunction();
+                break;
+                
+            case AHVSIN:
+                function = new AHVSinFunction();
+                break;
+                
+            case HVCOS:
+                function = new HVCosFunction();
+                break;
+                
+            case AHVCOS:
+                function = new AHVCosFunction();
+                break;
+                
+            case HCVSIN:
+                function = new HCVSinFunction();
+                break;
+                
+            case AHCVSIN:
+                function = new AHCVSinFunction();
+                break;
+                
+            case HCVCOS:
+                function = new HCVCosFunction();
+                break;
+                
+            case AHCVCOS:
+                function = new AHCVCosFunction();
+                break;
+                
+            case EXSEC:
+                function = new EXSecFunction();
+                break;
+                
+            case AEXSEC:
+                function = new AEXSecFunction();
+                break;
+            
+            case EXCSC:
+                function = new EXCscFunction();
+                break;
+                
+            case AEXCSC:
+                function = new AEXCscFunction();
+                break;
+            
+            case D_ETA:
+                function = new DEtaFunction();
+                break;
+
+        }
     }
 
     /**
@@ -664,195 +923,16 @@ public class FunctionExpressionNode implements ExpressionNode {
      * The argument is evaluated and then the function is applied to the
      * resulting value.
      */
+    @Override
     public Complex getValue() {
-        switch (function) {
-            case SIN:
-                return argument.getValue().sin();
-            case SINH:
-                return argument.getValue().sinh();
-            case ASIN:
-                return argument.getValue().asin();
-            case ASINH:
-                return argument.getValue().asinh();
-
-            case COS:
-                return argument.getValue().cos();
-            case COSH:
-                return argument.getValue().cosh();
-            case ACOS:
-                return argument.getValue().acos();
-            case ACOSH:
-                return argument.getValue().acosh();
-
-            case TAN:
-                return argument.getValue().tan();
-            case TANH:
-                return argument.getValue().tanh();
-            case ATAN:
-                return argument.getValue().atan();
-            case ATANH:
-                return argument.getValue().atanh();
-
-            case COT:
-                return argument.getValue().cot();
-            case COTH:
-                return argument.getValue().coth();
-            case ACOT:
-                return argument.getValue().acot();
-            case ACOTH:
-                return argument.getValue().acoth();
-
-            case SEC:
-                return argument.getValue().sec();
-            case SECH:
-                return argument.getValue().sech();
-            case ASEC:
-                return argument.getValue().asec();
-            case ASECH:
-                return argument.getValue().asech();
-
-            case CSC:
-                return argument.getValue().csc();
-            case CSCH:
-                return argument.getValue().csch();
-            case ACSC:
-                return argument.getValue().acsc();
-            case ACSCH:
-                return argument.getValue().acsch();
-
-            case SQRT:
-                return argument.getValue().sqrt();
-            case EXP:
-                return argument.getValue().exp();
-            case LN:
-                return argument.getValue().log();
-            case ABS:
-                return argument.getValue().abs();
-            case LOG:
-                return argument.getValue().log().times(0.43429448190325182765);
-            case LOG2:
-                return argument.getValue().log().times(1.442695040888963407360);
-
-            case CONJ:
-                return argument.getValue().conjugate();
-
-            case RE:
-                return new Complex(argument.getValue().getRe(), 0);
-
-            case IM:
-                return new Complex(argument.getValue().getIm(), 0);
-
-            case NORM:
-                return new Complex(argument.getValue().norm(), 0);
-
-            case ARG:
-                return new Complex(argument.getValue().arg(), 0);
-
-            case GAMMA:
-                return argument.getValue().gamma_la();
-
-            case FACT:
-                return argument.getValue().factorial();
-
-            case ABSRE:
-                return argument.getValue().absre();
-
-            case ABSIM:
-                return argument.getValue().absim();
-
-            case GI:
-                return argument.getValue().gaussian_integer();
-
-            case REC:
-                return argument.getValue().reciprocal();
-
-            case FLIP:
-                return argument.getValue().flip();
-
-            case ROUND:
-                return argument.getValue().round();
-
-            case CEIL:
-                return argument.getValue().ceil();
-
-            case FLOOR:
-                return argument.getValue().floor();
-
-            case TRUNC:
-                return argument.getValue().trunc();
-
-            case ERF:
-                return argument.getValue().erf();
-
-            case R_ZETA:
-                return argument.getValue().riemann_zeta();
-                
-            case VSIN:
-                return argument.getValue().vsin();
-                
-            case AVSIN:
-                return argument.getValue().avsin();
-                
-            case VCOS:
-                return argument.getValue().vcos();
-                
-            case AVCOS:
-                return argument.getValue().avcos();
-                
-            case CVSIN:
-                return argument.getValue().cvsin();
-                
-            case ACVSIN:
-                return argument.getValue().acvsin();
-                
-            case CVCOS:
-                return argument.getValue().cvcos();
-                
-            case ACVCOS:
-                return argument.getValue().acvcos();
-                
-            case HVSIN:
-                return argument.getValue().hvsin();
-                
-            case AHVSIN:
-                return argument.getValue().ahvsin();
-                
-            case HVCOS:
-                return argument.getValue().hvcos();
-                
-            case AHVCOS:
-                return argument.getValue().ahvcos();
-                
-            case HCVSIN:
-                return argument.getValue().hcvsin();
-                
-            case AHCVSIN:
-                return argument.getValue().ahcvsin();
-                
-            case HCVCOS:
-                return argument.getValue().hcvcos();
-                
-            case AHCVCOS:
-                return argument.getValue().ahcvcos();
-                
-            case EXSEC:
-                return argument.getValue().exsec();
-                
-            case AEXSEC:
-                return argument.getValue().aexsec();
-            
-            case EXCSC:
-                return argument.getValue().excsc();
-                
-            case AEXCSC:
-                return argument.getValue().aexcsc();
-            
-            case D_ETA:
-                return argument.getValue().dirichlet_eta();
-
+ 
+        try {
+            return function.evaluate(argument.getValue());
         }
-
-        throw new EvaluationException("Invalid function id " + function + "!");
+        catch(Exception ex) {
+            throw new EvaluationException("Invalid function id " + functionId + "!");
+        }
+        
     }
 
     /**

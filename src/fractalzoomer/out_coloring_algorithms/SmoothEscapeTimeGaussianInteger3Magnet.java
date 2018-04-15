@@ -60,7 +60,7 @@ public class SmoothEscapeTimeGaussianInteger3Magnet extends OutColorAlgorithm {
 
         Complex temp = ((Complex)object[1]).sub(((Complex)object[1]).gaussian_integer());
 
-        return Math.abs((Integer)object[0] + temp.getRe() + temp3) + MAGIC_OFFSET_NUMBER;
+        return Math.abs((Integer)object[0] + temp.getRe() + temp3);
  
 
     }

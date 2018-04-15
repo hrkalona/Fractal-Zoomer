@@ -58,7 +58,7 @@ public class SmoothEscapeTimePlusImMagnet extends OutColorAlgorithm {
             }
         }
         
-        return Math.abs(((Integer)object[0]) + ((Complex)object[1]).getIm() + temp3) + MAGIC_OFFSET_NUMBER;
+        return Math.abs(((Integer)object[0]) + ((Complex)object[1]).getIm() + temp3);
 
     }
         

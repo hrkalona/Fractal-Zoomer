@@ -877,12 +877,12 @@ public final class Complex {
         return (a.pow(n).plus(b.pow(n))).pow(n.reciprocal());
 
     }
-    
+
     /*
      * n-norm
      */
     public final double nnorm(double n) {
-    
+
         return Math.pow(Math.pow(Math.abs(re), n) + Math.pow(Math.abs(im), n), 1 / n);
 
     }
@@ -1957,43 +1957,45 @@ public final class Complex {
 
     }
 
-    /* Series approximation of the riemann zeta function */
+    /* Series approximation of the riemann zeta function  re > 0*/
+    public final Complex riemann_zeta_positive() {
+        
+        Complex temp = this.r_sub(1);
+        Complex temp2 = this.negative();
+        Complex sum2 = new Complex();
+
+        for(int k = 1; k < 101; k++) {
+            sum2.plus_mutable((new Complex(-1, 0).pow(k - 1)).times(new Complex(k, 0).pow(temp2)));
+        }
+
+        return sum2.divide((new Complex(1, 0).sub(new Complex(2, 0).pow(temp))));
+        
+    }
+
     public final Complex riemann_zeta() {
 
-        Complex sum = new Complex();
-
         if(re > 0) {
-            Complex temp = this.r_sub(1);
-            Complex temp2 = this.negative();
-            Complex sum2 = new Complex();
-
-            for(int k = 1; k < 101; k++) {
-                sum2.plus_mutable((new Complex(-1, 0).pow(k - 1)).times(new Complex(k, 0).pow(temp2)));
-            }
-
-            sum = sum2.divide((new Complex(1, 0).sub(new Complex(2, 0).pow(temp))));
+            return this.riemann_zeta_positive();
         }
         else {
             Complex temp = this.r_sub(1);
 
             Complex gamma = temp.gamma_la();
 
-            Complex sum2 = temp.riemann_zeta();
+            Complex sum2 = temp.riemann_zeta_positive();
 
-            sum = (new Complex(2, 0).pow(this)).times(new Complex(Math.PI, 0).pow(this.sub(1))).times(gamma).times(this.times(Math.PI * 0.5).sin()).times(sum2);
+            return (new Complex(2, 0).pow(this)).times(new Complex(Math.PI, 0).pow(this.sub(1))).times(gamma).times(this.times(Math.PI * 0.5).sin()).times(sum2);
         }
 
-        return sum;
-
     }
-    
+
     /*
-    * η(z) = (1 - 2^(1-z)) * ζ(z)
-    */
+     * η(z) = (1 - 2^(1-z)) * ζ(z)
+     */
     public final Complex dirichlet_eta() {
-        
-        return  ((new Complex(2, 0).pow(this.r_sub(1))).r_sub(1)).times(this.riemann_zeta());
-        
+
+        return ((new Complex(2, 0).pow(this.r_sub(1))).r_sub(1)).times(this.riemann_zeta());
+
     }
 
     public final Complex inflection(Complex inf) {

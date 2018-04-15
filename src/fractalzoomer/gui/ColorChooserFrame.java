@@ -18,7 +18,6 @@ package fractalzoomer.gui;
 
 import fractalzoomer.main.MainWindow;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -41,15 +40,13 @@ import javax.swing.JScrollPane;
 public class ColorChooserFrame extends JFrame {
 
     private JFrame ptr2;
-    private Component ptra2;
     private Object obj2;
 
-    public ColorChooserFrame(Component ptra, JFrame ptr, String title, Object obj, final int num) {
+    public ColorChooserFrame(JFrame ptr, String title, Object obj, final int num) {
 
         super();
 
         ptr2 = ptr;
-        ptra2 = ptra;
         obj2 = obj;
 
         ptr2.setEnabled(false);
@@ -91,10 +88,17 @@ public class ColorChooserFrame extends JFrame {
 
                 if(obj2 instanceof JLabel) {
                     ((JLabel)obj2).setBackground(new Color(color_chooser.getColor().getRed(), color_chooser.getColor().getGreen(), color_chooser.getColor().getBlue()));
+                    
+                    if(ptr2 instanceof GradientFrame) {
+                        ((GradientFrame)ptr2).colorChanged();
+                    }
+                    else if(ptr2 instanceof CustomPaletteEditorFrame) {
+                        ((CustomPaletteEditorFrame)ptr2).colorChanged(num);
+                    }
                 }
                 else if(obj2 instanceof Color) {
-                    if(ptra2 instanceof MainWindow) {
-                        ((MainWindow)ptra2).storeColor(num, color_chooser.getColor());
+                    if(ptr2 instanceof MainWindow) {
+                        ((MainWindow)ptr2).storeColor(num, color_chooser.getColor());
                     }
                 }
 

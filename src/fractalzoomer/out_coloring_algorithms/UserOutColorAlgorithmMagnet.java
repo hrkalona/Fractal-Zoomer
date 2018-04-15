@@ -19,6 +19,7 @@ package fractalzoomer.out_coloring_algorithms;
 
 import fractalzoomer.core.Complex;
 import fractalzoomer.parser.Parser;
+import fractalzoomer.utils.ColorAlgorithm;
 
 /**
  *
@@ -73,14 +74,14 @@ public class UserOutColorAlgorithmMagnet extends  UserOutColorAlgorithm {
         double result = expr.getValue().getRe();
         
         if(Math.abs(result) == max_iterations) {
-            return result;
+            return result < 0 ? -ColorAlgorithm.MAXIMUM_ITERATIONS : ColorAlgorithm.MAXIMUM_ITERATIONS;
         }
    
         if(result < 0) {
-            return (Boolean)object[2] ? result - MAGIC_OFFSET_NUMBER - MAGNET_INCREMENT  : result - MAGIC_OFFSET_NUMBER;
+            return (Boolean)object[2] ? result - MAGNET_INCREMENT  : result;
         }
         else {
-            return (Boolean)object[2] ? result + MAGIC_OFFSET_NUMBER + MAGNET_INCREMENT  : result + MAGIC_OFFSET_NUMBER;
+            return (Boolean)object[2] ? result + MAGNET_INCREMENT  : result;
         }
     }
 

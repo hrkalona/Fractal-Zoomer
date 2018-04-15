@@ -63,7 +63,7 @@ public class DomainColoringFrame extends JFrame {
 
         ptra2.setEnabled(false);
         int custom_palette_window_width = 660;
-        int custom_palette_window_height = 310;
+        int custom_palette_window_height = 270;
         setTitle("Domain Coloring");
         if(options) {
             setIconImage(getIcon("/fractalzoomer/icons/domain_coloring_options.png").getImage());
@@ -90,11 +90,9 @@ public class DomainColoringFrame extends JFrame {
 
         JPanel domain_coloring_panel = new JPanel();
 
-        domain_coloring_panel.setPreferredSize(new Dimension(560, 163));
+        domain_coloring_panel.setPreferredSize(new Dimension(560, 133));
         domain_coloring_panel.setLayout(new GridLayout(2, 1));
         domain_coloring_panel.setBackground(MainWindow.bg_color);
-
-        domain_coloring_panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Domain Coloring", TitledBorder.CENTER, TitledBorder.CENTER));
 
         final JTextField iterations_textfield = new JTextField(10);
         iterations_textfield.addAncestorListener(new RequestFocusListener());
@@ -209,9 +207,9 @@ public class DomainColoringFrame extends JFrame {
         buttons.setLayout(new FlowLayout());
         buttons.setBackground(MainWindow.bg_color);
 
-        JButton palette_ok = new JButton("Ok");
-        palette_ok.setFocusable(false);
-        palette_ok.addActionListener(new ActionListener() {
+        JButton ok = new JButton("Ok");
+        ok.setFocusable(false);
+        ok.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
                 
@@ -254,11 +252,11 @@ public class DomainColoringFrame extends JFrame {
 
         });
 
-        buttons.add(palette_ok);
+        buttons.add(ok);
 
-        JButton palette_cancel = new JButton("Cancel");
-        palette_cancel.setFocusable(false);
-        palette_cancel.addActionListener(new ActionListener() {
+        JButton cancel = new JButton("Cancel");
+        cancel.setFocusable(false);
+        cancel.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
 
@@ -271,11 +269,11 @@ public class DomainColoringFrame extends JFrame {
             }
         });
 
-        buttons.add(palette_cancel);
+        buttons.add(cancel);
 
         RoundedPanel round_panel = new RoundedPanel(true, true, true, 15);
         round_panel.setBackground(MainWindow.bg_color);
-        round_panel.setPreferredSize(new Dimension(590, 220));
+        round_panel.setPreferredSize(new Dimension(590, 190));
         round_panel.setLayout(new GridBagLayout());
 
         GridBagConstraints con = new GridBagConstraints();

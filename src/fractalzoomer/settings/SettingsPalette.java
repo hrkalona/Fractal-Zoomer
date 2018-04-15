@@ -24,6 +24,7 @@ import java.io.Serializable;
  * @author hrkalona2
  */
 public class SettingsPalette implements Serializable {
+  private static final long serialVersionUID = -272776052070042242L;
   private int[][] custom_palette;
   private int color_interpolation;
   private int color_space; 
@@ -67,6 +68,12 @@ public class SettingsPalette implements Serializable {
     public int getOffset() {
         
         return offset;
+        
+    }
+    
+    public int getVersion() {
+        
+        return 1048;
         
     }
     

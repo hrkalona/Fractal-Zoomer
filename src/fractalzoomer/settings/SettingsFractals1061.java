@@ -24,6 +24,7 @@ import java.io.Serializable;
  * @author hrkalona2
  */
 public class SettingsFractals1061 extends SettingsFractals1058 implements Serializable {
+    private static final long serialVersionUID = -2608944104031449213L;
     private Color dem_color;
     private Color special_color;
     private boolean special_use_palette_color;
@@ -52,6 +53,20 @@ public class SettingsFractals1061 extends SettingsFractals1058 implements Serial
     public boolean getSpecialUsePaletteColor() {
         
         return special_use_palette_color;
+        
+    }
+    
+    @Override
+    public int getVersion() {
+        
+        return 1061;
+        
+    }
+    
+    @Override
+    public boolean isJulia() {
+        
+        return false;
         
     }
 }

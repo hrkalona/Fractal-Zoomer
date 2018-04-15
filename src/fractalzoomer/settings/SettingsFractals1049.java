@@ -25,6 +25,7 @@ import java.io.Serializable;
  * @author hrkalona2
  */
 public class SettingsFractals1049 extends SettingsFractals implements Serializable {
+  private static final long serialVersionUID = -6872978567595222259L;
   private String user_formula2;
   private String[] user_formula_iteration_based;
     
@@ -45,6 +46,20 @@ public class SettingsFractals1049 extends SettingsFractals implements Serializab
     public String[] getUserFormulaIterationBased() {
         
         return user_formula_iteration_based;
+        
+    }
+    
+    @Override
+    public int getVersion() {
+        
+        return 1049;
+        
+    }
+    
+    @Override
+    public boolean isJulia() {
+        
+        return false;
         
     }
     

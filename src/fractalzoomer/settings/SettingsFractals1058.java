@@ -24,6 +24,7 @@ import java.io.Serializable;
  * @author hrkalona2
  */
 public class SettingsFractals1058 extends SettingsFractals1057 implements Serializable {
+    private static final long serialVersionUID = -8357538490185962755L;
     private int user_perturbation_algorithm;
     private String[] user_perturbation_conditions;
     private String[] user_perturbation_condition_formula;
@@ -141,6 +142,20 @@ public class SettingsFractals1058 extends SettingsFractals1057 implements Serial
         
         return user_ddfz_formula;
                 
+    }
+    
+    @Override
+    public int getVersion() {
+        
+        return 1058;
+        
+    }
+    
+    @Override
+    public boolean isJulia() {
+        
+        return false;
+        
     }
 
 }

@@ -37,6 +37,11 @@ public class RealConstantExpressionNode implements ExpressionNode
   {
     this.value = value;
   }
+  
+  public RealConstantExpressionNode(double value)
+  {
+    this.value = new Complex(value, 0);
+  }
 
   /**
    * Convenience constructor that takes a string and converts it to a double
@@ -49,7 +54,6 @@ public class RealConstantExpressionNode implements ExpressionNode
   {
     this.value = new Complex(Double.valueOf(value), 0);
   }
-
   /**
    * Returns the value of the constant
    */

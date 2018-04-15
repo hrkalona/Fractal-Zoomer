@@ -58,7 +58,7 @@ public class SmoothEscapeTimeGaussianIntegerMagnet extends OutColorAlgorithm {
             }
         }
 
-        return (Integer)object[0] + ((Complex)(object[1])).distance_squared(((Complex)(object[1])).gaussian_integer()) * 90 + temp3 + MAGIC_OFFSET_NUMBER;
+        return (Integer)object[0] + ((Complex)(object[1])).distance_squared(((Complex)(object[1])).gaussian_integer()) * 90 + temp3;
 
     }
 }

@@ -42,10 +42,10 @@ public class EscapeTimeGridMagnet extends EscapeTimeGrid {
         double temp = grid ? (Integer)object[0] : -((Integer)object[0] + INCREMENT);
         
         if(temp < 0) {
-            return (Boolean)object[2] ? temp - MAGIC_OFFSET_NUMBER - MAGNET_INCREMENT : temp - MAGIC_OFFSET_NUMBER;
+            return (Boolean)object[2] ? temp - MAGNET_INCREMENT : temp;
         }
         else {
-            return (Boolean)object[2] ? temp + MAGIC_OFFSET_NUMBER + MAGNET_INCREMENT : temp + MAGIC_OFFSET_NUMBER;
+            return (Boolean)object[2] ? temp + MAGNET_INCREMENT : temp;
         }
     }
     

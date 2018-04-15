@@ -19,6 +19,9 @@ package fractalzoomer.gui;
 import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.DomainColoringSettings;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
@@ -32,17 +35,23 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.Hashtable;
 import javax.swing.BorderFactory;
+import javax.swing.DefaultListModel;
+import javax.swing.DropMode;
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
+import javax.swing.ListCellRenderer;
+import javax.swing.ListSelectionModel;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 
@@ -55,6 +64,10 @@ public class CustomDomainColoringFrame extends JFrame {
     private DomainColoringFrame ptra2;
     private CustomDomainColoringFrame this_frame;
     private static DomainColoringSettings ds;
+    private JList<String> list;
+    private JCheckBox enable_grid;
+    private JCheckBox enable_circles;
+    private JCheckBox enable_iso_lines;
 
     public static void setSettings(DomainColoringSettings settings) {
 
@@ -78,7 +91,7 @@ public class CustomDomainColoringFrame extends JFrame {
 
         ptra2.setEnabled(false);
         int custom_palette_window_width = 800;
-        int custom_palette_window_height = 670;
+        int custom_palette_window_height = 630;
         setTitle("Custom Domain Coloring");
         setIconImage(getIcon("/fractalzoomer/icons/domain_coloring.png").getImage());
         setSize(custom_palette_window_width, custom_palette_window_height);
@@ -97,14 +110,12 @@ public class CustomDomainColoringFrame extends JFrame {
 
         JPanel domain_coloring_panel = new JPanel();
 
-        domain_coloring_panel.setPreferredSize(new Dimension(700, 523));
-        domain_coloring_panel.setLayout(new GridLayout(6, 1));
+        domain_coloring_panel.setPreferredSize(new Dimension(700, 495));
+        domain_coloring_panel.setLayout(new FlowLayout());
         domain_coloring_panel.setBackground(MainWindow.bg_color);
 
-        domain_coloring_panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Custom Domain Coloring", TitledBorder.CENTER, TitledBorder.CENTER));
-
         JPanel general_settings_panel = new JPanel();
-        general_settings_panel.setLayout(new GridLayout(2, 1));
+        general_settings_panel.setLayout(new FlowLayout());
         general_settings_panel.setBackground(MainWindow.bg_color);
 
         final JTextField log_base_textfield = new JTextField(10);
@@ -122,6 +133,80 @@ public class CustomDomainColoringFrame extends JFrame {
         iso_lines_distance_opt.setFocusable(false);
         iso_lines_distance_opt.setToolTipText("Sets the iso-argument distance.");
 
+        DefaultListModel<String> m = new DefaultListModel<>();
+        for(int i = 0; i < ds.domainOrder.length; i++) {
+            m.addElement("" + ds.domainOrder[i]);
+        }
+        list = new JList<>(m);
+        list.getSelectionModel().setSelectionMode(
+                ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        list.setTransferHandler(new ListItemTransferHandler());
+        list.setDropMode(DropMode.INSERT);
+        list.setDragEnabled(true);
+        //http://java-swing-tips.blogspot.jp/2008/10/rubber-band-selection-drag-and-drop.html
+        list.setLayoutOrientation(JList.HORIZONTAL_WRAP);
+        list.setVisibleRowCount(0);
+        list.setFixedCellWidth(30);
+        list.setFixedCellHeight(27);
+        list.setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
+        
+        final Color activeColor = new Color(185, 223, 147);
+
+        list.setCellRenderer(new ListCellRenderer<String>() {
+            private final JPanel p = new JPanel(new BorderLayout());
+            private final JLabel icon = new JLabel((Icon)null, JLabel.CENTER);
+            //private final JLabel label = new JLabel("", JLabel.LEFT);
+
+            @Override
+            public Component getListCellRendererComponent(
+                    JList list, String value, int index,
+                    boolean isSelected, boolean cellHasFocus) {
+                if(value.equals(""+ MainWindow.GRID)) {
+                    icon.setIcon(getIcon("/fractalzoomer/icons/grid.png"));
+                    p.setToolTipText("Grid");
+                }
+                else if(value.equals("" +MainWindow.CIRCLES)) {
+                    icon.setIcon(getIcon("/fractalzoomer/icons/circles.png"));
+                    p.setToolTipText("Circles");
+                }
+                else if(value.equals("" + MainWindow.ISO_LINES)) {
+                    icon.setIcon(getIcon("/fractalzoomer/icons/iso_arg_lines.png"));
+                    p.setToolTipText("Iso-Argument Lines");
+                }                              
+                
+                //label.setText(value);
+                //label.setForeground(list.getForeground());
+                p.add(icon);
+                //p.add(label, BorderLayout.SOUTH);
+                p.setBackground(list.getBackground());
+                
+                
+                if(enable_grid != null && value.equals(""+ MainWindow.GRID) && enable_grid.isSelected()) {
+                    p.setBackground(activeColor);
+                    //label.setForeground(list.getSelectionForeground());
+                }
+                else if(enable_circles != null && value.equals(""+ MainWindow.CIRCLES) && enable_circles.isSelected()) {
+                    p.setBackground(activeColor);
+                    //label.setForeground(list.getSelectionForeground());
+                }
+                else if(enable_iso_lines != null && value.equals(""+ MainWindow.ISO_LINES) && enable_iso_lines.isSelected()) {
+                    p.setBackground(activeColor);
+                    //label.setForeground(list.getSelectionForeground());
+                }
+
+                if(isSelected) {
+                    p.setBackground(list.getSelectionBackground());
+                    //label.setForeground(list.getSelectionForeground());
+                }
+                return p;
+            }
+        });
+        
+        JScrollPane scroll_pane = new JScrollPane(list);
+        scroll_pane.setPreferredSize(new Dimension(115, 32));
+        scroll_pane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
+        scroll_pane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
         JPanel p1 = new JPanel();
         p1.setLayout(new FlowLayout());
         p1.setBackground(MainWindow.bg_color);
@@ -138,7 +223,10 @@ public class CustomDomainColoringFrame extends JFrame {
         p2.setBackground(MainWindow.bg_color);
         
         p2.add(new JLabel("Iso-Argument Line Distance: "));
-        p2.add(iso_lines_distance_opt);
+        p2.add(iso_lines_distance_opt);         
+        p2.add(new JLabel("  Order: "));
+        p2.add(scroll_pane);
+   
         
         general_settings_panel.add(p1);       
         general_settings_panel.add(p2);
@@ -174,7 +262,7 @@ public class CustomDomainColoringFrame extends JFrame {
         domain_colors_combo.setFocusable(false);
         domain_colors_combo.setToolTipText("Sets the coloring option.");
 
-        ComponentTitledBorder colors_border = new ComponentTitledBorder(enable_colors, color_panel, BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()));
+        ComponentTitledBorder colors_border = new ComponentTitledBorder(enable_colors, color_panel, BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), this_frame);
         colors_border.setCheckBoxListener();
 
         color_panel.setBorder(colors_border);
@@ -205,14 +293,22 @@ public class CustomDomainColoringFrame extends JFrame {
         contours_panel.add(new JLabel(" Color Blending: "));
         contours_panel.add(contour_blend_opt);
 
-        ComponentTitledBorder contours_border = new ComponentTitledBorder(enable_contours, contours_panel, BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()));
+        ComponentTitledBorder contours_border = new ComponentTitledBorder(enable_contours, contours_panel, BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), this_frame);
         contours_border.setCheckBoxListener();
 
         contours_panel.setBorder(contours_border);
 
-        final JCheckBox enable_grid = new JCheckBox("Grid");
+        enable_grid = new JCheckBox("Grid");
         enable_grid.setBackground(MainWindow.bg_color);
         enable_grid.setSelected(ds.drawGrid);
+        enable_grid.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                list.updateUI();
+            }
+            
+        });
 
         final JSlider grid_coef_opt = new JSlider(JSlider.HORIZONTAL, 0, 100, 0);
         grid_coef_opt.setValue((int)(100 * ds.gridBlending));
@@ -244,7 +340,7 @@ public class CustomDomainColoringFrame extends JFrame {
                     return;
                 }
 
-                new ColorChooserFrame(ptra2, this_frame, "Grid Color", grid_color_label, -1);
+                new ColorChooserFrame(this_frame, "Grid Color", grid_color_label, -1);
             }
 
             @Override
@@ -269,14 +365,22 @@ public class CustomDomainColoringFrame extends JFrame {
         grid_panel.add(new JLabel(" Color: "));
         grid_panel.add(grid_color_label);
 
-        ComponentTitledBorder grid_border = new ComponentTitledBorder(enable_grid, grid_panel, BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()));
+        ComponentTitledBorder grid_border = new ComponentTitledBorder(enable_grid, grid_panel, BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), this_frame);
         grid_border.setCheckBoxListener();
 
         grid_panel.setBorder(grid_border);
 
-        final JCheckBox enable_circles = new JCheckBox("Circles");
+        enable_circles = new JCheckBox("Circles");
         enable_circles.setBackground(MainWindow.bg_color);
         enable_circles.setSelected(ds.drawCircles);
+        enable_circles.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                list.updateUI();
+            }
+            
+        });
 
         final JSlider circles_coef_opt = new JSlider(JSlider.HORIZONTAL, 0, 100, 0);
         circles_coef_opt.setValue((int)(100 * ds.circlesBlending));
@@ -307,7 +411,7 @@ public class CustomDomainColoringFrame extends JFrame {
                     return;
                 }
 
-                new ColorChooserFrame(ptra2, this_frame, "Circles Color", circles_color_label, -1);
+                new ColorChooserFrame(this_frame, "Circles Color", circles_color_label, -1);
             }
 
             @Override
@@ -332,14 +436,22 @@ public class CustomDomainColoringFrame extends JFrame {
         circles_panel.add(new JLabel(" Color: "));
         circles_panel.add(circles_color_label);
 
-        ComponentTitledBorder circles_border = new ComponentTitledBorder(enable_circles, circles_panel, BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()));
+        ComponentTitledBorder circles_border = new ComponentTitledBorder(enable_circles, circles_panel, BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), this_frame);
         circles_border.setCheckBoxListener();
 
         circles_panel.setBorder(circles_border);
 
-        final JCheckBox enable_iso_lines = new JCheckBox("Iso-Argument Lines");
+        enable_iso_lines = new JCheckBox("Iso-Argument Lines");
         enable_iso_lines.setBackground(MainWindow.bg_color);
         enable_iso_lines.setSelected(ds.drawIsoLines);
+        enable_iso_lines.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                list.updateUI();
+            }
+            
+        });
 
         final JSlider iso_lines_factor_opt = new JSlider(JSlider.HORIZONTAL, 0, 100, 0);
         iso_lines_factor_opt.setValue((int)(100 * ds.iso_factor));
@@ -386,7 +498,7 @@ public class CustomDomainColoringFrame extends JFrame {
                     return;
                 }
 
-                new ColorChooserFrame(ptra2, this_frame, "Iso-Argument Lines Color", iso_lines_color_label, -1);
+                new ColorChooserFrame(this_frame, "Iso-Argument Lines Color", iso_lines_color_label, -1);
             }
 
             @Override
@@ -413,7 +525,7 @@ public class CustomDomainColoringFrame extends JFrame {
         iso_lines_panel.add(new JLabel(" Color: "));
         iso_lines_panel.add(iso_lines_color_label);
 
-        ComponentTitledBorder iso_lines_border = new ComponentTitledBorder(enable_iso_lines, iso_lines_panel, BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()));
+        ComponentTitledBorder iso_lines_border = new ComponentTitledBorder(enable_iso_lines, iso_lines_panel, BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), this_frame);
         iso_lines_border.setCheckBoxListener();
 
         iso_lines_panel.setBorder(iso_lines_border);
@@ -423,22 +535,36 @@ public class CustomDomainColoringFrame extends JFrame {
         circles_border.setState(enable_circles.isSelected());
         grid_border.setState(enable_grid.isSelected());
         contours_border.setState(enable_contours.isSelected());
+        
+        JPanel p4 = new JPanel();
+        p4.setLayout(new GridLayout(1, 1));
+        p4.setBackground(MainWindow.bg_color);
+        p4.setPreferredSize(new Dimension(700, 120));
+        
+        p4.add(general_settings_panel);
 
-        domain_coloring_panel.add(general_settings_panel);
-        domain_coloring_panel.add(color_panel);
-        domain_coloring_panel.add(contours_panel);
-        domain_coloring_panel.add(grid_panel);
-        domain_coloring_panel.add(circles_panel);
-        domain_coloring_panel.add(iso_lines_panel);
+        domain_coloring_panel.add(p4);
+        
+        JPanel p3 = new JPanel();
+        p3.setLayout(new GridLayout(5, 1));
+        p3.setBackground(MainWindow.bg_color);
+        p3.setPreferredSize(new Dimension(700, 360));
+        
+        p3.add(color_panel);
+        p3.add(contours_panel);
+        p3.add(grid_panel);
+        p3.add(circles_panel);
+        p3.add(iso_lines_panel);
 
+        domain_coloring_panel.add(p3);
+        
         JPanel buttons = new JPanel();
-
         buttons.setLayout(new FlowLayout());
         buttons.setBackground(MainWindow.bg_color);
 
-        JButton palette_ok = new JButton("Ok");
-        palette_ok.setFocusable(false);
-        palette_ok.addActionListener(new ActionListener() {
+        JButton ok = new JButton("Ok");
+        ok.setFocusable(false);
+        ok.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
 
@@ -482,11 +608,13 @@ public class CustomDomainColoringFrame extends JFrame {
                 ds.gridColor = grid_color_label.getBackground();
                 ds.circlesColor = circles_color_label.getBackground();
                 ds.isoLinesColor = iso_lines_color_label.getBackground();
-                
+                               
                 ds.iso_factor = iso_lines_factor_opt.getValue() / 100.0;
                 
                 ds.colorType = domain_colors_combo.getSelectedIndex();
                 ds.contourType = domain_contours_combo.getSelectedIndex();
+                
+                ds.domainOrder = getOrder();
                 
                 ptra2.setEnabled(true);
                 dispose();
@@ -495,11 +623,11 @@ public class CustomDomainColoringFrame extends JFrame {
 
         });
 
-        buttons.add(palette_ok);
+        buttons.add(ok);
 
-        JButton palette_cancel = new JButton("Cancel");
-        palette_cancel.setFocusable(false);
-        palette_cancel.addActionListener(new ActionListener() {
+        JButton cancel = new JButton("Cancel");
+        cancel.setFocusable(false);
+        cancel.addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
 
@@ -509,11 +637,11 @@ public class CustomDomainColoringFrame extends JFrame {
             }
         });
 
-        buttons.add(palette_cancel);
+        buttons.add(cancel);
 
         RoundedPanel round_panel = new RoundedPanel(true, true, true, 15);
         round_panel.setBackground(MainWindow.bg_color);
-        round_panel.setPreferredSize(new Dimension(740, 580));
+        round_panel.setPreferredSize(new Dimension(740, 550));
         round_panel.setLayout(new GridBagLayout());
 
         GridBagConstraints con = new GridBagConstraints();
@@ -547,5 +675,17 @@ public class CustomDomainColoringFrame extends JFrame {
 
         return new ImageIcon(getClass().getResource(path));
 
+    }
+    
+    public int[] getOrder() {
+        
+        int[] order = new int[ds.domainOrder.length];
+        
+        for(int i = 0; i < ds.domainOrder.length; i++) {
+            String name =  list.getModel().getElementAt(i); 
+            order[i] = Integer.parseInt(name);
+        }
+        
+        return order;
     }
 }

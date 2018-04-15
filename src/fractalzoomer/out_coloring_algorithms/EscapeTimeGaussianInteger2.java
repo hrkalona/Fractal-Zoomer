@@ -37,7 +37,7 @@ public class EscapeTimeGaussianInteger2 extends OutColorAlgorithm {
         
         Complex temp = ((Complex)object[1]).sub(((Complex)object[1]).gaussian_integer());
         
-        return (Integer)object[0] +  Math.abs(Math.atan(temp.getIm() / temp.getRe())) * 5 + MAGIC_OFFSET_NUMBER;
+        return (Integer)object[0] +  Math.abs(Math.atan(temp.getIm() / temp.getRe())) * 5;
  
     }
     

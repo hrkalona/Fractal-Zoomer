@@ -16,14 +16,12 @@
  */
 package fractalzoomer.palettes.transfer_functions;
 
-import fractalzoomer.utils.ColorAlgorithm;
-
 /**
  *
  * @author hrkalona2
  */
 public abstract class TransferFunction {
-    private int paletteLength;
+    protected int paletteLength;
     
     public TransferFunction(int paletteLength) {
         
@@ -35,23 +33,11 @@ public abstract class TransferFunction {
        
         if(result < 0) {
             result *= -1; // transfer to positive
-            result -= ColorAlgorithm.MAGIC_OFFSET_NUMBER;
-
-            result /= paletteLength; //scale to palette multiple
             result = function(result); // apply transfer
-            result *= paletteLength; // rescale to palette length
-
-            result += ColorAlgorithm.MAGIC_OFFSET_NUMBER;
             result *= -1; // transfer to negative
         }
         else {
-            result -= ColorAlgorithm.MAGIC_OFFSET_NUMBER;
-
-            result /= paletteLength; //scale to palette multiple1
             result = function(result); // apply transfer
-            result *= paletteLength; // rescale to palette length
-
-            result += ColorAlgorithm.MAGIC_OFFSET_NUMBER;
         }
 
         return result;

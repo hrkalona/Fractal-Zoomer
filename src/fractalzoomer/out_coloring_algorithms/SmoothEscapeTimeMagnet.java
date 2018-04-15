@@ -47,11 +47,11 @@ public class SmoothEscapeTimeMagnet extends SmoothEscapeTime {
                 double temp2 = ((Complex)object[1]).norm_squared();
                 temp += 0.000000001;
                 temp = Math.log(temp);
-                return (Integer)object[0] + (log_bailout_squared - temp) / (Math.log(temp2) - temp) + MAGIC_OFFSET_NUMBER + MAGNET_INCREMENT;
+                return (Integer)object[0] + (log_bailout_squared - temp) / (Math.log(temp2) - temp) + MAGNET_INCREMENT;
             }
             else {
                 //double temp2 = ((Complex)object[1]).norm_squared();
-                //return (Integer)object[0] + 1 - Math.log((Math.log(temp2)) / log_bailout_squared) / log_power + MAGIC_OFFSET_NUMBER + MAGNET_INCREMENT;
+                //return (Integer)object[0] + 1 - Math.log((Math.log(temp2)) / log_bailout_squared) / log_power + MAGNET_INCREMENT;
 
                 double temp = ((Complex)object[4]).norm_squared();
                 double temp2 = ((Complex)object[1]).norm_squared();
@@ -64,13 +64,13 @@ public class SmoothEscapeTimeMagnet extends SmoothEscapeTime {
                 double a = Math.log(temp2 / log_bailout_squared);
                 double f = a / Math.log(p);
 
-                return (Integer)object[0] + 1 - f + MAGIC_OFFSET_NUMBER + MAGNET_INCREMENT;
+                return (Integer)object[0] + 1 - f + MAGNET_INCREMENT;
             }
         }
         else {
             if(algorithm2 == 0) {
                 double temp = Math.log(((Complex)object[4]).distance_squared(1));
-                return (Integer)object[0] + (log_convergent_bailout - temp) / (Math.log((Double)object[3]) - temp) + MAGIC_OFFSET_NUMBER;
+                return (Integer)object[0] + (log_convergent_bailout - temp) / (Math.log((Double)object[3]) - temp);
             }
             else {
                 double temp4 = Math.log(((Double)object[3]));
@@ -79,7 +79,7 @@ public class SmoothEscapeTimeMagnet extends SmoothEscapeTime {
 
                 double f = Math.log(log_convergent_bailout / temp4) / Math.log(power);
 
-                return (Integer)object[0] + f + MAGIC_OFFSET_NUMBER;
+                return (Integer)object[0] + f;
             }
         }
 

@@ -38,7 +38,7 @@ public class ZMag extends InColorAlgorithm {
     @Override
     public double getResult(Object[] object) {
 
-        return ((Complex)object[0]).norm_squared() * (max_iterations / 3.0) + MAGIC_OFFSET_NUMBER;
+        return ((Complex)object[0]).norm_squared() * (max_iterations / 3.0);
 
     }
 

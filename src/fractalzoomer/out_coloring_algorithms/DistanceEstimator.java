@@ -34,9 +34,10 @@ public class DistanceEstimator  extends OutColorAlgorithm {
     public double getResult(Object[] object) {
 
          double temp2 = (((Complex)object[1]).norm_squared());
-         double temp = -4.*(Math.log(Math.log(temp2)*Math.sqrt(temp2 /(((Complex)object[2]).norm_squared())))-(Integer)object[0]*.693);
+         double temp3 = Math.log(temp2);      
+         double temp = -2.0 * Math.log(temp3 * temp3 * temp2 / ((Complex)object[2]).norm_squared());
          
-         return temp < 0 ? MAGIC_OFFSET_NUMBER : temp + MAGIC_OFFSET_NUMBER;
+         return temp < 0 ? 0 : temp;
 
     }
     

@@ -24,7 +24,7 @@ import java.io.Serializable;
  * @author hrkalona2
  */
 public class SettingsFractals1067 extends SettingsFractals1066 implements Serializable {
-
+    private static final long serialVersionUID = 6084047234035693027L;
     private int transfer_function;
     private int color_blending;
     private int bump_transfer_function;
@@ -211,5 +211,19 @@ public class SettingsFractals1067 extends SettingsFractals1066 implements Serial
 
     public int getContourType() {
         return contourType;
+    }
+    
+    @Override
+    public int getVersion() {
+        
+        return 1067;
+        
+    }
+    
+    @Override
+    public boolean isJulia() {
+        
+        return false;
+        
     }
 }

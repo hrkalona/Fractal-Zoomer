@@ -33,7 +33,11 @@ public class AtanTransferFunction extends TransferFunction {
     @Override
     protected double function(double result) {
         
-        return Math.atan(result * color_intensity);
+        result /= paletteLength; //scale to palette multiple        
+        result = Math.atan(result * color_intensity);      
+        result *= paletteLength; // rescale to palette length      
+        return result;
+        
     }
     
 }

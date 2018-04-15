@@ -58,7 +58,7 @@ public class SmoothEscapeTimeColorDecompositionMagnet extends ColorDecomposition
             }
         }
 
-        return Math.abs(((Integer)object[0]) + (((Complex)object[1]).arg() / pi2 + 0.75) * pi59 + temp3) + MAGIC_OFFSET_NUMBER;
+        return Math.abs(((Integer)object[0]) + (((Complex)object[1]).arg() / pi2 + 0.75) * pi59 + temp3);
 
     }
 }

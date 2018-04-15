@@ -35,7 +35,7 @@ public class EscapeTimePlusIm extends OutColorAlgorithm {
     @Override
     public double getResult(Object[] object) {
         
-        return Math.abs(((Integer)object[0]) + ((Complex)object[1]).getIm()) + MAGIC_OFFSET_NUMBER;
+        return Math.abs(((Integer)object[0]) + ((Complex)object[1]).getIm());
 
     }
     

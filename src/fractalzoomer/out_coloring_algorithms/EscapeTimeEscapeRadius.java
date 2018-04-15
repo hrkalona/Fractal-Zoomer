@@ -42,7 +42,7 @@ public class EscapeTimeEscapeRadius extends OutColorAlgorithm {
         double zabs = Math.log(((Complex)object[1]).norm_squared()) / log_bailout_squared - 1.0f;
         double zarg = (((Complex)object[1]).arg() / (pi2) + 1.0f) % 1.0;
         
-        return (Integer)object[0] + MAGIC_OFFSET_NUMBER + zabs + zarg;
+        return (Integer)object[0] + zabs + zarg;
 
     }
     

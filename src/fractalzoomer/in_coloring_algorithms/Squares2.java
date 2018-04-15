@@ -39,7 +39,7 @@ public class Squares2 extends InColorAlgorithm {
         double dx = Math.abs(x - Math.floor(x));
         double dy = Math.abs(y - Math.floor(y));
         
-        return (dx < 0.5 && dy < 0.5) || (dx > 0.5 && dy > 0.5) ? -(MAGIC_OFFSET_NUMBER + INCREMENT) : MAGIC_OFFSET_NUMBER;
+        return (dx < 0.5 && dy < 0.5) || (dx > 0.5 && dy > 0.5) ? -INCREMENT : 0;
         
     }
     

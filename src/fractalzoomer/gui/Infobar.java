@@ -16,16 +16,14 @@
  */
 package fractalzoomer.gui;
 
+import fractalzoomer.main.CommonFunctions;
 import fractalzoomer.main.MainWindow;
-import fractalzoomer.palettes.CustomPalette;
-import java.awt.Color;
+import fractalzoomer.main.app_settings.Settings;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.GradientPaint;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -46,9 +44,16 @@ public class Infobar extends JToolBar {
     private JLabel max_it_color_preview;
     private JLabel palette_toolbar_preview_lbl;
     private JLabel max_it_color_preview_lbl;
+    private JLabel gradient_toolbar_preview;
+    private JLabel gradient_toolbar_preview_lbl;
     private JButton overview_button;
+    public static int PALETTE_PREVIEW_WIDTH = 250;
+    public static int PALETTE_PREVIEW_HEIGHT = 24;
+    public static int GRADIENT_PREVIEW_WIDTH = 150;
+    public static int GRADIENT_PREVIEW_HEIGHT = 24;
+    public static int SQUARE_TILE_SIZE = 24;
     
-    public Infobar(MainWindow ptr2, int color_choice, boolean smoothing, int[][] custom_palette, int color_interpolation, int color_space, boolean reversed_palette, int color_cycling_location, double scale_factor_palette_val, int processing_alg, Color fractal_color) {
+    public Infobar(MainWindow ptr2, Settings s) {
         super();
         
         this.ptr = ptr2;
@@ -59,31 +64,15 @@ public class Infobar extends JToolBar {
         setPreferredSize(new Dimension(0, 28));
         setBorderPainted(true);
         setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
+      
+        BufferedImage palette_preview = CommonFunctions.getPalettePreview(s, s.color_cycling_location, PALETTE_PREVIEW_WIDTH, PALETTE_PREVIEW_HEIGHT);             
         
-        Color[] c = null;
-        if (color_choice < CustomPaletteEditorFrame.editor_default_palettes.length) {
-            c = CustomPalette.getPalette(CustomPaletteEditorFrame.editor_default_palettes[color_choice], MainWindow.INTERPOLATION_LINEAR, MainWindow.COLOR_SPACE_RGB, false, color_cycling_location, 0, MainWindow.PROCESSING_NONE);
-        } else {
-            c = CustomPalette.getPalette(custom_palette, color_interpolation, color_space, reversed_palette, color_cycling_location, scale_factor_palette_val, processing_alg);
-        }
+        BufferedImage gradient_preview = CommonFunctions.getGradientPreview(s.gs, GRADIENT_PREVIEW_WIDTH, GRADIENT_PREVIEW_HEIGHT);
+ 
+        BufferedImage max_it_preview = new BufferedImage(SQUARE_TILE_SIZE, SQUARE_TILE_SIZE, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g = max_it_preview.createGraphics();
 
-        BufferedImage palette_preview = new BufferedImage(250, 24, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g = palette_preview.createGraphics();
-        for (int j = 0; j < c.length; j++) {
-            if (smoothing) {
-                GradientPaint gp = new GradientPaint(j * palette_preview.getWidth() / c.length, 0, c[j], (j + 1) * palette_preview.getWidth() / c.length, 0, c[(j + 1) % c.length]);
-                g.setPaint(gp);
-                g.fill(new Rectangle2D.Double(j * palette_preview.getWidth() / c.length, 0, (j + 1) * palette_preview.getWidth() / c.length - j * palette_preview.getWidth() / c.length, palette_preview.getHeight()));
-            } else {
-                g.setColor(c[j]);
-                g.fillRect(j * palette_preview.getWidth() / c.length, 0, (j + 1) * palette_preview.getWidth() / c.length - j * palette_preview.getWidth() / c.length, palette_preview.getHeight());
-            }
-        }
-
-        BufferedImage max_it_preview = new BufferedImage(24, 24, BufferedImage.TYPE_INT_ARGB);
-        g = max_it_preview.createGraphics();
-
-        g.setColor(fractal_color);
+        g.setColor(s.fractal_color);
         g.fillRect(0, 0, max_it_preview.getWidth(), max_it_preview.getHeight());
 
         palette_toolbar_preview = new JLabel();
@@ -92,7 +81,14 @@ public class Infobar extends JToolBar {
         palette_toolbar_preview.setIcon(new ImageIcon(palette_preview));
         palette_toolbar_preview.setMaximumSize(new Dimension(palette_preview.getWidth(), palette_preview.getHeight()));
         palette_toolbar_preview.setMinimumSize(new Dimension(palette_preview.getWidth(), palette_preview.getHeight()));
-
+        
+        gradient_toolbar_preview = new JLabel();
+        gradient_toolbar_preview.setToolTipText("Displays the active gradient.");
+        gradient_toolbar_preview.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
+        gradient_toolbar_preview.setIcon(new ImageIcon(gradient_preview));
+        gradient_toolbar_preview.setMaximumSize(new Dimension(gradient_preview.getWidth(), gradient_preview.getHeight()));
+        gradient_toolbar_preview.setMinimumSize(new Dimension(gradient_preview.getWidth(), gradient_preview.getHeight()));
+ 
         max_it_color_preview = new JLabel();
         max_it_color_preview.setToolTipText("Displays the color coresponding to the max iterations.");
         max_it_color_preview.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
@@ -101,8 +97,14 @@ public class Infobar extends JToolBar {
         max_it_color_preview.setMinimumSize(new Dimension(max_it_preview.getWidth(), max_it_preview.getHeight()));
 
         palette_toolbar_preview_lbl = new JLabel(" Palette: ");
+        
         add(palette_toolbar_preview_lbl);
         add(palette_toolbar_preview);
+        
+        gradient_toolbar_preview_lbl = new JLabel("  Gradient: ");
+        add(gradient_toolbar_preview_lbl);
+        add(gradient_toolbar_preview);
+        
         max_it_color_preview_lbl = new JLabel("  Max It. Color: ");
         add(max_it_color_preview_lbl);
         add(max_it_color_preview);
@@ -146,9 +148,9 @@ public class Infobar extends JToolBar {
         
     }
     
-    public JLabel getPalettePreviewLabel() {
+    public JLabel getGradientPreview() {
         
-        return palette_toolbar_preview_lbl;
+        return gradient_toolbar_preview;
         
     }
     

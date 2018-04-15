@@ -37,11 +37,12 @@ import javax.swing.KeyStroke;
  * @author hrkalona2
  */
 public class PaletteMenu extends JMenu {
+
     private MainWindow ptr;
     private JRadioButtonMenuItem[] palette;
     private int i;
     public static String[] paletteNames;
-    
+
     static {
         paletteNames = new String[MainWindow.TOTAL_PALETTES];
         paletteNames[0] = "Default";
@@ -62,27 +63,33 @@ public class PaletteMenu extends JMenu {
         paletteNames[15] = "Hot Cold 2";
         paletteNames[16] = "Fire";
         paletteNames[17] = "Jet";
-        paletteNames[18] = "Custom Palette";
+        paletteNames[MainWindow.CUSTOM_PALETTE_ID] = "Custom Palette";
     }
-    
+
     public PaletteMenu(MainWindow ptr2, String name, int color_choice, boolean smoothing, int[][] custom_palette, int color_interpolation, int color_space, boolean reversed_palette, int color_cycling_location, double scale_factor_palette_val, int processing_alg) {
 
         super(name);
 
         this.ptr = ptr2;
-        
-        setIcon(getIcon("/fractalzoomer/icons/palette.png"));      
-        
+
+        setIcon(getIcon("/fractalzoomer/icons/palette.png"));
+
         palette = new JRadioButtonMenuItem[paletteNames.length];
 
         ButtonGroup palettes_group = new ButtonGroup();
 
-        for (i = 0; i < palette.length - 1; i++) {
+        for (i = 0; i < palette.length; i++) {
 
-            Color[] c = CustomPalette.getPalette(CustomPaletteEditorFrame.editor_default_palettes[i], MainWindow.INTERPOLATION_LINEAR, MainWindow.COLOR_SPACE_RGB, false, color_cycling_location, 0, MainWindow.PROCESSING_NONE);
-
+            Color[] c = null;
+            if (i != MainWindow.CUSTOM_PALETTE_ID) {
+                c = CustomPalette.getPalette(CustomPaletteEditorFrame.editor_default_palettes[i], MainWindow.INTERPOLATION_LINEAR, MainWindow.COLOR_SPACE_RGB, false, color_cycling_location, 0, MainWindow.PROCESSING_NONE);
+            } else {
+                c = CustomPalette.getPalette(custom_palette, color_interpolation, color_space, reversed_palette, color_cycling_location, scale_factor_palette_val, processing_alg);
+            }
+            
             BufferedImage palette_preview = new BufferedImage(250, 24, BufferedImage.TYPE_INT_ARGB);
             Graphics2D g = palette_preview.createGraphics();
+            
             for (int j = 0; j < c.length; j++) {
                 if (smoothing) {
                     GradientPaint gp = new GradientPaint(j * palette_preview.getWidth() / c.length, 0, c[j], (j + 1) * palette_preview.getWidth() / c.length, 0, c[(j + 1) % c.length]);
@@ -96,52 +103,36 @@ public class PaletteMenu extends JMenu {
 
             palette[i] = new JRadioButtonMenuItem(paletteNames[i], new ImageIcon(palette_preview));
 
-            palette[i].addActionListener(new ActionListener() {
+            if (i != MainWindow.CUSTOM_PALETTE_ID) {
+                palette[i].addActionListener(new ActionListener() {
 
-                int temp = i;
+                    int temp = i;
 
-                public void actionPerformed(ActionEvent e) {
+                    public void actionPerformed(ActionEvent e) {
 
-                    ptr.setPalette(temp);
+                        ptr.setPalette(temp);
 
-                }
-            });
+                    }
+                });
+            } else {
+                palette[i].addActionListener(new ActionListener() {
+
+                    int temp = i;
+
+                    public void actionPerformed(ActionEvent e) {
+
+                        ptr.openCustomPaletteEditor(temp);
+
+                    }
+                });
+                palette[i].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, 0));
+                
+                addSeparator();
+            }
+
             add(palette[i]);
             palettes_group.add(palette[i]);
         }
-
-        addSeparator();
-        
-        Color[] c = CustomPalette.getPalette(custom_palette, color_interpolation, color_space, reversed_palette, color_cycling_location, scale_factor_palette_val, processing_alg);
-
-        BufferedImage palette_preview = new BufferedImage(250, 24, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g = palette_preview.createGraphics();
-        for (int j = 0; j < c.length; j++) {
-            if (smoothing) {
-                GradientPaint gp = new GradientPaint(j * palette_preview.getWidth() / c.length, 0, c[j], (j + 1) * palette_preview.getWidth() / c.length, 0, c[(j + 1) % c.length]);
-                g.setPaint(gp);
-                g.fill(new Rectangle2D.Double(j * palette_preview.getWidth() / c.length, 0, (j + 1) * palette_preview.getWidth() / c.length - j * palette_preview.getWidth() / c.length, palette_preview.getHeight()));
-            } else {
-                g.setColor(c[j]);
-                g.fillRect(j * palette_preview.getWidth() / c.length, 0, (j + 1) * palette_preview.getWidth() / c.length - j * palette_preview.getWidth() / c.length, palette_preview.getHeight());
-            }
-        }
-        
-        palette[i] = new JRadioButtonMenuItem(paletteNames[i], new ImageIcon(palette_preview));
-
-        palette[i].addActionListener(new ActionListener() {
-
-            int temp = i;
-
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.openCustomPaletteEditor(temp);
-
-            }
-        });
-        add(palette[i]);
-        palettes_group.add(palette[i]);
-        palette[i].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, 0));
 
         palette[color_choice].setSelected(true);
 
@@ -163,19 +154,19 @@ public class PaletteMenu extends JMenu {
         palette[15].setToolTipText("A palette based on color temperature.");
         palette[16].setToolTipText("A palette based on colors of fire.");
         palette[17].setToolTipText("A palette based on matlab's colormap.");
-        palette[18].setToolTipText("A palette custom made by the user.");
+        palette[MainWindow.CUSTOM_PALETTE_ID].setToolTipText("A palette custom made by the user.");
     }
-    
+
     private ImageIcon getIcon(String path) {
 
         return new ImageIcon(getClass().getResource(path));
 
     }
-    
+
     public JRadioButtonMenuItem[] getPalette() {
-        
+
         return palette;
-        
+
     }
-    
+
 }

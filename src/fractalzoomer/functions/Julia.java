@@ -14,10 +14,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package fractalzoomer.functions;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.main.app_settings.OrbitTrapSettings;
+import fractalzoomer.utils.ColorAlgorithm;
 
 import java.util.ArrayList;
 
@@ -31,51 +32,49 @@ public abstract class Julia extends Fractal {
     protected boolean apply_plane_on_julia;
     protected boolean apply_plane_on_julia_seed;
 
-    public Julia(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula,  double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount) {
+    public Julia(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, OrbitTrapSettings ots) {
 
-        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula,  plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, ots);
 
     }
 
-    public Julia(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, boolean periodicity_checking, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula,  double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, double xJuliaCenter, double yJuliaCenter) {
+    public Julia(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, boolean periodicity_checking, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, OrbitTrapSettings ots, double xJuliaCenter, double yJuliaCenter) {
 
-        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula,  plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+        super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, ots);
 
-        if(apply_plane_on_julia_seed) {
+        if (apply_plane_on_julia_seed) {
             vars = createGlobalVars();
             plane.setGlobalVars(vars);
-        
+
             seed = plane.transform(new Complex(xJuliaCenter, yJuliaCenter));
-        }
-        else {
+        } else {
             seed = new Complex(xJuliaCenter, yJuliaCenter);
         }
-        
+
         this.apply_plane_on_julia = apply_plane_on_julia;
- 
+
     }
 
     //orbit
-    public Julia(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula,  double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount) {
+    public Julia(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount) {
 
-        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula,  plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
 
     }
 
-    public Julia(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula,  double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, double xJuliaCenter, double yJuliaCenter) {
+    public Julia(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, double xJuliaCenter, double yJuliaCenter) {
 
-        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula,  plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+        super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
 
-        if(apply_plane_on_julia_seed) {
+        if (apply_plane_on_julia_seed) {
             seed = plane.transform(new Complex(xJuliaCenter, yJuliaCenter));
-        }
-        else {
+        } else {
             seed = new Complex(xJuliaCenter, yJuliaCenter);
         }
-        
+
         this.apply_plane_on_julia = apply_plane_on_julia;
 
-        if(!apply_plane_on_julia) { // recalculate the initial pixel because the transform was added to the super constructor
+        if (!apply_plane_on_julia) { // recalculate the initial pixel because the transform was added to the super constructor
             pixel_orbit = this.complex_orbit.get(0);
             pixel_orbit = rotation.rotate(pixel_orbit);
         }
@@ -87,11 +86,10 @@ public abstract class Julia extends Fractal {
 
         vars = createGlobalVars();
         plane.setGlobalVars(vars);
-        
-        if(apply_plane_on_julia) {
+
+        if (apply_plane_on_julia) {
             return periodicity_checking ? calculateJuliaWithPeriodicity(plane.transform(rotation.rotate(pixel))) : calculateJuliaWithoutPeriodicity(plane.transform(rotation.rotate(pixel)));
-        }
-        else {
+        } else {
             return periodicity_checking ? calculateJuliaWithPeriodicity(rotation.rotate(pixel)) : calculateJuliaWithoutPeriodicity(rotation.rotate(pixel));
         }
 
@@ -102,11 +100,10 @@ public abstract class Julia extends Fractal {
 
         vars = createGlobalVars();
         plane.setGlobalVars(vars);
-        
-        if(apply_plane_on_julia) {
+
+        if (apply_plane_on_julia) {
             return periodicity_checking ? calculateJulia3DWithPeriodicity(plane.transform(rotation.rotate(pixel))) : calculateJulia3DWithoutPeriodicity(plane.transform(rotation.rotate(pixel)));
-        }
-        else {
+        } else {
             return periodicity_checking ? calculateJulia3DWithPeriodicity(rotation.rotate(pixel)) : calculateJulia3DWithoutPeriodicity(rotation.rotate(pixel));
         }
 
@@ -131,8 +128,8 @@ public abstract class Julia extends Fractal {
         Complex zold2 = new Complex();
         Complex start = new Complex(complex[0]);
 
-        for(; iterations < max_iterations; iterations++) {
-            if(bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, vars)) {
+        for (; iterations < max_iterations; iterations++) {
+            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, vars)) {
                 Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, vars};
                 return out_color_algorithm.getResult(object);
             }
@@ -140,16 +137,20 @@ public abstract class Julia extends Fractal {
             zold.assign(complex[0]);
             function(complex);
 
-            if(periodicityCheck(complex[0])) {
-                return max_iterations;
+            if (periodicityCheck(complex[0])) {
+                return ColorAlgorithm.MAXIMUM_ITERATIONS;
             }
         }
 
-        return max_iterations;
+        return ColorAlgorithm.MAXIMUM_ITERATIONS;
     }
 
     protected double calculateJuliaWithoutPeriodicity(Complex pixel) {
         int iterations = 0;
+
+        if (trap != null) {
+            trap.initialize();
+        }
 
         Complex[] complex = new Complex[2];
         complex[0] = new Complex(pixel);//z
@@ -159,8 +160,13 @@ public abstract class Julia extends Fractal {
         Complex zold2 = new Complex();
         Complex start = new Complex(complex[0]);
 
-        for(; iterations < max_iterations; iterations++) {
-            if(bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, vars)) {
+        for (; iterations < max_iterations; iterations++) {
+
+            if (trap != null) {
+                trap.check(complex[0]);
+            }
+
+            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, vars)) {
                 Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, vars};
                 return out_color_algorithm.getResult(object);
             }
@@ -196,8 +202,8 @@ public abstract class Julia extends Fractal {
 
         double temp;
 
-        for(; iterations < max_iterations; iterations++) {
-            if(bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, vars)) {
+        for (; iterations < max_iterations; iterations++) {
+            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, vars)) {
                 Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, vars};
                 temp = out_color_algorithm.getResult(object);
                 double[] array = {out_color_algorithm.transformResultToHeight(temp, max_iterations), temp};
@@ -207,19 +213,23 @@ public abstract class Julia extends Fractal {
             zold.assign(complex[0]);
             function(complex);
 
-            if(periodicityCheck(complex[0])) {
-                double[] array = {max_iterations, max_iterations};
+            if (periodicityCheck(complex[0])) {
+                double[] array = {max_iterations, ColorAlgorithm.MAXIMUM_ITERATIONS};
                 return array;
             }
         }
 
-        double[] array = {max_iterations, max_iterations};
+        double[] array = {max_iterations, ColorAlgorithm.MAXIMUM_ITERATIONS};
         return array;
 
     }
 
     protected double[] calculateJulia3DWithoutPeriodicity(Complex pixel) {
         int iterations = 0;
+
+        if (trap != null) {
+            trap.initialize();
+        }
 
         Complex[] complex = new Complex[2];
         complex[0] = new Complex(pixel);//z
@@ -231,8 +241,13 @@ public abstract class Julia extends Fractal {
 
         double temp;
 
-        for(; iterations < max_iterations; iterations++) {
-            if(bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, vars)) {
+        for (; iterations < max_iterations; iterations++) {
+
+            if (trap != null) {
+                trap.check(complex[0]);
+            }
+
+            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, vars)) {
                 Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, vars};
                 temp = out_color_algorithm.getResult(object);
                 double[] array = {out_color_algorithm.transformResultToHeight(temp, max_iterations), temp};
@@ -261,11 +276,11 @@ public abstract class Julia extends Fractal {
 
         Complex temp = null;
 
-        for(; iterations < max_iterations; iterations++) {
+        for (; iterations < max_iterations; iterations++) {
             function(complex);
             temp = rotation.rotateInverse(complex[0]);
 
-            if(Double.isNaN(temp.getRe()) || Double.isNaN(temp.getIm()) || Double.isInfinite(temp.getRe()) || Double.isInfinite(temp.getIm())) {
+            if (Double.isNaN(temp.getRe()) || Double.isNaN(temp.getIm()) || Double.isInfinite(temp.getRe()) || Double.isInfinite(temp.getIm())) {
                 break;
             }
 
@@ -273,22 +288,21 @@ public abstract class Julia extends Fractal {
         }
 
     }
-    
+
     @Override
     public Complex calculateJuliaDomain(Complex pixel) {
-        
+
         vars = createGlobalVars();
         plane.setGlobalVars(vars);
-        
-        if(apply_plane_on_julia) {
+
+        if (apply_plane_on_julia) {
             return iterateJuliaDomain(plane.transform(rotation.rotate(pixel)));
-        }
-        else {
+        } else {
             return iterateJuliaDomain(rotation.rotate(pixel));
         }
-     
+
     }
-    
+
     protected Complex iterateJuliaDomain(Complex pixel) {
         int iterations = 0;
 
@@ -296,8 +310,8 @@ public abstract class Julia extends Fractal {
         complex[0] = new Complex(pixel);//z
         complex[1] = new Complex(seed);//c
 
-        for(; iterations < max_iterations; iterations++) {
-            
+        for (; iterations < max_iterations; iterations++) {
+
             function(complex);
 
         }

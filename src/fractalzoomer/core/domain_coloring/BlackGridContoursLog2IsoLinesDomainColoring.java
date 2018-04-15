@@ -43,9 +43,7 @@ public class BlackGridContoursLog2IsoLinesDomainColoring extends DomainColoring 
         
         gridBlending = 0.4;
         
-        contourColorABlue = contourColorAGreen = contourColorARed = 0;
-
-        contourColorBBlue = contourColorBGreen = contourColorBRed = 255;
+        gradient = blackToWhite;
         
         isoLinesColorRed = 255;
         isoLinesColorGreen = 255;

@@ -1,11 +1,23 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Fractal Zoomer, Copyright (C) 2018 hrkalona2
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package fractalzoomer.parser;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.parser.functions.*;
 
 /**
  * An ExpressionNode that handles mathematical functions with 2 arguments.
@@ -120,9 +132,10 @@ public class Function2ArgumentsExpressionNode implements ExpressionNode {
     public static final int ROT = 20;
 
     /**
-     * the id of the function to apply to the argument
+     * the function to apply to the arguments
      */
-    private int function;
+    private AbstractTwoArgumentFunction function;
+    private int functionId;
 
     /**
      * the argument of the function
@@ -137,21 +150,110 @@ public class Function2ArgumentsExpressionNode implements ExpressionNode {
     /**
      * Construct a function by id and argument.
      *
-     * @param function the id of the function to apply
+     * @param functionId the id of the function to apply
      * @param argument the first argument of the function
      * @param argument2 the second argument of the function
      */
-    public Function2ArgumentsExpressionNode(int function, ExpressionNode argument, ExpressionNode argument2) {
+    public Function2ArgumentsExpressionNode(int functionId, ExpressionNode argument, ExpressionNode argument2) {
         super();
-        this.function = function;
+        this.functionId = functionId;
         this.argument = argument;
         this.argument2 = argument2;
+        
+        switch (functionId) {
+
+            case TO_BIPOLAR:
+                function = new ToBipolarFunction();
+                break;
+
+            case FROM_BIPOLAR:
+                function = new FromBipolarFunction();
+                break;
+
+            case INFLECTION:
+                function = new InflectFunction();
+                break;
+
+            case FOLD_UP:
+                function = new FoldUpFunction();
+                break;
+
+            case FOLD_DOWN:
+                function = new FoldDownFunction();
+                break;
+
+            case FOLD_LEFT:
+                function = new FoldLeftFunction();
+                break;
+
+            case FOLD_RIGHT:
+                function = new FoldRightFunction();
+                break;
+
+            case FOLD_IN:
+                function = new FoldInFunction();
+                break;
+
+            case FOLD_OUT:
+                function = new FoldOutFunction();
+                break;
+
+            case SHEAR:
+                function = new ShearFunction();
+                break;
+
+            case COMPARE:
+                function = new CompareFunction();
+                break;
+
+            case ADD:
+                function = new AddFunction();
+                break;
+
+            case SUB:
+                function = new SubFunction();
+                break;
+
+            case MUL:
+                function = new MulFunction();
+                break;
+
+            case DIV:
+                function = new DivFunction();
+                break;
+
+            case REM:
+                function = new RemFunction();
+                break;
+
+            case POW:
+                function = new PowFunction();
+                break;
+
+            case LOGN:
+                function = new LogNFunction();
+                break;
+                
+            case FUZZ:
+                function = new FuzzFunction();
+                break;
+                
+            case NORMN:
+                function = new NormNFunction();
+                break;
+                
+            case ROT:
+                function = new RotFunction();
+                break;
+
+        }
     }
 
     /**
      * Returns the type of the node, in this case
      * ExpressionNode.FUNCTION_2_ARG_NODE
      */
+    @Override
     public int getType() {
         return ExpressionNode.FUNCTION_2_ARG_NODE;
     }
@@ -270,75 +372,16 @@ public class Function2ArgumentsExpressionNode implements ExpressionNode {
      * The argument is evaluated and then the function is applied to the
      * resulting value.
      */
+    @Override
     public Complex getValue() {
-        switch (function) {
-
-            case TO_BIPOLAR:
-                return argument.getValue().toBiPolar(argument2.getValue());
-
-            case FROM_BIPOLAR:
-                return argument.getValue().fromBiPolar(argument2.getValue());
-
-            case INFLECTION:
-                return argument.getValue().inflection(argument2.getValue());
-
-            case FOLD_UP:
-                return argument.getValue().fold_up(argument2.getValue());
-
-            case FOLD_DOWN:
-                return argument.getValue().fold_down(argument2.getValue());
-
-            case FOLD_LEFT:
-                return argument.getValue().fold_left(argument2.getValue());
-
-            case FOLD_RIGHT:
-                return argument.getValue().fold_right(argument2.getValue());
-
-            case FOLD_IN:
-                return argument.getValue().fold_in(argument2.getValue());
-
-            case FOLD_OUT:
-                return argument.getValue().fold_out(argument2.getValue());
-
-            case SHEAR:
-                return argument.getValue().shear(argument2.getValue());
-
-            case COMPARE:
-                return new Complex(argument.getValue().compare(argument2.getValue()), 0);
-
-            case ADD:
-                return argument.getValue().plus(argument2.getValue());
-
-            case SUB:
-                return argument.getValue().sub(argument2.getValue());
-
-            case MUL:
-                return argument.getValue().times(argument2.getValue());
-
-            case DIV:
-                return argument.getValue().divide(argument2.getValue());
-
-            case REM:
-                return argument.getValue().remainder(argument2.getValue());
-
-            case POW:
-                return argument.getValue().pow(argument2.getValue());
-
-            case LOGN:
-                return argument.getValue().log().divide(argument2.getValue().log());
-                
-            case FUZZ:
-                return argument.getValue().fuzz(argument2.getValue());
-                
-            case NORMN:
-                return argument.getValue().nnorm(argument2.getValue());
-                
-            case ROT:
-                return argument.getValue().rotate(argument2.getValue());
-
+        
+        try {
+            return function.evaluate(argument.getValue(), argument2.getValue());
         }
-
-        throw new EvaluationException("Invalid function id " + function + "!");
+        catch(Exception ex) {
+            throw new EvaluationException("Invalid function id " + functionId + "!");
+        }
+        
     }
 
     /**

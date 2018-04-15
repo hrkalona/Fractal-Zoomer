@@ -25,7 +25,7 @@ import java.io.Serializable;
  * @author hrkalona2
  */
 public class SettingsFractals1053 extends SettingsFractals1050 implements Serializable {
-
+    private static final long serialVersionUID = 5850756480708737597L;
     private boolean exterior_de;
     private double exterior_de_factor;
     private double height_ratio;
@@ -110,6 +110,20 @@ public class SettingsFractals1053 extends SettingsFractals1050 implements Serial
     public int getPlaneTransformSides() {
         
         return plane_transform_sides;
+        
+    }
+    
+    @Override
+    public int getVersion() {
+        
+        return 1053;
+        
+    }
+    
+    @Override
+    public boolean isJulia() {
+        
+        return false;
         
     }
 }

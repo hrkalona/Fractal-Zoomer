@@ -35,6 +35,7 @@ public class ColorsMenu extends JMenu {
     private PaletteMenu palette_menu;
     private JMenu roll_palette_menu;
     private JMenuItem fract_color;
+    private JMenuItem gradient;
     private JMenuItem random_palette;
     private JMenuItem roll_palette;
     private JMenuItem increase_roll_palette;
@@ -72,6 +73,8 @@ public class ColorsMenu extends JMenu {
         
         color_blending_menu = new ColorBlendingMenu(ptr, "Blending", color_blending);
         
+        gradient = new JMenuItem("Gradient", getIcon("/fractalzoomer/icons/gradient.png"));
+        
         roll_palette_menu = new JMenu("Palette Shifting");
         roll_palette_menu.setIcon(getIcon("/fractalzoomer/icons/shift_palette.png"));
 
@@ -88,6 +91,7 @@ public class ColorsMenu extends JMenu {
         roll_palette.setToolTipText("Shifts the chosen palette by a number.");
         increase_roll_palette.setToolTipText("Shifts the chosen palette forward by one.");
         decrease_roll_palette.setToolTipText("Shifts the chosen palette backward by one.");
+        gradient.setToolTipText("Sets the gradient for color blending.");
      
         color_intensity_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, ActionEvent.CTRL_MASK));
 
@@ -96,6 +100,7 @@ public class ColorsMenu extends JMenu {
         roll_palette.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, ActionEvent.SHIFT_MASK));
         increase_roll_palette.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, ActionEvent.SHIFT_MASK));
         decrease_roll_palette.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, ActionEvent.SHIFT_MASK));
+        gradient.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_5, 0));
 
         fract_color.addActionListener(new ActionListener() {
 
@@ -157,6 +162,16 @@ public class ColorsMenu extends JMenu {
             }
         });
         
+        gradient.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setGradient();
+
+            }
+        });
+        
         roll_palette_menu.add(roll_palette);
         roll_palette_menu.add(increase_roll_palette);
         roll_palette_menu.add(decrease_roll_palette);
@@ -167,6 +182,7 @@ public class ColorsMenu extends JMenu {
         add(processing);
         addSeparator();                
         add(color_blending_menu); 
+        add(gradient);
         addSeparator();
         add(fract_color);
         addSeparator();
@@ -321,6 +337,18 @@ public class ColorsMenu extends JMenu {
     public ColorBlendingMenu getColorBlending() {
         
         return color_blending_menu;
+        
+    }
+    
+    public JMenuItem getGradient() {
+        
+        return gradient;
+                
+    }
+    
+    public JMenuItem getOrbitTraps() {
+        
+        return processing.getOrbitTraps();
         
     }
 }

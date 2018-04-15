@@ -60,7 +60,7 @@ public class SmoothEscapeTimeAlgorithm2Magnet extends OutColorAlgorithm {
 
         Complex temp = ((Complex)object[1]).sub(((Complex)object[1]).sin());
 
-        return (Integer)object[0] + Math.abs(Math.atan(temp.getIm() / temp.getRe())) * 8 + temp3 + MAGIC_OFFSET_NUMBER;
+        return (Integer)object[0] + Math.abs(Math.atan(temp.getIm() / temp.getRe())) * 8 + temp3;
 
     }
 

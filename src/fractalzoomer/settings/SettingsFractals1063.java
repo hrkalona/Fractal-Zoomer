@@ -24,6 +24,7 @@ import java.io.Serializable;
  * @author hrkalona2
  */
 public class SettingsFractals1063 extends SettingsFractals1062 implements Serializable {
+    private static final long serialVersionUID = 1529840757923796147L;
     private Color[] filters_colors;
     private String[] user_formula_coupled;
     private double coupling;
@@ -110,6 +111,20 @@ public class SettingsFractals1063 extends SettingsFractals1062 implements Serial
     public int getDomainColoringAlg() {
         
         return domain_coloring_alg;
+        
+    }
+    
+    @Override
+    public int getVersion() {
+        
+        return 1063;
+        
+    }
+    
+    @Override
+    public boolean isJulia() {
+        
+        return false;
         
     }
     

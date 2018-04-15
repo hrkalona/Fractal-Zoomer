@@ -35,9 +35,7 @@ public class NormIsoContoursContoursLog2DomainColoring extends DomainColoring {
         iso_distance = 1.0 / 12.0;
         iso_factor = 0.5;
         
-        contourColorABlue = contourColorAGreen = contourColorARed = 0;
-
-        contourColorBBlue = contourColorBGreen = contourColorBRed = 255;
+        gradient = blackToWhite;
 
         logBaseFinal = Math.log(2);
         

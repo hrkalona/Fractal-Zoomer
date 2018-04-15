@@ -20,6 +20,7 @@ import fractalzoomer.core.Complex;
 import fractalzoomer.core.ThreadDraw;
 import fractalzoomer.parser.ExpressionNode;
 import fractalzoomer.parser.Parser;
+import fractalzoomer.utils.ColorAlgorithm;
 
 /**
  *
@@ -295,15 +296,10 @@ public class UserConditionalOutColorAlgorithmRootFindingMethod extends OutColorA
             double result2 = expr2[0].getValue().getRe();
                    
             if(Math.abs(result2) == max_iterations) {
-                return result2;
+                return result2 < 0 ? -ColorAlgorithm.MAXIMUM_ITERATIONS : ColorAlgorithm.MAXIMUM_ITERATIONS;
             }
 
-            if(result2 < 0) {
-                return result2 - MAGIC_OFFSET_NUMBER;
-            }
-            else {
-                return result2 + MAGIC_OFFSET_NUMBER;
-            }  
+            return result2;  
         }
         else if(result == 1) { // right > left
             if(parser2[1].foundN()) {
@@ -339,15 +335,10 @@ public class UserConditionalOutColorAlgorithmRootFindingMethod extends OutColorA
             double result2 = expr2[1].getValue().getRe();
         
             if(Math.abs(result2) == max_iterations) {
-                return result2;
+                return result2 < 0 ? -ColorAlgorithm.MAXIMUM_ITERATIONS : ColorAlgorithm.MAXIMUM_ITERATIONS;
             }
 
-            if(result2 < 0) {
-                return result2 - MAGIC_OFFSET_NUMBER;
-            }
-            else {
-                return result2 + MAGIC_OFFSET_NUMBER;
-            }  
+            return result2;  
         }
         else if(result == 0) { //left == right
             if(parser2[2].foundN()) {
@@ -383,15 +374,10 @@ public class UserConditionalOutColorAlgorithmRootFindingMethod extends OutColorA
             double result2 = expr2[2].getValue().getRe();
         
             if(Math.abs(result2) == max_iterations) {
-                return result2;
+                return result2 < 0 ? -ColorAlgorithm.MAXIMUM_ITERATIONS : ColorAlgorithm.MAXIMUM_ITERATIONS;
             }
 
-            if(result2 < 0) {
-                return result2 - MAGIC_OFFSET_NUMBER;
-            }
-            else {
-                return result2 + MAGIC_OFFSET_NUMBER;
-            }  
+            return result2;  
         }
 
         return 0;

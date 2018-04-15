@@ -18,11 +18,18 @@ package fractalzoomer.parser;
 
 import fractalzoomer.core.Complex;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
 import java.io.OutputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
 
@@ -36,6 +43,9 @@ import javax.tools.ToolProvider;
  */
 public class Parser {
 
+    public static URLClassLoader loader;
+    static Class<?> userClass;
+
     /**
      * the tokens to parse
      */
@@ -46,7 +56,7 @@ public class Parser {
     Token lookahead;
 
     /* Implemented for fractal zoomer purposes */
-    public static final int EXTRA_VARS = 20;
+    public static final int EXTRA_VARS = 30;
     boolean found_z;
     boolean found_c;
     boolean found_n;
@@ -60,7 +70,7 @@ public class Parser {
     boolean found_size;
     boolean found_point;
     boolean found_isize;
-    
+
     boolean found_vars[];
 
     ArrayList<VariableExpressionNode> z_var;
@@ -121,9 +131,9 @@ public class Parser {
         found_size = false;
         found_isize = false;
         found_point = false;
-        
+
         found_vars = new boolean[EXTRA_VARS];
-        
+
         for(int i = 0; i < found_vars.length; i++) {
             found_vars[i] = false;
         }
@@ -141,11 +151,11 @@ public class Parser {
         size_var = new ArrayList<VariableExpressionNode>();
         isize_var = new ArrayList<VariableExpressionNode>();
         vars_var = new ArrayList<ArrayList<VariableExpressionNode>>();
-        
+
         for(int i = 0; i < EXTRA_VARS; i++) {
             vars_var.add(new ArrayList<VariableExpressionNode>());
         }
-        
+
         point_var = new ArrayList<VariableExpressionNode>();
 
         Tokenizer tokenizer = Tokenizer.getExpressionTokenizer();
@@ -191,7 +201,7 @@ public class Parser {
         maxn_var_arr = new VariableExpressionNode[maxn_var.size()];
         center_var_arr = new VariableExpressionNode[center_var.size()];
         size_var_arr = new VariableExpressionNode[size_var.size()];
-        isize_var_arr = new VariableExpressionNode[isize_var.size()]; 
+        isize_var_arr = new VariableExpressionNode[isize_var.size()];
         point_var_arr = new VariableExpressionNode[point_var.size()];
 
         z_var_arr = z_var.toArray(z_var_arr);
@@ -209,7 +219,7 @@ public class Parser {
         point_var_arr = point_var.toArray(point_var_arr);
 
         vars_var_arr = new VariableExpressionNode[EXTRA_VARS][];
-        
+
         for(int i = 0; i < vars_var_arr.length; i++) {
             vars_var_arr[i] = new VariableExpressionNode[vars_var.get(i).size()];
             vars_var_arr[i] = vars_var.get(i).toArray(vars_var_arr[i]);
@@ -386,40 +396,42 @@ public class Parser {
             nextToken();
             ExpressionNode expr = functionArgument();
             return new FunctionExpressionNode(function, expr);
-        }
-        // argument -> FUNCTION_2ARG argument
+        } // argument -> FUNCTION_2ARG argument
         else if(lookahead.token == Token.FUNCTION_2ARGUMENTS) {
             int function = Function2ArgumentsExpressionNode.stringToFunction(lookahead.sequence);
 
             nextToken();
             ExpressionNode expr[] = functionArgument2();
             return new Function2ArgumentsExpressionNode(function, expr[0], expr[1]);
-        }
-        // argument -> FUNCTION_USER_1_ARG argument
+        } // argument -> FUNCTION_USER_1_ARG argument
         else if(lookahead.token == Token.FUNCTION_USER_ONE_ARGUMENT) {
             int function = FunctionUser1ArgumentExpressionNode.stringToFunction(lookahead.sequence);
 
             nextToken();
             ExpressionNode expr = functionArgument();
             return new FunctionUser1ArgumentExpressionNode(function, expr);
-        }
-        // argument -> FUNCTION_USER_2_ARG argument
+        } // argument -> FUNCTION_USER_2_ARG argument
         else if(lookahead.token == Token.FUNCTION_USER_TWO_ARGUMENTS) {
             int function = FunctionUser2ArgumentExpressionNode.stringToFunction(lookahead.sequence);
 
             nextToken();
             ExpressionNode expr[] = functionArgument2();
             return new FunctionUser2ArgumentExpressionNode(function, expr[0], expr[1]);
-        }
-        // argument -> FUNCTION_USER_MULTI_ARG argument
+        } // argument -> FUNCTION_USER_MULTI_ARG argument
         else if(lookahead.token == Token.FUNCTION_USER_MULTI_ARGUMENTS) {
             int function = FunctionUserMultiArgumentExpressionNode.stringToFunction(lookahead.sequence);
 
             nextToken();
-            ExpressionNode expr[] = functionUserMultiArguments();
+            ExpressionNode expr[] = functionUserMultiArguments(FunctionUserMultiArgumentExpressionNode.MAX_ARGUMENTS);
             return new FunctionUserMultiArgumentExpressionNode(function, expr);
-        }
-        // argument -> OPEN_BRACKET sum CLOSE_BRACKET
+        } // argument -> FUNCTION_USER_MULTI_2_ARG) argument
+        else if(lookahead.token == Token.FUNCTION_USER_MULTI_2_ARGUMENTS) {
+            int function = FunctionUserMultiArgument2ExpressionNode.stringToFunction(lookahead.sequence);
+
+            nextToken();
+            ExpressionNode expr[] = functionUserMultiArguments(FunctionUserMultiArgument2ExpressionNode.MAX_ARGUMENTS);
+            return new FunctionUserMultiArgument2ExpressionNode(function, expr);
+        }// argument -> OPEN_BRACKET sum CLOSE_BRACKET
         else if(lookahead.token == Token.OPEN_BRACKET) {
             nextToken();
             ExpressionNode expr = expression();
@@ -457,9 +469,9 @@ public class Parser {
     }
 
     /*handles the function with user multi arguments */
-    private ExpressionNode[] functionUserMultiArguments() {
+    private ExpressionNode[] functionUserMultiArguments(int max_arguments) {
         if(lookahead.token == Token.OPEN_BRACKET) {
-            ExpressionNode[] exprs = new ExpressionNode[FunctionUserMultiArgumentExpressionNode.MAX_ARGUMENTS];
+            ExpressionNode[] exprs = new ExpressionNode[max_arguments];
 
             nextToken();
             exprs[0] = expression();
@@ -474,6 +486,12 @@ public class Parser {
                 }
                 nextToken();
                 exprs[i] = expression();
+            }
+
+            for(int i = 0; i < exprs.length; i++) {
+                if(exprs[i] == null) {
+                    exprs[i] = new RealConstantExpressionNode(0.0);
+                }
             }
 
             if(lookahead.token != Token.CLOSE_BRACKET) {
@@ -520,7 +538,7 @@ public class Parser {
                 expr = new ImaginaryConstantExpressionNode(tok.nextToken());
             }
             else {
-                expr = new ImaginaryConstantExpressionNode("1.0");
+                expr = new ImaginaryConstantExpressionNode(1.0);
             }
             nextToken();
             return expr;
@@ -530,15 +548,52 @@ public class Parser {
         if(lookahead.token == Token.VARIABLE) {
 
             String temp = lookahead.sequence;
-           
+
+            boolean vars_exist = false;
+            
+            for(int i = 0; i < vars_var.size(); i++) {
+                vars_exist |= temp.equalsIgnoreCase("v" + (i + 1));
+            }
+            
             if(!temp.equalsIgnoreCase("z") && !temp.equalsIgnoreCase("c") && !temp.equalsIgnoreCase("n") && !temp.equalsIgnoreCase("p") && !temp.equalsIgnoreCase("s") && !temp.equalsIgnoreCase("pp") && !temp.equalsIgnoreCase("bail") && !temp.equalsIgnoreCase("cbail") && !temp.equalsIgnoreCase("maxn") && !temp.equalsIgnoreCase("pi") && !temp.equalsIgnoreCase("e") && !temp.equalsIgnoreCase("c10")
                     && !temp.equalsIgnoreCase("phi") && !temp.equalsIgnoreCase("alpha") && !temp.equalsIgnoreCase("delta") && !temp.equalsIgnoreCase("center") && !temp.equalsIgnoreCase("size")
-                    && !temp.equalsIgnoreCase("v1") && !temp.equalsIgnoreCase("v2") && !temp.equalsIgnoreCase("v3") && !temp.equalsIgnoreCase("v4") && !temp.equalsIgnoreCase("v5") && !temp.equalsIgnoreCase("v6") && !temp.equalsIgnoreCase("v7") && !temp.equalsIgnoreCase("v8") && !temp.equalsIgnoreCase("v9") && !temp.equalsIgnoreCase("v10")
-                    && !temp.equalsIgnoreCase("v11") && !temp.equalsIgnoreCase("v12") && !temp.equalsIgnoreCase("v13") && !temp.equalsIgnoreCase("v14") && !temp.equalsIgnoreCase("v15") && !temp.equalsIgnoreCase("v16") && !temp.equalsIgnoreCase("v17") && !temp.equalsIgnoreCase("v18") && !temp.equalsIgnoreCase("v19") && !temp.equalsIgnoreCase("v20")&& !temp.equalsIgnoreCase("point") && !temp.equalsIgnoreCase("sizei")) {
+                    && !vars_exist
+                    && !temp.equalsIgnoreCase("point") && !temp.equalsIgnoreCase("sizei")) {
                 throw new ParserException("Unrecognized variable %s found.", lookahead);
             }
 
-            ExpressionNode expr = new VariableExpressionNode(temp);
+            ExpressionNode expr = null;
+
+            if(temp.equalsIgnoreCase("pi") || temp.equalsIgnoreCase("e") || temp.equalsIgnoreCase("c10") || temp.equalsIgnoreCase("phi") || temp.equalsIgnoreCase("alpha") || temp.equalsIgnoreCase("delta")) {
+                if(temp.equalsIgnoreCase("pi")) {
+                    expr = new RealConstantExpressionNode(Math.PI);
+                }
+
+                if(temp.equalsIgnoreCase("e")) {
+                    expr = new RealConstantExpressionNode(Math.E);
+                }
+
+                if(temp.equalsIgnoreCase("c10")) {
+                    expr = new RealConstantExpressionNode(0.1234567891011121314);
+                }
+
+                if(temp.equalsIgnoreCase("phi")) {
+                    expr = new RealConstantExpressionNode(1.618033988749895);
+                }
+
+                if(temp.equalsIgnoreCase("alpha")) {
+                    expr = new RealConstantExpressionNode(2.5029078750958928);
+                }
+
+                if(temp.equalsIgnoreCase("delta")) {
+                    expr = new RealConstantExpressionNode(4.669201609102990);
+                }
+
+                nextToken();
+                return expr;
+            }
+
+            expr = new VariableExpressionNode(temp);
 
             if(temp.equalsIgnoreCase("z")) {
                 found_z = true;
@@ -589,7 +644,7 @@ public class Parser {
                 found_size = true;
                 size_var.add((VariableExpressionNode)expr);
             }
-            
+
             if(temp.equalsIgnoreCase("sizei")) {
                 found_isize = true;
                 isize_var.add((VariableExpressionNode)expr);
@@ -611,30 +666,6 @@ public class Parser {
             if(temp.equalsIgnoreCase("point")) {
                 found_point = true;
                 point_var.add((VariableExpressionNode)expr);
-            }
-
-            if(temp.equalsIgnoreCase("pi")) {
-                ((VariableExpressionNode)expr).setValue(new Complex(Math.PI, 0));
-            }
-
-            if(temp.equalsIgnoreCase("e")) {
-                ((VariableExpressionNode)expr).setValue(new Complex(Math.E, 0));
-            }
-
-            if(temp.equalsIgnoreCase("c10")) {
-                ((VariableExpressionNode)expr).setValue(new Complex(0.1234567891011121314, 0));
-            }
-
-            if(temp.equalsIgnoreCase("phi")) {
-                ((VariableExpressionNode)expr).setValue(new Complex(1.618033988749895, 0));
-            }
-
-            if(temp.equalsIgnoreCase("alpha")) {
-                ((VariableExpressionNode)expr).setValue(new Complex(2.5029078750958928, 0));
-            }
-
-            if(temp.equalsIgnoreCase("delta")) {
-                ((VariableExpressionNode)expr).setValue(new Complex(4.669201609102990, 0));
             }
 
             nextToken();
@@ -675,6 +706,34 @@ public class Parser {
 
             if(compilationResult != 0) {
                 throw new ParserException("Compilation error: " + out.toString());
+            }
+
+            try {
+                File file = new File("");
+                URL url = file.toURI().toURL();
+
+                if(loader != null) {
+                    loader.close();
+                    loader = null;
+                }
+
+                loader = new URLClassLoader(new URL[] {url});
+                userClass = loader.loadClass("UserDefinedFunctions");
+            }
+            catch(ClassNotFoundException ex) {
+                throw new ParserException("Class not found error: " + ex.getMessage());
+            }
+            catch(SecurityException ex) {
+                throw new ParserException("Security error: " + sanitizeMessage(ex.getMessage()));
+            }
+            catch(IllegalArgumentException ex) {
+                throw new ParserException("Illegal Argument error: " + sanitizeMessage(ex.getMessage()));
+            }
+            catch(MalformedURLException ex) {
+                throw new ParserException("File not found error: " + sanitizeMessage(ex.getMessage()));
+            }
+            catch(IOException ex) {
+                throw new ParserException("Error: " + sanitizeMessage(ex.getMessage()));
             }
         }
         else {
@@ -726,11 +785,11 @@ public class Parser {
     public boolean foundSize() {
         return found_size;
     }
-    
+
     public boolean foundISize() {
         return found_isize;
     }
-    
+
     public boolean foundPoint() {
         return found_point;
     }
@@ -741,17 +800,18 @@ public class Parser {
         }
         catch(Exception ex) {
         }
-        
+
         return false;
     }
-    
+
     public boolean foundAnyVar() {
-        
+
         for(int i = 0; i < found_vars.length; i++) {
-            if(found_vars[i])
+            if(found_vars[i]) {
                 return true;
+            }
         }
-        
+
         return false;
     }
 
@@ -847,7 +907,7 @@ public class Parser {
         }
 
     }
-    
+
     public void setISizevalue(Complex value) {
 
         for(int i = 0; i < isize_var_arr.length; i++) {
@@ -855,7 +915,7 @@ public class Parser {
         }
 
     }
-    
+
     public void setPointvalue(Complex value) {
 
         for(int i = 0; i < point_var_arr.length; i++) {
@@ -875,8 +935,18 @@ public class Parser {
         }
 
     }
+
     /**
      * **********************************************
      */
+
+    public static String sanitizeMessage(String message) {
+
+        if(message.length() > 100) {
+            return message.substring(0, 100) + "...";
+        }
+
+        return message;
+    }
 
 }

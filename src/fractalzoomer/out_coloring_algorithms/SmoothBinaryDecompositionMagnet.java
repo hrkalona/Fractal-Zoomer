@@ -80,14 +80,6 @@ public class SmoothBinaryDecompositionMagnet extends SmoothBinaryDecomposition {
             }
         }
         
-        double temp4 = ((Complex)object[1]).getIm() < 0 ? -(temp3 + INCREMENT) : temp3;
-
-        if(temp4 < 0) {
-            return temp4 - MAGIC_OFFSET_NUMBER;
-        }
-        else {
-            return temp4 + MAGIC_OFFSET_NUMBER;
-        }
-
+        return ((Complex)object[1]).getIm() < 0 ? -(temp3 + INCREMENT) : temp3;
     }
 }

@@ -19,6 +19,7 @@ package fractalzoomer.functions.root_finding_methods.schroder;
 import fractalzoomer.core.Complex;
 import fractalzoomer.core.ThreadDraw;
 import fractalzoomer.main.MainWindow;
+import fractalzoomer.main.app_settings.OrbitTrapSettings;
 import fractalzoomer.parser.ExpressionNode;
 import fractalzoomer.parser.Parser;
 import java.util.ArrayList;
@@ -35,12 +36,12 @@ public class SchroderFormula extends SchroderRootFindingMethod {
     private Parser parser2;
     private ExpressionNode expr3;
     private Parser parser3;
-    private int iterations;   
+    private int iterations;
     private Complex point;
 
-    public SchroderFormula(double xCenter, double yCenter, double size, int max_iterations, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int converging_smooth_algorithm, String user_fz_formula, String user_dfz_formula, String user_ddfz_formula) {
+    public SchroderFormula(double xCenter, double yCenter, double size, int max_iterations, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int converging_smooth_algorithm, String user_fz_formula, String user_dfz_formula, String user_ddfz_formula, OrbitTrapSettings ots) {
 
-        super(xCenter, yCenter, size, max_iterations,  plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+        super(xCenter, yCenter, size, max_iterations, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, ots);
 
         switch (out_coloring_algorithm) {
 
@@ -49,7 +50,7 @@ public class SchroderFormula extends SchroderRootFindingMethod {
                 break;
             case MainWindow.BINARY_DECOMPOSITION2:
                 convergent_bailout = 1E-7;
-                break;           
+                break;
             case MainWindow.USER_OUTCOLORING_ALGORITHM:
                 convergent_bailout = 1E-7;
                 break;
@@ -57,7 +58,7 @@ public class SchroderFormula extends SchroderRootFindingMethod {
         }
 
         OutColoringAlgorithmFactory(out_coloring_algorithm, smoothing, converging_smooth_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, plane_transform_center);
-       
+
         InColoringAlgorithmFactory(in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, plane_transform_center);
 
         parser = new Parser();
@@ -68,7 +69,7 @@ public class SchroderFormula extends SchroderRootFindingMethod {
 
         parser3 = new Parser();
         expr3 = parser3.parse(user_ddfz_formula);
-        
+
         point = new Complex(plane_transform_center[0], plane_transform_center[1]);
 
     }
@@ -86,55 +87,55 @@ public class SchroderFormula extends SchroderRootFindingMethod {
 
         parser3 = new Parser();
         expr3 = parser3.parse(user_ddfz_formula);
-        
+
         point = new Complex(plane_transform_center[0], plane_transform_center[1]);
     }
 
     @Override
     protected void function(Complex[] complex) {
 
-        if(parser.foundZ()) {
+        if (parser.foundZ()) {
             parser.setZvalue(complex[0]);
         }
 
-        if(parser.foundN()) {
+        if (parser.foundN()) {
             parser.setNvalue(new Complex(iterations, 0));
         }
-        
-        for(int i = 0; i < Parser.EXTRA_VARS; i++) {
-            if(parser.foundVar(i)) {
+
+        for (int i = 0; i < Parser.EXTRA_VARS; i++) {
+            if (parser.foundVar(i)) {
                 parser.setVarsvalue(i, vars[i]);
             }
         }
 
         Complex fz = expr.getValue();
 
-        if(parser2.foundZ()) {
+        if (parser2.foundZ()) {
             parser2.setZvalue(complex[0]);
         }
 
-        if(parser2.foundN()) {
+        if (parser2.foundN()) {
             parser2.setNvalue(new Complex(iterations, 0));
         }
-        
-        for(int i = 0; i < Parser.EXTRA_VARS; i++) {
-            if(parser2.foundVar(i)) {
+
+        for (int i = 0; i < Parser.EXTRA_VARS; i++) {
+            if (parser2.foundVar(i)) {
                 parser2.setVarsvalue(i, vars[i]);
             }
         }
 
         Complex dfz = expr2.getValue();
 
-        if(parser3.foundZ()) {
+        if (parser3.foundZ()) {
             parser3.setZvalue(complex[0]);
         }
 
-        if(parser3.foundN()) {
+        if (parser3.foundN()) {
             parser3.setNvalue(new Complex(iterations, 0));
         }
-        
-        for(int i = 0; i < Parser.EXTRA_VARS; i++) {
-            if(parser3.foundVar(i)) {
+
+        for (int i = 0; i < Parser.EXTRA_VARS; i++) {
+            if (parser3.foundVar(i)) {
                 parser3.setVarsvalue(i, vars[i]);
             }
         }
@@ -149,6 +150,10 @@ public class SchroderFormula extends SchroderRootFindingMethod {
         iterations = 0;
         double temp = 0;
 
+        if (trap != null) {
+            trap.initialize();
+        }
+
         Complex[] complex = new Complex[1];
         complex[0] = new Complex(pixel);//z
 
@@ -158,8 +163,13 @@ public class SchroderFormula extends SchroderRootFindingMethod {
 
         setInitVariables(start, zold, zold2);
 
-        for(; iterations < max_iterations; iterations++) {
-            if((temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
+        for (; iterations < max_iterations; iterations++) {
+
+            if (trap != null) {
+                trap.check(complex[0]);
+            }
+
+            if ((temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
                 Object[] object = {iterations, complex[0], temp, zold, zold2, pixel, start, vars};
                 return out_color_algorithm.getResult(object);
             }
@@ -181,6 +191,10 @@ public class SchroderFormula extends SchroderRootFindingMethod {
         iterations = 0;
         double temp = 0;
 
+        if (trap != null) {
+            trap.initialize();
+        }
+
         Complex[] complex = new Complex[1];
         complex[0] = new Complex(pixel);//z
 
@@ -190,8 +204,13 @@ public class SchroderFormula extends SchroderRootFindingMethod {
 
         setInitVariables(start, zold, zold2);
 
-        for(; iterations < max_iterations; iterations++) {
-            if((temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
+        for (; iterations < max_iterations; iterations++) {
+
+            if (trap != null) {
+                trap.check(complex[0]);
+            }
+
+            if ((temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
                 Object[] object = {iterations, complex[0], temp, zold, zold2, pixel, start, vars};
                 double[] array = {out_color_algorithm.transformResultToHeight(out_color_algorithm.getResult3D(object), max_iterations), out_color_algorithm.getResult(object)};
                 return array;
@@ -226,7 +245,7 @@ public class SchroderFormula extends SchroderRootFindingMethod {
 
         setInitVariables(start, zold, zold2);
 
-        for(; iterations < max_iterations; iterations++) {
+        for (; iterations < max_iterations; iterations++) {
             zold2.assign(zold);
             zold.assign(complex[0]);
             function(complex);
@@ -235,7 +254,7 @@ public class SchroderFormula extends SchroderRootFindingMethod {
 
             temp = rotation.rotateInverse(complex[0]);
 
-            if(Double.isNaN(temp.getRe()) || Double.isNaN(temp.getIm()) || Double.isInfinite(temp.getRe()) || Double.isInfinite(temp.getIm())) {
+            if (Double.isNaN(temp.getRe()) || Double.isNaN(temp.getIm()) || Double.isInfinite(temp.getRe()) || Double.isInfinite(temp.getIm())) {
                 break;
             }
 
@@ -257,7 +276,7 @@ public class SchroderFormula extends SchroderRootFindingMethod {
 
         setInitVariables(start, zold, zold2);
 
-        for(; iterations < max_iterations; iterations++) {
+        for (; iterations < max_iterations; iterations++) {
 
             zold2.assign(zold);
             zold.assign(complex[0]);
@@ -270,113 +289,113 @@ public class SchroderFormula extends SchroderRootFindingMethod {
         return complex[0];
 
     }
-    
+
     private void setVariables(Complex zold, Complex zold2) {
 
-        if(parser.foundP()) {
+        if (parser.foundP()) {
             parser.setPvalue(zold);
         }
 
-        if(parser2.foundP()) {
+        if (parser2.foundP()) {
             parser2.setPvalue(zold);
         }
 
-        if(parser3.foundP()) {
+        if (parser3.foundP()) {
             parser3.setPvalue(zold);
         }
 
-        if(parser.foundPP()) {
+        if (parser.foundPP()) {
             parser.setPPvalue(zold2);
         }
 
-        if(parser2.foundPP()) {
+        if (parser2.foundPP()) {
             parser2.setPPvalue(zold2);
         }
 
-        if(parser3.foundPP()) {
+        if (parser3.foundPP()) {
             parser3.setPPvalue(zold2);
         }
 
     }
 
     private void setInitVariables(Complex start, Complex zold, Complex zold2) {
-        
-        if(parser.foundS()) {
+
+        if (parser.foundS()) {
             parser.setSvalue(start);
         }
 
-        if(parser2.foundS()) {
+        if (parser2.foundS()) {
             parser2.setSvalue(start);
         }
 
-        if(parser3.foundS()) {
+        if (parser3.foundS()) {
             parser3.setSvalue(start);
         }
 
-        if(parser.foundMaxn()) {
+        if (parser.foundMaxn()) {
             parser.setMaxnvalue(new Complex(max_iterations, 0));
         }
 
-        if(parser2.foundMaxn()) {
+        if (parser2.foundMaxn()) {
             parser2.setMaxnvalue(new Complex(max_iterations, 0));
         }
 
-        if(parser3.foundMaxn()) {
+        if (parser3.foundMaxn()) {
             parser3.setMaxnvalue(new Complex(max_iterations, 0));
         }
 
-        if(parser.foundP()) {
+        if (parser.foundP()) {
             parser.setPvalue(zold);
         }
 
-        if(parser2.foundP()) {
+        if (parser2.foundP()) {
             parser2.setPvalue(zold);
         }
 
-        if(parser3.foundP()) {
+        if (parser3.foundP()) {
             parser3.setPvalue(zold);
         }
 
-        if(parser.foundPP()) {
+        if (parser.foundPP()) {
             parser.setPPvalue(zold2);
         }
 
-        if(parser2.foundPP()) {
+        if (parser2.foundPP()) {
             parser2.setPPvalue(zold2);
         }
 
-        if(parser3.foundPP()) {
+        if (parser3.foundPP()) {
             parser3.setPPvalue(zold2);
         }
-        
+
         Complex c_center = new Complex(xCenter, yCenter);
-        
-        if(parser.foundCenter()) {
+
+        if (parser.foundCenter()) {
             parser.setCentervalue(c_center);
         }
 
-        if(parser2.foundCenter()) {
+        if (parser2.foundCenter()) {
             parser2.setCentervalue(c_center);
         }
 
-        if(parser3.foundCenter()) {
+        if (parser3.foundCenter()) {
             parser3.setCentervalue(c_center);
         }
-        
+
         Complex c_size = new Complex(size, 0);
-        
-        if(parser.foundSize()) {
+
+        if (parser.foundSize()) {
             parser.setSizevalue(c_size);
         }
 
-        if(parser2.foundSize()) {
+        if (parser2.foundSize()) {
             parser2.setSizevalue(c_size);
         }
 
-        if(parser3.foundSize()) {
+        if (parser3.foundSize()) {
             parser3.setSizevalue(c_size);
         }
-        
+
         Complex c_isize = new Complex(ThreadDraw.IMAGE_SIZE, 0);
         if (parser.foundISize()) {
             parser.setISizevalue(c_isize);
@@ -385,20 +404,20 @@ public class SchroderFormula extends SchroderRootFindingMethod {
         if (parser2.foundISize()) {
             parser2.setISizevalue(c_isize);
         }
-        
+
         if (parser3.foundISize()) {
             parser3.setISizevalue(c_isize);
         }
-        
-        if(parser.foundPoint()) {
+
+        if (parser.foundPoint()) {
             parser.setPointvalue(point);
         }
 
-        if(parser2.foundPoint()) {
+        if (parser2.foundPoint()) {
             parser2.setPointvalue(point);
         }
-        
-        if(parser3.foundPoint()) {
+
+        if (parser3.foundPoint()) {
             parser3.setPointvalue(point);
         }
     }

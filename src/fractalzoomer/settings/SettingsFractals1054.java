@@ -25,7 +25,7 @@ import java.io.Serializable;
  * @author hrkalona2
  */
 public class SettingsFractals1054 extends SettingsFractals1053 implements Serializable {
-
+    private static final long serialVersionUID = 6735398127077569028L;
     private int escaping_smooth_algorithm;
     private int converging_smooth_algorithm;
     private boolean bump_map;
@@ -103,6 +103,20 @@ public class SettingsFractals1054 extends SettingsFractals1053 implements Serial
     public double getColorIntensity() {
         
         return color_intensity;
+        
+    }
+    
+    @Override
+    public int getVersion() {
+        
+        return 1054;
+        
+    }
+    
+    @Override
+    public boolean isJulia() {
+        
+        return false;
         
     }
 }

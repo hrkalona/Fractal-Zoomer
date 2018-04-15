@@ -17,12 +17,8 @@
 package fractalzoomer.parser;
 
 import fractalzoomer.core.Complex;
-import java.io.File;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
 
 /**
  *
@@ -30,205 +26,8 @@ import java.net.URLClassLoader;
  */
 public class FunctionUser2ArgumentExpressionNode implements ExpressionNode {
 
-    /**
-     * function id for the user g1 function
-     */
-    public static final int G1 = 0;
-
-    /**
-     * function id for the user g2 function
-     */
-    public static final int G2 = 1;
-
-    /**
-     * function id for the user g3 function
-     */
-    public static final int G3 = 2;
-
-    /**
-     * function id for the user g4 function
-     */
-    public static final int G4 = 3;
-
-    /**
-     * function id for the user g5 function
-     */
-    public static final int G5 = 4;
-
-    /**
-     * function id for the user g6 function
-     */
-    public static final int G6 = 5;
-
-    /**
-     * function id for the user g7 function
-     */
-    public static final int G7 = 6;
-
-    /**
-     * function id for the user g8 function
-     */
-    public static final int G8 = 7;
-
-    /**
-     * function id for the user g9 function
-     */
-    public static final int G9 = 8;
-
-    /**
-     * function id for the user g10 function
-     */
-    public static final int G10 = 9;
-
-    /**
-     * function id for the user g11 function
-     */
-    public static final int G11 = 10;
-
-    /**
-     * function id for the user g12 function
-     */
-    public static final int G12 = 11;
-
-    /**
-     * function id for the user g13 function
-     */
-    public static final int G13 = 12;
-
-    /**
-     * function id for the user g14 function
-     */
-    public static final int G14 = 13;
-
-    /**
-     * function id for the user g15 function
-     */
-    public static final int G15 = 14;
-
-    /**
-     * function id for the user g16 function
-     */
-    public static final int G16 = 15;
-
-    /**
-     * function id for the user g17 function
-     */
-    public static final int G17 = 16;
-
-    /**
-     * function id for the user g18 function
-     */
-    public static final int G18 = 17;
-
-    /**
-     * function id for the user g19 function
-     */
-    public static final int G19 = 18;
-
-    /**
-     * function id for the user g20 function
-     */
-    public static final int G20 = 19;
-
-    /**
-     * function id for the user g21 function
-     */
-    public static final int G21 = 20;
-
-    /**
-     * function id for the user g22 function
-     */
-    public static final int G22 = 21;
-
-    /**
-     * function id for the user g23 function
-     */
-    public static final int G23 = 22;
-
-    /**
-     * function id for the user g24 function
-     */
-    public static final int G24 = 23;
-
-    /**
-     * function id for the user g25 function
-     */
-    public static final int G25 = 24;
-
-    /**
-     * function id for the user g26 function
-     */
-    public static final int G26 = 25;
-
-    /**
-     * function id for the user g27 function
-     */
-    public static final int G27 = 26;
-
-    /**
-     * function id for the user g28 function
-     */
-    public static final int G28 = 27;
-
-    /**
-     * function id for the user g29 function
-     */
-    public static final int G29 = 28;
-
-    /**
-     * function id for the user g30 function
-     */
-    public static final int G30 = 29;
-
-    /**
-     * function id for the user g31 function
-     */
-    public static final int G31 = 30;
-
-    /**
-     * function id for the user g32 function
-     */
-    public static final int G32 = 31;
-
-    /**
-     * function id for the user g33 function
-     */
-    public static final int G33 = 32;
-
-    /**
-     * function id for the user g34 function
-     */
-    public static final int G34 = 33;
-
-    /**
-     * function id for the user g35 function
-     */
-    public static final int G35 = 34;
-
-    /**
-     * function id for the user g36 function
-     */
-    public static final int G36 = 35;
-
-    /**
-     * function id for the user g37 function
-     */
-    public static final int G37 = 36;
-
-    /**
-     * function id for the user g38 function
-     */
-    public static final int G38 = 37;
-
-    /**
-     * function id for the user g39 function
-     */
-    public static final int G39 = 38;
-
-    /**
-     * function id for the user g40 function
-     */
-    public static final int G40 = 39;
+    public static final int G_FUNCS = 60; //number of g functions
+    public static final String FUNC_NAME = "g";
 
     /**
      * the id of the function to apply to the argument
@@ -244,10 +43,8 @@ public class FunctionUser2ArgumentExpressionNode implements ExpressionNode {
      * the second argument of the function
      */
     private ExpressionNode argument2;
-
-    private final static String[] USER_FUNCS = {"g1", "g2", "g3", "g4", "g5", "g6", "g7", "g8", "g9", "g10", "g11", "g12", "g13", "g14", "g15", "g16", "g17", "g18", "g19", "g20", "g21", "g22", "g23", "g24", "g25", "g26", "g27", "g28", "g29", "g30", "g31", "g32", "g33", "g34", "g35", "g36", "g37", "g38", "g39", "g40"};
-
-    private Method method;
+    
+    private UserDefinedFunctionsInterface lambda;
 
     /**
      * Construct a function by id and argument.
@@ -262,7 +59,7 @@ public class FunctionUser2ArgumentExpressionNode implements ExpressionNode {
         this.argument = argument;
         this.argument2 = argument2;
 
-        getUserFunction();
+        createUserFunction();
     }
 
     /**
@@ -283,9 +80,9 @@ public class FunctionUser2ArgumentExpressionNode implements ExpressionNode {
      */
     public static int stringToFunction(String str) {
 
-        for(int i = 0; i < USER_FUNCS.length; i++) {
-            if(str.equals(USER_FUNCS[i])) {
-                return FunctionUser2ArgumentExpressionNode.G1 + i;
+        for(int i = 0; i < G_FUNCS; i++) {
+            if(str.equals(FUNC_NAME + (i + 1))) {
+                return i;
             }
         }
 
@@ -302,12 +99,12 @@ public class FunctionUser2ArgumentExpressionNode implements ExpressionNode {
      */
     public static String getAllFunctions() {
         String temp_str = "";
-        for(int i = 0; i < USER_FUNCS.length; i++) {
+        for(int i = 0; i < G_FUNCS; i++) {
             if(i == 0) {
-                temp_str += USER_FUNCS[i];
+                temp_str += (FUNC_NAME + (i + 1));
             }
             else {
-                temp_str += "|" + USER_FUNCS[i];
+                temp_str += "|" + (FUNC_NAME + (i + 1));
             }
         }
 
@@ -321,11 +118,10 @@ public class FunctionUser2ArgumentExpressionNode implements ExpressionNode {
      * resulting value.
      */
     public Complex getValue() {
-
+        
         try {
-            return (Complex)method.invoke(null, argument.getValue(), argument2.getValue());
-        }
-        catch(Exception ex) {
+            return lambda.g(argument.getValue(), argument2.getValue());
+        } catch (Exception ex) {
             return new Complex();
         }
 
@@ -347,15 +143,10 @@ public class FunctionUser2ArgumentExpressionNode implements ExpressionNode {
         argument2.accept(visitor);
     }
 
-    private void getUserFunction() {
+    private void createUserFunction() {
 
         try {
-            int i = function - G1;
-            File file = new File("");
-            URL url = file.toURI().toURL();
-            URLClassLoader loader = new URLClassLoader(new URL[]{url});
-            Class<?> userClass = loader.loadClass("UserDefinedFunctions");
-            method = userClass.getMethod("g" + (i + 1), Complex.class, Complex.class);
+            Method method = Parser.userClass.getDeclaredMethod(FUNC_NAME + (function + 1), Complex.class, Complex.class);
 
             if (!Modifier.isStatic(method.getModifiers())) {
                 throw new ParserException("Method modifier error: Method " + method.getName() + " must be declared static.");
@@ -364,16 +155,13 @@ public class FunctionUser2ArgumentExpressionNode implements ExpressionNode {
             if (!method.getReturnType().equals(Complex.class)) {
                 throw new ParserException("Return type error: Method " + method.getName() + " must have a Complex return type.");
             }
+            
+            lambda = LambdaFactory.create(method, UserDefinedFunctionsInterface.class, FUNC_NAME);                       
         } catch (NoSuchMethodException ex) {
-            throw new ParserException("Method not found error: " + ex.getMessage());
-        } catch (SecurityException ex) {
-            throw new ParserException("Security error: " + ex.getMessage());
-        } catch (IllegalArgumentException ex) {
-            throw new ParserException("Illegal Argument error: " + ex.getMessage());
-        } catch (ClassNotFoundException ex) {
-            throw new ParserException("Class not found error: " + ex.getMessage());
-        } catch (MalformedURLException ex) {
-            throw new ParserException("File not found error: " + ex.getMessage());
+            throw new ParserException("Method not found error: " + Parser.sanitizeMessage(ex.getMessage()) +".\n"
+                    + "If the function is missing from UserDefinedFunctions.java\nrename the old file, for backup, and restart the application.");
+        } catch (Throwable ex) {
+            throw new ParserException("Error: " + Parser.sanitizeMessage(ex.getMessage()));
         }
 
     }

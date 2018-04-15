@@ -24,6 +24,7 @@ import java.io.Serializable;
  * @author hrkalona2
  */
 public class SettingsFractals1064 extends SettingsFractals1063 implements Serializable {
+    private static final long serialVersionUID = 1031079016738938136L;
     private boolean inverse_dem;
     private boolean inverse_fake_dem;
     private boolean[] user_incoloring_special_color;
@@ -77,6 +78,20 @@ public class SettingsFractals1064 extends SettingsFractals1063 implements Serial
     public int[][] getFilterExtraVals() {
         
         return filters_options_extra_vals;
+        
+    }
+    
+    @Override
+    public int getVersion() {
+        
+        return 1064;
+        
+    }
+    
+    @Override
+    public boolean isJulia() {
+        
+        return false;
         
     }
     

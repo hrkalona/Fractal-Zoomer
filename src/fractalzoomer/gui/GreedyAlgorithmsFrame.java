@@ -61,8 +61,8 @@ public class GreedyAlgorithmsFrame extends JFrame {
         this_frame = this;
 
         ptra2.setEnabled(false);
-        int color_window_width = 810;
-        int color_window_height = 330;
+        int color_window_width = 800;
+        int color_window_height = 300;
         setTitle("Greedy Drawing Algorithms");
         setSize(color_window_width, color_window_height);
         setIconImage(getIcon("/fractalzoomer/icons/greedy_algorithm.png").getImage());
@@ -80,12 +80,12 @@ public class GreedyAlgorithmsFrame extends JFrame {
         });
 
         JPanel options_panel = new JPanel();
-        options_panel.setPreferredSize(new Dimension(700, 180));
+        options_panel.setPreferredSize(new Dimension(700, 160));
         options_panel.setBackground(MainWindow.bg_color);
         options_panel.setLayout(new FlowLayout());
         
         JPanel options_panel2 = new JPanel();
-        options_panel2.setPreferredSize(new Dimension(680, 140));
+        options_panel2.setPreferredSize(new Dimension(680, 120));
         options_panel2.setBackground(MainWindow.bg_color);
         options_panel2.setLayout(new GridLayout(2, 1));
       
@@ -99,7 +99,7 @@ public class GreedyAlgorithmsFrame extends JFrame {
         greedy_algorithm_opt.setBackground(MainWindow.bg_color);
         greedy_algorithm_opt.setSelected(greedy_algorithm);
         
-        ComponentTitledBorder options_border = new ComponentTitledBorder(greedy_algorithm_opt, options_panel, BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()));
+        ComponentTitledBorder options_border = new ComponentTitledBorder(greedy_algorithm_opt, options_panel, BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), this_frame);
         options_border.setCheckBoxListener();
         
         options_panel.setBorder(options_border);
@@ -169,19 +169,19 @@ public class GreedyAlgorithmsFrame extends JFrame {
         coloring_button_group.add(user_selected);
         coloring_button_group.add(grid);
 
-        if(ThreadDraw.getSkippedPixelsAlgorithm() == 0) {
+        if(ThreadDraw.SKIPPED_PIXELS_ALG == 0) {
             original_color.setSelected(true);
         }
-        else if(ThreadDraw.getSkippedPixelsAlgorithm() == 1) {
+        else if(ThreadDraw.SKIPPED_PIXELS_ALG == 1) {
             based_on_thread_id.setSelected(true);
         }
-        else if(ThreadDraw.getSkippedPixelsAlgorithm() == 2) {
+        else if(ThreadDraw.SKIPPED_PIXELS_ALG == 2) {
             user_selected.setSelected(true);
         }
-        else if(ThreadDraw.getSkippedPixelsAlgorithm() == 3) {
+        else if(ThreadDraw.SKIPPED_PIXELS_ALG == 3) {
             based_on_square_size.setSelected(true);
         }
-        else if(ThreadDraw.getSkippedPixelsAlgorithm() == 4) {
+        else if(ThreadDraw.SKIPPED_PIXELS_ALG == 4) {
             grid.setSelected(true);
         }
 
@@ -196,7 +196,7 @@ public class GreedyAlgorithmsFrame extends JFrame {
 
         filter_color_label.setPreferredSize(new Dimension(22, 22));
         filter_color_label.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
-        filter_color_label.setBackground(new Color(ThreadDraw.getSkippedPixelsColor()));
+        filter_color_label.setBackground(new Color(ThreadDraw.SKIPPED_PIXELS_COLOR));
         filter_color_label.setOpaque(true);
         filter_color_label.setToolTipText("Set the user selected color.");
 
@@ -211,7 +211,7 @@ public class GreedyAlgorithmsFrame extends JFrame {
                 if(!filter_color_label.isEnabled()) {
                     return;
                 }
-                new ColorChooserFrame(ptra2, this_frame, "Skipped Pixels Color", filter_color_label, -1);
+                new ColorChooserFrame(this_frame, "Skipped Pixels Color", filter_color_label, -1);
             }
 
             @Override
@@ -238,21 +238,21 @@ public class GreedyAlgorithmsFrame extends JFrame {
 
             public void actionPerformed(ActionEvent e) {
 
-                ThreadDraw.setSkippedPixelsColor(filter_color_label.getBackground().getRGB());
+                ThreadDraw.SKIPPED_PIXELS_COLOR = filter_color_label.getBackground().getRGB();
                 if(original_color.isSelected()) {
-                    ThreadDraw.setSkippedPixelsAlgorithm(0);
+                    ThreadDraw.SKIPPED_PIXELS_ALG = 0;
                 }
                 else if(based_on_thread_id.isSelected()) {
-                    ThreadDraw.setSkippedPixelsAlgorithm(1);
+                    ThreadDraw.SKIPPED_PIXELS_ALG = 1;
                 }
                 else if(user_selected.isSelected()) {
-                    ThreadDraw.setSkippedPixelsAlgorithm(2);
+                    ThreadDraw.SKIPPED_PIXELS_ALG = 2;
                 }
                 else if(based_on_square_size.isSelected()) {
-                    ThreadDraw.setSkippedPixelsAlgorithm(3);
+                    ThreadDraw.SKIPPED_PIXELS_ALG = 3;
                 }
                 else if(grid.isSelected()) {
-                    ThreadDraw.setSkippedPixelsAlgorithm(4);
+                    ThreadDraw.SKIPPED_PIXELS_ALG = 4;
                 }
 
                 int algorithm = MainWindow.BOUNDARY_TRACING;
@@ -303,7 +303,7 @@ public class GreedyAlgorithmsFrame extends JFrame {
 
         RoundedPanel round_panel = new RoundedPanel(true, true, true, 15);
         round_panel.setBackground(MainWindow.bg_color);
-        round_panel.setPreferredSize(new Dimension(730, 240));
+        round_panel.setPreferredSize(new Dimension(730, 220));
         round_panel.setLayout(new GridBagLayout());
 
         GridBagConstraints con = new GridBagConstraints();

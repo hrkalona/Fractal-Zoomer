@@ -58,7 +58,7 @@ public class SmoothEscapeTimeEscapeRadiusMagnet extends OutColorAlgorithm {
                 double temp = ((Complex)object[4]).norm_squared();
                 temp += 0.000000001;
                 temp = Math.log(temp);
-                return temp3 + (log_bailout_squared - temp) / (temp2 - temp) + MAGIC_OFFSET_NUMBER + MAGNET_INCREMENT;
+                return temp3 + (log_bailout_squared - temp) / (temp2 - temp) + MAGNET_INCREMENT;
             }
             else {
                 double temp = ((Complex)object[4]).norm_squared();
@@ -70,13 +70,13 @@ public class SmoothEscapeTimeEscapeRadiusMagnet extends OutColorAlgorithm {
                 double a = Math.log(temp2 / log_bailout_squared);
                 double f = a / Math.log(p);
 
-                return temp3 + 1 - f + MAGIC_OFFSET_NUMBER + MAGNET_INCREMENT;
+                return temp3 + 1 - f + MAGNET_INCREMENT;
             }
         }
         else {
             if(algorithm2 == 0) {
                 double temp = Math.log(((Complex)object[4]).distance_squared(1));
-                return temp3 + (log_convergent_bailout - temp) / (Math.log((Double)object[3]) - temp) + MAGIC_OFFSET_NUMBER;
+                return temp3 + (log_convergent_bailout - temp) / (Math.log((Double)object[3]) - temp);
             }
             else {
                 double temp4 = Math.log(((Double)object[3]));
@@ -85,7 +85,7 @@ public class SmoothEscapeTimeEscapeRadiusMagnet extends OutColorAlgorithm {
 
                 double f = Math.log(log_convergent_bailout / temp4) / Math.log(power);
 
-                return temp3 + f + MAGIC_OFFSET_NUMBER;
+                return temp3 + f;
             }
         }
 

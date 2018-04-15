@@ -20,9 +20,9 @@ import java.awt.Color;
 
 public class PaletteColorNormal extends PaletteColor {
 
-    public PaletteColorNormal(int[] palette, Color special_color) {
+    public PaletteColorNormal(int[] palette, Color special_color, boolean special_use_palette_color) {
 
-        super(palette, special_color);
+        super(palette, special_color, special_use_palette_color);
 
     }
 
@@ -30,15 +30,15 @@ public class PaletteColorNormal extends PaletteColor {
     public int getPaletteColor(double result) {
 
         if(result < 0) {
-            if(special_color != null) {
-                return special_color[((int)(result * (-1))) % special_color.length];
+            if(!special_use_palette_color) {
+                return special_colors[((int)(result * (-1))) % special_colors.length];
             }
             else {
-                return palette[((int)(result * (-1) + mod_offset)) % palette.length];
+                return palette[((int)(result * (-1))) % palette.length];
             }
         }
         else {
-            return palette[((int)(result + mod_offset)) % palette.length];
+            return palette[((int)result) % palette.length];
         }
 
     }

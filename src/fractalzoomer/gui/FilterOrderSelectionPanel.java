@@ -37,7 +37,6 @@ import javax.swing.JPanel;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.EtchedBorder;
-import javax.swing.border.TitledBorder;
 
 /**
  *
@@ -125,11 +124,9 @@ public class FilterOrderSelectionPanel extends JPanel {
                 return p;
             }
         });
-        
-        setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Filter Ordering", TitledBorder.DEFAULT_POSITION, TitledBorder.DEFAULT_POSITION));
-        
+ 
         JScrollPane scroll_pane = new JScrollPane(list);
-        scroll_pane.setPreferredSize(new Dimension(400, 465));
+        scroll_pane.setPreferredSize(new Dimension(400, 485));
         JPanel text = new JPanel();
         text.setBackground(MainWindow.bg_color);
         text.setLayout(new GridLayout(3, 1));

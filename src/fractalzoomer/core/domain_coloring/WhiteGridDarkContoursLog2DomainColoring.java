@@ -35,10 +35,8 @@ public class WhiteGridDarkContoursLog2DomainColoring extends DomainColoring {
         gridColorRed = 255;
         gridColorGreen = 255;
         gridColorBlue = 255;
-        
-        contourColorABlue = contourColorAGreen = contourColorARed = 255;
-
-        contourColorBBlue = contourColorBGreen = contourColorBRed = 0;
+             
+        gradient = whiteToBlack;
         
         logBaseFinal = Math.log(2);
         

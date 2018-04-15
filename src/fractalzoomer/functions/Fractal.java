@@ -46,7 +46,28 @@ import fractalzoomer.planes.general.MuPlane;
 import fractalzoomer.bailout_conditions.StripBailoutCondition;
 import fractalzoomer.bailout_conditions.SquareBailoutCondition;
 import fractalzoomer.bailout_conditions.UserBailoutCondition;
+import fractalzoomer.fractal_options.orbit_traps.CircleOrbitTrap;
+import fractalzoomer.fractal_options.orbit_traps.CrossOrbitTrap;
+import fractalzoomer.fractal_options.orbit_traps.OrbitTrap;
 import fractalzoomer.fractal_options.PlanePointOption;
+import fractalzoomer.fractal_options.orbit_traps.CircleCrossOrbitTrap;
+import fractalzoomer.fractal_options.orbit_traps.CirclePointOrbitTrap;
+import fractalzoomer.fractal_options.orbit_traps.ImOrbitTrap;
+import fractalzoomer.fractal_options.orbit_traps.NNormCrossOrbitTrap;
+import fractalzoomer.fractal_options.orbit_traps.NNormOrbitTrap;
+import fractalzoomer.fractal_options.orbit_traps.NNormPointNNormOrbitTrap;
+import fractalzoomer.fractal_options.orbit_traps.NNormPointOrbitTrap;
+import fractalzoomer.fractal_options.orbit_traps.PointNNormOrbitTrap;
+import fractalzoomer.fractal_options.orbit_traps.PointOrbitTrap;
+import fractalzoomer.fractal_options.orbit_traps.PointRhombusOrbitTrap;
+import fractalzoomer.fractal_options.orbit_traps.PointSquareOrbitTrap;
+import fractalzoomer.fractal_options.orbit_traps.ReOrbitTrap;
+import fractalzoomer.fractal_options.orbit_traps.RhombusCrossOrbitTrap;
+import fractalzoomer.fractal_options.orbit_traps.RhombusOrbitTrap;
+import fractalzoomer.fractal_options.orbit_traps.RhombusPointOrbitTrap;
+import fractalzoomer.fractal_options.orbit_traps.SquareCrossOrbitTrap;
+import fractalzoomer.fractal_options.orbit_traps.SquareOrbitTrap;
+import fractalzoomer.fractal_options.orbit_traps.SquarePointOrbitTrap;
 import fractalzoomer.in_coloring_algorithms.AtanReTimesImTimesAbsReTimesAbsIm;
 import fractalzoomer.in_coloring_algorithms.CosMag;
 import fractalzoomer.in_coloring_algorithms.DecompositionLike;
@@ -59,6 +80,7 @@ import fractalzoomer.in_coloring_algorithms.Squares2;
 import fractalzoomer.in_coloring_algorithms.UserConditionalInColorAlgorithm;
 import fractalzoomer.in_coloring_algorithms.UserInColorAlgorithm;
 import fractalzoomer.in_coloring_algorithms.ZMag;
+import fractalzoomer.main.app_settings.OrbitTrapSettings;
 import fractalzoomer.out_coloring_algorithms.Banded;
 import fractalzoomer.out_coloring_algorithms.BinaryDecomposition;
 import fractalzoomer.out_coloring_algorithms.BinaryDecomposition2;
@@ -140,6 +162,7 @@ import fractalzoomer.planes.general.InflectionPlane;
 import fractalzoomer.planes.general.MuVariationPlane;
 import fractalzoomer.planes.math.ErfPlane;
 import fractalzoomer.planes.math.RiemannZetaPlane;
+import fractalzoomer.utils.ColorAlgorithm;
 import java.util.ArrayList;
 
 /**
@@ -170,8 +193,9 @@ public abstract class Fractal {
     protected int update_counter;
     protected Complex period;
     protected Complex[] vars;
+    protected OrbitTrap trap;
 
-    public Fractal(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount) {
+    public Fractal(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, OrbitTrapSettings ots) {
 
         this.xCenter = xCenter;
         this.yCenter = yCenter;
@@ -181,233 +205,15 @@ public abstract class Fractal {
         bailout_squared = bailout * bailout;
         this.periodicity_checking = periodicity_checking;
 
+        if (ots.useTraps) {
+            TrapFactory(ots);
+        }
+
         rotation = new Rotation(rotation_vals[0], rotation_vals[1], rotation_center[0], rotation_center[1]);
 
-        switch (plane_type) {
-            case MainWindow.MU_PLANE:
-                plane = new MuPlane();
-                break;
-            case MainWindow.MU_SQUARED_PLANE:
-                plane = new MuSquaredPlane();
-                break;
-            case MainWindow.MU_SQUARED_IMAGINARY_PLANE:
-                plane = new MuSquaredImaginaryPlane();
-                break;
-            case MainWindow.INVERSED_MU_PLANE:
-                plane = new InversedMuPlane();
-                break;
-            case MainWindow.INVERSED_MU2_PLANE:
-                plane = new InversedMu2Plane();
-                break;
-            case MainWindow.INVERSED_MU3_PLANE:
-                plane = new InversedMu3Plane();
-                break;
-            case MainWindow.INVERSED_MU4_PLANE:
-                plane = new InversedMu4Plane();
-                break;
-            case MainWindow.LAMBDA_PLANE:
-                plane = new LambdaPlane();
-                break;
-            case MainWindow.INVERSED_LAMBDA_PLANE:
-                plane = new InversedLambdaPlane();
-                break;
-            case MainWindow.INVERSED_LAMBDA2_PLANE:
-                plane = new InversedLambda2Plane();
-                break;
-            case MainWindow.EXP_PLANE:
-                plane = new ExpPlane();
-                break;
-            case MainWindow.LOG_PLANE:
-                plane = new LogPlane();
-                break;
-            case MainWindow.SIN_PLANE:
-                plane = new SinPlane();
-                break;
-            case MainWindow.COS_PLANE:
-                plane = new CosPlane();
-                break;
-            case MainWindow.TAN_PLANE:
-                plane = new TanPlane();
-                break;
-            case MainWindow.COT_PLANE:
-                plane = new CotPlane();
-                break;
-            case MainWindow.SINH_PLANE:
-                plane = new SinhPlane();
-                break;
-            case MainWindow.COSH_PLANE:
-                plane = new CoshPlane();
-                break;
-            case MainWindow.TANH_PLANE:
-                plane = new TanhPlane();
-                break;
-            case MainWindow.COTH_PLANE:
-                plane = new CothPlane();
-                break;
-            case MainWindow.SEC_PLANE:
-                plane = new SecPlane();
-                break;
-            case MainWindow.CSC_PLANE:
-                plane = new CscPlane();
-                break;
-            case MainWindow.SECH_PLANE:
-                plane = new SechPlane();
-                break;
-            case MainWindow.CSCH_PLANE:
-                plane = new CschPlane();
-                break;
-            case MainWindow.ASIN_PLANE:
-                plane = new ASinPlane();
-                break;
-            case MainWindow.ACOS_PLANE:
-                plane = new ACosPlane();
-                break;
-            case MainWindow.ATAN_PLANE:
-                plane = new ATanPlane();
-                break;
-            case MainWindow.ACOT_PLANE:
-                plane = new ACotPlane();
-                break;
-            case MainWindow.ASINH_PLANE:
-                plane = new ASinhPlane();
-                break;
-            case MainWindow.ACOSH_PLANE:
-                plane = new ACoshPlane();
-                break;
-            case MainWindow.ATANH_PLANE:
-                plane = new ATanhPlane();
-                break;
-            case MainWindow.ACOTH_PLANE:
-                plane = new ACothPlane();
-                break;
-            case MainWindow.ASEC_PLANE:
-                plane = new ASecPlane();
-                break;
-            case MainWindow.ACSC_PLANE:
-                plane = new ACscPlane();
-                break;
-            case MainWindow.ASECH_PLANE:
-                plane = new ASechPlane();
-                break;
-            case MainWindow.ACSCH_PLANE:
-                plane = new ACschPlane();
-                break;
-            case MainWindow.SQRT_PLANE:
-                plane = new SqrtPlane();
-                break;
-            case MainWindow.ABS_PLANE:
-                plane = new AbsPlane();
-                break;
-            case MainWindow.FOLDUP_PLANE:
-                plane = new FoldUpPlane(plane_transform_center);
-                break;
-            case MainWindow.FOLDDOWN_PLANE:
-                plane = new FoldDownPlane(plane_transform_center);
-                break;
-            case MainWindow.FOLDRIGHT_PLANE:
-                plane = new FoldRightPlane(plane_transform_center);
-                break;
-            case MainWindow.FOLDLEFT_PLANE:
-                plane = new FoldLeftPlane(plane_transform_center);
-                break;
-            case MainWindow.FOLDIN_PLANE:
-                plane = new FoldInPlane(plane_transform_radius);
-                break;
-            case MainWindow.FOLDOUT_PLANE:
-                plane = new FoldOutPlane(plane_transform_radius);
-                break;
-            case MainWindow.NEWTON3_PLANE:
-                plane = new Newton3Plane();
-                break;
-            case MainWindow.NEWTON4_PLANE:
-                plane = new Newton4Plane();
-                break;
-            case MainWindow.NEWTONGENERALIZED3_PLANE:
-                plane = new NewtonGeneralized3Plane();
-                break;
-            case MainWindow.NEWTONGENERALIZED8_PLANE:
-                plane = new NewtonGeneralized8Plane();
-                break;
-            case MainWindow.USER_PLANE:
-                if(user_plane_algorithm == 0) {
-                    plane = new UserPlane(user_plane, xCenter, yCenter, size, max_iterations, plane_transform_center);
-                }
-                else {
-                    plane = new UserPlaneConditional(user_plane_conditions, user_plane_condition_formula, xCenter, yCenter, size, max_iterations, plane_transform_center);
-                }
-                break;
-            case MainWindow.GAMMA_PLANE:
-                plane = new GammaFunctionPlane();
-                break;
-            case MainWindow.FACT_PLANE:
-                plane = new FactorialPlane();
-                break;
-            case MainWindow.BIPOLAR_PLANE:
-                plane = new BipolarPlane(plane_transform_center);
-                break;
-            case MainWindow.INVERSED_BIPOLAR_PLANE:
-                plane = new InversedBipolarPlane(plane_transform_center);
-                break;
-            case MainWindow.TWIRL_PLANE:
-                plane = new TwirlPlane(plane_transform_center, plane_transform_angle, plane_transform_radius);
-                break;
-            case MainWindow.SHEAR_PLANE:
-                plane = new ShearPlane(plane_transform_scales);
-                break;
-            case MainWindow.KALEIDOSCOPE_PLANE:
-                plane = new KaleidoscopePlane(plane_transform_center, plane_transform_angle, plane_transform_angle2, plane_transform_radius, plane_transform_sides);
-                break;
-            case MainWindow.PINCH_PLANE:
-                plane = new PinchPlane(plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_amount);
-                break;
-            case MainWindow.CIRCLEINVERSION_PLANE:
-                plane = new CircleInversionPlane(plane_transform_center, plane_transform_radius);
-                break;
-            case MainWindow.VARIATION_MU_PLANE:
-                plane = new MuVariationPlane();
-                break;
-            case MainWindow.ERF_PLANE:
-                plane = new ErfPlane();
-                break;
-            case MainWindow.RZETA_PLANE:
-                plane = new RiemannZetaPlane();
-                break;
-            case MainWindow.INFLECTION_PLANE:
-                plane = new InflectionPlane(plane_transform_center);
-                break;
-            case MainWindow.RIPPLES_PLANE:
-                plane = new RipplesPlane(plane_transform_scales, plane_transform_wavelength, waveType);
-                break;
-        }
+        PlaneFactory(plane_type, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
 
-        switch (bailout_test_algorithm) {
-
-            case MainWindow.BAILOUT_CONDITION_CIRCLE:
-                bailout_algorithm = new CircleBailoutCondition(bailout_squared);
-                break;
-            case MainWindow.BAILOUT_CONDITION_SQUARE:
-                bailout_algorithm = new SquareBailoutCondition(bailout);
-                break;
-            case MainWindow.BAILOUT_CONDITION_RHOMBUS:
-                bailout_algorithm = new RhombusBailoutCondition(bailout);
-                break;
-            case MainWindow.BAILOUT_CONDITION_STRIP:
-                bailout_algorithm = new StripBailoutCondition(bailout);
-                break;
-            case MainWindow.BAILOUT_CONDITION_HALFPLANE:
-                bailout_algorithm = new HalfplaneBailoutCondition(bailout);
-                break;
-            case MainWindow.BAILOUT_CONDITION_NNORM:
-                bailout_algorithm = new NNormBailoutCondition(bailout, n_norm);
-                break;
-            case MainWindow.BAILOUT_CONDITION_USER:
-                bailout_algorithm = new UserBailoutCondition(bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, max_iterations, xCenter, yCenter, size, plane_transform_center);
-                break;
-            case MainWindow.BAILOUT_CONDITION_FIELD_LINES:
-                bailout_algorithm = new FieldLinesBailoutCondition(bailout);
-                break;
-
-        }
+        BailoutConditionFactory(bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, plane_transform_center);
 
     }
 
@@ -423,203 +229,7 @@ public abstract class Fractal {
 
         rotation = new Rotation(rotation_vals[0], rotation_vals[1], rotation_center[0], rotation_center[1]);
 
-        switch (plane_type) {
-            case MainWindow.MU_PLANE:
-                plane = new MuPlane();
-                break;
-            case MainWindow.MU_SQUARED_PLANE:
-                plane = new MuSquaredPlane();
-                break;
-            case MainWindow.MU_SQUARED_IMAGINARY_PLANE:
-                plane = new MuSquaredImaginaryPlane();
-                break;
-            case MainWindow.INVERSED_MU_PLANE:
-                plane = new InversedMuPlane();
-                break;
-            case MainWindow.INVERSED_MU2_PLANE:
-                plane = new InversedMu2Plane();
-                break;
-            case MainWindow.INVERSED_MU3_PLANE:
-                plane = new InversedMu3Plane();
-                break;
-            case MainWindow.INVERSED_MU4_PLANE:
-                plane = new InversedMu4Plane();
-                break;
-            case MainWindow.LAMBDA_PLANE:
-                plane = new LambdaPlane();
-                break;
-            case MainWindow.INVERSED_LAMBDA_PLANE:
-                plane = new InversedLambdaPlane();
-                break;
-            case MainWindow.INVERSED_LAMBDA2_PLANE:
-                plane = new InversedLambda2Plane();
-                break;
-            case MainWindow.EXP_PLANE:
-                plane = new ExpPlane();
-                break;
-            case MainWindow.LOG_PLANE:
-                plane = new LogPlane();
-                break;
-            case MainWindow.SIN_PLANE:
-                plane = new SinPlane();
-                break;
-            case MainWindow.COS_PLANE:
-                plane = new CosPlane();
-                break;
-            case MainWindow.TAN_PLANE:
-                plane = new TanPlane();
-                break;
-            case MainWindow.COT_PLANE:
-                plane = new CotPlane();
-                break;
-            case MainWindow.SINH_PLANE:
-                plane = new SinhPlane();
-                break;
-            case MainWindow.COSH_PLANE:
-                plane = new CoshPlane();
-                break;
-            case MainWindow.TANH_PLANE:
-                plane = new TanhPlane();
-                break;
-            case MainWindow.COTH_PLANE:
-                plane = new CothPlane();
-                break;
-            case MainWindow.SEC_PLANE:
-                plane = new SecPlane();
-                break;
-            case MainWindow.CSC_PLANE:
-                plane = new CscPlane();
-                break;
-            case MainWindow.SECH_PLANE:
-                plane = new SechPlane();
-                break;
-            case MainWindow.CSCH_PLANE:
-                plane = new CschPlane();
-                break;
-            case MainWindow.ASIN_PLANE:
-                plane = new ASinPlane();
-                break;
-            case MainWindow.ACOS_PLANE:
-                plane = new ACosPlane();
-                break;
-            case MainWindow.ATAN_PLANE:
-                plane = new ATanPlane();
-                break;
-            case MainWindow.ACOT_PLANE:
-                plane = new ACotPlane();
-                break;
-            case MainWindow.ASINH_PLANE:
-                plane = new ASinhPlane();
-                break;
-            case MainWindow.ACOSH_PLANE:
-                plane = new ACoshPlane();
-                break;
-            case MainWindow.ATANH_PLANE:
-                plane = new ATanhPlane();
-                break;
-            case MainWindow.ACOTH_PLANE:
-                plane = new ACothPlane();
-                break;
-            case MainWindow.ASEC_PLANE:
-                plane = new ASecPlane();
-                break;
-            case MainWindow.ACSC_PLANE:
-                plane = new ACscPlane();
-                break;
-            case MainWindow.ASECH_PLANE:
-                plane = new ASechPlane();
-                break;
-            case MainWindow.ACSCH_PLANE:
-                plane = new ACschPlane();
-                break;
-            case MainWindow.SQRT_PLANE:
-                plane = new SqrtPlane();
-                break;
-            case MainWindow.ABS_PLANE:
-                plane = new AbsPlane();
-                break;
-            case MainWindow.FOLDUP_PLANE:
-                plane = new FoldUpPlane(plane_transform_center);
-                break;
-            case MainWindow.FOLDDOWN_PLANE:
-                plane = new FoldDownPlane(plane_transform_center);
-                break;
-            case MainWindow.FOLDRIGHT_PLANE:
-                plane = new FoldRightPlane(plane_transform_center);
-                break;
-            case MainWindow.FOLDLEFT_PLANE:
-                plane = new FoldLeftPlane(plane_transform_center);
-                break;
-            case MainWindow.FOLDIN_PLANE:
-                plane = new FoldInPlane(plane_transform_radius);
-                break;
-            case MainWindow.FOLDOUT_PLANE:
-                plane = new FoldOutPlane(plane_transform_radius);
-                break;
-            case MainWindow.NEWTON3_PLANE:
-                plane = new Newton3Plane();
-                break;
-            case MainWindow.NEWTON4_PLANE:
-                plane = new Newton4Plane();
-                break;
-            case MainWindow.NEWTONGENERALIZED3_PLANE:
-                plane = new NewtonGeneralized3Plane();
-                break;
-            case MainWindow.NEWTONGENERALIZED8_PLANE:
-                plane = new NewtonGeneralized8Plane();
-                break;
-            case MainWindow.USER_PLANE:
-                if(user_plane_algorithm == 0) {
-                    plane = new UserPlane(user_plane, xCenter, yCenter, size, max_iterations, plane_transform_center);
-                }
-                else {
-                    plane = new UserPlaneConditional(user_plane_conditions, user_plane_condition_formula, xCenter, yCenter, size, max_iterations, plane_transform_center);
-                }
-                break;
-            case MainWindow.GAMMA_PLANE:
-                plane = new GammaFunctionPlane();
-                break;
-            case MainWindow.FACT_PLANE:
-                plane = new FactorialPlane();
-                break;
-            case MainWindow.BIPOLAR_PLANE:
-                plane = new BipolarPlane(plane_transform_center);
-                break;
-            case MainWindow.INVERSED_BIPOLAR_PLANE:
-                plane = new InversedBipolarPlane(plane_transform_center);
-                break;
-            case MainWindow.TWIRL_PLANE:
-                plane = new TwirlPlane(plane_transform_center, plane_transform_angle, plane_transform_radius);
-                break;
-            case MainWindow.SHEAR_PLANE:
-                plane = new ShearPlane(plane_transform_scales);
-                break;
-            case MainWindow.KALEIDOSCOPE_PLANE:
-                plane = new KaleidoscopePlane(plane_transform_center, plane_transform_angle, plane_transform_angle2, plane_transform_radius, plane_transform_sides);
-                break;
-            case MainWindow.PINCH_PLANE:
-                plane = new PinchPlane(plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_amount);
-                break;
-            case MainWindow.CIRCLEINVERSION_PLANE:
-                plane = new CircleInversionPlane(plane_transform_center, plane_transform_radius);
-                break;
-            case MainWindow.VARIATION_MU_PLANE:
-                plane = new MuVariationPlane();
-                break;
-            case MainWindow.ERF_PLANE:
-                plane = new ErfPlane();
-                break;
-            case MainWindow.RZETA_PLANE:
-                plane = new RiemannZetaPlane();
-                break;
-            case MainWindow.INFLECTION_PLANE:
-                plane = new InflectionPlane(plane_transform_center);
-                break;
-            case MainWindow.RIPPLES_PLANE:
-                plane = new RipplesPlane(plane_transform_scales, plane_transform_wavelength, waveType);
-                break;
-
-        }
+        PlaneFactory(plane_type, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
 
         vars = createGlobalVars();
         plane.setGlobalVars(vars);
@@ -639,16 +249,16 @@ public abstract class Fractal {
     protected final boolean periodicityCheck(Complex z) {
 
         //Check for period
-        if(z.distance_squared(period) < getPeriodSize()) {
+        if (z.distance_squared(period) < getPeriodSize()) {
             return true;
         }
 
         //Update history
-        if(check == check_counter) {
+        if (check == check_counter) {
             check_counter = 0;
 
             //Double the value of check
-            if(update == update_counter) {
+            if (update == update_counter) {
                 update_counter = 0;
                 check <<= 1;
             }
@@ -685,7 +295,7 @@ public abstract class Fractal {
 
         Complex[] vars = new Complex[Parser.EXTRA_VARS];
 
-        for(int i = 0; i < vars.length; i++) {
+        for (int i = 0; i < vars.length; i++) {
             vars[i] = new Complex();
         }
 
@@ -717,8 +327,8 @@ public abstract class Fractal {
         Complex zold2 = new Complex();
         Complex start = new Complex(complex[0]);
 
-        for(; iterations < max_iterations; iterations++) {
-            if(bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, vars)) {
+        for (; iterations < max_iterations; iterations++) {
+            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, vars)) {
                 Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, vars};
                 return out_color_algorithm.getResult(object);
             }
@@ -726,19 +336,23 @@ public abstract class Fractal {
             zold.assign(complex[0]);
             function(complex);
 
-            if(periodicityCheck(complex[0])) {
-                return max_iterations;
+            if (periodicityCheck(complex[0])) {
+                return ColorAlgorithm.MAXIMUM_ITERATIONS;
             }
 
         }
 
-        return max_iterations;
+        return ColorAlgorithm.MAXIMUM_ITERATIONS;
 
     }
 
     protected double calculateFractalWithoutPeriodicity(Complex pixel) {
 
         int iterations = 0;
+
+        if (trap != null) {
+            trap.initialize();
+        }
 
         pertur_val.setGlobalVars(vars);
         init_val.setGlobalVars(vars);
@@ -753,9 +367,13 @@ public abstract class Fractal {
         Complex zold2 = new Complex();
         Complex start = new Complex(complex[0]);
 
-        for(; iterations < max_iterations; iterations++) {
+        for (; iterations < max_iterations; iterations++) {
 
-            if(bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, vars)) {
+            if (trap != null) {
+                trap.check(complex[0]);
+            }
+
+            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, vars)) {
                 Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, vars};
                 return out_color_algorithm.getResult(object);
             }
@@ -809,7 +427,7 @@ public abstract class Fractal {
             
          }
         
-         return max_iterations;*/
+         return ColorAlgorithm.MAXIMUM_ITERATIONS;*/
     }
 
     protected double[] calculateFractal3DWithPeriodicity(Complex pixel) {
@@ -839,8 +457,8 @@ public abstract class Fractal {
 
         double temp;
 
-        for(; iterations < max_iterations; iterations++) {
-            if(bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, vars)) {
+        for (; iterations < max_iterations; iterations++) {
+            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, vars)) {
                 Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, vars};
                 temp = out_color_algorithm.getResult(object);
                 double[] array = {out_color_algorithm.transformResultToHeight(temp, max_iterations), temp};
@@ -850,14 +468,14 @@ public abstract class Fractal {
             zold.assign(complex[0]);
             function(complex);
 
-            if(periodicityCheck(complex[0])) {
-                double[] array = {max_iterations, max_iterations};
+            if (periodicityCheck(complex[0])) {
+                double[] array = {max_iterations, ColorAlgorithm.MAXIMUM_ITERATIONS};
                 return array;
             }
 
         }
 
-        double[] array = {max_iterations, max_iterations};
+        double[] array = {max_iterations, ColorAlgorithm.MAXIMUM_ITERATIONS};
         return array;
 
     }
@@ -865,6 +483,10 @@ public abstract class Fractal {
     protected double[] calculateFractal3DWithoutPeriodicity(Complex pixel) {
 
         int iterations = 0;
+
+        if (trap != null) {
+            trap.initialize();
+        }
 
         pertur_val.setGlobalVars(vars);
         init_val.setGlobalVars(vars);
@@ -880,9 +502,13 @@ public abstract class Fractal {
         Complex start = new Complex(complex[0]);
         double temp;
 
-        for(; iterations < max_iterations; iterations++) {
+        for (; iterations < max_iterations; iterations++) {
 
-            if(bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, vars)) {
+            if (trap != null) {
+                trap.check(complex[0]);
+            }
+
+            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, vars)) {
                 Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, vars};
                 temp = out_color_algorithm.getResult(object);
                 double[] array = {out_color_algorithm.transformResultToHeight(temp, max_iterations), temp};
@@ -940,7 +566,7 @@ public abstract class Fractal {
             
      }
         
-     return max_iterations;
+     return ColorAlgorithm.MAXIMUM_ITERATIONS;
      */
     public void calculateFractalOrbit() {
         int iterations = 0;
@@ -954,11 +580,11 @@ public abstract class Fractal {
 
         Complex temp = null;
 
-        for(; iterations < max_iterations; iterations++) {
+        for (; iterations < max_iterations; iterations++) {
             function(complex);
             temp = rotation.rotateInverse(complex[0]);
 
-            if(Double.isNaN(temp.getRe()) || Double.isNaN(temp.getIm()) || Double.isInfinite(temp.getRe()) || Double.isInfinite(temp.getIm())) {
+            if (Double.isNaN(temp.getRe()) || Double.isNaN(temp.getIm()) || Double.isInfinite(temp.getRe()) || Double.isInfinite(temp.getIm())) {
                 break;
             }
 
@@ -1018,7 +644,7 @@ public abstract class Fractal {
         complex[0] = tempz;//z
         complex[1] = new Complex(pixel);//c
 
-        for(; iterations < max_iterations; iterations++) {
+        for (; iterations < max_iterations; iterations++) {
 
             function(complex);
 
@@ -1084,30 +710,260 @@ public abstract class Fractal {
 
     }
 
+    private void BailoutConditionFactory(int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, double[] plane_transform_center) {
+
+        switch (bailout_test_algorithm) {
+
+            case MainWindow.BAILOUT_CONDITION_CIRCLE:
+                bailout_algorithm = new CircleBailoutCondition(bailout_squared);
+                break;
+            case MainWindow.BAILOUT_CONDITION_SQUARE:
+                bailout_algorithm = new SquareBailoutCondition(bailout);
+                break;
+            case MainWindow.BAILOUT_CONDITION_RHOMBUS:
+                bailout_algorithm = new RhombusBailoutCondition(bailout);
+                break;
+            case MainWindow.BAILOUT_CONDITION_STRIP:
+                bailout_algorithm = new StripBailoutCondition(bailout);
+                break;
+            case MainWindow.BAILOUT_CONDITION_HALFPLANE:
+                bailout_algorithm = new HalfplaneBailoutCondition(bailout);
+                break;
+            case MainWindow.BAILOUT_CONDITION_NNORM:
+                bailout_algorithm = new NNormBailoutCondition(bailout, n_norm);
+                break;
+            case MainWindow.BAILOUT_CONDITION_USER:
+                bailout_algorithm = new UserBailoutCondition(bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, max_iterations, xCenter, yCenter, size, plane_transform_center);
+                break;
+            case MainWindow.BAILOUT_CONDITION_FIELD_LINES:
+                bailout_algorithm = new FieldLinesBailoutCondition(bailout);
+                break;
+
+        }
+
+    }
+
+    private void PlaneFactory(int plane_type, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount) {
+
+        switch (plane_type) {
+            case MainWindow.MU_PLANE:
+                plane = new MuPlane();
+                break;
+            case MainWindow.MU_SQUARED_PLANE:
+                plane = new MuSquaredPlane();
+                break;
+            case MainWindow.MU_SQUARED_IMAGINARY_PLANE:
+                plane = new MuSquaredImaginaryPlane();
+                break;
+            case MainWindow.INVERSED_MU_PLANE:
+                plane = new InversedMuPlane();
+                break;
+            case MainWindow.INVERSED_MU2_PLANE:
+                plane = new InversedMu2Plane();
+                break;
+            case MainWindow.INVERSED_MU3_PLANE:
+                plane = new InversedMu3Plane();
+                break;
+            case MainWindow.INVERSED_MU4_PLANE:
+                plane = new InversedMu4Plane();
+                break;
+            case MainWindow.LAMBDA_PLANE:
+                plane = new LambdaPlane();
+                break;
+            case MainWindow.INVERSED_LAMBDA_PLANE:
+                plane = new InversedLambdaPlane();
+                break;
+            case MainWindow.INVERSED_LAMBDA2_PLANE:
+                plane = new InversedLambda2Plane();
+                break;
+            case MainWindow.EXP_PLANE:
+                plane = new ExpPlane();
+                break;
+            case MainWindow.LOG_PLANE:
+                plane = new LogPlane();
+                break;
+            case MainWindow.SIN_PLANE:
+                plane = new SinPlane();
+                break;
+            case MainWindow.COS_PLANE:
+                plane = new CosPlane();
+                break;
+            case MainWindow.TAN_PLANE:
+                plane = new TanPlane();
+                break;
+            case MainWindow.COT_PLANE:
+                plane = new CotPlane();
+                break;
+            case MainWindow.SINH_PLANE:
+                plane = new SinhPlane();
+                break;
+            case MainWindow.COSH_PLANE:
+                plane = new CoshPlane();
+                break;
+            case MainWindow.TANH_PLANE:
+                plane = new TanhPlane();
+                break;
+            case MainWindow.COTH_PLANE:
+                plane = new CothPlane();
+                break;
+            case MainWindow.SEC_PLANE:
+                plane = new SecPlane();
+                break;
+            case MainWindow.CSC_PLANE:
+                plane = new CscPlane();
+                break;
+            case MainWindow.SECH_PLANE:
+                plane = new SechPlane();
+                break;
+            case MainWindow.CSCH_PLANE:
+                plane = new CschPlane();
+                break;
+            case MainWindow.ASIN_PLANE:
+                plane = new ASinPlane();
+                break;
+            case MainWindow.ACOS_PLANE:
+                plane = new ACosPlane();
+                break;
+            case MainWindow.ATAN_PLANE:
+                plane = new ATanPlane();
+                break;
+            case MainWindow.ACOT_PLANE:
+                plane = new ACotPlane();
+                break;
+            case MainWindow.ASINH_PLANE:
+                plane = new ASinhPlane();
+                break;
+            case MainWindow.ACOSH_PLANE:
+                plane = new ACoshPlane();
+                break;
+            case MainWindow.ATANH_PLANE:
+                plane = new ATanhPlane();
+                break;
+            case MainWindow.ACOTH_PLANE:
+                plane = new ACothPlane();
+                break;
+            case MainWindow.ASEC_PLANE:
+                plane = new ASecPlane();
+                break;
+            case MainWindow.ACSC_PLANE:
+                plane = new ACscPlane();
+                break;
+            case MainWindow.ASECH_PLANE:
+                plane = new ASechPlane();
+                break;
+            case MainWindow.ACSCH_PLANE:
+                plane = new ACschPlane();
+                break;
+            case MainWindow.SQRT_PLANE:
+                plane = new SqrtPlane();
+                break;
+            case MainWindow.ABS_PLANE:
+                plane = new AbsPlane();
+                break;
+            case MainWindow.FOLDUP_PLANE:
+                plane = new FoldUpPlane(plane_transform_center);
+                break;
+            case MainWindow.FOLDDOWN_PLANE:
+                plane = new FoldDownPlane(plane_transform_center);
+                break;
+            case MainWindow.FOLDRIGHT_PLANE:
+                plane = new FoldRightPlane(plane_transform_center);
+                break;
+            case MainWindow.FOLDLEFT_PLANE:
+                plane = new FoldLeftPlane(plane_transform_center);
+                break;
+            case MainWindow.FOLDIN_PLANE:
+                plane = new FoldInPlane(plane_transform_radius);
+                break;
+            case MainWindow.FOLDOUT_PLANE:
+                plane = new FoldOutPlane(plane_transform_radius);
+                break;
+            case MainWindow.NEWTON3_PLANE:
+                plane = new Newton3Plane();
+                break;
+            case MainWindow.NEWTON4_PLANE:
+                plane = new Newton4Plane();
+                break;
+            case MainWindow.NEWTONGENERALIZED3_PLANE:
+                plane = new NewtonGeneralized3Plane();
+                break;
+            case MainWindow.NEWTONGENERALIZED8_PLANE:
+                plane = new NewtonGeneralized8Plane();
+                break;
+            case MainWindow.USER_PLANE:
+                if (user_plane_algorithm == 0) {
+                    plane = new UserPlane(user_plane, xCenter, yCenter, size, max_iterations, plane_transform_center);
+                } else {
+                    plane = new UserPlaneConditional(user_plane_conditions, user_plane_condition_formula, xCenter, yCenter, size, max_iterations, plane_transform_center);
+                }
+                break;
+            case MainWindow.GAMMA_PLANE:
+                plane = new GammaFunctionPlane();
+                break;
+            case MainWindow.FACT_PLANE:
+                plane = new FactorialPlane();
+                break;
+            case MainWindow.BIPOLAR_PLANE:
+                plane = new BipolarPlane(plane_transform_center);
+                break;
+            case MainWindow.INVERSED_BIPOLAR_PLANE:
+                plane = new InversedBipolarPlane(plane_transform_center);
+                break;
+            case MainWindow.TWIRL_PLANE:
+                plane = new TwirlPlane(plane_transform_center, plane_transform_angle, plane_transform_radius);
+                break;
+            case MainWindow.SHEAR_PLANE:
+                plane = new ShearPlane(plane_transform_scales);
+                break;
+            case MainWindow.KALEIDOSCOPE_PLANE:
+                plane = new KaleidoscopePlane(plane_transform_center, plane_transform_angle, plane_transform_angle2, plane_transform_radius, plane_transform_sides);
+                break;
+            case MainWindow.PINCH_PLANE:
+                plane = new PinchPlane(plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_amount);
+                break;
+            case MainWindow.CIRCLEINVERSION_PLANE:
+                plane = new CircleInversionPlane(plane_transform_center, plane_transform_radius);
+                break;
+            case MainWindow.VARIATION_MU_PLANE:
+                plane = new MuVariationPlane();
+                break;
+            case MainWindow.ERF_PLANE:
+                plane = new ErfPlane();
+                break;
+            case MainWindow.RZETA_PLANE:
+                plane = new RiemannZetaPlane();
+                break;
+            case MainWindow.INFLECTION_PLANE:
+                plane = new InflectionPlane(plane_transform_center);
+                break;
+            case MainWindow.RIPPLES_PLANE:
+                plane = new RipplesPlane(plane_transform_scales, plane_transform_wavelength, waveType);
+                break;
+        }
+
+    }
+
     protected void OutColoringAlgorithmFactory(int out_coloring_algorithm, boolean smoothing, int escaping_smooth_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, double[] plane_transform_center) {
         switch (out_coloring_algorithm) {
 
             case MainWindow.ESCAPE_TIME:
-                if(!smoothing) {
+                if (!smoothing) {
                     out_color_algorithm = new EscapeTime();
-                }
-                else {
+                } else {
                     out_color_algorithm = new SmoothEscapeTime(Math.log(bailout_squared), escaping_smooth_algorithm);
                 }
                 break;
             case MainWindow.BINARY_DECOMPOSITION:
-                if(!smoothing) {
+                if (!smoothing) {
                     out_color_algorithm = new BinaryDecomposition();
-                }
-                else {
+                } else {
                     out_color_algorithm = new SmoothBinaryDecomposition(Math.log(bailout_squared), escaping_smooth_algorithm);
                 }
                 break;
             case MainWindow.BINARY_DECOMPOSITION2:
-                if(!smoothing) {
+                if (!smoothing) {
                     out_color_algorithm = new BinaryDecomposition2();
-                }
-                else {
+                } else {
                     out_color_algorithm = new SmoothBinaryDecomposition2(Math.log(bailout_squared), escaping_smooth_algorithm);
                 }
                 break;
@@ -1124,10 +980,9 @@ public abstract class Fractal {
                 out_color_algorithm = new EscapeTimePlusRePlusImPlusReDivideIm();
                 break;
             case MainWindow.BIOMORPH:
-                if(!smoothing) {
+                if (!smoothing) {
                     out_color_algorithm = new Biomorphs(bailout);
-                }
-                else {
+                } else {
                     out_color_algorithm = new SmoothBiomorphs(Math.log(bailout_squared), bailout, escaping_smooth_algorithm);
                 }
                 break;
@@ -1162,10 +1017,9 @@ public abstract class Fractal {
                 out_color_algorithm = new EscapeTimeEscapeRadius(Math.log(bailout_squared));
                 break;
             case MainWindow.ESCAPE_TIME_GRID:
-                if(!smoothing) {
+                if (!smoothing) {
                     out_color_algorithm = new EscapeTimeGrid(Math.log(bailout_squared));
-                }
-                else {
+                } else {
                     out_color_algorithm = new SmoothEscapeTimeGrid(Math.log(bailout_squared), escaping_smooth_algorithm);
                 }
                 break;
@@ -1173,26 +1027,23 @@ public abstract class Fractal {
                 out_color_algorithm = new Banded();
                 break;
             case MainWindow.ESCAPE_TIME_FIELD_LINES:
-                if(!smoothing) {
+                if (!smoothing) {
                     out_color_algorithm = new EscapeTimeFieldLines(Math.log(bailout_squared));
-                }
-                else {
+                } else {
                     out_color_algorithm = new SmoothEscapeTimeFieldLines(Math.log(bailout_squared), escaping_smooth_algorithm);
                 }
                 break;
             case MainWindow.ESCAPE_TIME_FIELD_LINES2:
-                if(!smoothing) {
+                if (!smoothing) {
                     out_color_algorithm = new EscapeTimeFieldLines2(Math.log(bailout_squared));
-                }
-                else {
+                } else {
                     out_color_algorithm = new SmoothEscapeTimeFieldLines2(Math.log(bailout_squared), escaping_smooth_algorithm);
                 }
                 break;
             case MainWindow.USER_OUTCOLORING_ALGORITHM:
-                if(user_out_coloring_algorithm == 0) {
+                if (user_out_coloring_algorithm == 0) {
                     out_color_algorithm = new UserOutColorAlgorithm(outcoloring_formula, bailout, max_iterations, xCenter, yCenter, size, plane_transform_center);
-                }
-                else {
+                } else {
                     out_color_algorithm = new UserConditionalOutColorAlgorithm(user_outcoloring_conditions, user_outcoloring_condition_formula, bailout, max_iterations, xCenter, yCenter, size, plane_transform_center);
                 }
                 break;
@@ -1204,8 +1055,8 @@ public abstract class Fractal {
 
         switch (in_coloring_algorithm) {
 
-            case MainWindow.MAXIMUM_ITERATIONS:
-                in_color_algorithm = new MaximumIterations(max_iterations);
+            case MainWindow.MAX_ITERATIONS:
+                in_color_algorithm = new MaximumIterations();
                 break;
             case MainWindow.Z_MAG:
                 in_color_algorithm = new ZMag(max_iterations);
@@ -1235,15 +1086,87 @@ public abstract class Fractal {
                 in_color_algorithm = new Squares2();
                 break;
             case MainWindow.USER_INCOLORING_ALGORITHM:
-                if(user_in_coloring_algorithm == 0) {
+                if (user_in_coloring_algorithm == 0) {
                     in_color_algorithm = new UserInColorAlgorithm(incoloring_formula, max_iterations, xCenter, yCenter, size, plane_transform_center, bailout);
-                }
-                else {
+                } else {
                     in_color_algorithm = new UserConditionalInColorAlgorithm(user_incoloring_conditions, user_incoloring_condition_formula, max_iterations, xCenter, yCenter, size, plane_transform_center, bailout);
                 }
                 break;
 
         }
+
+    }
+
+    private void TrapFactory(OrbitTrapSettings ots) {
+
+        switch (ots.trapType) {
+            case MainWindow.POINT_TRAP:
+                trap = new PointOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength);
+                break;
+            case MainWindow.POINT_SQUARE_TRAP:
+                trap = new PointSquareOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength);
+                break;
+            case MainWindow.POINT_RHOMBUS_TRAP:
+                trap = new PointRhombusOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength);
+                break;
+            case MainWindow.CROSS_TRAP:
+                trap = new CrossOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth);
+                break;
+            case MainWindow.CIRCLE_TRAP:
+                trap = new CircleOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth);
+                break;
+            case MainWindow.SQUARE_TRAP:
+                trap = new SquareOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth);
+                break;
+            case MainWindow.RHOMBUS_TRAP:
+                trap = new RhombusOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth);
+                break;
+            case MainWindow.POINT_N_NORM_TRAP:
+                trap = new PointNNormOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapNorm);
+                break;
+            case MainWindow.N_NORM_TRAP:
+                trap = new NNormOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.trapNorm);
+                break;
+            case MainWindow.RE_TRAP:
+                trap = new ReOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth);
+                break;
+            case MainWindow.IM_TRAP:
+                trap = new ImOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth);
+                break;
+            case MainWindow.CIRCLE_CROSS_TRAP:
+                trap = new CircleCrossOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth);
+                break;
+            case MainWindow.SQUARE_CROSS_TRAP:
+                trap = new SquareCrossOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth);
+                break;
+            case MainWindow.RHOMBUS_CROSS_TRAP:
+                trap = new RhombusCrossOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth);
+                break;
+            case MainWindow.N_NORM_CROSS_TRAP:
+                trap = new NNormCrossOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.trapNorm);
+                break;
+            case MainWindow.CIRCLE_POINT_TRAP:
+                trap = new CirclePointOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth);
+                break;
+            case MainWindow.SQUARE_POINT_TRAP:
+                trap = new SquarePointOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth);
+                break;
+            case MainWindow.RHOMBUS_POINT_TRAP:
+                trap = new RhombusPointOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth);
+                break;
+            case MainWindow.N_NORM_POINT_TRAP:
+                trap = new NNormPointOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.trapNorm);
+                break;
+            case MainWindow.N_NORM_POINT_N_NORM_TRAP:
+                trap = new NNormPointNNormOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.trapNorm);
+                break;
+        }
+
+    }
+
+    public OrbitTrap getOrbitTrap() {
+
+        return trap;
 
     }
 }

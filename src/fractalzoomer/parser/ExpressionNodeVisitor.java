@@ -46,6 +46,9 @@ public interface ExpressionNodeVisitor
   /**  Visit a FunctionUserMultiArgumentExpressionNode */
   public void visit(FunctionUserMultiArgumentExpressionNode node);
   
+  /**  Visit a FunctionUserMultiArgument2ExpressionNode */
+  public void visit(FunctionUserMultiArgument2ExpressionNode node);
+  
   /**  Visit a FunctionUserOneArgumentExpressionNode */
   public void visit(FunctionUser1ArgumentExpressionNode node);
   

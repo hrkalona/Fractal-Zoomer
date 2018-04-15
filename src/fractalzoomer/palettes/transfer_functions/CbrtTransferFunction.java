@@ -33,7 +33,10 @@ public class CbrtTransferFunction extends TransferFunction {
     @Override
     protected double function(double result) {
         
-        return Math.cbrt(result * color_intensity + 1);
+        result /= paletteLength; //scale to palette multiple        
+        result = Math.cbrt(result * color_intensity + 1);   
+        result *= paletteLength; // rescale to palette length      
+        return result;
         
     }
     

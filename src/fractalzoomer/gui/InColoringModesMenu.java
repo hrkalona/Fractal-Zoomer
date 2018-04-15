@@ -37,7 +37,7 @@ public class InColoringModesMenu extends JMenu {
     
     static {
         inColoringNames = new String[MainWindow.TOTAL_INCOLORING_ALGORITHMS];
-        inColoringNames[MainWindow.MAXIMUM_ITERATIONS] = "Maximum Iterations";
+        inColoringNames[MainWindow.MAX_ITERATIONS] = "Maximum Iterations";
         inColoringNames[MainWindow.Z_MAG] = "norm(z)";
         inColoringNames[MainWindow.DECOMPOSITION_LIKE] = "Decomposition Like";
         inColoringNames[MainWindow.RE_DIVIDE_IM] = "Re / Im";
@@ -62,18 +62,18 @@ public class InColoringModesMenu extends JMenu {
 
         ButtonGroup incoloring_button_group = new ButtonGroup();
 
-        in_coloring_modes[MainWindow.MAXIMUM_ITERATIONS] = new JRadioButtonMenuItem(inColoringNames[MainWindow.MAXIMUM_ITERATIONS]);
-        in_coloring_modes[MainWindow.MAXIMUM_ITERATIONS].setToolTipText("Sets the in-coloring method, using the maximum iterations.");
-        in_coloring_modes[MainWindow.MAXIMUM_ITERATIONS].addActionListener(new ActionListener() {
+        in_coloring_modes[MainWindow.MAX_ITERATIONS] = new JRadioButtonMenuItem(inColoringNames[MainWindow.MAX_ITERATIONS]);
+        in_coloring_modes[MainWindow.MAX_ITERATIONS].setToolTipText("Sets the in-coloring method, using the maximum iterations.");
+        in_coloring_modes[MainWindow.MAX_ITERATIONS].addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {
 
-                ptr.setInColoringMode(MainWindow.MAXIMUM_ITERATIONS);
+                ptr.setInColoringMode(MainWindow.MAX_ITERATIONS);
 
             }
         });
-        add(in_coloring_modes[MainWindow.MAXIMUM_ITERATIONS]);
-        incoloring_button_group.add(in_coloring_modes[MainWindow.MAXIMUM_ITERATIONS]);
+        add(in_coloring_modes[MainWindow.MAX_ITERATIONS]);
+        incoloring_button_group.add(in_coloring_modes[MainWindow.MAX_ITERATIONS]);
 
         in_coloring_modes[MainWindow.Z_MAG] = new JRadioButtonMenuItem(inColoringNames[MainWindow.Z_MAG]);
         in_coloring_modes[MainWindow.Z_MAG].setToolTipText("Sets the in-coloring method, using the norm of z.");

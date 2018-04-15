@@ -17,9 +17,6 @@
 package fractalzoomer.out_coloring_algorithms;
 
 import fractalzoomer.core.Complex;
-import static fractalzoomer.utils.ColorAlgorithm.INCREMENT;
-import static fractalzoomer.utils.ColorAlgorithm.MAGIC_OFFSET_NUMBER;
-import static fractalzoomer.utils.ColorAlgorithm.OutNotUsingIncrement;
 
 /**
  *
@@ -47,10 +44,10 @@ public class EscapeTimeFieldLines2Magnet extends EscapeTimeFieldLines2 {
         double temp = line ? (Integer)object[0] : -((Integer)object[0] + INCREMENT);
         
         if(temp < 0) {
-            return (Boolean)object[2] ? temp - MAGIC_OFFSET_NUMBER - MAGNET_INCREMENT : temp - MAGIC_OFFSET_NUMBER;
+            return (Boolean)object[2] ? temp - MAGNET_INCREMENT : temp;
         }
         else {
-            return (Boolean)object[2] ? temp + MAGIC_OFFSET_NUMBER + MAGNET_INCREMENT : temp + MAGIC_OFFSET_NUMBER;
+            return (Boolean)object[2] ? temp + MAGNET_INCREMENT : temp;
         }
 
     }

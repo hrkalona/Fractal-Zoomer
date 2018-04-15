@@ -26,6 +26,7 @@ public class RainbowPaletteSettings {
     public double rp_blending;
     public int rainbow_offset;
     public double rp_noise_reducing_factor;
+    public int rainbow_algorithm;
     
     public RainbowPaletteSettings() {
         rainbow_palette = false;
@@ -33,6 +34,7 @@ public class RainbowPaletteSettings {
         rp_blending = 0.7;
         rainbow_offset = 0;
         rp_noise_reducing_factor = 0.4;
+        rainbow_algorithm = 0;
     }
 
     

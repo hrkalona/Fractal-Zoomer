@@ -38,7 +38,7 @@ public class MagTimesCosReSquared extends InColorAlgorithm {
         
         double re = ((Complex)object[0]).getRe();
         
-        return ((Complex)object[0]).norm_squared() * Math.abs(Math.cos(re * re)) * 400 + MAGIC_OFFSET_NUMBER; 
+        return ((Complex)object[0]).norm_squared() * Math.abs(Math.cos(re * re)) * 400; 
              
     }
     

@@ -41,16 +41,16 @@ public class CustomPalette extends Palette {
     private static Point2D.Double[][] bezierControlPoints_green;
     private static Point2D.Double[][] bezierControlPoints_blue;
 
-    public CustomPalette(int[][] custom_palette, int color_interpolation, int color_space, boolean reverse, double scale_factor_palette_val, int processing_alg, boolean smoothing, Color special_color, int color_smoothing_method) {
+    public CustomPalette(int[][] custom_palette, int color_interpolation, int color_space, boolean reverse, double scale_factor_palette_val, int processing_alg, boolean smoothing, Color special_color, int color_smoothing_method, boolean special_use_palette_color) {
         super();
 
         int[] palette = createPalette(custom_palette, reverse, processing_alg, scale_factor_palette_val, color_interpolation, color_space, 0);
 
         if(!smoothing) {
-            palette_color = new PaletteColorNormal(palette, special_color);
+            palette_color = new PaletteColorNormal(palette, special_color, special_use_palette_color);
         }
         else {
-            palette_color = new PaletteColorSmooth(palette, special_color, color_smoothing_method);
+            palette_color = new PaletteColorSmooth(palette, special_color, color_smoothing_method, special_use_palette_color);
         }
     }
 
@@ -72,13 +72,287 @@ public class CustomPalette extends Palette {
 
     }
 
+    public static Color[] getGradient(int colorA, int colorB, int length, int color_interpolation, int color_space, boolean reversed) {
+
+        int[] palette = createGradient(colorA, colorB, length, color_interpolation, color_space, reversed);
+
+        Color[] palette2 = new Color[palette.length];
+
+        for(int i = 0; i < palette2.length; i++) {
+            palette2[i] = new Color(palette[i]);
+        }
+
+        return palette2;
+
+    }
+
+    public static int[] createGradient(int colorA, int colorB, int length, int color_interpolation, int color_space, boolean reversed) {
+
+        int[] palette = new int[length]; // allocate pallete
+
+        int color1 = colorA;
+        int color2 = colorB;
+
+        if(reversed) {
+            color1 = colorB;
+            color2 = colorA;
+        }
+
+        int[] colors1 = {length, (color1 >> 16) & 0xff, (color1 >> 8) & 0xff, color1 & 0xff}; // first referential color
+        int[] colors2 = {0, (color2 >> 16) & 0xff, (color2 >> 8) & 0xff, color2 & 0xff}; // second ref. color
+        int[][] colors = {colors1, colors2};
+
+        if(color_space == MainWindow.COLOR_SPACE_BEZIER_RGB) {
+            calculateBezierControlPoints(colors);
+        }
+
+        InterpolationMethod method = null;
+
+        switch (color_interpolation) {
+            case MainWindow.INTERPOLATION_LINEAR:
+                method = new LinearInterpolation();
+                break;
+            case MainWindow.INTERPOLATION_COSINE:
+                method = new CosineInterpolation();
+                break;
+            case MainWindow.INTERPOLATION_ACCELERATION:
+                method = new AccelerationInterpolation();
+                break;
+            case MainWindow.INTERPOLATION_DECELERATION:
+                method = new DecelerationInterpolation();
+                break;
+            case MainWindow.INTERPOLATION_EXPONENTIAL:
+                method = new ExponentialInterpolation();
+                break;
+            case MainWindow.INTERPOLATION_CATMULLROM:
+                method = new CatmullRomInterpolation();
+                break;
+            case MainWindow.INTERPOLATION_CATMULLROM2:
+                method = new CatmullRom2Interpolation();
+                break;
+            case MainWindow.INTERPOLATION_SIGMOID:
+                method = new SigmoidInterpolation();
+                break;
+        }
+
+        int red, green, blue;
+  
+        for(int i = 0; i < colors.length - 1; i++) { // interpolate first color only
+            int[] c1 = colors[i]; // first referential color
+            int[] c2 = colors[(i + 1) % colors.length]; // second ref. color
+            
+            int k;
+            double j;
+            for(k = 0, j = 0; k < c1[0]; j += 1.0 / c1[0], k++) {
+                double coef = j;
+
+                if(color_space == MainWindow.COLOR_SPACE_HSB) {
+                    ColorSpaceConverter con = new ColorSpaceConverter();
+
+                    double[] c1_hsb = con.RGBtoHSB(c1[1], c1[2], c1[3]);
+                    double[] c2_hsb = con.RGBtoHSB(c2[1], c2[2], c2[3]);
+
+                    double h;
+                    double s = method.interpolate(c1_hsb[1], c2_hsb[1], coef);
+                    double b = method.interpolate(c1_hsb[2], c2_hsb[2], coef);
+
+                    double d = c2_hsb[0] - c1_hsb[0];
+
+                    double temp;
+                    if(c1_hsb[0] > c2_hsb[0]) {
+                        temp = c1_hsb[0];
+                        c1_hsb[0] = c2_hsb[0];
+                        c2_hsb[0] = temp;
+                        d = -d;
+                        coef = 1 - coef;
+                    }
+
+                    if(d > 0.5) {
+                        c1_hsb[0] += 1;
+                        h = method.interpolate(c1_hsb[0], c2_hsb[0], coef) % 1.0;
+                    }
+                    else {
+                        h = method.interpolate(c1_hsb[0], c2_hsb[0], coef);
+                    }
+
+                    int[] res = con.HSBtoRGB(h, s, b);
+
+                    palette[k % palette.length] = 0xff000000 | (res[0] << 16) | (res[1] << 8) | res[2];
+                }
+                else if(color_space == MainWindow.COLOR_SPACE_RGB) {
+                    palette[k % palette.length] = method.interpolate(c1[1], c1[2], c1[3], c2[1], c2[2], c2[3], coef);//0xff000000 | (red << 16) | (green << 8) | blue;
+                    //System.out.print((0xff000000 | (red << 16) | (green << 8) | blue) + ", ");
+                }
+                else if(color_space == MainWindow.COLOR_SPACE_EXP) {
+                    double c2_1 = c2[1] == 0 ? c2[1] + 1 : c2[1];
+                    double c2_2 = c2[2] == 0 ? c2[2] + 1 : c2[2];
+                    double c2_3 = c2[3] == 0 ? c2[3] + 1 : c2[3];
+
+                    double c1_1 = c1[1] == 0 ? c1[1] + 1 : c1[1];
+                    double c1_2 = c1[2] == 0 ? c1[2] + 1 : c1[2];
+                    double c1_3 = c1[3] == 0 ? c1[3] + 1 : c1[3];
+
+                    double to_r = Math.log(c2_1);
+                    double from_r = Math.log(c1_1);
+
+                    double to_g = Math.log(c2_2);
+                    double from_g = Math.log(c1_2);
+
+                    double to_b = Math.log(c2_3);
+                    double from_b = Math.log(c1_3);
+
+                    red = (int)(Math.exp(method.interpolate(from_r, to_r, coef)));
+                    green = (int)(Math.exp(method.interpolate(from_g, to_g, coef)));
+                    blue = (int)(Math.exp(method.interpolate(from_b, to_b, coef)));
+
+                    palette[k % palette.length] = 0xff000000 | (red << 16) | (green << 8) | blue;
+                }
+                else if(color_space == MainWindow.COLOR_SPACE_SQUARE) {
+                    double to_r = Math.sqrt(c2[1]);
+                    double from_r = Math.sqrt(c1[1]);
+
+                    double to_g = Math.sqrt(c2[2]);
+                    double from_g = Math.sqrt(c1[2]);
+
+                    double to_b = Math.sqrt(c2[3]);
+                    double from_b = Math.sqrt(c1[3]);
+
+                    red = (int)(Math.pow(method.interpolate(from_r, to_r, coef), 2));
+                    green = (int)(Math.pow(method.interpolate(from_g, to_g, coef), 2));
+                    blue = (int)(Math.pow(method.interpolate(from_b, to_b, coef), 2));
+
+                    palette[k % palette.length] = 0xff000000 | (red << 16) | (green << 8) | blue;
+                }
+                else if(color_space == MainWindow.COLOR_SPACE_SQRT) {
+                    double to_r = c2[1] * c2[1];
+                    double from_r = c1[1] * c1[1];
+
+                    double to_g = c2[2] * c2[2];
+                    double from_g = c1[2] * c1[2];
+
+                    double to_b = c2[3] * c2[3];
+                    double from_b = c1[3] * c1[3];
+
+                    red = (int)(Math.sqrt(method.interpolate(from_r, to_r, coef)));
+                    green = (int)(Math.sqrt(method.interpolate(from_g, to_g, coef)));
+                    blue = (int)(Math.sqrt(method.interpolate(from_b, to_b, coef)));
+
+                    palette[k % palette.length] = 0xff000000 | (red << 16) | (green << 8) | blue;
+                }
+                else if(color_space == MainWindow.COLOR_SPACE_RYB) {
+                    ColorSpaceConverter con = new ColorSpaceConverter();
+
+                    double[] ryb_from = con.RGBtoRYB(c1[1], c1[2], c1[3]);
+                    double[] ryb_to = con.RGBtoRYB(c2[1], c2[2], c2[3]);
+
+                    double r = method.interpolate(ryb_from[0], ryb_to[0], coef);
+                    double y = method.interpolate(ryb_from[1], ryb_to[1], coef);
+                    double b = method.interpolate(ryb_from[2], ryb_to[2], coef);
+
+                    int[] rgb = con.RYBtoRGB(r, y, b);
+
+                    palette[k % palette.length] = 0xff000000 | ((int)(rgb[0]) << 16) | ((int)(rgb[1]) << 8) | (int)(rgb[2]);
+                }
+                else if(color_space == MainWindow.COLOR_SPACE_LAB) {
+                    ColorSpaceConverter con = new ColorSpaceConverter();
+
+                    double[] from = con.RGBtoLAB(c1[1], c1[2], c1[3]);
+
+                    double[] to = con.RGBtoLAB(c2[1], c2[2], c2[3]);
+
+                    double L = method.interpolate(from[0], to[0], coef);
+                    double a = method.interpolate(from[1], to[1], coef);
+                    double b = method.interpolate(from[2], to[2], coef);
+
+                    int[] res = con.LABtoRGB(L, a, b);
+
+                    res[0] = ColorSpaceConverter.clamp(res[0]);
+                    res[1] = ColorSpaceConverter.clamp(res[1]);
+                    res[2] = ColorSpaceConverter.clamp(res[2]);
+
+                    palette[k % palette.length] = 0xff000000 | ((int)(res[0]) << 16) | ((int)(res[1]) << 8) | (int)(res[2]);
+                }
+                else if(color_space == MainWindow.COLOR_SPACE_XYZ) {
+                    ColorSpaceConverter con = new ColorSpaceConverter();
+
+                    double[] from = con.RGBtoXYZ(c1[1], c1[2], c1[3]);
+
+                    double[] to = con.RGBtoXYZ(c2[1], c2[2], c2[3]);
+
+                    double X = method.interpolate(from[0], to[0], coef);
+                    double Y = method.interpolate(from[1], to[1], coef);
+                    double Z = method.interpolate(from[2], to[2], coef);
+
+                    int[] res = con.XYZtoRGB(X, Y, Z);
+
+                    res[0] = ColorSpaceConverter.clamp(res[0]);
+                    res[1] = ColorSpaceConverter.clamp(res[1]);
+                    res[2] = ColorSpaceConverter.clamp(res[2]);
+
+                    palette[k % palette.length] = 0xff000000 | ((int)(res[0]) << 16) | ((int)(res[1]) << 8) | (int)(res[2]);
+                }
+                else if(color_space == MainWindow.COLOR_SPACE_LCH) {
+                    ColorSpaceConverter con = new ColorSpaceConverter();
+
+                    double[] from = con.RGBtoLCH(c1[1], c1[2], c1[3]);
+
+                    double[] to = con.RGBtoLCH(c2[1], c2[2], c2[3]);
+
+                    double L = method.interpolate(from[0], to[0], coef);
+                    double C = method.interpolate(from[1], to[1], coef);
+                    double H;
+
+                    double d = to[2] - from[2];
+
+                    double temp;
+                    if(from[2] > to[2]) {
+                        temp = from[2];
+                        from[2] = to[2];
+                        to[2] = temp;
+                        d = -d;
+                        coef = 1 - coef;
+                    }
+
+                    if(d > 180) {
+                        from[2] += 360;
+                        H = method.interpolate(from[2], to[2], coef) % 360.0;
+                    }
+                    else {
+                        H = method.interpolate(from[2], to[2], coef);
+                    }
+
+                    int[] res = con.LCHtoRGB(L, C, H);
+
+                    res[0] = ColorSpaceConverter.clamp(res[0]);
+                    res[1] = ColorSpaceConverter.clamp(res[1]);
+                    res[2] = ColorSpaceConverter.clamp(res[2]);
+
+                    palette[k % palette.length] = 0xff000000 | ((int)(res[0]) << 16) | ((int)(res[1]) << 8) | (int)(res[2]);
+                }
+                else if(color_space == MainWindow.COLOR_SPACE_BEZIER_RGB) {
+                    double a = method.getCoef(coef);
+                    red = ColorSpaceConverter.clamp((int)evaluateBezier(a, c1[1], bezierControlPoints_red[0][i].y, bezierControlPoints_red[1][i].y, c2[1]));
+                    green = ColorSpaceConverter.clamp((int)evaluateBezier(a, c1[2], bezierControlPoints_green[0][i].y, bezierControlPoints_green[1][i].y, c2[2]));
+                    blue = ColorSpaceConverter.clamp((int)evaluateBezier(a, c1[3], bezierControlPoints_blue[0][i].y, bezierControlPoints_blue[1][i].y, c2[3]));
+
+                    palette[k % palette.length] = 0xff000000 | (red << 16) | (green << 8) | blue;
+                }
+            }
+        }
+
+        return palette;
+    }
+
     private static int[] createPalette(int[][] custom_palette, boolean reverse, int processing_alg, double scale_factor_palette_val, int color_interpolation, int color_space, int color_cycling_location) {
 
         int n = 0, counter = 0;
         for(int i = 0; i < custom_palette.length; i++) { // get the number of all colors
             n += custom_palette[i][0];
-            if(custom_palette[i][0] != 0) {
+            if(custom_palette[i][0] > 0) {
                 counter++;
+            }
+            else if(custom_palette[i][0] < 0) {
+                throw new ArithmeticException();
             }
         }
 

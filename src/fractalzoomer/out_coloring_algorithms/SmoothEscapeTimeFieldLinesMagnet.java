@@ -17,9 +17,6 @@
 package fractalzoomer.out_coloring_algorithms;
 
 import fractalzoomer.core.Complex;
-import static fractalzoomer.utils.ColorAlgorithm.INCREMENT;
-import static fractalzoomer.utils.ColorAlgorithm.MAGIC_OFFSET_NUMBER;
-import static fractalzoomer.utils.ColorAlgorithm.OutNotUsingIncrement;
 
 /**
  *
@@ -60,10 +57,10 @@ public class SmoothEscapeTimeFieldLinesMagnet extends SmoothEscapeTimeFieldLines
                 temp = Math.log(temp);
                 
                 if(temp3 < 0) {
-                    return temp3 -((log_bailout_squared - temp) / (temp3 - temp) + MAGIC_OFFSET_NUMBER + MAGNET_INCREMENT);
+                    return temp3 -((log_bailout_squared - temp) / (temp3 - temp) + MAGNET_INCREMENT);
                 }
                 else {
-                    return temp3 + (log_bailout_squared - temp) / (temp3 - temp) + MAGIC_OFFSET_NUMBER + MAGNET_INCREMENT;
+                    return temp3 + (log_bailout_squared - temp) / (temp3 - temp) + MAGNET_INCREMENT;
                 }           
             }
             else {
@@ -77,10 +74,10 @@ public class SmoothEscapeTimeFieldLinesMagnet extends SmoothEscapeTimeFieldLines
                 double f = a / Math.log(p);
 
                 if(temp3 < 0) {
-                    return temp3 - (1 - f + MAGIC_OFFSET_NUMBER + MAGNET_INCREMENT);                    
+                    return temp3 - (1 - f + MAGNET_INCREMENT);                    
                 }
                 else {
-                    return temp3 + 1 - f + MAGIC_OFFSET_NUMBER + MAGNET_INCREMENT;
+                    return temp3 + 1 - f + MAGNET_INCREMENT;
                 }               
             }
         }
@@ -89,10 +86,10 @@ public class SmoothEscapeTimeFieldLinesMagnet extends SmoothEscapeTimeFieldLines
                 double temp = Math.log(((Complex)object[4]).distance_squared(1));
        
                 if(temp3 < 0) {
-                    return temp3 - ((log_convergent_bailout - temp) / (Math.log((Double)object[3]) - temp) + MAGIC_OFFSET_NUMBER);
+                    return temp3 - (log_convergent_bailout - temp) / (Math.log((Double)object[3]) - temp);
                 }
                 else {
-                    return temp3 + (log_convergent_bailout - temp) / (Math.log((Double)object[3]) - temp) + MAGIC_OFFSET_NUMBER;
+                    return temp3 + (log_convergent_bailout - temp) / (Math.log((Double)object[3]) - temp);
                 }
             }
             else {
@@ -103,10 +100,10 @@ public class SmoothEscapeTimeFieldLinesMagnet extends SmoothEscapeTimeFieldLines
                 double f = Math.log(log_convergent_bailout / temp4) / Math.log(power);
 
                 if(temp3 < 0) {
-                    return temp3 - (f + MAGIC_OFFSET_NUMBER);
+                    return temp3 - f;
                 }
                 else {
-                    return temp3 + f + MAGIC_OFFSET_NUMBER;
+                    return temp3 + f;
                 }              
             }
         }

@@ -721,5 +721,17 @@ public class OptionsMenu extends JMenu {
         return colors_menu.getTranferFunctions();
         
     }
+    
+    public JMenuItem getGradient() {
+        
+        return colors_menu.getGradient();
+        
+    }
+    
+    public JMenuItem getOrbitTraps() {
+        
+        return colors_menu.getOrbitTraps();
+        
+    }
 
 }

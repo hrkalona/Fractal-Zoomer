@@ -47,12 +47,12 @@ public class SmoothEscapeTime extends OutColorAlgorithm {
             temp += 0.000000001;
             temp = Math.log(temp);
 
-            return (Integer)object[0] + (log_bailout_squared - temp) / (Math.log(temp2) - temp) + MAGIC_OFFSET_NUMBER;         
+            return (Integer)object[0] + (log_bailout_squared - temp) / (Math.log(temp2) - temp);         
             
         }
         else {
             //double temp2 = ((Complex)object[1]).norm_squared();
-            //return (Integer)object[0] + 1 - Math.log(Math.log(temp2) / log_bailout_squared) / log_power + MAGIC_OFFSET_NUMBER;
+            //return (Integer)object[0] + 1 - Math.log(Math.log(temp2) / log_bailout_squared) / log_power;
             
             
             double temp = ((Complex)object[2]).norm_squared();
@@ -66,7 +66,7 @@ public class SmoothEscapeTime extends OutColorAlgorithm {
             double a = Math.log(temp2 / log_bailout_squared);
             double f =  a / Math.log(p);
             
-            return (Integer)object[0] + 1 - f + MAGIC_OFFSET_NUMBER;
+            return (Integer)object[0] + 1 - f;
         }
 
     }

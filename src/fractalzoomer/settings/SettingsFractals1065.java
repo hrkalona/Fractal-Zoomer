@@ -24,6 +24,7 @@ import java.io.Serializable;
  * @author hrkalona2
  */
 public class SettingsFractals1065 extends SettingsFractals1064 implements Serializable {
+    private static final long serialVersionUID = -7952415829998978652L;
     private int color_smoothing_method;
     private int[] filters_order;
     private double bm_noise_reducing_factor;
@@ -61,6 +62,20 @@ public class SettingsFractals1065 extends SettingsFractals1064 implements Serial
     public double getRainbowPaletteNoiseReducingFactor() {
         
         return rp_noise_reducing_factor;
+        
+    }
+    
+    @Override
+    public int getVersion() {
+        
+        return 1065;
+        
+    }
+    
+    @Override
+    public boolean isJulia() {
+        
+        return false;
         
     }
     

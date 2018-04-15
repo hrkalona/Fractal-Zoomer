@@ -24,6 +24,7 @@ import java.io.Serializable;
  * @author kaloch
  */
 public class SettingsFractals1066 extends SettingsFractals1065 implements Serializable {
+    private static final long serialVersionUID = -7571337782731493705L;
     private boolean entropy_coloring;
     private double entropy_palette_factor;
     private double en_noise_reducing_factor;
@@ -139,6 +140,20 @@ public class SettingsFractals1066 extends SettingsFractals1065 implements Serial
     public double getGreyscaleColoringNoiseReducingFactor() {
         
         return gs_noise_reducing_factor;
+        
+    }
+    
+    @Override
+    public int getVersion() {
+        
+        return 1066;
+        
+    }
+    
+    @Override
+    public boolean isJulia() {
+        
+        return false;
         
     }
     

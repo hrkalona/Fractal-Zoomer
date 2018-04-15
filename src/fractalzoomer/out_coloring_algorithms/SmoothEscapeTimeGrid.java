@@ -61,7 +61,7 @@ public class SmoothEscapeTimeGrid extends OutColorAlgorithm {
 
             double temp3 = (Integer)object[0] + (log_bailout_squared - temp) / (temp2 - temp);
 
-            return grid ? temp3 + MAGIC_OFFSET_NUMBER : -(temp3 + MAGIC_OFFSET_NUMBER + INCREMENT);
+            return grid ? temp3 : -(temp3 + INCREMENT);
         }
         else {
             double temp2 = Math.log(((Complex)object[1]).norm_squared());
@@ -86,7 +86,7 @@ public class SmoothEscapeTimeGrid extends OutColorAlgorithm {
 
             double temp3 = (Integer)object[0] + 1 - f;
             
-            return grid ? temp3 + MAGIC_OFFSET_NUMBER : -(temp3 + MAGIC_OFFSET_NUMBER + INCREMENT);
+            return grid ? temp3 : -(temp3 + INCREMENT);
         }
 
     }

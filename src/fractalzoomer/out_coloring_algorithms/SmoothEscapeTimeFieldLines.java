@@ -57,7 +57,7 @@ public class SmoothEscapeTimeFieldLines extends OutColorAlgorithm {
 
             boolean line = Math.abs(fx) > lineWidth * fz;
 
-            return line ? temp3 + MAGIC_OFFSET_NUMBER : -(temp3 + MAGIC_OFFSET_NUMBER + INCREMENT);
+            return line ? temp3 : -(temp3 + INCREMENT);
         }
         else {
             double temp2 = Math.log(((Complex)object[1]).norm_squared());
@@ -80,7 +80,7 @@ public class SmoothEscapeTimeFieldLines extends OutColorAlgorithm {
 
             boolean line = Math.abs(fx) > lineWidth * fz;
             
-            return line ? temp3 + MAGIC_OFFSET_NUMBER : -(temp3 + MAGIC_OFFSET_NUMBER + INCREMENT);
+            return line ? temp3 : -(temp3 + INCREMENT);
         }
     }
     

@@ -73,7 +73,7 @@ public class SmoothEscapeTimeGridNova extends OutColorAlgorithm {
             temp3 = (Integer)object[0] + f;
         }
 
-        return grid ? temp3 + MAGIC_OFFSET_NUMBER : -(temp3 + MAGIC_OFFSET_NUMBER + INCREMENT);
+        return grid ? temp3 : -(temp3 + INCREMENT);
 
     }
     

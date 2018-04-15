@@ -43,9 +43,7 @@ public class NormBlackGridIsoContoursDomainColoring extends DomainColoring {
         
         gridBlending = 0.4;
         
-        contourColorABlue = contourColorAGreen = contourColorARed = 0;
-
-        contourColorBBlue = contourColorBGreen = contourColorBRed = 255;
+        gradient = blackToWhite;
 
         contourBlending = 0.5;
         

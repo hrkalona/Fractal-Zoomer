@@ -43,10 +43,10 @@ public class BiomorphsMagnet extends Biomorphs {
         
         
         if(temp3 < 0) {
-            return (Boolean)object[2] ? temp3 - MAGIC_OFFSET_NUMBER - MAGNET_INCREMENT : temp3 - MAGIC_OFFSET_NUMBER;
+            return (Boolean)object[2] ? temp3 - MAGNET_INCREMENT : temp3;
         }
         else {
-            return (Boolean)object[2] ? temp3 + MAGIC_OFFSET_NUMBER + MAGNET_INCREMENT : temp3 + MAGIC_OFFSET_NUMBER;
+            return (Boolean)object[2] ? temp3 + MAGNET_INCREMENT : temp3;
         }
 
     }

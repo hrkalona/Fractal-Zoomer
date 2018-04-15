@@ -17,9 +17,6 @@
 package fractalzoomer.out_coloring_algorithms;
 
 import fractalzoomer.core.Complex;
-import static fractalzoomer.utils.ColorAlgorithm.INCREMENT;
-import static fractalzoomer.utils.ColorAlgorithm.MAGIC_OFFSET_NUMBER;
-import static fractalzoomer.utils.ColorAlgorithm.OutNotUsingIncrement;
 
 /**
  *
@@ -44,7 +41,7 @@ public class EscapeTimeFieldLines2Nova extends EscapeTimeFieldLines2 {
 
         boolean line = Math.abs(fx) > lineWidth * fz;
         
-        return line ? (Integer)object[0] + MAGIC_OFFSET_NUMBER : -((Integer)object[0] + MAGIC_OFFSET_NUMBER + INCREMENT);
+        return line ? (Integer)object[0] : -((Integer)object[0] + INCREMENT);
 
     }
     

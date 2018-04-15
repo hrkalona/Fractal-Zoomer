@@ -18,6 +18,7 @@ package fractalzoomer.out_coloring_algorithms;
 
 import fractalzoomer.core.Complex;
 import fractalzoomer.parser.Parser;
+import fractalzoomer.utils.ColorAlgorithm;
 
 /**
  *
@@ -137,14 +138,14 @@ public class UserConditionalOutColorAlgorithmMagnet extends UserConditionalOutCo
             double result2 = expr2[0].getValue().getRe();
         
             if(Math.abs(result2) == max_iterations) {
-                return result2;
+                return result2 < 0 ? -ColorAlgorithm.MAXIMUM_ITERATIONS : ColorAlgorithm.MAXIMUM_ITERATIONS;
             }
 
             if(result2 < 0) {
-                return (Boolean)object[2] ? result2 - MAGIC_OFFSET_NUMBER - MAGNET_INCREMENT  : result2 - MAGIC_OFFSET_NUMBER;
+                return (Boolean)object[2] ? result2 - MAGNET_INCREMENT  : result2;
             }
             else {
-                return (Boolean)object[2] ? result2 + MAGIC_OFFSET_NUMBER + MAGNET_INCREMENT  : result2 + MAGIC_OFFSET_NUMBER;
+                return (Boolean)object[2] ? result2 + MAGNET_INCREMENT  : result2;
             }
         }
         else if(result == 1) { // right > left
@@ -181,14 +182,14 @@ public class UserConditionalOutColorAlgorithmMagnet extends UserConditionalOutCo
             double result2 = expr2[1].getValue().getRe();
         
             if(Math.abs(result2) == max_iterations) {
-                return result2;
+                return result2 < 0 ? -ColorAlgorithm.MAXIMUM_ITERATIONS : ColorAlgorithm.MAXIMUM_ITERATIONS;
             }
 
             if(result2 < 0) {
-                return (Boolean)object[2] ? result2 - MAGIC_OFFSET_NUMBER - MAGNET_INCREMENT  : result2 - MAGIC_OFFSET_NUMBER;
+                return (Boolean)object[2] ? result2 - MAGNET_INCREMENT  : result2;
             }
             else {
-                return (Boolean)object[2] ? result2 + MAGIC_OFFSET_NUMBER + MAGNET_INCREMENT  : result2 + MAGIC_OFFSET_NUMBER;
+                return (Boolean)object[2] ? result2 + MAGNET_INCREMENT  : result2;
             }
         }
         else if(result == 0) { //left == right
@@ -225,14 +226,14 @@ public class UserConditionalOutColorAlgorithmMagnet extends UserConditionalOutCo
             double result2 = expr2[2].getValue().getRe();
         
             if(Math.abs(result2) == max_iterations) {
-                return result2;
+                return result2 < 0 ? -ColorAlgorithm.MAXIMUM_ITERATIONS : ColorAlgorithm.MAXIMUM_ITERATIONS;
             }
 
             if(result2 < 0) {
-                return (Boolean)object[2] ? result2 - MAGIC_OFFSET_NUMBER - MAGNET_INCREMENT  : result2 - MAGIC_OFFSET_NUMBER;
+                return (Boolean)object[2] ? result2 - MAGNET_INCREMENT  : result2;
             }
             else {
-                return (Boolean)object[2] ? result2 + MAGIC_OFFSET_NUMBER + MAGNET_INCREMENT  : result2 + MAGIC_OFFSET_NUMBER;
+                return (Boolean)object[2] ? result2 + MAGNET_INCREMENT  : result2;
             }
         }
 

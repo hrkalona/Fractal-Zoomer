@@ -1,3 +1,15 @@
+Version 1.0.6.8
+    -Added a new processing algorithm, orbit traps.
+    -Added a color gradient option that can be used in color blending mode.
+    -Optimized the user algorithm evaluation code.
+    -Added support for up to twenty arguments in user defined code.
+    -Added support for up to 60 different user defined functions.
+    -Increased the placeholder variables to 30 (v1 - v30).
+    -Increased the maximum allowed hues in custom palette from 27 to 99.
+    -Added the option to select the order for some of parameters in custom domain coloring.
+    -Added the option to use gradient blending in bump mapping, entropy coloring, and rainbow palette.
+    -Bug fixes and UI changes.
+
 Version 1.0.6.7
     -Added Laguerre and Parhalley Root Finding Methods.
     -Added new domain coloring algorithms.

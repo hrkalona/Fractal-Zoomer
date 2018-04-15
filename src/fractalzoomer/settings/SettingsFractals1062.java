@@ -24,6 +24,7 @@ import java.io.Serializable;
  * @author hrkalona
  */
 public class SettingsFractals1062 extends SettingsFractals1061 implements Serializable {
+    private static final long serialVersionUID = -3075019599932237157L;
     private boolean rainbow_palette;
     private double rainbow_palette_factor;
     private boolean[] filters;
@@ -75,6 +76,20 @@ public class SettingsFractals1062 extends SettingsFractals1061 implements Serial
     public double getScaleFactorPaletteValue() {
         
         return scale_factor_palette_val;
+        
+    }
+    
+    @Override
+    public int getVersion() {
+        
+        return 1062;
+        
+    }
+    
+    @Override
+    public boolean isJulia() {
+        
+        return false;
         
     }
     

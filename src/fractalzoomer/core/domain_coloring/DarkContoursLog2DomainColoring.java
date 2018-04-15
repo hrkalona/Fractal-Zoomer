@@ -32,9 +32,7 @@ public class DarkContoursLog2DomainColoring extends DomainColoring {
 
         super(use_palette_domain_coloring, palette, color_transfer, color_cycling_location, MainWindow.INTERPOLATION_LINEAR, blending);
 
-        contourColorABlue = contourColorAGreen = contourColorARed = 255;
-
-        contourColorBBlue = contourColorBGreen = contourColorBRed = 0;
+        gradient = whiteToBlack;
 
         logBaseFinal = Math.log(2);
 

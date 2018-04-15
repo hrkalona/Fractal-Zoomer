@@ -41,14 +41,16 @@ public class Token
   public static final int IMAGINARY_NUMBER = 9;
   /** Token id for function names with 2 arguments*/
   public static final int FUNCTION_2ARGUMENTS = 10;
-  /** Token id for function names with user multiple arguments*/
+  /** Token id for function names with user multiple arguments (10)*/
   public static final int FUNCTION_USER_MULTI_ARGUMENTS = 11;
   /** Token id for function names with user one argument*/
   public static final int FUNCTION_USER_ONE_ARGUMENT = 12;
   /** Token id for function names with user two arguments*/
   public static final int FUNCTION_USER_TWO_ARGUMENTS = 13;
   /** Token id for comma */
-  public static final int COMMA = 12;
+  public static final int COMMA = 14;
+  /** Token id for function names with user multiple arguments (20)*/
+  public static final int FUNCTION_USER_MULTI_2_ARGUMENTS = 15;
 
   /** the token identifier */
   public final int token;

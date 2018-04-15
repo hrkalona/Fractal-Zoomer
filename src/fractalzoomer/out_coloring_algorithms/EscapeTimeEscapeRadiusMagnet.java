@@ -40,7 +40,7 @@ public class EscapeTimeEscapeRadiusMagnet extends EscapeTimeEscapeRadius {
         
         double temp = (Integer)object[0] + zabs + zarg;
         
-        return (Boolean)object[2] ? temp + MAGIC_OFFSET_NUMBER + MAGNET_INCREMENT  : temp + MAGIC_OFFSET_NUMBER;
+        return (Boolean)object[2] ? temp + MAGNET_INCREMENT  : temp;
 
     }
     

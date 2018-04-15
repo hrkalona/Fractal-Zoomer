@@ -47,7 +47,7 @@ public class SmoothEscapeTimeColorDecompositionRootFindingMethod extends EscapeT
             double temp3 = Math.log(((Complex)object[3]).distance_squared((Complex)object[4]));
             double temp4 = (log_convergent_bailout - temp3) / (Math.log((Double)object[2]) - temp3);
 
-            return Math.abs(((Integer)object[0]) + (long)(((Math.atan2(temp2, temp) / (pi2) + 0.75) * pi59) + (temp * temp + temp2 * temp2) * 2.5) + temp4) + MAGIC_OFFSET_NUMBER;
+            return Math.abs(((Integer)object[0]) + (long)(((Math.atan2(temp2, temp) / (pi2) + 0.75) * pi59) + (temp * temp + temp2 * temp2) * 2.5) + temp4);
         }
         else {
 
@@ -62,7 +62,7 @@ public class SmoothEscapeTimeColorDecompositionRootFindingMethod extends EscapeT
 
             double f = Math.log(log_convergent_bailout / temp4) / Math.log(power);
 
-            return Math.abs(((Integer)object[0]) + (long)(((Math.atan2(temp2, temp) / (pi2) + 0.75) * pi59) + (temp * temp + temp2 * temp2) * 2.5) + f) + MAGIC_OFFSET_NUMBER;
+            return Math.abs(((Integer)object[0]) + (long)(((Math.atan2(temp2, temp) / (pi2) + 0.75) * pi59) + (temp * temp + temp2 * temp2) * 2.5) + f);
         }
     }
 
@@ -71,7 +71,7 @@ public class SmoothEscapeTimeColorDecompositionRootFindingMethod extends EscapeT
 
         if(algorithm == 0) {
             double temp = Math.log(((Complex)object[3]).distance_squared((Complex)object[4]));
-            return (Integer)object[0] + (log_convergent_bailout - temp) / (Math.log((Double)object[2]) - temp) + MAGIC_OFFSET_NUMBER;
+            return (Integer)object[0] + (log_convergent_bailout - temp) / (Math.log((Double)object[2]) - temp);
         }
         else {
             double temp4 = Math.log(((Double)object[2]) + 1e-33);
@@ -80,7 +80,7 @@ public class SmoothEscapeTimeColorDecompositionRootFindingMethod extends EscapeT
 
             double f = Math.log(log_convergent_bailout / temp4) / Math.log(power);
 
-            return (Integer)object[0] + f + MAGIC_OFFSET_NUMBER;
+            return (Integer)object[0] + f;
         }
 
     }

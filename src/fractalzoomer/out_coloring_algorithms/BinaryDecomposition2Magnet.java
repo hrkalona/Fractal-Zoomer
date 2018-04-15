@@ -38,10 +38,10 @@ public class BinaryDecomposition2Magnet extends BinaryDecomposition2 {
         double temp3 = ((Complex)object[1]).getRe() < 0 ? -((Integer)object[0] + INCREMENT) : (Integer)object[0];
 
         if(temp3 < 0) {
-            return (Boolean)object[2] ? temp3 - MAGIC_OFFSET_NUMBER - MAGNET_INCREMENT : temp3 - MAGIC_OFFSET_NUMBER;
+            return (Boolean)object[2] ? temp3 - MAGNET_INCREMENT : temp3;
         }
         else {
-            return (Boolean)object[2] ? temp3 + MAGIC_OFFSET_NUMBER + MAGNET_INCREMENT : temp3 + MAGIC_OFFSET_NUMBER;
+            return (Boolean)object[2] ? temp3 + MAGNET_INCREMENT : temp3;
         }
     } 
     

@@ -83,14 +83,7 @@ public class SmoothBiomorphsMagnet extends SmoothBiomorphs {
         double temp = ((Complex)object[1]).getRe();
         double temp2 = ((Complex)object[1]).getIm();
         
-        double temp4 = temp > -bailout && temp < bailout || temp2 > -bailout && temp2 < bailout ?  temp3 : -(temp3 + INCREMENT);
+        return temp > -bailout && temp < bailout || temp2 > -bailout && temp2 < bailout ?  temp3 : -(temp3 + INCREMENT);
              
-        if(temp4 < 0) {
-            return temp4 - MAGIC_OFFSET_NUMBER;
-        }
-        else {
-            return temp4 + MAGIC_OFFSET_NUMBER;
-        }
-
     }
 }

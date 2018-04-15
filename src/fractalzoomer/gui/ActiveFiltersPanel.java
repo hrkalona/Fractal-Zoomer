@@ -21,13 +21,11 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
-import javax.swing.border.TitledBorder;
 
 /**
  *
@@ -156,9 +154,7 @@ public class ActiveFiltersPanel extends JPanel {
         add(detail_filters_tab);
         add(color_filters_tab);
         add(texture_filters_tab);
-        add(lighting_filters_tab);
-        
-        setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Filters", TitledBorder.DEFAULT_POSITION, TitledBorder.DEFAULT_POSITION));
+        add(lighting_filters_tab);  
     }
     
     private ImageIcon getIcon(String path) {

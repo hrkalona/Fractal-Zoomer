@@ -21,6 +21,7 @@ import fractalzoomer.core.Complex;
 import fractalzoomer.core.ThreadDraw;
 import fractalzoomer.parser.ExpressionNode;
 import fractalzoomer.parser.Parser;
+import fractalzoomer.utils.ColorAlgorithm;
 
 /**
  *
@@ -109,15 +110,10 @@ public class UserInColorAlgorithm extends InColorAlgorithm {
         double result = expr.getValue().getRe();
  
         if(Math.abs(result) == max_iterations) {
-            return result;
+            return result < 0 ? -ColorAlgorithm.MAXIMUM_ITERATIONS : ColorAlgorithm.MAXIMUM_ITERATIONS;
         }
         
-        if(result < 0) {
-            return result - MAGIC_OFFSET_NUMBER;
-        }
-        else {
-            return result + MAGIC_OFFSET_NUMBER;
-        }
+        return result; 
         
     }
     

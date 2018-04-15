@@ -16,46 +16,53 @@
  */
 package fractalzoomer.palettes;
 
-import fractalzoomer.out_coloring_algorithms.OutColorAlgorithm;
 import java.awt.Color;
 
 public abstract class PaletteColor {
 
     protected int[] palette;
-    protected static int mod_offset;
-    protected int[] special_color;
+    protected int[] special_colors;
+    protected int special_color;
+    protected boolean special_use_palette_color;
+    
 
-    public PaletteColor(int[] palette, Color special_color) {
+    public PaletteColor(int[] palette, Color special_color, boolean special_use_palette_color) {
 
         this.palette = palette;
-        mod_offset = (OutColorAlgorithm.MAGIC_OFFSET_NUMBER % palette.length) == 0 ? 0 : palette.length - (OutColorAlgorithm.MAGIC_OFFSET_NUMBER % palette.length);
 
-        if(special_color == null) {
-            this.special_color = null;
-        }
-        else {
-            this.special_color = new int[2]; //create two almost the same colors just for boundaries
+        this.special_use_palette_color = special_use_palette_color;
+        
+        this.special_color = special_color.getRGB();
 
-            this.special_color[0] = special_color.getRGB();
-            
+        if(!special_use_palette_color) {
+            this.special_colors = new int[2]; //create two almost the same colors just for boundaries
+
+            this.special_colors[0] = this.special_color;
+
             Color last_color;
             if(special_color.getBlue() == 255) {
                 last_color = new Color(special_color.getRed(), special_color.getGreen(), special_color.getBlue() - 1);
-                this.special_color[1] = last_color.getRGB();
+                this.special_colors[1] = last_color.getRGB();
             }
             else {
                 last_color = new Color(special_color.getRed(), special_color.getGreen(), special_color.getBlue() + 1);
-                this.special_color[1] = last_color.getRGB();
+                this.special_colors[1] = last_color.getRGB();
             }
         }
+
     }
 
     public abstract int getPaletteColor(double result);
-    
-    
+
     public int getPaletteLength() {
-        
+
         return palette.length;
+
+    }
+    
+    public int getSpecialColor() {
+        
+        return special_color;
         
     }
 

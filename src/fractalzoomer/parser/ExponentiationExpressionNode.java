@@ -59,35 +59,38 @@ public class ExponentiationExpressionNode implements ExpressionNode
   {
       Complex zexponent = exponent.getValue();
       
-      if(zexponent.getIm() == 0) {
-          if(zexponent.getRe() == 2) {
+      double re = zexponent.getRe();
+      double im = zexponent.getIm();
+      
+      if(im == 0) {
+          if(re == 2) {
               return base.getValue().square();
           }
-          else if(zexponent.getRe() == 3) {
+          else if(re == 3) {
               return base.getValue().cube();
           }
-          else if(zexponent.getRe() == 4) {
+          else if(re == 4) {
               return base.getValue().fourth();
           }
-          else if(zexponent.getRe() == 5) {
+          else if(re == 5) {
               return base.getValue().fifth();
           }
-          else if(zexponent.getRe() == 6) {
+          else if(re == 6) {
               return base.getValue().sixth();
           }
-          else if(zexponent.getRe() == 7) {
+          else if(re == 7) {
               return base.getValue().seventh();
           }
-          else if(zexponent.getRe() == 8) {
+          else if(re == 8) {
               return base.getValue().eighth();
           }
-          else if(zexponent.getRe() == 9) {
+          else if(re == 9) {
               return base.getValue().ninth();
           }
-          else if(zexponent.getRe() == 10) {
+          else if(re == 10) {
               return base.getValue().tenth();
           }
-          return base.getValue().pow(exponent.getValue().getRe());
+          return base.getValue().pow(re);
       }
       else {
           return base.getValue().pow(zexponent);

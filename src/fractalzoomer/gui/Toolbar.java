@@ -33,6 +33,7 @@ public class Toolbar extends JToolBar {
     private JButton zoom_in_button;
     private JButton zoom_out_button;
     private JButton save_image_button;
+    private JButton save_image_and_settings_button;
     private JButton custom_palette_button;
     private JButton random_palette_button;
     private JButton iterations_button;
@@ -123,6 +124,23 @@ public class Toolbar extends JToolBar {
         });
 
         add(save_image_button);
+        
+        save_image_and_settings_button = new JButton();
+        save_image_and_settings_button.setIcon(getIcon("/fractalzoomer/icons/save_image_settings.png"));
+        save_image_and_settings_button.setFocusable(false);
+        save_image_and_settings_button.setToolTipText("Saves the current settings and a png image.");
+
+        save_image_and_settings_button.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.saveSettingsAndImage();
+
+            }
+        });
+
+        add(save_image_and_settings_button);
 
         addSeparator();
 
@@ -449,6 +467,12 @@ public class Toolbar extends JToolBar {
     public JButton getSaveImageButton() {
         
         return save_image_button;
+        
+    }
+    
+    public JButton getSaveImageAndSettignsButton() {
+        
+        return save_image_and_settings_button;
         
     }
     

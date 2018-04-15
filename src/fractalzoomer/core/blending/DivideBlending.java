@@ -31,6 +31,12 @@ public class DivideBlending extends Blending {
     @Override
     public int blend(int redA, int greenA, int blueA, int redB, int greenB, int blueB, double coef) {
 
+        if(redB == 0 && greenB == 0 && blueB == 0) {
+            redB = 1;
+            greenB = 1;
+            blueB = 1;
+        }
+        
         int temp_red = (int)((redB * 256.0) / (redA + 1) + 0.5);
         int temp_green = (int)((greenB * 256.0) / (greenA + 1) + 0.5);
         int temp_blue = (int)((blueB * 256.0) / (blueA + 1) + 0.5);

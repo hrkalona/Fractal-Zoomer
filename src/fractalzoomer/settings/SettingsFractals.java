@@ -26,6 +26,8 @@ import java.io.Serializable;
  * @author hrkalona
  */
 public class SettingsFractals implements Serializable {
+  private static final long serialVersionUID = 6917721625476185938L;
+
   private boolean burning_ship;
   private boolean mandel_grass;
   private double[] mandel_grass_vals;
@@ -325,6 +327,18 @@ public class SettingsFractals implements Serializable {
     public int getBailTechnique() {
         
         return bail_technique;
+        
+    }
+    
+    public int getVersion() {
+        
+        return 1048;
+        
+    }
+    
+    public boolean isJulia() {
+        
+        return false;
         
     }
 

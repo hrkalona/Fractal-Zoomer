@@ -25,6 +25,7 @@ import java.io.Serializable;
  * @author hrkalona2
  */
 public class SettingsFractals1055 extends SettingsFractals1054 implements Serializable {
+    private static final long serialVersionUID = 6187137647190484154L;
     private boolean fake_de;
     private double fake_de_factor;
     
@@ -46,6 +47,20 @@ public class SettingsFractals1055 extends SettingsFractals1054 implements Serial
     public double getFakeDeFactor() {
         
         return fake_de_factor;
+        
+    }
+    
+    @Override
+    public int getVersion() {
+        
+        return 1055;
+        
+    }
+    
+    @Override
+    public boolean isJulia() {
+        
+        return false;
         
     }
     

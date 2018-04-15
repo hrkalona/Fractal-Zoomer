@@ -64,7 +64,11 @@ public class AdditionExpressionNode extends SequenceExpressionNode
    */
   public Complex getValue()
   {
-    Complex sum = new Complex();
+    Complex sum = new Complex(firstNode.getValue());  
+    if(firstMode == SUB) {
+        sum.negative_mutable();
+    }
+    
     for (Term t : terms)
     {
       if (t.mode == ADD)

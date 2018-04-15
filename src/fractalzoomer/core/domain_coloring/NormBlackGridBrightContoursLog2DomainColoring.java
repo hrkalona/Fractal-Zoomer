@@ -36,9 +36,7 @@ public class NormBlackGridBrightContoursLog2DomainColoring extends DomainColorin
         gridColorGreen = 0;
         gridColorBlue = 0;
 
-        contourColorABlue = contourColorAGreen = contourColorARed = 0;
-
-        contourColorBBlue = contourColorBGreen = contourColorBRed = 255;
+        gradient = blackToWhite;
 
         logBaseFinal = Math.log(2);
 

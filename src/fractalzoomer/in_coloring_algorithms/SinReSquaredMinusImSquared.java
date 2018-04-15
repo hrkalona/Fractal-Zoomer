@@ -39,7 +39,7 @@ public class SinReSquaredMinusImSquared extends InColorAlgorithm {
         double re = ((Complex)object[0]).getRe();
         double im = ((Complex)object[0]).getIm();
         
-        return Math.abs(Math.sin(re * re - im * im)) * 400 + MAGIC_OFFSET_NUMBER;
+        return Math.abs(Math.sin(re * re - im * im)) * 400;
              
     }
     

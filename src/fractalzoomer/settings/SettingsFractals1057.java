@@ -25,7 +25,7 @@ import java.io.Serializable;
  * @author hrkalona2
  */
 public class SettingsFractals1057 extends SettingsFractals1056 implements Serializable {
-
+    private static final long serialVersionUID = 2644029738915744818L;
     private boolean apply_plane_on_julia;
     private int user_in_coloring_algorithm;
     private int user_out_coloring_algorithm;
@@ -103,6 +103,20 @@ public class SettingsFractals1057 extends SettingsFractals1056 implements Serial
     public String[] getUserOutcoloringConditionFormula() {
         
         return user_outcoloring_condition_formula;
+        
+    }
+    
+    @Override
+    public int getVersion() {
+        
+        return 1057;
+        
+    }
+    
+    @Override
+    public boolean isJulia() {
+        
+        return false;
         
     }
 

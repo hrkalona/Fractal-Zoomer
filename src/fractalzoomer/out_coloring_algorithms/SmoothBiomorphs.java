@@ -54,7 +54,7 @@ public class SmoothBiomorphs extends OutColorAlgorithm {
             double temp4 = ((Complex)object[1]).getRe();
             double temp5 = ((Complex)object[1]).getIm();
 
-            return temp4 > -bailout && temp4 < bailout || temp5 > -bailout && temp5 < bailout ? temp3 + MAGIC_OFFSET_NUMBER : -(temp3 + MAGIC_OFFSET_NUMBER + INCREMENT);
+            return temp4 > -bailout && temp4 < bailout || temp5 > -bailout && temp5 < bailout ? temp3 : -(temp3 + INCREMENT);
         }
         else {
             double temp = ((Complex)object[2]).norm_squared();
@@ -73,7 +73,7 @@ public class SmoothBiomorphs extends OutColorAlgorithm {
             double temp4 = ((Complex)object[1]).getRe();
             double temp5 = ((Complex)object[1]).getIm();
 
-            return temp4 > -bailout && temp4 < bailout || temp5 > -bailout && temp5 < bailout ? temp3 + MAGIC_OFFSET_NUMBER : -(temp3 + MAGIC_OFFSET_NUMBER + INCREMENT);
+            return temp4 > -bailout && temp4 < bailout || temp5 > -bailout && temp5 < bailout ? temp3 : -(temp3 + INCREMENT);
         }
 
     }

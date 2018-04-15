@@ -77,10 +77,10 @@ public class VariableExpressionNode implements ExpressionNode
    */
   public Complex getValue()
   {
-    if (valueSet)
+    //if (valueSet) //We might crash but we improve performance
       return value;
-    else
-      throw new EvaluationException("Variable '" + name + "' was not initialized.");
+    //else
+      //throw new EvaluationException("Variable '" + name + "' was not initialized.");
   }
 
   /**

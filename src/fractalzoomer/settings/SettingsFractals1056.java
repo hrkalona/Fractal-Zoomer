@@ -25,6 +25,7 @@ import java.io.Serializable;
  * @author hrkalona2
  */
 public class SettingsFractals1056 extends SettingsFractals1055 implements Serializable {
+    private static final long serialVersionUID = 8315043516173705628L;
     private String bailout_test_user_formula;
     private int bailout_test_comparison;
     private boolean variable_perturbation;
@@ -78,6 +79,20 @@ public class SettingsFractals1056 extends SettingsFractals1055 implements Serial
     public boolean getVariablePerturbation() {
         
         return variable_perturbation;
+        
+    }
+    
+    @Override
+    public int getVersion() {
+        
+        return 1056;
+        
+    }
+    
+    @Override
+    public boolean isJulia() {
+        
+        return false;
         
     }
     

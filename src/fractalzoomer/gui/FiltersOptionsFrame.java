@@ -91,7 +91,7 @@ public class FiltersOptionsFrame extends JFrame {
         
         ptra2.setEnabled(false);
         int filters_options_window_width = 1240;
-        int filters_options_window_height = 720;
+        int filters_options_window_height = 690;
         setTitle("Filters Options");
         setIconImage(getIcon("/fractalzoomer/icons/filter_options.png").getImage());
         setSize(filters_options_window_width, filters_options_window_height);
@@ -150,7 +150,7 @@ public class FiltersOptionsFrame extends JFrame {
         
         tabbedPane.setSelectedIndex(tab_index);
 
-        panel.setPreferredSize(new Dimension(1130, 580));
+        panel.setPreferredSize(new Dimension(1130, 560));
 
         JPanel[] panels = new JPanel[components_filters.length];
 
@@ -222,7 +222,7 @@ public class FiltersOptionsFrame extends JFrame {
 
             @Override
             public void mousePressed(MouseEvent e) {
-                new ColorChooserFrame(ptra2, this_frame, "Edge Detection Color", filter_color_label5, -1);
+                new ColorChooserFrame(this_frame, "Edge Detection Color", filter_color_label5, -1);
             }
 
             @Override
@@ -1148,7 +1148,7 @@ public class FiltersOptionsFrame extends JFrame {
 
             @Override
             public void mousePressed(MouseEvent e) {
-                new ColorChooserFrame(ptra2, this_frame, "Crystallize Color", filter_color_label, -1);
+                new ColorChooserFrame(this_frame, "Crystallize Color", filter_color_label, -1);
             }
 
             @Override
@@ -1302,7 +1302,7 @@ public class FiltersOptionsFrame extends JFrame {
 
             @Override
             public void mousePressed(MouseEvent e) {           
-                new ColorChooserFrame(ptra2, this_frame, "Pointillize Color", filter_color_label2, -1);
+                new ColorChooserFrame(this_frame, "Pointillize Color", filter_color_label2, -1);
             }
 
             @Override
@@ -1593,7 +1593,7 @@ public class FiltersOptionsFrame extends JFrame {
 
             @Override
             public void mousePressed(MouseEvent e) {           
-                new ColorChooserFrame(ptra2, this_frame, "Weave Color", filter_color_label3, -1);
+                new ColorChooserFrame(this_frame, "Weave Color", filter_color_label3, -1);
             }
 
             @Override
@@ -1731,7 +1731,7 @@ public class FiltersOptionsFrame extends JFrame {
 
             @Override
             public void mousePressed(MouseEvent e) {           
-                new ColorChooserFrame(ptra2, this_frame, "Sparkle Color", filter_color_label4, -1);
+                new ColorChooserFrame(this_frame, "Sparkle Color", filter_color_label4, -1);
             }
 
             @Override
@@ -2405,7 +2405,7 @@ public class FiltersOptionsFrame extends JFrame {
 
             @Override
             public void mousePressed(MouseEvent e) {           
-                new ColorChooserFrame(ptra2, this_frame, "Light Color", filter_color_label6, -1);
+                new ColorChooserFrame(this_frame, "Light Color", filter_color_label6, -1);
             }
 
             @Override
@@ -2435,8 +2435,7 @@ public class FiltersOptionsFrame extends JFrame {
         ((JPanel)components_filters[MainWindow.LIGHT_EFFECTS]).add(light_panel);
         ((JPanel)components_filters[MainWindow.LIGHT_EFFECTS]).add(material_panel);
         ((JPanel)components_filters[MainWindow.LIGHT_EFFECTS]).add(bumps_panel);
-        panels[MainWindow.LIGHT_EFFECTS].add(((JPanel)components_filters[MainWindow.LIGHT_EFFECTS]));
-        panels[MainWindow.LIGHT_EFFECTS].setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Light Effects", TitledBorder.DEFAULT_POSITION, TitledBorder.DEFAULT_POSITION));
+        panels[MainWindow.LIGHT_EFFECTS].add(((JPanel)components_filters[MainWindow.LIGHT_EFFECTS]));      
 
         JPanel material_colors = new JPanel();
         material_colors.setBackground(MainWindow.bg_color);
@@ -2486,7 +2485,7 @@ public class FiltersOptionsFrame extends JFrame {
 
             @Override
             public void mousePressed(MouseEvent e) {           
-                new ColorChooserFrame(ptra2, this_frame, "Diffuse Color", filter_color_label7, -1);
+                new ColorChooserFrame(this_frame, "Diffuse Color", filter_color_label7, -1);
             }
 
             @Override
@@ -2527,7 +2526,7 @@ public class FiltersOptionsFrame extends JFrame {
 
             @Override
             public void mousePressed(MouseEvent e) {           
-                new ColorChooserFrame(ptra2, this_frame, "Specular Color", filter_color_label8, -1);
+                new ColorChooserFrame(this_frame, "Specular Color", filter_color_label8, -1);
             }
 
             @Override
@@ -2695,8 +2694,6 @@ public class FiltersOptionsFrame extends JFrame {
         
         panel.add(tabbedPane);
 
-        panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Filters", TitledBorder.CENTER, TitledBorder.CENTER));
-
         JPanel buttons = new JPanel();
         buttons.setBackground(MainWindow.bg_color);
 
@@ -2860,7 +2857,7 @@ public class FiltersOptionsFrame extends JFrame {
 
         RoundedPanel round_panel = new RoundedPanel(true, true, true, 15);
         round_panel.setBackground(MainWindow.bg_color);
-        round_panel.setPreferredSize(new Dimension(1170, 630));
+        round_panel.setPreferredSize(new Dimension(1170, 610));
         round_panel.setLayout(new GridBagLayout());
 
         GridBagConstraints con = new GridBagConstraints();

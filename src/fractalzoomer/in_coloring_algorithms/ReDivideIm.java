@@ -35,7 +35,7 @@ public class ReDivideIm extends InColorAlgorithm {
     @Override
     public double getResult(Object[] object) {
         
-        return Math.abs(((Complex)object[0]).getRe() / ((Complex)object[0]).getIm()) * 8  + MAGIC_OFFSET_NUMBER;
+        return Math.abs(((Complex)object[0]).getRe() / ((Complex)object[0]).getIm()) * 8;
 
     }
     

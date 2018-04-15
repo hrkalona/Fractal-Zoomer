@@ -40,7 +40,7 @@ public class ColorDecomposition extends OutColorAlgorithm {
     @Override
     public double getResult(Object[] object) {
 
-        return Math.abs((((Complex)object[1]).arg() / (pi2)  + 0.75) * pi59) + MAGIC_OFFSET_NUMBER;
+        return Math.abs((((Complex)object[1]).arg() / (pi2)  + 0.75) * pi59);
         
     }
     

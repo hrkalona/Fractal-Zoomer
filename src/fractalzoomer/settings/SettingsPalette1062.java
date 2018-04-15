@@ -23,6 +23,7 @@ import java.io.Serializable;
  * @author hrkalona2
  */
 public class SettingsPalette1062 extends SettingsPalette implements Serializable {
+    private static final long serialVersionUID = -6568200424825652679L;
     private double scale_factor_palette_val;
     private int processing_alg;
     
@@ -43,6 +44,13 @@ public class SettingsPalette1062 extends SettingsPalette implements Serializable
     public double getScaleFactorPaletteValue() {
         
         return scale_factor_palette_val;
+        
+    }
+    
+    @Override
+    public int getVersion() {
+        
+        return 1062;
         
     }
      

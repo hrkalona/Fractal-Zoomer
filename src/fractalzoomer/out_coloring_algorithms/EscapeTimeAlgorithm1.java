@@ -40,7 +40,7 @@ public class EscapeTimeAlgorithm1 extends OutColorAlgorithm {
         
         Complex temp = (((Complex)object[1]).sub(((Complex)object[zold])));
         
-        return ((Integer)object[0]) + Math.abs(Math.atan(temp.getIm() / temp.getRe())) * 4 + MAGIC_OFFSET_NUMBER;
+        return ((Integer)object[0]) + Math.abs(Math.atan(temp.getIm() / temp.getRe())) * 4;
            
     }
     

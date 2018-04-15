@@ -23,7 +23,7 @@ import java.awt.Color;
  * @author hrkalona2
  */
 public interface Constants {
-    public static final int VERSION = 1067;
+    public static final int VERSION = 1068;
     public static final int FAST_JULIA_IMAGE_SIZE = 252;
     public static final int TOTAL_PALETTES = 19;
     public static final int TOTAL_INCOLORING_ALGORITHMS = 11;
@@ -41,11 +41,14 @@ public interface Constants {
     public static final String[] waveTypes = {"Sine", "Sawtooth", "Triangle", "Noise"};
     public static final String[] bumpTransferNames = {"1.5 / (x*factor + 1.5)", "1 / sqrt(x*factor + 1)", "1 / cbrt(x*factor + 1)", "2^(-x*factor)"};
     public static final String[] color_interp_str = {"Linear", "Cosine", "Acceleration", "Deceleration", "Exponential", "Catmull-Rom", "Catmull-Rom 2", "Sigmoid"};
-    public static final String[] bumpProcessingMethod = {"Color Scaling", "Color Blending"};
+    public static final String[] bumpProcessingMethod = {"Color Scaling", "Color Blending", "Color Blending Alternative"};
+    public static final String[] entropyMethod = {"Palette Coloring", "Gradient Coloring"};
+    public static final String[] rainbowMethod = {"Palette Coloring", "Gradient Coloring"};
     public static final String[] domainColors = {"Argument", "Norm", "Re", "Im"};
-    public static final String[] domainContours = {"Norm", "Iso-Argument", "Norm, Iso-Argument", "Grid", "Grid, Norm", "Grid, Iso-Argument", "Grid, Norm, Iso-Argument"};
+    public static final String[] domainContours = {"Norm", "Iso-Argument", "Norm, Iso-Argument", "Grid", "Grid, Norm", "Grid, Iso-Argument", "Grid, Norm, Iso-Argument", "Grid Lines", "Circles Lines", "Iso-Arg Lines", "Grid Lines, Circles Lines", "Circles Lines, Iso-Arg Lines"};
     public static final String[] argumentLinesDistance = {"2 * pi", "pi", "pi / 2", "pi / 4", "pi / 6", "pi / 8", "pi / 10", "pi / 12", "pi / 14", "pi / 16"};
-     
+    public static final String[] orbitTrapsNames = {"Point", "Point Square", "Point Rhombus", "Point N-Norm", "Cross", "Re", "Im", "Circle", "Square", "Rhombus", "N-Norm", "Circle/Cross", "Square/Cross", "Rhombus/Cross", "N-Norm/Cross", "Circle/Point", "Square/Point", "Rhombus/Point", "N-Norm/Point", "N-Norm/Point N-Norm"};
+
     /**
      * ** FUNCTION ***
      */
@@ -261,7 +264,7 @@ public interface Constants {
     /**
      * ** IN COLORING MODE ***
      */
-    public static final int MAXIMUM_ITERATIONS = 0;
+    public static final int MAX_ITERATIONS = 0;
     public static final int Z_MAG = 1;
     public static final int DECOMPOSITION_LIKE = 2;
     public static final int RE_DIVIDE_IM = 3;
@@ -537,7 +540,48 @@ public interface Constants {
      /**
      * **************************************
      */
+    
+    /**
+     * ****CUSTOM DOMAIN ORDER******
+     */
+    public static final int GRID = 0;
+    public static final int CIRCLES = 1;
+    public static final int ISO_LINES = 2;
+    /**
+     * **************************************
+     */
+    
+    /**
+     * *********ORBIT TRAPS********
+     */
+    public static final int POINT_TRAP = 0;
+    public static final int POINT_SQUARE_TRAP = 1;
+    public static final int POINT_RHOMBUS_TRAP = 2;
+    public static final int POINT_N_NORM_TRAP = 3;
+    public static final int CROSS_TRAP = 4;
+    public static final int RE_TRAP = 5;
+    public static final int IM_TRAP = 6;
+    public static final int CIRCLE_TRAP = 7;
+    public static final int SQUARE_TRAP = 8;
+    public static final int RHOMBUS_TRAP = 9;
+    public static final int N_NORM_TRAP = 10;
+    public static final int CIRCLE_CROSS_TRAP = 11;
+    public static final int SQUARE_CROSS_TRAP = 12;
+    public static final int RHOMBUS_CROSS_TRAP = 13;
+    public static final int N_NORM_CROSS_TRAP = 14;
+    public static final int CIRCLE_POINT_TRAP = 15;
+    public static final int SQUARE_POINT_TRAP = 16;
+    public static final int RHOMBUS_POINT_TRAP = 17;
+    public static final int N_NORM_POINT_TRAP = 18;
+    public static final int N_NORM_POINT_N_NORM_TRAP = 19;
+     /**
+     * **************************************
+     */
 
+    public static final int CUSTOM_PALETTE_ID = 18;
+    
+    public static final int GRADIENT_LENGTH = 512;
+    
     public static final Color bg_color = Color.white;
     public static final Color progress_color = new Color(222, 81, 69);//new Color(255, 185, 15);
     public static final Color progress_filters_color = new Color(24, 161, 95);

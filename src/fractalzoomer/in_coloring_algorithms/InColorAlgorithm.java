@@ -23,9 +23,9 @@ public abstract class InColorAlgorithm extends ColorAlgorithm {
     
     public abstract double getResult(Object[] object);
     
-    public double transformResultToHeight(double result, int max_iterations) {
+    public static double transformResultToHeight(double result, int max_iterations) {
         
-        return Math.abs(result) == max_iterations ? max_iterations : max_iterations + getResultWithoutIncrement(result) - MAGIC_OFFSET_NUMBER;
+        return Math.abs(result) == ColorAlgorithm.MAXIMUM_ITERATIONS ? max_iterations : max_iterations + getResultWithoutIncrement(result);
         
     }
     

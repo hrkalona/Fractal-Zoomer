@@ -60,10 +60,10 @@ public class SmoothEscapeTimeGridMagnet extends SmoothEscapeTimeGrid {
                 temp = Math.log(temp);
                 
                 if(temp3 < 0) {
-                    return temp3 -((log_bailout_squared - temp) / (temp3 - temp) + MAGIC_OFFSET_NUMBER + MAGNET_INCREMENT);
+                    return temp3 -((log_bailout_squared - temp) / (temp3 - temp) + MAGNET_INCREMENT);
                 }
                 else {
-                    return temp3 + (log_bailout_squared - temp) / (temp3 - temp) + MAGIC_OFFSET_NUMBER + MAGNET_INCREMENT;
+                    return temp3 + (log_bailout_squared - temp) / (temp3 - temp) + MAGNET_INCREMENT;
                 }           
             }
             else {
@@ -77,10 +77,10 @@ public class SmoothEscapeTimeGridMagnet extends SmoothEscapeTimeGrid {
                 double f = a / Math.log(p);
 
                 if(temp3 < 0) {
-                    return temp3 - (1 - f + MAGIC_OFFSET_NUMBER + MAGNET_INCREMENT);                    
+                    return temp3 - (1 - f + MAGNET_INCREMENT);                    
                 }
                 else {
-                    return temp3 + 1 - f + MAGIC_OFFSET_NUMBER + MAGNET_INCREMENT;
+                    return temp3 + 1 - f + MAGNET_INCREMENT;
                 }               
             }
         }
@@ -89,10 +89,10 @@ public class SmoothEscapeTimeGridMagnet extends SmoothEscapeTimeGrid {
                 double temp = Math.log(((Complex)object[4]).distance_squared(1));
        
                 if(temp3 < 0) {
-                    return temp3 - ((log_convergent_bailout - temp) / (Math.log((Double)object[3]) - temp) + MAGIC_OFFSET_NUMBER);
+                    return temp3 - (log_convergent_bailout - temp) / (Math.log((Double)object[3]) - temp);
                 }
                 else {
-                    return temp3 + (log_convergent_bailout - temp) / (Math.log((Double)object[3]) - temp) + MAGIC_OFFSET_NUMBER;
+                    return temp3 + (log_convergent_bailout - temp) / (Math.log((Double)object[3]) - temp);
                 }
             }
             else {
@@ -103,10 +103,10 @@ public class SmoothEscapeTimeGridMagnet extends SmoothEscapeTimeGrid {
                 double f = Math.log(log_convergent_bailout / temp4) / Math.log(power);
 
                 if(temp3 < 0) {
-                    return temp3 - (f + MAGIC_OFFSET_NUMBER);
+                    return temp3 - f;
                 }
                 else {
-                    return temp3 + f + MAGIC_OFFSET_NUMBER;
+                    return temp3 + f;
                 }              
             }
         }

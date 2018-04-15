@@ -36,7 +36,7 @@ public class BinaryDecomposition extends OutColorAlgorithm {
     @Override
     public double getResult(Object[] object) {
 
-        return ((Complex)object[1]).getIm() < 0 ? -((Integer)object[0] + MAGIC_OFFSET_NUMBER + INCREMENT) : (Integer)object[0] + MAGIC_OFFSET_NUMBER;
+        return ((Complex)object[1]).getIm() < 0 ? -((Integer)object[0] + INCREMENT) : (Integer)object[0];
 
     }
 

@@ -53,6 +53,8 @@ public abstract class SequenceExpressionNode implements ExpressionNode
 
   /** the list of terms in the sequence */
   protected ArrayList<Term> terms;
+  protected ExpressionNode firstNode;
+  protected int firstMode;
 
   /**
    * Default constructor.
@@ -73,7 +75,8 @@ public abstract class SequenceExpressionNode implements ExpressionNode
   public SequenceExpressionNode(ExpressionNode a, int mode)
   {
     this.terms = new ArrayList<Term>();
-    this.terms.add(new Term(mode, a));
+    this.firstNode = a;
+    this.firstMode = mode;
   }
 
   /**

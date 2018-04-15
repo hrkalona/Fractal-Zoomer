@@ -49,6 +49,11 @@ public class ImaginaryConstantExpressionNode implements ExpressionNode
   {     
       this.value = new Complex(0, Double.valueOf(value));
   }
+  
+  public ImaginaryConstantExpressionNode(double value)
+  {
+      this.value = new Complex(0, value);
+  }
 
   /**
    * Returns the value of the constant

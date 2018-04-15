@@ -37,41 +37,37 @@ public class CustomDomainColoring extends DomainColoring {
     private int colorType;
     private int contourType;
     private double normType;
-    
-    public CustomDomainColoring(DomainColoringSettings ds, Palette palette, TransferFunction color_transfer, int color_cycling_location, Blending blending) {
+    private int[] order;
+
+    public CustomDomainColoring(DomainColoringSettings ds, Palette palette, TransferFunction color_transfer, int color_cycling_location, Blending blending, int[] gradient) {
 
         super(ds.use_palette_domain_coloring, palette, color_transfer, color_cycling_location, MainWindow.INTERPOLATION_LINEAR, blending);
-        
+
         circlesBlending = ds.circlesBlending;
         gridBlending = ds.gridBlending;
         isoLinesBlendingFactor = ds.isoLinesBlendingFactor;
         contourBlending = ds.contourBlending;
-        
+
         circlesColorRed = ds.circlesColor.getRed();
         circlesColorGreen = ds.circlesColor.getGreen();
         circlesColorBlue = ds.circlesColor.getBlue();
-        
+
         gridColorRed = ds.gridColor.getRed();
         gridColorGreen = ds.gridColor.getGreen();
         gridColorBlue = ds.gridColor.getBlue();
-        
+
         isoLinesColorRed = ds.isoLinesColor.getRed();
         isoLinesColorGreen = ds.isoLinesColor.getGreen();
         isoLinesColorBlue = ds.isoLinesColor.getBlue();
-        
-        contourColorARed = ds.contourColorA.getRed();
-        contourColorAGreen = ds.contourColorA.getGreen();
-        contourColorABlue = ds.contourColorA.getBlue();
-        
-        contourColorBRed = ds.contourColorB.getRed();
-        contourColorBGreen = ds.contourColorB.getGreen();
-        contourColorBBlue = ds.contourColorB.getBlue();
-        
+
+        this.gradient = gradient;
+
         gridFactor = ds.gridFactor;
         logBaseFinal = Math.log(ds.logBase);
-        
-        switch(ds.iso_distance)
-        {
+
+        order = ds.domainOrder;
+
+        switch (ds.iso_distance) {
             case 0: //2pi
                 iso_distance = 1;
                 break;
@@ -102,42 +98,42 @@ public class CustomDomainColoring extends DomainColoring {
             case 9: //pi/16
                 iso_distance = Math.PI / 16 / (2 * Math.PI);
                 break;
-                
+
         }
         iso_factor = ds.iso_factor;
-        
+
         drawColor = ds.drawColor;
         drawContour = ds.drawContour;
         drawGrid = ds.drawGrid;
         drawCircles = ds.drawCircles;
         drawIsoLines = ds.drawIsoLines;
-        
+
         colorType = ds.colorType;
         contourType = ds.contourType;
-        
+
         normType = ds.normType;
-        
+
     }
-    
+
     @Override
     public int getDomainColor(Complex res) {
         int color = 0xffffffff;
-        
+
         double norm = 0;
-        
+
         if(normType == 2) {
             norm = res.norm();
         }
         else {
             norm = res.nnorm(normType);
         }
-        
+
         double arg = res.arg();
         double re = res.getRe();
         double im = res.getIm();
-        
+
         if(drawColor) {
-            switch(colorType) {
+            switch (colorType) {
                 case 0:
                     color = applyArgColor(arg);
                     break;
@@ -145,17 +141,17 @@ public class CustomDomainColoring extends DomainColoring {
                     color = applyNormColor(norm);
                     break;
                 case 2:
-                    color = applyReColor(re); 
+                    color = applyReColor(re);
                     break;
                 case 3:
                     color = applyImColor(im);
                     break;
             }
         }
-      
+
         if(drawContour) {
-            
-            switch(contourType) {
+
+            switch (contourType) {
                 case 0:
                     color = applyNormContours(color, norm);
                     break;
@@ -177,22 +173,45 @@ public class CustomDomainColoring extends DomainColoring {
                 case 6:
                     color = applyGridNormArgContours(color, re, im, norm, arg);
                     break;
+                case 7:
+                    color = applyGridLinesContours(color, re, im);
+                    break;
+                case 8:
+                    color = applyCirclesLinesContours(color, norm);
+                    break;
+                case 9:
+                    color = applyIsoLinesContours(color, arg);
+                    break;
+                case 10:
+                    color = applyGridLinesCirclesLinesContours(color, re, im, norm);
+                    break;
+                case 11:
+                    color = applyCirclesLinesIsoLinesContours(color, norm, arg);
+                    break;
             }
         }
-        
-        if(drawGrid) {
-            color = applyGrid(color, re, im);
-        }   
-        
-        if(drawCircles) {
-            color = applyCircles(color, norm);
+
+        for(int i = 0; i < order.length; i++) {
+            switch (order[i]) {
+                case MainWindow.GRID:
+                    if(drawGrid) {
+                        color = applyGrid(color, re, im);
+                    }
+                    break;
+                case MainWindow.CIRCLES:
+                    if(drawCircles) {
+                        color = applyCircles(color, norm);
+                    }
+                    break;
+                case MainWindow.ISO_LINES:
+                    if(drawIsoLines && contourType != 9 && contourType != 11) {
+                        color = applyIsoLines(color, arg);
+                    }
+                    break;
+            }
         }
-        
-        if(drawIsoLines) {
-            color = applyIsoLines(color, arg);
-        }
-        
+
         return color;
     }
-    
+
 }

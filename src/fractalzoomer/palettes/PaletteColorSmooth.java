@@ -31,9 +31,9 @@ import java.awt.Color;
 public class PaletteColorSmooth extends PaletteColor {
     private InterpolationMethod interpolator;
 
-    public PaletteColorSmooth(int[] palette, Color special_color, int color_smoothing_method) {
+    public PaletteColorSmooth(int[] palette, Color special_color, int color_smoothing_method, boolean special_use_palette_color) {
 
-        super(palette, special_color);
+        super(palette, special_color, special_use_palette_color);
         
         switch(color_smoothing_method) {
             case MainWindow.INTERPOLATION_LINEAR:
@@ -68,8 +68,8 @@ public class PaletteColorSmooth extends PaletteColor {
     public int getPaletteColor(double result) {
 
         if(result < 0) {
-            if(special_color != null) {
-                return special_color[((int)(result * (-1))) % special_color.length];
+            if(!special_use_palette_color) {
+                return special_colors[((int)(result * (-1))) % special_colors.length];
             }
             else {
                 return calculateSmoothColor(-result);
@@ -82,8 +82,8 @@ public class PaletteColorSmooth extends PaletteColor {
 
     private int calculateSmoothColor(double result) {
 
-        int color2 = palette[((int)((result + mod_offset))) % palette.length];
-        int color = palette[((int)((result - 1 + palette.length + mod_offset))) % palette.length];
+        int color2 = palette[((int)(result)) % palette.length];
+        int color = palette[((int)((result - 1 + palette.length))) % palette.length];
 
         int color_red = (color >> 16) & 0xff;
         int color_green = (color >> 8) & 0xff;

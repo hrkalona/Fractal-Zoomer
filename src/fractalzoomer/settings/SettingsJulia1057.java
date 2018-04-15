@@ -25,7 +25,7 @@ import java.io.Serializable;
  * @author hrkalona2
  */
 public class SettingsJulia1057 extends SettingsFractals1057 implements Serializable {
-    
+    private static final long serialVersionUID = 5588920526383853698L;
     private double xJuliaCenter;
     private double yJuliaCenter;
     
@@ -46,6 +46,13 @@ public class SettingsJulia1057 extends SettingsFractals1057 implements Serializa
 
         return yJuliaCenter;
 
+    }
+    
+    @Override
+    public boolean isJulia() {
+        
+        return true;
+        
     }
     
 }

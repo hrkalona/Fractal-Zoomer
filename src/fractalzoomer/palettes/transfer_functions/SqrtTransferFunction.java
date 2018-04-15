@@ -33,7 +33,10 @@ public class SqrtTransferFunction extends TransferFunction {
     @Override
     protected double function(double result) {
         
-        return Math.sqrt(result * color_intensity + 1);
+        result /= paletteLength; //scale to palette multiple        
+        result = Math.sqrt(result * color_intensity + 1);      
+        result *= paletteLength; // rescale to palette length      
+        return result;
                 
     }
     

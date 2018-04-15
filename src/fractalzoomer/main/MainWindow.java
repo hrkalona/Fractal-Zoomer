@@ -48,24 +48,27 @@ import fractalzoomer.palettes.CustomPalette;
 import fractalzoomer.parser.ParserException;
 import fractalzoomer.gui.GreedyAlgorithmsFrame;
 import fractalzoomer.gui.ColorChooserFrame;
-import fractalzoomer.gui.CustomDomainColoringFrame;
 import fractalzoomer.gui.CustomPaletteEditorFrame;
 import fractalzoomer.gui.DomainColoringFrame;
 import fractalzoomer.gui.FileMenu;
 import fractalzoomer.gui.FiltersMenu;
 import fractalzoomer.gui.FiltersOptionsFrame;
+import fractalzoomer.gui.FractalColorsFrame;
+import fractalzoomer.gui.GradientFrame;
 import fractalzoomer.gui.HelpMenu;
 import fractalzoomer.gui.Infobar;
 import fractalzoomer.gui.LinkLabel;
 import fractalzoomer.gui.OptionsMenu;
+import fractalzoomer.gui.OrbitTrapsFrame;
 import fractalzoomer.gui.PlaneVisualizationFrame;
 import fractalzoomer.gui.RangeSlider;
-import fractalzoomer.gui.RoundedPanel;
 import fractalzoomer.gui.SplashFrame;
 import fractalzoomer.gui.Statusbar;
 import fractalzoomer.gui.Toolbar;
 import fractalzoomer.gui.ToolsMenu;
 import fractalzoomer.gui.UserFormulasHelpDialog;
+import static fractalzoomer.main.Constants.CUSTOM_PALETTE_ID;
+import fractalzoomer.palettes.PresetPalette;
 import fractalzoomer.utils.ColorAlgorithm;
 import fractalzoomer.utils.CompleteImageTask;
 import fractalzoomer.utils.MathUtils;
@@ -79,8 +82,6 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GradientPaint;
 import java.awt.Graphics2D;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.RenderingHints;
@@ -120,9 +121,7 @@ import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.Timer;
 import javax.imageio.ImageIO;
-import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -135,7 +134,6 @@ import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
-import javax.swing.JRadioButton;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
@@ -145,8 +143,6 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
-import javax.swing.border.EtchedBorder;
-import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
@@ -238,7 +234,6 @@ public class MainWindow extends JFrame implements Constants {
     private JRadioButtonMenuItem[] out_coloring_modes;
     private JRadioButtonMenuItem[] in_coloring_modes;
     private JRadioButtonMenuItem[] bailout_tests;
-    private JFrame fract_color_frame;
     private Cursor grab_cursor;
     private Cursor grabbing_cursor;
     private Cursor rotate_cursor;
@@ -412,7 +407,7 @@ public class MainWindow extends JFrame implements Constants {
         filters_menu = new FiltersMenu(ptr, "Filters");
         filters_opt = filters_menu.getFilters();
 
-        filters_menu.setCheckedFilters(s.filters);
+        filters_menu.setCheckedFilters(s.fs.filters);
 
         help_menu = new HelpMenu(ptr, "Help");
 
@@ -422,7 +417,7 @@ public class MainWindow extends JFrame implements Constants {
         JPanel status_bars = new JPanel();
         status_bars.setLayout(new BoxLayout(status_bars, BoxLayout.PAGE_AXIS));
 
-        infobar = new Infobar(ptr, s.color_choice, s.smoothing, s.custom_palette, s.color_interpolation, s.color_space, s.reversed_palette, s.color_cycling_location, s.scale_factor_palette_val, s.processing_alg, s.fractal_color);
+        infobar = new Infobar(ptr, s);
 
         status_bars.add(infobar);
 
@@ -1519,14 +1514,6 @@ public class MainWindow extends JFrame implements Constants {
 
         ThreadDraw.resetThreadData(n * n);
 
-        Color temp_special_color;
-
-        if (s.special_use_palette_color) {
-            temp_special_color = null;
-        } else {
-            temp_special_color = s.special_color;
-        }
-
         try {
             for (int i = 0; i < n; i++) {
                 for (int j = 0; j < n; j++) {
@@ -1534,44 +1521,44 @@ public class MainWindow extends JFrame implements Constants {
                         if (s.d3s.d3) {
                             if (greedy_algorithm) {
                                 if (greedy_algorithm_selection == BOUNDARY_TRACING) {
-                                    threads[i][j] = new BoundaryTracingDraw(s.color_choice, j * s.d3s.detail / n, (j + 1) * s.d3s.detail / n, i * s.d3s.detail / n, (i + 1) * s.d3s.detail / n, s.xCenter, s.yCenter, s.size, s.max_iterations, s.bailout_test_algorithm, s.bailout, s.bailout_test_user_formula, s.bailout_test_user_formula2, s.bailout_test_comparison, s.n_norm, s.d3s, ptr, s.fractal_color, s.dem_color, temp_special_color, s.color_smoothing_method, image, s.filters, s.filters_options_vals, s.filters_options_extra_vals, s.out_coloring_algorithm, s.user_out_coloring_algorithm, s.outcoloring_formula, s.user_outcoloring_conditions, s.user_outcoloring_condition_formula, s.in_coloring_algorithm, s.user_in_coloring_algorithm, s.incoloring_formula, s.user_incoloring_conditions, s.user_incoloring_condition_formula, s.smoothing, periodicity_checking, s.plane_type, s.apply_plane_on_julia, s.apply_plane_on_julia_seed, s.burning_ship, s.mandel_grass, s.mandel_grass_vals, s.function, s.z_exponent, s.z_exponent_complex, s.color_cycling_location, s.rotation_vals, s.rotation_center, s.coefficients, s.z_exponent_nova, s.relaxation, s.nova_method, s.user_formula, s.user_formula2, s.bail_technique, s.user_plane, s.user_plane_algorithm, s.user_plane_conditions, s.user_plane_condition_formula, s.user_formula_iteration_based, s.user_formula_conditions, s.user_formula_condition_formula, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.plane_transform_center, s.plane_transform_angle, s.plane_transform_radius, s.plane_transform_scales, s.plane_transform_wavelength, s.waveType, s.plane_transform_angle2, s.plane_transform_sides, s.plane_transform_amount, s.escaping_smooth_algorithm, s.converging_smooth_algorithm, s.bms, s.color_intensity, s.transfer_function, s.polar_projection, s.circle_period, s.fdes, s.rps, s.filters_colors, s.filters_extra_colors, s.filters_order, s.coupling, s.user_formula_coupled, s.coupling_method, s.coupling_amplitude, s.coupling_frequency, s.coupling_seed, s.ds, s.inverse_dem, quickDraw, s.color_choice == TOTAL_PALETTES - 1, s.custom_palette, s.color_interpolation, s.color_space, s.reversed_palette, s.scale_factor_palette_val, s.processing_alg, s.ens, s.ofs, s.gss, s.color_blending, s.xJuliaCenter, s.yJuliaCenter);
+                                    threads[i][j] = new BoundaryTracingDraw(j * s.d3s.detail / n, (j + 1) * s.d3s.detail / n, i * s.d3s.detail / n, (i + 1) * s.d3s.detail / n, s.xCenter, s.yCenter, s.size, s.max_iterations, s.bailout_test_algorithm, s.bailout, s.bailout_test_user_formula, s.bailout_test_user_formula2, s.bailout_test_comparison, s.n_norm, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, s.out_coloring_algorithm, s.user_out_coloring_algorithm, s.outcoloring_formula, s.user_outcoloring_conditions, s.user_outcoloring_condition_formula, s.in_coloring_algorithm, s.user_in_coloring_algorithm, s.incoloring_formula, s.user_incoloring_conditions, s.user_incoloring_condition_formula, s.smoothing, periodicity_checking, s.plane_type, s.apply_plane_on_julia, s.apply_plane_on_julia_seed, s.burning_ship, s.mandel_grass, s.mandel_grass_vals, s.function, s.z_exponent, s.z_exponent_complex, s.color_cycling_location, s.rotation_vals, s.rotation_center, s.coefficients, s.z_exponent_nova, s.relaxation, s.nova_method, s.user_formula, s.user_formula2, s.bail_technique, s.user_plane, s.user_plane_algorithm, s.user_plane_conditions, s.user_plane_condition_formula, s.user_formula_iteration_based, s.user_formula_conditions, s.user_formula_condition_formula, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.plane_transform_center, s.plane_transform_angle, s.plane_transform_radius, s.plane_transform_scales, s.plane_transform_wavelength, s.waveType, s.plane_transform_angle2, s.plane_transform_sides, s.plane_transform_amount, s.escaping_smooth_algorithm, s.converging_smooth_algorithm, s.bms, s.color_intensity, s.transfer_function, s.polar_projection, s.circle_period, s.fdes, s.rps, s.coupling, s.user_formula_coupled, s.coupling_method, s.coupling_amplitude, s.coupling_frequency, s.coupling_seed, s.ds, s.inverse_dem, quickDraw, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.xJuliaCenter, s.yJuliaCenter);
                                 } else if (greedy_algorithm_selection == DIVIDE_AND_CONQUER) {
-                                    threads[i][j] = new DivideAndConquerDraw(s.color_choice, j * s.d3s.detail / n, (j + 1) * s.d3s.detail / n, i * s.d3s.detail / n, (i + 1) * s.d3s.detail / n, s.xCenter, s.yCenter, s.size, s.max_iterations, s.bailout_test_algorithm, s.bailout, s.bailout_test_user_formula, s.bailout_test_user_formula2, s.bailout_test_comparison, s.n_norm, s.d3s, ptr, s.fractal_color, s.dem_color, temp_special_color, s.color_smoothing_method, image, s.filters, s.filters_options_vals, s.filters_options_extra_vals, s.out_coloring_algorithm, s.user_out_coloring_algorithm, s.outcoloring_formula, s.user_outcoloring_conditions, s.user_outcoloring_condition_formula, s.in_coloring_algorithm, s.user_in_coloring_algorithm, s.incoloring_formula, s.user_incoloring_conditions, s.user_incoloring_condition_formula, s.smoothing, periodicity_checking, s.plane_type, s.apply_plane_on_julia, s.apply_plane_on_julia_seed, s.burning_ship, s.mandel_grass, s.mandel_grass_vals, s.function, s.z_exponent, s.z_exponent_complex, s.color_cycling_location, s.rotation_vals, s.rotation_center, s.coefficients, s.z_exponent_nova, s.relaxation, s.nova_method, s.user_formula, s.user_formula2, s.bail_technique, s.user_plane, s.user_plane_algorithm, s.user_plane_conditions, s.user_plane_condition_formula, s.user_formula_iteration_based, s.user_formula_conditions, s.user_formula_condition_formula, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.plane_transform_center, s.plane_transform_angle, s.plane_transform_radius, s.plane_transform_scales, s.plane_transform_wavelength, s.waveType, s.plane_transform_angle2, s.plane_transform_sides, s.plane_transform_amount, s.escaping_smooth_algorithm, s.converging_smooth_algorithm, s.bms, s.color_intensity, s.transfer_function, s.polar_projection, s.circle_period, s.fdes, s.rps, s.filters_colors, s.filters_extra_colors, s.filters_order, s.coupling, s.user_formula_coupled, s.coupling_method, s.coupling_amplitude, s.coupling_frequency, s.coupling_seed, s.ds, s.inverse_dem, quickDraw, s.color_choice == TOTAL_PALETTES - 1, s.custom_palette, s.color_interpolation, s.color_space, s.reversed_palette, s.scale_factor_palette_val, s.processing_alg, s.ens, s.ofs, s.gss, s.color_blending, s.xJuliaCenter, s.yJuliaCenter);
+                                    threads[i][j] = new DivideAndConquerDraw(j * s.d3s.detail / n, (j + 1) * s.d3s.detail / n, i * s.d3s.detail / n, (i + 1) * s.d3s.detail / n, s.xCenter, s.yCenter, s.size, s.max_iterations, s.bailout_test_algorithm, s.bailout, s.bailout_test_user_formula, s.bailout_test_user_formula2, s.bailout_test_comparison, s.n_norm, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, s.out_coloring_algorithm, s.user_out_coloring_algorithm, s.outcoloring_formula, s.user_outcoloring_conditions, s.user_outcoloring_condition_formula, s.in_coloring_algorithm, s.user_in_coloring_algorithm, s.incoloring_formula, s.user_incoloring_conditions, s.user_incoloring_condition_formula, s.smoothing, periodicity_checking, s.plane_type, s.apply_plane_on_julia, s.apply_plane_on_julia_seed, s.burning_ship, s.mandel_grass, s.mandel_grass_vals, s.function, s.z_exponent, s.z_exponent_complex, s.color_cycling_location, s.rotation_vals, s.rotation_center, s.coefficients, s.z_exponent_nova, s.relaxation, s.nova_method, s.user_formula, s.user_formula2, s.bail_technique, s.user_plane, s.user_plane_algorithm, s.user_plane_conditions, s.user_plane_condition_formula, s.user_formula_iteration_based, s.user_formula_conditions, s.user_formula_condition_formula, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.plane_transform_center, s.plane_transform_angle, s.plane_transform_radius, s.plane_transform_scales, s.plane_transform_wavelength, s.waveType, s.plane_transform_angle2, s.plane_transform_sides, s.plane_transform_amount, s.escaping_smooth_algorithm, s.converging_smooth_algorithm, s.bms, s.color_intensity, s.transfer_function, s.polar_projection, s.circle_period, s.fdes, s.rps, s.coupling, s.user_formula_coupled, s.coupling_method, s.coupling_amplitude, s.coupling_frequency, s.coupling_seed, s.ds, s.inverse_dem, quickDraw, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.xJuliaCenter, s.yJuliaCenter);
                                 }
                             } else {
-                                threads[i][j] = new BruteForceDraw(s.color_choice, j * s.d3s.detail / n, (j + 1) * s.d3s.detail / n, i * s.d3s.detail / n, (i + 1) * s.d3s.detail / n, s.xCenter, s.yCenter, s.size, s.max_iterations, s.bailout_test_algorithm, s.bailout, s.bailout_test_user_formula, s.bailout_test_user_formula2, s.bailout_test_comparison, s.n_norm, s.d3s, ptr, s.fractal_color, s.dem_color, temp_special_color, s.color_smoothing_method, image, s.filters, s.filters_options_vals, s.filters_options_extra_vals, s.out_coloring_algorithm, s.user_out_coloring_algorithm, s.outcoloring_formula, s.user_outcoloring_conditions, s.user_outcoloring_condition_formula, s.in_coloring_algorithm, s.user_in_coloring_algorithm, s.incoloring_formula, s.user_incoloring_conditions, s.user_incoloring_condition_formula, s.smoothing, periodicity_checking, s.plane_type, s.apply_plane_on_julia, s.apply_plane_on_julia_seed, s.burning_ship, s.mandel_grass, s.mandel_grass_vals, s.function, s.z_exponent, s.z_exponent_complex, s.color_cycling_location, s.rotation_vals, s.rotation_center, s.coefficients, s.z_exponent_nova, s.relaxation, s.nova_method, s.user_formula, s.user_formula2, s.bail_technique, s.user_plane, s.user_plane_algorithm, s.user_plane_conditions, s.user_plane_condition_formula, s.user_formula_iteration_based, s.user_formula_conditions, s.user_formula_condition_formula, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.plane_transform_center, s.plane_transform_angle, s.plane_transform_radius, s.plane_transform_scales, s.plane_transform_wavelength, s.waveType, s.plane_transform_angle2, s.plane_transform_sides, s.plane_transform_amount, s.escaping_smooth_algorithm, s.converging_smooth_algorithm, s.bms, s.color_intensity, s.transfer_function, s.polar_projection, s.circle_period, s.fdes, s.rps, s.filters_colors, s.filters_extra_colors, s.filters_order, s.coupling, s.user_formula_coupled, s.coupling_method, s.coupling_amplitude, s.coupling_frequency, s.coupling_seed, s.ds, s.inverse_dem, quickDraw, s.color_choice == TOTAL_PALETTES - 1, s.custom_palette, s.color_interpolation, s.color_space, s.reversed_palette, s.scale_factor_palette_val, s.processing_alg, s.ens, s.ofs, s.gss, s.color_blending, s.xJuliaCenter, s.yJuliaCenter);
+                                threads[i][j] = new BruteForceDraw(j * s.d3s.detail / n, (j + 1) * s.d3s.detail / n, i * s.d3s.detail / n, (i + 1) * s.d3s.detail / n, s.xCenter, s.yCenter, s.size, s.max_iterations, s.bailout_test_algorithm, s.bailout, s.bailout_test_user_formula, s.bailout_test_user_formula2, s.bailout_test_comparison, s.n_norm, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, s.out_coloring_algorithm, s.user_out_coloring_algorithm, s.outcoloring_formula, s.user_outcoloring_conditions, s.user_outcoloring_condition_formula, s.in_coloring_algorithm, s.user_in_coloring_algorithm, s.incoloring_formula, s.user_incoloring_conditions, s.user_incoloring_condition_formula, s.smoothing, periodicity_checking, s.plane_type, s.apply_plane_on_julia, s.apply_plane_on_julia_seed, s.burning_ship, s.mandel_grass, s.mandel_grass_vals, s.function, s.z_exponent, s.z_exponent_complex, s.color_cycling_location, s.rotation_vals, s.rotation_center, s.coefficients, s.z_exponent_nova, s.relaxation, s.nova_method, s.user_formula, s.user_formula2, s.bail_technique, s.user_plane, s.user_plane_algorithm, s.user_plane_conditions, s.user_plane_condition_formula, s.user_formula_iteration_based, s.user_formula_conditions, s.user_formula_condition_formula, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.plane_transform_center, s.plane_transform_angle, s.plane_transform_radius, s.plane_transform_scales, s.plane_transform_wavelength, s.waveType, s.plane_transform_angle2, s.plane_transform_sides, s.plane_transform_amount, s.escaping_smooth_algorithm, s.converging_smooth_algorithm, s.bms, s.color_intensity, s.transfer_function, s.polar_projection, s.circle_period, s.fdes, s.rps, s.coupling, s.user_formula_coupled, s.coupling_method, s.coupling_amplitude, s.coupling_frequency, s.coupling_seed, s.ds, s.inverse_dem, quickDraw, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.xJuliaCenter, s.yJuliaCenter);
                             }
                         } else {
                             if (greedy_algorithm) {
                                 if (greedy_algorithm_selection == BOUNDARY_TRACING) {
-                                    threads[i][j] = new BoundaryTracingDraw(s.color_choice, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, s.xCenter, s.yCenter, s.size, s.max_iterations, s.bailout_test_algorithm, s.bailout, s.bailout_test_user_formula, s.bailout_test_user_formula2, s.bailout_test_comparison, s.n_norm, s.d3s, ptr, s.fractal_color, s.dem_color, temp_special_color, s.color_smoothing_method, image, s.filters, s.filters_options_vals, s.filters_options_extra_vals, s.out_coloring_algorithm, s.user_out_coloring_algorithm, s.outcoloring_formula, s.user_outcoloring_conditions, s.user_outcoloring_condition_formula, s.in_coloring_algorithm, s.user_in_coloring_algorithm, s.incoloring_formula, s.user_incoloring_conditions, s.user_incoloring_condition_formula, s.smoothing, periodicity_checking, s.plane_type, s.apply_plane_on_julia, s.apply_plane_on_julia_seed, s.burning_ship, s.mandel_grass, s.mandel_grass_vals, s.function, s.z_exponent, s.z_exponent_complex, s.color_cycling_location, s.rotation_vals, s.rotation_center, s.coefficients, s.z_exponent_nova, s.relaxation, s.nova_method, s.user_formula, s.user_formula2, s.bail_technique, s.user_plane, s.user_plane_algorithm, s.user_plane_conditions, s.user_plane_condition_formula, s.user_formula_iteration_based, s.user_formula_conditions, s.user_formula_condition_formula, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.plane_transform_center, s.plane_transform_angle, s.plane_transform_radius, s.plane_transform_scales, s.plane_transform_wavelength, s.waveType, s.plane_transform_angle2, s.plane_transform_sides, s.plane_transform_amount, s.escaping_smooth_algorithm, s.converging_smooth_algorithm, s.bms, s.color_intensity, s.transfer_function, s.polar_projection, s.circle_period, s.fdes, s.rps, s.filters_colors, s.filters_extra_colors, s.filters_order, s.coupling, s.user_formula_coupled, s.coupling_method, s.coupling_amplitude, s.coupling_frequency, s.coupling_seed, s.ds, s.inverse_dem, quickDraw, s.color_choice == TOTAL_PALETTES - 1, s.custom_palette, s.color_interpolation, s.color_space, s.reversed_palette, s.scale_factor_palette_val, s.processing_alg, s.ens, s.ofs, s.gss, s.color_blending, s.xJuliaCenter, s.yJuliaCenter);
+                                    threads[i][j] = new BoundaryTracingDraw(j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, s.xCenter, s.yCenter, s.size, s.max_iterations, s.bailout_test_algorithm, s.bailout, s.bailout_test_user_formula, s.bailout_test_user_formula2, s.bailout_test_comparison, s.n_norm, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, s.out_coloring_algorithm, s.user_out_coloring_algorithm, s.outcoloring_formula, s.user_outcoloring_conditions, s.user_outcoloring_condition_formula, s.in_coloring_algorithm, s.user_in_coloring_algorithm, s.incoloring_formula, s.user_incoloring_conditions, s.user_incoloring_condition_formula, s.smoothing, periodicity_checking, s.plane_type, s.apply_plane_on_julia, s.apply_plane_on_julia_seed, s.burning_ship, s.mandel_grass, s.mandel_grass_vals, s.function, s.z_exponent, s.z_exponent_complex, s.color_cycling_location, s.rotation_vals, s.rotation_center, s.coefficients, s.z_exponent_nova, s.relaxation, s.nova_method, s.user_formula, s.user_formula2, s.bail_technique, s.user_plane, s.user_plane_algorithm, s.user_plane_conditions, s.user_plane_condition_formula, s.user_formula_iteration_based, s.user_formula_conditions, s.user_formula_condition_formula, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.plane_transform_center, s.plane_transform_angle, s.plane_transform_radius, s.plane_transform_scales, s.plane_transform_wavelength, s.waveType, s.plane_transform_angle2, s.plane_transform_sides, s.plane_transform_amount, s.escaping_smooth_algorithm, s.converging_smooth_algorithm, s.bms, s.color_intensity, s.transfer_function, s.polar_projection, s.circle_period, s.fdes, s.rps, s.coupling, s.user_formula_coupled, s.coupling_method, s.coupling_amplitude, s.coupling_frequency, s.coupling_seed, s.ds, s.inverse_dem, quickDraw, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.xJuliaCenter, s.yJuliaCenter);
                                 } else if (greedy_algorithm_selection == DIVIDE_AND_CONQUER) {
-                                    threads[i][j] = new DivideAndConquerDraw(s.color_choice, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, s.xCenter, s.yCenter, s.size, s.max_iterations, s.bailout_test_algorithm, s.bailout, s.bailout_test_user_formula, s.bailout_test_user_formula2, s.bailout_test_comparison, s.n_norm, s.d3s, ptr, s.fractal_color, s.dem_color, temp_special_color, s.color_smoothing_method, image, s.filters, s.filters_options_vals, s.filters_options_extra_vals, s.out_coloring_algorithm, s.user_out_coloring_algorithm, s.outcoloring_formula, s.user_outcoloring_conditions, s.user_outcoloring_condition_formula, s.in_coloring_algorithm, s.user_in_coloring_algorithm, s.incoloring_formula, s.user_incoloring_conditions, s.user_incoloring_condition_formula, s.smoothing, periodicity_checking, s.plane_type, s.apply_plane_on_julia, s.apply_plane_on_julia_seed, s.burning_ship, s.mandel_grass, s.mandel_grass_vals, s.function, s.z_exponent, s.z_exponent_complex, s.color_cycling_location, s.rotation_vals, s.rotation_center, s.coefficients, s.z_exponent_nova, s.relaxation, s.nova_method, s.user_formula, s.user_formula2, s.bail_technique, s.user_plane, s.user_plane_algorithm, s.user_plane_conditions, s.user_plane_condition_formula, s.user_formula_iteration_based, s.user_formula_conditions, s.user_formula_condition_formula, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.plane_transform_center, s.plane_transform_angle, s.plane_transform_radius, s.plane_transform_scales, s.plane_transform_wavelength, s.waveType, s.plane_transform_angle2, s.plane_transform_sides, s.plane_transform_amount, s.escaping_smooth_algorithm, s.converging_smooth_algorithm, s.bms, s.color_intensity, s.transfer_function, s.polar_projection, s.circle_period, s.fdes, s.rps, s.filters_colors, s.filters_extra_colors, s.filters_order, s.coupling, s.user_formula_coupled, s.coupling_method, s.coupling_amplitude, s.coupling_frequency, s.coupling_seed, s.ds, s.inverse_dem, quickDraw, s.color_choice == TOTAL_PALETTES - 1, s.custom_palette, s.color_interpolation, s.color_space, s.reversed_palette, s.scale_factor_palette_val, s.processing_alg, s.ens, s.ofs, s.gss, s.color_blending, s.xJuliaCenter, s.yJuliaCenter);
+                                    threads[i][j] = new DivideAndConquerDraw(j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, s.xCenter, s.yCenter, s.size, s.max_iterations, s.bailout_test_algorithm, s.bailout, s.bailout_test_user_formula, s.bailout_test_user_formula2, s.bailout_test_comparison, s.n_norm, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, s.out_coloring_algorithm, s.user_out_coloring_algorithm, s.outcoloring_formula, s.user_outcoloring_conditions, s.user_outcoloring_condition_formula, s.in_coloring_algorithm, s.user_in_coloring_algorithm, s.incoloring_formula, s.user_incoloring_conditions, s.user_incoloring_condition_formula, s.smoothing, periodicity_checking, s.plane_type, s.apply_plane_on_julia, s.apply_plane_on_julia_seed, s.burning_ship, s.mandel_grass, s.mandel_grass_vals, s.function, s.z_exponent, s.z_exponent_complex, s.color_cycling_location, s.rotation_vals, s.rotation_center, s.coefficients, s.z_exponent_nova, s.relaxation, s.nova_method, s.user_formula, s.user_formula2, s.bail_technique, s.user_plane, s.user_plane_algorithm, s.user_plane_conditions, s.user_plane_condition_formula, s.user_formula_iteration_based, s.user_formula_conditions, s.user_formula_condition_formula, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.plane_transform_center, s.plane_transform_angle, s.plane_transform_radius, s.plane_transform_scales, s.plane_transform_wavelength, s.waveType, s.plane_transform_angle2, s.plane_transform_sides, s.plane_transform_amount, s.escaping_smooth_algorithm, s.converging_smooth_algorithm, s.bms, s.color_intensity, s.transfer_function, s.polar_projection, s.circle_period, s.fdes, s.rps, s.coupling, s.user_formula_coupled, s.coupling_method, s.coupling_amplitude, s.coupling_frequency, s.coupling_seed, s.ds, s.inverse_dem, quickDraw, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.xJuliaCenter, s.yJuliaCenter);
                                 }
                             } else {
-                                threads[i][j] = new BruteForceDraw(s.color_choice, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, s.xCenter, s.yCenter, s.size, s.max_iterations, s.bailout_test_algorithm, s.bailout, s.bailout_test_user_formula, s.bailout_test_user_formula2, s.bailout_test_comparison, s.n_norm, s.d3s, ptr, s.fractal_color, s.dem_color, temp_special_color, s.color_smoothing_method, image, s.filters, s.filters_options_vals, s.filters_options_extra_vals, s.out_coloring_algorithm, s.user_out_coloring_algorithm, s.outcoloring_formula, s.user_outcoloring_conditions, s.user_outcoloring_condition_formula, s.in_coloring_algorithm, s.user_in_coloring_algorithm, s.incoloring_formula, s.user_incoloring_conditions, s.user_incoloring_condition_formula, s.smoothing, periodicity_checking, s.plane_type, s.apply_plane_on_julia, s.apply_plane_on_julia_seed, s.burning_ship, s.mandel_grass, s.mandel_grass_vals, s.function, s.z_exponent, s.z_exponent_complex, s.color_cycling_location, s.rotation_vals, s.rotation_center, s.coefficients, s.z_exponent_nova, s.relaxation, s.nova_method, s.user_formula, s.user_formula2, s.bail_technique, s.user_plane, s.user_plane_algorithm, s.user_plane_conditions, s.user_plane_condition_formula, s.user_formula_iteration_based, s.user_formula_conditions, s.user_formula_condition_formula, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.plane_transform_center, s.plane_transform_angle, s.plane_transform_radius, s.plane_transform_scales, s.plane_transform_wavelength, s.waveType, s.plane_transform_angle2, s.plane_transform_sides, s.plane_transform_amount, s.escaping_smooth_algorithm, s.converging_smooth_algorithm, s.bms, s.color_intensity, s.transfer_function, s.polar_projection, s.circle_period, s.fdes, s.rps, s.filters_colors, s.filters_extra_colors, s.filters_order, s.coupling, s.user_formula_coupled, s.coupling_method, s.coupling_amplitude, s.coupling_frequency, s.coupling_seed, s.ds, s.inverse_dem, quickDraw, s.color_choice == TOTAL_PALETTES - 1, s.custom_palette, s.color_interpolation, s.color_space, s.reversed_palette, s.scale_factor_palette_val, s.processing_alg, s.ens, s.ofs, s.gss, s.color_blending, s.xJuliaCenter, s.yJuliaCenter);
+                                threads[i][j] = new BruteForceDraw(j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, s.xCenter, s.yCenter, s.size, s.max_iterations, s.bailout_test_algorithm, s.bailout, s.bailout_test_user_formula, s.bailout_test_user_formula2, s.bailout_test_comparison, s.n_norm, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, s.out_coloring_algorithm, s.user_out_coloring_algorithm, s.outcoloring_formula, s.user_outcoloring_conditions, s.user_outcoloring_condition_formula, s.in_coloring_algorithm, s.user_in_coloring_algorithm, s.incoloring_formula, s.user_incoloring_conditions, s.user_incoloring_condition_formula, s.smoothing, periodicity_checking, s.plane_type, s.apply_plane_on_julia, s.apply_plane_on_julia_seed, s.burning_ship, s.mandel_grass, s.mandel_grass_vals, s.function, s.z_exponent, s.z_exponent_complex, s.color_cycling_location, s.rotation_vals, s.rotation_center, s.coefficients, s.z_exponent_nova, s.relaxation, s.nova_method, s.user_formula, s.user_formula2, s.bail_technique, s.user_plane, s.user_plane_algorithm, s.user_plane_conditions, s.user_plane_condition_formula, s.user_formula_iteration_based, s.user_formula_conditions, s.user_formula_condition_formula, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.plane_transform_center, s.plane_transform_angle, s.plane_transform_radius, s.plane_transform_scales, s.plane_transform_wavelength, s.waveType, s.plane_transform_angle2, s.plane_transform_sides, s.plane_transform_amount, s.escaping_smooth_algorithm, s.converging_smooth_algorithm, s.bms, s.color_intensity, s.transfer_function, s.polar_projection, s.circle_period, s.fdes, s.rps, s.coupling, s.user_formula_coupled, s.coupling_method, s.coupling_amplitude, s.coupling_frequency, s.coupling_seed, s.ds, s.inverse_dem, quickDraw, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.xJuliaCenter, s.yJuliaCenter);
                             }
                         }
                     } else {
                         if (s.d3s.d3) {
                             if (greedy_algorithm) {
                                 if (greedy_algorithm_selection == BOUNDARY_TRACING) {
-                                    threads[i][j] = new BoundaryTracingDraw(s.color_choice, j * s.d3s.detail / n, (j + 1) * s.d3s.detail / n, i * s.d3s.detail / n, (i + 1) * s.d3s.detail / n, s.xCenter, s.yCenter, s.size, s.max_iterations, s.bailout_test_algorithm, s.bailout, s.bailout_test_user_formula, s.bailout_test_user_formula2, s.bailout_test_comparison, s.n_norm, s.d3s, ptr, s.fractal_color, s.dem_color, temp_special_color, s.color_smoothing_method, image, s.filters, s.filters_options_vals, s.filters_options_extra_vals, s.out_coloring_algorithm, s.user_out_coloring_algorithm, s.outcoloring_formula, s.user_outcoloring_conditions, s.user_outcoloring_condition_formula, s.in_coloring_algorithm, s.user_in_coloring_algorithm, s.incoloring_formula, s.user_incoloring_conditions, s.user_incoloring_condition_formula, s.smoothing, periodicity_checking, s.plane_type, s.burning_ship, s.mandel_grass, s.mandel_grass_vals, s.function, s.z_exponent, s.z_exponent_complex, s.color_cycling_location, s.rotation_vals, s.rotation_center, s.perturbation, s.perturbation_vals, s.variable_perturbation, s.user_perturbation_algorithm, s.user_perturbation_conditions, s.user_perturbation_condition_formula, s.perturbation_user_formula, s.init_val, s.initial_vals, s.variable_init_value, s.user_initial_value_algorithm, s.user_initial_value_conditions, s.user_initial_value_condition_formula, s.initial_value_user_formula, s.coefficients, s.z_exponent_nova, s.relaxation, s.nova_method, s.user_formula, s.user_formula2, s.bail_technique, s.user_plane, s.user_plane_algorithm, s.user_plane_conditions, s.user_plane_condition_formula, s.user_formula_iteration_based, s.user_formula_conditions, s.user_formula_condition_formula, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.plane_transform_center, s.plane_transform_angle, s.plane_transform_radius, s.plane_transform_scales, s.plane_transform_wavelength, s.waveType, s.plane_transform_angle2, s.plane_transform_sides, s.plane_transform_amount, s.escaping_smooth_algorithm, s.converging_smooth_algorithm, s.bms, s.color_intensity, s.transfer_function, s.polar_projection, s.circle_period, s.fdes, s.rps, s.user_fz_formula, s.user_dfz_formula, s.user_ddfz_formula, s.filters_colors, s.filters_extra_colors, s.filters_order, s.coupling, s.user_formula_coupled, s.coupling_method, s.coupling_amplitude, s.coupling_frequency, s.coupling_seed, s.ds, s.inverse_dem, quickDraw, s.color_choice == TOTAL_PALETTES - 1, s.custom_palette, s.color_interpolation, s.color_space, s.reversed_palette, s.scale_factor_palette_val, s.processing_alg, s.ens, s.ofs, s.gss, s.laguerre_deg, s.color_blending);
+                                    threads[i][j] = new BoundaryTracingDraw(j * s.d3s.detail / n, (j + 1) * s.d3s.detail / n, i * s.d3s.detail / n, (i + 1) * s.d3s.detail / n, s.xCenter, s.yCenter, s.size, s.max_iterations, s.bailout_test_algorithm, s.bailout, s.bailout_test_user_formula, s.bailout_test_user_formula2, s.bailout_test_comparison, s.n_norm, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, s.out_coloring_algorithm, s.user_out_coloring_algorithm, s.outcoloring_formula, s.user_outcoloring_conditions, s.user_outcoloring_condition_formula, s.in_coloring_algorithm, s.user_in_coloring_algorithm, s.incoloring_formula, s.user_incoloring_conditions, s.user_incoloring_condition_formula, s.smoothing, periodicity_checking, s.plane_type, s.burning_ship, s.mandel_grass, s.mandel_grass_vals, s.function, s.z_exponent, s.z_exponent_complex, s.color_cycling_location, s.rotation_vals, s.rotation_center, s.perturbation, s.perturbation_vals, s.variable_perturbation, s.user_perturbation_algorithm, s.user_perturbation_conditions, s.user_perturbation_condition_formula, s.perturbation_user_formula, s.init_val, s.initial_vals, s.variable_init_value, s.user_initial_value_algorithm, s.user_initial_value_conditions, s.user_initial_value_condition_formula, s.initial_value_user_formula, s.coefficients, s.z_exponent_nova, s.relaxation, s.nova_method, s.user_formula, s.user_formula2, s.bail_technique, s.user_plane, s.user_plane_algorithm, s.user_plane_conditions, s.user_plane_condition_formula, s.user_formula_iteration_based, s.user_formula_conditions, s.user_formula_condition_formula, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.plane_transform_center, s.plane_transform_angle, s.plane_transform_radius, s.plane_transform_scales, s.plane_transform_wavelength, s.waveType, s.plane_transform_angle2, s.plane_transform_sides, s.plane_transform_amount, s.escaping_smooth_algorithm, s.converging_smooth_algorithm, s.bms, s.color_intensity, s.transfer_function, s.polar_projection, s.circle_period, s.fdes, s.rps, s.user_fz_formula, s.user_dfz_formula, s.user_ddfz_formula, s.coupling, s.user_formula_coupled, s.coupling_method, s.coupling_amplitude, s.coupling_frequency, s.coupling_seed, s.ds, s.inverse_dem, quickDraw, s.ens, s.ofs, s.gss, s.laguerre_deg, s.color_blending, s.ots);
                                 } else if (greedy_algorithm_selection == DIVIDE_AND_CONQUER) {
-                                    threads[i][j] = new DivideAndConquerDraw(s.color_choice, j * s.d3s.detail / n, (j + 1) * s.d3s.detail / n, i * s.d3s.detail / n, (i + 1) * s.d3s.detail / n, s.xCenter, s.yCenter, s.size, s.max_iterations, s.bailout_test_algorithm, s.bailout, s.bailout_test_user_formula, s.bailout_test_user_formula2, s.bailout_test_comparison, s.n_norm, s.d3s, ptr, s.fractal_color, s.dem_color, temp_special_color, s.color_smoothing_method, image, s.filters, s.filters_options_vals, s.filters_options_extra_vals, s.out_coloring_algorithm, s.user_out_coloring_algorithm, s.outcoloring_formula, s.user_outcoloring_conditions, s.user_outcoloring_condition_formula, s.in_coloring_algorithm, s.user_in_coloring_algorithm, s.incoloring_formula, s.user_incoloring_conditions, s.user_incoloring_condition_formula, s.smoothing, periodicity_checking, s.plane_type, s.burning_ship, s.mandel_grass, s.mandel_grass_vals, s.function, s.z_exponent, s.z_exponent_complex, s.color_cycling_location, s.rotation_vals, s.rotation_center, s.perturbation, s.perturbation_vals, s.variable_perturbation, s.user_perturbation_algorithm, s.user_perturbation_conditions, s.user_perturbation_condition_formula, s.perturbation_user_formula, s.init_val, s.initial_vals, s.variable_init_value, s.user_initial_value_algorithm, s.user_initial_value_conditions, s.user_initial_value_condition_formula, s.initial_value_user_formula, s.coefficients, s.z_exponent_nova, s.relaxation, s.nova_method, s.user_formula, s.user_formula2, s.bail_technique, s.user_plane, s.user_plane_algorithm, s.user_plane_conditions, s.user_plane_condition_formula, s.user_formula_iteration_based, s.user_formula_conditions, s.user_formula_condition_formula, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.plane_transform_center, s.plane_transform_angle, s.plane_transform_radius, s.plane_transform_scales, s.plane_transform_wavelength, s.waveType, s.plane_transform_angle2, s.plane_transform_sides, s.plane_transform_amount, s.escaping_smooth_algorithm, s.converging_smooth_algorithm, s.bms, s.color_intensity, s.transfer_function, s.polar_projection, s.circle_period, s.fdes, s.rps, s.user_fz_formula, s.user_dfz_formula, s.user_ddfz_formula, s.filters_colors, s.filters_extra_colors, s.filters_order, s.coupling, s.user_formula_coupled, s.coupling_method, s.coupling_amplitude, s.coupling_frequency, s.coupling_seed, s.ds, s.inverse_dem, quickDraw, s.color_choice == TOTAL_PALETTES - 1, s.custom_palette, s.color_interpolation, s.color_space, s.reversed_palette, s.scale_factor_palette_val, s.processing_alg, s.ens, s.ofs, s.gss, s.laguerre_deg, s.color_blending);
+                                    threads[i][j] = new DivideAndConquerDraw(j * s.d3s.detail / n, (j + 1) * s.d3s.detail / n, i * s.d3s.detail / n, (i + 1) * s.d3s.detail / n, s.xCenter, s.yCenter, s.size, s.max_iterations, s.bailout_test_algorithm, s.bailout, s.bailout_test_user_formula, s.bailout_test_user_formula2, s.bailout_test_comparison, s.n_norm, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, s.out_coloring_algorithm, s.user_out_coloring_algorithm, s.outcoloring_formula, s.user_outcoloring_conditions, s.user_outcoloring_condition_formula, s.in_coloring_algorithm, s.user_in_coloring_algorithm, s.incoloring_formula, s.user_incoloring_conditions, s.user_incoloring_condition_formula, s.smoothing, periodicity_checking, s.plane_type, s.burning_ship, s.mandel_grass, s.mandel_grass_vals, s.function, s.z_exponent, s.z_exponent_complex, s.color_cycling_location, s.rotation_vals, s.rotation_center, s.perturbation, s.perturbation_vals, s.variable_perturbation, s.user_perturbation_algorithm, s.user_perturbation_conditions, s.user_perturbation_condition_formula, s.perturbation_user_formula, s.init_val, s.initial_vals, s.variable_init_value, s.user_initial_value_algorithm, s.user_initial_value_conditions, s.user_initial_value_condition_formula, s.initial_value_user_formula, s.coefficients, s.z_exponent_nova, s.relaxation, s.nova_method, s.user_formula, s.user_formula2, s.bail_technique, s.user_plane, s.user_plane_algorithm, s.user_plane_conditions, s.user_plane_condition_formula, s.user_formula_iteration_based, s.user_formula_conditions, s.user_formula_condition_formula, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.plane_transform_center, s.plane_transform_angle, s.plane_transform_radius, s.plane_transform_scales, s.plane_transform_wavelength, s.waveType, s.plane_transform_angle2, s.plane_transform_sides, s.plane_transform_amount, s.escaping_smooth_algorithm, s.converging_smooth_algorithm, s.bms, s.color_intensity, s.transfer_function, s.polar_projection, s.circle_period, s.fdes, s.rps, s.user_fz_formula, s.user_dfz_formula, s.user_ddfz_formula, s.coupling, s.user_formula_coupled, s.coupling_method, s.coupling_amplitude, s.coupling_frequency, s.coupling_seed, s.ds, s.inverse_dem, quickDraw, s.ens, s.ofs, s.gss, s.laguerre_deg, s.color_blending, s.ots);
                                 }
                             } else {
-                                threads[i][j] = new BruteForceDraw(s.color_choice, j * s.d3s.detail / n, (j + 1) * s.d3s.detail / n, i * s.d3s.detail / n, (i + 1) * s.d3s.detail / n, s.xCenter, s.yCenter, s.size, s.max_iterations, s.bailout_test_algorithm, s.bailout, s.bailout_test_user_formula, s.bailout_test_user_formula2, s.bailout_test_comparison, s.n_norm, s.d3s, ptr, s.fractal_color, s.dem_color, temp_special_color, s.color_smoothing_method, image, s.filters, s.filters_options_vals, s.filters_options_extra_vals, s.out_coloring_algorithm, s.user_out_coloring_algorithm, s.outcoloring_formula, s.user_outcoloring_conditions, s.user_outcoloring_condition_formula, s.in_coloring_algorithm, s.user_in_coloring_algorithm, s.incoloring_formula, s.user_incoloring_conditions, s.user_incoloring_condition_formula, s.smoothing, periodicity_checking, s.plane_type, s.burning_ship, s.mandel_grass, s.mandel_grass_vals, s.function, s.z_exponent, s.z_exponent_complex, s.color_cycling_location, s.rotation_vals, s.rotation_center, s.perturbation, s.perturbation_vals, s.variable_perturbation, s.user_perturbation_algorithm, s.user_perturbation_conditions, s.user_perturbation_condition_formula, s.perturbation_user_formula, s.init_val, s.initial_vals, s.variable_init_value, s.user_initial_value_algorithm, s.user_initial_value_conditions, s.user_initial_value_condition_formula, s.initial_value_user_formula, s.coefficients, s.z_exponent_nova, s.relaxation, s.nova_method, s.user_formula, s.user_formula2, s.bail_technique, s.user_plane, s.user_plane_algorithm, s.user_plane_conditions, s.user_plane_condition_formula, s.user_formula_iteration_based, s.user_formula_conditions, s.user_formula_condition_formula, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.plane_transform_center, s.plane_transform_angle, s.plane_transform_radius, s.plane_transform_scales, s.plane_transform_wavelength, s.waveType, s.plane_transform_angle2, s.plane_transform_sides, s.plane_transform_amount, s.escaping_smooth_algorithm, s.converging_smooth_algorithm, s.bms, s.color_intensity, s.transfer_function, s.polar_projection, s.circle_period, s.fdes, s.rps, s.user_fz_formula, s.user_dfz_formula, s.user_ddfz_formula, s.filters_colors, s.filters_extra_colors, s.filters_order, s.coupling, s.user_formula_coupled, s.coupling_method, s.coupling_amplitude, s.coupling_frequency, s.coupling_seed, s.ds, s.inverse_dem, quickDraw, s.color_choice == TOTAL_PALETTES - 1, s.custom_palette, s.color_interpolation, s.color_space, s.reversed_palette, s.scale_factor_palette_val, s.processing_alg, s.ens, s.ofs, s.gss, s.laguerre_deg, s.color_blending);
+                                threads[i][j] = new BruteForceDraw(j * s.d3s.detail / n, (j + 1) * s.d3s.detail / n, i * s.d3s.detail / n, (i + 1) * s.d3s.detail / n, s.xCenter, s.yCenter, s.size, s.max_iterations, s.bailout_test_algorithm, s.bailout, s.bailout_test_user_formula, s.bailout_test_user_formula2, s.bailout_test_comparison, s.n_norm, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, s.out_coloring_algorithm, s.user_out_coloring_algorithm, s.outcoloring_formula, s.user_outcoloring_conditions, s.user_outcoloring_condition_formula, s.in_coloring_algorithm, s.user_in_coloring_algorithm, s.incoloring_formula, s.user_incoloring_conditions, s.user_incoloring_condition_formula, s.smoothing, periodicity_checking, s.plane_type, s.burning_ship, s.mandel_grass, s.mandel_grass_vals, s.function, s.z_exponent, s.z_exponent_complex, s.color_cycling_location, s.rotation_vals, s.rotation_center, s.perturbation, s.perturbation_vals, s.variable_perturbation, s.user_perturbation_algorithm, s.user_perturbation_conditions, s.user_perturbation_condition_formula, s.perturbation_user_formula, s.init_val, s.initial_vals, s.variable_init_value, s.user_initial_value_algorithm, s.user_initial_value_conditions, s.user_initial_value_condition_formula, s.initial_value_user_formula, s.coefficients, s.z_exponent_nova, s.relaxation, s.nova_method, s.user_formula, s.user_formula2, s.bail_technique, s.user_plane, s.user_plane_algorithm, s.user_plane_conditions, s.user_plane_condition_formula, s.user_formula_iteration_based, s.user_formula_conditions, s.user_formula_condition_formula, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.plane_transform_center, s.plane_transform_angle, s.plane_transform_radius, s.plane_transform_scales, s.plane_transform_wavelength, s.waveType, s.plane_transform_angle2, s.plane_transform_sides, s.plane_transform_amount, s.escaping_smooth_algorithm, s.converging_smooth_algorithm, s.bms, s.color_intensity, s.transfer_function, s.polar_projection, s.circle_period, s.fdes, s.rps, s.user_fz_formula, s.user_dfz_formula, s.user_ddfz_formula, s.coupling, s.user_formula_coupled, s.coupling_method, s.coupling_amplitude, s.coupling_frequency, s.coupling_seed, s.ds, s.inverse_dem, quickDraw, s.ens, s.ofs, s.gss, s.laguerre_deg, s.color_blending, s.ots);
                             }
                         } else {
                             if (greedy_algorithm) {
                                 if (greedy_algorithm_selection == BOUNDARY_TRACING) {
-                                    threads[i][j] = new BoundaryTracingDraw(s.color_choice, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, s.xCenter, s.yCenter, s.size, s.max_iterations, s.bailout_test_algorithm, s.bailout, s.bailout_test_user_formula, s.bailout_test_user_formula2, s.bailout_test_comparison, s.n_norm, s.d3s, ptr, s.fractal_color, s.dem_color, temp_special_color, s.color_smoothing_method, image, s.filters, s.filters_options_vals, s.filters_options_extra_vals, s.out_coloring_algorithm, s.user_out_coloring_algorithm, s.outcoloring_formula, s.user_outcoloring_conditions, s.user_outcoloring_condition_formula, s.in_coloring_algorithm, s.user_in_coloring_algorithm, s.incoloring_formula, s.user_incoloring_conditions, s.user_incoloring_condition_formula, s.smoothing, periodicity_checking, s.plane_type, s.burning_ship, s.mandel_grass, s.mandel_grass_vals, s.function, s.z_exponent, s.z_exponent_complex, s.color_cycling_location, s.rotation_vals, s.rotation_center, s.perturbation, s.perturbation_vals, s.variable_perturbation, s.user_perturbation_algorithm, s.user_perturbation_conditions, s.user_perturbation_condition_formula, s.perturbation_user_formula, s.init_val, s.initial_vals, s.variable_init_value, s.user_initial_value_algorithm, s.user_initial_value_conditions, s.user_initial_value_condition_formula, s.initial_value_user_formula, s.coefficients, s.z_exponent_nova, s.relaxation, s.nova_method, s.user_formula, s.user_formula2, s.bail_technique, s.user_plane, s.user_plane_algorithm, s.user_plane_conditions, s.user_plane_condition_formula, s.user_formula_iteration_based, s.user_formula_conditions, s.user_formula_condition_formula, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.plane_transform_center, s.plane_transform_angle, s.plane_transform_radius, s.plane_transform_scales, s.plane_transform_wavelength, s.waveType, s.plane_transform_angle2, s.plane_transform_sides, s.plane_transform_amount, s.escaping_smooth_algorithm, s.converging_smooth_algorithm, s.bms, s.color_intensity, s.transfer_function, s.polar_projection, s.circle_period, s.fdes, s.rps, s.user_fz_formula, s.user_dfz_formula, s.user_ddfz_formula, s.filters_colors, s.filters_extra_colors, s.filters_order, s.coupling, s.user_formula_coupled, s.coupling_method, s.coupling_amplitude, s.coupling_frequency, s.coupling_seed, s.ds, s.inverse_dem, quickDraw, s.color_choice == TOTAL_PALETTES - 1, s.custom_palette, s.color_interpolation, s.color_space, s.reversed_palette, s.scale_factor_palette_val, s.processing_alg, s.ens, s.ofs, s.gss, s.laguerre_deg, s.color_blending);
+                                    threads[i][j] = new BoundaryTracingDraw(j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, s.xCenter, s.yCenter, s.size, s.max_iterations, s.bailout_test_algorithm, s.bailout, s.bailout_test_user_formula, s.bailout_test_user_formula2, s.bailout_test_comparison, s.n_norm, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, s.out_coloring_algorithm, s.user_out_coloring_algorithm, s.outcoloring_formula, s.user_outcoloring_conditions, s.user_outcoloring_condition_formula, s.in_coloring_algorithm, s.user_in_coloring_algorithm, s.incoloring_formula, s.user_incoloring_conditions, s.user_incoloring_condition_formula, s.smoothing, periodicity_checking, s.plane_type, s.burning_ship, s.mandel_grass, s.mandel_grass_vals, s.function, s.z_exponent, s.z_exponent_complex, s.color_cycling_location, s.rotation_vals, s.rotation_center, s.perturbation, s.perturbation_vals, s.variable_perturbation, s.user_perturbation_algorithm, s.user_perturbation_conditions, s.user_perturbation_condition_formula, s.perturbation_user_formula, s.init_val, s.initial_vals, s.variable_init_value, s.user_initial_value_algorithm, s.user_initial_value_conditions, s.user_initial_value_condition_formula, s.initial_value_user_formula, s.coefficients, s.z_exponent_nova, s.relaxation, s.nova_method, s.user_formula, s.user_formula2, s.bail_technique, s.user_plane, s.user_plane_algorithm, s.user_plane_conditions, s.user_plane_condition_formula, s.user_formula_iteration_based, s.user_formula_conditions, s.user_formula_condition_formula, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.plane_transform_center, s.plane_transform_angle, s.plane_transform_radius, s.plane_transform_scales, s.plane_transform_wavelength, s.waveType, s.plane_transform_angle2, s.plane_transform_sides, s.plane_transform_amount, s.escaping_smooth_algorithm, s.converging_smooth_algorithm, s.bms, s.color_intensity, s.transfer_function, s.polar_projection, s.circle_period, s.fdes, s.rps, s.user_fz_formula, s.user_dfz_formula, s.user_ddfz_formula, s.coupling, s.user_formula_coupled, s.coupling_method, s.coupling_amplitude, s.coupling_frequency, s.coupling_seed, s.ds, s.inverse_dem, quickDraw, s.ens, s.ofs, s.gss, s.laguerre_deg, s.color_blending, s.ots);
                                 } else if (greedy_algorithm_selection == DIVIDE_AND_CONQUER) {
-                                    threads[i][j] = new DivideAndConquerDraw(s.color_choice, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, s.xCenter, s.yCenter, s.size, s.max_iterations, s.bailout_test_algorithm, s.bailout, s.bailout_test_user_formula, s.bailout_test_user_formula2, s.bailout_test_comparison, s.n_norm, s.d3s, ptr, s.fractal_color, s.dem_color, temp_special_color, s.color_smoothing_method, image, s.filters, s.filters_options_vals, s.filters_options_extra_vals, s.out_coloring_algorithm, s.user_out_coloring_algorithm, s.outcoloring_formula, s.user_outcoloring_conditions, s.user_outcoloring_condition_formula, s.in_coloring_algorithm, s.user_in_coloring_algorithm, s.incoloring_formula, s.user_incoloring_conditions, s.user_incoloring_condition_formula, s.smoothing, periodicity_checking, s.plane_type, s.burning_ship, s.mandel_grass, s.mandel_grass_vals, s.function, s.z_exponent, s.z_exponent_complex, s.color_cycling_location, s.rotation_vals, s.rotation_center, s.perturbation, s.perturbation_vals, s.variable_perturbation, s.user_perturbation_algorithm, s.user_perturbation_conditions, s.user_perturbation_condition_formula, s.perturbation_user_formula, s.init_val, s.initial_vals, s.variable_init_value, s.user_initial_value_algorithm, s.user_initial_value_conditions, s.user_initial_value_condition_formula, s.initial_value_user_formula, s.coefficients, s.z_exponent_nova, s.relaxation, s.nova_method, s.user_formula, s.user_formula2, s.bail_technique, s.user_plane, s.user_plane_algorithm, s.user_plane_conditions, s.user_plane_condition_formula, s.user_formula_iteration_based, s.user_formula_conditions, s.user_formula_condition_formula, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.plane_transform_center, s.plane_transform_angle, s.plane_transform_radius, s.plane_transform_scales, s.plane_transform_wavelength, s.waveType, s.plane_transform_angle2, s.plane_transform_sides, s.plane_transform_amount, s.escaping_smooth_algorithm, s.converging_smooth_algorithm, s.bms, s.color_intensity, s.transfer_function, s.polar_projection, s.circle_period, s.fdes, s.rps, s.user_fz_formula, s.user_dfz_formula, s.user_ddfz_formula, s.filters_colors, s.filters_extra_colors, s.filters_order, s.coupling, s.user_formula_coupled, s.coupling_method, s.coupling_amplitude, s.coupling_frequency, s.coupling_seed, s.ds, s.inverse_dem, quickDraw, s.color_choice == TOTAL_PALETTES - 1, s.custom_palette, s.color_interpolation, s.color_space, s.reversed_palette, s.scale_factor_palette_val, s.processing_alg, s.ens, s.ofs, s.gss, s.laguerre_deg, s.color_blending);
+                                    threads[i][j] = new DivideAndConquerDraw(j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, s.xCenter, s.yCenter, s.size, s.max_iterations, s.bailout_test_algorithm, s.bailout, s.bailout_test_user_formula, s.bailout_test_user_formula2, s.bailout_test_comparison, s.n_norm, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, s.out_coloring_algorithm, s.user_out_coloring_algorithm, s.outcoloring_formula, s.user_outcoloring_conditions, s.user_outcoloring_condition_formula, s.in_coloring_algorithm, s.user_in_coloring_algorithm, s.incoloring_formula, s.user_incoloring_conditions, s.user_incoloring_condition_formula, s.smoothing, periodicity_checking, s.plane_type, s.burning_ship, s.mandel_grass, s.mandel_grass_vals, s.function, s.z_exponent, s.z_exponent_complex, s.color_cycling_location, s.rotation_vals, s.rotation_center, s.perturbation, s.perturbation_vals, s.variable_perturbation, s.user_perturbation_algorithm, s.user_perturbation_conditions, s.user_perturbation_condition_formula, s.perturbation_user_formula, s.init_val, s.initial_vals, s.variable_init_value, s.user_initial_value_algorithm, s.user_initial_value_conditions, s.user_initial_value_condition_formula, s.initial_value_user_formula, s.coefficients, s.z_exponent_nova, s.relaxation, s.nova_method, s.user_formula, s.user_formula2, s.bail_technique, s.user_plane, s.user_plane_algorithm, s.user_plane_conditions, s.user_plane_condition_formula, s.user_formula_iteration_based, s.user_formula_conditions, s.user_formula_condition_formula, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.plane_transform_center, s.plane_transform_angle, s.plane_transform_radius, s.plane_transform_scales, s.plane_transform_wavelength, s.waveType, s.plane_transform_angle2, s.plane_transform_sides, s.plane_transform_amount, s.escaping_smooth_algorithm, s.converging_smooth_algorithm, s.bms, s.color_intensity, s.transfer_function, s.polar_projection, s.circle_period, s.fdes, s.rps, s.user_fz_formula, s.user_dfz_formula, s.user_ddfz_formula, s.coupling, s.user_formula_coupled, s.coupling_method, s.coupling_amplitude, s.coupling_frequency, s.coupling_seed, s.ds, s.inverse_dem, quickDraw, s.ens, s.ofs, s.gss, s.laguerre_deg, s.color_blending, s.ots);
                                 }
                             } else {
-                                threads[i][j] = new BruteForceDraw(s.color_choice, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, s.xCenter, s.yCenter, s.size, s.max_iterations, s.bailout_test_algorithm, s.bailout, s.bailout_test_user_formula, s.bailout_test_user_formula2, s.bailout_test_comparison, s.n_norm, s.d3s, ptr, s.fractal_color, s.dem_color, temp_special_color, s.color_smoothing_method, image, s.filters, s.filters_options_vals, s.filters_options_extra_vals, s.out_coloring_algorithm, s.user_out_coloring_algorithm, s.outcoloring_formula, s.user_outcoloring_conditions, s.user_outcoloring_condition_formula, s.in_coloring_algorithm, s.user_in_coloring_algorithm, s.incoloring_formula, s.user_incoloring_conditions, s.user_incoloring_condition_formula, s.smoothing, periodicity_checking, s.plane_type, s.burning_ship, s.mandel_grass, s.mandel_grass_vals, s.function, s.z_exponent, s.z_exponent_complex, s.color_cycling_location, s.rotation_vals, s.rotation_center, s.perturbation, s.perturbation_vals, s.variable_perturbation, s.user_perturbation_algorithm, s.user_perturbation_conditions, s.user_perturbation_condition_formula, s.perturbation_user_formula, s.init_val, s.initial_vals, s.variable_init_value, s.user_initial_value_algorithm, s.user_initial_value_conditions, s.user_initial_value_condition_formula, s.initial_value_user_formula, s.coefficients, s.z_exponent_nova, s.relaxation, s.nova_method, s.user_formula, s.user_formula2, s.bail_technique, s.user_plane, s.user_plane_algorithm, s.user_plane_conditions, s.user_plane_condition_formula, s.user_formula_iteration_based, s.user_formula_conditions, s.user_formula_condition_formula, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.plane_transform_center, s.plane_transform_angle, s.plane_transform_radius, s.plane_transform_scales, s.plane_transform_wavelength, s.waveType, s.plane_transform_angle2, s.plane_transform_sides, s.plane_transform_amount, s.escaping_smooth_algorithm, s.converging_smooth_algorithm, s.bms, s.color_intensity, s.transfer_function, s.polar_projection, s.circle_period, s.fdes, s.rps, s.user_fz_formula, s.user_dfz_formula, s.user_ddfz_formula, s.filters_colors, s.filters_extra_colors, s.filters_order, s.coupling, s.user_formula_coupled, s.coupling_method, s.coupling_amplitude, s.coupling_frequency, s.coupling_seed, s.ds, s.inverse_dem, quickDraw, s.color_choice == TOTAL_PALETTES - 1, s.custom_palette, s.color_interpolation, s.color_space, s.reversed_palette, s.scale_factor_palette_val, s.processing_alg, s.ens, s.ofs, s.gss, s.laguerre_deg, s.color_blending);
+                                threads[i][j] = new BruteForceDraw(j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, s.xCenter, s.yCenter, s.size, s.max_iterations, s.bailout_test_algorithm, s.bailout, s.bailout_test_user_formula, s.bailout_test_user_formula2, s.bailout_test_comparison, s.n_norm, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, s.out_coloring_algorithm, s.user_out_coloring_algorithm, s.outcoloring_formula, s.user_outcoloring_conditions, s.user_outcoloring_condition_formula, s.in_coloring_algorithm, s.user_in_coloring_algorithm, s.incoloring_formula, s.user_incoloring_conditions, s.user_incoloring_condition_formula, s.smoothing, periodicity_checking, s.plane_type, s.burning_ship, s.mandel_grass, s.mandel_grass_vals, s.function, s.z_exponent, s.z_exponent_complex, s.color_cycling_location, s.rotation_vals, s.rotation_center, s.perturbation, s.perturbation_vals, s.variable_perturbation, s.user_perturbation_algorithm, s.user_perturbation_conditions, s.user_perturbation_condition_formula, s.perturbation_user_formula, s.init_val, s.initial_vals, s.variable_init_value, s.user_initial_value_algorithm, s.user_initial_value_conditions, s.user_initial_value_condition_formula, s.initial_value_user_formula, s.coefficients, s.z_exponent_nova, s.relaxation, s.nova_method, s.user_formula, s.user_formula2, s.bail_technique, s.user_plane, s.user_plane_algorithm, s.user_plane_conditions, s.user_plane_condition_formula, s.user_formula_iteration_based, s.user_formula_conditions, s.user_formula_condition_formula, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.plane_transform_center, s.plane_transform_angle, s.plane_transform_radius, s.plane_transform_scales, s.plane_transform_wavelength, s.waveType, s.plane_transform_angle2, s.plane_transform_sides, s.plane_transform_amount, s.escaping_smooth_algorithm, s.converging_smooth_algorithm, s.bms, s.color_intensity, s.transfer_function, s.polar_projection, s.circle_period, s.fdes, s.rps, s.user_fz_formula, s.user_dfz_formula, s.user_ddfz_formula, s.coupling, s.user_formula_coupled, s.coupling_method, s.coupling_amplitude, s.coupling_frequency, s.coupling_seed, s.ds, s.inverse_dem, quickDraw, s.ens, s.ofs, s.gss, s.laguerre_deg, s.color_blending, s.ots);
                             }
                         }
                     }
@@ -1710,7 +1697,6 @@ public class MainWindow extends JFrame implements Constants {
                         toolbar.getJuliaMapButton().setEnabled(false);
                         rootFindingMethodsSetEnabled(false);
                         fractal_functions[SIERPINSKI_GASKET].setEnabled(false);
-                        out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
                     }
                 }
 
@@ -1733,7 +1719,7 @@ public class MainWindow extends JFrame implements Constants {
                     tools_menu.getBoundaries().setSelected(false);
                 }
 
-                if (s.in_coloring_algorithm != MAXIMUM_ITERATIONS) {
+                if (s.in_coloring_algorithm != MAX_ITERATIONS) {
                     periodicity_checking = false;
                     options_menu.getPeriodicityChecking().setSelected(false);
                     options_menu.getPeriodicityChecking().setEnabled(false);
@@ -1765,14 +1751,6 @@ public class MainWindow extends JFrame implements Constants {
                     for (int k = 1; k < fractal_functions.length; k++) {
                         fractal_functions[k].setEnabled(false);
                     }
-
-                    options_menu.getInitialValue().setEnabled(false);
-                    options_menu.getPerturbation().setEnabled(false);
-
-                    if (s.exterior_de) {
-                        options_menu.getBurningShipOpt().setEnabled(false);
-                        options_menu.getMandelGrassOpt().setEnabled(false);
-                    }
                 } else if (s.out_coloring_algorithm == ESCAPE_TIME_FIELD_LINES2 || s.out_coloring_algorithm == ESCAPE_TIME_FIELD_LINES || s.out_coloring_algorithm == ESCAPE_TIME_ESCAPE_RADIUS || s.out_coloring_algorithm == ESCAPE_TIME_GRID || s.out_coloring_algorithm == BIOMORPH || s.out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER || s.out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER2 || s.out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER3 || s.out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER4 || s.out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER5 || s.out_coloring_algorithm == ITERATIONS_PLUS_RE || s.out_coloring_algorithm == ITERATIONS_PLUS_IM || s.out_coloring_algorithm == ITERATIONS_PLUS_RE_DIVIDE_IM || s.out_coloring_algorithm == ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM || s.out_coloring_algorithm == ESCAPE_TIME_ALGORITHM2 || s.out_coloring_algorithm == BANDED) {
                     rootFindingMethodsSetEnabled(false);
                 } else {
@@ -1787,15 +1765,11 @@ public class MainWindow extends JFrame implements Constants {
                 out_coloring_modes[s.out_coloring_algorithm].setSelected(true);
 
                 in_coloring_modes[s.in_coloring_algorithm].setSelected(true);
-                
+
                 options_menu.getBlendingModes()[s.color_blending].setSelected(true);
                 options_menu.getTranferFunctions()[s.transfer_function].setSelected(true);
 
                 bailout_tests[s.bailout_test_algorithm].setSelected(true);
-
-                if (s.burning_ship || s.mandel_grass || s.init_val || s.perturbation) {
-                    options_menu.getDistanceEstimation().setEnabled(false);
-                }
 
                 if (s.polar_projection) {
                     tools_menu.getGrid().setEnabled(false);
@@ -1833,7 +1807,7 @@ public class MainWindow extends JFrame implements Constants {
                         options_menu.getPaletteMenu().setEnabled(false);
                         options_menu.getColorIntensity().setEnabled(false);
                         options_menu.getColorTransferMenu().setEnabled(false);
-                        options_menu.getProcessing().setEnabled(false);
+                        options_menu.getProcessing().setEnabled(false);                      
                     } else {
                         options_menu.getDistanceEstimation().setEnabled(false);
                         options_menu.getBumpMap().setEnabled(false);
@@ -1845,6 +1819,7 @@ public class MainWindow extends JFrame implements Constants {
                         options_menu.getGreyScaleColoring().setEnabled(false);
 
                         options_menu.getRainbowPalette().setEnabled(false);
+                        options_menu.getOrbitTraps().setEnabled(false);
                     }
 
                     options_menu.getOutColoringMenu().setEnabled(false);
@@ -1856,22 +1831,11 @@ public class MainWindow extends JFrame implements Constants {
                     options_menu.getBailout().setEnabled(false);
                     options_menu.getBailoutConditionMenu().setEnabled(false);
 
-                    if (!s.ds.use_palette_domain_coloring) {
-                        infobar.getPalettePreview().setVisible(false);
-                        infobar.getPalettePreviewLabel().setVisible(false);
-                    } else {
-                        infobar.getPalettePreview().setVisible(true);
-                        infobar.getPalettePreviewLabel().setVisible(true);
-                    }
-
                     infobar.getMaxIterationsColorPreview().setVisible(false);
                     infobar.getMaxIterationsColorPreviewLabel().setVisible(false);
 
                     options_menu.getDomainColoringOptions().setEnabled(true);
                 } else {
-                    infobar.getPalettePreview().setVisible(true);
-                    infobar.getPalettePreviewLabel().setVisible(true);
-
                     infobar.getMaxIterationsColorPreview().setVisible(true);
                     infobar.getMaxIterationsColorPreviewLabel().setVisible(true);
 
@@ -1880,8 +1844,14 @@ public class MainWindow extends JFrame implements Constants {
 
                 tools_menu.getDomainColoring().setSelected(s.ds.domain_coloring);
                 toolbar.getDomainColoringButton().setSelected(s.ds.domain_coloring);
-
-                filters_menu.setCheckedFilters(s.filters);
+                
+                if(s.ots.useTraps) {
+                    tools_menu.getColorCyling().setEnabled(false);
+                    toolbar.getColorCyclingButton().setEnabled(false);
+                    options_menu.getPeriodicityChecking().setEnabled(false);
+                }
+                
+                filters_menu.setCheckedFilters(s.fs.filters);
 
                 fractal_functions[s.function].setSelected(true);
 
@@ -1980,10 +1950,10 @@ public class MainWindow extends JFrame implements Constants {
                         options_menu.getInitialValue().setEnabled(false);
                         break;
                     case MANDELBROT:
-                        if (!s.burning_ship && !s.mandel_grass && !s.init_val && !s.perturbation && !s.ds.domain_coloring) {
+                        if (!s.ds.domain_coloring) {
                             options_menu.getDistanceEstimation().setEnabled(true);
                         }
-                        if (s.out_coloring_algorithm != DISTANCE_ESTIMATOR && !s.init_val && !s.perturbation) {
+                        if (s.out_coloring_algorithm != DISTANCE_ESTIMATOR) {
                             out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(true);
                         }
                         if (s.out_coloring_algorithm != BIOMORPH) {
@@ -2066,6 +2036,7 @@ public class MainWindow extends JFrame implements Constants {
                 options_menu.getPalette()[s.color_choice].setSelected(true);
                 updateColorPalettesMenu();
                 updateMaxIterColorPreview();
+                updateGradientPreview();
 
                 options_menu.getBurningShipOpt().setSelected(s.burning_ship);
                 options_menu.getMandelGrassOpt().setSelected(s.mandel_grass);
@@ -2846,7 +2817,7 @@ public class MainWindow extends JFrame implements Constants {
         //Fix, fractal_color should not be included in the palette, boundary tracing algorithm fails some times
         Color[] c = null;
 
-        if (s.color_choice < TOTAL_PALETTES - 1) {
+        if (s.color_choice != CUSTOM_PALETTE_ID) {
             c = CustomPalette.getPalette(CustomPaletteEditorFrame.editor_default_palettes[s.color_choice], INTERPOLATION_LINEAR, COLOR_SPACE_RGB, false, s.color_cycling_location, 0, PROCESSING_NONE);
         } else {
             c = CustomPalette.getPalette(s.custom_palette, s.color_interpolation, s.color_space, s.reversed_palette, s.color_cycling_location, s.scale_factor_palette_val, s.processing_alg);
@@ -2990,320 +2961,71 @@ public class MainWindow extends JFrame implements Constants {
     public void setFractalColor() {
 
         resetOrbit();
-        setEnabled(false);
-        int color_window_width = 370;
-        int color_window_height = 470;
-        fract_color_frame = new JFrame("Fractal Colors");
-        fract_color_frame.setIconImage(getIcon("/fractalzoomer/icons/color.png").getImage());
-        fract_color_frame.setSize(color_window_width, color_window_height);
-        fract_color_frame.setLocation((int) (getLocation().getX() + getSize().getWidth() / 2) - (color_window_width / 2), (int) (getLocation().getY() + getSize().getHeight() / 2) - (color_window_height / 2));
+        new FractalColorsFrame(ptr, s.fractal_color, s.dem_color, s.special_color, s.special_use_palette_color, ColorAlgorithm.GlobalIncrementBypass);
 
-        fract_color_frame.addWindowListener(new WindowAdapter() {
+    }
 
-            @Override
-            public void windowClosing(WindowEvent e) {
+    public void displaySpecialHelp() {
 
-                setEnabled(true);
-                fract_color_frame.dispose();
-                main_panel.repaint();
+        common.displaySpecialHelp(ptr);
 
-            }
-        });
+    }
 
-        JPanel fractal_color_panel = new JPanel();
-        fractal_color_panel.setBackground(bg_color);
-        fractal_color_panel.setLayout(new FlowLayout());
-        fractal_color_panel.setPreferredSize(new Dimension(230, 80));
-        fractal_color_panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Maximum Iterations Color", TitledBorder.DEFAULT_POSITION, TitledBorder.DEFAULT_POSITION));
+    public void fractalColorsChanged(Color max_it_color, Color dem_color, Color special_color, boolean use_palette_color, boolean special_bypass) {
 
-        final JLabel max_it_color_label = new JLabel("");
-        max_it_color_label.setPreferredSize(new Dimension(35, 35));
-        max_it_color_label.setOpaque(true);
-        max_it_color_label.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
-        max_it_color_label.setBackground(s.fractal_color);
-        max_it_color_label.setToolTipText("Left click to change this color.");
+        s.fractal_color = max_it_color;
+        s.dem_color = dem_color;
+        s.special_color = special_color;
+        s.special_use_palette_color = use_palette_color;
+        ColorAlgorithm.GlobalIncrementBypass = special_bypass;
 
-        max_it_color_label.addMouseListener(new MouseListener() {
+        if (s.color_choice == CUSTOM_PALETTE_ID) {
+            ThreadDraw.palette = new CustomPalette(s.custom_palette, s.color_interpolation, s.color_space, s.reversed_palette, s.scale_factor_palette_val, s.processing_alg, s.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color);
+        } else {
+            ThreadDraw.palette = new PresetPalette(s.color_choice, s.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color);
+        }
 
-            @Override
-            public void mouseClicked(MouseEvent e) {
+        updateColors();
 
-            }
+        updateMaxIterColorPreview();
 
-            @Override
-            public void mousePressed(MouseEvent e) {
+        setOptions(false);
 
-                new ColorChooserFrame(ptr, fract_color_frame, "Maximum Iterations Color", max_it_color_label, -1);
+        progress.setValue(0);
 
-            }
+        resetImage();
 
-            @Override
-            public void mouseReleased(MouseEvent e) {
+        whole_image_done = false;
 
+        if (s.d3s.d3) {
+            Arrays.fill(((DataBufferInt) image.getRaster().getDataBuffer()).getData(), Color.BLACK.getRGB());
+        }
+
+        if (s.fs.filters[ANTIALIASING] || s.ots.useTraps) {
+            if (julia_map) {
+                createThreadsJuliaMap();
+            } else {
+                createThreads(false);
             }
 
-            @Override
-            public void mouseEntered(MouseEvent e) {
+            calculation_time = System.currentTimeMillis();
 
+            if (julia_map) {
+                startThreads(julia_grid_first_dimension);
+            } else {
+                startThreads(n);
+            }
+        } else {
+            if (s.d3s.d3) {
+                createThreads(false);
+            } else {
+                createThreadsPaletteAndFilter();
             }
 
-            @Override
-            public void mouseExited(MouseEvent e) {
+            calculation_time = System.currentTimeMillis();
 
-            }
-
-        });
-
-        final JPanel dem_color_panel = new JPanel();
-        dem_color_panel.setBackground(bg_color);
-        dem_color_panel.setLayout(new FlowLayout());
-        dem_color_panel.setPreferredSize(new Dimension(230, 80));
-        dem_color_panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Distance Estimation Color", TitledBorder.DEFAULT_POSITION, TitledBorder.DEFAULT_POSITION));
-
-        final JLabel dem_color_label = new JLabel("");
-        dem_color_label.setPreferredSize(new Dimension(35, 35));
-        dem_color_label.setOpaque(true);
-        dem_color_label.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
-
-        dem_color_label.setBackground(s.dem_color);
-
-        dem_color_label.setToolTipText("Left click to change this color.");
-
-        dem_color_label.addMouseListener(new MouseListener() {
-
-            @Override
-            public void mouseClicked(MouseEvent e) {
-
-            }
-
-            @Override
-            public void mousePressed(MouseEvent e) {
-
-                new ColorChooserFrame(ptr, fract_color_frame, "Distance Estimation Color", dem_color_label, -1);
-
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-
-            }
-
-            @Override
-            public void mouseEntered(MouseEvent e) {
-
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-
-            }
-
-        });
-
-        final JPanel special_color_panel = new JPanel();
-        special_color_panel.setBackground(bg_color);
-        special_color_panel.setLayout(new FlowLayout());
-        special_color_panel.setPreferredSize(new Dimension(230, 120));
-        special_color_panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Special Color", TitledBorder.DEFAULT_POSITION, TitledBorder.DEFAULT_POSITION));
-
-        final JCheckBox use_palette_color = new JCheckBox("Use Palette Color");
-        use_palette_color.setBackground(bg_color);
-        use_palette_color.setFocusable(false);
-        use_palette_color.setSelected(s.special_use_palette_color);
-        use_palette_color.setToolTipText("<html>Sets the special color for the following color algorithms:<br>Binary Decomposition<br>Binary Decomposition 2<br>Biomorph<br>Escape Time + Grid<br>Escape Time + Field Lines<br>Escape Time + Field Lines 2<br>cos(norm(z))<br>Squares 2<br>User Out/In Coloring algorithm with negative values</html>");
-
-        final JLabel special_color_label = new JLabel("");
-        special_color_label.setPreferredSize(new Dimension(35, 35));
-        special_color_label.setOpaque(true);
-        special_color_label.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
-
-        special_color_label.setBackground(s.special_color);
-
-        special_color_label.setToolTipText("Left click to change this color.");
-
-        special_color_label.addMouseListener(new MouseListener() {
-
-            @Override
-            public void mouseClicked(MouseEvent e) {
-
-            }
-
-            @Override
-            public void mousePressed(MouseEvent e) {
-
-                new ColorChooserFrame(ptr, fract_color_frame, "Special Color", special_color_label, -1);
-
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-
-            }
-
-            @Override
-            public void mouseEntered(MouseEvent e) {
-
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-
-            }
-
-        });
-
-        final JCheckBox remove_special_increment = new JCheckBox("Remove Special Offset");
-        remove_special_increment.setBackground(bg_color);
-        remove_special_increment.setFocusable(false);
-        remove_special_increment.setSelected(ColorAlgorithm.GlobalIncrementBypass);
-        remove_special_increment.setToolTipText("Removes the special offset, applicable in processing algorithms and 3d rendering.");
-
-        JButton help_button = new JButton();
-        help_button.setIcon(getIcon("/fractalzoomer/icons/help.png"));
-        help_button.setFocusable(false);
-        help_button.setToolTipText("Some info regarding special offset.");
-        help_button.setPreferredSize(new Dimension(30, 30));
-
-        help_button.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                common.displaySpecialHelp(ptr);
-
-            }
-        });
-
-        fractal_color_panel.add(max_it_color_label);
-
-        dem_color_panel.add(dem_color_label);
-
-        special_color_panel.add(use_palette_color);
-        special_color_panel.add(special_color_label);
-        special_color_panel.add(remove_special_increment);
-        special_color_panel.add(help_button);
-
-        JPanel color_panel = new JPanel();
-        color_panel.setBackground(bg_color);
-        color_panel.setLayout(new GridLayout(3, 1));
-        color_panel.setPreferredSize(new Dimension(260, 320));
-        color_panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Fractal Colors", TitledBorder.CENTER, TitledBorder.CENTER));
-
-        color_panel.add(fractal_color_panel);
-        color_panel.add(dem_color_panel);
-        color_panel.add(special_color_panel);
-
-        JButton ok = new JButton("Ok");
-        ok.setFocusable(false);
-
-        ok.addActionListener(new ActionListener() {
-
-            public void actionPerformed(ActionEvent e) {
-                s.fractal_color = max_it_color_label.getBackground();
-                s.dem_color = dem_color_label.getBackground();
-                s.special_color = special_color_label.getBackground();
-                s.special_use_palette_color = use_palette_color.isSelected();
-                ColorAlgorithm.GlobalIncrementBypass = remove_special_increment.isSelected();
-
-                updateColors();
-
-                updateMaxIterColorPreview();
-
-                setOptions(false);
-
-                progress.setValue(0);
-
-                setEnabled(true);
-                fract_color_frame.dispose();
-
-                resetImage();
-
-                whole_image_done = false;
-
-                if (s.d3s.d3) {
-                    Arrays.fill(((DataBufferInt) image.getRaster().getDataBuffer()).getData(), Color.BLACK.getRGB());
-                }
-
-                if (s.filters[ANTIALIASING]) {
-                    if (julia_map) {
-                        createThreadsJuliaMap();
-                    } else {
-                        createThreads(false);
-                    }
-
-                    calculation_time = System.currentTimeMillis();
-
-                    if (julia_map) {
-                        startThreads(julia_grid_first_dimension);
-                    } else {
-                        startThreads(n);
-                    }
-                } else {
-                    if (s.d3s.d3) {
-                        createThreads(false);
-                    } else {
-                        createThreadsPaletteAndFilter();
-                    }
-
-                    calculation_time = System.currentTimeMillis();
-
-                    startThreads(n);
-                }
-
-            }
-        });
-
-        JButton close = new JButton("Cancel");
-        close.setFocusable(false);
-
-        close.addActionListener(new ActionListener() {
-
-            public void actionPerformed(ActionEvent e) {
-
-                setEnabled(true);
-                fract_color_frame.dispose();
-                main_panel.repaint();
-
-            }
-        });
-
-        JPanel buttons = new JPanel();
-        buttons.setBackground(bg_color);
-
-        buttons.add(ok);
-        buttons.add(close);
-
-        RoundedPanel round_panel = new RoundedPanel(true, true, true, 15);
-        round_panel.setBackground(bg_color);
-        round_panel.setPreferredSize(new Dimension(300, 380));
-        round_panel.setLayout(new GridBagLayout());
-
-        GridBagConstraints con = new GridBagConstraints();
-
-        con.fill = GridBagConstraints.CENTER;
-        con.gridx = 0;
-        con.gridy = 0;
-
-        round_panel.add(color_panel, con);
-
-        con.fill = GridBagConstraints.CENTER;
-        con.gridx = 0;
-        con.gridy = 1;
-
-        round_panel.add(buttons, con);
-
-        JPanel main_panel = new JPanel();
-        main_panel.setLayout(new GridBagLayout());
-        con.fill = GridBagConstraints.CENTER;
-        con.gridx = 0;
-        con.gridy = 0;
-        main_panel.add(round_panel, con);
-
-        JScrollPane scrollPane = new JScrollPane(main_panel);
-        fract_color_frame.add(scrollPane);
-
-        fract_color_frame.setVisible(true);
-
+            startThreads(n);
+        }
     }
 
     public void setIterations() {
@@ -3489,11 +3211,17 @@ public class MainWindow extends JFrame implements Constants {
 
         resetOrbit();
         s.color_choice = temp2;
-        if (s.color_choice != TOTAL_PALETTES - 1) {
+        if (s.color_choice != CUSTOM_PALETTE_ID) {
             s.color_cycling_location = 0;
         }
 
         options_menu.getPalette()[s.color_choice].setSelected(true);
+
+        if (s.color_choice == CUSTOM_PALETTE_ID) {
+            ThreadDraw.palette = new CustomPalette(s.custom_palette, s.color_interpolation, s.color_space, s.reversed_palette, s.scale_factor_palette_val, s.processing_alg, s.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color);
+        } else {
+            ThreadDraw.palette = new PresetPalette(s.color_choice, s.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color);
+        }
 
         updateColors();
 
@@ -3512,7 +3240,7 @@ public class MainWindow extends JFrame implements Constants {
             Arrays.fill(((DataBufferInt) image.getRaster().getDataBuffer()).getData(), Color.BLACK.getRGB());
         }
 
-        if (s.filters[ANTIALIASING] || (s.ds.domain_coloring && s.ds.use_palette_domain_coloring)) {
+        if (s.fs.filters[ANTIALIASING] || (s.ds.domain_coloring && s.ds.use_palette_domain_coloring) || s.ots.useTraps) {
             if (julia_map) {
                 createThreadsJuliaMap();
             } else {
@@ -3545,7 +3273,7 @@ public class MainWindow extends JFrame implements Constants {
         resetOrbit();
         if (temp == ANTIALIASING) {
             if (!filters_opt[ANTIALIASING].isSelected()) {
-                s.filters[ANTIALIASING] = false;
+                s.fs.filters[ANTIALIASING] = false;
 
                 setOptions(false);
 
@@ -3554,19 +3282,40 @@ public class MainWindow extends JFrame implements Constants {
                 resetImage();
 
                 whole_image_done = false;
-
+                
                 if (s.d3s.d3) {
                     Arrays.fill(((DataBufferInt) image.getRaster().getDataBuffer()).getData(), Color.BLACK.getRGB());
-                    createThreads(false);
-                } else {
-                    createThreadsPaletteAndFilter();
                 }
 
-                calculation_time = System.currentTimeMillis();
+                if (s.ots.useTraps) {
+                    if (julia_map) {
+                        createThreadsJuliaMap();
+                    } else if (s.d3s.d3) {
+                        createThreadsPaletteAndFilter3DModel();
+                    } else {
+                        createThreads(false);
+                    }
 
-                startThreads(n);
+                    calculation_time = System.currentTimeMillis();
+
+                    if (julia_map) {
+                        startThreads(julia_grid_first_dimension);
+                    } else {
+                        startThreads(n);
+                    }
+                } else {
+                    if (s.d3s.d3) {
+                        createThreads(false);
+                    } else {
+                        createThreadsPaletteAndFilter();
+                    }
+
+                    calculation_time = System.currentTimeMillis();
+
+                    startThreads(n);
+                }
             } else {
-                s.filters[ANTIALIASING] = true;
+                s.fs.filters[ANTIALIASING] = true;
 
                 setOptions(false);
 
@@ -3597,9 +3346,9 @@ public class MainWindow extends JFrame implements Constants {
             }
         } else {
             if (!filters_opt[temp].isSelected()) {
-                s.filters[temp] = false;
+                s.fs.filters[temp] = false;
             } else {
-                s.filters[temp] = true;
+                s.fs.filters[temp] = true;
             }
 
             setOptions(false);
@@ -3614,7 +3363,7 @@ public class MainWindow extends JFrame implements Constants {
                 Arrays.fill(((DataBufferInt) image.getRaster().getDataBuffer()).getData(), Color.BLACK.getRGB());
             }
 
-            if (s.filters[ANTIALIASING]) {
+            if (s.fs.filters[ANTIALIASING] || s.ots.useTraps) {
                 if (julia_map) {
                     createThreadsJuliaMap();
                 } else if (s.d3s.d3) {
@@ -3748,10 +3497,12 @@ public class MainWindow extends JFrame implements Constants {
         if (!options_menu.getPeriodicityChecking().isSelected()) {
             periodicity_checking = false;
             options_menu.getInColoringMenu().setEnabledAllButMaxIterations(true);
+            options_menu.getOrbitTraps().setEnabled(true);
             main_panel.repaint();
         } else {
             periodicity_checking = true;
             options_menu.getInColoringMenu().setEnabledAllButMaxIterations(false);
+            options_menu.getOrbitTraps().setEnabled(false);
             main_panel.repaint();
         }
 
@@ -4773,6 +4524,7 @@ public class MainWindow extends JFrame implements Constants {
         toolbar.getIterationsButton().setEnabled(option);
         toolbar.getRotationButton().setEnabled(option);
         toolbar.getSaveImageButton().setEnabled(option);
+        toolbar.getSaveImageAndSettignsButton().setEnabled(option);
         options_menu.getPoint().setEnabled(option);
 
         if (!s.ds.domain_coloring && !s.isConvergingType()) {
@@ -4783,7 +4535,7 @@ public class MainWindow extends JFrame implements Constants {
         options_menu.getOptimizationsMenu().setEnabled(option);
         options_menu.getToolsOptionsMenu().setEnabled(option);
 
-        if (!s.ds.domain_coloring && !s.isConvergingType() && s.function != SIERPINSKI_GASKET) {
+        if (!s.ds.domain_coloring && !s.isConvergingType() && s.function != SIERPINSKI_GASKET && !s.ots.useTraps) {
             options_menu.getPeriodicityChecking().setEnabled(option);
         }
 
@@ -4796,7 +4548,7 @@ public class MainWindow extends JFrame implements Constants {
             toolbar.getJuliaButton().setEnabled(option);
         }
 
-        if (!zoom_window && !orbit && !color_cycling && !s.d3s.d3 && !s.ds.domain_coloring) {
+        if (!zoom_window && !orbit && !color_cycling && !s.d3s.d3 && !s.ds.domain_coloring && !s.ots.useTraps) {
             tools_menu.getColorCyling().setEnabled(option);
             toolbar.getColorCyclingButton().setEnabled(option);
         }
@@ -4809,7 +4561,7 @@ public class MainWindow extends JFrame implements Constants {
         tools_menu.getPlaneVizualization().setEnabled(option);
 
         if (!s.ds.domain_coloring) {
-            if (s.function == MANDELBROT && !s.burning_ship && !s.mandel_grass && !s.init_val && !s.perturbation) {
+            if (s.function == MANDELBROT) {
                 options_menu.getDistanceEstimation().setEnabled(option);
             }
 
@@ -4824,6 +4576,10 @@ public class MainWindow extends JFrame implements Constants {
             options_menu.getRainbowPalette().setEnabled(option);
 
             options_menu.getOffsetColoring().setEnabled(option);
+            
+            if(!periodicity_checking) {
+                options_menu.getOrbitTraps().setEnabled(option);
+            }
 
             options_menu.getOutColoringMenu().setEnabled(option);
             options_menu.getInColoringMenu().setEnabled(option);
@@ -4897,7 +4653,7 @@ public class MainWindow extends JFrame implements Constants {
 
         options_menu.getRotationMenu().setEnabled(option);
 
-        if (!s.exterior_de && s.out_coloring_algorithm != DISTANCE_ESTIMATOR && !s.julia && !julia_map && s.functionSupportsC()) {
+        if (!s.julia && !julia_map && s.functionSupportsC()) {
             options_menu.getPerturbation().setEnabled(option);
             options_menu.getInitialValue().setEnabled(option);
         }
@@ -4949,7 +4705,7 @@ public class MainWindow extends JFrame implements Constants {
 
         resetOrbit();
 
-        new ColorChooserFrame(ptr, ptr, "Orbit Color", orbit_color, 0);
+        new ColorChooserFrame(ptr, "Orbit Color", orbit_color, 0);
 
         main_panel.repaint();
 
@@ -4959,7 +4715,7 @@ public class MainWindow extends JFrame implements Constants {
 
         resetOrbit();
 
-        new ColorChooserFrame(ptr, ptr, "Grid Color", grid_color, 1);
+        new ColorChooserFrame(ptr, "Grid Color", grid_color, 1);
 
         main_panel.repaint();
 
@@ -4969,7 +4725,7 @@ public class MainWindow extends JFrame implements Constants {
 
         resetOrbit();
 
-        new ColorChooserFrame(ptr, ptr, "Zoom Window Color", zoom_window_color, 2);
+        new ColorChooserFrame(ptr, "Zoom Window Color", zoom_window_color, 2);
 
         main_panel.repaint();
 
@@ -4979,7 +4735,7 @@ public class MainWindow extends JFrame implements Constants {
 
         resetOrbit();
 
-        new ColorChooserFrame(ptr, ptr, "Boundaries Color", boundaries_color, 3);
+        new ColorChooserFrame(ptr, "Boundaries Color", boundaries_color, 3);
 
         main_panel.repaint();
     }
@@ -5362,7 +5118,7 @@ public class MainWindow extends JFrame implements Constants {
                 JPanel imagepanel4 = new JPanel();
                 imagepanel4.add(imagelabel4);
 
-                Object[] labels4 = createUserFormulaLabels("z, s, p, pp, n, maxn, center, size, sizei, v1 - v20, point");
+                Object[] labels4 = createUserFormulaLabels("z, s, p, pp, n, maxn, center, size, sizei, v1 - v30, point");
 
                 Object[] message4 = {
                     labels4,
@@ -5465,7 +5221,7 @@ public class MainWindow extends JFrame implements Constants {
                 JPanel imagepanel41 = new JPanel();
                 imagepanel41.add(imagelabel41);
 
-                Object[] labels41 = createUserFormulaLabels("z, s, p, pp, n, maxn, center, size, sizei, v1 - v20, point");
+                Object[] labels41 = createUserFormulaLabels("z, s, p, pp, n, maxn, center, size, sizei, v1 - v30, point");
 
                 Object[] message41 = {
                     labels41,
@@ -5560,7 +5316,7 @@ public class MainWindow extends JFrame implements Constants {
                 JPanel imagepanel44 = new JPanel();
                 imagepanel44.add(imagelabel44);
 
-                Object[] labels44 = createUserFormulaLabels("z, s, p, pp, n, maxn, center, size, sizei, v1 - v20, point");
+                Object[] labels44 = createUserFormulaLabels("z, s, p, pp, n, maxn, center, size, sizei, v1 - v30, point");
 
                 Object[] message44 = {
                     labels44,
@@ -5619,7 +5375,7 @@ public class MainWindow extends JFrame implements Constants {
                 JPanel imagepanel45 = new JPanel();
                 imagepanel45.add(imagelabel45);
 
-                Object[] labels45 = createUserFormulaLabels("z, s, p, pp, n, maxn, center, size, sizei, v1 - v20, point");
+                Object[] labels45 = createUserFormulaLabels("z, s, p, pp, n, maxn, center, size, sizei, v1 - v30, point");
 
                 Object[] message45 = {
                     labels45,
@@ -5710,7 +5466,7 @@ public class MainWindow extends JFrame implements Constants {
                 scroll_pane2.setPreferredSize(new Dimension(500, 120));
                 scroll_pane2.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 
-                Object[] labels46 = createUserFormulaLabels("z, s, p, pp, n, maxn, center, size, sizei, v1 - v20, point");
+                Object[] labels46 = createUserFormulaLabels("z, s, p, pp, n, maxn, center, size, sizei, v1 - v30, point");
 
                 Object[] message46 = {
                     labels46,
@@ -5801,7 +5557,7 @@ public class MainWindow extends JFrame implements Constants {
                 degree_panel.add(new JLabel(" Imaginary:"));
                 degree_panel.add(field_imaginary8);
 
-                Object[] labels91 = createUserFormulaLabels("z, s, p, pp, n, maxn, center, size, sizei, v1 - v20, point");
+                Object[] labels91 = createUserFormulaLabels("z, s, p, pp, n, maxn, center, size, sizei, v1 - v30, point");
 
                 Object[] message91 = {
                     labels91,
@@ -6013,7 +5769,7 @@ public class MainWindow extends JFrame implements Constants {
                 method42_choice.setToolTipText("Selects the bailout technique.");
                 method42_choice.setFocusable(false);
 
-                Object[] labels32 = createUserFormulaLabels("z, c, s, p, pp, n, maxn, center, size, sizei, v1 - v20, point");
+                Object[] labels32 = createUserFormulaLabels("z, c, s, p, pp, n, maxn, center, size, sizei, v1 - v30, point");
 
                 Object[] message32 = {
                     labels32,
@@ -6156,7 +5912,7 @@ public class MainWindow extends JFrame implements Constants {
                 method43_choice.setToolTipText("Selects the bailout technique.");
                 method43_choice.setFocusable(false);
 
-                Object[] labels33 = createUserFormulaLabels("z, c, s, p, pp, n, maxn, center, size, sizei, v1 - v20, point");
+                Object[] labels33 = createUserFormulaLabels("z, c, s, p, pp, n, maxn, center, size, sizei, v1 - v30, point");
 
                 Object[] message33 = {
                     labels33,
@@ -6256,10 +6012,10 @@ public class MainWindow extends JFrame implements Constants {
                 optionsEnableShortcut();
                 break;
             case MANDELBROT:
-                if (!s.burning_ship && !s.mandel_grass && !s.init_val && !s.perturbation && !s.ds.domain_coloring) {
+                if (!s.ds.domain_coloring) {
                     options_menu.getDistanceEstimation().setEnabled(true);
                 }
-                if (s.out_coloring_algorithm != DISTANCE_ESTIMATOR && !s.init_val && !s.perturbation) {
+                if (s.out_coloring_algorithm != DISTANCE_ESTIMATOR) {
                     out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(true);
                 }
                 if (s.out_coloring_algorithm != BIOMORPH) {
@@ -6340,7 +6096,7 @@ public class MainWindow extends JFrame implements Constants {
                 method4_choice.setToolTipText("Selects the bailout technique.");
                 method4_choice.setFocusable(false);
 
-                Object[] labels3 = createUserFormulaLabels("z, c, s, p, pp, n, maxn, center, size, sizei, v1 - v20, point");
+                Object[] labels3 = createUserFormulaLabels("z, c, s, p, pp, n, maxn, center, size, sizei, v1 - v30, point");
 
                 Object[] message3 = {
                     labels3,
@@ -6549,7 +6305,7 @@ public class MainWindow extends JFrame implements Constants {
                     }
                 });
 
-                Object[] labels5 = createUserFormulaLabels("z, c, s, p, pp, n, maxn, center, size, sizei, v1 - v20, point");
+                Object[] labels5 = createUserFormulaLabels("z, c, s, p, pp, n, maxn, center, size, sizei, v1 - v30, point");
 
                 Object[] message5 = {
                     labels5,
@@ -7018,12 +6774,8 @@ public class MainWindow extends JFrame implements Constants {
         resetOrbit();
         if (!options_menu.getBurningShipOpt().isSelected()) {
             s.burning_ship = false;
-            if (s.function == MANDELBROT && !s.mandel_grass && !s.init_val && !s.perturbation && !s.ds.domain_coloring) {
-                options_menu.getDistanceEstimation().setEnabled(true);
-            }
         } else {
             s.burning_ship = true;
-            options_menu.getDistanceEstimation().setEnabled(false);
         }
 
         if (s.function <= 9 || s.function == MANDELPOLY || s.function == MANDELBROTWTH) {
@@ -7037,9 +6789,6 @@ public class MainWindow extends JFrame implements Constants {
         resetOrbit();
         if (!options_menu.getMandelGrassOpt().isSelected()) {
             s.mandel_grass = false;
-            if (s.function == MANDELBROT && !s.burning_ship && !s.init_val && !s.perturbation && !s.ds.domain_coloring) {
-                options_menu.getDistanceEstimation().setEnabled(true);
-            }
         } else {
 
             JTextField field_real = new JTextField();
@@ -7079,7 +6828,6 @@ public class MainWindow extends JFrame implements Constants {
             s.mandel_grass_vals[1] = temp2;
 
             s.mandel_grass = true;
-            options_menu.getDistanceEstimation().setEnabled(false);
         }
 
         if (s.function <= 9 || s.function == MANDELPOLY || s.function == MANDELBROTWTH) {
@@ -7417,25 +7165,17 @@ public class MainWindow extends JFrame implements Constants {
 
         ThreadDraw.resetThreadData(n * n);
 
-        Color temp_special_color;
-
-        if (s.special_use_palette_color) {
-            temp_special_color = null;
-        } else {
-            temp_special_color = s.special_color;
-        }
-
         try {
             for (int i = 0; i < n; i++) {
                 for (int j = 0; j < n; j++) {
                     if (greedy_algorithm) {
                         if (greedy_algorithm_selection == BOUNDARY_TRACING) {
-                            threads[i][j] = new BoundaryTracingDraw(s.color_choice, j * FAST_JULIA_IMAGE_SIZE / n, (j + 1) * FAST_JULIA_IMAGE_SIZE / n, i * FAST_JULIA_IMAGE_SIZE / n, (i + 1) * FAST_JULIA_IMAGE_SIZE / n, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, s.bailout_test_algorithm, s.bailout, s.bailout_test_user_formula, s.bailout_test_user_formula2, s.bailout_test_comparison, s.n_norm, ptr, s.fractal_color, s.dem_color, temp_special_color, s.color_smoothing_method, fast_julia_filters, fast_julia_image, periodicity_checking, s.plane_type, s.apply_plane_on_julia, s.apply_plane_on_julia_seed, s.filters, s.filters_options_vals, s.filters_options_extra_vals, s.out_coloring_algorithm, s.user_out_coloring_algorithm, s.outcoloring_formula, s.user_outcoloring_conditions, s.user_outcoloring_condition_formula, s.in_coloring_algorithm, s.user_in_coloring_algorithm, s.incoloring_formula, s.user_incoloring_conditions, s.user_incoloring_condition_formula, s.smoothing, s.burning_ship, s.mandel_grass, s.mandel_grass_vals, s.function, s.z_exponent, s.z_exponent_complex, s.color_cycling_location, s.rotation_vals, s.rotation_center, s.coefficients, s.z_exponent_nova, s.relaxation, s.nova_method, s.user_formula, s.user_formula2, s.bail_technique, s.user_plane, s.user_plane_algorithm, s.user_plane_conditions, s.user_plane_condition_formula, s.user_formula_iteration_based, s.user_formula_conditions, s.user_formula_condition_formula, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.plane_transform_center, s.plane_transform_angle, s.plane_transform_radius, s.plane_transform_scales, s.plane_transform_wavelength, s.waveType, s.plane_transform_angle2, s.plane_transform_sides, s.plane_transform_amount, s.escaping_smooth_algorithm, s.converging_smooth_algorithm, s.bms, s.color_intensity, s.transfer_function, s.polar_projection, s.circle_period, s.fdes, s.rps, s.filters_colors, s.filters_extra_colors, s.filters_order, s.coupling, s.user_formula_coupled, s.coupling_method, s.coupling_amplitude, s.coupling_frequency, s.coupling_seed, s.inverse_dem, s.color_choice == TOTAL_PALETTES - 1, s.custom_palette, s.color_interpolation, s.color_space, s.reversed_palette, s.scale_factor_palette_val, s.processing_alg, s.ens, s.ofs, s.gss, s.color_blending, temp_xJuliaCenter, temp_yJuliaCenter);
+                            threads[i][j] = new BoundaryTracingDraw(j * FAST_JULIA_IMAGE_SIZE / n, (j + 1) * FAST_JULIA_IMAGE_SIZE / n, i * FAST_JULIA_IMAGE_SIZE / n, (i + 1) * FAST_JULIA_IMAGE_SIZE / n, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, s.bailout_test_algorithm, s.bailout, s.bailout_test_user_formula, s.bailout_test_user_formula2, s.bailout_test_comparison, s.n_norm, ptr, s.fractal_color, s.dem_color, fast_julia_filters, fast_julia_image, periodicity_checking, s.plane_type, s.apply_plane_on_julia, s.apply_plane_on_julia_seed, s.fs, s.out_coloring_algorithm, s.user_out_coloring_algorithm, s.outcoloring_formula, s.user_outcoloring_conditions, s.user_outcoloring_condition_formula, s.in_coloring_algorithm, s.user_in_coloring_algorithm, s.incoloring_formula, s.user_incoloring_conditions, s.user_incoloring_condition_formula, s.smoothing, s.burning_ship, s.mandel_grass, s.mandel_grass_vals, s.function, s.z_exponent, s.z_exponent_complex, s.color_cycling_location, s.rotation_vals, s.rotation_center, s.coefficients, s.z_exponent_nova, s.relaxation, s.nova_method, s.user_formula, s.user_formula2, s.bail_technique, s.user_plane, s.user_plane_algorithm, s.user_plane_conditions, s.user_plane_condition_formula, s.user_formula_iteration_based, s.user_formula_conditions, s.user_formula_condition_formula, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.plane_transform_center, s.plane_transform_angle, s.plane_transform_radius, s.plane_transform_scales, s.plane_transform_wavelength, s.waveType, s.plane_transform_angle2, s.plane_transform_sides, s.plane_transform_amount, s.escaping_smooth_algorithm, s.converging_smooth_algorithm, s.bms, s.color_intensity, s.transfer_function, s.polar_projection, s.circle_period, s.fdes, s.rps, s.coupling, s.user_formula_coupled, s.coupling_method, s.coupling_amplitude, s.coupling_frequency, s.coupling_seed, s.inverse_dem, s.ens, s.ofs, s.gss, s.color_blending, s.ots, temp_xJuliaCenter, temp_yJuliaCenter);
                         } else if (greedy_algorithm_selection == DIVIDE_AND_CONQUER) {
-                            threads[i][j] = new DivideAndConquerDraw(s.color_choice, j * FAST_JULIA_IMAGE_SIZE / n, (j + 1) * FAST_JULIA_IMAGE_SIZE / n, i * FAST_JULIA_IMAGE_SIZE / n, (i + 1) * FAST_JULIA_IMAGE_SIZE / n, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, s.bailout_test_algorithm, s.bailout, s.bailout_test_user_formula, s.bailout_test_user_formula2, s.bailout_test_comparison, s.n_norm, ptr, s.fractal_color, s.dem_color, temp_special_color, s.color_smoothing_method, fast_julia_filters, fast_julia_image, periodicity_checking, s.plane_type, s.apply_plane_on_julia, s.apply_plane_on_julia_seed, s.filters, s.filters_options_vals, s.filters_options_extra_vals, s.out_coloring_algorithm, s.user_out_coloring_algorithm, s.outcoloring_formula, s.user_outcoloring_conditions, s.user_outcoloring_condition_formula, s.in_coloring_algorithm, s.user_in_coloring_algorithm, s.incoloring_formula, s.user_incoloring_conditions, s.user_incoloring_condition_formula, s.smoothing, s.burning_ship, s.mandel_grass, s.mandel_grass_vals, s.function, s.z_exponent, s.z_exponent_complex, s.color_cycling_location, s.rotation_vals, s.rotation_center, s.coefficients, s.z_exponent_nova, s.relaxation, s.nova_method, s.user_formula, s.user_formula2, s.bail_technique, s.user_plane, s.user_plane_algorithm, s.user_plane_conditions, s.user_plane_condition_formula, s.user_formula_iteration_based, s.user_formula_conditions, s.user_formula_condition_formula, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.plane_transform_center, s.plane_transform_angle, s.plane_transform_radius, s.plane_transform_scales, s.plane_transform_wavelength, s.waveType, s.plane_transform_angle2, s.plane_transform_sides, s.plane_transform_amount, s.escaping_smooth_algorithm, s.converging_smooth_algorithm, s.bms, s.color_intensity, s.transfer_function, s.polar_projection, s.circle_period, s.fdes, s.rps, s.filters_colors, s.filters_extra_colors, s.filters_order, s.coupling, s.user_formula_coupled, s.coupling_method, s.coupling_amplitude, s.coupling_frequency, s.coupling_seed, s.inverse_dem, s.color_choice == TOTAL_PALETTES - 1, s.custom_palette, s.color_interpolation, s.color_space, s.reversed_palette, s.scale_factor_palette_val, s.processing_alg, s.ens, s.ofs, s.gss, s.color_blending, temp_xJuliaCenter, temp_yJuliaCenter);
+                            threads[i][j] = new DivideAndConquerDraw(j * FAST_JULIA_IMAGE_SIZE / n, (j + 1) * FAST_JULIA_IMAGE_SIZE / n, i * FAST_JULIA_IMAGE_SIZE / n, (i + 1) * FAST_JULIA_IMAGE_SIZE / n, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, s.bailout_test_algorithm, s.bailout, s.bailout_test_user_formula, s.bailout_test_user_formula2, s.bailout_test_comparison, s.n_norm, ptr, s.fractal_color, s.dem_color, fast_julia_filters, fast_julia_image, periodicity_checking, s.plane_type, s.apply_plane_on_julia, s.apply_plane_on_julia_seed, s.fs, s.out_coloring_algorithm, s.user_out_coloring_algorithm, s.outcoloring_formula, s.user_outcoloring_conditions, s.user_outcoloring_condition_formula, s.in_coloring_algorithm, s.user_in_coloring_algorithm, s.incoloring_formula, s.user_incoloring_conditions, s.user_incoloring_condition_formula, s.smoothing, s.burning_ship, s.mandel_grass, s.mandel_grass_vals, s.function, s.z_exponent, s.z_exponent_complex, s.color_cycling_location, s.rotation_vals, s.rotation_center, s.coefficients, s.z_exponent_nova, s.relaxation, s.nova_method, s.user_formula, s.user_formula2, s.bail_technique, s.user_plane, s.user_plane_algorithm, s.user_plane_conditions, s.user_plane_condition_formula, s.user_formula_iteration_based, s.user_formula_conditions, s.user_formula_condition_formula, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.plane_transform_center, s.plane_transform_angle, s.plane_transform_radius, s.plane_transform_scales, s.plane_transform_wavelength, s.waveType, s.plane_transform_angle2, s.plane_transform_sides, s.plane_transform_amount, s.escaping_smooth_algorithm, s.converging_smooth_algorithm, s.bms, s.color_intensity, s.transfer_function, s.polar_projection, s.circle_period, s.fdes, s.rps, s.coupling, s.user_formula_coupled, s.coupling_method, s.coupling_amplitude, s.coupling_frequency, s.coupling_seed, s.inverse_dem, s.ens, s.ofs, s.gss, s.color_blending, s.ots, temp_xJuliaCenter, temp_yJuliaCenter);
                         }
                     } else {
-                        threads[i][j] = new BruteForceDraw(s.color_choice, j * FAST_JULIA_IMAGE_SIZE / n, (j + 1) * FAST_JULIA_IMAGE_SIZE / n, i * FAST_JULIA_IMAGE_SIZE / n, (i + 1) * FAST_JULIA_IMAGE_SIZE / n, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, s.bailout_test_algorithm, s.bailout, s.bailout_test_user_formula, s.bailout_test_user_formula2, s.bailout_test_comparison, s.n_norm, ptr, s.fractal_color, s.dem_color, temp_special_color, s.color_smoothing_method, fast_julia_filters, fast_julia_image, periodicity_checking, s.plane_type, s.apply_plane_on_julia, s.apply_plane_on_julia_seed, s.filters, s.filters_options_vals, s.filters_options_extra_vals, s.out_coloring_algorithm, s.user_out_coloring_algorithm, s.outcoloring_formula, s.user_outcoloring_conditions, s.user_outcoloring_condition_formula, s.in_coloring_algorithm, s.user_in_coloring_algorithm, s.incoloring_formula, s.user_incoloring_conditions, s.user_incoloring_condition_formula, s.smoothing, s.burning_ship, s.mandel_grass, s.mandel_grass_vals, s.function, s.z_exponent, s.z_exponent_complex, s.color_cycling_location, s.rotation_vals, s.rotation_center, s.coefficients, s.z_exponent_nova, s.relaxation, s.nova_method, s.user_formula, s.user_formula2, s.bail_technique, s.user_plane, s.user_plane_algorithm, s.user_plane_conditions, s.user_plane_condition_formula, s.user_formula_iteration_based, s.user_formula_conditions, s.user_formula_condition_formula, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.plane_transform_center, s.plane_transform_angle, s.plane_transform_radius, s.plane_transform_scales, s.plane_transform_wavelength, s.waveType, s.plane_transform_angle2, s.plane_transform_sides, s.plane_transform_amount, s.escaping_smooth_algorithm, s.converging_smooth_algorithm, s.bms, s.color_intensity, s.transfer_function, s.polar_projection, s.circle_period, s.fdes, s.rps, s.filters_colors, s.filters_extra_colors, s.filters_order, s.coupling, s.user_formula_coupled, s.coupling_method, s.coupling_amplitude, s.coupling_frequency, s.coupling_seed, s.inverse_dem, s.color_choice == TOTAL_PALETTES - 1, s.custom_palette, s.color_interpolation, s.color_space, s.reversed_palette, s.scale_factor_palette_val, s.processing_alg, s.ens, s.ofs, s.gss, s.color_blending, temp_xJuliaCenter, temp_yJuliaCenter);
+                        threads[i][j] = new BruteForceDraw(j * FAST_JULIA_IMAGE_SIZE / n, (j + 1) * FAST_JULIA_IMAGE_SIZE / n, i * FAST_JULIA_IMAGE_SIZE / n, (i + 1) * FAST_JULIA_IMAGE_SIZE / n, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, s.bailout_test_algorithm, s.bailout, s.bailout_test_user_formula, s.bailout_test_user_formula2, s.bailout_test_comparison, s.n_norm, ptr, s.fractal_color, s.dem_color, fast_julia_filters, fast_julia_image, periodicity_checking, s.plane_type, s.apply_plane_on_julia, s.apply_plane_on_julia_seed, s.fs, s.out_coloring_algorithm, s.user_out_coloring_algorithm, s.outcoloring_formula, s.user_outcoloring_conditions, s.user_outcoloring_condition_formula, s.in_coloring_algorithm, s.user_in_coloring_algorithm, s.incoloring_formula, s.user_incoloring_conditions, s.user_incoloring_condition_formula, s.smoothing, s.burning_ship, s.mandel_grass, s.mandel_grass_vals, s.function, s.z_exponent, s.z_exponent_complex, s.color_cycling_location, s.rotation_vals, s.rotation_center, s.coefficients, s.z_exponent_nova, s.relaxation, s.nova_method, s.user_formula, s.user_formula2, s.bail_technique, s.user_plane, s.user_plane_algorithm, s.user_plane_conditions, s.user_plane_condition_formula, s.user_formula_iteration_based, s.user_formula_conditions, s.user_formula_condition_formula, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.plane_transform_center, s.plane_transform_angle, s.plane_transform_radius, s.plane_transform_scales, s.plane_transform_wavelength, s.waveType, s.plane_transform_angle2, s.plane_transform_sides, s.plane_transform_amount, s.escaping_smooth_algorithm, s.converging_smooth_algorithm, s.bms, s.color_intensity, s.transfer_function, s.polar_projection, s.circle_period, s.fdes, s.rps, s.coupling, s.user_formula_coupled, s.coupling_method, s.coupling_amplitude, s.coupling_frequency, s.coupling_seed, s.inverse_dem, s.ens, s.ofs, s.gss, s.color_blending, s.ots, temp_xJuliaCenter, temp_yJuliaCenter);
                     }
                 }
             }
@@ -7474,13 +7214,13 @@ public class MainWindow extends JFrame implements Constants {
 
             s.color_cycling_location = threads[0][0].getColorCyclingLocation();
 
-            if (s.color_choice == TOTAL_PALETTES - 1) {
+            if (s.color_choice == CUSTOM_PALETTE_ID) {
                 s.temp_color_cycling_location = s.color_cycling_location;
             }
 
             updateColorPalettesMenu();
 
-            if (s.filters[ANTIALIASING]) {
+            if (s.fs.filters[ANTIALIASING]) {
                 setOptions(false);
 
                 progress.setValue(0);
@@ -7489,28 +7229,19 @@ public class MainWindow extends JFrame implements Constants {
 
                 whole_image_done = false;
 
-                if (s.filters[ANTIALIASING]) {
-                    if (julia_map) {
-                        createThreadsJuliaMap();
-                    } else {
-                        createThreads(false);
-                    }
-
-                    calculation_time = System.currentTimeMillis();
-
-                    if (julia_map) {
-                        startThreads(julia_grid_first_dimension);
-                    } else {
-                        startThreads(n);
-                    }
+                if (julia_map) {
+                    createThreadsJuliaMap();
                 } else {
-                    createThreadsPaletteAndFilter();
-
-                    calculation_time = System.currentTimeMillis();
-
-                    startThreads(n);
+                    createThreads(false);
                 }
 
+                calculation_time = System.currentTimeMillis();
+
+                if (julia_map) {
+                    startThreads(julia_grid_first_dimension);
+                } else {
+                    startThreads(n);
+                }
             } else {
                 //last_used = null;
                 setOptions(true);
@@ -7537,17 +7268,9 @@ public class MainWindow extends JFrame implements Constants {
 
         ThreadDraw.resetThreadData(n * n);
 
-        Color temp_special_color;
-
-        if (s.special_use_palette_color) {
-            temp_special_color = null;
-        } else {
-            temp_special_color = s.special_color;
-        }
-
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
-                threads[i][j] = new BruteForceDraw(s.color_choice, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, temp_special_color, s.color_smoothing_method, s.color_cycling_location, s.smoothing, s.filters, s.filters_options_vals, s.filters_options_extra_vals, s.bms, s.color_intensity, s.transfer_function, s.fdes, s.rps, s.filters_colors, s.filters_extra_colors, s.filters_order, s.color_choice == TOTAL_PALETTES - 1, s.custom_palette, s.color_interpolation, s.color_space, s.reversed_palette, s.scale_factor_palette_val, s.processing_alg, s.ens, s.ofs, s.gss, s.color_blending);
+                threads[i][j] = new BruteForceDraw(j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.color_cycling_location, s.fs, s.bms, s.color_intensity, s.transfer_function, s.fdes, s.rps, s.ens, s.ofs, s.gss, s.color_blending);
             }
         }
     }
@@ -7556,17 +7279,9 @@ public class MainWindow extends JFrame implements Constants {
 
         ThreadDraw.resetThreadData(n * n);
 
-        Color temp_special_color;
-
-        if (s.special_use_palette_color) {
-            temp_special_color = null;
-        } else {
-            temp_special_color = s.special_color;
-        }
-
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
-                threads[i][j] = new BruteForceDraw(s.color_choice, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, s.max_iterations, ptr, s.fractal_color, s.dem_color, temp_special_color, s.color_smoothing_method, s.smoothing, image, s.color_cycling_location, s.bms, s.color_intensity, s.transfer_function, s.fdes, s.rps, color_cycling_speed, s.filters, s.filters_options_vals, s.filters_options_extra_vals, s.filters_colors, s.filters_extra_colors, s.filters_order, s.color_choice == TOTAL_PALETTES - 1, s.custom_palette, s.color_interpolation, s.color_space, s.reversed_palette, s.scale_factor_palette_val, s.processing_alg, s.ens, s.ofs, s.gss, s.color_blending);
+                threads[i][j] = new BruteForceDraw(j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, s.max_iterations, ptr, s.fractal_color, s.dem_color, image, s.color_cycling_location, s.bms, s.color_intensity, s.transfer_function, s.fdes, s.rps, color_cycling_speed, s.fs, s.ens, s.ofs, s.gss, s.color_blending);
             }
         }
     }
@@ -7577,7 +7292,7 @@ public class MainWindow extends JFrame implements Constants {
 
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
-                threads[i][j] = new BruteForceDraw(j * s.d3s.detail / n, (j + 1) * s.d3s.detail / n, i * s.d3s.detail / n, (i + 1) * s.d3s.detail / n, s.d3s, true, ptr, image, s.filters, s.filters_options_vals, s.filters_options_extra_vals, s.filters_colors, s.filters_extra_colors, s.filters_order, s.color_blending);
+                threads[i][j] = new BruteForceDraw(j * s.d3s.detail / n, (j + 1) * s.d3s.detail / n, i * s.d3s.detail / n, (i + 1) * s.d3s.detail / n, s.d3s, true, ptr, image, s.fs, s.color_blending);
             }
         }
 
@@ -7589,7 +7304,7 @@ public class MainWindow extends JFrame implements Constants {
 
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
-                threads[i][j] = new BruteForceDraw(j * s.d3s.detail / n, (j + 1) * s.d3s.detail / n, i * s.d3s.detail / n, (i + 1) * s.d3s.detail / n, s.d3s, false, ptr, image, s.filters, s.filters_options_vals, s.filters_options_extra_vals, s.filters_colors, s.filters_extra_colors, s.filters_order, s.color_blending);
+                threads[i][j] = new BruteForceDraw(j * s.d3s.detail / n, (j + 1) * s.d3s.detail / n, i * s.d3s.detail / n, (i + 1) * s.d3s.detail / n, s.d3s, false, ptr, image, s.fs, s.color_blending);
             }
         }
 
@@ -7611,7 +7326,7 @@ public class MainWindow extends JFrame implements Constants {
 
             s.color_cycling_location = temp;
 
-            if (s.color_choice == TOTAL_PALETTES - 1) {
+            if (s.color_choice == CUSTOM_PALETTE_ID) {
                 s.temp_color_cycling_location = s.color_cycling_location;
             }
 
@@ -7631,7 +7346,7 @@ public class MainWindow extends JFrame implements Constants {
                 Arrays.fill(((DataBufferInt) image.getRaster().getDataBuffer()).getData(), Color.BLACK.getRGB());
             }
 
-            if (s.filters[ANTIALIASING] || (s.ds.domain_coloring && s.ds.use_palette_domain_coloring)) {
+            if (s.fs.filters[ANTIALIASING] || (s.ds.domain_coloring && s.ds.use_palette_domain_coloring) || s.ots.useTraps) {
                 if (julia_map) {
                     createThreadsJuliaMap();
                 } else {
@@ -7740,7 +7455,7 @@ public class MainWindow extends JFrame implements Constants {
 
             tabbedPane.addTab("Conditional", panel_cond);
 
-            Object[] labels3 = createUserFormulaLabels("z, maxn, center, size, sizei, v1 - v20, point");
+            Object[] labels3 = createUserFormulaLabels("z, maxn, center, size, sizei, v1 - v30, point");
 
             tabbedPane.setSelectedIndex(s.user_plane_algorithm);
 
@@ -8664,7 +8379,7 @@ public class MainWindow extends JFrame implements Constants {
             formula_panel_cond13.add(new JLabel("left = right"));
             formula_panel_cond13.add(combo_box_equal);
 
-            Object[] labels33 = createUserFormulaLabels("z, c, s, p, pp, n, maxn, bail, center, size, sizei, v1 - v20, point");
+            Object[] labels33 = createUserFormulaLabels("z, c, s, p, pp, n, maxn, bail, center, size, sizei, v1 - v30, point");
 
             Object[] message33 = {
                 labels33,
@@ -8798,8 +8513,6 @@ public class MainWindow extends JFrame implements Constants {
             for (int k = 1; k < fractal_functions.length; k++) {
                 fractal_functions[k].setEnabled(false);
             }
-            options_menu.getInitialValue().setEnabled(false);
-            options_menu.getPerturbation().setEnabled(false);
         } else if (s.out_coloring_algorithm == ESCAPE_TIME_FIELD_LINES2 || s.out_coloring_algorithm == ESCAPE_TIME_FIELD_LINES || s.out_coloring_algorithm == ESCAPE_TIME_ESCAPE_RADIUS || s.out_coloring_algorithm == ESCAPE_TIME_GRID || s.out_coloring_algorithm == BIOMORPH || s.out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER || s.out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER2 || s.out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER3 || s.out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER4 || s.out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER5 || s.out_coloring_algorithm == ITERATIONS_PLUS_RE || s.out_coloring_algorithm == ITERATIONS_PLUS_IM || s.out_coloring_algorithm == ITERATIONS_PLUS_RE_DIVIDE_IM || s.out_coloring_algorithm == ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM || s.out_coloring_algorithm == ESCAPE_TIME_ALGORITHM2 || s.out_coloring_algorithm == BANDED) {
             rootFindingMethodsSetEnabled(false);
         } else if (s.out_coloring_algorithm == USER_OUTCOLORING_ALGORITHM) {
@@ -8870,7 +8583,7 @@ public class MainWindow extends JFrame implements Constants {
 
             tabbedPane.addTab("Conditional", panel_cond);
 
-            Object[] labels33 = createUserFormulaLabels("z, c, s, p, pp, n, maxn, bail, cbail, center, size, sizei, v1 - v20, point");
+            Object[] labels33 = createUserFormulaLabels("z, c, s, p, pp, n, maxn, bail, cbail, center, size, sizei, v1 - v30, point");
 
             tabbedPane.setSelectedIndex(s.user_out_coloring_algorithm);
 
@@ -9076,8 +8789,8 @@ public class MainWindow extends JFrame implements Constants {
 
         s.in_coloring_algorithm = temp;
 
-        if (s.in_coloring_algorithm == MAXIMUM_ITERATIONS) {
-            if (!s.ds.domain_coloring && !s.isConvergingType() && s.function != SIERPINSKI_GASKET) {
+        if (s.in_coloring_algorithm == MAX_ITERATIONS) {
+            if (!s.ds.domain_coloring && !s.isConvergingType() && s.function != SIERPINSKI_GASKET && !s.ots.useTraps) {
                 options_menu.getPeriodicityChecking().setEnabled(true);
             }
         } else {
@@ -9149,7 +8862,7 @@ public class MainWindow extends JFrame implements Constants {
 
                 tabbedPane.addTab("Conditional", panel_cond);
 
-                Object[] labels3 = createUserFormulaLabels("z, c, s, p, pp, n, maxn, bail, cbail, center, size, sizei, v1 - v20, point");
+                Object[] labels3 = createUserFormulaLabels("z, c, s, p, pp, n, maxn, bail, cbail, center, size, sizei, v1 - v30, point");
 
                 tabbedPane.setSelectedIndex(s.user_in_coloring_algorithm);
 
@@ -9398,6 +9111,12 @@ public class MainWindow extends JFrame implements Constants {
             return;
         }
 
+        if (s.color_choice == CUSTOM_PALETTE_ID) {
+            ThreadDraw.palette = new CustomPalette(s.custom_palette, s.color_interpolation, s.color_space, s.reversed_palette, s.scale_factor_palette_val, s.processing_alg, s.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color);
+        } else {
+            ThreadDraw.palette = new PresetPalette(s.color_choice, s.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color);
+        }
+
         updateColorPalettesMenu();
 
         setOptions(false);
@@ -9599,7 +9318,7 @@ public class MainWindow extends JFrame implements Constants {
 
             whole_image_done = false;
 
-            if (s.filters[ANTIALIASING]) {
+            if (s.fs.filters[ANTIALIASING] || s.ots.useTraps) {
                 if (julia_map) {
                     createThreadsJuliaMap();
                 } else {
@@ -9656,6 +9375,27 @@ public class MainWindow extends JFrame implements Constants {
         JTextField noise_factor_field = new JTextField();
         noise_factor_field.setText("" + s.rps.rp_noise_reducing_factor);
 
+        final JComboBox rainbow_coloring_method_opt = new JComboBox(rainbowMethod);
+        rainbow_coloring_method_opt.setSelectedIndex(s.rps.rainbow_algorithm);
+        rainbow_coloring_method_opt.setFocusable(false);
+        rainbow_coloring_method_opt.setToolTipText("Sets the color transfer method.");
+
+        if (s.rps.rainbow_algorithm != 0) {
+            rainbow_offset_field.setEnabled(false);
+        }
+
+        rainbow_coloring_method_opt.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (rainbow_coloring_method_opt.getSelectedIndex() != 0) {
+                    rainbow_offset_field.setEnabled(false);
+                } else {
+                    rainbow_offset_field.setEnabled(true);
+                }
+            }
+
+        });
+
         Object[] message = {
             " ",
             enable_rainbow_palette,
@@ -9665,6 +9405,9 @@ public class MainWindow extends JFrame implements Constants {
             " ",
             "Set the coloring offset.",
             "Coloring Offset:", rainbow_offset_field,
+            " ",
+            "Set the color transfer method.",
+            "Color Transfer Method:", rainbow_coloring_method_opt,
             " ",
             "Set the color blending percentage.",
             "Color Blending:", color_blend_opt,
@@ -9722,6 +9465,7 @@ public class MainWindow extends JFrame implements Constants {
         s.rps.rp_noise_reducing_factor = temp2;
         s.rps.rainbow_offset = temp3;
         s.rps.rp_blending = color_blend_opt.getValue() / 100.0;
+        s.rps.rainbow_algorithm = rainbow_coloring_method_opt.getSelectedIndex();
 
         if (!s.smoothing && s.rps.rainbow_palette) {
             JOptionPane.showMessageDialog(scroll_pane, "Smoothing is disabled.\nYou should enable smoothing for a better result.", "Warning!", JOptionPane.WARNING_MESSAGE);
@@ -9739,7 +9483,7 @@ public class MainWindow extends JFrame implements Constants {
 
         whole_image_done = false;
 
-        if (s.filters[ANTIALIASING]) {
+        if (s.fs.filters[ANTIALIASING] || s.ots.useTraps) {
             if (julia_map) {
                 createThreadsJuliaMap();
             } else {
@@ -9839,7 +9583,7 @@ public class MainWindow extends JFrame implements Constants {
 
         whole_image_done = false;
 
-        if (s.filters[ANTIALIASING]) {
+        if (s.fs.filters[ANTIALIASING] || s.ots.useTraps) {
             if (julia_map) {
                 createThreadsJuliaMap();
             } else {
@@ -9927,7 +9671,7 @@ public class MainWindow extends JFrame implements Constants {
 
         whole_image_done = false;
 
-        if (s.filters[ANTIALIASING]) {
+        if (s.fs.filters[ANTIALIASING] || s.ots.useTraps) {
             if (julia_map) {
                 createThreadsJuliaMap();
             } else {
@@ -9980,6 +9724,27 @@ public class MainWindow extends JFrame implements Constants {
         JTextField noise_factor_field = new JTextField();
         noise_factor_field.setText("" + s.ens.en_noise_reducing_factor);
 
+        final JComboBox entropy_coloring_method_opt = new JComboBox(entropyMethod);
+        entropy_coloring_method_opt.setSelectedIndex(s.ens.entropy_algorithm);
+        entropy_coloring_method_opt.setFocusable(false);
+        entropy_coloring_method_opt.setToolTipText("Sets the color transfer method.");
+
+        if (s.ens.entropy_algorithm != 0) {
+            entropy_offset_field.setEnabled(false);
+        }
+
+        entropy_coloring_method_opt.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (entropy_coloring_method_opt.getSelectedIndex() != 0) {
+                    entropy_offset_field.setEnabled(false);
+                } else {
+                    entropy_offset_field.setEnabled(true);
+                }
+            }
+
+        });
+
         Object[] message = {
             " ",
             enable_entropy_coloring,
@@ -9989,6 +9754,9 @@ public class MainWindow extends JFrame implements Constants {
             " ",
             "Set the coloring offset.",
             "Coloring Offset:", entropy_offset_field,
+            " ",
+            "Set the color transfer method.",
+            "Color Transfer Method:", entropy_coloring_method_opt,
             " ",
             "Set the color blending percentage.",
             "Color Blending:", color_blend_opt,
@@ -10044,6 +9812,7 @@ public class MainWindow extends JFrame implements Constants {
         s.ens.en_noise_reducing_factor = temp2;
         s.ens.entropy_offset = temp3;
         s.ens.en_blending = color_blend_opt.getValue() / 100.0;
+        s.ens.entropy_algorithm = entropy_coloring_method_opt.getSelectedIndex();
 
         if (!s.smoothing && s.ens.entropy_coloring) {
             JOptionPane.showMessageDialog(scroll_pane, "Smoothing is disabled.\nYou should enable smoothing for a better result.", "Warning!", JOptionPane.WARNING_MESSAGE);
@@ -10061,7 +9830,7 @@ public class MainWindow extends JFrame implements Constants {
 
         whole_image_done = false;
 
-        if (s.filters[ANTIALIASING]) {
+        if (s.fs.filters[ANTIALIASING] || s.ots.useTraps) {
             if (julia_map) {
                 createThreadsJuliaMap();
             } else {
@@ -10181,7 +9950,7 @@ public class MainWindow extends JFrame implements Constants {
 
         whole_image_done = false;
 
-        if (s.filters[ANTIALIASING]) {
+        if (s.fs.filters[ANTIALIASING] || s.ots.useTraps) {
             if (julia_map) {
                 createThreadsJuliaMap();
             } else {
@@ -10265,12 +10034,6 @@ public class MainWindow extends JFrame implements Constants {
             for (int k = 1; k < fractal_functions.length; k++) {
                 fractal_functions[k].setEnabled(false);
             }
-
-            options_menu.getBurningShipOpt().setEnabled(false);
-            options_menu.getMandelGrassOpt().setEnabled(false);
-            options_menu.getInitialValue().setEnabled(false);
-            options_menu.getPerturbation().setEnabled(false);
-
         } else {
             for (int k = 0; k < fractal_functions.length; k++) {
                 if (k != PARHALLEY3 && k != PARHALLEY4 && k != PARHALLEYGENERALIZED3 && k != PARHALLEYGENERALIZED8 && k != PARHALLEYSIN && k != PARHALLEYCOS && k != PARHALLEYPOLY && k != PARHALLEYFORMULA
@@ -10293,9 +10056,6 @@ public class MainWindow extends JFrame implements Constants {
             if (s.out_coloring_algorithm != ESCAPE_TIME_FIELD_LINES2 && s.out_coloring_algorithm != ESCAPE_TIME_FIELD_LINES && s.out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS && s.out_coloring_algorithm != ESCAPE_TIME_GRID && s.out_coloring_algorithm != DISTANCE_ESTIMATOR && !s.exterior_de && s.out_coloring_algorithm != BIOMORPH && s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER && s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3 && s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5 && s.out_coloring_algorithm != ITERATIONS_PLUS_RE && s.out_coloring_algorithm != ITERATIONS_PLUS_IM && s.out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && s.out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM && s.out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && s.out_coloring_algorithm != BANDED && !s.julia && !julia_map && !s.perturbation && !s.init_val) {
                 rootFindingMethodsSetEnabled(true);
             }
-
-            options_menu.getBurningShipOpt().setEnabled(true);
-            options_menu.getMandelGrassOpt().setEnabled(true);
         }
 
         setOptions(false);
@@ -10910,18 +10670,10 @@ public class MainWindow extends JFrame implements Constants {
 
         int n = julia_grid_first_dimension;
 
-        Color temp_special_color;
-
-        if (s.special_use_palette_color) {
-            temp_special_color = null;
-        } else {
-            temp_special_color = s.special_color;
-        }
-
         try {
             for (int i = 0; i < n; i++) {
                 for (int j = 0; j < n; j++) {
-                    threads[i][j] = new BruteForceDraw(s.color_choice, j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, s.xCenter, s.yCenter, s.size, s.max_iterations, s.bailout_test_algorithm, s.bailout, s.bailout_test_user_formula, s.bailout_test_user_formula2, s.bailout_test_comparison, s.n_norm, ptr, s.fractal_color, s.dem_color, temp_special_color, s.color_smoothing_method, image, s.filters, s.filters_options_vals, s.filters_options_extra_vals, s.out_coloring_algorithm, s.user_out_coloring_algorithm, s.outcoloring_formula, s.user_outcoloring_conditions, s.user_outcoloring_condition_formula, s.in_coloring_algorithm, s.user_in_coloring_algorithm, s.incoloring_formula, s.user_incoloring_conditions, s.user_incoloring_condition_formula, s.smoothing, periodicity_checking, s.plane_type, s.apply_plane_on_julia, s.apply_plane_on_julia_seed, s.burning_ship, s.mandel_grass, s.mandel_grass_vals, s.function, s.z_exponent, s.z_exponent_complex, s.color_cycling_location, s.rotation_vals, s.rotation_center, s.coefficients, s.z_exponent_nova, s.relaxation, s.nova_method, s.user_formula, s.user_formula2, s.bail_technique, s.user_plane, s.user_plane_algorithm, s.user_plane_conditions, s.user_plane_condition_formula, s.user_formula_iteration_based, s.user_formula_conditions, s.user_formula_condition_formula, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.plane_transform_center, s.plane_transform_angle, s.plane_transform_radius, s.plane_transform_scales, s.plane_transform_wavelength, s.waveType, s.plane_transform_angle2, s.plane_transform_sides, s.plane_transform_amount, s.escaping_smooth_algorithm, s.converging_smooth_algorithm, s.bms, s.color_intensity, s.transfer_function, s.polar_projection, s.circle_period, s.fdes, s.rps, s.filters_colors, s.filters_extra_colors, s.filters_order, s.coupling, s.user_formula_coupled, s.coupling_method, s.coupling_amplitude, s.coupling_frequency, s.coupling_seed, s.inverse_dem, s.color_choice == TOTAL_PALETTES - 1, s.custom_palette, s.color_interpolation, s.color_space, s.reversed_palette, s.scale_factor_palette_val, s.processing_alg, s.ens, s.ofs, s.gss, s.color_blending);
+                    threads[i][j] = new BruteForceDraw(j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, s.xCenter, s.yCenter, s.size, s.max_iterations, s.bailout_test_algorithm, s.bailout, s.bailout_test_user_formula, s.bailout_test_user_formula2, s.bailout_test_comparison, s.n_norm, ptr, s.fractal_color, s.dem_color, image, s.fs, s.out_coloring_algorithm, s.user_out_coloring_algorithm, s.outcoloring_formula, s.user_outcoloring_conditions, s.user_outcoloring_condition_formula, s.in_coloring_algorithm, s.user_in_coloring_algorithm, s.incoloring_formula, s.user_incoloring_conditions, s.user_incoloring_condition_formula, s.smoothing, periodicity_checking, s.plane_type, s.apply_plane_on_julia, s.apply_plane_on_julia_seed, s.burning_ship, s.mandel_grass, s.mandel_grass_vals, s.function, s.z_exponent, s.z_exponent_complex, s.color_cycling_location, s.rotation_vals, s.rotation_center, s.coefficients, s.z_exponent_nova, s.relaxation, s.nova_method, s.user_formula, s.user_formula2, s.bail_technique, s.user_plane, s.user_plane_algorithm, s.user_plane_conditions, s.user_plane_condition_formula, s.user_formula_iteration_based, s.user_formula_conditions, s.user_formula_condition_formula, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.plane_transform_center, s.plane_transform_angle, s.plane_transform_radius, s.plane_transform_scales, s.plane_transform_wavelength, s.waveType, s.plane_transform_angle2, s.plane_transform_sides, s.plane_transform_amount, s.escaping_smooth_algorithm, s.converging_smooth_algorithm, s.bms, s.color_intensity, s.transfer_function, s.polar_projection, s.circle_period, s.fdes, s.rps, s.coupling, s.user_formula_coupled, s.coupling_method, s.coupling_amplitude, s.coupling_frequency, s.coupling_seed, s.inverse_dem, s.ens, s.ofs, s.gss, s.color_blending, s.ots);
                 }
             }
         } catch (ParserException e) {
@@ -11012,7 +10764,7 @@ public class MainWindow extends JFrame implements Constants {
 
         s.color_cycling_location = s.color_cycling_location > Integer.MAX_VALUE - 1 ? 0 : s.color_cycling_location;
 
-        if (s.color_choice == TOTAL_PALETTES - 1) {
+        if (s.color_choice == CUSTOM_PALETTE_ID) {
             s.temp_color_cycling_location = s.color_cycling_location;
         }
 
@@ -11030,7 +10782,7 @@ public class MainWindow extends JFrame implements Constants {
             Arrays.fill(((DataBufferInt) image.getRaster().getDataBuffer()).getData(), Color.BLACK.getRGB());
         }
 
-        if (s.filters[ANTIALIASING] || (s.ds.domain_coloring && s.ds.use_palette_domain_coloring)) {
+        if (s.fs.filters[ANTIALIASING] || (s.ds.domain_coloring && s.ds.use_palette_domain_coloring) || s.ots.useTraps) {
             if (julia_map) {
                 createThreadsJuliaMap();
             } else {
@@ -11064,7 +10816,7 @@ public class MainWindow extends JFrame implements Constants {
         if (s.color_cycling_location > 0) {
             s.color_cycling_location--;
 
-            if (s.color_choice == TOTAL_PALETTES - 1) {
+            if (s.color_choice == CUSTOM_PALETTE_ID) {
                 s.temp_color_cycling_location = s.color_cycling_location;
             }
         } else {
@@ -11085,7 +10837,7 @@ public class MainWindow extends JFrame implements Constants {
             Arrays.fill(((DataBufferInt) image.getRaster().getDataBuffer()).getData(), Color.BLACK.getRGB());
         }
 
-        if (s.filters[ANTIALIASING] || (s.ds.domain_coloring && s.ds.use_palette_domain_coloring)) {
+        if (s.fs.filters[ANTIALIASING] || (s.ds.domain_coloring && s.ds.use_palette_domain_coloring) || s.ots.useTraps) {
             if (julia_map) {
                 createThreadsJuliaMap();
             } else {
@@ -11118,14 +10870,6 @@ public class MainWindow extends JFrame implements Constants {
         resetOrbit();
         if (!options_menu.getPerturbation().isSelected()) {
             s.perturbation = false;
-
-            if (s.function == MANDELBROT && !s.burning_ship && !s.init_val && !s.mandel_grass && !s.ds.domain_coloring) {
-                options_menu.getDistanceEstimation().setEnabled(true);
-            }
-
-            if (s.function == MANDELBROT && !s.init_val) {
-                out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(true);
-            }
 
             if (s.out_coloring_algorithm != ESCAPE_TIME_FIELD_LINES2 && s.out_coloring_algorithm != ESCAPE_TIME_FIELD_LINES && s.out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS && s.out_coloring_algorithm != ESCAPE_TIME_GRID && s.out_coloring_algorithm != DISTANCE_ESTIMATOR && !s.exterior_de && s.out_coloring_algorithm != BIOMORPH && s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER && s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3 && s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5 && s.out_coloring_algorithm != ITERATIONS_PLUS_RE && s.out_coloring_algorithm != ITERATIONS_PLUS_IM && s.out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && s.out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM && s.out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && s.out_coloring_algorithm != BANDED && !s.init_val) {
                 rootFindingMethodsSetEnabled(true);
@@ -11172,7 +10916,7 @@ public class MainWindow extends JFrame implements Constants {
             JPanel panel22 = new JPanel();
             panel22.setLayout(new FlowLayout());
 
-            JLabel html_label = createUserFormulaHtmlLabels("c, maxn, center, size, sizei, v1 - v20, point", false);
+            JLabel html_label = createUserFormulaHtmlLabels("c, maxn, center, size, sizei, v1 - v30, point", false);
             panel21.add(html_label);
 
             JTextField field_formula = new JTextField(45);
@@ -11422,8 +11166,6 @@ public class MainWindow extends JFrame implements Constants {
             toolbar.getJuliaMapButton().setEnabled(false);
             rootFindingMethodsSetEnabled(false);
             fractal_functions[SIERPINSKI_GASKET].setEnabled(false);
-            options_menu.getDistanceEstimation().setEnabled(false);
-            out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
         }
 
         defaultFractalSettings();
@@ -11435,14 +11177,6 @@ public class MainWindow extends JFrame implements Constants {
         resetOrbit();
         if (!options_menu.getInitialValue().isSelected()) {
             s.init_val = false;
-
-            if (s.function == MANDELBROT && !s.burning_ship && !s.mandel_grass && !s.perturbation && !s.ds.domain_coloring) {
-                options_menu.getDistanceEstimation().setEnabled(true);
-            }
-
-            if (s.function == MANDELBROT && !s.perturbation) {
-                out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(true);
-            }
 
             if (s.out_coloring_algorithm != ESCAPE_TIME_FIELD_LINES2 && s.out_coloring_algorithm != ESCAPE_TIME_FIELD_LINES && s.out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS && s.out_coloring_algorithm != ESCAPE_TIME_GRID && s.out_coloring_algorithm != DISTANCE_ESTIMATOR && !s.exterior_de && s.out_coloring_algorithm != BIOMORPH && s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER && s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3 && s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5 && s.out_coloring_algorithm != ITERATIONS_PLUS_RE && s.out_coloring_algorithm != ITERATIONS_PLUS_IM && s.out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && s.out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM && s.out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && s.out_coloring_algorithm != BANDED && !s.perturbation) {
                 rootFindingMethodsSetEnabled(true);
@@ -11490,7 +11224,7 @@ public class MainWindow extends JFrame implements Constants {
             JPanel panel22 = new JPanel();
             panel22.setLayout(new FlowLayout());
 
-            JLabel html_label = createUserFormulaHtmlLabels("c, maxn, center, size, sizei, v1 - v20, point", true);
+            JLabel html_label = createUserFormulaHtmlLabels("c, maxn, center, size, sizei, v1 - v30, point", true);
             panel21.add(html_label);
 
             JTextField field_formula = new JTextField(45);
@@ -11739,8 +11473,6 @@ public class MainWindow extends JFrame implements Constants {
             toolbar.getJuliaMapButton().setEnabled(false);
             rootFindingMethodsSetEnabled(false);
             fractal_functions[SIERPINSKI_GASKET].setEnabled(false);
-            options_menu.getDistanceEstimation().setEnabled(false);
-            out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
         }
 
         defaultFractalSettings();
@@ -11855,7 +11587,7 @@ public class MainWindow extends JFrame implements Constants {
     public void openCustomPaletteEditor() {
 
         resetOrbit();
-        customPaletteEditor(TOTAL_PALETTES - 1);
+        customPaletteEditor(CUSTOM_PALETTE_ID);
 
     }
 
@@ -11886,7 +11618,7 @@ public class MainWindow extends JFrame implements Constants {
         resetOrbit();
         CustomPaletteEditorFrame.randomPalette(s.custom_palette, CustomPaletteEditorFrame.getRandomPaletteAlgorithm(), CustomPaletteEditorFrame.getEqualHues(), s.color_interpolation, s.color_space, s.reversed_palette, s.color_cycling_location, s.scale_factor_palette_val, s.processing_alg);
 
-        setPalette(TOTAL_PALETTES - 1);
+        setPalette(CUSTOM_PALETTE_ID);
 
     }
 
@@ -11938,7 +11670,7 @@ public class MainWindow extends JFrame implements Constants {
     public void filtersOptions() {
 
         resetOrbit();
-        new FiltersOptionsFrame(ptr, s.filters_options_vals, s.filters_options_extra_vals, s.filters_colors, s.filters_extra_colors, filters_opt, s.filters_order, s.filters);
+        new FiltersOptionsFrame(ptr, s.fs.filters_options_vals, s.fs.filters_options_extra_vals, s.fs.filters_colors, s.fs.filters_extra_colors, filters_opt, s.fs.filters_order, s.fs.filters);
 
     }
 
@@ -12234,6 +11966,8 @@ public class MainWindow extends JFrame implements Constants {
             options_menu.getGreyScaleColoring().setEnabled(false);
 
             options_menu.getRainbowPalette().setEnabled(false);
+            
+            options_menu.getOrbitTraps().setEnabled(false);
         }
 
         options_menu.getOutColoringMenu().setEnabled(false);
@@ -12245,16 +11979,10 @@ public class MainWindow extends JFrame implements Constants {
         options_menu.getBailout().setEnabled(false);
         options_menu.getBailoutConditionMenu().setEnabled(false);
 
-        if (!s.ds.use_palette_domain_coloring) {
-            infobar.getPalettePreview().setVisible(false);
-            infobar.getPalettePreviewLabel().setVisible(false);
-        } else {
-            infobar.getPalettePreview().setVisible(true);
-            infobar.getPalettePreviewLabel().setVisible(true);
-        }
-
         infobar.getMaxIterationsColorPreview().setVisible(false);
         infobar.getMaxIterationsColorPreviewLabel().setVisible(false);
+
+        updatePalettePreview(s.color_cycling_location);
 
         setOptions(false);
 
@@ -12281,10 +12009,10 @@ public class MainWindow extends JFrame implements Constants {
     }
 
     public void cancelDomainColoring() {
-        
+
         tools_menu.getDomainColoring().setSelected(false);
         toolbar.getDomainColoringButton().setSelected(false);
-        
+
     }
 
     public void setDomainColoring() {
@@ -12296,13 +12024,10 @@ public class MainWindow extends JFrame implements Constants {
             toolbar.getDomainColoringButton().setSelected(false);
             options_menu.getDomainColoringOptions().setEnabled(false);
 
-            if (!s.ds.use_palette_domain_coloring) {
-                infobar.getPalettePreview().setVisible(true);
-                infobar.getPalettePreviewLabel().setVisible(true);
-            }
-
             infobar.getMaxIterationsColorPreview().setVisible(true);
             infobar.getMaxIterationsColorPreviewLabel().setVisible(true);
+
+            updatePalettePreview(s.color_cycling_location);
 
             setOptions(false);
 
@@ -12328,17 +12053,17 @@ public class MainWindow extends JFrame implements Constants {
             startThreads(n);
 
         } else {
-            
-             new DomainColoringFrame(ptr, s, false);   
-             
+
+            new DomainColoringFrame(ptr, s, false);
+
         }
     }
 
     public void setDomainColoringOptions() {
-        
+
         resetOrbit();
-        new DomainColoringFrame(ptr, s, true);   
-        
+        new DomainColoringFrame(ptr, s, true);
+
     }
 
     public void set3DOption() {
@@ -13107,7 +12832,7 @@ public class MainWindow extends JFrame implements Constants {
                 Arrays.fill(((DataBufferInt) image.getRaster().getDataBuffer()).getData(), Color.BLACK.getRGB());
             }
 
-            if (s.filters[ANTIALIASING] || (s.ds.domain_coloring && s.ds.use_palette_domain_coloring)) {
+            if (s.fs.filters[ANTIALIASING] || (s.ds.domain_coloring && s.ds.use_palette_domain_coloring) || s.ots.useTraps) {
                 if (julia_map) {
                     createThreadsJuliaMap();
                 } else {
@@ -13449,13 +13174,13 @@ public class MainWindow extends JFrame implements Constants {
             Color[] c = null;
 
             if (i == s.color_choice) { // the current activated palette
-                if (i < TOTAL_PALETTES - 1) {
+                if (i != CUSTOM_PALETTE_ID) {
                     c = CustomPalette.getPalette(CustomPaletteEditorFrame.editor_default_palettes[i], INTERPOLATION_LINEAR, COLOR_SPACE_RGB, false, s.color_cycling_location, 0, PROCESSING_NONE);
                 } else {
                     c = CustomPalette.getPalette(s.custom_palette, s.color_interpolation, s.color_space, s.reversed_palette, s.color_cycling_location, s.scale_factor_palette_val, s.processing_alg);
                 }
             } else { // the remaining palettes
-                if (i < TOTAL_PALETTES - 1) {
+                if (i != CUSTOM_PALETTE_ID) {
                     c = CustomPalette.getPalette(CustomPaletteEditorFrame.editor_default_palettes[i], INTERPOLATION_LINEAR, COLOR_SPACE_RGB, false, 0, 0, PROCESSING_NONE); // 0 color cycling loc
                 } else {
                     c = CustomPalette.getPalette(s.custom_palette, s.color_interpolation, s.color_space, s.reversed_palette, s.temp_color_cycling_location, s.scale_factor_palette_val, s.processing_alg); // temp color cycling loc
@@ -13482,15 +13207,21 @@ public class MainWindow extends JFrame implements Constants {
 
     }
 
+    private void updateGradientPreview() {
+
+        infobar.getGradientPreview().setIcon(new ImageIcon(CommonFunctions.getGradientPreview(s.gs, Infobar.GRADIENT_PREVIEW_WIDTH, Infobar.GRADIENT_PREVIEW_HEIGHT)));
+
+    }
+
     public void updatePalettePreview(int color_cycling_location) {
 
-        infobar.getPalettePreview().setIcon(new ImageIcon(CommonFunctions.getPalettePreview(s, color_cycling_location, 250, 24)));
+        infobar.getPalettePreview().setIcon(new ImageIcon(CommonFunctions.getPalettePreview(s, color_cycling_location, Infobar.PALETTE_PREVIEW_WIDTH, Infobar.PALETTE_PREVIEW_HEIGHT)));
 
     }
 
     private void updateMaxIterColorPreview() {
 
-        BufferedImage max_it_preview = new BufferedImage(24, 24, BufferedImage.TYPE_INT_ARGB);
+        BufferedImage max_it_preview = new BufferedImage(Infobar.SQUARE_TILE_SIZE, Infobar.SQUARE_TILE_SIZE, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = max_it_preview.createGraphics();
 
         g.setColor(s.fractal_color);
@@ -13519,8 +13250,8 @@ public class MainWindow extends JFrame implements Constants {
             writer.println("thread_dim " + n);
             writer.println("greedy_drawing_algorithm " + greedy_algorithm);
             writer.println("greedy_drawing_algorithm_id " + greedy_algorithm_selection);
-            writer.println("skipped_pixels_coloring " + ThreadDraw.getSkippedPixelsAlgorithm());
-            int color = ThreadDraw.getSkippedPixelsColor();
+            writer.println("skipped_pixels_coloring " + ThreadDraw.SKIPPED_PIXELS_ALG);
+            int color = ThreadDraw.SKIPPED_PIXELS_COLOR;
             writer.println("skipped_pixels_user_color " + ((color >> 16) & 0xff) + " " + ((color >> 8) & 0xff) + " " + (color & 0xff));
             writer.println("periodicity_checking " + periodicity_checking);
 
@@ -13576,7 +13307,7 @@ public class MainWindow extends JFrame implements Constants {
 
             writer.println();
             writer.println("[Quick Draw]");
-            writer.println("tiles " + ThreadDraw.getQuickDrawTileSize());
+            writer.println("tiles " + ThreadDraw.TILE_SIZE);
 
             writer.close();
         } catch (FileNotFoundException ex) {
@@ -13633,7 +13364,7 @@ public class MainWindow extends JFrame implements Constants {
                             int temp = Integer.parseInt(tokenizer.nextToken());
 
                             if (temp >= 0 && temp <= 4) {
-                                ThreadDraw.setSkippedPixelsAlgorithm(temp);
+                                ThreadDraw.SKIPPED_PIXELS_ALG = temp;
                             }
                         } catch (Exception ex) {
                         }
@@ -13645,7 +13376,7 @@ public class MainWindow extends JFrame implements Constants {
                             int blue = Integer.parseInt(tokenizer.nextToken());
 
                             if (red >= 0 && red <= 255 && green >= 0 && green <= 255 && blue >= 0 && blue <= 255) {
-                                ThreadDraw.setSkippedPixelsColor(new Color(red, green, blue).getRGB());
+                                ThreadDraw.SKIPPED_PIXELS_COLOR = new Color(red, green, blue).getRGB();
                             }
                         } catch (Exception ex) {
                         }
@@ -13878,8 +13609,8 @@ public class MainWindow extends JFrame implements Constants {
                         try {
                             int temp = Integer.parseInt(tokenizer.nextToken());
 
-                            if (temp >= 2 && temp <= 12) {
-                                ThreadDraw.setQuickDrawTileSize(temp);
+                            if (temp >= 2 && temp <= 20) {
+                                ThreadDraw.TILE_SIZE = temp;
                             }
                         } catch (Exception ex) {
                         }
@@ -13902,21 +13633,21 @@ public class MainWindow extends JFrame implements Constants {
 
         if (filters_options_vals != null) {
             for (k = 0; k < filters_options_vals.length; k++) {
-                s.filters_options_vals[k] = filters_options_vals[k];
-                s.filters_options_extra_vals[0][k] = filters_options_extra_vals[0][k];
-                s.filters_options_extra_vals[1][k] = filters_options_extra_vals[1][k];
-                s.filters_colors[k] = filters_colors[k];
-                s.filters_extra_colors[0][k] = filters_extra_colors[0][k];
-                s.filters_extra_colors[1][k] = filters_extra_colors[1][k];
-                s.filters[k] = activeFilters[k];
-                filters_opt[k].setSelected(s.filters[k]);
+                s.fs.filters_options_vals[k] = filters_options_vals[k];
+                s.fs.filters_options_extra_vals[0][k] = filters_options_extra_vals[0][k];
+                s.fs.filters_options_extra_vals[1][k] = filters_options_extra_vals[1][k];
+                s.fs.filters_colors[k] = filters_colors[k];
+                s.fs.filters_extra_colors[0][k] = filters_extra_colors[0][k];
+                s.fs.filters_extra_colors[1][k] = filters_extra_colors[1][k];
+                s.fs.filters[k] = activeFilters[k];
+                filters_opt[k].setSelected(s.fs.filters[k]);
             }
 
             for (k = 0; k < filters_order.length; k++) {
-                s.filters_order[k] = filters_order[k];
+                s.fs.filters_order[k] = filters_order[k];
             }
         } else {
-            s.defaultFilters(false);
+            s.fs.defaultFilters(false);
         }
 
         setOptions(false);
@@ -13927,7 +13658,7 @@ public class MainWindow extends JFrame implements Constants {
 
         whole_image_done = false;
 
-        if (s.filters[MainWindow.ANTIALIASING]) {
+        if (s.fs.filters[MainWindow.ANTIALIASING]) {
 
             if (s.d3s.d3) {
                 Arrays.fill(((DataBufferInt) image.getRaster().getDataBuffer()).getData(), Color.BLACK.getRGB());
@@ -14079,7 +13810,7 @@ public class MainWindow extends JFrame implements Constants {
         JLabel two_arg = new JLabel("Two Argument Functions: f(z, w)");
         two_arg.setFont(new Font("Arial", Font.BOLD, 11));
 
-        JLabel multi_arg = new JLabel("Multiple Argument User Functions: f(z1, ... z10)");
+        JLabel multi_arg = new JLabel("Multiple Argument User Functions: f(z1, ... z10) or f(z1, ... z20)");
         multi_arg.setFont(new Font("Arial", Font.BOLD, 11));
 
         JButton info_user = new JButton("Help");
@@ -14154,11 +13885,11 @@ public class MainWindow extends JFrame implements Constants {
             "hcvcos, exsec, excsc, avsin, avcos, acvsin, acvcos, ahvsin, ahvcos, ahcvsin, ahcvcos, aexsec, aexcsc",
             other,
             "exp, log, log10, log2, sqrt, abs, absre, absim, conj, re, im, norm, arg, gamma, fact, erf, rzeta, gi, rec,",
-            "flip, round, ceil, floor, trunc, deta, f1, ... f40",
+            "flip, round, ceil, floor, trunc, deta, f1, ... f60",
             two_arg,
-            "logn, bipol, ibipol, inflect, foldu, foldd, foldl, foldr, foldi, foldo, shear, cmp, fuzz, normn, rot, g1, ... g40",
+            "logn, bipol, ibipol, inflect, foldu, foldd, foldl, foldr, foldi, foldo, shear, cmp, fuzz, normn, rot, g1, ... g60",
             multi_arg,
-            "m1, ... m40"
+            "m1, ... m60, k1, ... k60"
         };
 
         return labels;
@@ -14185,11 +13916,11 @@ public class MainWindow extends JFrame implements Constants {
                 + "hcvcos, exsec, excsc, avsin, avcos, acvsin, acvcos, ahvsin, ahvcos, ahcvsin, ahcvcos, aexsec, aexcsc<br>"
                 + "<b>Other Functions: f(z)</b><br>"
                 + "exp, log, log10, log2, sqrt, abs, absre, absim, conj, re, im, norm, arg, gamma, fact, erf, rzeta, gi, rec,<br>"
-                + "flip, round, ceil, floor, trunc, deta, f1, ... f40<br>"
+                + "flip, round, ceil, floor, trunc, deta, f1, ... f60<br>"
                 + "<b>Two Argument Functions: f(z, w)</b><br>"
-                + "logn, bipol, ibipol, inflect, foldu, foldd, foldl, foldr, foldi, foldo, shear, cmp, fuzz, normn, rot, g1, ... g40<br>"
-                + "<b>Multiple Argument User Functions: f(z1, ... z10)</b><br>"
-                + "m1, ... m40<br><br>"
+                + "logn, bipol, ibipol, inflect, foldu, foldd, foldl, foldr, foldi, foldo, shear, cmp, fuzz, normn, rot, g1, ... g60<br>"
+                + "<b>Multiple Argument User Functions: f(z1, ... z10) or f(z1, ... z20)</b><br>"
+                + "m1, ... m60, k1, ... k60<br><br>"
                 + "Set the variable " + txt + "."
                 + "</html>");
 
@@ -14264,14 +13995,15 @@ public class MainWindow extends JFrame implements Constants {
     public void setQuickDrawTiles() {
 
         resetOrbit();
-        final JSlider tiles_slid = new JSlider(JSlider.HORIZONTAL, 2, 12, ThreadDraw.getQuickDrawTileSize());
+        final JSlider tiles_slid = new JSlider(JSlider.HORIZONTAL, 2, 20, ThreadDraw.TILE_SIZE);
 
-        tiles_slid.setPreferredSize(new Dimension(200, 35));
+        tiles_slid.setPreferredSize(new Dimension(350, 55));
 
         tiles_slid.setToolTipText("Sets the size of the tiles.");
 
         tiles_slid.setPaintLabels(true);
         tiles_slid.setFocusable(false);
+        tiles_slid.setPaintTicks(true);
         tiles_slid.setMajorTickSpacing(1);
 
         Object[] message3 = {
@@ -14283,7 +14015,7 @@ public class MainWindow extends JFrame implements Constants {
         int res = JOptionPane.showConfirmDialog(scroll_pane, message3, "Quick Draw Tile Size", JOptionPane.OK_CANCEL_OPTION);
 
         if (res == JOptionPane.OK_OPTION) {
-            ThreadDraw.setQuickDrawTileSize(tiles_slid.getValue());
+            ThreadDraw.TILE_SIZE = tiles_slid.getValue();
         } else {
             if (!color_cycling) {
                 main_panel.repaint();
@@ -14536,7 +14268,7 @@ public class MainWindow extends JFrame implements Constants {
             Arrays.fill(((DataBufferInt) image.getRaster().getDataBuffer()).getData(), Color.BLACK.getRGB());
         }
 
-        if (s.filters[ANTIALIASING] || s.ds.domain_coloring) {
+        if (s.fs.filters[ANTIALIASING] || s.ds.domain_coloring || s.ots.useTraps) {
             if (julia_map) {
                 createThreadsJuliaMap();
             } else {
@@ -14581,7 +14313,7 @@ public class MainWindow extends JFrame implements Constants {
             Arrays.fill(((DataBufferInt) image.getRaster().getDataBuffer()).getData(), Color.BLACK.getRGB());
         }
 
-        if (s.filters[ANTIALIASING] || (s.ds.domain_coloring && s.ds.use_palette_domain_coloring)) {
+        if (s.fs.filters[ANTIALIASING] || (s.ds.domain_coloring && s.ds.use_palette_domain_coloring) || s.ots.useTraps) {
             if (julia_map) {
                 createThreadsJuliaMap();
             } else {
@@ -14615,7 +14347,106 @@ public class MainWindow extends JFrame implements Constants {
 
     }
 
-    public static void main(String[] args) throws InterruptedException {
+    public void setGradient() {
+
+        new GradientFrame(ptr, s.gs);
+
+    }
+
+    public void gradientChanged(Color colorA, Color colorB, int interpolation, int color_space, boolean reverse) {
+
+        resetOrbit();
+
+        s.gs.colorA = colorA;
+        s.gs.colorB = colorB;
+        s.gs.gradient_interpolation = interpolation;
+        s.gs.gradient_color_space = color_space;
+        s.gs.gradient_reversed = reverse;
+
+        ThreadDraw.gradient = CustomPalette.createGradient(colorA.getRGB(), colorB.getRGB(), 256, interpolation, color_space, reverse);
+
+        updateGradientPreview();
+
+        setOptions(false);
+
+        progress.setValue(0);
+
+        resetImage();
+
+        whole_image_done = false;
+
+        if (s.d3s.d3) {
+            Arrays.fill(((DataBufferInt) image.getRaster().getDataBuffer()).getData(), Color.BLACK.getRGB());
+        }
+
+        if (s.fs.filters[ANTIALIASING] || s.ds.domain_coloring || s.ots.useTraps) {
+            if (julia_map) {
+                createThreadsJuliaMap();
+            } else {
+                createThreads(false);
+            }
+
+            calculation_time = System.currentTimeMillis();
+
+            if (julia_map) {
+                startThreads(julia_grid_first_dimension);
+            } else {
+                startThreads(n);
+            }
+        } else {
+            if (s.d3s.d3) {
+                createThreads(false);
+            } else {
+                createThreadsPaletteAndFilter();
+            }
+
+            calculation_time = System.currentTimeMillis();
+
+            startThreads(n);
+        }
+
+    }
+
+    public void setOrbitTraps() {
+
+        new OrbitTrapsFrame(ptr, s.ots);
+
+    }
+
+    public void setOrbitTrapSettings() {
+
+        setOptions(false);
+
+        tools_menu.getColorCyling().setEnabled(false);
+        toolbar.getColorCyclingButton().setEnabled(false);
+        options_menu.getPeriodicityChecking().setEnabled(false);
+
+        progress.setValue(0);
+
+        resetImage();
+
+        whole_image_done = false;
+
+        if (s.d3s.d3) {
+            Arrays.fill(((DataBufferInt) image.getRaster().getDataBuffer()).getData(), Color.BLACK.getRGB());
+        }
+
+        if (julia_map) {
+            createThreadsJuliaMap();
+        } else {
+            createThreads(false);
+        }
+
+        calculation_time = System.currentTimeMillis();
+
+        if (julia_map) {
+            startThreads(julia_grid_first_dimension);
+        } else {
+            startThreads(n);
+        }
+    }
+
+    public static void main(String[] args) throws InterruptedException, Exception {
 
         SplashFrame sf = new SplashFrame(VERSION);
         sf.setVisible(true);
