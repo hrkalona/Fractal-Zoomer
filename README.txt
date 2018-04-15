@@ -1,4 +1,4 @@
-Fractal Zoomer 1.0.6.7
+Fractal Zoomer 1.0.6.8
 
 The most complete fractal generating software using java!
 
