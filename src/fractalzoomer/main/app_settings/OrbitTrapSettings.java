@@ -32,6 +32,7 @@ public class OrbitTrapSettings {
     public double trapBlending;
     public double trapNorm;
     public boolean trapUseSpecialColor;
+    public int lineType;
     
     public OrbitTrapSettings() {
         
@@ -46,6 +47,7 @@ public class OrbitTrapSettings {
         trapMaxDistance = 0.5;
         trapBlending = 0.5;
         trapNorm = 2;
+        lineType = 0;
         
     }
     

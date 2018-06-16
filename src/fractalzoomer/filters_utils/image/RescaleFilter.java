@@ -14,10 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package fractalzoomer.filters_utils.image;;
+package fractalzoomer.filters_utils.image;
 
-import java.awt.*;
-import java.awt.image.*;
 
 /**
  * A filter which simply multiplies pixel values by a given scale factor.

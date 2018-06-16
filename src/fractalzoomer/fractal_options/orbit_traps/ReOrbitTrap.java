@@ -23,17 +23,19 @@ import fractalzoomer.core.Complex;
  * @author hrkalona
  */
 public class ReOrbitTrap extends OrbitTrap {
+    private int lineType;
 
-    public ReOrbitTrap(double pointRe, double pointIm, double trapLength, double trapWidth) {
+    public ReOrbitTrap(double pointRe, double pointIm, double trapLength, double trapWidth, int lineType) {
 
         super(pointRe, pointIm, trapLength, trapWidth);
+        this.lineType = lineType;
 
     }
 
     @Override
     public void check(Complex val) {
         
-        double dist = Math.abs(val.getIm() - point.getIm());
+        double dist = Math.abs(val.getIm() - applyLineFunction(lineType, val.getRe()) - point.getIm());
         
         if(dist < trapWidth && Math.abs(val.getRe() - point.getRe()) < trapLength && dist < distance) {
             distance = dist;

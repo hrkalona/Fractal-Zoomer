@@ -17,7 +17,6 @@ limitations under the License.
 package fractalzoomer.filters_utils.image;
 
 import java.awt.*;
-import java.awt.image.*;
 
 /**
  * A filter which performs a 3x3 median operation. Useful for removing dust and noise.
@@ -25,28 +24,6 @@ import java.awt.image.*;
 public class MedianFilter extends WholeImageFilter {
 
 	public MedianFilter() {
-	}
-
-	private int median(int[] array) {
-		int max, maxIndex;
-		
-		for (int i = 0; i < 4; i++) {
-			max = 0;
-			maxIndex = 0;
-			for (int j = 0; j < 9; j++) {
-				if (array[j] > max) {
-					max = array[j];
-					maxIndex = j;
-				}
-			}
-			array[maxIndex] = 0;
-		}
-		max = 0;
-		for (int i = 0; i < 9; i++) {
-			if (array[i] > max)
-				max = array[i];
-		}
-		return max;
 	}
 
 	private int rgbMedian(int[] r, int[] g, int[] b) {

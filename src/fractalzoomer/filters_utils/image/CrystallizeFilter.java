@@ -16,10 +16,6 @@ limitations under the License.
 
 package fractalzoomer.filters_utils.image;
 
-import java.awt.*;
-import java.util.*;
-import fractalzoomer.filters_utils.math.*;
-
 /**
  * A filter which applies a crystallizing effect to an image, by producing Voronoi cells filled with colours from the image.
  */

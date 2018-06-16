@@ -23,6 +23,8 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.DefaultListModel;
@@ -30,10 +32,12 @@ import javax.swing.DropMode;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.KeyStroke;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.EtchedBorder;
@@ -43,7 +47,8 @@ import javax.swing.border.EtchedBorder;
  * @author hrkalona2
  */
 public class FilterOrderSelectionPanel extends JPanel {
-    private JList<String> list;
+	private static final long serialVersionUID = -136372746736364960L;
+	private JList<String> list;
     private JCheckBoxMenuItem[] mFilters;
     private int[] filter_order;
     private boolean[] mActiveFilters;
@@ -67,6 +72,11 @@ public class FilterOrderSelectionPanel extends JPanel {
         list.getSelectionModel().setSelectionMode(
                 ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         list.setTransferHandler(new ListItemTransferHandler());
+        
+        list.getInputMap( JComponent.WHEN_FOCUSED ).getParent().remove( KeyStroke.getKeyStroke( KeyEvent.VK_X, InputEvent.CTRL_DOWN_MASK ) );
+        list.getInputMap( JComponent.WHEN_FOCUSED ).getParent().remove( KeyStroke.getKeyStroke( KeyEvent.VK_C, InputEvent.CTRL_DOWN_MASK ) );
+        list.getInputMap( JComponent.WHEN_FOCUSED ).getParent().remove( KeyStroke.getKeyStroke( KeyEvent.VK_V, InputEvent.CTRL_DOWN_MASK ) );
+        
         list.setDropMode(DropMode.INSERT);
         list.setDragEnabled(true);
         //http://java-swing-tips.blogspot.jp/2008/10/rubber-band-selection-drag-and-drop.html

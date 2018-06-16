@@ -12,8 +12,9 @@ import javax.swing.JSlider;
  * returned by RangeSlider is simply the lower value plus the extent.</p>
  */
 public class RangeSlider extends JSlider {
+	private static final long serialVersionUID = -4539811057957630016L;
 
-    /**
+	/**
      * Constructs a RangeSlider with default minimum and maximum values of 0
      * and 100.
      */

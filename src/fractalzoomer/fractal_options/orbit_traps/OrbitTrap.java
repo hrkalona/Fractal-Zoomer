@@ -49,4 +49,47 @@ public abstract class OrbitTrap {
         return distance;
         
     }
+    
+    public double applyLineFunction(int type, double value) {
+        
+        if(type == 0) return 0;
+        
+        switch (type) {
+            case 1:
+                return Math.sin(value);
+            case 2:
+                return Math.cos(value);
+            case 3:
+                return Math.tan(value);
+            case 4:
+                return Math.sinh(value);
+            case 5:
+                return Math.cosh(value);
+            case 6:
+                return Math.tanh(value);
+            case 7:
+                return Math.asin(value);
+            case 8:
+                return Math.acos(value);
+            case 9:
+                return Math.atan(value);
+            case 10:
+                return value * value;
+            case 11:
+                return value * value * value;
+            case 12:
+                return Math.sqrt(value);
+            case 13:
+                return Math.cbrt(value);
+            case 14:
+                return Math.exp(value);
+            case 15:
+                return Math.log(value);
+            case 16:
+                return Math.abs(value);      
+        }
+        
+        return 0;
+    }
+    
 }

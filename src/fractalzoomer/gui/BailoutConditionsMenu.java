@@ -30,7 +30,8 @@ import javax.swing.JRadioButtonMenuItem;
  * @author hrkalona2
  */
 public class BailoutConditionsMenu extends JMenu {
-    private MainWindow ptr;
+	private static final long serialVersionUID = -7944508537305034413L;
+	private MainWindow ptr;
     private JRadioButtonMenuItem[] bailout_conditions;
     
     public static String[] bailoutConditionNames;

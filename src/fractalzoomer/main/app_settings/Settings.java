@@ -39,6 +39,7 @@ import fractalzoomer.settings.SettingsFractals1065;
 import fractalzoomer.settings.SettingsFractals1066;
 import fractalzoomer.settings.SettingsFractals1067;
 import fractalzoomer.settings.SettingsFractals1068;
+import fractalzoomer.settings.SettingsFractals1069;
 import fractalzoomer.settings.SettingsJulia;
 import fractalzoomer.settings.SettingsJulia1049;
 import fractalzoomer.settings.SettingsJulia1050;
@@ -56,6 +57,7 @@ import fractalzoomer.settings.SettingsJulia1065;
 import fractalzoomer.settings.SettingsJulia1066;
 import fractalzoomer.settings.SettingsJulia1067;
 import fractalzoomer.settings.SettingsJulia1068;
+import fractalzoomer.settings.SettingsJulia1069;
 import fractalzoomer.utils.ColorAlgorithm;
 import java.awt.Component;
 import java.io.FileInputStream;
@@ -71,113 +73,33 @@ import javax.swing.JOptionPane;
  * @author hrkalona2
  */
 public class Settings implements Constants {
-
-    public boolean julia;
-    public boolean smoothing;
     public boolean exterior_de;
     public double exterior_de_factor;
-    public int plane_type;
-    public boolean burning_ship;
-    public boolean mandel_grass;
     public boolean polar_projection;
-    public boolean perturbation;
-    public boolean init_val;
     public boolean inverse_dem;
     public double color_intensity;
     public boolean reversed_palette;
-    public boolean apply_plane_on_julia;
-    public boolean apply_plane_on_julia_seed;
-    public double[] coefficients;
-    public double[] perturbation_vals;
-    public double[] initial_vals;
-    public boolean variable_perturbation;
-    public String perturbation_user_formula;
-    public String[] user_perturbation_conditions;
-    public String[] user_perturbation_condition_formula;
-    public int user_perturbation_algorithm;
-    public boolean variable_init_value;
     public DomainColoringSettings ds;
-    public String initial_value_user_formula;
-    public String[] user_initial_value_conditions;
-    public String[] user_initial_value_condition_formula;
-    public int user_initial_value_algorithm;
     public double xCenter;
     public double yCenter;
     public double xJuliaCenter;
     public double yJuliaCenter;
-    public double rotation;
-    public double[] rotation_vals;
-    public double[] rotation_center;
-    public double[] mandel_grass_vals;
-    public double[] plane_transform_center;
-    public double[] plane_transform_scales;
-    public double[] plane_transform_wavelength;
-    public int waveType;
-    public int function;
-    public int nova_method;
     public int color_interpolation;
     public int color_space;
-    public int escaping_smooth_algorithm;
-    public int converging_smooth_algorithm;
     public double size;
     public double height_ratio;
     public int max_iterations;
     public int color_choice;
-    public int color_cycling_location;
-    public int bailout_test_algorithm;
+    public int color_cycling_location;    
     public double scale_factor_palette_val;
-    public int processing_alg;
-    public double n_norm;
-    public double bailout;
-    public double coupling;
-    public int coupling_method;
-    public double coupling_amplitude;
-    public double coupling_frequency;
-    public int coupling_seed;
-    public double plane_transform_angle;
-    public double plane_transform_angle2;
-    public double plane_transform_radius;
-    public double plane_transform_amount;
-    public int plane_transform_sides;
+    public int processing_alg;    
     public double circle_period;
-    public double z_exponent;
-    public double[] z_exponent_complex;
-    public double[] z_exponent_nova;
-    public double[] laguerre_deg;
-    public double[] relaxation;
-    public int out_coloring_algorithm;
-    public int in_coloring_algorithm;
-    public String bailout_test_user_formula;
-    public String bailout_test_user_formula2;
-    public int bailout_test_comparison;
     public int color_smoothing_method;
     public Color fractal_color;
     public Color dem_color;
     public Color special_color;
-    public String user_formula;
-    public String user_formula2;
-    public String[] user_formula_iteration_based;
-    public String[] user_formula_conditions;
-    public String[] user_formula_condition_formula;
-    public String[] user_formula_coupled;
-    public int user_plane_algorithm;
-    public String user_plane;
-    public String[] user_plane_conditions;
-    public String[] user_plane_condition_formula;
-    public String user_fz_formula;
-    public String user_dfz_formula;
-    public String user_ddfz_formula;
     public int transfer_function;
     public boolean special_use_palette_color;
-    public int bail_technique;
-    public int user_in_coloring_algorithm;
-    public int user_out_coloring_algorithm;
-    public String outcoloring_formula;
-    public String[] user_outcoloring_conditions;
-    public String[] user_outcoloring_condition_formula;
-    public String incoloring_formula;
-    public String[] user_incoloring_conditions;
-    public String[] user_incoloring_condition_formula;
     public int color_blending;
     public int temp_color_cycling_location;
     public D3Settings d3s;
@@ -190,6 +112,8 @@ public class Settings implements Constants {
     public FiltersSettings fs;
     public GradientSettings gs;
     public OrbitTrapSettings ots;
+    public ContourColoringSettings cns;
+    public FunctionSettings fns;
     public String poly;
     public boolean user_formula_c;
     public Parser parser;
@@ -216,11 +140,10 @@ public class Settings implements Constants {
         height_ratio = 1;
         max_iterations = 500;
 
-        n_norm = 2;
-
         scale_factor_palette_val = 0;
         processing_alg = PROCESSING_NONE;
 
+        fns = new FunctionSettings();
         ds = new DomainColoringSettings();
         bms = new BumpMapSettings();
         ens = new EntropyColoringSettings();
@@ -231,6 +154,7 @@ public class Settings implements Constants {
         fs = new FiltersSettings();
         gs = new GradientSettings();
         ots = new OrbitTrapSettings();
+        cns = new ContourColoringSettings();
 
         ThreadDraw.gradient = CustomPalette.createGradient(gs.colorA.getRGB(), gs.colorB.getRGB(), Constants.GRADIENT_LENGTH, gs.gradient_interpolation, gs.gradient_color_space, gs.gradient_reversed);
 
@@ -239,112 +163,9 @@ public class Settings implements Constants {
         color_interpolation = 0;
         color_space = 0;
 
-        z_exponent = 2;
-
-        nova_method = NOVA_NEWTON;
-
-        bailout = 2;
-        bailout_test_algorithm = 0;
-
-        bailout_test_user_formula = "norm(z)";
-        bailout_test_user_formula2 = "bail";
-        bailout_test_comparison = GREATER_EQUAL;
-
-        escaping_smooth_algorithm = 0;
-        converging_smooth_algorithm = 0;
-
-        rotation_vals = new double[2];
-
-        rotation = 0;
-
         color_blending = NORMAL_BLENDING;
 
         color_intensity = 1;
-
-        rotation_vals[0] = Math.cos(Math.toRadians(rotation));
-        rotation_vals[1] = Math.sin(Math.toRadians(rotation));
-
-        rotation_center = new double[2];
-
-        rotation_center[0] = 0;
-        rotation_center[1] = 0;
-
-        plane_transform_scales = new double[2];
-        plane_transform_scales[0] = 0;
-        plane_transform_scales[1] = 0;
-
-        plane_transform_center = new double[2];
-        plane_transform_center[0] = 0;
-        plane_transform_center[1] = 0;
-
-        plane_transform_wavelength = new double[2];
-        plane_transform_wavelength[0] = 0.15;
-        plane_transform_wavelength[1] = 0.15;
-
-        waveType = 0;
-
-        plane_transform_angle = 0;
-        plane_transform_angle2 = 0;
-        plane_transform_radius = 2;
-        plane_transform_sides = 3;
-        plane_transform_amount = 0;
-
-        perturbation_vals = new double[2];
-        perturbation_vals[0] = 0;
-        perturbation_vals[1] = 0;
-
-        initial_vals = new double[2];
-        initial_vals[0] = 0;
-        initial_vals[1] = 0;
-
-        laguerre_deg = new double[2];
-        laguerre_deg[0] = 10;
-        laguerre_deg[1] = 0;
-
-        apply_plane_on_julia = false;
-        apply_plane_on_julia_seed = true;
-
-        variable_perturbation = false;
-        perturbation_user_formula = "0.0";
-        variable_init_value = false;
-        initial_value_user_formula = "c";
-
-        user_perturbation_algorithm = 0;
-        user_perturbation_conditions = new String[2];
-        user_perturbation_conditions[0] = "im(c)";
-        user_perturbation_conditions[1] = "0.0";
-        user_perturbation_condition_formula = new String[3];
-        user_perturbation_condition_formula[0] = "0.5";
-        user_perturbation_condition_formula[1] = "0.0";
-        user_perturbation_condition_formula[2] = "0.0";
-
-        user_initial_value_algorithm = 0;
-        user_initial_value_conditions = new String[2];
-        user_initial_value_conditions[0] = "re(c)";
-        user_initial_value_conditions[1] = "0.0";
-        user_initial_value_condition_formula = new String[3];
-        user_initial_value_condition_formula[0] = "c / 2";
-        user_initial_value_condition_formula[1] = "c";
-        user_initial_value_condition_formula[2] = "c";
-
-        z_exponent_complex = new double[2];
-        z_exponent_complex[0] = 2;
-        z_exponent_complex[1] = 0;
-
-        mandel_grass_vals = new double[2];
-        mandel_grass_vals[0] = 0.125;
-        mandel_grass_vals[1] = 0;
-
-        z_exponent_nova = new double[2];
-        z_exponent_nova[0] = 3;
-        z_exponent_nova[1] = 0;
-
-        relaxation = new double[2];
-        relaxation[0] = 1;
-        relaxation[1] = 0;
-
-        perturbation = false;
-        init_val = false;
 
         color_cycling_location = 0;
 
@@ -361,101 +182,21 @@ public class Settings implements Constants {
 
         color_smoothing_method = INTERPOLATION_LINEAR;
 
-        plane_type = MU_PLANE;
-        out_coloring_algorithm = ESCAPE_TIME;
-        in_coloring_algorithm = MAX_ITERATIONS;
-
-        user_formula = "z^2 + c";
-        user_formula2 = "c";
-
-        user_plane = "z";
-        user_plane_algorithm = 0;
-
-        user_plane_conditions = new String[2];
-        user_plane_conditions[0] = "im(z)";
-        user_plane_conditions[1] = "0.125";
-
-        user_plane_condition_formula = new String[3];
-        user_plane_condition_formula[0] = "re(z) +(im(z) - 2 * (im(z) - 0.125)) * i";
-        user_plane_condition_formula[1] = "z";
-        user_plane_condition_formula[2] = "z";
-
-        user_formula_iteration_based = new String[4];
-        user_formula_iteration_based[0] = "z^2 + c";
-        user_formula_iteration_based[1] = "z^3 + c";
-        user_formula_iteration_based[2] = "z^4 + c";
-        user_formula_iteration_based[3] = "z^5 + c";
-
-        user_formula_conditions = new String[2];
-        user_formula_conditions[0] = "re(z)";
-        user_formula_conditions[1] = "0.0";
-
-        user_formula_condition_formula = new String[3];
-        user_formula_condition_formula[0] = "(z - 1) * c";
-        user_formula_condition_formula[1] = "(z + 1) * c";
-        user_formula_condition_formula[2] = "(z - 1) * c";
-
-        user_formula_coupled = new String[3];
-        user_formula_coupled[0] = "z^2 + c";
-        user_formula_coupled[1] = "abs(z)^2 + c";
-        user_formula_coupled[2] = "c";
-
-        coupling = 0.1;
-        coupling_method = 0;
-        coupling_amplitude = 0.5;
-        coupling_frequency = 0.001;
-        coupling_seed = 1;
-
-        user_in_coloring_algorithm = 0;
-        user_out_coloring_algorithm = 0;
-
-        outcoloring_formula = "n + (log(bail) - log(norm(p) + 0.000000001)) / (log(norm(z)) - log(norm(p) + 0.000000001))";
-
-        user_outcoloring_conditions = new String[2];
-        user_outcoloring_conditions[0] = "im(z)";
-        user_outcoloring_conditions[1] = "0.0";
-
-        user_outcoloring_condition_formula = new String[3];
-        user_outcoloring_condition_formula[0] = "n + (log(bail) - log(norm(p) + 0.000000001)) / (log(norm(z)) - log(norm(p) + 0.000000001))";
-        user_outcoloring_condition_formula[1] = "-(n + (log(bail) - log(norm(p) + 0.000000001)) / (log(norm(z)) - log(norm(p) + 0.000000001)) + 50)";
-        user_outcoloring_condition_formula[2] = "n + (log(bail) - log(norm(p) + 0.000000001)) / (log(norm(z)) - log(norm(p) + 0.000000001))";
-
-        incoloring_formula = "norm(sin(z)) * 100";
-
-        user_incoloring_conditions = new String[2];
-        user_incoloring_conditions[0] = "im(z)";
-        user_incoloring_conditions[1] = "0.0";
-
-        user_incoloring_condition_formula = new String[3];
-        user_incoloring_condition_formula[0] = "norm(sin(z)) * 100";
-        user_incoloring_condition_formula[1] = "-(norm(sin(z)) * 100 + 50)";
-        user_incoloring_condition_formula[2] = "norm(sin(z)) * 100";
-
-        julia = false;
-        burning_ship = false;
-        mandel_grass = false;
-
         special_use_palette_color = true;
-
-        smoothing = false;
 
         fractal_color = Color.BLACK;
         dem_color = new Color(1, 0, 0);
         special_color = Color.WHITE;
 
-        bail_technique = 0;
-
-        function = 0;
-
-        coefficients = new double[11];
-
         d3s = new D3Settings();
 
         if (color_choice == CUSTOM_PALETTE_ID) {
-            ThreadDraw.palette = new CustomPalette(custom_palette, color_interpolation, color_space, reversed_palette, scale_factor_palette_val, processing_alg, smoothing, special_color, color_smoothing_method, special_use_palette_color);
+            ThreadDraw.palette = new CustomPalette(custom_palette, color_interpolation, color_space, reversed_palette, scale_factor_palette_val, processing_alg, fns.smoothing, special_color, color_smoothing_method, special_use_palette_color);
         } else {
-            ThreadDraw.palette = new PresetPalette(color_choice, smoothing, special_color, color_smoothing_method, special_use_palette_color);
+            ThreadDraw.palette = new PresetPalette(color_choice, fns.smoothing, special_color, color_smoothing_method, special_use_palette_color);
         }
+        
+        ThreadDraw.USE_DIRECT_COLOR = false;
     }
 
     public void readSettings(String filename, Component parent) throws FileNotFoundException, IOException, ClassNotFoundException {
@@ -519,63 +260,67 @@ public class Settings implements Constants {
                 xJuliaCenter = ((SettingsJulia1068) settings).getXJuliaCenter();
                 yJuliaCenter = ((SettingsJulia1068) settings).getYJuliaCenter();
             }
+            else if (version == 1069) {
+                xJuliaCenter = ((SettingsJulia1069) settings).getXJuliaCenter();
+                yJuliaCenter = ((SettingsJulia1069) settings).getYJuliaCenter();
+            }
 
-            julia = true;
+            fns.julia = true;
 
         } else {
-            julia = false;
+            fns.julia = false;
 
-            perturbation = settings.getPerturbation();
-            init_val = settings.getInitVal();
+            fns.perturbation = settings.getPerturbation();
+            fns.init_val = settings.getInitVal();
 
-            if (perturbation) {
+            if (fns.perturbation) {
                 if (version < 1056) {
-                    variable_perturbation = false;
-                    perturbation_vals = settings.getPerturbationVals();
+                    fns.variable_perturbation = false;
+                    fns.perturbation_vals = settings.getPerturbationVals();
                 } else {
-                    variable_perturbation = ((SettingsFractals1056) settings).getVariablePerturbation();
+                    fns.variable_perturbation = ((SettingsFractals1056) settings).getVariablePerturbation();
 
-                    if (variable_perturbation) {
+                    if (fns.variable_perturbation) {
                         if (version < 1058) {
-                            user_perturbation_algorithm = 0;
+                            fns.user_perturbation_algorithm = 0;
                         } else {
-                            user_perturbation_algorithm = ((SettingsFractals1058) settings).getUserPerturbationAlgorithm();
+                            fns.user_perturbation_algorithm = ((SettingsFractals1058) settings).getUserPerturbationAlgorithm();
                         }
 
-                        if (user_perturbation_algorithm == 0) {
-                            perturbation_user_formula = ((SettingsFractals1056) settings).getPerturbationUserFormula();
+                        if (fns.user_perturbation_algorithm == 0) {
+                            fns.perturbation_user_formula = ((SettingsFractals1056) settings).getPerturbationUserFormula();
                         } else {
-                            user_perturbation_conditions = ((SettingsFractals1058) settings).getUserPerturbationConditions();
-                            user_perturbation_condition_formula = ((SettingsFractals1058) settings).getUserPerturbationConditionFormula();
+                            fns.user_perturbation_conditions = ((SettingsFractals1058) settings).getUserPerturbationConditions();
+                            fns.user_perturbation_condition_formula = ((SettingsFractals1058) settings).getUserPerturbationConditionFormula();
                         }
                     } else {
-                        perturbation_vals = settings.getPerturbationVals();
+                        fns.perturbation_vals = settings.getPerturbationVals();
                     }
                 }
             }
 
-            if (init_val) {
+            if (fns.init_val) {
                 if (version < 1056) {
-                    variable_init_value = false;
-                    initial_vals = settings.getInitialVals();
+                    fns.variable_init_value = false;
+                    fns.initial_vals = settings.getInitialVals();
                 } else {
-                    variable_init_value = ((SettingsFractals1056) settings).getVariableInitValue();
+                    fns.variable_init_value = ((SettingsFractals1056) settings).getVariableInitValue();
 
-                    if (variable_init_value) {
+                    if (fns.variable_init_value) {
                         if (version < 1058) {
-                            user_initial_value_algorithm = 0;
+                            fns.user_initial_value_algorithm = 0;
                         } else {
-                            user_initial_value_algorithm = ((SettingsFractals1058) settings).getUserInitialValueAlgorithm();
+                            fns.user_initial_value_algorithm = ((SettingsFractals1058) settings).getUserInitialValueAlgorithm();
                         }
 
-                        if (user_initial_value_algorithm == 0) {
-                            initial_value_user_formula = ((SettingsFractals1056) settings).getInitialValueUserFormula();
+                        if (fns.user_initial_value_algorithm == 0) {
+                            fns.initial_value_user_formula = ((SettingsFractals1056) settings).getInitialValueUserFormula();
                         } else {
-                            user_initial_value_conditions = ((SettingsFractals1058) settings).getUserInitialValueConditions();
-                            user_initial_value_condition_formula = ((SettingsFractals1058) settings).getUserInitialValueConditionFormula();
+                            fns.user_initial_value_conditions = ((SettingsFractals1058) settings).getUserInitialValueConditions();
+                            fns.user_initial_value_condition_formula = ((SettingsFractals1058) settings).getUserInitialValueConditionFormula();
                         }
                     } else {
-                        initial_vals = settings.getInitialVals();
+                        fns.initial_vals = settings.getInitialVals();
                     }
                 }
             }
@@ -702,20 +447,50 @@ public class Settings implements Constants {
             }
         }
 
-        function = settings.getFunction();
-        bailout = settings.getBailout();
-        burning_ship = settings.getBurningShip();
+        fns.function = settings.getFunction();
+        fns.bailout = settings.getBailout();
+        fns.burning_ship = settings.getBurningShip();
 
-        mandel_grass = settings.getMandelGrass();
-        mandel_grass_vals = settings.getMandelGrassVals();
+        fns.mandel_grass = settings.getMandelGrass();
+        fns.mandel_grass_vals = settings.getMandelGrassVals();
 
         color_cycling_location = settings.getColorCyclingLocation();
-        plane_type = settings.getPlaneType();
+        fns.plane_type = settings.getPlaneType();
 
         if (version < 1057) {
-            apply_plane_on_julia = false;
+            fns.apply_plane_on_julia = false;
         } else {
-            apply_plane_on_julia = ((SettingsFractals1057) settings).getApplyPlaneOnJulia();
+            fns.apply_plane_on_julia = ((SettingsFractals1057) settings).getApplyPlaneOnJulia();
+        }
+        
+        if (version < 1069) {
+            cns.contour_coloring = false;
+            cns.cn_noise_reducing_factor = 0.4;
+            cns.cn_blending = 0.7;
+            cns.contour_algorithm = 0;
+            
+            ThreadDraw.USE_DIRECT_COLOR = false;
+            
+            fns.kleinianLine[0] = 1.93;
+            fns.kleinianLine[1] = 0.04;            
+            fns.kleinianK = 0.26;
+            fns.kleinianM = 4.9;
+            
+            ots.lineType = 0;
+        }
+        else {
+            cns.contour_coloring = ((SettingsFractals1069)settings).getContourColoring();
+            cns.cn_noise_reducing_factor = ((SettingsFractals1069)settings).getContourColoringNoiseReducingFactor();
+            cns.cn_blending = ((SettingsFractals1069)settings).getContourColoringBlending();
+            cns.contour_algorithm = ((SettingsFractals1069)settings).getContourColoringAlgorithm();
+            
+            ThreadDraw.USE_DIRECT_COLOR = ((SettingsFractals1069)settings).getDirectColor();
+            
+            fns.kleinianLine = ((SettingsFractals1069)settings).getKleinianLine();            
+            fns.kleinianK = ((SettingsFractals1069)settings).getKleinianK();
+            fns.kleinianM = ((SettingsFractals1069)settings).getKleinianM();
+            
+            ots.lineType = ((SettingsFractals1069)settings).getLineType();
         }
 
         if (version < 1068) {
@@ -778,9 +553,9 @@ public class Settings implements Constants {
 
             ColorAlgorithm.GlobalIncrementBypass = false;
 
-            waveType = 0;
-            plane_transform_wavelength[0] = 0.15;
-            plane_transform_wavelength[1] = 0.15;
+            fns.waveType = 0;
+            fns.plane_transform_wavelength[0] = 0.15;
+            fns.plane_transform_wavelength[1] = 0.15;
 
             ds.iso_distance = 4;
             ds.iso_factor = 0.5;
@@ -813,8 +588,8 @@ public class Settings implements Constants {
 
             ColorAlgorithm.GlobalIncrementBypass = ((SettingsFractals1067) settings).getGlobalIncrementBypass();
 
-            waveType = ((SettingsFractals1067) settings).getWaveType();
-            plane_transform_wavelength = ((SettingsFractals1067) settings).getPlaneTransformWavelength();
+            fns.waveType = ((SettingsFractals1067) settings).getWaveType();
+            fns.plane_transform_wavelength = ((SettingsFractals1067) settings).getPlaneTransformWavelength();
 
             ds.iso_distance = ((SettingsFractals1067) settings).getIsoDistance();
             ds.iso_factor = ((SettingsFractals1067) settings).getIsoFactor();
@@ -842,7 +617,7 @@ public class Settings implements Constants {
             ens.entropy_coloring = false;
             ens.entropy_palette_factor = 50;
             ens.en_noise_reducing_factor = 0.4;
-            apply_plane_on_julia_seed = true;
+            fns.apply_plane_on_julia_seed = true;
             ofs.offset_coloring = false;
             ofs.post_process_offset = 300;
             ofs.of_noise_reducing_factor = 0.4;
@@ -857,7 +632,7 @@ public class Settings implements Constants {
             ens.entropy_coloring = ((SettingsFractals1066) settings).getEntropyColoring();
             ens.entropy_palette_factor = ((SettingsFractals1066) settings).getEntropyPaletteFactor();
             ens.en_noise_reducing_factor = ((SettingsFractals1066) settings).getEntropyColoringNoiseReducingFactor();
-            apply_plane_on_julia_seed = ((SettingsFractals1066) settings).getApplyPlaneOnJuliaSeed();
+            fns.apply_plane_on_julia_seed = ((SettingsFractals1066) settings).getApplyPlaneOnJuliaSeed();
             ofs.offset_coloring = ((SettingsFractals1066) settings).getOffsetColoring();
             ofs.post_process_offset = ((SettingsFractals1066) settings).getPostProcessOffset();
             ofs.of_noise_reducing_factor = ((SettingsFractals1066) settings).getOffsetColoringNoiseReducingFactor();
@@ -875,14 +650,14 @@ public class Settings implements Constants {
             exterior_de_factor = 1;
             height_ratio = 1;
 
-            if (plane_type == FOLDUP_PLANE) {
-                plane_transform_center[0] = 0;
-                plane_transform_center[1] = -0.25;
-            } else if (plane_type == FOLDRIGHT_PLANE) {
-                plane_transform_center[0] = -1;
-                plane_transform_center[1] = 0;
-            } else if (plane_type == FOLDIN_PLANE || plane_type == FOLDOUT_PLANE) {
-                plane_transform_radius = 1;
+            if (fns.plane_type == FOLDUP_PLANE) {
+                fns.plane_transform_center[0] = 0;
+                fns.plane_transform_center[1] = -0.25;
+            } else if (fns.plane_type == FOLDRIGHT_PLANE) {
+                fns.plane_transform_center[0] = -1;
+                fns.plane_transform_center[1] = 0;
+            } else if (fns.plane_type == FOLDIN_PLANE || fns.plane_type == FOLDOUT_PLANE) {
+                fns.plane_transform_radius = 1;
             }
 
         } else {
@@ -891,45 +666,45 @@ public class Settings implements Constants {
 
             height_ratio = ((SettingsFractals1053) settings).getHeightRatio();
 
-            if (plane_type == TWIRL_PLANE) {
-                plane_transform_center = ((SettingsFractals1053) settings).getPlaneTransformCenter();
-                plane_transform_angle = ((SettingsFractals1053) settings).getPlaneTransformAngle();
-                plane_transform_radius = ((SettingsFractals1053) settings).getPlaneTransformRadius();
-            } else if (plane_type == SHEAR_PLANE) {
-                plane_transform_scales = ((SettingsFractals1053) settings).getPlaneTransformScales();
-            } else if (plane_type == KALEIDOSCOPE_PLANE) {
-                plane_transform_center = ((SettingsFractals1053) settings).getPlaneTransformCenter();
-                plane_transform_angle = ((SettingsFractals1053) settings).getPlaneTransformAngle();
-                plane_transform_angle2 = ((SettingsFractals1053) settings).getPlaneTransformAngle2();
-                plane_transform_radius = ((SettingsFractals1053) settings).getPlaneTransformRadius();
-                plane_transform_sides = ((SettingsFractals1053) settings).getPlaneTransformSides();
-            } else if (plane_type == PINCH_PLANE) {
-                plane_transform_center = ((SettingsFractals1053) settings).getPlaneTransformCenter();
-                plane_transform_angle = ((SettingsFractals1053) settings).getPlaneTransformAngle();
-                plane_transform_radius = ((SettingsFractals1053) settings).getPlaneTransformRadius();
-                plane_transform_amount = ((SettingsFractals1053) settings).getPlaneTransformAmount();
-            } else if (plane_type == FOLDUP_PLANE || plane_type == FOLDDOWN_PLANE || plane_type == FOLDRIGHT_PLANE || plane_type == FOLDLEFT_PLANE || plane_type == INFLECTION_PLANE) {
-                plane_transform_center = ((SettingsFractals1053) settings).getPlaneTransformCenter();
-            } else if (plane_type == FOLDIN_PLANE || plane_type == FOLDOUT_PLANE) {
-                plane_transform_radius = ((SettingsFractals1053) settings).getPlaneTransformRadius();
-            } else if (plane_type == CIRCLEINVERSION_PLANE) {
-                plane_transform_center = ((SettingsFractals1053) settings).getPlaneTransformCenter();
-                plane_transform_radius = ((SettingsFractals1053) settings).getPlaneTransformRadius();
+            if (fns.plane_type == TWIRL_PLANE) {
+                fns.plane_transform_center = ((SettingsFractals1053) settings).getPlaneTransformCenter();
+                fns.plane_transform_angle = ((SettingsFractals1053) settings).getPlaneTransformAngle();
+                fns.plane_transform_radius = ((SettingsFractals1053) settings).getPlaneTransformRadius();
+            } else if (fns.plane_type == SHEAR_PLANE) {
+                fns.plane_transform_scales = ((SettingsFractals1053) settings).getPlaneTransformScales();
+            } else if (fns.plane_type == KALEIDOSCOPE_PLANE) {
+                fns.plane_transform_center = ((SettingsFractals1053) settings).getPlaneTransformCenter();
+                fns.plane_transform_angle = ((SettingsFractals1053) settings).getPlaneTransformAngle();
+                fns.plane_transform_angle2 = ((SettingsFractals1053) settings).getPlaneTransformAngle2();
+                fns.plane_transform_radius = ((SettingsFractals1053) settings).getPlaneTransformRadius();
+                fns.plane_transform_sides = ((SettingsFractals1053) settings).getPlaneTransformSides();
+            } else if (fns.plane_type == PINCH_PLANE) {
+                fns.plane_transform_center = ((SettingsFractals1053) settings).getPlaneTransformCenter();
+                fns.plane_transform_angle = ((SettingsFractals1053) settings).getPlaneTransformAngle();
+                fns.plane_transform_radius = ((SettingsFractals1053) settings).getPlaneTransformRadius();
+                fns.plane_transform_amount = ((SettingsFractals1053) settings).getPlaneTransformAmount();
+            } else if (fns.plane_type == FOLDUP_PLANE || fns.plane_type == FOLDDOWN_PLANE || fns.plane_type == FOLDRIGHT_PLANE || fns.plane_type == FOLDLEFT_PLANE || fns.plane_type == INFLECTION_PLANE) {
+                fns.plane_transform_center = ((SettingsFractals1053) settings).getPlaneTransformCenter();
+            } else if (fns.plane_type == FOLDIN_PLANE || fns.plane_type == FOLDOUT_PLANE) {
+                fns.plane_transform_radius = ((SettingsFractals1053) settings).getPlaneTransformRadius();
+            } else if (fns.plane_type == CIRCLEINVERSION_PLANE) {
+                fns.plane_transform_center = ((SettingsFractals1053) settings).getPlaneTransformCenter();
+                fns.plane_transform_radius = ((SettingsFractals1053) settings).getPlaneTransformRadius();
             }
         }
 
         if (version < 1063) {
-            if (plane_type == BIPOLAR_PLANE || plane_type == INVERSED_BIPOLAR_PLANE) {
-                plane_transform_center[0] = 2;
-                plane_transform_center[1] = 0;
+            if (fns.plane_type == BIPOLAR_PLANE || fns.plane_type == INVERSED_BIPOLAR_PLANE) {
+                fns.plane_transform_center[0] = 2;
+                fns.plane_transform_center[1] = 0;
             }
 
             ds.domain_coloring = false;
             ds.use_palette_domain_coloring = false;
             ds.domain_coloring_alg = 0;
         } else {
-            if (plane_type == BIPOLAR_PLANE || plane_type == INVERSED_BIPOLAR_PLANE) {
-                plane_transform_center = ((SettingsFractals1053) settings).getPlaneTransformCenter();
+            if (fns.plane_type == BIPOLAR_PLANE || fns.plane_type == INVERSED_BIPOLAR_PLANE) {
+                fns.plane_transform_center = ((SettingsFractals1053) settings).getPlaneTransformCenter();
             }
 
             ds.domain_coloring = ((SettingsFractals1063) settings).getDomainColoring();
@@ -937,18 +712,18 @@ public class Settings implements Constants {
             ds.domain_coloring_alg = ((SettingsFractals1063) settings).getDomainColoringAlg();
         }
 
-        if (plane_type == USER_PLANE) {
+        if (fns.plane_type == USER_PLANE) {
             if (version < 1058) {
-                user_plane_algorithm = 0;
+                fns.user_plane_algorithm = 0;
             } else {
-                user_plane_algorithm = ((SettingsFractals1058) settings).getUserPlaneAlgorithm();
+                fns.user_plane_algorithm = ((SettingsFractals1058) settings).getUserPlaneAlgorithm();
             }
 
-            if (user_plane_algorithm == 0) {
-                user_plane = settings.getUserPlane();
+            if (fns.user_plane_algorithm == 0) {
+                fns.user_plane = settings.getUserPlane();
             } else {
-                user_plane_conditions = ((SettingsFractals1058) settings).getUserPlaneConditions();
-                user_plane_condition_formula = ((SettingsFractals1058) settings).getUserPlaneConditionFormula();
+                fns.user_plane_conditions = ((SettingsFractals1058) settings).getUserPlaneConditions();
+                fns.user_plane_condition_formula = ((SettingsFractals1058) settings).getUserPlaneConditionFormula();
             }
         }
 
@@ -968,46 +743,46 @@ public class Settings implements Constants {
             }
         }
 
-        rotation = settings.getRotation();
-        rotation_center = settings.getRotationCenter();
+        fns.rotation = settings.getRotation();
+        fns.rotation_center = settings.getRotationCenter();
 
-        bailout_test_algorithm = settings.getBailoutTestAlgorithm();
+        fns.bailout_test_algorithm = settings.getBailoutTestAlgorithm();
 
-        if (bailout_test_algorithm == BAILOUT_CONDITION_NNORM) {
-            n_norm = settings.getNNorm();
-        } else if (bailout_test_algorithm == BAILOUT_CONDITION_USER) {
-            bailout_test_user_formula = ((SettingsFractals1056) settings).getBailoutTestUserFormula();
-            bailout_test_comparison = ((SettingsFractals1056) settings).getBailoutTestComparison();
+        if (fns.bailout_test_algorithm == BAILOUT_CONDITION_NNORM) {
+            fns.n_norm = settings.getNNorm();
+        } else if (fns.bailout_test_algorithm == BAILOUT_CONDITION_USER) {
+            fns.bailout_test_user_formula = ((SettingsFractals1056) settings).getBailoutTestUserFormula();
+            fns.bailout_test_comparison = ((SettingsFractals1056) settings).getBailoutTestComparison();
             if (version < 1058) {
-                bailout_test_user_formula2 = "bail";
+                fns.bailout_test_user_formula2 = "bail";
             } else {
-                bailout_test_user_formula2 = ((SettingsFractals1058) settings).getBailoutTestUserFormula2();
+                fns.bailout_test_user_formula2 = ((SettingsFractals1058) settings).getBailoutTestUserFormula2();
             }
         }
 
-        rotation_vals[0] = Math.cos(Math.toRadians(rotation));
-        rotation_vals[1] = Math.sin(Math.toRadians(rotation));
+        fns.rotation_vals[0] = Math.cos(Math.toRadians(fns.rotation));
+        fns.rotation_vals[1] = Math.sin(Math.toRadians(fns.rotation));
 
-        out_coloring_algorithm = settings.getOutColoringAlgorithm();
+        fns.out_coloring_algorithm = settings.getOutColoringAlgorithm();
 
-        if (out_coloring_algorithm == ATOM_DOMAIN) { //removed atom domain
-            out_coloring_algorithm = ESCAPE_TIME;
+        if (fns.out_coloring_algorithm == ATOM_DOMAIN) { //removed atom domain
+            fns.out_coloring_algorithm = ESCAPE_TIME;
         }
 
-        if (out_coloring_algorithm == USER_OUTCOLORING_ALGORITHM) {
-            user_out_coloring_algorithm = ((SettingsFractals1057) settings).getUserOutColoringAlgorithm();
-            outcoloring_formula = ((SettingsFractals1057) settings).getOutcoloringFormula();
-            user_outcoloring_conditions = ((SettingsFractals1057) settings).getUserOutcoloringConditions();
-            user_outcoloring_condition_formula = ((SettingsFractals1057) settings).getUserOutcoloringConditionFormula();
+        if (fns.out_coloring_algorithm == USER_OUTCOLORING_ALGORITHM) {
+            fns.user_out_coloring_algorithm = ((SettingsFractals1057) settings).getUserOutColoringAlgorithm();
+            fns.outcoloring_formula = ((SettingsFractals1057) settings).getOutcoloringFormula();
+            fns.user_outcoloring_conditions = ((SettingsFractals1057) settings).getUserOutcoloringConditions();
+            fns.user_outcoloring_condition_formula = ((SettingsFractals1057) settings).getUserOutcoloringConditionFormula();
         }
 
-        in_coloring_algorithm = settings.getInColoringAlgorithm();
+        fns.in_coloring_algorithm = settings.getInColoringAlgorithm();
 
-        if (in_coloring_algorithm == USER_INCOLORING_ALGORITHM) {
-            user_in_coloring_algorithm = ((SettingsFractals1057) settings).getUserInColoringAlgorithm();
-            incoloring_formula = ((SettingsFractals1057) settings).getIncoloringFormula();
-            user_incoloring_conditions = ((SettingsFractals1057) settings).getUserIncoloringConditions();
-            user_incoloring_condition_formula = ((SettingsFractals1057) settings).getUserIncoloringConditionFormula();
+        if (fns.in_coloring_algorithm == USER_INCOLORING_ALGORITHM) {
+            fns.user_in_coloring_algorithm = ((SettingsFractals1057) settings).getUserInColoringAlgorithm();
+            fns.incoloring_formula = ((SettingsFractals1057) settings).getIncoloringFormula();
+            fns.user_incoloring_conditions = ((SettingsFractals1057) settings).getUserIncoloringConditions();
+            fns.user_incoloring_condition_formula = ((SettingsFractals1057) settings).getUserIncoloringConditionFormula();
         }
 
         if (version < 1064) {
@@ -1021,28 +796,28 @@ public class Settings implements Constants {
                 boolean[] user_incoloring_special_color = ((SettingsFractals1064) settings).getUserInColoringSpecialColor();
 
                 if (user_incoloring_special_color[0]) {
-                    user_incoloring_condition_formula[0] = "-( " + user_incoloring_condition_formula[0] + " )";
+                    fns.user_incoloring_condition_formula[0] = "-( " + fns.user_incoloring_condition_formula[0] + " )";
                 }
                 if (user_incoloring_special_color[1]) {
-                    user_incoloring_condition_formula[1] = "-( " + user_incoloring_condition_formula[1] + " )";
+                    fns.user_incoloring_condition_formula[1] = "-( " + fns.user_incoloring_condition_formula[1] + " )";
                 }
                 if (user_incoloring_special_color[2]) {
-                    user_incoloring_condition_formula[2] = "-( " + user_incoloring_condition_formula[2] + " )";
+                    fns.user_incoloring_condition_formula[2] = "-( " + fns.user_incoloring_condition_formula[2] + " )";
                 }
 
                 if (user_outcoloring_special_color[0]) {
-                    user_outcoloring_condition_formula[0] = "-( " + user_outcoloring_condition_formula[0] + " )";
+                    fns.user_outcoloring_condition_formula[0] = "-( " + fns.user_outcoloring_condition_formula[0] + " )";
                 }
                 if (user_outcoloring_special_color[1]) {
-                    user_outcoloring_condition_formula[1] = "-( " + user_outcoloring_condition_formula[1] + " )";
+                    fns.user_outcoloring_condition_formula[1] = "-( " + fns.user_outcoloring_condition_formula[1] + " )";
                 }
                 if (user_outcoloring_special_color[2]) {
-                    user_outcoloring_condition_formula[2] = "-( " + user_outcoloring_condition_formula[2] + " )";
+                    fns.user_outcoloring_condition_formula[2] = "-( " + fns.user_outcoloring_condition_formula[2] + " )";
                 }
             }
         }
 
-        smoothing = settings.getSmoothing();
+        fns.smoothing = settings.getSmoothing();
 
         if (version < 1065) {
             color_smoothing_method = 0;
@@ -1055,15 +830,15 @@ public class Settings implements Constants {
         }
 
         if (version < 1054) {
-            escaping_smooth_algorithm = 0;
-            converging_smooth_algorithm = 0;
+            fns.escaping_smooth_algorithm = 0;
+            fns.converging_smooth_algorithm = 0;
 
             bms.bump_map = false;
             polar_projection = false;
             color_intensity = 1;
         } else {
-            escaping_smooth_algorithm = ((SettingsFractals1054) settings).getEscapingSmoothAgorithm();
-            converging_smooth_algorithm = ((SettingsFractals1054) settings).getConvergingSmoothAgorithm();
+            fns.escaping_smooth_algorithm = ((SettingsFractals1054) settings).getEscapingSmoothAgorithm();
+            fns.converging_smooth_algorithm = ((SettingsFractals1054) settings).getConvergingSmoothAgorithm();
 
             bms.bump_map = ((SettingsFractals1054) settings).getBumpMap();
 
@@ -1088,17 +863,17 @@ public class Settings implements Constants {
         ThreadDraw.gradient = CustomPalette.createGradient(gs.colorA.getRGB(), gs.colorB.getRGB(), Constants.GRADIENT_LENGTH, gs.gradient_interpolation, gs.gradient_color_space, gs.gradient_reversed);
 
         if (color_choice == CUSTOM_PALETTE_ID) {
-            ThreadDraw.palette = new CustomPalette(custom_palette, color_interpolation, color_space, reversed_palette, scale_factor_palette_val, processing_alg, smoothing, special_color, color_smoothing_method, special_use_palette_color);
+            ThreadDraw.palette = new CustomPalette(custom_palette, color_interpolation, color_space, reversed_palette, scale_factor_palette_val, processing_alg, fns.smoothing, special_color, color_smoothing_method, special_use_palette_color);
         } else {
-            ThreadDraw.palette = new PresetPalette(color_choice, smoothing, special_color, color_smoothing_method, special_use_palette_color);
+            ThreadDraw.palette = new PresetPalette(color_choice, fns.smoothing, special_color, color_smoothing_method, special_use_palette_color);
         }
 
-        switch (function) {
+        switch (fns.function) {
             case MANDELBROTNTH:
-                z_exponent = settings.getZExponent();
+                fns.z_exponent = settings.getZExponent();
                 break;
             case MANDELBROTWTH:
-                z_exponent_complex = settings.getZExponentComplex();
+                fns.z_exponent_complex = settings.getZExponentComplex();
                 break;
             case MANDELPOLY:
             case NEWTONPOLY:
@@ -1110,107 +885,107 @@ public class Settings implements Constants {
             case MULLERPOLY:
             case PARHALLEYPOLY:
             case LAGUERREPOLY:
-                coefficients = settings.getCoefficients();
+                fns.coefficients = settings.getCoefficients();
                 createPoly();
                 break;
             case NEWTONFORMULA:
-                user_fz_formula = ((SettingsFractals1058) settings).getUserFzFormula();
-                user_dfz_formula = ((SettingsFractals1058) settings).getUserDfzFormula();
+                fns.user_fz_formula = ((SettingsFractals1058) settings).getUserFzFormula();
+                fns.user_dfz_formula = ((SettingsFractals1058) settings).getUserDfzFormula();
                 break;
             case HALLEYFORMULA:
-                user_fz_formula = ((SettingsFractals1058) settings).getUserFzFormula();
-                user_dfz_formula = ((SettingsFractals1058) settings).getUserDfzFormula();
-                user_ddfz_formula = ((SettingsFractals1058) settings).getUserDdfzFormula();
+                fns.user_fz_formula = ((SettingsFractals1058) settings).getUserFzFormula();
+                fns.user_dfz_formula = ((SettingsFractals1058) settings).getUserDfzFormula();
+                fns.user_ddfz_formula = ((SettingsFractals1058) settings).getUserDdfzFormula();
                 break;
             case SCHRODERFORMULA:
-                user_fz_formula = ((SettingsFractals1058) settings).getUserFzFormula();
-                user_dfz_formula = ((SettingsFractals1058) settings).getUserDfzFormula();
-                user_ddfz_formula = ((SettingsFractals1058) settings).getUserDdfzFormula();
+                fns.user_fz_formula = ((SettingsFractals1058) settings).getUserFzFormula();
+                fns.user_dfz_formula = ((SettingsFractals1058) settings).getUserDfzFormula();
+                fns.user_ddfz_formula = ((SettingsFractals1058) settings).getUserDdfzFormula();
                 break;
             case HOUSEHOLDERFORMULA:
-                user_fz_formula = ((SettingsFractals1058) settings).getUserFzFormula();
-                user_dfz_formula = ((SettingsFractals1058) settings).getUserDfzFormula();
-                user_ddfz_formula = ((SettingsFractals1058) settings).getUserDdfzFormula();
+                fns.user_fz_formula = ((SettingsFractals1058) settings).getUserFzFormula();
+                fns.user_dfz_formula = ((SettingsFractals1058) settings).getUserDfzFormula();
+                fns.user_ddfz_formula = ((SettingsFractals1058) settings).getUserDdfzFormula();
                 break;
             case SECANTFORMULA:
-                user_fz_formula = ((SettingsFractals1058) settings).getUserFzFormula();
+                fns.user_fz_formula = ((SettingsFractals1058) settings).getUserFzFormula();
                 break;
             case STEFFENSENFORMULA:
-                user_fz_formula = ((SettingsFractals1058) settings).getUserFzFormula();
+                fns.user_fz_formula = ((SettingsFractals1058) settings).getUserFzFormula();
                 break;
             case MULLERFORMULA:
-                user_fz_formula = ((SettingsFractals1058) settings).getUserFzFormula();
+                fns.user_fz_formula = ((SettingsFractals1058) settings).getUserFzFormula();
                 break;
             case PARHALLEYFORMULA:
-                user_fz_formula = ((SettingsFractals1058) settings).getUserFzFormula();
-                user_dfz_formula = ((SettingsFractals1058) settings).getUserDfzFormula();
-                user_ddfz_formula = ((SettingsFractals1058) settings).getUserDdfzFormula();
+                fns.user_fz_formula = ((SettingsFractals1058) settings).getUserFzFormula();
+                fns.user_dfz_formula = ((SettingsFractals1058) settings).getUserDfzFormula();
+                fns.user_ddfz_formula = ((SettingsFractals1058) settings).getUserDdfzFormula();
                 break;
             case LAGUERREFORMULA:
-                user_fz_formula = ((SettingsFractals1058) settings).getUserFzFormula();
-                user_dfz_formula = ((SettingsFractals1058) settings).getUserDfzFormula();
-                user_ddfz_formula = ((SettingsFractals1058) settings).getUserDdfzFormula();
-                laguerre_deg = ((SettingsFractals1067) settings).getLaguerreDeg();
+                fns.user_fz_formula = ((SettingsFractals1058) settings).getUserFzFormula();
+                fns.user_dfz_formula = ((SettingsFractals1058) settings).getUserDfzFormula();
+                fns.user_ddfz_formula = ((SettingsFractals1058) settings).getUserDdfzFormula();
+                fns.laguerre_deg = ((SettingsFractals1067) settings).getLaguerreDeg();
                 break;
             case NOVA:
-                z_exponent_nova = settings.getZExponentNova();
-                relaxation = settings.getRelaxation();
-                nova_method = settings.getNovaMethod();
+                fns.z_exponent_nova = settings.getZExponentNova();
+                fns.relaxation = settings.getRelaxation();
+                fns.nova_method = settings.getNovaMethod();
                 break;
             case USER_FORMULA:
-                user_formula = settings.getUserFormula();
-                bail_technique = settings.getBailTechnique();
+                fns.user_formula = settings.getUserFormula();
+                fns.bail_technique = settings.getBailTechnique();
 
                 if (version < 1049) {
-                    user_formula2 = "c";
+                    fns.user_formula2 = "c";
                 } else {
-                    user_formula2 = ((SettingsFractals1049) settings).getUserFormula2();
+                    fns.user_formula2 = ((SettingsFractals1049) settings).getUserFormula2();
                 }
 
-                parser.parse(user_formula);
+                parser.parse(fns.user_formula);
 
                 user_formula_c = parser.foundC();
                 break;
             case USER_FORMULA_ITERATION_BASED:
-                user_formula_iteration_based = ((SettingsFractals1049) settings).getUserFormulaIterationBased();
-                bail_technique = settings.getBailTechnique();
+                fns.user_formula_iteration_based = ((SettingsFractals1049) settings).getUserFormulaIterationBased();
+                fns.bail_technique = settings.getBailTechnique();
 
                 boolean temp_bool = false;
 
-                for (int m = 0; m < user_formula_iteration_based.length; m++) {
-                    parser.parse(user_formula_iteration_based[m]);
+                for (int m = 0; m < fns.user_formula_iteration_based.length; m++) {
+                    parser.parse(fns.user_formula_iteration_based[m]);
                     temp_bool = temp_bool | parser.foundC();
                 }
 
                 user_formula_c = temp_bool;
                 break;
             case USER_FORMULA_CONDITIONAL:
-                user_formula_conditions = ((SettingsFractals1050) settings).getUserFormulaConditions();
-                user_formula_condition_formula = ((SettingsFractals1050) settings).getUserFormulaConditionFormula();
-                bail_technique = settings.getBailTechnique();
+                fns.user_formula_conditions = ((SettingsFractals1050) settings).getUserFormulaConditions();
+                fns.user_formula_condition_formula = ((SettingsFractals1050) settings).getUserFormulaConditionFormula();
+                fns.bail_technique = settings.getBailTechnique();
 
                 boolean temp_bool2 = false;
 
-                for (int m = 0; m < user_formula_condition_formula.length; m++) {
-                    parser.parse(user_formula_condition_formula[m]);
+                for (int m = 0; m < fns.user_formula_condition_formula.length; m++) {
+                    parser.parse(fns.user_formula_condition_formula[m]);
                     temp_bool2 = temp_bool2 | parser.foundC();
                 }
 
                 user_formula_c = temp_bool2;
                 break;
             case USER_FORMULA_COUPLED:
-                user_formula_coupled = ((SettingsFractals1063) settings).getUserFormulaCoupled();
-                coupling = ((SettingsFractals1063) settings).getCoupling();
-                coupling_amplitude = ((SettingsFractals1063) settings).getCouplingAmplitude();
-                coupling_frequency = ((SettingsFractals1063) settings).getCouplingFrequency();
-                coupling_seed = ((SettingsFractals1063) settings).getCouplingSeed();
-                coupling_method = ((SettingsFractals1063) settings).getCouplingMethod();
-                bail_technique = settings.getBailTechnique();
+                fns.user_formula_coupled = ((SettingsFractals1063) settings).getUserFormulaCoupled();
+                fns.coupling = ((SettingsFractals1063) settings).getCoupling();
+                fns.coupling_amplitude = ((SettingsFractals1063) settings).getCouplingAmplitude();
+                fns.coupling_frequency = ((SettingsFractals1063) settings).getCouplingFrequency();
+                fns.coupling_seed = ((SettingsFractals1063) settings).getCouplingSeed();
+                fns.coupling_method = ((SettingsFractals1063) settings).getCouplingMethod();
+                fns.bail_technique = settings.getBailTechnique();
 
                 temp_bool = false;
 
-                for (int m = 0; m < user_formula_coupled.length - 1; m++) {
-                    parser.parse(user_formula_coupled[m]);
+                for (int m = 0; m < fns.user_formula_coupled.length - 1; m++) {
+                    parser.parse(fns.user_formula_coupled[m]);
                     temp_bool = temp_bool | parser.foundC();
                 }
 
@@ -1218,7 +993,7 @@ public class Settings implements Constants {
                 break;
         }
 
-        if (out_coloring_algorithm != USER_OUTCOLORING_ALGORITHM) {
+        if (fns.out_coloring_algorithm != USER_OUTCOLORING_ALGORITHM) {
             resetUserOutColoringFormulas();
         }
 
@@ -1231,16 +1006,16 @@ public class Settings implements Constants {
         try {
             file_temp = new ObjectOutputStream(new FileOutputStream(filename));
             SettingsFractals settings;
-            if (julia) {
-                settings = new SettingsJulia1068(xCenter, yCenter, size, max_iterations, color_choice, fractal_color, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, function, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, plane_type, apply_plane_on_julia, burning_ship, z_exponent, z_exponent_complex, color_cycling_location, coefficients, custom_palette, color_interpolation, color_space, reversed_palette, rotation, rotation_center, mandel_grass, mandel_grass_vals, z_exponent_nova, relaxation, nova_method, user_formula, user_formula2, bail_technique, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, color_intensity, escaping_smooth_algorithm, converging_smooth_algorithm, bms.bump_map, bms.bumpMappingStrength, bms.bumpMappingDepth, bms.lightDirectionDegrees, polar_projection, circle_period, fdes.fake_de, fdes.fake_de_factor, dem_color, special_color, special_use_palette_color, rps.rainbow_palette, rps.rainbow_palette_factor, fs.filters, fs.filters_options_vals, scale_factor_palette_val, processing_alg, fs.filters_colors, coupling, user_formula_coupled, coupling_method, coupling_amplitude, coupling_frequency, coupling_seed, ds.domain_coloring, ds.use_palette_domain_coloring, ds.domain_coloring_alg, inverse_dem, fdes.inverse_fake_dem, fs.filters_options_extra_vals, fs.filters_extra_colors, color_smoothing_method, fs.filters_order, bms.bm_noise_reducing_factor, rps.rp_noise_reducing_factor, ens.entropy_coloring, ens.entropy_palette_factor, ens.en_noise_reducing_factor, apply_plane_on_julia_seed, ofs.offset_coloring, ofs.post_process_offset, ofs.of_noise_reducing_factor, ens.en_blending, rps.rp_blending, ofs.of_blending, ens.entropy_offset, rps.rainbow_offset, gss.greyscale_coloring, gss.gs_noise_reducing_factor, transfer_function, color_blending, bms.bump_transfer_function, bms.bump_transfer_factor, bms.bump_blending, bms.bumpProcessing, ColorAlgorithm.GlobalIncrementBypass, waveType, plane_transform_wavelength, laguerre_deg, ds.iso_distance, ds.iso_factor, ds.logBase, ds.normType, ds.gridFactor, ds.circlesBlending, ds.isoLinesBlendingFactor, ds.gridBlending, ds.gridColor, ds.circlesColor, ds.isoLinesColor, ds.contourBlending, ds.drawColor, ds.drawContour, ds.drawGrid, ds.drawCircles, ds.drawIsoLines, ds.customDomainColoring, ds.colorType, ds.contourType, ens.entropy_algorithm, ds.domainOrder, gs.colorA, gs.colorB, gs.gradient_color_space, gs.gradient_interpolation, gs.gradient_reversed, rps.rainbow_algorithm, ots.useTraps, ots.trapPoint, ots.trapLength, ots.trapWidth, ots.trapType, ots.trapMaxDistance, ots.trapBlending, ots.trapNorm, ots.trapUseSpecialColor, xJuliaCenter, yJuliaCenter);
+            if (fns.julia) {
+                settings = new SettingsJulia1069(xCenter, yCenter, size, max_iterations, color_choice, fractal_color, fns.out_coloring_algorithm, fns.user_out_coloring_algorithm, fns.outcoloring_formula, fns.user_outcoloring_conditions, fns.user_outcoloring_condition_formula, fns.in_coloring_algorithm, fns.user_in_coloring_algorithm, fns.incoloring_formula, fns.user_incoloring_conditions, fns.user_incoloring_condition_formula, fns.smoothing, fns.function, fns.bailout_test_algorithm, fns.bailout, fns.bailout_test_user_formula, fns.bailout_test_user_formula2, fns.bailout_test_comparison, fns.n_norm, fns.plane_type, fns.apply_plane_on_julia, fns.burning_ship, fns.z_exponent, fns.z_exponent_complex, color_cycling_location, fns.coefficients, custom_palette, color_interpolation, color_space, reversed_palette, fns.rotation, fns.rotation_center, fns.mandel_grass, fns.mandel_grass_vals, fns.z_exponent_nova, fns.relaxation, fns.nova_method, fns.user_formula, fns.user_formula2, fns.bail_technique, fns.user_plane, fns.user_plane_algorithm, fns.user_plane_conditions, fns.user_plane_condition_formula, fns.user_formula_iteration_based, fns.user_formula_conditions, fns.user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, fns.plane_transform_center, fns.plane_transform_angle, fns.plane_transform_radius, fns.plane_transform_scales, fns.plane_transform_angle2, fns.plane_transform_sides, fns.plane_transform_amount, color_intensity, fns.escaping_smooth_algorithm, fns.converging_smooth_algorithm, bms.bump_map, bms.bumpMappingStrength, bms.bumpMappingDepth, bms.lightDirectionDegrees, polar_projection, circle_period, fdes.fake_de, fdes.fake_de_factor, dem_color, special_color, special_use_palette_color, rps.rainbow_palette, rps.rainbow_palette_factor, fs.filters, fs.filters_options_vals, scale_factor_palette_val, processing_alg, fs.filters_colors, fns.coupling, fns.user_formula_coupled, fns.coupling_method, fns.coupling_amplitude, fns.coupling_frequency, fns.coupling_seed, ds.domain_coloring, ds.use_palette_domain_coloring, ds.domain_coloring_alg, inverse_dem, fdes.inverse_fake_dem, fs.filters_options_extra_vals, fs.filters_extra_colors, color_smoothing_method, fs.filters_order, bms.bm_noise_reducing_factor, rps.rp_noise_reducing_factor, ens.entropy_coloring, ens.entropy_palette_factor, ens.en_noise_reducing_factor, fns.apply_plane_on_julia_seed, ofs.offset_coloring, ofs.post_process_offset, ofs.of_noise_reducing_factor, ens.en_blending, rps.rp_blending, ofs.of_blending, ens.entropy_offset, rps.rainbow_offset, gss.greyscale_coloring, gss.gs_noise_reducing_factor, transfer_function, color_blending, bms.bump_transfer_function, bms.bump_transfer_factor, bms.bump_blending, bms.bumpProcessing, ColorAlgorithm.GlobalIncrementBypass, fns.waveType, fns.plane_transform_wavelength, fns.laguerre_deg, ds.iso_distance, ds.iso_factor, ds.logBase, ds.normType, ds.gridFactor, ds.circlesBlending, ds.isoLinesBlendingFactor, ds.gridBlending, ds.gridColor, ds.circlesColor, ds.isoLinesColor, ds.contourBlending, ds.drawColor, ds.drawContour, ds.drawGrid, ds.drawCircles, ds.drawIsoLines, ds.customDomainColoring, ds.colorType, ds.contourType, ens.entropy_algorithm, ds.domainOrder, gs.colorA, gs.colorB, gs.gradient_color_space, gs.gradient_interpolation, gs.gradient_reversed, rps.rainbow_algorithm, ots.useTraps, ots.trapPoint, ots.trapLength, ots.trapWidth, ots.trapType, ots.trapMaxDistance, ots.trapBlending, ots.trapNorm, ots.trapUseSpecialColor, ots.lineType, cns.contour_coloring, cns.cn_noise_reducing_factor, cns.cn_blending, cns.contour_algorithm, ThreadDraw.USE_DIRECT_COLOR, fns.kleinianLine, fns.kleinianK, fns.kleinianM, xJuliaCenter, yJuliaCenter);
             } else {
                 int temp_bailout_test_algorithm = 0;
 
                 if (!isConvergingType()) {
-                    temp_bailout_test_algorithm = bailout_test_algorithm;
+                    temp_bailout_test_algorithm = fns.bailout_test_algorithm;
                 }
 
-                settings = new SettingsFractals1068(xCenter, yCenter, size, max_iterations, color_choice, fractal_color, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, function, temp_bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, plane_type, apply_plane_on_julia, burning_ship, z_exponent, z_exponent_complex, color_cycling_location, coefficients, custom_palette, color_interpolation, color_space, reversed_palette, rotation, rotation_center, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, mandel_grass, mandel_grass_vals, z_exponent_nova, relaxation, nova_method, user_formula, user_formula2, bail_technique, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_angle2, plane_transform_sides, plane_transform_amount, color_intensity, escaping_smooth_algorithm, converging_smooth_algorithm, bms.bump_map, bms.bumpMappingStrength, bms.bumpMappingDepth, bms.lightDirectionDegrees, polar_projection, circle_period, fdes.fake_de, fdes.fake_de_factor, user_fz_formula, user_dfz_formula, user_ddfz_formula, dem_color, special_color, special_use_palette_color, rps.rainbow_palette, rps.rainbow_palette_factor, fs.filters, fs.filters_options_vals, scale_factor_palette_val, processing_alg, fs.filters_colors, coupling, user_formula_coupled, coupling_method, coupling_amplitude, coupling_frequency, coupling_seed, ds.domain_coloring, ds.use_palette_domain_coloring, ds.domain_coloring_alg, inverse_dem, fdes.inverse_fake_dem, fs.filters_options_extra_vals, fs.filters_extra_colors, color_smoothing_method, fs.filters_order, bms.bm_noise_reducing_factor, rps.rp_noise_reducing_factor, ens.entropy_coloring, ens.entropy_palette_factor, ens.en_noise_reducing_factor, apply_plane_on_julia_seed, ofs.offset_coloring, ofs.post_process_offset, ofs.of_noise_reducing_factor, ens.en_blending, rps.rp_blending, ofs.of_blending, ens.entropy_offset, rps.rainbow_offset, gss.greyscale_coloring, gss.gs_noise_reducing_factor, transfer_function, color_blending, bms.bump_transfer_function, bms.bump_transfer_factor, bms.bump_blending, bms.bumpProcessing, ColorAlgorithm.GlobalIncrementBypass, waveType, plane_transform_wavelength, laguerre_deg, ds.iso_distance, ds.iso_factor, ds.logBase, ds.normType, ds.gridFactor, ds.circlesBlending, ds.isoLinesBlendingFactor, ds.gridBlending, ds.gridColor, ds.circlesColor, ds.isoLinesColor, ds.contourBlending, ds.drawColor, ds.drawContour, ds.drawGrid, ds.drawCircles, ds.drawIsoLines, ds.customDomainColoring, ds.colorType, ds.contourType, ens.entropy_algorithm, ds.domainOrder, gs.colorA, gs.colorB, gs.gradient_color_space, gs.gradient_interpolation, gs.gradient_reversed, rps.rainbow_algorithm, ots.useTraps, ots.trapPoint, ots.trapLength, ots.trapWidth, ots.trapType, ots.trapMaxDistance, ots.trapBlending, ots.trapNorm, ots.trapUseSpecialColor);
+                settings = new SettingsFractals1069(xCenter, yCenter, size, max_iterations, color_choice, fractal_color, fns.out_coloring_algorithm, fns.user_out_coloring_algorithm, fns.outcoloring_formula, fns.user_outcoloring_conditions, fns.user_outcoloring_condition_formula, fns.in_coloring_algorithm, fns.user_in_coloring_algorithm, fns.incoloring_formula, fns.user_incoloring_conditions, fns.user_incoloring_condition_formula, fns.smoothing, fns.function, temp_bailout_test_algorithm, fns.bailout, fns.bailout_test_user_formula, fns.bailout_test_user_formula2, fns.bailout_test_comparison, fns.n_norm, fns.plane_type, fns.apply_plane_on_julia, fns.burning_ship, fns.z_exponent, fns.z_exponent_complex, color_cycling_location, fns.coefficients, custom_palette, color_interpolation, color_space, reversed_palette, fns.rotation, fns.rotation_center, fns.perturbation, fns.perturbation_vals, fns.variable_perturbation, fns.user_perturbation_algorithm, fns.user_perturbation_conditions, fns.user_perturbation_condition_formula, fns.perturbation_user_formula, fns.init_val, fns.initial_vals, fns.variable_init_value, fns.user_initial_value_algorithm, fns.user_initial_value_conditions, fns.user_initial_value_condition_formula, fns.initial_value_user_formula, fns.mandel_grass, fns.mandel_grass_vals, fns.z_exponent_nova, fns.relaxation, fns.nova_method, fns.user_formula, fns.user_formula2, fns.bail_technique, fns.user_plane, fns.user_plane_algorithm, fns.user_plane_conditions, fns.user_plane_condition_formula, fns.user_formula_iteration_based, fns.user_formula_conditions, fns.user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, fns.plane_transform_center, fns.plane_transform_angle, fns.plane_transform_radius, fns.plane_transform_scales, fns.plane_transform_angle2, fns.plane_transform_sides, fns.plane_transform_amount, color_intensity, fns.escaping_smooth_algorithm, fns.converging_smooth_algorithm, bms.bump_map, bms.bumpMappingStrength, bms.bumpMappingDepth, bms.lightDirectionDegrees, polar_projection, circle_period, fdes.fake_de, fdes.fake_de_factor, fns.user_fz_formula, fns.user_dfz_formula, fns.user_ddfz_formula, dem_color, special_color, special_use_palette_color, rps.rainbow_palette, rps.rainbow_palette_factor, fs.filters, fs.filters_options_vals, scale_factor_palette_val, processing_alg, fs.filters_colors, fns.coupling, fns.user_formula_coupled, fns.coupling_method, fns.coupling_amplitude, fns.coupling_frequency, fns.coupling_seed, ds.domain_coloring, ds.use_palette_domain_coloring, ds.domain_coloring_alg, inverse_dem, fdes.inverse_fake_dem, fs.filters_options_extra_vals, fs.filters_extra_colors, color_smoothing_method, fs.filters_order, bms.bm_noise_reducing_factor, rps.rp_noise_reducing_factor, ens.entropy_coloring, ens.entropy_palette_factor, ens.en_noise_reducing_factor, fns.apply_plane_on_julia_seed, ofs.offset_coloring, ofs.post_process_offset, ofs.of_noise_reducing_factor, ens.en_blending, rps.rp_blending, ofs.of_blending, ens.entropy_offset, rps.rainbow_offset, gss.greyscale_coloring, gss.gs_noise_reducing_factor, transfer_function, color_blending, bms.bump_transfer_function, bms.bump_transfer_factor, bms.bump_blending, bms.bumpProcessing, ColorAlgorithm.GlobalIncrementBypass, fns.waveType, fns.plane_transform_wavelength, fns.laguerre_deg, ds.iso_distance, ds.iso_factor, ds.logBase, ds.normType, ds.gridFactor, ds.circlesBlending, ds.isoLinesBlendingFactor, ds.gridBlending, ds.gridColor, ds.circlesColor, ds.isoLinesColor, ds.contourBlending, ds.drawColor, ds.drawContour, ds.drawGrid, ds.drawCircles, ds.drawIsoLines, ds.customDomainColoring, ds.colorType, ds.contourType, ens.entropy_algorithm, ds.domainOrder, gs.colorA, gs.colorB, gs.gradient_color_space, gs.gradient_interpolation, gs.gradient_reversed, rps.rainbow_algorithm, ots.useTraps, ots.trapPoint, ots.trapLength, ots.trapWidth, ots.trapType, ots.trapMaxDistance, ots.trapBlending, ots.trapNorm, ots.trapUseSpecialColor, ots.lineType, cns.contour_coloring, cns.cn_noise_reducing_factor, cns.cn_blending, cns.contour_algorithm, ThreadDraw.USE_DIRECT_COLOR, fns.kleinianLine, fns.kleinianK, fns.kleinianM);
             }
             file_temp.writeObject(settings);
             file_temp.flush();
@@ -1254,9 +1029,9 @@ public class Settings implements Constants {
     }
 
     public void startingPosition() {
-        switch (function) {
+        switch (fns.function) {
             case LAMBDA:
-                if (julia) {
+                if (fns.julia) {
                     xCenter = 0.5;
                     yCenter = 0;
                     size = 6;
@@ -1267,7 +1042,7 @@ public class Settings implements Constants {
                 }
                 break;
             case MAGNET1:
-                if (julia) {
+                if (fns.julia) {
                     xCenter = 0;
                     yCenter = 0;
                     size = 28;
@@ -1278,7 +1053,7 @@ public class Settings implements Constants {
                 }
                 break;
             case MAGNET2:
-                if (julia) {
+                if (fns.julia) {
                     xCenter = 0;
                     yCenter = 0;
                     size = 56;
@@ -1326,13 +1101,14 @@ public class Settings implements Constants {
             case FORMULA12:
             case SZEGEDI_BUTTERFLY1:
             case SZEGEDI_BUTTERFLY2:
+            case KLEINIAN:
             case FORMULA42:
                 xCenter = 0;
                 yCenter = 0;
                 size = 12;
                 break;
             case FORMULA27:
-                if (julia) {
+                if (fns.julia) {
                     xCenter = -2;
                     yCenter = 0;
                     size = 6;
@@ -1344,7 +1120,7 @@ public class Settings implements Constants {
                 break;
             case FORMULA28:
             case FORMULA29:
-                if (julia) {
+                if (fns.julia) {
                     xCenter = 0;
                     yCenter = 0;
                     size = 12;
@@ -1355,7 +1131,7 @@ public class Settings implements Constants {
                 }
                 break;
             case FORMULA38:
-                if (julia) {
+                if (fns.julia) {
                     xCenter = 0;
                     yCenter = 0;
                     size = 6;
@@ -1376,92 +1152,92 @@ public class Settings implements Constants {
     public void resetUserOutColoringFormulas() {
 
         if (isConvergingType()) {
-            user_out_coloring_algorithm = 0;
+            fns.user_out_coloring_algorithm = 0;
 
-            outcoloring_formula = "n + (log(cbail) / 2 - log(norm(p - pp))) / (log(norm(z - p)) - log(norm(p - pp)))";
+            fns.outcoloring_formula = "n + (log(cbail) / 2 - log(norm(p - pp))) / (log(norm(z - p)) - log(norm(p - pp)))";
 
-            user_outcoloring_conditions[0] = "im(z)";
-            user_outcoloring_conditions[1] = "0";
+            fns.user_outcoloring_conditions[0] = "im(z)";
+            fns.user_outcoloring_conditions[1] = "0";
 
-            user_outcoloring_condition_formula[0] = "n + (log(cbail) / 2 - log(norm(p - pp))) / (log(norm(z - p)) - log(norm(p - pp)))";
-            user_outcoloring_condition_formula[1] = "-(n + (log(cbail) / 2 - log(norm(p - pp))) / (log(norm(z - p)) - log(norm(p - pp))) + 50)";
-            user_outcoloring_condition_formula[2] = "n + (log(cbail) / 2 - log(norm(p - pp))) / (log(norm(z - p)) - log(norm(p - pp)))";
-        } else if (function == MAGNET1) {
-            user_out_coloring_algorithm = 1;
+            fns.user_outcoloring_condition_formula[0] = "n + (log(cbail) / 2 - log(norm(p - pp))) / (log(norm(z - p)) - log(norm(p - pp)))";
+            fns.user_outcoloring_condition_formula[1] = "-(n + (log(cbail) / 2 - log(norm(p - pp))) / (log(norm(z - p)) - log(norm(p - pp))) + 50)";
+            fns.user_outcoloring_condition_formula[2] = "n + (log(cbail) / 2 - log(norm(p - pp))) / (log(norm(z - p)) - log(norm(p - pp)))";
+        } else if (fns.function == MAGNET1) {
+            fns.user_out_coloring_algorithm = 1;
 
-            outcoloring_formula = "n + (log(bail) - log(norm(p) + 0.000000001)) / (log(norm(z)) - log(norm(p) + 0.000000001))";
+            fns.outcoloring_formula = "n + (log(bail) - log(norm(p) + 0.000000001)) / (log(norm(z)) - log(norm(p) + 0.000000001))";
 
-            user_outcoloring_conditions[0] = "norm(z-1)^2";
-            user_outcoloring_conditions[1] = "1e-12";
+            fns.user_outcoloring_conditions[0] = "norm(z-1)^2";
+            fns.user_outcoloring_conditions[1] = "1e-12";
 
-            user_outcoloring_condition_formula[0] = "n + (log(bail) - log(norm(p) + 0.000000001)) / (log(norm(z)) - log(norm(p) + 0.000000001))";
-            user_outcoloring_condition_formula[1] = "n + (log(1e-12) / 2 - log(norm(p - 1))) / (log(norm(z - 1)) - log(norm(p - 1)))";
-            user_outcoloring_condition_formula[2] = "n + (log(1e-12) / 2 - log(norm(p - 1))) / (log(norm(z - 1)) - log(norm(p - 1)))";
-        } else if (function == MAGNET2) {
-            user_out_coloring_algorithm = 1;
+            fns.user_outcoloring_condition_formula[0] = "n + (log(bail) - log(norm(p) + 0.000000001)) / (log(norm(z)) - log(norm(p) + 0.000000001))";
+            fns.user_outcoloring_condition_formula[1] = "n + (log(1e-12) / 2 - log(norm(p - 1))) / (log(norm(z - 1)) - log(norm(p - 1)))";
+            fns.user_outcoloring_condition_formula[2] = "n + (log(1e-12) / 2 - log(norm(p - 1))) / (log(norm(z - 1)) - log(norm(p - 1)))";
+        } else if (fns.function == MAGNET2) {
+            fns.user_out_coloring_algorithm = 1;
 
-            outcoloring_formula = "n + (log(bail) - log(norm(p) + 0.000000001)) / (log(norm(z)) - log(norm(p) + 0.000000001))";
+            fns.outcoloring_formula = "n + (log(bail) - log(norm(p) + 0.000000001)) / (log(norm(z)) - log(norm(p) + 0.000000001))";
 
-            user_outcoloring_conditions[0] = "norm(z-1)^2";
-            user_outcoloring_conditions[1] = "1e-9";
+            fns.user_outcoloring_conditions[0] = "norm(z-1)^2";
+            fns.user_outcoloring_conditions[1] = "1e-9";
 
-            user_outcoloring_condition_formula[0] = "n + (log(bail) - log(norm(p) + 0.000000001)) / (log(norm(z)) - log(norm(p) + 0.000000001))";
-            user_outcoloring_condition_formula[1] = "n + (log(1e-9) / 2 - log(norm(p - 1))) / (log(norm(z - 1)) - log(norm(p - 1)))";
-            user_outcoloring_condition_formula[2] = "n + (log(1e-9) / 2 - log(norm(p - 1))) / (log(norm(z - 1)) - log(norm(p - 1)))";
+            fns.user_outcoloring_condition_formula[0] = "n + (log(bail) - log(norm(p) + 0.000000001)) / (log(norm(z)) - log(norm(p) + 0.000000001))";
+            fns.user_outcoloring_condition_formula[1] = "n + (log(1e-9) / 2 - log(norm(p - 1))) / (log(norm(z - 1)) - log(norm(p - 1)))";
+            fns.user_outcoloring_condition_formula[2] = "n + (log(1e-9) / 2 - log(norm(p - 1))) / (log(norm(z - 1)) - log(norm(p - 1)))";
         } else {
-            user_out_coloring_algorithm = 0;
+            fns.user_out_coloring_algorithm = 0;
 
-            outcoloring_formula = "n + (log(bail) - log(norm(p) + 0.000000001)) / (log(norm(z)) - log(norm(p) + 0.000000001))";
+            fns.outcoloring_formula = "n + (log(bail) - log(norm(p) + 0.000000001)) / (log(norm(z)) - log(norm(p) + 0.000000001))";
 
-            user_outcoloring_conditions[0] = "im(z)";
-            user_outcoloring_conditions[1] = "0";
+            fns.user_outcoloring_conditions[0] = "im(z)";
+            fns.user_outcoloring_conditions[1] = "0";
 
-            user_outcoloring_condition_formula[0] = "n + (log(bail) - log(norm(p) + 0.000000001)) / (log(norm(z)) - log(norm(p) + 0.000000001))";
-            user_outcoloring_condition_formula[1] = "-(n + (log(bail) - log(norm(p) + 0.000000001)) / (log(norm(z)) - log(norm(p) + 0.000000001)) + 50)";
-            user_outcoloring_condition_formula[2] = "n + (log(bail) - log(norm(p) + 0.000000001)) / (log(norm(z)) - log(norm(p) + 0.000000001))";
+            fns.user_outcoloring_condition_formula[0] = "n + (log(bail) - log(norm(p) + 0.000000001)) / (log(norm(z)) - log(norm(p) + 0.000000001))";
+            fns.user_outcoloring_condition_formula[1] = "-(n + (log(bail) - log(norm(p) + 0.000000001)) / (log(norm(z)) - log(norm(p) + 0.000000001)) + 50)";
+            fns.user_outcoloring_condition_formula[2] = "n + (log(bail) - log(norm(p) + 0.000000001)) / (log(norm(z)) - log(norm(p) + 0.000000001))";
         }
     }
 
     public void defaultFractalSettings() {
 
-        switch (function) {
+        switch (fns.function) {
             case LAMBDA:
-                if (julia) {
+                if (fns.julia) {
                     xCenter = 0.5;
                     yCenter = 0;
                     size = 6;
-                    bailout = bailout < 8 ? 8 : bailout;
+                    fns.bailout = fns.bailout < 8 ? 8 : fns.bailout;
                 } else {
                     xCenter = 1;
                     yCenter = 0;
                     size = 8;
-                    bailout = bailout < 2 ? 2 : bailout;
+                    fns.bailout = fns.bailout < 2 ? 2 : fns.bailout;
                 }
                 break;
             case MAGNET1:
-                if (julia) {
+                if (fns.julia) {
                     xCenter = 0;
                     yCenter = 0;
                     size = 28;
-                    bailout = bailout < 13 ? 13 : bailout;
+                    fns.bailout = fns.bailout < 13 ? 13 : fns.bailout;
                 } else {
                     xCenter = 1.35;
                     yCenter = 0;
                     size = 8;
-                    bailout = bailout < 13 ? 13 : bailout;
+                    fns.bailout = fns.bailout < 13 ? 13 : fns.bailout;
                 }
                 break;
             case MAGNET2:
-                if (julia) {
+                if (fns.julia) {
                     xCenter = 0;
                     yCenter = 0;
                     size = 56;
-                    bailout = bailout < 13 ? 13 : bailout;
+                    fns.bailout = fns.bailout < 13 ? 13 : fns.bailout;
                 } else {
                     xCenter = 1;
                     yCenter = 0;
                     size = 7;
-                    bailout = bailout < 13 ? 13 : bailout;
+                    fns.bailout = fns.bailout < 13 ? 13 : fns.bailout;
                 }
                 break;
             case NEWTON3:
@@ -1542,13 +1318,18 @@ public class Settings implements Constants {
                 xCenter = 0;
                 yCenter = 0;
                 size = 7;
-                bailout = bailout < 2 ? 2 : bailout;
+                fns.bailout = fns.bailout < 2 ? 2 : fns.bailout;
                 break;
             case SIERPINSKI_GASKET:
                 xCenter = 0.5;
                 yCenter = 0.5;
                 size = 3;
-                bailout = bailout < 100 ? 100 : bailout;
+                fns.bailout = fns.bailout < 100 ? 100 : fns.bailout;
+                break;
+            case KLEINIAN:
+                xCenter = 0;
+                yCenter = 0;
+                size = 12;
                 break;
             case EXP:
             case LOG:
@@ -1572,13 +1353,13 @@ public class Settings implements Constants {
                 xCenter = 0;
                 yCenter = 0;
                 size = 6;
-                bailout = bailout < 8 ? 8 : bailout;
+                fns.bailout = fns.bailout < 8 ? 8 : fns.bailout;
                 break;
             case FORMULA1:
                 xCenter = 0;
                 yCenter = 0;
                 size = 24;
-                bailout = bailout < 8 ? 8 : bailout;
+                fns.bailout = fns.bailout < 8 ? 8 : fns.bailout;
                 break;
             case FORMULA2:
             case FORMULA13:
@@ -1590,7 +1371,7 @@ public class Settings implements Constants {
                 xCenter = 0;
                 yCenter = 0;
                 size = 6;
-                bailout = bailout < 4 ? 4 : bailout;
+                fns.bailout = fns.bailout < 4 ? 4 : fns.bailout;
                 break;
             case FORMULA3:
             case FORMULA9:
@@ -1598,59 +1379,59 @@ public class Settings implements Constants {
                 xCenter = 0;
                 yCenter = 0;
                 size = 3;
-                bailout = bailout < 4 ? 4 : bailout;
+                fns.bailout = fns.bailout < 4 ? 4 : fns.bailout;
                 break;
             case FORMULA4:
             case FORMULA5:
                 xCenter = 0;
                 yCenter = 0;
                 size = 1.5;
-                bailout = bailout < 4 ? 4 : bailout;
+                fns.bailout = fns.bailout < 4 ? 4 : fns.bailout;
                 break;
             case FORMULA7:
             case FORMULA12:
                 xCenter = 0;
                 yCenter = 0;
                 size = 12;
-                bailout = bailout < 8 ? 8 : bailout;
+                fns.bailout = fns.bailout < 8 ? 8 : fns.bailout;
                 break;
             case FORMULA8:
                 xCenter = 0;
                 yCenter = 0;
                 size = 3;
-                bailout = bailout < 16 ? 16 : bailout;
+                fns.bailout = fns.bailout < 16 ? 16 : fns.bailout;
                 break;
             case FORMULA11:
                 xCenter = 0;
                 yCenter = 0;
                 size = 1.5;
-                bailout = bailout < 100 ? 100 : bailout;
+                fns.bailout = fns.bailout < 100 ? 100 : fns.bailout;
                 break;
             case FORMULA27:
-                if (julia) {
+                if (fns.julia) {
                     xCenter = -2;
                     yCenter = 0;
                     size = 6;
-                    bailout = bailout < 8 ? 8 : bailout;
+                    fns.bailout = fns.bailout < 8 ? 8 : fns.bailout;
                 } else {
                     xCenter = 0;
                     yCenter = 0;
                     size = 3;
-                    bailout = bailout < 8 ? 8 : bailout;
+                    fns.bailout = fns.bailout < 8 ? 8 : fns.bailout;
                 }
                 break;
             case FORMULA28:
             case FORMULA29:
-                if (julia) {
+                if (fns.julia) {
                     xCenter = 0;
                     yCenter = 0;
                     size = 12;
-                    bailout = bailout < 16 ? 16 : bailout;
+                    fns.bailout = fns.bailout < 16 ? 16 : fns.bailout;
                 } else {
                     xCenter = 0;
                     yCenter = 0;
                     size = 3;
-                    bailout = bailout < 16 ? 16 : bailout;
+                    fns.bailout = fns.bailout < 16 ? 16 : fns.bailout;
                 }
                 break;
             case FORMULA32:
@@ -1661,58 +1442,58 @@ public class Settings implements Constants {
                 xCenter = 0;
                 yCenter = 0;
                 size = 6;
-                bailout = bailout < 16 ? 16 : bailout;
+                fns.bailout = fns.bailout < 16 ? 16 : fns.bailout;
                 break;
             case FORMULA38:
-                if (julia) {
+                if (fns.julia) {
                     xCenter = 0;
                     yCenter = 0;
                     size = 6;
-                    bailout = bailout < 2 ? 2 : bailout;
+                    fns.bailout = fns.bailout < 2 ? 2 : fns.bailout;
                 } else {
                     xCenter = 0;
                     yCenter = 0;
                     size = 1.5;
-                    bailout = bailout < 2 ? 2 : bailout;
+                    fns.bailout = fns.bailout < 2 ? 2 : fns.bailout;
                 }
                 break;
             case FORMULA42:
                 xCenter = 0;
                 yCenter = 0;
                 size = 12;
-                bailout = bailout < 12 ? 12 : bailout;
+                fns.bailout = fns.bailout < 12 ? 12 : fns.bailout;
                 break;
             case FORMULA43:
                 xCenter = 0;
                 yCenter = 0;
                 size = 24;
-                bailout = bailout < 12 ? 12 : bailout;
+                fns.bailout = fns.bailout < 12 ? 12 : fns.bailout;
                 break;
             case FORMULA44:
             case FORMULA45:
                 xCenter = 0;
                 yCenter = 0;
                 size = 24;
-                bailout = bailout < 16 ? 16 : bailout;
+                fns.bailout = fns.bailout < 16 ? 16 : fns.bailout;
                 break;
             case FORMULA46:
                 xCenter = 0;
                 yCenter = 0;
                 size = 6;
-                bailout = bailout < 100 ? 100 : bailout;
+                fns.bailout = fns.bailout < 100 ? 100 : fns.bailout;
                 break;
             case SZEGEDI_BUTTERFLY1:
             case SZEGEDI_BUTTERFLY2:
                 xCenter = 0;
                 yCenter = 0;
                 size = 12;
-                bailout = bailout < 4 ? 4 : bailout;
+                fns.bailout = fns.bailout < 4 ? 4 : fns.bailout;
                 break;
             default:
                 xCenter = 0;
                 yCenter = 0;
                 size = 6;
-                bailout = bailout < 2 ? 2 : bailout;
+                fns.bailout = fns.bailout < 2 ? 2 : fns.bailout;
                 break;
         }
     }
@@ -1722,61 +1503,61 @@ public class Settings implements Constants {
         int l;
 
         poly = "p(z) = ";
-        for (l = 0; l < coefficients.length - 2; l++) {
-            if (coefficients[l] > 0) {
+        for (l = 0; l < fns.coefficients.length - 2; l++) {
+            if (fns.coefficients[l] > 0) {
                 if (poly.length() == 7) {
-                    poly += coefficients[l] + "z^" + (coefficients.length - l - 1) + "  ";
+                    poly += fns.coefficients[l] + "z^" + (fns.coefficients.length - l - 1) + "  ";
                 } else {
-                    poly += "+" + coefficients[l] + "z^" + (coefficients.length - l - 1) + "  ";
+                    poly += "+" + fns.coefficients[l] + "z^" + (fns.coefficients.length - l - 1) + "  ";
                 }
-            } else if (coefficients[l] < 0) {
-                poly += coefficients[l] + "z^" + (coefficients.length - l - 1) + "  ";
+            } else if (fns.coefficients[l] < 0) {
+                poly += fns.coefficients[l] + "z^" + (fns.coefficients.length - l - 1) + "  ";
             }
         }
 
-        if (coefficients[l] > 0) {
+        if (fns.coefficients[l] > 0) {
             if (poly.length() == 7) {
-                poly += coefficients[l] + "z  ";
+                poly += fns.coefficients[l] + "z  ";
             } else {
-                poly += "+" + coefficients[l] + "z  ";
+                poly += "+" + fns.coefficients[l] + "z  ";
             }
-        } else if (coefficients[l] < 0) {
-            poly += coefficients[l] + "z  ";
+        } else if (fns.coefficients[l] < 0) {
+            poly += fns.coefficients[l] + "z  ";
         }
 
         l++;
-        if (coefficients[l] > 0) {
-            poly += "+" + coefficients[l];
-        } else if (coefficients[l] < 0) {
-            poly += coefficients[l];
+        if (fns.coefficients[l] > 0) {
+            poly += "+" + fns.coefficients[l];
+        } else if (fns.coefficients[l] < 0) {
+            poly += fns.coefficients[l];
         }
     }
 
     public boolean isConvergingType() {
 
         return isRootFindingMethod()
-                || function == NOVA
-                || (function == USER_FORMULA && bail_technique == 1) || (function == USER_FORMULA_ITERATION_BASED && bail_technique == 1) || (function == USER_FORMULA_CONDITIONAL && bail_technique == 1) || (function == USER_FORMULA_COUPLED && bail_technique == 1);
+                || fns.function == NOVA
+                || (fns.function == USER_FORMULA && fns.bail_technique == 1) || (fns.function == USER_FORMULA_ITERATION_BASED && fns.bail_technique == 1) || (fns.function == USER_FORMULA_CONDITIONAL && fns.bail_technique == 1) || (fns.function == USER_FORMULA_COUPLED && fns.bail_technique == 1);
 
     }
 
     public boolean isRootFindingMethod() {
 
-        return function == NEWTON3 || function == NEWTON4 || function == NEWTONGENERALIZED3 || function == NEWTONGENERALIZED8 || function == NEWTONSIN || function == NEWTONCOS || function == NEWTONPOLY || function == NEWTONFORMULA
-                || function == HALLEY3 || function == HALLEY4 || function == HALLEYGENERALIZED3 || function == HALLEYGENERALIZED8 || function == HALLEYSIN || function == HALLEYCOS || function == HALLEYPOLY || function == HALLEYFORMULA
-                || function == SCHRODER3 || function == SCHRODER4 || function == SCHRODERGENERALIZED3 || function == SCHRODERGENERALIZED8 || function == SCHRODERSIN || function == SCHRODERCOS || function == SCHRODERPOLY || function == SCHRODERFORMULA
-                || function == HOUSEHOLDER3 || function == HOUSEHOLDER4 || function == HOUSEHOLDERGENERALIZED3 || function == HOUSEHOLDERGENERALIZED8 || function == HOUSEHOLDERSIN || function == HOUSEHOLDERCOS || function == HOUSEHOLDERPOLY || function == HOUSEHOLDERFORMULA
-                || function == SECANT3 || function == SECANT4 || function == SECANTGENERALIZED3 || function == SECANTGENERALIZED8 || function == SECANTCOS || function == SECANTPOLY || function == SECANTFORMULA
-                || function == STEFFENSEN3 || function == STEFFENSEN4 || function == STEFFENSENGENERALIZED3 || function == STEFFENSENPOLY || function == STEFFENSENFORMULA
-                || function == MULLER3 || function == MULLER4 || function == MULLERGENERALIZED3 || function == MULLERGENERALIZED8 || function == MULLERSIN || function == MULLERCOS || function == MULLERPOLY || function == MULLERFORMULA
-                || function == PARHALLEY3 || function == PARHALLEY4 || function == PARHALLEYGENERALIZED3 || function == PARHALLEYGENERALIZED8 || function == PARHALLEYSIN || function == PARHALLEYCOS || function == PARHALLEYPOLY || function == PARHALLEYFORMULA
-                || function == LAGUERRE3 || function == LAGUERRE4 || function == LAGUERREGENERALIZED3 || function == LAGUERREGENERALIZED8 || function == LAGUERRESIN || function == LAGUERRECOS || function == LAGUERREPOLY || function == LAGUERREFORMULA;
+        return fns.function == NEWTON3 || fns.function == NEWTON4 || fns.function == NEWTONGENERALIZED3 || fns.function == NEWTONGENERALIZED8 || fns.function == NEWTONSIN || fns.function == NEWTONCOS || fns.function == NEWTONPOLY || fns.function == NEWTONFORMULA
+                || fns.function == HALLEY3 || fns.function == HALLEY4 || fns.function == HALLEYGENERALIZED3 || fns.function == HALLEYGENERALIZED8 || fns.function == HALLEYSIN || fns.function == HALLEYCOS || fns.function == HALLEYPOLY || fns.function == HALLEYFORMULA
+                || fns.function == SCHRODER3 || fns.function == SCHRODER4 || fns.function == SCHRODERGENERALIZED3 || fns.function == SCHRODERGENERALIZED8 || fns.function == SCHRODERSIN || fns.function == SCHRODERCOS || fns.function == SCHRODERPOLY || fns.function == SCHRODERFORMULA
+                || fns.function == HOUSEHOLDER3 || fns.function == HOUSEHOLDER4 || fns.function == HOUSEHOLDERGENERALIZED3 || fns.function == HOUSEHOLDERGENERALIZED8 || fns.function == HOUSEHOLDERSIN || fns.function == HOUSEHOLDERCOS || fns.function == HOUSEHOLDERPOLY || fns.function == HOUSEHOLDERFORMULA
+                || fns.function == SECANT3 || fns.function == SECANT4 || fns.function == SECANTGENERALIZED3 || fns.function == SECANTGENERALIZED8 || fns.function == SECANTCOS || fns.function == SECANTPOLY || fns.function == SECANTFORMULA
+                || fns.function == STEFFENSEN3 || fns.function == STEFFENSEN4 || fns.function == STEFFENSENGENERALIZED3 || fns.function == STEFFENSENPOLY || fns.function == STEFFENSENFORMULA
+                || fns.function == MULLER3 || fns.function == MULLER4 || fns.function == MULLERGENERALIZED3 || fns.function == MULLERGENERALIZED8 || fns.function == MULLERSIN || fns.function == MULLERCOS || fns.function == MULLERPOLY || fns.function == MULLERFORMULA
+                || fns.function == PARHALLEY3 || fns.function == PARHALLEY4 || fns.function == PARHALLEYGENERALIZED3 || fns.function == PARHALLEYGENERALIZED8 || fns.function == PARHALLEYSIN || fns.function == PARHALLEYCOS || fns.function == PARHALLEYPOLY || fns.function == PARHALLEYFORMULA
+                || fns.function == LAGUERRE3 || fns.function == LAGUERRE4 || fns.function == LAGUERREGENERALIZED3 || fns.function == LAGUERREGENERALIZED8 || fns.function == LAGUERRESIN || fns.function == LAGUERRECOS || fns.function == LAGUERREPOLY || fns.function == LAGUERREFORMULA;
 
     }
 
     public boolean functionSupportsC() {
 
-        return !isRootFindingMethod() && function != SIERPINSKI_GASKET && (function != USER_FORMULA || (function == USER_FORMULA && user_formula_c == true)) && (function != USER_FORMULA_ITERATION_BASED || (function == USER_FORMULA_ITERATION_BASED && user_formula_c == true)) && (function != USER_FORMULA_CONDITIONAL || (function == USER_FORMULA_CONDITIONAL && user_formula_c == true)) && (function != USER_FORMULA_COUPLED || (function == USER_FORMULA_COUPLED && user_formula_c == true));
+        return !isRootFindingMethod() && fns.function != KLEINIAN && fns.function != SIERPINSKI_GASKET && (fns.function != USER_FORMULA || (fns.function == USER_FORMULA && user_formula_c == true)) && (fns.function != USER_FORMULA_ITERATION_BASED || (fns.function == USER_FORMULA_ITERATION_BASED && user_formula_c == true)) && (fns.function != USER_FORMULA_CONDITIONAL || (fns.function == USER_FORMULA_CONDITIONAL && user_formula_c == true)) && (fns.function != USER_FORMULA_COUPLED || (fns.function == USER_FORMULA_COUPLED && user_formula_c == true));
 
     }
 

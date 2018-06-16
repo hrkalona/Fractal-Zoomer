@@ -29,7 +29,8 @@ import javax.swing.JFrame;
  * @author hrkalona2
  */
 public class SplashFrame extends JFrame {
-    private SplashThread thread;
+	private static final long serialVersionUID = -3529067027804520472L;
+	private SplashThread thread;
     
 
     public SplashFrame(int version) {

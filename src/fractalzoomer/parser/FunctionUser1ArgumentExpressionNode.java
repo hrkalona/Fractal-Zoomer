@@ -25,7 +25,7 @@ import java.lang.reflect.Modifier;
  * @author hrkalona2
  */
 public class FunctionUser1ArgumentExpressionNode implements ExpressionNode {
-    
+
     public static final int F_FUNCS = 60; //number of f functions
     public static final String FUNC_NAME = "f";
 
@@ -38,7 +38,7 @@ public class FunctionUser1ArgumentExpressionNode implements ExpressionNode {
      * the argument of the function
      */
     private ExpressionNode argument;
-    
+
     private UserDefinedFunctionsInterface lambda;
 
     /**
@@ -54,9 +54,10 @@ public class FunctionUser1ArgumentExpressionNode implements ExpressionNode {
 
         createUserFunction();
     }
-    
+
     /**
-     * Returns the type of the node, in this case ExpressionNode.FUNCTION_USER_ONE_ARG_NODE
+     * Returns the type of the node, in this case
+     * ExpressionNode.FUNCTION_USER_ONE_ARG_NODE
      */
     public int getType() {
         return ExpressionNode.FUNCTION_USER_ONE_ARG_NODE;
@@ -72,8 +73,8 @@ public class FunctionUser1ArgumentExpressionNode implements ExpressionNode {
      */
     public static int stringToFunction(String str) {
 
-        for(int i = 0; i < F_FUNCS; i++) {
-            if(str.equals(FUNC_NAME + (i + 1))) {
+        for (int i = 0; i < F_FUNCS; i++) {
+            if (str.equals(FUNC_NAME + (i + 1))) {
                 return i;
             }
         }
@@ -91,11 +92,10 @@ public class FunctionUser1ArgumentExpressionNode implements ExpressionNode {
      */
     public static String getAllFunctions() {
         String temp_str = "";
-        for(int i = 0; i < F_FUNCS; i++) {
-            if(i == 0) {
+        for (int i = 0; i < F_FUNCS; i++) {
+            if (i == 0) {
                 temp_str += (FUNC_NAME + (i + 1));
-            }
-            else {
+            } else {
                 temp_str += "|" + (FUNC_NAME + (i + 1));
             }
         }
@@ -118,10 +118,10 @@ public class FunctionUser1ArgumentExpressionNode implements ExpressionNode {
         } catch (Exception ex) {
             return new Complex();
         }
- 
+
         //throw new EvaluationException("Invalid function id " + function + "!");
     }
-    
+
     /**
      * Implementation of the visitor design pattern.
      *
@@ -134,7 +134,7 @@ public class FunctionUser1ArgumentExpressionNode implements ExpressionNode {
         visitor.visit(this);
         argument.accept(visitor);
     }
-    
+
     private void createUserFunction() {
 
         try {
@@ -147,10 +147,10 @@ public class FunctionUser1ArgumentExpressionNode implements ExpressionNode {
             if (!method.getReturnType().equals(Complex.class)) {
                 throw new ParserException("Return type error: Method " + method.getName() + " must have a Complex return type.");
             }
-            
+
             lambda = LambdaFactory.create(method, UserDefinedFunctionsInterface.class, FUNC_NAME);               
         } catch (NoSuchMethodException ex) {
-            throw new ParserException("Method not found error: " + Parser.sanitizeMessage(ex.getMessage()) +".\n"
+            throw new ParserException("Method not found error: " + Parser.sanitizeMessage(ex.getMessage()) + ".\n"
                     + "If the function is missing from UserDefinedFunctions.java\nrename the old file, for backup, and restart the application.");
         } catch (Throwable ex) {
             throw new ParserException("Error: " + Parser.sanitizeMessage(ex.getMessage()));

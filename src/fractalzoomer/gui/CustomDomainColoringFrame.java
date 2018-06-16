@@ -29,6 +29,8 @@ import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
@@ -42,6 +44,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -50,6 +53,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.EtchedBorder;
@@ -60,8 +64,8 @@ import javax.swing.border.TitledBorder;
  * @author hrkalona2
  */
 public class CustomDomainColoringFrame extends JFrame {
-
-    private DomainColoringFrame ptra2;
+	private static final long serialVersionUID = 9219140248202199287L;
+	private DomainColoringFrame ptra2;
     private CustomDomainColoringFrame this_frame;
     private static DomainColoringSettings ds;
     private JList<String> list;
@@ -141,6 +145,11 @@ public class CustomDomainColoringFrame extends JFrame {
         list.getSelectionModel().setSelectionMode(
                 ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         list.setTransferHandler(new ListItemTransferHandler());
+        
+        list.getInputMap( JComponent.WHEN_FOCUSED ).getParent().remove( KeyStroke.getKeyStroke( KeyEvent.VK_X, InputEvent.CTRL_DOWN_MASK ) );
+        list.getInputMap( JComponent.WHEN_FOCUSED ).getParent().remove( KeyStroke.getKeyStroke( KeyEvent.VK_C, InputEvent.CTRL_DOWN_MASK ) );
+        list.getInputMap( JComponent.WHEN_FOCUSED ).getParent().remove( KeyStroke.getKeyStroke( KeyEvent.VK_V, InputEvent.CTRL_DOWN_MASK ) );
+        
         list.setDropMode(DropMode.INSERT);
         list.setDragEnabled(true);
         //http://java-swing-tips.blogspot.jp/2008/10/rubber-band-selection-drag-and-drop.html

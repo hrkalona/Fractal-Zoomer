@@ -29,9 +29,9 @@ import javax.swing.JPanel;
  *
  * @author hrkalona2
  */
-public class RoundedPanel extends JPanel
-{
-    protected int _strokeSize = 1;
+public class RoundedPanel extends JPanel {
+	private static final long serialVersionUID = -3983056970333600349L;
+	protected int _strokeSize = 1;
     protected Color _shadowColor = Color.BLACK;
     protected boolean _shadowed;
     protected boolean _highQuality;

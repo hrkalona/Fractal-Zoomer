@@ -38,8 +38,8 @@ import javax.swing.JScrollPane;
  * @author hrkalona2
  */
 public class ColorChooserFrame extends JFrame {
-
-    private JFrame ptr2;
+	private static final long serialVersionUID = 2164955068218376522L;
+	private JFrame ptr2;
     private Object obj2;
 
     public ColorChooserFrame(JFrame ptr, String title, Object obj, final int num) {

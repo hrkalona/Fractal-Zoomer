@@ -17,7 +17,6 @@ limitations under the License.
 package fractalzoomer.filters_utils.image;
 
 import java.awt.*;
-import java.awt.image.*;
 
 /**
  * A filter which uses Floyd-Steinberg error diffusion dithering to halftone an image.

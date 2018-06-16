@@ -34,8 +34,8 @@ import javax.swing.JLabel;
  * @author hrkalona2
  */
 public class MemoryLabel extends JLabel {
-
-    private final double MiB = 1024 * 1024;
+	private static final long serialVersionUID = 3645023799182837311L;
+	private final double MiB = 1024 * 1024;
     private double maxMemory;
     private final double installedMemory = getInstalledMemory() / MiB;
     private double allocatedMemory, usedMemory;

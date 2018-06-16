@@ -16,8 +16,6 @@ limitations under the License.
 
 package fractalzoomer.filters_utils.image;
 
-import java.awt.image.*;
-import java.util.*;
 import fractalzoomer.filters_utils.math.*;
 
 public class MarbleTexFilter extends PointFilter {
@@ -96,7 +94,6 @@ public class MarbleTexFilter extends PointFilter {
 		nx /= scale * stretch;
 		ny /= scale;
 
-		int a = rgb & 0xff000000;
 		if (colormap != null) {
 //			float f = Noise.turbulence2(nx, ny, turbulence);
 //			f = 3*turbulenceFactor*f+ny;

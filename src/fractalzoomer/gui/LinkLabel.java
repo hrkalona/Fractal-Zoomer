@@ -45,8 +45,9 @@ import javax.swing.JLabel;
  * @author hrkalona2
  */
 public class LinkLabel extends JLabel {
+	private static final long serialVersionUID = -2211053049657887277L;
 
-    public LinkLabel(final String text, final String url) {
+	public LinkLabel(final String text, final String url) {
         setText(text);
         setForeground(Color.BLUE);
         setCursor(new Cursor(Cursor.HAND_CURSOR));

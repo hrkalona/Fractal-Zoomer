@@ -53,6 +53,7 @@ import javax.swing.border.TitledBorder;
  * @author hrkalona
  */
 public class FiltersOptionsFrame extends JFrame {
+   private static final long serialVersionUID = 8403887745045484988L;
    private MainWindow ptra2;
    private Object[] components_filters;
    private int[] filters_options_vals;

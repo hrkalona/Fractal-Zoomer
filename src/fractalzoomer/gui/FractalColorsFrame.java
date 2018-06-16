@@ -45,7 +45,8 @@ import javax.swing.border.TitledBorder;
  * @author hrkalona2
  */
 public class FractalColorsFrame extends JFrame {
-    private MainWindow ptra2;
+	private static final long serialVersionUID = -5730162942925825123L;
+	private MainWindow ptra2;
     private FractalColorsFrame this_frame;
     
     public FractalColorsFrame(MainWindow ptra, Color max_it_color, Color dem_color, Color special_color, boolean use_palette_color_special, boolean special_bypass) {

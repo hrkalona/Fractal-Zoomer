@@ -18,7 +18,9 @@ package fractalzoomer.functions.general;
 
 import fractalzoomer.core.Complex;
 import fractalzoomer.functions.Fractal;
+import fractalzoomer.in_coloring_algorithms.InColorAlgorithm;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
+import fractalzoomer.out_coloring_algorithms.OutColorAlgorithm;
 
 import java.util.ArrayList;
 
@@ -123,7 +125,7 @@ public class SierpinskiGasket extends Fractal {
             if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, pixel, start, vars)) {
                 Object[] object = {iterations, complex[0], zold, zold2, pixel, start, vars};
                 temp = out_color_algorithm.getResult(object);
-                double[] array = {out_color_algorithm.transformResultToHeight(temp, max_iterations), temp};
+                double[] array = {OutColorAlgorithm.transformResultToHeight(temp, max_iterations), temp};
                 return array;
             }
             zold2.assign(zold);
@@ -134,7 +136,7 @@ public class SierpinskiGasket extends Fractal {
 
         Object[] object = {complex[0], zold, zold2, pixel, start, vars};
         temp = in_color_algorithm.getResult(object);
-        double[] array = {in_color_algorithm.transformResultToHeight(temp, max_iterations), temp};
+        double[] array = {InColorAlgorithm.transformResultToHeight(temp, max_iterations), temp};
         return array;
 
     }

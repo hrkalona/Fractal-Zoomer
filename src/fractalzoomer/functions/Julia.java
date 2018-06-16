@@ -17,7 +17,9 @@
 package fractalzoomer.functions;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.in_coloring_algorithms.InColorAlgorithm;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
+import fractalzoomer.out_coloring_algorithms.OutColorAlgorithm;
 import fractalzoomer.utils.ColorAlgorithm;
 
 import java.util.ArrayList;
@@ -206,7 +208,7 @@ public abstract class Julia extends Fractal {
             if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, vars)) {
                 Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, vars};
                 temp = out_color_algorithm.getResult(object);
-                double[] array = {out_color_algorithm.transformResultToHeight(temp, max_iterations), temp};
+                double[] array = {OutColorAlgorithm.transformResultToHeight(temp, max_iterations), temp};
                 return array;
             }
             zold2.assign(zold);
@@ -250,7 +252,7 @@ public abstract class Julia extends Fractal {
             if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, vars)) {
                 Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, vars};
                 temp = out_color_algorithm.getResult(object);
-                double[] array = {out_color_algorithm.transformResultToHeight(temp, max_iterations), temp};
+                double[] array = {OutColorAlgorithm.transformResultToHeight(temp, max_iterations), temp};
                 return array;
             }
             zold2.assign(zold);
@@ -261,7 +263,7 @@ public abstract class Julia extends Fractal {
 
         Object[] object = {complex[0], zold, zold2, complex[1], start, vars};
         temp = in_color_algorithm.getResult(object);
-        double[] array = {in_color_algorithm.transformResultToHeight(temp, max_iterations), temp};
+        double[] array = {InColorAlgorithm.transformResultToHeight(temp, max_iterations), temp};
         return array;
 
     }

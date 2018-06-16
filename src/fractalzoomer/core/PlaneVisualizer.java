@@ -114,7 +114,7 @@ public class PlaneVisualizer {
         
         usesCenter = false;
 
-        switch (s.plane_type) {
+        switch (s.fns.plane_type) {
             case MainWindow.MU_PLANE:
                 plane = new MuPlane();
                 break;
@@ -230,22 +230,22 @@ public class PlaneVisualizer {
                 plane = new AbsPlane();
                 break;
             case MainWindow.FOLDUP_PLANE:
-                plane = new FoldUpPlane(s.plane_transform_center);
+                plane = new FoldUpPlane(s.fns.plane_transform_center);
                 break;
             case MainWindow.FOLDDOWN_PLANE:
-                plane = new FoldDownPlane(s.plane_transform_center);
+                plane = new FoldDownPlane(s.fns.plane_transform_center);
                 break;
             case MainWindow.FOLDRIGHT_PLANE:
-                plane = new FoldRightPlane(s.plane_transform_center);
+                plane = new FoldRightPlane(s.fns.plane_transform_center);
                 break;
             case MainWindow.FOLDLEFT_PLANE:
-                plane = new FoldLeftPlane(s.plane_transform_center);
+                plane = new FoldLeftPlane(s.fns.plane_transform_center);
                 break;
             case MainWindow.FOLDIN_PLANE:
-                plane = new FoldInPlane(s.plane_transform_radius);
+                plane = new FoldInPlane(s.fns.plane_transform_radius);
                 break;
             case MainWindow.FOLDOUT_PLANE:
-                plane = new FoldOutPlane(s.plane_transform_radius);
+                plane = new FoldOutPlane(s.fns.plane_transform_radius);
                 break;
             case MainWindow.NEWTON3_PLANE:
                 plane = new Newton3Plane();
@@ -260,12 +260,12 @@ public class PlaneVisualizer {
                 plane = new NewtonGeneralized8Plane();
                 break;
             case MainWindow.USER_PLANE:
-                if(s.user_plane_algorithm == 0) {
-                    plane = new UserPlane(s.user_plane, xCenter, yCenter, size, s.max_iterations, s.plane_transform_center);
+                if(s.fns.user_plane_algorithm == 0) {
+                    plane = new UserPlane(s.fns.user_plane, xCenter, yCenter, size, s.max_iterations, s.fns.plane_transform_center);
                     usesCenter = ((UserPlane)plane).usesCenter();
                 }
                 else {
-                    plane = new UserPlaneConditional(s.user_plane_conditions, s.user_plane_condition_formula, xCenter, yCenter, size, s.max_iterations, s.plane_transform_center);
+                    plane = new UserPlaneConditional(s.fns.user_plane_conditions, s.fns.user_plane_condition_formula, xCenter, yCenter, size, s.max_iterations, s.fns.plane_transform_center);
                     usesCenter = ((UserPlaneConditional)plane).usesCenter();
                 }
                 break;
@@ -276,25 +276,25 @@ public class PlaneVisualizer {
                 plane = new FactorialPlane();
                 break;
             case MainWindow.BIPOLAR_PLANE:
-                plane = new BipolarPlane(s.plane_transform_center);
+                plane = new BipolarPlane(s.fns.plane_transform_center);
                 break;
             case MainWindow.INVERSED_BIPOLAR_PLANE:
-                plane = new InversedBipolarPlane(s.plane_transform_center);
+                plane = new InversedBipolarPlane(s.fns.plane_transform_center);
                 break;
             case MainWindow.TWIRL_PLANE:
-                plane = new TwirlPlane(s.plane_transform_center, s.plane_transform_angle, s.plane_transform_radius);
+                plane = new TwirlPlane(s.fns.plane_transform_center, s.fns.plane_transform_angle, s.fns.plane_transform_radius);
                 break;
             case MainWindow.SHEAR_PLANE:
-                plane = new ShearPlane(s.plane_transform_scales);
+                plane = new ShearPlane(s.fns.plane_transform_scales);
                 break;
             case MainWindow.KALEIDOSCOPE_PLANE:
-                plane = new KaleidoscopePlane(s.plane_transform_center, s.plane_transform_angle, s.plane_transform_angle2, s.plane_transform_radius, s.plane_transform_sides);
+                plane = new KaleidoscopePlane(s.fns.plane_transform_center, s.fns.plane_transform_angle, s.fns.plane_transform_angle2, s.fns.plane_transform_radius, s.fns.plane_transform_sides);
                 break;
             case MainWindow.PINCH_PLANE:
-                plane = new PinchPlane(s.plane_transform_center, s.plane_transform_angle, s.plane_transform_radius, s.plane_transform_amount);
+                plane = new PinchPlane(s.fns.plane_transform_center, s.fns.plane_transform_angle, s.fns.plane_transform_radius, s.fns.plane_transform_amount);
                 break;
             case MainWindow.CIRCLEINVERSION_PLANE:
-                plane = new CircleInversionPlane(s.plane_transform_center, s.plane_transform_radius);
+                plane = new CircleInversionPlane(s.fns.plane_transform_center, s.fns.plane_transform_radius);
                 break;
             case MainWindow.VARIATION_MU_PLANE:
                 plane = new MuVariationPlane();
@@ -306,10 +306,10 @@ public class PlaneVisualizer {
                 plane = new RiemannZetaPlane();
                 break;
             case MainWindow.INFLECTION_PLANE:
-                plane = new InflectionPlane(s.plane_transform_center);
+                plane = new InflectionPlane(s.fns.plane_transform_center);
                 break;
             case MainWindow.RIPPLES_PLANE:
-                plane = new RipplesPlane(s.plane_transform_scales, s.plane_transform_wavelength, s.waveType);
+                plane = new RipplesPlane(s.fns.plane_transform_scales, s.fns.plane_transform_wavelength, s.fns.waveType);
                 break;
         }
         

@@ -33,7 +33,8 @@ import javax.swing.KeyStroke;
  * @author kaloch
  */
 public class ToolsOptionsMenu extends JMenu {
-    private MainWindow ptr;
+	private static final long serialVersionUID = 841026734035473828L;
+	private MainWindow ptr;
     private JMenu orbit_menu;
     private JMenu orbit_style_menu;
     private JMenu zoom_window_menu;

@@ -30,7 +30,8 @@ import javax.swing.KeyStroke;
  * @author hrkalona2
  */
 public class ProcessingMenu extends JMenu {
-    private MainWindow ptr;
+	private static final long serialVersionUID = 880061806683700045L;
+	private MainWindow ptr;
     private JMenuItem bump_map_opt;
     private JMenuItem rainbow_palette_opt;
     private JMenuItem fake_de_opt;
@@ -40,6 +41,7 @@ public class ProcessingMenu extends JMenu {
     private JMenuItem smoothing_opt;
     private JMenuItem exterior_de_opt;
     private JMenuItem orbit_traps_opt;
+    private JMenuItem contour_coloring_opt;
     
     public ProcessingMenu(MainWindow ptr2, String name) {
         super(name);
@@ -57,6 +59,7 @@ public class ProcessingMenu extends JMenu {
         greyscale_coloring_opt = new JMenuItem("Greyscale Coloring", getIcon("/fractalzoomer/icons/greyscale_coloring.png"));
         rainbow_palette_opt = new JMenuItem("Rainbow Palette", getIcon("/fractalzoomer/icons/rainbow_palette.png"));
         orbit_traps_opt = new JMenuItem("Orbit Traps", getIcon("/fractalzoomer/icons/orbit_traps.png"));
+        contour_coloring_opt = new JMenuItem("Contour Coloring", getIcon("/fractalzoomer/icons/contour_coloring.png"));
         
         smoothing_opt.setToolTipText("Smooths the image's color transitions.");
         exterior_de_opt.setToolTipText("<html>Sets some points near the boundary of<br>the set to the maximum iterations value.</html>");
@@ -67,6 +70,7 @@ public class ProcessingMenu extends JMenu {
         greyscale_coloring_opt.setToolTipText("Converts the areas with smooth iteration gradients, to greyscale.");
         rainbow_palette_opt.setToolTipText("Creates a pseudo 3d image, by applying the palette colors as a rainbow.");
         orbit_traps_opt.setToolTipText("Applies a coloring effect when an orbit gets trapped under a specific condition.");
+        contour_coloring_opt.setToolTipText("Blends the contours that are created by the fractional part of the iterations.");
         
         smoothing_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, 0));
         exterior_de_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, 0));
@@ -77,6 +81,15 @@ public class ProcessingMenu extends JMenu {
         greyscale_coloring_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_4, 0));
         rainbow_palette_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, 0));
         orbit_traps_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_6, 0));
+        contour_coloring_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_8, 0));
+        
+        contour_coloring_opt.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ptr.setContourColoring();
+            }
+        });
         
         smoothing_opt.addActionListener(new ActionListener() {
 
@@ -158,6 +171,7 @@ public class ProcessingMenu extends JMenu {
         add(rainbow_palette_opt);
         add(orbit_traps_opt);
         add(greyscale_coloring_opt);
+        add(contour_coloring_opt);
         add(bump_map_opt);
     }
     
@@ -218,6 +232,12 @@ public class ProcessingMenu extends JMenu {
     public JMenuItem getOrbitTraps() {
         
         return orbit_traps_opt;
+        
+    }
+    
+    public JMenuItem getContourColoring() {
+        
+        return contour_coloring_opt;
         
     }
     

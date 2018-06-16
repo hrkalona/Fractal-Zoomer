@@ -32,8 +32,8 @@ import javax.swing.KeyStroke;
  * @author hrkalona2
  */
 public class PlanesMenu extends JMenu {
-
-    private JMenu planes_general_menu;
+	private static final long serialVersionUID = -4578443676894540517L;
+	private JMenu planes_general_menu;
     private JMenu planes_fold_menu;
     private JMenu planes_distort_menu;
     private JMenu planes_newton_menu;

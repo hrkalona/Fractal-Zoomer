@@ -29,7 +29,8 @@ import javax.swing.JRadioButtonMenuItem;
  * @author hrkalona2
  */
 public class ColorBlendingMenu extends JMenu {
-    private MainWindow ptr;
+	private static final long serialVersionUID = 4186992298757883317L;
+	private MainWindow ptr;
     private JRadioButtonMenuItem[] color_blending;
     
     public static String[] colorBlendingNames;

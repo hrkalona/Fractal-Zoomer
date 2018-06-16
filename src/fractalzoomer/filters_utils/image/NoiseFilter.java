@@ -16,7 +16,6 @@ limitations under the License.
 
 package fractalzoomer.filters_utils.image;
 
-import java.awt.image.*;
 import java.util.*;
 
 /**

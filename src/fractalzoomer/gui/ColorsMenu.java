@@ -16,11 +16,13 @@
  */
 package fractalzoomer.gui;
 
+import fractalzoomer.core.ThreadDraw;
 import fractalzoomer.main.MainWindow;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import javax.swing.ImageIcon;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JRadioButtonMenuItem;
@@ -31,7 +33,8 @@ import javax.swing.KeyStroke;
  * @author kaloch
  */
 public class ColorsMenu extends JMenu {
-    private MainWindow ptr;
+	private static final long serialVersionUID = -6910654944774874305L;
+	private MainWindow ptr;
     private PaletteMenu palette_menu;
     private JMenu roll_palette_menu;
     private JMenuItem fract_color;
@@ -41,6 +44,7 @@ public class ColorsMenu extends JMenu {
     private JMenuItem increase_roll_palette;
     private JMenuItem decrease_roll_palette;
     private JMenuItem color_intensity_opt;
+    private JCheckBoxMenuItem direct_color_opt;
     private ProcessingMenu processing;
     private OutColoringModesMenu out_coloring_mode_menu;
     private InColoringModesMenu in_coloring_mode_menu;
@@ -67,6 +71,8 @@ public class ColorsMenu extends JMenu {
         
         in_coloring_mode_menu = new InColoringModesMenu(ptr, "In Coloring Mode", in_coloring_algorithm);
         
+        direct_color_opt = new JCheckBoxMenuItem("Direct Color");
+        
         color_transfer_menu = new ColorTransferMenu(ptr, "Transfer Functions", transfer_function);
         
         processing = new ProcessingMenu(ptr, "Processing");      
@@ -92,6 +98,7 @@ public class ColorsMenu extends JMenu {
         increase_roll_palette.setToolTipText("Shifts the chosen palette forward by one.");
         decrease_roll_palette.setToolTipText("Shifts the chosen palette backward by one.");
         gradient.setToolTipText("Sets the gradient for color blending.");
+        direct_color_opt.setToolTipText("Enables the use of direct color, via the use of user code, in user out coloring and in coloring modes.");
      
         color_intensity_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, ActionEvent.CTRL_MASK));
 
@@ -101,6 +108,7 @@ public class ColorsMenu extends JMenu {
         increase_roll_palette.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, ActionEvent.SHIFT_MASK));
         decrease_roll_palette.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, ActionEvent.SHIFT_MASK));
         gradient.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_5, 0));
+        direct_color_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_7, 0));
 
         fract_color.addActionListener(new ActionListener() {
 
@@ -108,6 +116,16 @@ public class ColorsMenu extends JMenu {
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFractalColor();
+
+            }
+        });
+        
+        direct_color_opt.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setDirectColor();
 
             }
         });
@@ -176,8 +194,11 @@ public class ColorsMenu extends JMenu {
         roll_palette_menu.add(increase_roll_palette);
         roll_palette_menu.add(decrease_roll_palette);
         
+        direct_color_opt.setSelected(ThreadDraw.USE_DIRECT_COLOR);
+        
         add(out_coloring_mode_menu);
         add(in_coloring_mode_menu);
+        add(direct_color_opt);
         addSeparator();
         add(processing);
         addSeparator();                
@@ -349,6 +370,18 @@ public class ColorsMenu extends JMenu {
     public JMenuItem getOrbitTraps() {
         
         return processing.getOrbitTraps();
+        
+    }
+    
+    public JCheckBoxMenuItem getDirectColor() {
+        
+        return direct_color_opt;
+        
+    }
+    
+    public JMenuItem getContourColoring() {
+        
+        return processing.getContourColoring();
         
     }
 }

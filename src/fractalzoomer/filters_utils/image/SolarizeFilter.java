@@ -16,8 +16,6 @@ limitations under the License.
 
 package fractalzoomer.filters_utils.image;
 
-import java.awt.image.*;
-
 /**
  * A filter which solarizes an image.
  */

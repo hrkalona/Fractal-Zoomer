@@ -37,8 +37,8 @@ import javax.swing.JLabel;
  * @author hrkalona2
  */
 public class SplashLabel extends JLabel {
-
-    private BufferedImage image;
+	private static final long serialVersionUID = 2790857258734510057L;
+	private BufferedImage image;
     protected int strokeSize;
     protected Color _shadowColor;
     protected boolean shadowed;

@@ -30,7 +30,8 @@ import javax.swing.KeyStroke;
  * @author kaloch
  */
 public class HelpMenu extends JMenu {
-    private MainWindow ptr;
+	private static final long serialVersionUID = 4789486723955292724L;
+	private MainWindow ptr;
     private JMenuItem help_contents;
     private JMenuItem about;
     private JMenuItem update;

@@ -50,8 +50,8 @@ import javax.swing.border.TitledBorder;
  * @author kaloch
  */
 public class GreedyAlgorithmsFrame extends JFrame {
-
-    private Component ptra2;
+	private static final long serialVersionUID = 6531106654109761330L;
+	private Component ptra2;
     private JFrame this_frame;
 
     public GreedyAlgorithmsFrame(Component ptra, boolean greedy_algorithm, int greedy_algorithm_selection) {

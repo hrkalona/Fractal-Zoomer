@@ -49,8 +49,8 @@ import javax.swing.border.TitledBorder;
  * @author kaloch
  */
 public class DomainColoringFrame extends JFrame {
-
-    private MainWindow ptra2;
+	private static final long serialVersionUID = -4505878017329986771L;
+	private MainWindow ptra2;
     private DomainColoringFrame this_frame;
 
     public DomainColoringFrame(MainWindow ptra, final Settings s, final boolean options) {

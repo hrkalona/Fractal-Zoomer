@@ -17,7 +17,6 @@ limitations under the License.
 package fractalzoomer.filters_utils.image;
 
 import java.awt.*;
-import java.awt.image.*;
 
 public class HSBAdjustFilter extends PointFilter {
 	

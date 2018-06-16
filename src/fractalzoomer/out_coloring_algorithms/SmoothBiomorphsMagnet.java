@@ -57,6 +57,7 @@ public class SmoothBiomorphsMagnet extends SmoothBiomorphs {
                 double p = temp2 / Math.log(temp);
                 
                 p = p <= 0 ? 1e-33 : p;
+                temp2 = temp2 <= 0 ? 1e-33 : temp2;
 
                 double a = Math.log(temp2 / log_bailout_squared);
                 double f = a / Math.log(p);

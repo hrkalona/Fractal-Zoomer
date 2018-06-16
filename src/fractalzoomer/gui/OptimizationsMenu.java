@@ -31,7 +31,8 @@ import javax.swing.KeyStroke;
  * @author kaloch
  */
 public class OptimizationsMenu extends JMenu {
-    private MainWindow ptr;
+	private static final long serialVersionUID = 6482967865390038590L;
+	private MainWindow ptr;
     private JMenuItem greedy_algorithm_item;
     private JCheckBoxMenuItem periodicity_checking_opt;
     private JMenuItem quick_draw_opt;

@@ -29,8 +29,8 @@ import javax.swing.JRadioButtonMenuItem;
  * @author hrkalona2
  */
 public class OutColoringModesMenu extends JMenu {
-
-    private MainWindow ptr;
+	private static final long serialVersionUID = -1025728538507111408L;
+	private MainWindow ptr;
     private JRadioButtonMenuItem[] out_coloring_modes;
 
     public static String[] outColoringNames;

@@ -5,7 +5,9 @@ import java.lang.invoke.LambdaConversionException;
 import java.lang.invoke.LambdaMetafactory;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodHandles.Lookup;
 import java.lang.invoke.MethodType;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -41,9 +43,10 @@ import java.lang.reflect.Modifier;
  */
 public class LambdaFactory {
 	
-	private static Field lookupClassAllowedModesField;
-        private static final int ALL_MODES = (MethodHandles.Lookup.PRIVATE | MethodHandles.Lookup.PROTECTED | MethodHandles.Lookup.PACKAGE | MethodHandles.Lookup.PUBLIC);
+	//private static Field lookupClassAllowedModesField;
+      private static final int ALL_MODES = (MethodHandles.Lookup.PRIVATE | MethodHandles.Lookup.PROTECTED | MethodHandles.Lookup.PACKAGE | MethodHandles.Lookup.PUBLIC);
 			
+
 	/**
 	 * This factory method returns a dynamically generated 
 	 * implementation of the argument provided interface.
@@ -73,9 +76,12 @@ public class LambdaFactory {
 	}
 	
 	private static <T> T create(Method method, Class<T> interfaceClass, String signatureName, boolean invokeSpecial) throws Throwable {
-		MethodHandles.Lookup lookup = MethodHandles.lookup().in(method.getDeclaringClass());
-		setAccessible(lookup);
-		return createLambda(method, lookup, interfaceClass, signatureName, invokeSpecial);
+		//MethodHandles.Lookup lookup = MethodHandles.lookup().in(method.getDeclaringClass());
+		//setAccessible(lookup);
+		//return createLambda(method, lookup, interfaceClass, signatureName, invokeSpecial);
+		
+		return createLambda(method, interfaceClass, signatureName, invokeSpecial);
+		
 	}
 	
 	/**
@@ -88,7 +94,7 @@ public class LambdaFactory {
 	 * @return
 	 * @throws Throwable
 	 */
-	public static <T> T create(Method method, MethodHandles.Lookup lookup, Class<T> interfaceClass, String signatatureName) throws Throwable {
+	/*public static <T> T create(Method method, MethodHandles.Lookup lookup, Class<T> interfaceClass, String signatatureName) throws Throwable {
 		return createLambda(method, lookup, interfaceClass, signatatureName, false);
 	}
 	
@@ -101,8 +107,31 @@ public class LambdaFactory {
 			lookup = lookup.in(method.getDeclaringClass());
 			setAccessible(lookup);
 		}
+		        
 		return privateCreateLambda(method, lookup, interfaceClass, signatatureName, createSpecial);
+	}*/
+	
+	public static <T> T createLambda(Method method, Class<T> interfaceClass, String signatatureName, boolean createSpecial) throws Throwable {
+		
+		final Constructor<MethodHandles.Lookup> constructor = MethodHandles.Lookup.class.getDeclaredConstructor(Class.class, int.class);
+        
+		if (!constructor.isAccessible()) {
+            constructor.setAccessible(true);
+        }
+
+        MethodHandles.Lookup lookup = constructor.newInstance(method.getDeclaringClass(), ALL_MODES);
+        
+		return privateCreateLambda(method, lookup, interfaceClass, signatatureName, createSpecial);
+		
 	}
+	
+	 //JDK 9, no warning
+	 /*public static <T> T createLambda(Method method, Class<T> interfaceClass, String signatatureName, boolean createSpecial) throws Throwable {
+
+        MethodHandles.Lookup lookup = MethodHandles.privateLookupIn(method.getDeclaringClass(), MethodHandles.lookup());
+		return privateCreateLambda(method, lookup, interfaceClass, signatatureName, createSpecial);
+		
+	 }*/
 	
 	/**
 	 * This method uses {@link LambdaMetafactory} to create a lambda. 
@@ -126,7 +155,8 @@ public class LambdaFactory {
 	private static <T> T privateCreateLambda(Method method, MethodHandles.Lookup lookup, Class<T> interfaceClass, String signatureName, boolean createSpecial) throws Throwable {
 		MethodHandle methodHandle = createSpecial? lookup.unreflectSpecial(method, method.getDeclaringClass()) : lookup.unreflect(method);
 		MethodType instantiatedMethodType = methodHandle.type();
-		MethodType signature = instantiatedMethodType;//createLambdaMethodType(method, instantiatedMethodType);
+		MethodType signature = instantiatedMethodType;
+                //createLambdaMethodType(method, instantiatedMethodType);
 
 		CallSite site = createCallSite(signatureName, lookup, methodHandle, instantiatedMethodType, signature,interfaceClass);
 		MethodHandle factory = site.getTarget();
@@ -161,17 +191,18 @@ public class LambdaFactory {
 				instantiatedMethodType);
 	}
 
-	static void setAccessible(MethodHandles.Lookup lookup) throws NoSuchFieldException, IllegalAccessException {
-		getLookupsModifiersField().set(lookup, ALL_MODES);
-	}
-
 	/**
-	 * * Enable access to private methods
+	 * * Enable access to private methods, (hack)
 	 * Source: https://rmannibucau.wordpress.com/2014/03/27/java-8-default-interface-methods-and-jdk-dynamic-proxies/
 	 * @return
 	 * @throws NoSuchFieldException
 	 * @throws IllegalAccessException
 	 */
+	
+	/*static void setAccessible(MethodHandles.Lookup lookup) throws NoSuchFieldException, IllegalAccessException {
+		getLookupsModifiersField().set(lookup, ALL_MODES);
+	}
+	
 	static Field getLookupsModifiersField() throws NoSuchFieldException, IllegalAccessException {
 		if (lookupClassAllowedModesField == null || !lookupClassAllowedModesField.isAccessible()) {
 			Field modifiersField = Field.class.getDeclaredField("modifiers");
@@ -185,6 +216,6 @@ public class LambdaFactory {
 			lookupClassAllowedModesField = allowedModes;
 		}
 		return lookupClassAllowedModesField;
-	}
+	}*/
 
 }

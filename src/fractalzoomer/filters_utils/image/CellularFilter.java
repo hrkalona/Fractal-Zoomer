@@ -17,7 +17,6 @@ limitations under the License.
 package fractalzoomer.filters_utils.image;
 
 import java.awt.*;
-import java.awt.image.*;
 import java.util.*;
 import fractalzoomer.filters_utils.math.*;
 
@@ -46,8 +45,6 @@ public class CellularFilter extends WholeImageFilter implements Function2D, Clon
 	protected Point[] results = null;
 	protected float randomness = 0;
 	protected int gridType = HEXAGONAL;
-	private float min;
-	private float max;
 	private static byte[] probabilities;
 	private float gradientCoefficient;
 	

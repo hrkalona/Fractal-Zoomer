@@ -28,7 +28,8 @@ import javax.swing.JToolBar;
  * @author kaloch
  */
 public class Toolbar extends JToolBar {
-    private MainWindow ptr;
+	private static final long serialVersionUID = -2311258550706901828L;
+	private MainWindow ptr;
     private JButton starting_position_button;
     private JButton zoom_in_button;
     private JButton zoom_out_button;

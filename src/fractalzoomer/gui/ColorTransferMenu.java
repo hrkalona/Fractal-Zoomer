@@ -29,7 +29,8 @@ import javax.swing.JRadioButtonMenuItem;
  * @author kaloch
  */
 public class ColorTransferMenu extends JMenu {
-    private MainWindow ptr;
+	private static final long serialVersionUID = 187762488530185183L;
+	private MainWindow ptr;
     private JRadioButtonMenuItem[] color_transfer;
     
     public static String[] colorTransferNames;

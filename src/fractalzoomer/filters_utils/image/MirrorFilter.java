@@ -16,7 +16,6 @@
 package fractalzoomer.filters_utils.image;
 
 import java.awt.*;
-import java.awt.geom.*;
 import java.awt.image.*;
 
 public class MirrorFilter extends AbstractBufferedImageOp {
@@ -108,7 +107,7 @@ public class MirrorFilter extends AbstractBufferedImageOp {
         if(dst == null) {
             dst = createCompatibleDestImage(src, null);
         }
-        BufferedImage tsrc = src;
+
         Shape clip;
         int width = src.getWidth();
         int height = src.getHeight();

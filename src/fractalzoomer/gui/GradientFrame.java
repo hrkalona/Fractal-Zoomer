@@ -53,8 +53,8 @@ import javax.swing.border.TitledBorder;
  * @author kaloch
  */
 public class GradientFrame extends JFrame {
-
-    private MainWindow ptra2;
+	private static final long serialVersionUID = -1756188920359636585L;
+	private MainWindow ptra2;
     private GradientFrame this_frame;
     private JLabel gradient_label;
     private BufferedImage colors;

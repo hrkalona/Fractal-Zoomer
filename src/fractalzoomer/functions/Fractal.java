@@ -461,7 +461,7 @@ public abstract class Fractal {
             if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, vars)) {
                 Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, vars};
                 temp = out_color_algorithm.getResult(object);
-                double[] array = {out_color_algorithm.transformResultToHeight(temp, max_iterations), temp};
+                double[] array = {OutColorAlgorithm.transformResultToHeight(temp, max_iterations), temp};
                 return array;
             }
             zold2.assign(zold);
@@ -511,7 +511,7 @@ public abstract class Fractal {
             if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, vars)) {
                 Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, vars};
                 temp = out_color_algorithm.getResult(object);
-                double[] array = {out_color_algorithm.transformResultToHeight(temp, max_iterations), temp};
+                double[] array = {OutColorAlgorithm.transformResultToHeight(temp, max_iterations), temp};
                 return array;
 
             }
@@ -523,7 +523,7 @@ public abstract class Fractal {
 
         Object[] object = {complex[0], zold, zold2, complex[1], start, vars};
         temp = in_color_algorithm.getResult(object);
-        double[] array = {in_color_algorithm.transformResultToHeight(temp, max_iterations), temp};
+        double[] array = {InColorAlgorithm.transformResultToHeight(temp, max_iterations), temp};
         return array;
 
     }
@@ -1110,7 +1110,7 @@ public abstract class Fractal {
                 trap = new PointRhombusOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength);
                 break;
             case MainWindow.CROSS_TRAP:
-                trap = new CrossOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth);
+                trap = new CrossOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.lineType);
                 break;
             case MainWindow.CIRCLE_TRAP:
                 trap = new CircleOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth);
@@ -1128,22 +1128,22 @@ public abstract class Fractal {
                 trap = new NNormOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.trapNorm);
                 break;
             case MainWindow.RE_TRAP:
-                trap = new ReOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth);
+                trap = new ReOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.lineType);
                 break;
             case MainWindow.IM_TRAP:
-                trap = new ImOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth);
+                trap = new ImOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.lineType);
                 break;
             case MainWindow.CIRCLE_CROSS_TRAP:
-                trap = new CircleCrossOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth);
+                trap = new CircleCrossOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.lineType);
                 break;
             case MainWindow.SQUARE_CROSS_TRAP:
-                trap = new SquareCrossOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth);
+                trap = new SquareCrossOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.lineType);
                 break;
             case MainWindow.RHOMBUS_CROSS_TRAP:
-                trap = new RhombusCrossOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth);
+                trap = new RhombusCrossOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.lineType);
                 break;
             case MainWindow.N_NORM_CROSS_TRAP:
-                trap = new NNormCrossOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.trapNorm);
+                trap = new NNormCrossOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.trapNorm, ots.lineType);
                 break;
             case MainWindow.CIRCLE_POINT_TRAP:
                 trap = new CirclePointOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth);

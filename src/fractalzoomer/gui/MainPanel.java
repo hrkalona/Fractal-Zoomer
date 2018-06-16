@@ -29,7 +29,8 @@ import javax.swing.JPanel;
  * @author hrkalona2
  */
 public class MainPanel extends JPanel {
-  private MainWindow ptr;
+	private static final long serialVersionUID = 1059117419848617111L;
+	private MainWindow ptr;
    
     public MainPanel(MainWindow ptr) {
         this.ptr = ptr;

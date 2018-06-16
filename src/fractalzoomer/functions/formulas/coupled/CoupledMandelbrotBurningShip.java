@@ -27,7 +27,9 @@ import fractalzoomer.fractal_options.perturbation.VariableConditionalPerturbatio
 import fractalzoomer.fractal_options.initial_value.VariableInitialValue;
 import fractalzoomer.fractal_options.perturbation.VariablePerturbation;
 import fractalzoomer.functions.Julia;
+import fractalzoomer.in_coloring_algorithms.InColorAlgorithm;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
+import fractalzoomer.out_coloring_algorithms.OutColorAlgorithm;
 import fractalzoomer.utils.ColorAlgorithm;
 
 import java.util.ArrayList;
@@ -145,7 +147,7 @@ public class CoupledMandelbrotBurningShip extends Julia {
 
         Complex[] res = coupler.couple(a1, a2, 0);
         complex[0] = res[0];
-        complex[2] = res[1];;
+        complex[2] = res[1];
 
     }
 
@@ -272,7 +274,7 @@ public class CoupledMandelbrotBurningShip extends Julia {
             if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, vars)) {
                 Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, vars};
                 temp = out_color_algorithm.getResult(object);
-                double[] array = {out_color_algorithm.transformResultToHeight(temp, max_iterations), temp};
+                double[] array = {OutColorAlgorithm.transformResultToHeight(temp, max_iterations), temp};
                 return array;
             }
             zold2.assign(zold);
@@ -324,7 +326,7 @@ public class CoupledMandelbrotBurningShip extends Julia {
             if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, vars)) {
                 Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, vars};
                 temp = out_color_algorithm.getResult(object);
-                double[] array = {out_color_algorithm.transformResultToHeight(temp, max_iterations), temp};
+                double[] array = {OutColorAlgorithm.transformResultToHeight(temp, max_iterations), temp};
                 return array;
 
             }
@@ -336,7 +338,7 @@ public class CoupledMandelbrotBurningShip extends Julia {
 
         Object[] object = {complex[0], zold, zold2, complex[1], start, vars};
         temp = in_color_algorithm.getResult(object);
-        double[] array = {in_color_algorithm.transformResultToHeight(temp, max_iterations), temp};
+        double[] array = {InColorAlgorithm.transformResultToHeight(temp, max_iterations), temp};
         return array;
 
     }
@@ -471,7 +473,7 @@ public class CoupledMandelbrotBurningShip extends Julia {
             if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, vars)) {
                 Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, vars};
                 temp = out_color_algorithm.getResult(object);
-                double[] array = {out_color_algorithm.transformResultToHeight(temp, max_iterations), temp};
+                double[] array = {OutColorAlgorithm.transformResultToHeight(temp, max_iterations), temp};
                 return array;
             }
             zold2.assign(zold);
@@ -517,7 +519,7 @@ public class CoupledMandelbrotBurningShip extends Julia {
             if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, vars)) {
                 Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, vars};
                 temp = out_color_algorithm.getResult(object);
-                double[] array = {out_color_algorithm.transformResultToHeight(temp, max_iterations), temp};
+                double[] array = {OutColorAlgorithm.transformResultToHeight(temp, max_iterations), temp};
                 return array;
             }
             zold2.assign(zold);
@@ -528,7 +530,7 @@ public class CoupledMandelbrotBurningShip extends Julia {
 
         Object[] object = {complex[0], zold, zold2, complex[1], start, vars};
         temp = in_color_algorithm.getResult(object);
-        double[] array = {in_color_algorithm.transformResultToHeight(temp, max_iterations), temp};
+        double[] array = {InColorAlgorithm.transformResultToHeight(temp, max_iterations), temp};
         return array;
 
     }

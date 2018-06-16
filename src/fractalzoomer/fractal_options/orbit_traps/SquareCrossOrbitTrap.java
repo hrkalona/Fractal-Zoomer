@@ -19,10 +19,12 @@ package fractalzoomer.fractal_options.orbit_traps;
 import fractalzoomer.core.Complex;
 
 public class SquareCrossOrbitTrap extends OrbitTrap {
+    private int lineType;
 
-    public SquareCrossOrbitTrap(double pointRe, double pointIm, double trapLength, double trapWidth) {
+    public SquareCrossOrbitTrap(double pointRe, double pointIm, double trapLength, double trapWidth, int lineType) {
 
         super(pointRe, pointIm, trapLength, trapWidth);
+        this.lineType = lineType;
 
     }
 
@@ -37,12 +39,12 @@ public class SquareCrossOrbitTrap extends OrbitTrap {
             distance = dist;
         }
         
-        dist = Math.abs(val.getRe() - point.getRe());
+        dist = Math.abs(val.getRe() - applyLineFunction(lineType, val.getIm()) - point.getRe());
         if(dist < trapWidth && Math.abs(val.getIm() - point.getIm()) < trapLength && dist < distance) {
             distance = dist;
         }
 
-        dist = Math.abs(val.getIm() - point.getIm());
+        dist = Math.abs(val.getIm() - applyLineFunction(lineType, val.getRe()) - point.getIm());
         if(dist < trapWidth && Math.abs(val.getRe() - point.getRe()) < trapLength && dist < distance) {
             distance = dist;
         }

@@ -39,7 +39,8 @@ import javax.swing.border.EtchedBorder;
  * @author hrkalona2
  */
 public class Infobar extends JToolBar {
-    private MainWindow ptr;
+	private static final long serialVersionUID = -7006231616288046167L;
+	private MainWindow ptr;
     private JLabel palette_toolbar_preview;
     private JLabel max_it_color_preview;
     private JLabel palette_toolbar_preview_lbl;
@@ -154,12 +155,24 @@ public class Infobar extends JToolBar {
         
     }
     
+    public JLabel getPalettePreviewLabel() {
+        
+        return palette_toolbar_preview_lbl;
+        
+    }
+    
+    public JLabel getGradientPreviewLabel() {
+        
+        return gradient_toolbar_preview_lbl;
+        
+    }
+    
     public JLabel getMaxIterationsColorPreview() {
         
         return max_it_color_preview;
         
     }
-    
+      
     public JLabel getMaxIterationsColorPreviewLabel() {
         
         return max_it_color_preview_lbl;

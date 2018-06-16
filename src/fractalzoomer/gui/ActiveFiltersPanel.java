@@ -32,7 +32,8 @@ import javax.swing.JTabbedPane;
  * @author hrkalona2
  */
 public class ActiveFiltersPanel extends JPanel {
-    private JCheckBox[] filters_opt;
+	private static final long serialVersionUID = -6044058667850407342L;
+	private JCheckBox[] filters_opt;
     private int i;
     private boolean[] mActiveFilters;
     
@@ -95,7 +96,7 @@ public class ActiveFiltersPanel extends JPanel {
         color_filters.setLayout(new GridLayout(3, 6));
         color_filters.setPreferredSize(new Dimension(1060, 170));
         
-        color_filters.add(filters_opt[MainWindow.HISTOGRAM_EQUALIZATION]);;
+        color_filters.add(filters_opt[MainWindow.HISTOGRAM_EQUALIZATION]);
         color_filters.add(filters_opt[MainWindow.POSTERIZE]);
         color_filters.add(filters_opt[MainWindow.CONTRAST_BRIGHTNESS]);
         color_filters.add(filters_opt[MainWindow.GAIN]);

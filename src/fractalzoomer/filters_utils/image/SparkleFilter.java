@@ -16,7 +16,6 @@ limitations under the License.
 
 package fractalzoomer.filters_utils.image;
 
-import java.awt.image.*;
 import java.util.*;
 
 public class SparkleFilter extends PointFilter {
@@ -26,7 +25,6 @@ public class SparkleFilter extends PointFilter {
 	private int amount = 50;
 	private int color = 0xffffffff;
 	private int randomness = 25;
-	private int width, height;
 	private int centreX, centreY;
 	private long seed = 371;
 	private float[] rayLengths;
@@ -99,8 +97,6 @@ public class SparkleFilter extends PointFilter {
 	}
 
 	public void setDimensions(int width, int height) {
-		this.width = width;
-		this.height = height;
 		centreX = width/2;
 		centreY = height/2;
 		super.setDimensions(width, height);

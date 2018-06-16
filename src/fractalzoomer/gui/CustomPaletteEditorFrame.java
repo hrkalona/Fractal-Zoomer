@@ -101,8 +101,8 @@ import javax.swing.plaf.basic.BasicFileChooserUI;
  * @author hrkalona
  */
 public class CustomPaletteEditorFrame extends JFrame {
-
-    private CustomPaletteEditorFrame this_frame;
+	private static final long serialVersionUID = -5234702415922634911L;
+	private CustomPaletteEditorFrame this_frame;
     private MainWindow ptra2;
     private int k;
     private int l;

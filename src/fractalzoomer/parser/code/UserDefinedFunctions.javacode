@@ -1,4 +1,5 @@
 import fractalzoomer.core.Complex;
+import java.awt.Color;
 
 /**
  * You may change this class as you please.
@@ -19,6 +20,11 @@ import fractalzoomer.core.Complex;
  *	-Note that the evaluation of the code is left to right and does not follow the standard order of operations.
  *	 This means that z.plus(3).times(new Complex(2, 3)); is equivalent to (z + 3) * (2 + 3i). If you want to enforce the correct order 
  *	 change the order of the code or use brackets. For instance z.plus(new Complex(2, 3).times(3)) is equivalent to z + ((2 + 3i) * 3).
+ *
+ * Direct Color Mode: In order to use it, you need to enable the option in the colors menu. By using the functions "directRGBColor",
+ *	 "directHSBColor", and "interpolateDirectRGBColor" you can directly set the color of a pixel, completely bypassing the built it color modes/palettes.
+ *	 You should check some of the examples at the bottom of this file.
+ *
  *	-If you somehow break the code and you do not know how to make it work, just delete the UserDefinedFunctions.java file and restart the application.
  **/
 
@@ -144,7 +150,7 @@ public class UserDefinedFunctions {
 		return new Complex();
 		
 	}
-
+	
 	public static Complex f21(Complex z) {
 	
 		return new Complex();
@@ -505,7 +511,7 @@ public class UserDefinedFunctions {
 		return new Complex();
 		
 	}
-
+	
 	public static Complex g21(Complex z, Complex w) {
 	
 		return new Complex();
@@ -759,16 +765,37 @@ public class UserDefinedFunctions {
 	
 	}
 	
-	public static Complex m3(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10) {
+	//out coloring (usage with Triangle Inequality/Stripe/Curvature Average Coloring), use it in the user out coloring formula like this: m3(v1, v2, n, z, bail, p) with direct color enabled, and in user in coloring mode return 0 for black
+	public static Complex m3(Complex sum, Complex sum2, Complex n, Complex z, Complex bail, Complex p, Complex z7, Complex z8, Complex z9, Complex z10) {
+
+		double temp = p.norm_squared();
+		double temp2 = z.norm_squared();
 	
-		return new Complex();
+		temp += 0.000000001;
+		temp = Math.log(temp);
+	
+		double f = 1 - (Math.log(bail.getRe() * bail.getRe()) - temp) / (Math.log(temp2) - temp);
+
+		if(n.getRe() < 2)
+			return new Complex(f, 0);
+
+		sum.setRe(sum.getRe() / (n.getRe() + 1));
+		sum2.setRe(sum2.getRe() / n.getRe());	
+
+		double mix = sum.plus((sum2.sub(sum)).times(f)).getRe();
+		
+		double Multiplier = 0.4424;
+		double R = 0, G = 0.4, B = 0.7;
+
+		double co = mix*Math.pow(10.0, Multiplier);
+	
+		return directRGBColor( 0.5+0.5*Math.cos(6.2831*co+R),0.5+0.5*Math.cos(6.2831*co + G),0.5+0.5*Math.cos(6.2831*co +B) );
 	
 	}
 	
-	//out coloring (usage with Triangle Inequality/Stripe/Curvature Average Coloring), use it in the user out coloring formula like this: m4(v1, v2, n, z, bail, p) * 100 + n
+	//out coloring (usage with Triangle Inequality/Stripe/Curvature Average Coloring), use it in the user out coloring formula like this: m4(v1, v2, n, z, bail, p) * 100
 	public static Complex m4(Complex sum, Complex sum2, Complex n, Complex z, Complex bail, Complex p, Complex z7, Complex z8, Complex z9, Complex z10) {
-	
-	
+		
 		double temp = p.norm_squared();
 		double temp2 = z.norm_squared();
 	
@@ -780,19 +807,15 @@ public class UserDefinedFunctions {
 		if(n.getRe() < 2)
 			return new Complex(f, 0);
 	
-		sum.setRe( sum.getRe() / n.getRe());
-		sum2.setRe( sum2.getRe() / (n.getRe() - 1));
+		sum.setRe(sum.getRe() / (n.getRe() + 1));
+		sum2.setRe(sum2.getRe() / n.getRe());
 	
-	
-	
-	   return sum.plus((sum2.sub(sum)).times(f));
-	
-	
+		return sum.plus((sum2.sub(sum)).times(f));
+		
 	}
 	
 	//Triangle Inequality Average Coloring, use it in the user formula like this: m5(z, c, n, v1, v2, v3)	
 	public static Complex m5(Complex z, Complex c, Complex n, Complex sum, Complex sum2, Complex mc, Complex z7, Complex z8, Complex z9, Complex z10) {
-	
 	
 		Complex temp = z.square();
 		Complex temp2 = temp.plus(c);
@@ -801,13 +824,11 @@ public class UserDefinedFunctions {
 			mc.setRe(c.norm());
 	
 		sum2.assign(sum);
-		if(n.getRe() != 0) {
-			double mp = temp.norm();
-			double m = Math.abs(mp - mc.getRe());
-			double M = mp + mc.getRe();
-			sum.setRe(sum.getRe() + (temp2.norm() - m) / (M - m));
-	
-		}
+
+		double mp = temp.norm();
+		double m = Math.abs(mp - mc.getRe());
+		double M = mp + mc.getRe();
+		sum.setRe(sum.getRe() + (temp2.norm() - m) / (M - m));	
 	
 		return temp2;
 	
@@ -819,12 +840,10 @@ public class UserDefinedFunctions {
 		Complex temp = z.square().plus(c);
 	
 		sum2.assign(sum);
-		if(n.getRe() != 0) {
-			double s = 3;
-			sum.setRe(0.5 * Math.sin(s * Math.atan(temp.getIm() / temp.getRe())) + 0.5);
-	
-		}
-	
+
+		double StripeDensity = 2.5;
+		sum.setRe(sum.getRe() + 0.5 * Math.sin(StripeDensity * (Math.atan2(temp.getIm(), temp.getRe()) + Math.PI)) + 0.5);
+		
 		return temp;
 	
 	}
@@ -835,15 +854,12 @@ public class UserDefinedFunctions {
 		Complex temp = z.square().plus(c);
 	
 		sum2.assign(sum);
-		if(n.getRe() != 0) {
 	
-			Complex a = temp.sub(z);
-			Complex b = z.sub(p);
-			Complex d = a.divide(b);
-			sum.setRe(Math.abs(Math.atan(d.getIm() / d.getRe())));
-	
-		}
-	
+		Complex a = temp.sub(z);
+		Complex b = z.sub(p);
+		Complex d = a.divide(b);
+		sum.setRe(sum.getRe() + Math.abs(Math.atan(d.getIm() / d.getRe())));
+		
 		return temp;
 	
 	}
@@ -852,7 +868,7 @@ public class UserDefinedFunctions {
 	public static Complex m8(Complex z, Complex c, Complex der, Complex n, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10) {
 	
 		if(n.getRe() == 0) {
-		    der.assign(new Complex(1, 0));
+			der.assign(new Complex(1, 0));
 		}
 		
 		der.assign(der.times(2).times(z).plus(1));
@@ -934,7 +950,7 @@ public class UserDefinedFunctions {
 	
 	public static Complex m13(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10) {
 	
-		return new Complex();
+		return new Complex();	
 	
 	}
 	
@@ -979,7 +995,7 @@ public class UserDefinedFunctions {
 		return new Complex();
 	
 	}
-
+	
 	public static Complex m21(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10) {
 	
 		return new Complex();
@@ -1219,365 +1235,481 @@ public class UserDefinedFunctions {
 		return new Complex();
 	
 	}
-
+	
 	public static Complex k1(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
 	
 		return new Complex();
 	
 	}
-
+	
 	public static Complex k2(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
 	
 		return new Complex();
 	
 	}
-
+	
 	public static Complex k3(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
 	
 		return new Complex();
 	
 	}
-
+	
 	public static Complex k4(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
 	
 		return new Complex();
 	
 	}
-
+	
 	public static Complex k5(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
 	
 		return new Complex();
 	
 	}
-
+	
 	public static Complex k6(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
 	
 		return new Complex();
 	
 	}
-
+	
 	public static Complex k7(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
 	
 		return new Complex();
 	
 	}
-
+	
 	public static Complex k8(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
 	
 		return new Complex();
 	
 	}
-
+	
 	public static Complex k9(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
 	
 		return new Complex();
 	
 	}
-
+	
 	public static Complex k10(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
 	
 		return new Complex();
 	
 	}
-
+	
 	public static Complex k11(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
 	
 		return new Complex();
 	
 	}
-
+	
 	public static Complex k12(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
 	
 		return new Complex();
 	
 	}
-
+	
 	public static Complex k13(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
 	
 		return new Complex();
 	
 	}
-
+	
 	public static Complex k14(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
 	
 		return new Complex();
 	
 	}
-
+	
 	public static Complex k15(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
 	
 		return new Complex();
 	
 	}
-
+	
 	public static Complex k16(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
 	
 		return new Complex();
 	
 	}
-
+	
 	public static Complex k17(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
 	
 		return new Complex();
 	
 	}
-
+	
 	public static Complex k18(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
 	
 		return new Complex();
 	
 	}
-
+	
 	public static Complex k19(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
 	
 		return new Complex();
 	
 	}
-
+	
 	public static Complex k20(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
 	
 		return new Complex();
 	
 	}
-
+	
 	public static Complex k21(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
 	
 		return new Complex();
 	
 	}
-
+	
 	public static Complex k22(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
 	
 		return new Complex();
 	
 	}
-
+	
 	public static Complex k23(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
 	
 		return new Complex();
 	
 	}
-
+	
 	public static Complex k24(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
 	
 		return new Complex();
 	
 	}
-
+	
 	public static Complex k25(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
 	
 		return new Complex();
 	
 	}
-
+	
 	public static Complex k26(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
 	
 		return new Complex();
 	
 	}
-
+	
 	public static Complex k27(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
 	
 		return new Complex();
 	
 	}
-
+	
 	public static Complex k28(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
 	
 		return new Complex();
 	
 	}
-
+	
 	public static Complex k29(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
 	
 		return new Complex();
 	
 	}
-
+	
 	public static Complex k30(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
 	
 		return new Complex();
 	
 	}
-
+	
 	public static Complex k31(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
 	
 		return new Complex();
 	
 	}
-
+	
 	public static Complex k32(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
 	
 		return new Complex();
 	
 	}
-
+	
 	public static Complex k33(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
 	
 		return new Complex();
 	
 	}
-
+	
 	public static Complex k34(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
 	
 		return new Complex();
 	
 	}
-
+	
 	public static Complex k35(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
 	
 		return new Complex();
 	
 	}
-
+	
 	public static Complex k36(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
 	
 		return new Complex();
 	
 	}
-
+	
 	public static Complex k37(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
 	
 		return new Complex();
 	
 	}
-
+	
 	public static Complex k38(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
 	
 		return new Complex();
 	
 	}
-
+	
 	public static Complex k39(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
 	
 		return new Complex();
 	
 	}
-
+	
 	public static Complex k40(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
 	
 		return new Complex();
 	
 	}
-
+	
 	public static Complex k41(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
 	
 		return new Complex();
 	
 	}
-
+	
 	public static Complex k42(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
 	
 		return new Complex();
 	
 	}
-
+	
 	public static Complex k43(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
 	
 		return new Complex();
 	
 	}
-
+	
 	public static Complex k44(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
 	
 		return new Complex();
 	
 	}
-
+	
 	public static Complex k45(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
 	
 		return new Complex();
 	
 	}
-
+	
 	public static Complex k46(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
 	
 		return new Complex();
 	
 	}
-
+	
 	public static Complex k47(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
 	
 		return new Complex();
 	
 	}
-
+	
 	public static Complex k48(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
 	
 		return new Complex();
 	
 	}
-
+	
 	public static Complex k49(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
 	
 		return new Complex();
 	
 	}
-
+	
 	public static Complex k50(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
 	
 		return new Complex();
 	
 	}
-
+	
 	public static Complex k51(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
 	
 		return new Complex();
 	
 	}
-
+	
 	public static Complex k52(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
 	
 		return new Complex();
 	
 	}
-
+	
 	public static Complex k53(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
 	
 		return new Complex();
 	
 	}
-
+	
 	public static Complex k54(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
 	
 		return new Complex();
 	
 	}
-
+	
 	public static Complex k55(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
 	
 		return new Complex();
 	
 	}
-
+	
 	public static Complex k56(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
 	
 		return new Complex();
 	
 	}
-
+	
 	public static Complex k57(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
 	
 		return new Complex();
 	
 	}
-
+	
 	public static Complex k58(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
 	
 		return new Complex();
 	
 	}
-
-	public static Complex k59(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
 	
-		return new Complex();
+	/* Example for direct color: using the angle of the complex number, we can colorize the image. Do not forget to enable Direct Color option.*/
+	public static Complex k59(Complex z, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
+		
+		double h = z.arg() / Math.PI * 0.5;
+		h = h < 0 ? h + 1 : h;
+		
+		return directHSBColor(h, 1, 1);
 	
 	}
 
-	public static Complex k60(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
+	/* Example for direct color: using the defined palette "templatePalette" and the number of iteration, we can colorize the image 
+	Use this function both in user outcoloring and user in coloring modes. Do not forget to enable Direct Color option.*/
+	public static Complex k60(Complex n, Complex maxn, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
 	
-		return new Complex();
+		if(n.getRe() == maxn.getRe()) {
+			return directRGBColor(0, 0, 0); //paint it black
+		}
+
+		int index = ((int)n.getRe()) % examplePalette.length;
+
+		return directRGBColor(examplePalette[index][0], examplePalette[index][1], examplePalette[index][2]);
 	
+	}
+	
+	static int examplePalette[][] = {{66, 30, 15}, {25, 7, 26}, {9, 1, 47}, {4, 4, 73}, {0, 7, 100}, {12, 44, 138},
+									 {24, 82, 177}, {57, 125, 209}, {134, 181, 229}, {211, 236, 248}, {241, 233, 191}, 
+									 {248, 201, 95}, {255, 170, 0}, {204, 128, 0}, {153, 87, 0}, {106, 52, 3}};
+	
+	/* 0 <= red <= 255
+	 * 0 <= green <= 255
+	 * 0 <= blue <= 255
+	 */
+	public static Complex directRGBColor(int red, int green, int blue) {
+		
+		if(red < 0) red = 0;
+		else if(red > 255) red = 255;
+		
+		if(green < 0) green = 0;
+		else if(green > 255) green = 255;
+		
+		if(blue < 0) blue = 0;
+		else if(blue > 255) blue = 255;
+		
+		return new Complex(red << 16 | green << 8 | blue, 0);
+		
+	}
+	
+	/* 0.0 <= red <= 1.0
+	 * 0.0 <= green <= 1.0
+	 * 0.0 <= blue <= 1.0
+	 */
+	public static Complex directRGBColor(double red, double green, double blue) {
+		
+		if(red < 0.0) red = 0.0;
+		else if(red > 1.0) red = 1.0;
+		
+		if(green < 0.0) green = 0.0;
+		else if(green > 1.0) green = 1.0;
+		
+		if(blue < 0.0) blue = 0.0;
+		else if(blue > 1.0) blue = 1.0;
+		
+		int intRed = (int)(255 * red + 0.5);
+		int intGreen = (int)(255 * green + 0.5);
+		int intBlue = (int)(255 * blue + 0.5);
+		
+		return new Complex(intRed << 16 | intGreen << 8 | intBlue, 0);
+		
+	}
+	
+	/* 0.0 <= hue <= 1.0
+	 * 0.0 <= saturation <= 1.0
+	 * 0.0 <= brightness <= 1.0
+	 */
+	public static Complex directHSBColor(double hue, double saturation, double brightness) {
+		
+		if(hue < 0.0) hue = 0.0;
+		else if(hue > 1.0) hue = 1.0;
+		
+		if(saturation < 0.0) saturation = 0.0;
+		else if(saturation > 1.0) saturation = 1.0;
+		
+		if(brightness < 0.0) brightness = 0.0;
+		else if(brightness > 1.0) brightness = 1.0;
+		
+		return new Complex(Color.HSBtoRGB((float)hue, (float)saturation, (float)brightness), 0);
+		
+	}
+	
+	/* 0 <= red1 <= 255
+	 * 0 <= green1 <= 255
+	 * 0 <= blue1 <= 255
+	 * 0 <= red2 <= 255
+	 * 0 <= green2 <= 255
+	 * 0 <= blue2 <= 255
+	 * 0.0 <= coeficient <= 1.0
+	 */
+	public static Complex interpolateDirectRGBColor(int red1, int green1, int blue1, int red2, int green2, int blue2, double coeficient) {
+		
+		if(red1 < 0) red1 = 0;
+		else if(red1 > 255) red1 = 255;
+		
+		if(green1 < 0) green1 = 0;
+		else if(green1 > 255) green1 = 255;
+		
+		if(blue1 < 0) blue1 = 0;
+		else if(blue1 > 255) blue1 = 255;
+		
+		if(red2 < 0) red2 = 0;
+		else if(red2 > 255) red2 = 255;
+		
+		if(green2 < 0) green2 = 0;
+		else if(green2 > 255) green2 = 255;
+		
+		if(blue2 < 0) blue2 = 0;
+		else if(blue2 > 255) blue2 = 255;
+		
+		if(coeficient < 0.0) coeficient = 0.0;
+		else if(coeficient > 1.0) coeficient = 1.0;
+		
+		int red = (int)(red1 + (red2 - red1) * coeficient + 0.5);
+		int green = (int)(green1 + (green2 - green1) * coeficient + 0.5);
+		int blue = (int)(blue1 + (blue2 - blue1) * coeficient + 0.5);
+		
+		return new Complex(red << 16 | green << 8 | blue, 0);
+		
 	}
 
 }

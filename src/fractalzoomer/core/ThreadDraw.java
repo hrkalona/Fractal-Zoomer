@@ -16,58 +16,9 @@
  */
 package fractalzoomer.core;
 
-import fractalzoomer.core.blending.AdditionBlending;
-import fractalzoomer.core.blending.Blending;
-import fractalzoomer.core.blending.BurnBlending;
-import fractalzoomer.core.blending.ColorBlending;
-import fractalzoomer.core.blending.DarkenOnlyBlending;
-import fractalzoomer.core.blending.DifferenceBlending;
-import fractalzoomer.core.blending.DivideBlending;
-import fractalzoomer.core.blending.DodgeBlending;
-import fractalzoomer.core.blending.GrainExtractBlending;
-import fractalzoomer.core.blending.GrainMergeBlending;
-import fractalzoomer.core.blending.HardLightBlending;
-import fractalzoomer.core.blending.LightenOnlyBlending;
-import fractalzoomer.core.blending.MultiplyBlending;
-import fractalzoomer.core.blending.NormalBlending;
-import fractalzoomer.core.blending.OverlayBlending;
-import fractalzoomer.core.blending.SaturationBlending;
-import fractalzoomer.core.blending.ScreenBlending;
-import fractalzoomer.core.blending.SubtractionBlending;
-import fractalzoomer.core.blending.ValueBlending;
-import fractalzoomer.core.iteration_algorithm.FractalIterationAlgorithm;
-import fractalzoomer.core.iteration_algorithm.IterationAlgorithm;
-import fractalzoomer.core.iteration_algorithm.JuliaIterationAlgorithm;
-import fractalzoomer.core.domain_coloring.BlackCirclesLog2DomainColoring;
-import fractalzoomer.core.domain_coloring.BlackGridBrightContoursLog2DomainColoring;
-import fractalzoomer.core.domain_coloring.BlackGridDomainColoring;
-import fractalzoomer.core.domain_coloring.BlackGridWhiteCirclesLog2DomainColoring;
-import fractalzoomer.core.domain_coloring.BrightContoursLog2DomainColoring;
-import fractalzoomer.core.domain_coloring.DarkContoursLog2DomainColoring;
-import fractalzoomer.core.domain_coloring.DomainColoring;
-import fractalzoomer.core.domain_coloring.NormBlackCirclesLog2DomainColoring;
-import fractalzoomer.core.domain_coloring.NormBlackGridBrightContoursLog2DomainColoring;
-import fractalzoomer.core.domain_coloring.NormBlackGridDomainColoring;
-import fractalzoomer.core.domain_coloring.NormBlackGridWhiteCirclesLog2DomainColoring;
-import fractalzoomer.core.domain_coloring.NormBrightContoursLog2DomainColoring;
-import fractalzoomer.core.domain_coloring.NormDarkContoursLog2DomainColoring;
-import fractalzoomer.core.domain_coloring.NormWhiteCirclesLog2DomainColoring;
-import fractalzoomer.core.domain_coloring.NormWhiteGridBlackCirclesLog2DomainColoring;
-import fractalzoomer.core.domain_coloring.NormWhiteGridDarkContoursLog2DomainColoring;
-import fractalzoomer.core.domain_coloring.NormWhiteGridDomainColoring;
-import fractalzoomer.core.domain_coloring.BlackGridContoursLog2IsoLinesDomainColoring;
-import fractalzoomer.core.domain_coloring.BlackGridIsoContoursDomainColoring;
-import fractalzoomer.core.domain_coloring.CustomDomainColoring;
-import fractalzoomer.core.domain_coloring.GridContoursIsoLinesDomainColoring;
-import fractalzoomer.core.domain_coloring.IsoContoursContoursLog2DomainColoring;
-import fractalzoomer.core.domain_coloring.NormBlackGridContoursLog2IsoLinesDomainColoring;
-import fractalzoomer.core.domain_coloring.NormBlackGridIsoContoursDomainColoring;
-import fractalzoomer.core.domain_coloring.NormGridContoursIsoLinesDomainColoring;
-import fractalzoomer.core.domain_coloring.NormIsoContoursContoursLog2DomainColoring;
-import fractalzoomer.core.domain_coloring.WhiteCirclesLog2DomainColoring;
-import fractalzoomer.core.domain_coloring.WhiteGridBlackCirclesLog2DomainColoring;
-import fractalzoomer.core.domain_coloring.WhiteGridDarkContoursLog2DomainColoring;
-import fractalzoomer.core.domain_coloring.WhiteGridDomainColoring;
+import fractalzoomer.core.blending.*;
+import fractalzoomer.core.iteration_algorithm.*;
+import fractalzoomer.core.domain_coloring.*;
 import fractalzoomer.fractal_options.orbit_traps.OrbitTrap;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.functions.barnsley.Barnsley1;
@@ -182,6 +133,7 @@ import fractalzoomer.functions.formulas.m_like_generalization.Formula39;
 import fractalzoomer.functions.formulas.m_like_generalization.Formula46;
 import fractalzoomer.functions.formulas.m_like_generalization.zab_zde_fg.Formula40;
 import fractalzoomer.functions.formulas.m_like_generalization.zab_zde_fg.Formula41;
+import fractalzoomer.functions.general.Kleinian;
 import fractalzoomer.functions.root_finding_methods.halley.HalleyFormula;
 import fractalzoomer.functions.root_finding_methods.householder.HouseholderFormula;
 import fractalzoomer.functions.root_finding_methods.laguerre.Laguerre3;
@@ -234,11 +186,13 @@ import fractalzoomer.functions.user_formulas.UserFormulaCoupledConverging;
 import fractalzoomer.functions.user_formulas.UserFormulaCoupledEscaping;
 import fractalzoomer.main.ImageExpanderWindow;
 import fractalzoomer.main.app_settings.BumpMapSettings;
+import fractalzoomer.main.app_settings.ContourColoringSettings;
 import fractalzoomer.main.app_settings.D3Settings;
 import fractalzoomer.main.app_settings.DomainColoringSettings;
 import fractalzoomer.main.app_settings.EntropyColoringSettings;
 import fractalzoomer.main.app_settings.FakeDistanceEstimationSettings;
 import fractalzoomer.main.app_settings.FiltersSettings;
+import fractalzoomer.main.app_settings.FunctionSettings;
 import fractalzoomer.main.app_settings.GreyscaleColoringSettings;
 import fractalzoomer.main.app_settings.OffsetColoringSettings;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
@@ -312,6 +266,8 @@ public abstract class ThreadDraw extends Thread {
 
     protected static int randomNumber;
 
+    public static boolean USE_DIRECT_COLOR;
+
     protected int drawing_done;
     protected int thread_calculated;
 
@@ -324,10 +280,12 @@ public abstract class ThreadDraw extends Thread {
     protected static AtomicInteger painting_sync;
     protected static AtomicInteger height_scaling_sync;
     protected static CyclicBarrier height_scaling_sync2;
+    protected static AtomicInteger height_scaling_sync3;
+    protected static CyclicBarrier height_scaling_sync4;
+    protected static CyclicBarrier height_function_sync;
     protected static AtomicInteger gaussian_scaling_sync;
     protected static CyclicBarrier gaussian_scaling_sync2;
-    protected static AtomicInteger shade_color_height_sync;
-    protected static CyclicBarrier shade_color_height_sync2;
+    protected static CyclicBarrier shade_color_height_sync;
     protected static AtomicInteger total_calculated;
     protected static AtomicInteger normal_drawing_algorithm_pixel;
     protected static CyclicBarrier color_cycling_filters_sync;
@@ -428,6 +386,10 @@ public abstract class ThreadDraw extends Thread {
     protected int rainbow_algorithm;
     protected boolean greyscale_coloring;
     protected double gs_noise_reducing_factor;
+    protected boolean contour_coloring;
+    protected double cn_noise_reducing_factor;
+    protected double cn_blending;
+    protected int contour_algorithm;
     /**
      * **********************
      */
@@ -495,9 +457,33 @@ public abstract class ThreadDraw extends Thread {
             algorithm_colors[i] = colors.get(i).getRGB();
         }
     }
+    
+    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, FunctionSettings fns, D3Settings d3s, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, boolean exterior_de, double exterior_de_factor, double height_ratio, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, DomainColoringSettings ds, boolean inverse_dem, boolean quickDraw, double color_intensity, int transfer_function, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, int color_blending, OrbitTrapSettings ots, ContourColoringSettings cns) {
+        settingsFractal(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns.bailout_test_algorithm, fns.bailout, fns.bailout_test_user_formula, fns.bailout_test_user_formula2, fns.bailout_test_comparison, fns.n_norm, d3s, ptr, fractal_color, dem_color, image, fs, fns.out_coloring_algorithm, fns.user_out_coloring_algorithm, fns.outcoloring_formula, fns.user_outcoloring_conditions, fns.user_outcoloring_condition_formula, fns.in_coloring_algorithm, fns.user_in_coloring_algorithm, fns.incoloring_formula, fns.user_incoloring_conditions, fns.user_incoloring_condition_formula, fns.smoothing, periodicity_checking, fns.plane_type, fns.burning_ship, fns.mandel_grass, fns.mandel_grass_vals, fns.function, fns.z_exponent, fns.z_exponent_complex, color_cycling_location, fns.rotation_vals, fns.rotation_center, fns.perturbation, fns.perturbation_vals, fns.variable_perturbation, fns.user_perturbation_algorithm, fns.user_perturbation_conditions, fns.user_perturbation_condition_formula, fns.perturbation_user_formula, fns.init_val, fns.initial_vals, fns.variable_init_value, fns.user_initial_value_algorithm, fns.user_initial_value_conditions, fns.user_initial_value_condition_formula, fns.initial_value_user_formula, fns.coefficients, fns.z_exponent_nova, fns.relaxation, fns.nova_method, fns.user_formula, fns.user_formula2, fns.bail_technique, fns.user_plane, fns.user_plane_algorithm, fns.user_plane_conditions, fns.user_plane_condition_formula, fns.user_formula_iteration_based, fns.user_formula_conditions, fns.user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, fns.plane_transform_center, fns.plane_transform_angle, fns.plane_transform_radius, fns.plane_transform_scales, fns.plane_transform_wavelength, fns.waveType, fns.plane_transform_angle2, fns.plane_transform_sides, fns.plane_transform_amount, fns.escaping_smooth_algorithm, fns.converging_smooth_algorithm, bms, polar_projection, circle_period, fdes, rps, fns.user_fz_formula, fns.user_dfz_formula, fns.user_ddfz_formula,  fns.coupling, fns.user_formula_coupled, fns.coupling_method, fns.coupling_amplitude, fns.coupling_frequency, fns.coupling_seed, ds, inverse_dem, quickDraw, color_intensity, transfer_function, ens, ofs, gss, fns.laguerre_deg, color_blending, ots, cns, fns.kleinianLine, fns.kleinianK, fns.kleinianM);
+    }
+    
+    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, FunctionSettings fns, ImageExpanderWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, boolean exterior_de, double exterior_de_factor, double height_ratio, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, DomainColoringSettings ds, boolean inverse_dem, double color_intensity, int transfer_function, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, int color_blending, OrbitTrapSettings ots, ContourColoringSettings cns) {
+        settingsFractalExpander(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns.bailout_test_algorithm, fns.bailout, fns.bailout_test_user_formula, fns.bailout_test_user_formula2, fns.bailout_test_comparison, fns.n_norm, ptr, fractal_color, dem_color, image, fs, fns.out_coloring_algorithm, fns.user_out_coloring_algorithm, fns.outcoloring_formula, fns.user_outcoloring_conditions, fns.user_outcoloring_condition_formula, fns.in_coloring_algorithm, fns.user_in_coloring_algorithm, fns.incoloring_formula, fns.user_incoloring_conditions, fns.user_incoloring_condition_formula, fns.smoothing, periodicity_checking, fns.plane_type, fns.burning_ship, fns.mandel_grass, fns.mandel_grass_vals, fns.function, fns.z_exponent, fns.z_exponent_complex, color_cycling_location, fns.rotation_vals, fns.rotation_center, fns.perturbation, fns.perturbation_vals, fns.variable_perturbation, fns.user_perturbation_algorithm, fns.user_perturbation_conditions, fns.user_perturbation_condition_formula, fns.perturbation_user_formula, fns.init_val, fns.initial_vals, fns.variable_init_value, fns.user_initial_value_algorithm, fns.user_initial_value_conditions, fns.user_initial_value_condition_formula, fns.initial_value_user_formula, fns.coefficients, fns.z_exponent_nova, fns.relaxation, fns.nova_method, fns.user_formula, fns.user_formula2, fns.bail_technique, fns.user_plane, fns.user_plane_algorithm, fns.user_plane_conditions, fns.user_plane_condition_formula, fns.user_formula_iteration_based, fns.user_formula_conditions, fns.user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, fns.plane_transform_center, fns.plane_transform_angle, fns.plane_transform_radius, fns.plane_transform_scales, fns.plane_transform_wavelength, fns.waveType, fns.plane_transform_angle2, fns.plane_transform_sides, fns.plane_transform_amount, fns.escaping_smooth_algorithm, fns.converging_smooth_algorithm, bms, polar_projection, circle_period, fdes, rps, fns.user_fz_formula, fns.user_dfz_formula, fns.user_ddfz_formula,  fns.coupling, fns.user_formula_coupled, fns.coupling_method, fns.coupling_amplitude, fns.coupling_frequency, fns.coupling_seed, ds, inverse_dem, color_intensity, transfer_function, ens, ofs, gss, fns.laguerre_deg, color_blending, ots, cns, fns.kleinianLine, fns.kleinianK, fns.kleinianM);
+    }
+    
+    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, FunctionSettings fns, D3Settings d3s, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, boolean exterior_de, double exterior_de_factor, double height_ratio, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, DomainColoringSettings ds, boolean inverse_dem, boolean quickDraw, double color_intensity, int transfer_function, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, int color_blending, OrbitTrapSettings ots, ContourColoringSettings cns, double xJuliaCenter, double yJuliaCenter) {
+        settingsJulia(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns.bailout_test_algorithm, fns.bailout, fns.bailout_test_user_formula, fns.bailout_test_user_formula2, fns.bailout_test_comparison, fns.n_norm, d3s, ptr, fractal_color, dem_color, image, fs, fns.out_coloring_algorithm, fns.user_out_coloring_algorithm, fns.outcoloring_formula, fns.user_outcoloring_conditions, fns.user_outcoloring_condition_formula, fns.in_coloring_algorithm, fns.user_in_coloring_algorithm, fns.incoloring_formula, fns.user_incoloring_conditions, fns.user_incoloring_condition_formula, fns.smoothing, periodicity_checking, fns.plane_type, fns.apply_plane_on_julia, fns.apply_plane_on_julia_seed, fns.burning_ship, fns.mandel_grass, fns.mandel_grass_vals, fns.function, fns.z_exponent, fns.z_exponent_complex, color_cycling_location, fns.rotation_vals, fns.rotation_center, fns.coefficients, fns.z_exponent_nova, fns.relaxation, fns.nova_method, fns.user_formula, fns.user_formula2, fns.bail_technique, fns.user_plane, fns.user_plane_algorithm, fns.user_plane_conditions, fns.user_plane_condition_formula, fns.user_formula_iteration_based, fns.user_formula_conditions, fns.user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, fns.plane_transform_center, fns.plane_transform_angle, fns.plane_transform_radius, fns.plane_transform_scales, fns.plane_transform_wavelength, fns.waveType, fns.plane_transform_angle2, fns.plane_transform_sides, fns.plane_transform_amount, fns.escaping_smooth_algorithm, fns.converging_smooth_algorithm, bms, polar_projection, circle_period, fdes, rps,  fns.coupling, fns.user_formula_coupled, fns.coupling_method, fns.coupling_amplitude, fns.coupling_frequency, fns.coupling_seed, ds, inverse_dem, quickDraw, color_intensity, transfer_function, ens, ofs, gss, color_blending, ots, cns, xJuliaCenter, yJuliaCenter);
+    }
+    
+    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, FunctionSettings fns, ImageExpanderWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, boolean exterior_de, double exterior_de_factor, double height_ratio, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, DomainColoringSettings ds, boolean inverse_dem, double color_intensity, int transfer_function, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, int color_blending, OrbitTrapSettings ots, ContourColoringSettings cns, double xJuliaCenter, double yJuliaCenter) {
+        settingsJuliaExpander(FROMx,  TOx,  FROMy,  TOy,  xCenter,  yCenter,  size,  max_iterations,  fns.bailout_test_algorithm,  fns.bailout,  fns.bailout_test_user_formula,  fns.bailout_test_user_formula2,  fns.bailout_test_comparison,  fns.n_norm, ptr, fractal_color, dem_color, image, fs,  fns.out_coloring_algorithm,  fns.user_out_coloring_algorithm,  fns.outcoloring_formula, fns.user_outcoloring_conditions, fns.user_outcoloring_condition_formula,  fns.in_coloring_algorithm,  fns.user_in_coloring_algorithm,  fns.incoloring_formula, fns.user_incoloring_conditions, fns.user_incoloring_condition_formula,  fns.smoothing,  periodicity_checking,  fns.plane_type,  fns.apply_plane_on_julia,  fns.apply_plane_on_julia_seed,  fns.burning_ship,  fns.mandel_grass, fns.mandel_grass_vals,  fns.function,  fns.z_exponent, fns.z_exponent_complex,  color_cycling_location, fns.rotation_vals, fns.rotation_center, fns.coefficients, fns.z_exponent_nova, fns.relaxation,  fns.nova_method,  fns.user_formula,  fns.user_formula2,  fns.bail_technique,  fns.user_plane,  fns.user_plane_algorithm, fns.user_plane_conditions, fns.user_plane_condition_formula, fns.user_formula_iteration_based, fns.user_formula_conditions, fns.user_formula_condition_formula,  exterior_de,  exterior_de_factor,  height_ratio, fns.plane_transform_center,  fns.plane_transform_angle,  fns.plane_transform_radius, fns.plane_transform_scales, fns.plane_transform_wavelength, fns.waveType,  fns.plane_transform_angle2,  fns.plane_transform_sides,  fns.plane_transform_amount,  fns.escaping_smooth_algorithm,  fns.converging_smooth_algorithm, bms,  polar_projection,  circle_period,  fdes, rps,   fns.coupling, fns.user_formula_coupled,  fns.coupling_method,  fns.coupling_amplitude,  fns.coupling_frequency,  fns.coupling_seed,  ds,  inverse_dem, color_intensity, transfer_function,  ens, ofs, gss, color_blending, ots, cns,  xJuliaCenter,  yJuliaCenter);
+    }
+    
+    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, FunctionSettings fns, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, boolean exterior_de, double exterior_de_factor, double height_ratio, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, boolean inverse_dem, double color_intensity, int transfer_function, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, int color_blending, OrbitTrapSettings ots, ContourColoringSettings cns) {
+        settingsJuliaMap(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns.bailout_test_algorithm, fns.bailout, fns.bailout_test_user_formula, fns.bailout_test_user_formula2, fns.bailout_test_comparison, fns.n_norm, ptr, fractal_color, dem_color, image, fs, fns.out_coloring_algorithm, fns.user_out_coloring_algorithm, fns.outcoloring_formula, fns.user_outcoloring_conditions, fns.user_outcoloring_condition_formula, fns.in_coloring_algorithm, fns.user_in_coloring_algorithm, fns.incoloring_formula, fns.user_incoloring_conditions, fns.user_incoloring_condition_formula, fns.smoothing, periodicity_checking, fns.plane_type, fns.apply_plane_on_julia, fns.apply_plane_on_julia_seed, fns.burning_ship, fns.mandel_grass, fns.mandel_grass_vals, fns.function, fns.z_exponent, fns.z_exponent_complex, color_cycling_location, fns.rotation_vals, fns.rotation_center, fns.coefficients, fns.z_exponent_nova, fns.relaxation, fns.nova_method, fns.user_formula, fns.user_formula2, fns.bail_technique, fns.user_plane, fns.user_plane_algorithm, fns.user_plane_conditions, fns.user_plane_condition_formula, fns.user_formula_iteration_based, fns.user_formula_conditions, fns.user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, fns.plane_transform_center, fns.plane_transform_angle, fns.plane_transform_radius, fns.plane_transform_scales, fns.plane_transform_wavelength, fns.waveType, fns.plane_transform_angle2, fns.plane_transform_sides, fns.plane_transform_amount, fns.escaping_smooth_algorithm, fns.converging_smooth_algorithm, bms, polar_projection, circle_period, fdes, rps,  fns.coupling, fns.user_formula_coupled, fns.coupling_method, fns.coupling_amplitude, fns.coupling_frequency, fns.coupling_seed, inverse_dem, color_intensity, transfer_function, ens, ofs, gss, color_blending, ots, cns);
+    }
+    
+    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, FunctionSettings fns, MainWindow ptr, Color fractal_color, Color dem_color, boolean fast_julia_filters, BufferedImage image, boolean periodicity_checking, FiltersSettings fs, int color_cycling_location, boolean exterior_de, double exterior_de_factor, double height_ratio, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, boolean inverse_dem, double color_intensity, int transfer_function, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, int color_blending, OrbitTrapSettings ots, ContourColoringSettings cns, double xJuliaCenter, double yJuliaCenter) {
+        settingsJuliaPreview(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns.bailout_test_algorithm, fns.bailout, fns.bailout_test_user_formula, fns.bailout_test_user_formula2, fns.bailout_test_comparison, fns.n_norm, ptr, fractal_color, dem_color, fast_julia_filters, image, periodicity_checking, fns.plane_type, fns.apply_plane_on_julia, fns.apply_plane_on_julia_seed, fns.out_coloring_algorithm, fns.user_out_coloring_algorithm, fns.outcoloring_formula, fns.user_outcoloring_conditions, fns.user_outcoloring_condition_formula, fns.in_coloring_algorithm, fns.user_in_coloring_algorithm, fns.incoloring_formula, fns.user_incoloring_conditions, fns.user_incoloring_condition_formula, fns.smoothing, fs, fns.burning_ship, fns.mandel_grass, fns.mandel_grass_vals, fns.function, fns.z_exponent, fns.z_exponent_complex, color_cycling_location, fns.rotation_vals, fns.rotation_center, fns.coefficients, fns.z_exponent_nova, fns.relaxation, fns.nova_method, fns.user_formula, fns.user_formula2, fns.bail_technique, fns.user_plane, fns.user_plane_algorithm, fns.user_plane_conditions, fns.user_plane_condition_formula, fns.user_formula_iteration_based, fns.user_formula_conditions, fns.user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, fns.plane_transform_center, fns.plane_transform_angle, fns.plane_transform_radius, fns.plane_transform_scales, fns.plane_transform_wavelength, fns.waveType, fns.plane_transform_angle2, fns.plane_transform_sides, fns.plane_transform_amount, fns.escaping_smooth_algorithm, fns.converging_smooth_algorithm, bms, polar_projection, circle_period, fdes, rps,  fns.coupling, fns.user_formula_coupled, fns.coupling_method, fns.coupling_amplitude, fns.coupling_frequency, fns.coupling_seed, inverse_dem, color_intensity, transfer_function, ens, ofs, gss, color_blending, ots, cns, xJuliaCenter, yJuliaCenter);
+    }
 
     //Fractal
-    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, D3Settings d3s, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, int plane_type, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_val, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, boolean exterior_de, double exterior_de_factor, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, int converging_smooth_algorithm, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, String user_fz_formula, String user_dfz_formula, String user_ddfz_formula, double coupling, String[] user_formula_coupled, int coupling_method, double coupling_amplitude, double coupling_frequency, int coupling_seed, DomainColoringSettings ds, boolean inverse_dem, boolean quickDraw, double color_intensity, int transfer_function, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, double[] laguerre_deg, int color_blending, OrbitTrapSettings ots) {
+    private void settingsFractal(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, D3Settings d3s, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, int plane_type, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_val, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, boolean exterior_de, double exterior_de_factor, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, int converging_smooth_algorithm, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, String user_fz_formula, String user_dfz_formula, String user_ddfz_formula, double coupling, String[] user_formula_coupled, int coupling_method, double coupling_amplitude, double coupling_frequency, int coupling_seed, DomainColoringSettings ds, boolean inverse_dem, boolean quickDraw, double color_intensity, int transfer_function, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, double[] laguerre_deg, int color_blending, OrbitTrapSettings ots, ContourColoringSettings cns, double[] kleinianLine, double kleinianK, double kleinianM) {
 
         if (quickDraw && max_iterations > 1000) {
             max_iterations = 1000;
@@ -570,6 +556,11 @@ public abstract class ThreadDraw extends Thread {
         this.offset_coloring = ofs.offset_coloring;
         this.post_process_offset = ofs.post_process_offset;
         this.of_noise_reducing_factor = ofs.of_noise_reducing_factor;
+
+        this.contour_coloring = cns.contour_coloring;
+        this.cn_noise_reducing_factor = cns.cn_noise_reducing_factor;
+        this.cn_blending = cns.cn_blending;
+        this.contour_algorithm = cns.contour_algorithm;
 
         this.polar_projection = polar_projection;
         this.circle_period = circle_period;
@@ -756,6 +747,9 @@ public abstract class ThreadDraw extends Thread {
                 break;
             case MainWindow.SIERPINSKI_GASKET:
                 fractal = new SierpinskiGasket(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, ots);
+                break;
+            case MainWindow.KLEINIAN:
+                fractal = new Kleinian(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, ots, kleinianLine, kleinianK, kleinianM);
                 break;
             case MainWindow.HALLEY3:
                 fractal = new Halley3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots);
@@ -1172,7 +1166,7 @@ public abstract class ThreadDraw extends Thread {
     }
 
     //Fractal-Expander
-    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, ImageExpanderWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, int plane_type, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_val, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, boolean exterior_de, double exterior_de_factor, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, int converging_smooth_algorithm, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, String user_fz_formula, String user_dfz_formula, String user_ddfz_formula, double coupling, String[] user_formula_coupled, int coupling_method, double coupling_amplitude, double coupling_frequency, int coupling_seed, DomainColoringSettings ds, boolean inverse_dem, double color_intensity, int transfer_function, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, double[] laguerre_deg, int color_blending, OrbitTrapSettings ots) {
+    private void settingsFractalExpander(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, ImageExpanderWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, int plane_type, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_val, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, boolean exterior_de, double exterior_de_factor, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, int converging_smooth_algorithm, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, String user_fz_formula, String user_dfz_formula, String user_ddfz_formula, double coupling, String[] user_formula_coupled, int coupling_method, double coupling_amplitude, double coupling_frequency, int coupling_seed, DomainColoringSettings ds, boolean inverse_dem, double color_intensity, int transfer_function, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, double[] laguerre_deg, int color_blending, OrbitTrapSettings ots, ContourColoringSettings cns, double[] kleinianLine, double kleinianK, double kleinianM) {
 
         this.FROMx = FROMx;
         this.TOx = TOx;
@@ -1222,6 +1216,11 @@ public abstract class ThreadDraw extends Thread {
         this.offset_coloring = ofs.offset_coloring;
         this.post_process_offset = ofs.post_process_offset;
         this.of_noise_reducing_factor = ofs.of_noise_reducing_factor;
+
+        this.contour_coloring = cns.contour_coloring;
+        this.cn_noise_reducing_factor = cns.cn_noise_reducing_factor;
+        this.cn_blending = cns.cn_blending;
+        this.contour_algorithm = cns.contour_algorithm;
 
         this.polar_projection = polar_projection;
         this.circle_period = circle_period;
@@ -1395,6 +1394,9 @@ public abstract class ThreadDraw extends Thread {
                 break;
             case MainWindow.SIERPINSKI_GASKET:
                 fractal = new SierpinskiGasket(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, ots);
+                break;
+            case MainWindow.KLEINIAN:
+                fractal = new Kleinian(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, ots, kleinianLine, kleinianK, kleinianM);
                 break;
             case MainWindow.HALLEY3:
                 fractal = new Halley3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots);
@@ -1811,7 +1813,7 @@ public abstract class ThreadDraw extends Thread {
     }
 
     //Julia
-    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, D3Settings d3s, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] rotation_vals, double[] rotation_center, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, boolean exterior_de, double exterior_de_factor, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, int converging_smooth_algorithm, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, double coupling, String[] user_formula_coupled, int coupling_method, double coupling_amplitude, double coupling_frequency, int coupling_seed, DomainColoringSettings ds, boolean inverse_dem, boolean quickDraw, double color_intensity, int transfer_function, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, int color_blending, OrbitTrapSettings ots, double xJuliaCenter, double yJuliaCenter) {
+    private void settingsJulia(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, D3Settings d3s, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] rotation_vals, double[] rotation_center, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, boolean exterior_de, double exterior_de_factor, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, int converging_smooth_algorithm, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, double coupling, String[] user_formula_coupled, int coupling_method, double coupling_amplitude, double coupling_frequency, int coupling_seed, DomainColoringSettings ds, boolean inverse_dem, boolean quickDraw, double color_intensity, int transfer_function, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, int color_blending, OrbitTrapSettings ots, ContourColoringSettings cns, double xJuliaCenter, double yJuliaCenter) {
 
         if (quickDraw && max_iterations > 1000) {
             max_iterations = 1000;
@@ -1884,6 +1886,11 @@ public abstract class ThreadDraw extends Thread {
         this.offset_coloring = ofs.offset_coloring;
         this.post_process_offset = ofs.post_process_offset;
         this.of_noise_reducing_factor = ofs.of_noise_reducing_factor;
+
+        this.contour_coloring = cns.contour_coloring;
+        this.cn_noise_reducing_factor = cns.cn_noise_reducing_factor;
+        this.cn_blending = cns.cn_blending;
+        this.contour_algorithm = cns.contour_algorithm;
 
         this.polar_projection = polar_projection;
         this.circle_period = circle_period;
@@ -2279,7 +2286,7 @@ public abstract class ThreadDraw extends Thread {
     }
 
     //Julia-Expander
-    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, ImageExpanderWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] rotation_vals, double[] rotation_center, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, boolean exterior_de, double exterior_de_factor, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, int converging_smooth_algorithm, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, double coupling, String[] user_formula_coupled, int coupling_method, double coupling_amplitude, double coupling_frequency, int coupling_seed, DomainColoringSettings ds, boolean inverse_dem, double color_intensity, int transfer_function, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, int color_blending, OrbitTrapSettings ots, double xJuliaCenter, double yJuliaCenter) {
+    private void settingsJuliaExpander(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, ImageExpanderWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] rotation_vals, double[] rotation_center, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, boolean exterior_de, double exterior_de_factor, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, int converging_smooth_algorithm, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, double coupling, String[] user_formula_coupled, int coupling_method, double coupling_amplitude, double coupling_frequency, int coupling_seed, DomainColoringSettings ds, boolean inverse_dem, double color_intensity, int transfer_function, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, int color_blending, OrbitTrapSettings ots, ContourColoringSettings cns, double xJuliaCenter, double yJuliaCenter) {
 
         this.FROMx = FROMx;
         this.TOx = TOx;
@@ -2329,6 +2336,11 @@ public abstract class ThreadDraw extends Thread {
         this.offset_coloring = ofs.offset_coloring;
         this.post_process_offset = ofs.post_process_offset;
         this.of_noise_reducing_factor = ofs.of_noise_reducing_factor;
+
+        this.contour_coloring = cns.contour_coloring;
+        this.cn_noise_reducing_factor = cns.cn_noise_reducing_factor;
+        this.cn_blending = cns.cn_blending;
+        this.contour_algorithm = cns.contour_algorithm;
 
         this.polar_projection = polar_projection;
         this.circle_period = circle_period;
@@ -2711,7 +2723,7 @@ public abstract class ThreadDraw extends Thread {
     }
 
     //Julia Map
-    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] rotation_vals, double[] rotation_center, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, boolean exterior_de, double exterior_de_factor, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, int converging_smooth_algorithm, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, double coupling, String[] user_formula_coupled, int coupling_method, double coupling_amplitude, double coupling_frequency, int coupling_seed, boolean inverse_dem, double color_intensity, int transfer_function, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, int color_blending, OrbitTrapSettings ots) {
+    private void settingsJuliaMap(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] rotation_vals, double[] rotation_center, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, boolean exterior_de, double exterior_de_factor, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, int converging_smooth_algorithm, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, double coupling, String[] user_formula_coupled, int coupling_method, double coupling_amplitude, double coupling_frequency, int coupling_seed, boolean inverse_dem, double color_intensity, int transfer_function, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, int color_blending, OrbitTrapSettings ots, ContourColoringSettings cns) {
 
         this.FROMx = FROMx;
         this.TOx = TOx;
@@ -2761,6 +2773,11 @@ public abstract class ThreadDraw extends Thread {
         this.offset_coloring = ofs.offset_coloring;
         this.post_process_offset = ofs.post_process_offset;
         this.of_noise_reducing_factor = ofs.of_noise_reducing_factor;
+
+        this.contour_coloring = cns.contour_coloring;
+        this.cn_noise_reducing_factor = cns.cn_noise_reducing_factor;
+        this.cn_blending = cns.cn_blending;
+        this.contour_algorithm = cns.contour_algorithm;
 
         this.polar_projection = polar_projection;
         this.circle_period = circle_period;
@@ -3166,7 +3183,7 @@ public abstract class ThreadDraw extends Thread {
     }
 
     //Julia Preview
-    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, MainWindow ptr, Color fractal_color, Color dem_color, boolean fast_julia_filters, BufferedImage image, boolean periodicity_checking, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, FiltersSettings fs, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] rotation_vals, double[] rotation_center, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, boolean exterior_de, double exterior_de_factor, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, int converging_smooth_algorithm, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, double coupling, String[] user_formula_coupled, int coupling_method, double coupling_amplitude, double coupling_frequency, int coupling_seed, boolean inverse_dem, double color_intensity, int transfer_function, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, int color_blending, OrbitTrapSettings ots, double xJuliaCenter, double yJuliaCenter) {
+    private void settingsJuliaPreview(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, MainWindow ptr, Color fractal_color, Color dem_color, boolean fast_julia_filters, BufferedImage image, boolean periodicity_checking, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, FiltersSettings fs, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, double[] rotation_vals, double[] rotation_center, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, boolean exterior_de, double exterior_de_factor, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, int converging_smooth_algorithm, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, double coupling, String[] user_formula_coupled, int coupling_method, double coupling_amplitude, double coupling_frequency, int coupling_seed, boolean inverse_dem, double color_intensity, int transfer_function, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, int color_blending, OrbitTrapSettings ots, ContourColoringSettings cns, double xJuliaCenter, double yJuliaCenter) {
 
         this.FROMx = FROMx;
         this.TOx = TOx;
@@ -3217,6 +3234,11 @@ public abstract class ThreadDraw extends Thread {
         this.offset_coloring = ofs.offset_coloring;
         this.post_process_offset = ofs.post_process_offset;
         this.of_noise_reducing_factor = ofs.of_noise_reducing_factor;
+
+        this.contour_coloring = cns.contour_coloring;
+        this.cn_noise_reducing_factor = cns.cn_noise_reducing_factor;
+        this.cn_blending = cns.cn_blending;
+        this.contour_algorithm = cns.contour_algorithm;
 
         this.polar_projection = polar_projection;
         this.circle_period = circle_period;
@@ -3576,9 +3598,9 @@ public abstract class ThreadDraw extends Thread {
         iteration_algorithm = new JuliaIterationAlgorithm(fractal);
 
     }
-
+    
     //Color Cycling
-    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, int max_iterations, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, int color_cycling_location, BumpMapSettings bms, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, int color_cycling_speed, FiltersSettings fs, double color_intensity, int transfer_function, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, int color_blending) {
+    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, int max_iterations, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, int color_cycling_location, BumpMapSettings bms, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, int color_cycling_speed, FiltersSettings fs, double color_intensity, int transfer_function, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, int color_blending, ContourColoringSettings cns) {
 
         this.FROMx = FROMx;
         this.TOx = TOx;
@@ -3629,6 +3651,11 @@ public abstract class ThreadDraw extends Thread {
         this.post_process_offset = ofs.post_process_offset;
         this.of_noise_reducing_factor = ofs.of_noise_reducing_factor;
 
+        this.contour_coloring = cns.contour_coloring;
+        this.cn_noise_reducing_factor = cns.cn_noise_reducing_factor;
+        this.cn_blending = cns.cn_blending;
+        this.contour_algorithm = cns.contour_algorithm;
+
         this.bm_noise_reducing_factor = bms.bm_noise_reducing_factor;
         this.rp_noise_reducing_factor = rps.rp_noise_reducing_factor;
 
@@ -3676,7 +3703,7 @@ public abstract class ThreadDraw extends Thread {
     }
 
     //Apply Filter
-    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, int max_iterations, MainWindow ptr, BufferedImage image, Color fractal_color, Color dem_color, int color_cycling_location, FiltersSettings fs, BumpMapSettings bms, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, double color_intensity, int transfer_function, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, int color_blending) {
+    public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, int max_iterations, MainWindow ptr, BufferedImage image, Color fractal_color, Color dem_color, int color_cycling_location, FiltersSettings fs, BumpMapSettings bms, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, double color_intensity, int transfer_function, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, int color_blending, ContourColoringSettings cns) {
 
         this.FROMx = FROMx;
         this.TOx = TOx;
@@ -3723,6 +3750,11 @@ public abstract class ThreadDraw extends Thread {
         this.offset_coloring = ofs.offset_coloring;
         this.post_process_offset = ofs.post_process_offset;
         this.of_noise_reducing_factor = ofs.of_noise_reducing_factor;
+
+        this.contour_coloring = cns.contour_coloring;
+        this.cn_noise_reducing_factor = cns.cn_noise_reducing_factor;
+        this.cn_blending = cns.cn_blending;
+        this.contour_algorithm = cns.contour_algorithm;
 
         this.bm_noise_reducing_factor = bms.bm_noise_reducing_factor;
         this.rp_noise_reducing_factor = rps.rp_noise_reducing_factor;
@@ -3882,7 +3914,6 @@ public abstract class ThreadDraw extends Thread {
                 case DOMAIN_POLAR_EXPANDER:
                     drawDomainPolarExpander();
                     break;
-
             }
         } catch (OutOfMemoryError e) {
             if (ptrExpander != null) {
@@ -4452,10 +4483,14 @@ public abstract class ThreadDraw extends Thread {
         return useTraps ? getTrapColor(color) : color;
 
     }
-    
+
     protected int getPaletteColor(double result) {
-        
-        int colorA;
+
+        if (USE_DIRECT_COLOR) {
+            return 0xFF000000 | (0x00FFFFFF & (int) result);
+        }
+
+        int colorA = 0;
         if (result == ColorAlgorithm.MAXIMUM_ITERATIONS) {
             colorA = fractal_color;
         } else if (result == -ColorAlgorithm.MAXIMUM_ITERATIONS) {
@@ -4464,9 +4499,9 @@ public abstract class ThreadDraw extends Thread {
             result = color_transfer.transfer(result);
             colorA = result < 0 ? palette.getPaletteColor(result - color_cycling_location) : palette.getPaletteColor(result + color_cycling_location);
         }
-        
+
         return colorA;
-        
+
     }
 
     private int getTrapColor(int originalColor) {
@@ -4478,7 +4513,7 @@ public abstract class ThreadDraw extends Thread {
         if (distance > trapMaxDistance) {
             return originalColor;
         }
-        
+
         distance /= trapMaxDistance;
 
         int index = (int) (distance * (gradient.length - 1) + 0.5);
@@ -4486,14 +4521,13 @@ public abstract class ThreadDraw extends Thread {
 
         index = index > gradient.length - 1 ? gradient.length - 1 : index;
 
-        int final_redA = (gradient[index] >> 16) & 0xff;;
+        int final_redA = (gradient[index] >> 16) & 0xff;
         int final_greenA = (gradient[index] >> 8) & 0xff;
         int final_blueA = gradient[index] & 0xff;
 
-        if(trapUseSpecialColor) {
+        if (trapUseSpecialColor) {
             return 0xff000000 | final_redA << 16 | final_greenA << 8 | final_blueA;
-        }
-        else {
+        } else {
             return blending.blend(final_redA, final_greenA, final_blueA, (originalColor >> 16) & 0xFF, (originalColor >> 8) & 0xFF, originalColor & 0xFF, 1 - trapBlending);
         }
     }
@@ -5808,6 +5842,70 @@ public abstract class ThreadDraw extends Thread {
 
     }
 
+    private int contourColoring(double[] image_iterations, int i, int j, int image_size, int color) {
+
+        if (!useTraps && Math.abs(image_iterations[i * image_size + j]) == ColorAlgorithm.MAXIMUM_ITERATIONS) {
+            return getPaletteColor(image_iterations[i * image_size + j]);
+        }
+
+        double res = OutColorAlgorithm.transformResultToHeight(image_iterations[i * image_size + j], max_iterations);
+
+        int temp_red = 0, temp_green = 0, temp_blue = 0;
+
+        if (contour_algorithm == 0) {
+            res = res - (int) res;
+
+            double min_contour = 0.06;
+            double max_contour = 1 - min_contour;
+
+            if (res < min_contour || res > max_contour) {
+                double coef = 0;
+                if (res < min_contour) {
+                    coef = (res / min_contour) / 2 + 0.5;
+                } else {
+                    coef = ((res - max_contour) / min_contour) / 2;
+                }
+
+                int index1 = (int) (max_contour * (gradient.length - 1) + 0.5);
+                int index2 = (int) (min_contour * (gradient.length - 1) + 0.5);
+
+                int temp_red1 = (gradient[index1] >> 16) & 0xff;
+                int temp_green1 = (gradient[index1] >> 8) & 0xff;
+                int temp_blue1 = gradient[index1] & 0xff;
+
+                int temp_red2 = (gradient[index2] >> 16) & 0xff;
+                int temp_green2 = (gradient[index2] >> 8) & 0xff;
+                int temp_blue2 = gradient[index2] & 0xff;
+
+                temp_red = (int) (temp_red1 + (temp_red2 - temp_red1) * coef + 0.5);
+                temp_green = (int) (temp_green1 + (temp_green2 - temp_green1) * coef + 0.5);
+                temp_blue = (int) (temp_blue1 + (temp_blue2 - temp_blue1) * coef + 0.5);
+            } else {
+                int index = (int) (res * (gradient.length - 1) + 0.5);
+
+                temp_red = (gradient[index] >> 16) & 0xff;
+                temp_green = (gradient[index] >> 8) & 0xff;
+                temp_blue = gradient[index] & 0xff;
+            }
+        } else {
+            res = 2 * (res - (int) res);
+
+            res = res > 1 ? 2.0 - res : res;
+
+            int index = (int) (res * (gradient.length - 1) + 0.5);
+
+            temp_red = (gradient[index] >> 16) & 0xff;
+            temp_green = (gradient[index] >> 8) & 0xff;
+            temp_blue = gradient[index] & 0xff;
+        }
+
+        int r = (color >> 16) & 0xFF;
+        int g = (color >> 8) & 0xFF;
+        int b = color & 0xFF;
+
+        return blending.blend(temp_red, temp_green, temp_blue, r, g, b, 1 - cn_blending);
+    }
+
     private int offsetColoring(double[] image_iterations, int i, int j, int image_size, int color) {
 
         if (!useTraps && Math.abs(image_iterations[i * image_size + j]) == ColorAlgorithm.MAXIMUM_ITERATIONS) {
@@ -6196,6 +6294,12 @@ public abstract class ThreadDraw extends Thread {
                     modified = postProcessingSmoothing(modified, image_iterations, original_color, y, x, image_size, rp_noise_reducing_factor);
                 }
 
+                if (contour_coloring) {
+                    int original_color = modified;
+                    modified = contourColoring(image_iterations, y, x, image_size, original_color);
+                    modified = postProcessingSmoothing(modified, image_iterations, original_color, y, x, image_size, cn_noise_reducing_factor);
+                }
+
                 if (greyscale_coloring) {
                     int original_color = modified;
                     modified = greyscaleColoring(image_iterations, y, x, image_size, original_color);
@@ -6416,7 +6520,7 @@ public abstract class ThreadDraw extends Thread {
             }
         }
 
-        if ((bump_map || fake_de || rainbow_palette || entropy_coloring || offset_coloring || greyscale_coloring) && !ptr.getDomainColoring()) {
+        if ((bump_map || fake_de || rainbow_palette || entropy_coloring || offset_coloring || greyscale_coloring || contour_coloring) && !ptr.getDomainColoring() && !USE_DIRECT_COLOR) {
             try {
                 post_processing_sync.await();
             } catch (InterruptedException ex) {
@@ -6721,7 +6825,8 @@ public abstract class ThreadDraw extends Thread {
 
     private void shadeColorBasedOnHeight() {
 
-        double new_max = max - min;
+        double min = -100;
+        double range = max_scaling * d3_height_scale;
 
         for (int x = FROMx; x < TOx; x++) {
             for (int y = FROMy; y < TOy; y++) {
@@ -6733,47 +6838,47 @@ public abstract class ThreadDraw extends Thread {
 
                 switch (shade_algorithm) {
                     case 0: //lerp
-                        coef = ((vert[x][y][1] - min) / new_max - 0.5) * 2;
+                        coef = ((vert[x][y][1] - min) / range - 0.5) * 2;
                         break;
                     case 1://cos lerp
-                        coef = -Math.cos((vert[x][y][1] - min) / new_max * Math.PI);
+                        coef = -Math.cos((vert[x][y][1] - min) / range * Math.PI);
                         break;
                     case 2:
                         double lim = 0.1;
-                        if ((vert[x][y][1] - min) / new_max <= lim) {
-                            coef = -(1 - (vert[x][y][1] - min) / new_max * (1 / lim));
-                        } else if ((vert[x][y][1] - min) / new_max >= (1 - lim)) {
-                            coef = 1 - (1 - (vert[x][y][1] - min) / new_max) * (1 / lim);
+                        if ((vert[x][y][1] - min) / range <= lim) {
+                            coef = -(1 - (vert[x][y][1] - min) / range * (1 / lim));
+                        } else if ((vert[x][y][1] - min) / range >= (1 - lim)) {
+                            coef = 1 - (1 - (vert[x][y][1] - min) / range) * (1 / lim);
                         } else {
                             coef = 0;
                         }
                         break;
                     case 3:
                         lim = 0.2;
-                        if ((vert[x][y][1] - min) / new_max <= lim) {
-                            coef = -(1 - (vert[x][y][1] - min) / new_max * (1 / lim));
-                        } else if ((vert[x][y][1] - min) / new_max >= (1 - lim)) {
-                            coef = 1 - (1 - (vert[x][y][1] - min) / new_max) * (1 / lim);
+                        if ((vert[x][y][1] - min) / range <= lim) {
+                            coef = -(1 - (vert[x][y][1] - min) / range * (1 / lim));
+                        } else if ((vert[x][y][1] - min) / range >= (1 - lim)) {
+                            coef = 1 - (1 - (vert[x][y][1] - min) / range) * (1 / lim);
                         } else {
                             coef = 0;
                         }
                         break;
                     case 4:
                         lim = 0.3;
-                        if ((vert[x][y][1] - min) / new_max <= lim) {
-                            coef = -(1 - (vert[x][y][1] - min) / new_max * (1 / lim));
-                        } else if ((vert[x][y][1] - min) / new_max >= (1 - lim)) {
-                            coef = 1 - (1 - (vert[x][y][1] - min) / new_max) * (1 / lim);
+                        if ((vert[x][y][1] - min) / range <= lim) {
+                            coef = -(1 - (vert[x][y][1] - min) / range * (1 / lim));
+                        } else if ((vert[x][y][1] - min) / range >= (1 - lim)) {
+                            coef = 1 - (1 - (vert[x][y][1] - min) / range) * (1 / lim);
                         } else {
                             coef = 0;
                         }
                         break;
                     case 5:
                         lim = 0.4;
-                        if ((vert[x][y][1] - min) / new_max <= lim) {
-                            coef = -(1 - (vert[x][y][1] - min) / new_max * (1 / lim));
-                        } else if ((vert[x][y][1] - min) / new_max >= (1 - lim)) {
-                            coef = 1 - (1 - (vert[x][y][1] - min) / new_max) * (1 / lim);
+                        if ((vert[x][y][1] - min) / range <= lim) {
+                            coef = -(1 - (vert[x][y][1] - min) / range * (1 / lim));
+                        } else if ((vert[x][y][1] - min) / range >= (1 - lim)) {
+                            coef = 1 - (1 - (vert[x][y][1] - min) / range) * (1 / lim);
                         } else {
                             coef = 0;
                         }
@@ -6981,15 +7086,15 @@ public abstract class ThreadDraw extends Thread {
 
         switch (height_algorithm) {
             case 0:
-                return 120 / (x + 1);
+                return Math.log(x + 1);
             case 1:
-                return Math.exp(-x + 5);
+                return Math.log(Math.log(x + 1) + 1);
             case 2:
-                return 40 * Math.log(x + 1);
+                return 1 / (x + 1);
             case 3:
-                return 150 - Math.exp(-x + 5);
+                return Math.exp(-x + 5);
             case 4:
-                return 40 * Math.log(Math.log(x + 1) + 1);
+                return 150 - Math.exp(-x + 5);
             case 5:
                 return 150 / (1 + Math.exp(-3 * x + 3));
 
@@ -7017,11 +7122,20 @@ public abstract class ThreadDraw extends Thread {
 
     }
 
-    private void applyHeightScaling() {
+    private void applyHeightFunction() {
+
+        for (int x = FROMx; x < TOx; x++) {
+            for (int y = FROMy; y < TOy; y++) {
+                vert[x][y][1] = (float) calculateHeight(vert[x][y][1]);
+            }
+        }
+    }
+
+    private void applyPostHeightScaling() {
 
         double local_max = max * (max_range / 100.0);
 
-        double local_min = min + local_max * (min_range / 100.0) * 0.05;
+        double local_min = min + (max - min) * (min_range / 100.0);
         local_min = local_min > local_max ? local_max : local_min;
 
         double new_max = local_max - local_min;
@@ -7037,7 +7151,30 @@ public abstract class ThreadDraw extends Thread {
                     vert[x][y][1] = 0;
                 }
 
-                vert[x][y][1] = (float) (d3_height_scale * calculateHeight(vert[x][y][1]) - 100);
+                vert[x][y][1] = (float) (d3_height_scale * vert[x][y][1] - 100);
+            }
+        }
+    }
+
+    private void applyPreHeightScaling() {
+
+        double local_max = max * (max_range / 100.0);
+        
+        double local_min = min + (max - min) * (min_range / 100.0);
+        local_min = local_min > local_max ? local_max : local_min;
+
+        double new_max = local_max - local_min;
+
+        for (int x = FROMx; x < TOx; x++) {
+            for (int y = FROMy; y < TOy; y++) {
+                if (vert[x][y][1] <= local_max && vert[x][y][1] >= local_min) {
+                    vert[x][y][1] -= local_min;
+                    vert[x][y][1] *= max_scaling / new_max;
+                } else if (vert[x][y][1] > local_max) {
+                    vert[x][y][1] = (float) (max_scaling);
+                } else if (!Double.isNaN(vert[x][y][1]) && !Double.isInfinite(vert[x][y][1])) {
+                    vert[x][y][1] = 0;
+                }
             }
         }
     }
@@ -7130,6 +7267,35 @@ public abstract class ThreadDraw extends Thread {
             gaussianHeightScaling();
         }
 
+        if (height_algorithm > 2) {
+
+            if (height_scaling_sync3.incrementAndGet() == ptr.getNumberOfThreads()) {
+
+                findMinMaxHeight();
+
+            }
+            
+            try {
+                height_scaling_sync4.await();
+            } catch (InterruptedException ex) {
+
+            } catch (BrokenBarrierException ex) {
+
+            }
+
+            applyPreHeightScaling();
+        }
+
+        try {
+            height_function_sync.await();
+        } catch (InterruptedException ex) {
+
+        } catch (BrokenBarrierException ex) {
+
+        }
+
+        applyHeightFunction();
+
         if (height_scaling_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
 
             findMinMaxHeight();
@@ -7144,17 +7310,11 @@ public abstract class ThreadDraw extends Thread {
 
         }
 
-        applyHeightScaling();
+        applyPostHeightScaling();
 
         if (shade_height) {
-            if (shade_color_height_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
-
-                findMinMaxHeight();
-
-            }
-
             try {
-                shade_color_height_sync2.await();
+                shade_color_height_sync.await();
             } catch (InterruptedException ex) {
 
             } catch (BrokenBarrierException ex) {
@@ -7346,7 +7506,7 @@ public abstract class ThreadDraw extends Thread {
     }
 
     protected void postProcessFastJulia(int image_size) {
-        if (bump_map || fake_de || rainbow_palette || entropy_coloring || offset_coloring || greyscale_coloring) {
+        if ((bump_map || fake_de || rainbow_palette || entropy_coloring || offset_coloring || greyscale_coloring || contour_coloring) && !USE_DIRECT_COLOR) {
             try {
                 post_processing_sync.await();
             } catch (InterruptedException ex) {
@@ -7360,7 +7520,7 @@ public abstract class ThreadDraw extends Thread {
     }
 
     protected void postProcess(int image_size) {
-        if (bump_map || fake_de || rainbow_palette || entropy_coloring || offset_coloring || greyscale_coloring) {
+        if ((bump_map || fake_de || rainbow_palette || entropy_coloring || offset_coloring || greyscale_coloring || contour_coloring) && !USE_DIRECT_COLOR) {
             try {
                 post_processing_sync.await();
             } catch (InterruptedException ex) {
@@ -7664,7 +7824,6 @@ public abstract class ThreadDraw extends Thread {
 
         image_iterations = new double[image_size * image_size];
         image_iterations_fast_julia = new double[MainWindow.FAST_JULIA_IMAGE_SIZE * MainWindow.FAST_JULIA_IMAGE_SIZE];
-
     }
 
     public static void setArraysExpander(int image_size) {
@@ -7705,50 +7864,16 @@ public abstract class ThreadDraw extends Thread {
         painting_sync = new AtomicInteger(0);
         height_scaling_sync = new AtomicInteger(0);
         height_scaling_sync2 = new CyclicBarrier(num_threads);
+        height_scaling_sync3 = new AtomicInteger(0);
+        height_scaling_sync4 = new CyclicBarrier(num_threads);
+        height_function_sync = new CyclicBarrier(num_threads);
         gaussian_scaling_sync = new AtomicInteger(0);
         gaussian_scaling_sync2 = new CyclicBarrier(num_threads);
         normal_drawing_algorithm_pixel = new AtomicInteger(0);
         color_cycling_filters_sync = new CyclicBarrier(num_threads);
         color_cycling_restart_sync = new CyclicBarrier(num_threads);
-        shade_color_height_sync = new AtomicInteger(0);
-        shade_color_height_sync2 = new CyclicBarrier(num_threads);
+        shade_color_height_sync = new CyclicBarrier(num_threads);
         initialize_jobs_sync = new CyclicBarrier(num_threads);
 
     }
-
-    /*public static void setQuickDrawTileSize(int size) {
-
-        TILE_SIZE = size;
-
-    }
-
-    public static int getQuickDrawTileSize() {
-
-        return TILE_SIZE;
-
-    }
-
-    public static void setSkippedPixelsAlgorithm(int algorithm) {
-
-        SKIPPED_PIXELS_ALG = algorithm;
-
-    }
-
-    public static int getSkippedPixelsAlgorithm() {
-
-        return SKIPPED_PIXELS_ALG;
-
-    }
-
-    public static void setSkippedPixelsColor(int color) {
-
-        SKIPPED_PIXELS_COLOR = color;
-
-    }
-
-    public static int getSkippedPixelsColor() {
-
-        return SKIPPED_PIXELS_COLOR;
-
-    }*/
 }

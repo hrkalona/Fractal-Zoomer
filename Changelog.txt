@@ -1,3 +1,12 @@
+Version 1.0.6.9
+    -Added a new fractal function "Kleinian" which uses the maskit parametrisation.
+    -Added a new processing algorithm, Contour Coloring.
+    -The UserDefinedFunctions API now lets the user directly set the RGB value of a pixel (Direct Color option must be enabled).
+    -Fixed a bug in Divide and Conquer (Mariani/Silver) algorithm, which added alot of copying overhead when adding/removing areas to the queue.
+    -Added a new parameter "Lines" in Orbit Traps, that lets the user apply a function to every trap that uses lines.
+    -Refactored the code in preparation for higher Java versions.
+    -Fixed some UI bugs.
+
 Version 1.0.6.8
     -Added a new processing algorithm, orbit traps.
     -Added a color gradient option that can be used in color blending mode.

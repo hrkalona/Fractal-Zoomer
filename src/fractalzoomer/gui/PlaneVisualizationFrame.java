@@ -47,8 +47,8 @@ import javax.swing.event.ChangeListener;
  * @author hrkalona2
  */
 public class PlaneVisualizationFrame extends JFrame {
-
-    private MainWindow ptra2;
+	private static final long serialVersionUID = 4735832839383508009L;
+	private MainWindow ptra2;
     private PlaneVisualizationFrame thiss;
 
     public PlaneVisualizationFrame(MainWindow ptra, final Settings s, final double zoom_factor) {

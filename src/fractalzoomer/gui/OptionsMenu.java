@@ -32,8 +32,8 @@ import javax.swing.KeyStroke;
  * @author kaloch
  */
 public class OptionsMenu extends JMenu {
-
-    private MainWindow ptr;
+	private static final long serialVersionUID = -7875948962252862696L;
+	private MainWindow ptr;
     private ColorsMenu colors_menu;
     private JMenu iterations_menu;
     private BailoutConditionsMenu bailout_condition_menu;
@@ -129,7 +129,7 @@ public class OptionsMenu extends JMenu {
         overview_opt.setToolTipText("Creates a report of all the active fractal options.");
         toolbar_opt.setToolTipText("Activates the tool bar.");
         statusbar_opt.setToolTipText("Activates the status bar.");
-        infobar_opt.setToolTipText("Activates the information bar.");
+        infobar_opt.setToolTipText("Activates the information bar.");      
 
         size_of_image.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, ActionEvent.CTRL_MASK));
         iterations.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, 0));
@@ -145,7 +145,7 @@ public class OptionsMenu extends JMenu {
         filters_options.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, ActionEvent.SHIFT_MASK));
         toolbar_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T, ActionEvent.ALT_MASK));
         statusbar_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.ALT_MASK));
-        infobar_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, ActionEvent.ALT_MASK));
+        infobar_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, ActionEvent.ALT_MASK));      
 
         overview_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.SHIFT_MASK));
 
@@ -329,7 +329,7 @@ public class OptionsMenu extends JMenu {
         addSeparator();
         add(size_of_image);
         addSeparator();
-        add(height_ratio_number);
+        add(height_ratio_number); 
         addSeparator();
         add(change_zooming_factor);
         addSeparator();
@@ -731,6 +731,18 @@ public class OptionsMenu extends JMenu {
     public JMenuItem getOrbitTraps() {
         
         return colors_menu.getOrbitTraps();
+        
+    }
+    
+    public JCheckBoxMenuItem getDirectColor() {
+        
+        return colors_menu.getDirectColor();
+        
+    }
+    
+    public JMenuItem getContourColoring() {
+        
+        return colors_menu.getContourColoring();
         
     }
 

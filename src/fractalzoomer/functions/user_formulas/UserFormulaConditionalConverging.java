@@ -27,8 +27,10 @@ import fractalzoomer.fractal_options.perturbation.VariableConditionalPerturbatio
 import fractalzoomer.fractal_options.initial_value.VariableInitialValue;
 import fractalzoomer.fractal_options.perturbation.VariablePerturbation;
 import fractalzoomer.functions.ExtendedConvergentType;
+import fractalzoomer.in_coloring_algorithms.InColorAlgorithm;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
+import fractalzoomer.out_coloring_algorithms.OutColorAlgorithm;
 import fractalzoomer.parser.ExpressionNode;
 import fractalzoomer.parser.Parser;
 import java.util.ArrayList;
@@ -458,7 +460,7 @@ public class UserFormulaConditionalConverging extends ExtendedConvergentType {
 
             if ((temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
                 Object[] object = {iterations, complex[0], temp, zold, zold2, complex[1], start, vars};
-                double[] array = {out_color_algorithm.transformResultToHeight(out_color_algorithm.getResult3D(object), max_iterations), out_color_algorithm.getResult(object)};
+                double[] array = {OutColorAlgorithm.transformResultToHeight(out_color_algorithm.getResult3D(object), max_iterations), out_color_algorithm.getResult(object)};
                 return array;
             }
             zold2.assign(zold);
@@ -471,7 +473,7 @@ public class UserFormulaConditionalConverging extends ExtendedConvergentType {
 
         Object[] object = {complex[0], zold, zold2, complex[1], start, vars};
         temp2 = in_color_algorithm.getResult(object);
-        double[] array = {in_color_algorithm.transformResultToHeight(temp2, max_iterations), temp2};
+        double[] array = {InColorAlgorithm.transformResultToHeight(temp2, max_iterations), temp2};
         return array;
 
     }
@@ -503,7 +505,7 @@ public class UserFormulaConditionalConverging extends ExtendedConvergentType {
 
             if ((temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
                 Object[] object = {iterations, complex[0], temp, zold, zold2, complex[1], start, vars};
-                double[] array = {out_color_algorithm.transformResultToHeight(out_color_algorithm.getResult3D(object), max_iterations), out_color_algorithm.getResult(object)};
+                double[] array = {OutColorAlgorithm.transformResultToHeight(out_color_algorithm.getResult3D(object), max_iterations), out_color_algorithm.getResult(object)};
                 return array;
             }
             zold2.assign(zold);
@@ -516,7 +518,7 @@ public class UserFormulaConditionalConverging extends ExtendedConvergentType {
 
         Object[] object = {complex[0], zold, zold2, complex[1], start, vars};
         double temp2 = in_color_algorithm.getResult(object);
-        double[] array = {in_color_algorithm.transformResultToHeight(temp2, max_iterations), temp2};
+        double[] array = {InColorAlgorithm.transformResultToHeight(temp2, max_iterations), temp2};
         return array;
 
     }

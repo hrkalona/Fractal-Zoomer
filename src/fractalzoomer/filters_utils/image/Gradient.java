@@ -17,8 +17,6 @@ limitations under the License.
 package fractalzoomer.filters_utils.image;
 
 import java.awt.Color;
-import java.util.Vector;
-import java.io.*;
 
 /**
  * A Colormap implemented using Catmull-Rom colour splines. The map has a variable number
@@ -377,7 +375,6 @@ public class Gradient extends ArrayColormap implements Cloneable {
 		yKnots[0] = yKnots[1];
 		yKnots[numKnots-1] = yKnots[numKnots-2];
 
-		int knot = 0;
 		for (int i = 1; i < numKnots-1; i++) {
 			float spanLength = xKnots[i+1]-xKnots[i];
 			int end = xKnots[i+1];
@@ -453,11 +450,6 @@ public class Gradient extends ArrayColormap implements Cloneable {
 				}
 			}
 		}
-	}
-
-	private void rebuild() {
-		sortKnots();
-		rebuildGradient();
 	}
 	
     /**

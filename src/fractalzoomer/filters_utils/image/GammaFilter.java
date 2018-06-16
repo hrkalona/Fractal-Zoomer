@@ -16,9 +16,6 @@ limitations under the License.
 
 package fractalzoomer.filters_utils.image;
 
-import java.awt.*;
-import java.awt.image.*;
-
 /**
  * A filter for changing the gamma of an image.
  */

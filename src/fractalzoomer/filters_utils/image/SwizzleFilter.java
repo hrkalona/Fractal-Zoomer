@@ -16,10 +16,6 @@ limitations under the License.
 
 package fractalzoomer.filters_utils.image;
 
-import java.awt.*;
-import java.awt.image.*;
-import java.util.*;
-
 /**
  * A filter which allows channels to be swapped. You provide a matrix with specifying the input channel for 
  * each output channel.

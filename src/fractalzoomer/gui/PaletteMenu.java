@@ -37,8 +37,8 @@ import javax.swing.KeyStroke;
  * @author hrkalona2
  */
 public class PaletteMenu extends JMenu {
-
-    private MainWindow ptr;
+	private static final long serialVersionUID = 3271849856447452259L;
+	private MainWindow ptr;
     private JRadioButtonMenuItem[] palette;
     private int i;
     public static String[] paletteNames;

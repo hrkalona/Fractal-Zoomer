@@ -40,11 +40,12 @@ import javax.swing.JSlider;
 import javax.swing.JTextField;
 
 public class OrbitTrapsFrame extends JFrame {
-
-    private MainWindow ptra2;
+	private static final long serialVersionUID = -4097447483434039100L;
+	private MainWindow ptra2;
     private JFrame this_frame;
     private JTextField trap_norm_field;
     private JComboBox orbit_traps_combo;
+    private JComboBox lines_function_combo;
     private JTextField trap_width_field;
     private JCheckBox useSpecialColorAsBg_check;
     private JSlider blend_opt;
@@ -106,6 +107,11 @@ public class OrbitTrapsFrame extends JFrame {
         trap_norm_field = new JTextField(10);
         trap_norm_field.addAncestorListener(new RequestFocusListener());
         trap_norm_field.setText("" + ots.trapNorm);
+        
+        lines_function_combo = new JComboBox(MainWindow.orbitTrapLineTypes);
+        lines_function_combo.setSelectedIndex(ots.lineType);
+        lines_function_combo.setFocusable(false);
+        lines_function_combo.setToolTipText("Sets the function which is applied to the lines.");
 
         JPanel p1 = new JPanel();
         p1.setBackground(MainWindow.bg_color);
@@ -114,6 +120,8 @@ public class OrbitTrapsFrame extends JFrame {
         p1.add(orbit_traps_combo);
         p1.add(new JLabel("  Norm: "));
         p1.add(trap_norm_field);
+        p1.add(new JLabel("  Lines: "));
+        p1.add(lines_function_combo);
 
         final JTextField real_textfield = new JTextField(15);
         real_textfield.setText("" + ots.trapPoint[0]);
@@ -231,6 +239,7 @@ public class OrbitTrapsFrame extends JFrame {
                 ots.trapPoint[1] = temp3;
                 ots.trapBlending = blend_opt.getValue() / 100.0;
                 ots.trapUseSpecialColor = useSpecialColorAsBg_check.isSelected();
+                ots.lineType = lines_function_combo.getSelectedIndex();
 
                 ptra2.setOrbitTrapSettings();
                 ptra2.setEnabled(true);
@@ -316,6 +325,13 @@ public class OrbitTrapsFrame extends JFrame {
             trap_width_field.setEnabled(false);
         } else {
             trap_width_field.setEnabled(true);
+        }
+        
+        if(index == MainWindow.CROSS_TRAP || index ==  MainWindow.RE_TRAP || index ==  MainWindow.IM_TRAP || index ==  MainWindow.CIRCLE_CROSS_TRAP || index ==  MainWindow.SQUARE_CROSS_TRAP || index ==  MainWindow.RHOMBUS_CROSS_TRAP || index ==  MainWindow.N_NORM_CROSS_TRAP) {
+            lines_function_combo.setEnabled(true);
+        }
+        else {
+            lines_function_combo.setEnabled(false);
         }
 
         if (useSpecialColorAsBg_check.isSelected()) {

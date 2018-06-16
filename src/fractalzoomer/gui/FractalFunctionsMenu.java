@@ -32,8 +32,8 @@ import javax.swing.KeyStroke;
  * @author hrkalona2
  */
 public class FractalFunctionsMenu extends JMenu {
-
-    private MainWindow ptr;
+	private static final long serialVersionUID = -2045979247578434919L;
+	private MainWindow ptr;
     private JRadioButtonMenuItem[] fractal_functions;
     private JMenu mandelbrot_type_functions;
     private JMenu magnet_type_functions;
@@ -226,6 +226,7 @@ public class FractalFunctionsMenu extends JMenu {
         functionNames[MainWindow.LAGUERRECOS] = "Laguerre Cos";
         functionNames[MainWindow.LAGUERREPOLY] = "Laguerre Polynomial";
         functionNames[MainWindow.LAGUERREFORMULA] = "Laguerre Formula";
+        functionNames[MainWindow.KLEINIAN] = "Kleinian";
  
     }
 
@@ -1122,6 +1123,19 @@ public class FractalFunctionsMenu extends JMenu {
         });
         add(fractal_functions[MainWindow.SIERPINSKI_GASKET]);
         functions_button_group.add(fractal_functions[MainWindow.SIERPINSKI_GASKET]);
+        addSeparator();
+        
+        fractal_functions[MainWindow.KLEINIAN] = new JRadioButtonMenuItem(functionNames[MainWindow.KLEINIAN]);
+        fractal_functions[MainWindow.KLEINIAN].addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFunction(MainWindow.KLEINIAN);
+
+            }
+        });
+        add(fractal_functions[MainWindow.KLEINIAN]);
+        functions_button_group.add(fractal_functions[MainWindow.KLEINIAN]);
         addSeparator();
 
         fractal_functions[MainWindow.FROTHY_BASIN] = new JRadioButtonMenuItem(functionNames[MainWindow.FROTHY_BASIN]);

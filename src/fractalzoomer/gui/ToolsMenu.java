@@ -31,7 +31,8 @@ import javax.swing.KeyStroke;
  * @author kaloch
  */
 public class ToolsMenu extends JMenu {
-    private MainWindow ptr;
+	private static final long serialVersionUID = -5712056897405241065L;
+	private MainWindow ptr;
     private JCheckBoxMenuItem orbit_opt;
     private JCheckBoxMenuItem julia_opt;
     private JCheckBoxMenuItem polar_projection_opt;
@@ -256,7 +257,7 @@ public class ToolsMenu extends JMenu {
         
     }
     
-    public JCheckBoxMenuItem getColorCyling() {
+    public JCheckBoxMenuItem getColorCycling() {
         
         return color_cycling_opt;
         

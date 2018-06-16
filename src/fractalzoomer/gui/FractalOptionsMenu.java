@@ -31,7 +31,8 @@ import javax.swing.KeyStroke;
  * @author kaloch
  */
 public class FractalOptionsMenu extends JMenu {
-    private MainWindow ptr;
+	private static final long serialVersionUID = 3353731296448038687L;
+	private MainWindow ptr;
     private FractalFunctionsMenu fractal_functions_menu;
     private PlanesMenu planes_menu;
     private JCheckBoxMenuItem perturbation_opt;

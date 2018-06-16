@@ -33,16 +33,14 @@ import javax.swing.SwingConstants;
  * @author hrkalona2
  */
 public class Statusbar extends JToolBar {
-    private MainWindow ptr;
-    private JProgressBar progress;
+	private static final long serialVersionUID = 5769474863261889826L;
+	private JProgressBar progress;
     private JTextField real;
     private JTextField imaginary;
     private JLabel mode;
     
-    public Statusbar(MainWindow ptr2) {
+    public Statusbar() {
         super();
-        
-        this.ptr = ptr2;
         
         setFloatable(false);
         setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));

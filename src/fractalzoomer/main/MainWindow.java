@@ -156,6 +156,7 @@ import javax.swing.plaf.basic.BasicFileChooserUI;
  */
 public class MainWindow extends JFrame implements Constants {
 
+    private static final long serialVersionUID = -6314723558420412681L;
     private Settings s;
     private boolean first_paint;
     private boolean orbit;
@@ -238,7 +239,7 @@ public class MainWindow extends JFrame implements Constants {
     private Cursor grabbing_cursor;
     private Cursor rotate_cursor;
     private CommonFunctions common;
-    private int i, k;
+    private int i;
 
     /**
      * *****************************
@@ -282,13 +283,13 @@ public class MainWindow extends JFrame implements Constants {
 
         old_rotation_vals = new double[2];
 
-        old_rotation_vals[0] = s.rotation_vals[0];
-        old_rotation_vals[1] = s.rotation_vals[1];
+        old_rotation_vals[0] = s.fns.rotation_vals[0];
+        old_rotation_vals[1] = s.fns.rotation_vals[1];
 
         old_rotation_center = new double[2];
 
-        old_rotation_center[0] = s.rotation_center[0];
-        old_rotation_center[1] = s.rotation_center[1];
+        old_rotation_center[0] = s.fns.rotation_center[0];
+        old_rotation_center[1] = s.fns.rotation_center[1];
 
         orbit_vals = new double[2];
         orbit_vals[0] = 0;
@@ -391,7 +392,7 @@ public class MainWindow extends JFrame implements Constants {
 
         file_menu = new FileMenu(ptr, "File");
 
-        options_menu = new OptionsMenu(ptr, "Options", s.color_choice, s.smoothing, s.custom_palette, s.color_interpolation, s.color_space, s.reversed_palette, s.color_cycling_location, s.scale_factor_palette_val, s.processing_alg, show_orbit_converging_point, s.apply_plane_on_julia, s.apply_plane_on_julia_seed, s.out_coloring_algorithm, s.in_coloring_algorithm, s.function, s.plane_type, s.bailout_test_algorithm, s.transfer_function, s.color_blending);
+        options_menu = new OptionsMenu(ptr, "Options", s.color_choice, s.fns.smoothing, s.custom_palette, s.color_interpolation, s.color_space, s.reversed_palette, s.color_cycling_location, s.scale_factor_palette_val, s.processing_alg, show_orbit_converging_point, s.fns.apply_plane_on_julia, s.fns.apply_plane_on_julia_seed, s.fns.out_coloring_algorithm, s.fns.in_coloring_algorithm, s.fns.function, s.fns.plane_type, s.fns.bailout_test_algorithm, s.transfer_function, s.color_blending);
 
         fractal_functions = options_menu.getFractalFunctions();
 
@@ -421,7 +422,7 @@ public class MainWindow extends JFrame implements Constants {
 
         status_bars.add(infobar);
 
-        statusbar = new Statusbar(ptr);
+        statusbar = new Statusbar();
         progress = statusbar.getProgress();
 
         status_bars.add(statusbar);
@@ -452,17 +453,17 @@ public class MainWindow extends JFrame implements Constants {
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_CONTROL && !ctrlKeyPressed && !shiftKeyPressed && !altKeyPressed) {
-                    if (!orbit && !s.d3s.d3 && !julia_map && (!s.julia || s.julia && !first_seed)) {
+                    if (!orbit && !s.d3s.d3 && !julia_map && (!s.fns.julia || s.fns.julia && !first_seed)) {
                         ctrlKeyPressed = true;
                         scroll_pane.setCursor(grab_cursor);
                     }
                 } else if (e.getKeyCode() == KeyEvent.VK_SHIFT && !ctrlKeyPressed && !shiftKeyPressed && !altKeyPressed) {
-                    if (!orbit && !s.d3s.d3 && !julia_map && (!s.julia || s.julia && !first_seed)) {
+                    if (!orbit && !s.d3s.d3 && !julia_map && (!s.fns.julia || s.fns.julia && !first_seed)) {
                         shiftKeyPressed = true;
                         scroll_pane.setCursor(rotate_cursor);
                     }
                 } else if (e.getKeyCode() == KeyEvent.VK_ALT && !ctrlKeyPressed && !shiftKeyPressed && !altKeyPressed) {
-                    if (!orbit && !s.d3s.d3 && !julia_map && (!s.julia || s.julia && !first_seed)) {
+                    if (!orbit && !s.d3s.d3 && !julia_map && (!s.fns.julia || s.fns.julia && !first_seed)) {
                         altKeyPressed = true;
                         scroll_pane.setCursor(new Cursor(Cursor.HAND_CURSOR));
                     }
@@ -472,17 +473,17 @@ public class MainWindow extends JFrame implements Constants {
             @Override
             public void keyReleased(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_CONTROL && ctrlKeyPressed) {
-                    if (!orbit && !s.d3s.d3 && !julia_map && (!s.julia || s.julia && !first_seed)) {
+                    if (!orbit && !s.d3s.d3 && !julia_map && (!s.fns.julia || s.fns.julia && !first_seed)) {
                         ctrlKeyPressed = false;
                         scroll_pane.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
                     }
                 } else if (e.getKeyCode() == KeyEvent.VK_SHIFT && shiftKeyPressed) {
-                    if (!orbit && !s.d3s.d3 && !julia_map && (!s.julia || s.julia && !first_seed)) {
+                    if (!orbit && !s.d3s.d3 && !julia_map && (!s.fns.julia || s.fns.julia && !first_seed)) {
                         shiftKeyPressed = false;
                         scroll_pane.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
                     }
                 } else if (e.getKeyCode() == KeyEvent.VK_ALT && altKeyPressed) {
-                    if (!orbit && !s.d3s.d3 && !julia_map && (!s.julia || s.julia && !first_seed)) {
+                    if (!orbit && !s.d3s.d3 && !julia_map && (!s.fns.julia || s.fns.julia && !first_seed)) {
                         altKeyPressed = false;
                         scroll_pane.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
                     }
@@ -502,7 +503,7 @@ public class MainWindow extends JFrame implements Constants {
 
             @Override
             public void mouseWheelMoved(MouseWheelEvent e) {
-                if (!orbit && !s.d3s.d3 && !julia_map && (!s.julia || s.julia && !first_seed)) {
+                if (!orbit && !s.d3s.d3 && !julia_map && (!s.fns.julia || s.fns.julia && !first_seed)) {
 
                     if (!s.polar_projection) {
                         scrollPoint(e);
@@ -534,31 +535,28 @@ public class MainWindow extends JFrame implements Constants {
 
                 if (altKeyPressed) {
                     selectPointForPlane(e);
-                } else {
-                    if (!orbit) {
-                        if (!s.d3s.d3) {
-                            if (!s.polar_projection) {
-                                if (!s.julia) { //Regular
-                                    selectPointFractal(e);
-                                } else {
-                                    selectPointJulia(e);
-                                }
-                            } else { //Polar
-                                if (s.julia && first_seed) {
-                                    selectPointJulia(e);
-                                } else {
-                                    selectPointPolar(e);
-                                }
+                } else if (!orbit) {
+                    if (!s.d3s.d3) {
+                        if (!s.polar_projection) {
+                            if (!s.fns.julia) { //Regular
+                                selectPointFractal(e);
+                            } else {
+                                selectPointJulia(e);
                             }
-                        } else { // 3D
-                            selectPoint3D(e);
-                        }
-                    } else { //orbit
-                        selectPointOrbit(e);
+                        } else //Polar
+                         if (s.fns.julia && first_seed) {
+                                selectPointJulia(e);
+                            } else {
+                                selectPointPolar(e);
+                            }
+                    } else { // 3D
+                        selectPoint3D(e);
                     }
+                } else { //orbit
+                    selectPointOrbit(e);
                 }
 
-                if (julia_map || s.julia && first_seed) {
+                if (julia_map || s.fns.julia && first_seed) {
                     scroll_pane.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
                     return;
                 }
@@ -609,6 +607,8 @@ public class MainWindow extends JFrame implements Constants {
                 if ((e.getModifiers() & InputEvent.ALT_MASK) != InputEvent.ALT_MASK && altKeyPressed) {
                     altKeyPressed = false;
                 }
+                
+                main_panel.repaint();
 
             }
 
@@ -626,6 +626,8 @@ public class MainWindow extends JFrame implements Constants {
                 if ((e.getModifiers() & InputEvent.ALT_MASK) != InputEvent.ALT_MASK && altKeyPressed) {
                     altKeyPressed = false;
                 }
+                
+                main_panel.repaint();
 
             }
         });
@@ -699,15 +701,16 @@ public class MainWindow extends JFrame implements Constants {
                         Arrays.fill(((DataBufferInt) image.getRaster().getDataBuffer()).getData(), Color.BLACK.getRGB());
                     }
 
-                    if (s.julia && first_seed) {
-                        s.julia = false;
+                    if (s.fns.julia && first_seed) {
+                        s.fns.julia = false;
                         tools_menu.getJulia().setSelected(false);
                         toolbar.getJuliaButton().setSelected(false);
 
-                        if (s.out_coloring_algorithm != ESCAPE_TIME_FIELD_LINES2 && s.out_coloring_algorithm != ESCAPE_TIME_FIELD_LINES && s.out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS && s.out_coloring_algorithm != ESCAPE_TIME_GRID && s.out_coloring_algorithm != BIOMORPH && s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER && s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3 && s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5 && s.out_coloring_algorithm != ITERATIONS_PLUS_RE && s.out_coloring_algorithm != ITERATIONS_PLUS_IM && s.out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && s.out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM && s.out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && s.out_coloring_algorithm != BANDED) {
+                        if (s.fns.out_coloring_algorithm != ESCAPE_TIME_FIELD_LINES2 && s.fns.out_coloring_algorithm != ESCAPE_TIME_FIELD_LINES && s.fns.out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS && s.fns.out_coloring_algorithm != ESCAPE_TIME_GRID && s.fns.out_coloring_algorithm != BIOMORPH && s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER && s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3 && s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5 && s.fns.out_coloring_algorithm != ITERATIONS_PLUS_RE && s.fns.out_coloring_algorithm != ITERATIONS_PLUS_IM && s.fns.out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && s.fns.out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM && s.fns.out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && s.fns.out_coloring_algorithm != BANDED) {
                             rootFindingMethodsSetEnabled(true);
                         }
                         fractal_functions[SIERPINSKI_GASKET].setEnabled(true);
+                        fractal_functions[KLEINIAN].setEnabled(true);
                     }
 
                     if (julia_map) {
@@ -740,15 +743,15 @@ public class MainWindow extends JFrame implements Constants {
                     selectPointOrbit(e);
                 } else if (s.d3s.d3) {
                     rotate3DModel(e);
-                } else if (ctrlKeyPressed && !julia_map && (!s.julia || s.julia && !first_seed)) {
+                } else if (ctrlKeyPressed && !julia_map && (!s.fns.julia || s.fns.julia && !first_seed)) {
                     dragPoint(e);
-                } else if (shiftKeyPressed && !julia_map && (!s.julia || s.julia && !first_seed)) {
+                } else if (shiftKeyPressed && !julia_map && (!s.fns.julia || s.fns.julia && !first_seed)) {
                     rotatePoint(e);
-                } else if (altKeyPressed && !julia_map && (!s.julia || s.julia && !first_seed)) {
+                } else if (altKeyPressed && !julia_map && (!s.fns.julia || s.fns.julia && !first_seed)) {
                     selectPointForPlane(e);
                 }
 
-                if (julia_map || s.julia && first_seed) {
+                if (julia_map || s.fns.julia && first_seed) {
                     scroll_pane.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
                     return;
                 }
@@ -854,7 +857,7 @@ public class MainWindow extends JFrame implements Constants {
                 } catch (NullPointerException ex) {
                 }
 
-                if (s.julia && first_seed) {
+                if (s.fns.julia && first_seed) {
                     fastJulia();
                 }
 
@@ -864,6 +867,8 @@ public class MainWindow extends JFrame implements Constants {
 
             }
         });
+
+        options_menu.getDirectColor().setEnabled(false);
 
         common = new CommonFunctions(scroll_pane, runsOnWindows);
 
@@ -937,11 +942,11 @@ public class MainWindow extends JFrame implements Constants {
 
         String temp = "";
 
-        Point2D.Double p = MathUtils.rotatePointRelativeToPoint(s.xCenter, s.yCenter, s.rotation_vals, s.rotation_center);
+        Point2D.Double p = MathUtils.rotatePointRelativeToPoint(s.xCenter, s.yCenter, s.fns.rotation_vals, s.fns.rotation_center);
 
         temp = "Fractal Zoomer   #";
 
-        switch (s.function) {
+        switch (s.fns.function) {
             case MANDELBROT:
                 temp += "   Mandelbrot";
                 break;
@@ -970,10 +975,10 @@ public class MainWindow extends JFrame implements Constants {
                 temp += "   Mandelbrot Tenth";
                 break;
             case MANDELBROTNTH:
-                temp += "  z = z^" + s.z_exponent + " + c";
+                temp += "  z = z^" + s.fns.z_exponent + " + c";
                 break;
             case MANDELBROTWTH:
-                temp += "  z = z^(" + Complex.toString2(s.z_exponent_complex[0], s.z_exponent_complex[1]) + ") + c";
+                temp += "  z = z^(" + Complex.toString2(s.fns.z_exponent_complex[0], s.fns.z_exponent_complex[1]) + ") + c";
                 break;
             case MANDELPOLY:
                 temp += "   Multibrot " + s.poly + " + c";
@@ -1192,34 +1197,34 @@ public class MainWindow extends JFrame implements Constants {
                 temp += "   Laguerre Formula";
                 break;
             case NOVA:
-                switch (s.nova_method) {
+                switch (s.fns.nova_method) {
 
                     case MainWindow.NOVA_NEWTON:
-                        temp += "   Nova-Newton, e: " + Complex.toString2(s.z_exponent_nova[0], s.z_exponent_nova[1]) + ", r: " + Complex.toString2(s.relaxation[0], s.relaxation[1]);
+                        temp += "   Nova-Newton, e: " + Complex.toString2(s.fns.z_exponent_nova[0], s.fns.z_exponent_nova[1]) + ", r: " + Complex.toString2(s.fns.relaxation[0], s.fns.relaxation[1]);
                         break;
                     case MainWindow.NOVA_HALLEY:
-                        temp += "   Nova-Halley, e: " + Complex.toString2(s.z_exponent_nova[0], s.z_exponent_nova[1]) + ", r: " + Complex.toString2(s.relaxation[0], s.relaxation[1]);
+                        temp += "   Nova-Halley, e: " + Complex.toString2(s.fns.z_exponent_nova[0], s.fns.z_exponent_nova[1]) + ", r: " + Complex.toString2(s.fns.relaxation[0], s.fns.relaxation[1]);
                         break;
                     case MainWindow.NOVA_SCHRODER:
-                        temp += "   Nova-Schroder, e: " + Complex.toString2(s.z_exponent_nova[0], s.z_exponent_nova[1]) + ", r: " + Complex.toString2(s.relaxation[0], s.relaxation[1]);
+                        temp += "   Nova-Schroder, e: " + Complex.toString2(s.fns.z_exponent_nova[0], s.fns.z_exponent_nova[1]) + ", r: " + Complex.toString2(s.fns.relaxation[0], s.fns.relaxation[1]);
                         break;
                     case MainWindow.NOVA_HOUSEHOLDER:
-                        temp += "   Nova-Householder, e: " + Complex.toString2(s.z_exponent_nova[0], s.z_exponent_nova[1]) + ", r: " + Complex.toString2(s.relaxation[0], s.relaxation[1]);
+                        temp += "   Nova-Householder, e: " + Complex.toString2(s.fns.z_exponent_nova[0], s.fns.z_exponent_nova[1]) + ", r: " + Complex.toString2(s.fns.relaxation[0], s.fns.relaxation[1]);
                         break;
                     case MainWindow.NOVA_SECANT:
-                        temp += "   Nova-Secant, e: " + Complex.toString2(s.z_exponent_nova[0], s.z_exponent_nova[1]) + ", r: " + Complex.toString2(s.relaxation[0], s.relaxation[1]);
+                        temp += "   Nova-Secant, e: " + Complex.toString2(s.fns.z_exponent_nova[0], s.fns.z_exponent_nova[1]) + ", r: " + Complex.toString2(s.fns.relaxation[0], s.fns.relaxation[1]);
                         break;
                     case MainWindow.NOVA_STEFFENSEN:
-                        temp += "   Nova-Steffensen, e: " + Complex.toString2(s.z_exponent_nova[0], s.z_exponent_nova[1]) + ", r: " + Complex.toString2(s.relaxation[0], s.relaxation[1]);
+                        temp += "   Nova-Steffensen, e: " + Complex.toString2(s.fns.z_exponent_nova[0], s.fns.z_exponent_nova[1]) + ", r: " + Complex.toString2(s.fns.relaxation[0], s.fns.relaxation[1]);
                         break;
                     case MainWindow.NOVA_MULLER:
-                        temp += "   Nova-Muller, e: " + Complex.toString2(s.z_exponent_nova[0], s.z_exponent_nova[1]) + ", r: " + Complex.toString2(s.relaxation[0], s.relaxation[1]);
+                        temp += "   Nova-Muller, e: " + Complex.toString2(s.fns.z_exponent_nova[0], s.fns.z_exponent_nova[1]) + ", r: " + Complex.toString2(s.fns.relaxation[0], s.fns.relaxation[1]);
                         break;
                     case MainWindow.NOVA_PARHALLEY:
-                        temp += "   Nova-Parhallley, e: " + Complex.toString2(s.z_exponent_nova[0], s.z_exponent_nova[1]) + ", r: " + Complex.toString2(s.relaxation[0], s.relaxation[1]);
+                        temp += "   Nova-Parhallley, e: " + Complex.toString2(s.fns.z_exponent_nova[0], s.fns.z_exponent_nova[1]) + ", r: " + Complex.toString2(s.fns.relaxation[0], s.fns.relaxation[1]);
                         break;
                     case MainWindow.NOVA_LAGUERRE:
-                        temp += "   Nova-Laguerre, e: " + Complex.toString2(s.z_exponent_nova[0], s.z_exponent_nova[1]) + ", r: " + Complex.toString2(s.relaxation[0], s.relaxation[1]);
+                        temp += "   Nova-Laguerre, e: " + Complex.toString2(s.fns.z_exponent_nova[0], s.fns.z_exponent_nova[1]) + ", r: " + Complex.toString2(s.fns.relaxation[0], s.fns.relaxation[1]);
                         break;
                 }
 
@@ -1247,6 +1252,9 @@ public class MainWindow extends JFrame implements Constants {
                 break;
             case SIERPINSKI_GASKET:
                 temp += "   Sierpinski Gasket";
+                break;
+            case KLEINIAN:
+                temp += "   Kleinian";
                 break;
             case EXP:
                 temp += "   z = exp(z) + c";
@@ -1481,7 +1489,7 @@ public class MainWindow extends JFrame implements Constants {
 
                 r = Math.exp(x1 * mulx + start);
 
-                Point2D.Double p2 = MathUtils.rotatePointRelativeToPoint(s.xCenter + r * cf, s.yCenter + r * sf, s.rotation_vals, s.rotation_center);
+                Point2D.Double p2 = MathUtils.rotatePointRelativeToPoint(s.xCenter + r * cf, s.yCenter + r * sf, s.fns.rotation_vals, s.fns.rotation_center);
 
                 statusbar.getReal().setText("" + p2.x);
 
@@ -1500,7 +1508,7 @@ public class MainWindow extends JFrame implements Constants {
                 double temp_size_image_size_x = s.size / image_size;
                 double temp_size_image_size_y = (s.size * s.height_ratio) / image_size;
 
-                Point2D.Double p2 = MathUtils.rotatePointRelativeToPoint(temp_xcenter_size + temp_size_image_size_x * x1, temp_ycenter_size - temp_size_image_size_y * y1, s.rotation_vals, s.rotation_center);
+                Point2D.Double p2 = MathUtils.rotatePointRelativeToPoint(temp_xcenter_size + temp_size_image_size_x * x1, temp_ycenter_size - temp_size_image_size_y * y1, s.fns.rotation_vals, s.fns.rotation_center);
 
                 statusbar.getReal().setText("" + p2.x);
 
@@ -1517,50 +1525,39 @@ public class MainWindow extends JFrame implements Constants {
         try {
             for (int i = 0; i < n; i++) {
                 for (int j = 0; j < n; j++) {
-                    if (s.julia) {
-                        if (s.d3s.d3) {
-                            if (greedy_algorithm) {
-                                if (greedy_algorithm_selection == BOUNDARY_TRACING) {
-                                    threads[i][j] = new BoundaryTracingDraw(j * s.d3s.detail / n, (j + 1) * s.d3s.detail / n, i * s.d3s.detail / n, (i + 1) * s.d3s.detail / n, s.xCenter, s.yCenter, s.size, s.max_iterations, s.bailout_test_algorithm, s.bailout, s.bailout_test_user_formula, s.bailout_test_user_formula2, s.bailout_test_comparison, s.n_norm, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, s.out_coloring_algorithm, s.user_out_coloring_algorithm, s.outcoloring_formula, s.user_outcoloring_conditions, s.user_outcoloring_condition_formula, s.in_coloring_algorithm, s.user_in_coloring_algorithm, s.incoloring_formula, s.user_incoloring_conditions, s.user_incoloring_condition_formula, s.smoothing, periodicity_checking, s.plane_type, s.apply_plane_on_julia, s.apply_plane_on_julia_seed, s.burning_ship, s.mandel_grass, s.mandel_grass_vals, s.function, s.z_exponent, s.z_exponent_complex, s.color_cycling_location, s.rotation_vals, s.rotation_center, s.coefficients, s.z_exponent_nova, s.relaxation, s.nova_method, s.user_formula, s.user_formula2, s.bail_technique, s.user_plane, s.user_plane_algorithm, s.user_plane_conditions, s.user_plane_condition_formula, s.user_formula_iteration_based, s.user_formula_conditions, s.user_formula_condition_formula, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.plane_transform_center, s.plane_transform_angle, s.plane_transform_radius, s.plane_transform_scales, s.plane_transform_wavelength, s.waveType, s.plane_transform_angle2, s.plane_transform_sides, s.plane_transform_amount, s.escaping_smooth_algorithm, s.converging_smooth_algorithm, s.bms, s.color_intensity, s.transfer_function, s.polar_projection, s.circle_period, s.fdes, s.rps, s.coupling, s.user_formula_coupled, s.coupling_method, s.coupling_amplitude, s.coupling_frequency, s.coupling_seed, s.ds, s.inverse_dem, quickDraw, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.xJuliaCenter, s.yJuliaCenter);
-                                } else if (greedy_algorithm_selection == DIVIDE_AND_CONQUER) {
-                                    threads[i][j] = new DivideAndConquerDraw(j * s.d3s.detail / n, (j + 1) * s.d3s.detail / n, i * s.d3s.detail / n, (i + 1) * s.d3s.detail / n, s.xCenter, s.yCenter, s.size, s.max_iterations, s.bailout_test_algorithm, s.bailout, s.bailout_test_user_formula, s.bailout_test_user_formula2, s.bailout_test_comparison, s.n_norm, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, s.out_coloring_algorithm, s.user_out_coloring_algorithm, s.outcoloring_formula, s.user_outcoloring_conditions, s.user_outcoloring_condition_formula, s.in_coloring_algorithm, s.user_in_coloring_algorithm, s.incoloring_formula, s.user_incoloring_conditions, s.user_incoloring_condition_formula, s.smoothing, periodicity_checking, s.plane_type, s.apply_plane_on_julia, s.apply_plane_on_julia_seed, s.burning_ship, s.mandel_grass, s.mandel_grass_vals, s.function, s.z_exponent, s.z_exponent_complex, s.color_cycling_location, s.rotation_vals, s.rotation_center, s.coefficients, s.z_exponent_nova, s.relaxation, s.nova_method, s.user_formula, s.user_formula2, s.bail_technique, s.user_plane, s.user_plane_algorithm, s.user_plane_conditions, s.user_plane_condition_formula, s.user_formula_iteration_based, s.user_formula_conditions, s.user_formula_condition_formula, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.plane_transform_center, s.plane_transform_angle, s.plane_transform_radius, s.plane_transform_scales, s.plane_transform_wavelength, s.waveType, s.plane_transform_angle2, s.plane_transform_sides, s.plane_transform_amount, s.escaping_smooth_algorithm, s.converging_smooth_algorithm, s.bms, s.color_intensity, s.transfer_function, s.polar_projection, s.circle_period, s.fdes, s.rps, s.coupling, s.user_formula_coupled, s.coupling_method, s.coupling_amplitude, s.coupling_frequency, s.coupling_seed, s.ds, s.inverse_dem, quickDraw, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.xJuliaCenter, s.yJuliaCenter);
-                                }
-                            } else {
-                                threads[i][j] = new BruteForceDraw(j * s.d3s.detail / n, (j + 1) * s.d3s.detail / n, i * s.d3s.detail / n, (i + 1) * s.d3s.detail / n, s.xCenter, s.yCenter, s.size, s.max_iterations, s.bailout_test_algorithm, s.bailout, s.bailout_test_user_formula, s.bailout_test_user_formula2, s.bailout_test_comparison, s.n_norm, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, s.out_coloring_algorithm, s.user_out_coloring_algorithm, s.outcoloring_formula, s.user_outcoloring_conditions, s.user_outcoloring_condition_formula, s.in_coloring_algorithm, s.user_in_coloring_algorithm, s.incoloring_formula, s.user_incoloring_conditions, s.user_incoloring_condition_formula, s.smoothing, periodicity_checking, s.plane_type, s.apply_plane_on_julia, s.apply_plane_on_julia_seed, s.burning_ship, s.mandel_grass, s.mandel_grass_vals, s.function, s.z_exponent, s.z_exponent_complex, s.color_cycling_location, s.rotation_vals, s.rotation_center, s.coefficients, s.z_exponent_nova, s.relaxation, s.nova_method, s.user_formula, s.user_formula2, s.bail_technique, s.user_plane, s.user_plane_algorithm, s.user_plane_conditions, s.user_plane_condition_formula, s.user_formula_iteration_based, s.user_formula_conditions, s.user_formula_condition_formula, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.plane_transform_center, s.plane_transform_angle, s.plane_transform_radius, s.plane_transform_scales, s.plane_transform_wavelength, s.waveType, s.plane_transform_angle2, s.plane_transform_sides, s.plane_transform_amount, s.escaping_smooth_algorithm, s.converging_smooth_algorithm, s.bms, s.color_intensity, s.transfer_function, s.polar_projection, s.circle_period, s.fdes, s.rps, s.coupling, s.user_formula_coupled, s.coupling_method, s.coupling_amplitude, s.coupling_frequency, s.coupling_seed, s.ds, s.inverse_dem, quickDraw, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.xJuliaCenter, s.yJuliaCenter);
+
+                    int FROMx = 0, TOx = 0, FROMy = 0, TOy = 0;
+
+                    if (s.d3s.d3) {
+                        FROMx = j * s.d3s.detail / n;
+                        TOx = (j + 1) * s.d3s.detail / n;
+                        FROMy = i * s.d3s.detail / n;
+                        TOy = (i + 1) * s.d3s.detail / n;
+                    } else {
+                        FROMx = j * image_size / n;
+                        TOx = (j + 1) * image_size / n;
+                        FROMy = i * image_size / n;
+                        TOy = (i + 1) * image_size / n;
+                    }
+
+                    if (s.fns.julia) {
+                        if (greedy_algorithm) {
+                            if (greedy_algorithm_selection == BOUNDARY_TRACING) {
+                                threads[i][j] = new BoundaryTracingDraw(FROMx, TOx, FROMy, TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, quickDraw, s.color_intensity, s.transfer_function, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.xJuliaCenter, s.yJuliaCenter);
+                            } else if (greedy_algorithm_selection == DIVIDE_AND_CONQUER) {
+                                threads[i][j] = new DivideAndConquerDraw(FROMx, TOx, FROMy, TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, quickDraw, s.color_intensity, s.transfer_function, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.xJuliaCenter, s.yJuliaCenter);
                             }
                         } else {
-                            if (greedy_algorithm) {
-                                if (greedy_algorithm_selection == BOUNDARY_TRACING) {
-                                    threads[i][j] = new BoundaryTracingDraw(j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, s.xCenter, s.yCenter, s.size, s.max_iterations, s.bailout_test_algorithm, s.bailout, s.bailout_test_user_formula, s.bailout_test_user_formula2, s.bailout_test_comparison, s.n_norm, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, s.out_coloring_algorithm, s.user_out_coloring_algorithm, s.outcoloring_formula, s.user_outcoloring_conditions, s.user_outcoloring_condition_formula, s.in_coloring_algorithm, s.user_in_coloring_algorithm, s.incoloring_formula, s.user_incoloring_conditions, s.user_incoloring_condition_formula, s.smoothing, periodicity_checking, s.plane_type, s.apply_plane_on_julia, s.apply_plane_on_julia_seed, s.burning_ship, s.mandel_grass, s.mandel_grass_vals, s.function, s.z_exponent, s.z_exponent_complex, s.color_cycling_location, s.rotation_vals, s.rotation_center, s.coefficients, s.z_exponent_nova, s.relaxation, s.nova_method, s.user_formula, s.user_formula2, s.bail_technique, s.user_plane, s.user_plane_algorithm, s.user_plane_conditions, s.user_plane_condition_formula, s.user_formula_iteration_based, s.user_formula_conditions, s.user_formula_condition_formula, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.plane_transform_center, s.plane_transform_angle, s.plane_transform_radius, s.plane_transform_scales, s.plane_transform_wavelength, s.waveType, s.plane_transform_angle2, s.plane_transform_sides, s.plane_transform_amount, s.escaping_smooth_algorithm, s.converging_smooth_algorithm, s.bms, s.color_intensity, s.transfer_function, s.polar_projection, s.circle_period, s.fdes, s.rps, s.coupling, s.user_formula_coupled, s.coupling_method, s.coupling_amplitude, s.coupling_frequency, s.coupling_seed, s.ds, s.inverse_dem, quickDraw, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.xJuliaCenter, s.yJuliaCenter);
-                                } else if (greedy_algorithm_selection == DIVIDE_AND_CONQUER) {
-                                    threads[i][j] = new DivideAndConquerDraw(j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, s.xCenter, s.yCenter, s.size, s.max_iterations, s.bailout_test_algorithm, s.bailout, s.bailout_test_user_formula, s.bailout_test_user_formula2, s.bailout_test_comparison, s.n_norm, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, s.out_coloring_algorithm, s.user_out_coloring_algorithm, s.outcoloring_formula, s.user_outcoloring_conditions, s.user_outcoloring_condition_formula, s.in_coloring_algorithm, s.user_in_coloring_algorithm, s.incoloring_formula, s.user_incoloring_conditions, s.user_incoloring_condition_formula, s.smoothing, periodicity_checking, s.plane_type, s.apply_plane_on_julia, s.apply_plane_on_julia_seed, s.burning_ship, s.mandel_grass, s.mandel_grass_vals, s.function, s.z_exponent, s.z_exponent_complex, s.color_cycling_location, s.rotation_vals, s.rotation_center, s.coefficients, s.z_exponent_nova, s.relaxation, s.nova_method, s.user_formula, s.user_formula2, s.bail_technique, s.user_plane, s.user_plane_algorithm, s.user_plane_conditions, s.user_plane_condition_formula, s.user_formula_iteration_based, s.user_formula_conditions, s.user_formula_condition_formula, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.plane_transform_center, s.plane_transform_angle, s.plane_transform_radius, s.plane_transform_scales, s.plane_transform_wavelength, s.waveType, s.plane_transform_angle2, s.plane_transform_sides, s.plane_transform_amount, s.escaping_smooth_algorithm, s.converging_smooth_algorithm, s.bms, s.color_intensity, s.transfer_function, s.polar_projection, s.circle_period, s.fdes, s.rps, s.coupling, s.user_formula_coupled, s.coupling_method, s.coupling_amplitude, s.coupling_frequency, s.coupling_seed, s.ds, s.inverse_dem, quickDraw, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.xJuliaCenter, s.yJuliaCenter);
-                                }
-                            } else {
-                                threads[i][j] = new BruteForceDraw(j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, s.xCenter, s.yCenter, s.size, s.max_iterations, s.bailout_test_algorithm, s.bailout, s.bailout_test_user_formula, s.bailout_test_user_formula2, s.bailout_test_comparison, s.n_norm, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, s.out_coloring_algorithm, s.user_out_coloring_algorithm, s.outcoloring_formula, s.user_outcoloring_conditions, s.user_outcoloring_condition_formula, s.in_coloring_algorithm, s.user_in_coloring_algorithm, s.incoloring_formula, s.user_incoloring_conditions, s.user_incoloring_condition_formula, s.smoothing, periodicity_checking, s.plane_type, s.apply_plane_on_julia, s.apply_plane_on_julia_seed, s.burning_ship, s.mandel_grass, s.mandel_grass_vals, s.function, s.z_exponent, s.z_exponent_complex, s.color_cycling_location, s.rotation_vals, s.rotation_center, s.coefficients, s.z_exponent_nova, s.relaxation, s.nova_method, s.user_formula, s.user_formula2, s.bail_technique, s.user_plane, s.user_plane_algorithm, s.user_plane_conditions, s.user_plane_condition_formula, s.user_formula_iteration_based, s.user_formula_conditions, s.user_formula_condition_formula, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.plane_transform_center, s.plane_transform_angle, s.plane_transform_radius, s.plane_transform_scales, s.plane_transform_wavelength, s.waveType, s.plane_transform_angle2, s.plane_transform_sides, s.plane_transform_amount, s.escaping_smooth_algorithm, s.converging_smooth_algorithm, s.bms, s.color_intensity, s.transfer_function, s.polar_projection, s.circle_period, s.fdes, s.rps, s.coupling, s.user_formula_coupled, s.coupling_method, s.coupling_amplitude, s.coupling_frequency, s.coupling_seed, s.ds, s.inverse_dem, quickDraw, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.xJuliaCenter, s.yJuliaCenter);
-                            }
+                            threads[i][j] = new BruteForceDraw(FROMx, TOx, FROMy, TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, quickDraw, s.color_intensity, s.transfer_function, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.xJuliaCenter, s.yJuliaCenter);
+                        }
+                    } else if (greedy_algorithm) {
+                        if (greedy_algorithm_selection == BOUNDARY_TRACING) {
+                            threads[i][j] = new BoundaryTracingDraw(FROMx, TOx, FROMy, TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, quickDraw, s.color_intensity, s.transfer_function, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns);
+                        } else if (greedy_algorithm_selection == DIVIDE_AND_CONQUER) {
+                            threads[i][j] = new DivideAndConquerDraw(FROMx, TOx, FROMy, TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, quickDraw, s.color_intensity, s.transfer_function, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns);
                         }
                     } else {
-                        if (s.d3s.d3) {
-                            if (greedy_algorithm) {
-                                if (greedy_algorithm_selection == BOUNDARY_TRACING) {
-                                    threads[i][j] = new BoundaryTracingDraw(j * s.d3s.detail / n, (j + 1) * s.d3s.detail / n, i * s.d3s.detail / n, (i + 1) * s.d3s.detail / n, s.xCenter, s.yCenter, s.size, s.max_iterations, s.bailout_test_algorithm, s.bailout, s.bailout_test_user_formula, s.bailout_test_user_formula2, s.bailout_test_comparison, s.n_norm, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, s.out_coloring_algorithm, s.user_out_coloring_algorithm, s.outcoloring_formula, s.user_outcoloring_conditions, s.user_outcoloring_condition_formula, s.in_coloring_algorithm, s.user_in_coloring_algorithm, s.incoloring_formula, s.user_incoloring_conditions, s.user_incoloring_condition_formula, s.smoothing, periodicity_checking, s.plane_type, s.burning_ship, s.mandel_grass, s.mandel_grass_vals, s.function, s.z_exponent, s.z_exponent_complex, s.color_cycling_location, s.rotation_vals, s.rotation_center, s.perturbation, s.perturbation_vals, s.variable_perturbation, s.user_perturbation_algorithm, s.user_perturbation_conditions, s.user_perturbation_condition_formula, s.perturbation_user_formula, s.init_val, s.initial_vals, s.variable_init_value, s.user_initial_value_algorithm, s.user_initial_value_conditions, s.user_initial_value_condition_formula, s.initial_value_user_formula, s.coefficients, s.z_exponent_nova, s.relaxation, s.nova_method, s.user_formula, s.user_formula2, s.bail_technique, s.user_plane, s.user_plane_algorithm, s.user_plane_conditions, s.user_plane_condition_formula, s.user_formula_iteration_based, s.user_formula_conditions, s.user_formula_condition_formula, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.plane_transform_center, s.plane_transform_angle, s.plane_transform_radius, s.plane_transform_scales, s.plane_transform_wavelength, s.waveType, s.plane_transform_angle2, s.plane_transform_sides, s.plane_transform_amount, s.escaping_smooth_algorithm, s.converging_smooth_algorithm, s.bms, s.color_intensity, s.transfer_function, s.polar_projection, s.circle_period, s.fdes, s.rps, s.user_fz_formula, s.user_dfz_formula, s.user_ddfz_formula, s.coupling, s.user_formula_coupled, s.coupling_method, s.coupling_amplitude, s.coupling_frequency, s.coupling_seed, s.ds, s.inverse_dem, quickDraw, s.ens, s.ofs, s.gss, s.laguerre_deg, s.color_blending, s.ots);
-                                } else if (greedy_algorithm_selection == DIVIDE_AND_CONQUER) {
-                                    threads[i][j] = new DivideAndConquerDraw(j * s.d3s.detail / n, (j + 1) * s.d3s.detail / n, i * s.d3s.detail / n, (i + 1) * s.d3s.detail / n, s.xCenter, s.yCenter, s.size, s.max_iterations, s.bailout_test_algorithm, s.bailout, s.bailout_test_user_formula, s.bailout_test_user_formula2, s.bailout_test_comparison, s.n_norm, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, s.out_coloring_algorithm, s.user_out_coloring_algorithm, s.outcoloring_formula, s.user_outcoloring_conditions, s.user_outcoloring_condition_formula, s.in_coloring_algorithm, s.user_in_coloring_algorithm, s.incoloring_formula, s.user_incoloring_conditions, s.user_incoloring_condition_formula, s.smoothing, periodicity_checking, s.plane_type, s.burning_ship, s.mandel_grass, s.mandel_grass_vals, s.function, s.z_exponent, s.z_exponent_complex, s.color_cycling_location, s.rotation_vals, s.rotation_center, s.perturbation, s.perturbation_vals, s.variable_perturbation, s.user_perturbation_algorithm, s.user_perturbation_conditions, s.user_perturbation_condition_formula, s.perturbation_user_formula, s.init_val, s.initial_vals, s.variable_init_value, s.user_initial_value_algorithm, s.user_initial_value_conditions, s.user_initial_value_condition_formula, s.initial_value_user_formula, s.coefficients, s.z_exponent_nova, s.relaxation, s.nova_method, s.user_formula, s.user_formula2, s.bail_technique, s.user_plane, s.user_plane_algorithm, s.user_plane_conditions, s.user_plane_condition_formula, s.user_formula_iteration_based, s.user_formula_conditions, s.user_formula_condition_formula, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.plane_transform_center, s.plane_transform_angle, s.plane_transform_radius, s.plane_transform_scales, s.plane_transform_wavelength, s.waveType, s.plane_transform_angle2, s.plane_transform_sides, s.plane_transform_amount, s.escaping_smooth_algorithm, s.converging_smooth_algorithm, s.bms, s.color_intensity, s.transfer_function, s.polar_projection, s.circle_period, s.fdes, s.rps, s.user_fz_formula, s.user_dfz_formula, s.user_ddfz_formula, s.coupling, s.user_formula_coupled, s.coupling_method, s.coupling_amplitude, s.coupling_frequency, s.coupling_seed, s.ds, s.inverse_dem, quickDraw, s.ens, s.ofs, s.gss, s.laguerre_deg, s.color_blending, s.ots);
-                                }
-                            } else {
-                                threads[i][j] = new BruteForceDraw(j * s.d3s.detail / n, (j + 1) * s.d3s.detail / n, i * s.d3s.detail / n, (i + 1) * s.d3s.detail / n, s.xCenter, s.yCenter, s.size, s.max_iterations, s.bailout_test_algorithm, s.bailout, s.bailout_test_user_formula, s.bailout_test_user_formula2, s.bailout_test_comparison, s.n_norm, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, s.out_coloring_algorithm, s.user_out_coloring_algorithm, s.outcoloring_formula, s.user_outcoloring_conditions, s.user_outcoloring_condition_formula, s.in_coloring_algorithm, s.user_in_coloring_algorithm, s.incoloring_formula, s.user_incoloring_conditions, s.user_incoloring_condition_formula, s.smoothing, periodicity_checking, s.plane_type, s.burning_ship, s.mandel_grass, s.mandel_grass_vals, s.function, s.z_exponent, s.z_exponent_complex, s.color_cycling_location, s.rotation_vals, s.rotation_center, s.perturbation, s.perturbation_vals, s.variable_perturbation, s.user_perturbation_algorithm, s.user_perturbation_conditions, s.user_perturbation_condition_formula, s.perturbation_user_formula, s.init_val, s.initial_vals, s.variable_init_value, s.user_initial_value_algorithm, s.user_initial_value_conditions, s.user_initial_value_condition_formula, s.initial_value_user_formula, s.coefficients, s.z_exponent_nova, s.relaxation, s.nova_method, s.user_formula, s.user_formula2, s.bail_technique, s.user_plane, s.user_plane_algorithm, s.user_plane_conditions, s.user_plane_condition_formula, s.user_formula_iteration_based, s.user_formula_conditions, s.user_formula_condition_formula, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.plane_transform_center, s.plane_transform_angle, s.plane_transform_radius, s.plane_transform_scales, s.plane_transform_wavelength, s.waveType, s.plane_transform_angle2, s.plane_transform_sides, s.plane_transform_amount, s.escaping_smooth_algorithm, s.converging_smooth_algorithm, s.bms, s.color_intensity, s.transfer_function, s.polar_projection, s.circle_period, s.fdes, s.rps, s.user_fz_formula, s.user_dfz_formula, s.user_ddfz_formula, s.coupling, s.user_formula_coupled, s.coupling_method, s.coupling_amplitude, s.coupling_frequency, s.coupling_seed, s.ds, s.inverse_dem, quickDraw, s.ens, s.ofs, s.gss, s.laguerre_deg, s.color_blending, s.ots);
-                            }
-                        } else {
-                            if (greedy_algorithm) {
-                                if (greedy_algorithm_selection == BOUNDARY_TRACING) {
-                                    threads[i][j] = new BoundaryTracingDraw(j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, s.xCenter, s.yCenter, s.size, s.max_iterations, s.bailout_test_algorithm, s.bailout, s.bailout_test_user_formula, s.bailout_test_user_formula2, s.bailout_test_comparison, s.n_norm, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, s.out_coloring_algorithm, s.user_out_coloring_algorithm, s.outcoloring_formula, s.user_outcoloring_conditions, s.user_outcoloring_condition_formula, s.in_coloring_algorithm, s.user_in_coloring_algorithm, s.incoloring_formula, s.user_incoloring_conditions, s.user_incoloring_condition_formula, s.smoothing, periodicity_checking, s.plane_type, s.burning_ship, s.mandel_grass, s.mandel_grass_vals, s.function, s.z_exponent, s.z_exponent_complex, s.color_cycling_location, s.rotation_vals, s.rotation_center, s.perturbation, s.perturbation_vals, s.variable_perturbation, s.user_perturbation_algorithm, s.user_perturbation_conditions, s.user_perturbation_condition_formula, s.perturbation_user_formula, s.init_val, s.initial_vals, s.variable_init_value, s.user_initial_value_algorithm, s.user_initial_value_conditions, s.user_initial_value_condition_formula, s.initial_value_user_formula, s.coefficients, s.z_exponent_nova, s.relaxation, s.nova_method, s.user_formula, s.user_formula2, s.bail_technique, s.user_plane, s.user_plane_algorithm, s.user_plane_conditions, s.user_plane_condition_formula, s.user_formula_iteration_based, s.user_formula_conditions, s.user_formula_condition_formula, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.plane_transform_center, s.plane_transform_angle, s.plane_transform_radius, s.plane_transform_scales, s.plane_transform_wavelength, s.waveType, s.plane_transform_angle2, s.plane_transform_sides, s.plane_transform_amount, s.escaping_smooth_algorithm, s.converging_smooth_algorithm, s.bms, s.color_intensity, s.transfer_function, s.polar_projection, s.circle_period, s.fdes, s.rps, s.user_fz_formula, s.user_dfz_formula, s.user_ddfz_formula, s.coupling, s.user_formula_coupled, s.coupling_method, s.coupling_amplitude, s.coupling_frequency, s.coupling_seed, s.ds, s.inverse_dem, quickDraw, s.ens, s.ofs, s.gss, s.laguerre_deg, s.color_blending, s.ots);
-                                } else if (greedy_algorithm_selection == DIVIDE_AND_CONQUER) {
-                                    threads[i][j] = new DivideAndConquerDraw(j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, s.xCenter, s.yCenter, s.size, s.max_iterations, s.bailout_test_algorithm, s.bailout, s.bailout_test_user_formula, s.bailout_test_user_formula2, s.bailout_test_comparison, s.n_norm, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, s.out_coloring_algorithm, s.user_out_coloring_algorithm, s.outcoloring_formula, s.user_outcoloring_conditions, s.user_outcoloring_condition_formula, s.in_coloring_algorithm, s.user_in_coloring_algorithm, s.incoloring_formula, s.user_incoloring_conditions, s.user_incoloring_condition_formula, s.smoothing, periodicity_checking, s.plane_type, s.burning_ship, s.mandel_grass, s.mandel_grass_vals, s.function, s.z_exponent, s.z_exponent_complex, s.color_cycling_location, s.rotation_vals, s.rotation_center, s.perturbation, s.perturbation_vals, s.variable_perturbation, s.user_perturbation_algorithm, s.user_perturbation_conditions, s.user_perturbation_condition_formula, s.perturbation_user_formula, s.init_val, s.initial_vals, s.variable_init_value, s.user_initial_value_algorithm, s.user_initial_value_conditions, s.user_initial_value_condition_formula, s.initial_value_user_formula, s.coefficients, s.z_exponent_nova, s.relaxation, s.nova_method, s.user_formula, s.user_formula2, s.bail_technique, s.user_plane, s.user_plane_algorithm, s.user_plane_conditions, s.user_plane_condition_formula, s.user_formula_iteration_based, s.user_formula_conditions, s.user_formula_condition_formula, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.plane_transform_center, s.plane_transform_angle, s.plane_transform_radius, s.plane_transform_scales, s.plane_transform_wavelength, s.waveType, s.plane_transform_angle2, s.plane_transform_sides, s.plane_transform_amount, s.escaping_smooth_algorithm, s.converging_smooth_algorithm, s.bms, s.color_intensity, s.transfer_function, s.polar_projection, s.circle_period, s.fdes, s.rps, s.user_fz_formula, s.user_dfz_formula, s.user_ddfz_formula, s.coupling, s.user_formula_coupled, s.coupling_method, s.coupling_amplitude, s.coupling_frequency, s.coupling_seed, s.ds, s.inverse_dem, quickDraw, s.ens, s.ofs, s.gss, s.laguerre_deg, s.color_blending, s.ots);
-                                }
-                            } else {
-                                threads[i][j] = new BruteForceDraw(j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, s.xCenter, s.yCenter, s.size, s.max_iterations, s.bailout_test_algorithm, s.bailout, s.bailout_test_user_formula, s.bailout_test_user_formula2, s.bailout_test_comparison, s.n_norm, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, s.out_coloring_algorithm, s.user_out_coloring_algorithm, s.outcoloring_formula, s.user_outcoloring_conditions, s.user_outcoloring_condition_formula, s.in_coloring_algorithm, s.user_in_coloring_algorithm, s.incoloring_formula, s.user_incoloring_conditions, s.user_incoloring_condition_formula, s.smoothing, periodicity_checking, s.plane_type, s.burning_ship, s.mandel_grass, s.mandel_grass_vals, s.function, s.z_exponent, s.z_exponent_complex, s.color_cycling_location, s.rotation_vals, s.rotation_center, s.perturbation, s.perturbation_vals, s.variable_perturbation, s.user_perturbation_algorithm, s.user_perturbation_conditions, s.user_perturbation_condition_formula, s.perturbation_user_formula, s.init_val, s.initial_vals, s.variable_init_value, s.user_initial_value_algorithm, s.user_initial_value_conditions, s.user_initial_value_condition_formula, s.initial_value_user_formula, s.coefficients, s.z_exponent_nova, s.relaxation, s.nova_method, s.user_formula, s.user_formula2, s.bail_technique, s.user_plane, s.user_plane_algorithm, s.user_plane_conditions, s.user_plane_condition_formula, s.user_formula_iteration_based, s.user_formula_conditions, s.user_formula_condition_formula, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.plane_transform_center, s.plane_transform_angle, s.plane_transform_radius, s.plane_transform_scales, s.plane_transform_wavelength, s.waveType, s.plane_transform_angle2, s.plane_transform_sides, s.plane_transform_amount, s.escaping_smooth_algorithm, s.converging_smooth_algorithm, s.bms, s.color_intensity, s.transfer_function, s.polar_projection, s.circle_period, s.fdes, s.rps, s.user_fz_formula, s.user_dfz_formula, s.user_ddfz_formula, s.coupling, s.user_formula_coupled, s.coupling_method, s.coupling_amplitude, s.coupling_frequency, s.coupling_seed, s.ds, s.inverse_dem, quickDraw, s.ens, s.ofs, s.gss, s.laguerre_deg, s.color_blending, s.ots);
-                            }
-                        }
+                        threads[i][j] = new BruteForceDraw(FROMx, TOx, FROMy, TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, quickDraw, s.color_intensity, s.transfer_function, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns);
                     }
                 }
             }
@@ -1625,6 +1622,472 @@ public class MainWindow extends JFrame implements Constants {
 
     }
 
+    public void prepareUI() {
+
+        julia_map = false;
+        tools_menu.getJuliaMap().setSelected(false);
+        toolbar.getJuliaMapButton().setSelected(false);
+        options_menu.getJuliaMapOptions().setEnabled(false);
+
+        zoom_window = false;
+        tools_menu.getZoomWindow().setSelected(false);
+
+        if (s.fns.julia) {
+            first_seed = false;
+            tools_menu.getJulia().setSelected(true);
+            toolbar.getJuliaButton().setSelected(true);
+            tools_menu.getJuliaMap().setEnabled(false);
+            toolbar.getJuliaMapButton().setEnabled(false);
+            options_menu.getPerturbation().setEnabled(false);
+            options_menu.getInitialValue().setEnabled(false);
+            rootFindingMethodsSetEnabled(false);
+            fractal_functions[SIERPINSKI_GASKET].setEnabled(false);
+            fractal_functions[KLEINIAN].setEnabled(false);
+        } else {
+            first_seed = true;
+            tools_menu.getJulia().setSelected(false);
+            toolbar.getJuliaButton().setSelected(false);
+
+            if (!s.fns.perturbation && !s.fns.init_val) {
+                rootFindingMethodsSetEnabled(true);
+                fractal_functions[SIERPINSKI_GASKET].setEnabled(true);
+                fractal_functions[KLEINIAN].setEnabled(true);
+            } else {
+                tools_menu.getJulia().setEnabled(false);
+                toolbar.getJuliaButton().setEnabled(false);
+                tools_menu.getJuliaMap().setEnabled(false);
+                toolbar.getJuliaMapButton().setEnabled(false);
+                rootFindingMethodsSetEnabled(false);
+                fractal_functions[SIERPINSKI_GASKET].setEnabled(false);
+                fractal_functions[KLEINIAN].setEnabled(false);
+            }
+        }
+
+        options_menu.getPerturbation().setSelected(s.fns.perturbation);
+        options_menu.getInitialValue().setSelected(s.fns.init_val);
+
+        if (s.size < 0.05) {
+            tools_menu.getBoundaries().setEnabled(false);
+            boundaries = false;
+            tools_menu.getBoundaries().setSelected(false);
+        }
+
+        if (s.fns.rotation != 0 && s.fns.rotation != 360 && s.fns.rotation != -360) {
+            tools_menu.getGrid().setEnabled(false);
+            grid = false;
+            tools_menu.getGrid().setSelected(false);
+
+            tools_menu.getBoundaries().setEnabled(false);
+            boundaries = false;
+            tools_menu.getBoundaries().setSelected(false);
+        }
+
+        if (s.fns.in_coloring_algorithm != MAX_ITERATIONS) {
+            periodicity_checking = false;
+            options_menu.getPeriodicityChecking().setSelected(false);
+            options_menu.getPeriodicityChecking().setEnabled(false);
+            options_menu.getInColoringMenu().setEnabledAllButMaxIterations(true);
+        }
+
+        for (int k = 0; k < fractal_functions.length; k++) {
+            if (k != PARHALLEY3 && k != PARHALLEY4 && k != PARHALLEYGENERALIZED3 && k != PARHALLEYGENERALIZED8 && k != PARHALLEYSIN && k != PARHALLEYCOS && k != PARHALLEYPOLY && k != PARHALLEYFORMULA
+                    && k != LAGUERRE3 && k != LAGUERRE4 && k != LAGUERREGENERALIZED3 && k != LAGUERREGENERALIZED8 && k != LAGUERRESIN && k != LAGUERRECOS && k != LAGUERREPOLY && k != LAGUERREFORMULA
+                    && k != MULLER3 && k != MULLER4 && k != MULLERGENERALIZED3 && k != MULLERGENERALIZED8 && k != MULLERSIN && k != MULLERCOS && k != MULLERPOLY && k != MULLERFORMULA
+                    && k != KLEINIAN && k != SIERPINSKI_GASKET && k != NEWTON3 && k != STEFFENSENPOLY && k != NEWTON4 && k != NEWTONGENERALIZED3 && k != NEWTONGENERALIZED8 && k != NEWTONSIN && k != NEWTONCOS && k != NEWTONPOLY
+                    && k != HALLEY3 && k != HALLEY4 && k != HALLEYGENERALIZED3 && k != HALLEYGENERALIZED8 && k != HALLEYSIN && k != HALLEYCOS && k != HALLEYPOLY
+                    && k != SCHRODER3 && k != SCHRODER4 && k != SCHRODERGENERALIZED3 && k != SCHRODERGENERALIZED8 && k != SCHRODERSIN && k != SCHRODERCOS && k != SCHRODERPOLY
+                    && k != HOUSEHOLDER3 && k != HOUSEHOLDER4 && k != HOUSEHOLDERGENERALIZED3 && k != HOUSEHOLDERGENERALIZED8 && k != HOUSEHOLDERSIN && k != HOUSEHOLDERCOS && k != HOUSEHOLDERPOLY
+                    && k != SECANT3 && k != SECANT4 && k != SECANTGENERALIZED3 && k != SECANTGENERALIZED8 && k != SECANTCOS && k != SECANTPOLY
+                    && k != STEFFENSEN3 && k != STEFFENSEN4 && k != STEFFENSENGENERALIZED3 && k != NEWTONFORMULA && k != HALLEYFORMULA && k != SCHRODERFORMULA && k != HOUSEHOLDERFORMULA && k != SECANTFORMULA && k != STEFFENSENFORMULA) {
+                fractal_functions[k].setEnabled(true);
+            }
+
+            if ((k == KLEINIAN || k == SIERPINSKI_GASKET) && !s.fns.julia && !s.fns.perturbation && !s.fns.init_val) {
+                fractal_functions[k].setEnabled(true);
+            }
+        }
+
+        options_menu.getBurningShipOpt().setEnabled(true);
+        options_menu.getMandelGrassOpt().setEnabled(true);
+
+        if (s.fns.out_coloring_algorithm == DISTANCE_ESTIMATOR || s.exterior_de) {
+            for (int k = 1; k < fractal_functions.length; k++) {
+                fractal_functions[k].setEnabled(false);
+            }
+        } else if (s.fns.out_coloring_algorithm == ESCAPE_TIME_FIELD_LINES2 || s.fns.out_coloring_algorithm == ESCAPE_TIME_FIELD_LINES || s.fns.out_coloring_algorithm == ESCAPE_TIME_ESCAPE_RADIUS || s.fns.out_coloring_algorithm == ESCAPE_TIME_GRID || s.fns.out_coloring_algorithm == BIOMORPH || s.fns.out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER || s.fns.out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER2 || s.fns.out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER3 || s.fns.out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER4 || s.fns.out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER5 || s.fns.out_coloring_algorithm == ITERATIONS_PLUS_RE || s.fns.out_coloring_algorithm == ITERATIONS_PLUS_IM || s.fns.out_coloring_algorithm == ITERATIONS_PLUS_RE_DIVIDE_IM || s.fns.out_coloring_algorithm == ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM || s.fns.out_coloring_algorithm == ESCAPE_TIME_ALGORITHM2 || s.fns.out_coloring_algorithm == BANDED) {
+            rootFindingMethodsSetEnabled(false);
+        } else if (!s.fns.julia && !s.fns.perturbation && !s.fns.init_val) {
+            rootFindingMethodsSetEnabled(true);
+        }
+
+        options_menu.getApplyPlaneOnWholeJuliaOpt().setSelected(s.fns.apply_plane_on_julia);
+        options_menu.getApplyPlaneOnJuliaSeedOpt().setSelected(s.fns.apply_plane_on_julia_seed);
+
+        out_coloring_modes[s.fns.out_coloring_algorithm].setSelected(true);
+
+        in_coloring_modes[s.fns.in_coloring_algorithm].setSelected(true);
+
+        if (s.fns.out_coloring_algorithm != USER_OUTCOLORING_ALGORITHM && s.fns.in_coloring_algorithm != USER_INCOLORING_ALGORITHM) {
+            options_menu.getDirectColor().setEnabled(false);
+            options_menu.getDirectColor().setSelected(false);
+            ThreadDraw.USE_DIRECT_COLOR = false;
+
+            if (!s.ds.domain_coloring) {
+                infobar.getMaxIterationsColorPreview().setVisible(true);
+                infobar.getMaxIterationsColorPreviewLabel().setVisible(true);
+            }
+            infobar.getGradientPreviewLabel().setVisible(true);
+            infobar.getGradientPreview().setVisible(true);
+            infobar.getPalettePreview().setVisible(true);
+            infobar.getPalettePreviewLabel().setVisible(true);
+        }
+
+        if (!ThreadDraw.USE_DIRECT_COLOR) {
+            options_menu.getDirectColor().setSelected(false);
+            
+            if (!s.ds.domain_coloring) {
+                infobar.getMaxIterationsColorPreview().setVisible(true);
+                infobar.getMaxIterationsColorPreviewLabel().setVisible(true);
+            }
+            infobar.getGradientPreviewLabel().setVisible(true);
+            infobar.getGradientPreview().setVisible(true);
+            infobar.getPalettePreview().setVisible(true);
+            infobar.getPalettePreviewLabel().setVisible(true);
+        } else {      
+            options_menu.getDirectColor().setSelected(true);
+            
+            tools_menu.getColorCycling().setEnabled(false);
+            toolbar.getColorCyclingButton().setEnabled(false);
+
+            tools_menu.getDomainColoring().setEnabled(false);
+            toolbar.getDomainColoringButton().setEnabled(false);
+
+            toolbar.getCustomPaletteButton().setEnabled(false);
+            toolbar.getRandomPaletteButton().setEnabled(false);
+
+            tools_menu.get3D().setEnabled(false);
+            toolbar.get3DButton().setEnabled(false);
+
+            options_menu.getFractalColor().setEnabled(false);
+            options_menu.getRandomPalette().setEnabled(false);
+            options_menu.getRollPaletteMenu().setEnabled(false);
+            options_menu.getPaletteMenu().setEnabled(false);
+            options_menu.getColorIntensity().setEnabled(false);
+            options_menu.getColorTransferMenu().setEnabled(false);
+            options_menu.getProcessing().setEnabled(false);
+            options_menu.getGradient().setEnabled(false);
+            options_menu.getColorBlending().setEnabled(false);
+
+            infobar.getMaxIterationsColorPreview().setVisible(false);
+            infobar.getMaxIterationsColorPreviewLabel().setVisible(false);
+            infobar.getGradientPreviewLabel().setVisible(false);
+            infobar.getGradientPreview().setVisible(false);
+            infobar.getPalettePreview().setVisible(false);
+            infobar.getPalettePreviewLabel().setVisible(false);
+        }
+
+        options_menu.getBlendingModes()[s.color_blending].setSelected(true);
+        options_menu.getTranferFunctions()[s.transfer_function].setSelected(true);
+
+        bailout_tests[s.fns.bailout_test_algorithm].setSelected(true);
+
+        if (s.polar_projection) {
+            tools_menu.getGrid().setEnabled(false);
+            tools_menu.getZoomWindow().setEnabled(false);
+
+            grid = false;
+            boundaries = false;
+
+            tools_menu.getGrid().setSelected(false);
+            tools_menu.getBoundaries().setSelected(false);
+
+            options_menu.getPolarProjectionOptions().setEnabled(true);
+
+        } else {
+            options_menu.getPolarProjectionOptions().setEnabled(false);
+        }
+
+        tools_menu.getPolarProjection().setSelected(s.polar_projection);
+        toolbar.getPolarProjectionButton().setSelected(s.polar_projection);
+
+        if (s.ds.domain_coloring) {
+            tools_menu.getJuliaMap().setEnabled(false);
+            toolbar.getJuliaMapButton().setEnabled(false);
+            tools_menu.getJulia().setEnabled(false);
+            toolbar.getJuliaButton().setEnabled(false);
+            tools_menu.getColorCycling().setEnabled(false);
+            toolbar.getColorCyclingButton().setEnabled(false);
+
+            options_menu.getDirectColor().setEnabled(false);
+            options_menu.getDirectColor().setSelected(false);
+            ThreadDraw.USE_DIRECT_COLOR = false;
+
+            infobar.getGradientPreviewLabel().setVisible(true);
+            infobar.getGradientPreview().setVisible(true);
+            infobar.getPalettePreview().setVisible(true);
+            infobar.getPalettePreviewLabel().setVisible(true);
+
+            if (!s.ds.use_palette_domain_coloring) {
+                toolbar.getCustomPaletteButton().setEnabled(false);
+                toolbar.getRandomPaletteButton().setEnabled(false);
+
+                options_menu.getRandomPalette().setEnabled(false);
+                options_menu.getRollPaletteMenu().setEnabled(false);
+                options_menu.getPaletteMenu().setEnabled(false);
+                options_menu.getColorIntensity().setEnabled(false);
+                options_menu.getColorTransferMenu().setEnabled(false);
+                options_menu.getProcessing().setEnabled(false);
+            } else {
+                options_menu.getDistanceEstimation().setEnabled(false);
+                options_menu.getBumpMap().setEnabled(false);
+
+                options_menu.getFakeDistanceEstimation().setEnabled(false);
+                options_menu.getContourColoring().setEnabled(false);
+
+                options_menu.getEntropyColoring().setEnabled(false);
+                options_menu.getOffsetColoring().setEnabled(false);
+                options_menu.getGreyScaleColoring().setEnabled(false);
+
+                options_menu.getRainbowPalette().setEnabled(false);
+                options_menu.getOrbitTraps().setEnabled(false);
+            }
+
+            options_menu.getOutColoringMenu().setEnabled(false);
+            options_menu.getInColoringMenu().setEnabled(false);
+            options_menu.getFractalColor().setEnabled(false);
+
+            options_menu.getGreedyAlgorithm().setEnabled(false);
+            options_menu.getPeriodicityChecking().setEnabled(false);
+            options_menu.getBailout().setEnabled(false);
+            options_menu.getBailoutConditionMenu().setEnabled(false);
+
+            infobar.getMaxIterationsColorPreview().setVisible(false);
+            infobar.getMaxIterationsColorPreviewLabel().setVisible(false);
+
+            options_menu.getDomainColoringOptions().setEnabled(true);
+        } else {
+            if(!ThreadDraw.USE_DIRECT_COLOR) {
+                infobar.getMaxIterationsColorPreview().setVisible(true);
+                infobar.getMaxIterationsColorPreviewLabel().setVisible(true);
+            }
+
+            options_menu.getDomainColoringOptions().setEnabled(false);
+        }
+
+        tools_menu.getDomainColoring().setSelected(s.ds.domain_coloring);
+        toolbar.getDomainColoringButton().setSelected(s.ds.domain_coloring);
+
+        if (s.ots.useTraps) {
+            tools_menu.getColorCycling().setEnabled(false);
+            toolbar.getColorCyclingButton().setEnabled(false);
+            options_menu.getPeriodicityChecking().setEnabled(false);
+        }
+
+        filters_menu.setCheckedFilters(s.fs.filters);
+
+        fractal_functions[s.fns.function].setSelected(true);
+
+        switch (s.fns.function) {
+            case NEWTON3:
+            case NEWTON4:
+            case NEWTONGENERALIZED3:
+            case NEWTONGENERALIZED8:
+            case NEWTONSIN:
+            case NEWTONCOS:
+            case HALLEY3:
+            case HALLEY4:
+            case HALLEYGENERALIZED3:
+            case HALLEYGENERALIZED8:
+            case HALLEYSIN:
+            case HALLEYCOS:
+            case SCHRODER3:
+            case SCHRODER4:
+            case SCHRODERGENERALIZED3:
+            case SCHRODERGENERALIZED8:
+            case SCHRODERSIN:
+            case SCHRODERCOS:
+            case HOUSEHOLDER3:
+            case HOUSEHOLDER4:
+            case HOUSEHOLDERGENERALIZED3:
+            case HOUSEHOLDERGENERALIZED8:
+            case HOUSEHOLDERSIN:
+            case HOUSEHOLDERCOS:
+            case SECANT3:
+            case SECANT4:
+            case SECANTGENERALIZED3:
+            case SECANTGENERALIZED8:
+            case SECANTCOS:
+            case STEFFENSEN3:
+            case STEFFENSEN4:
+            case STEFFENSENGENERALIZED3:
+            case MULLER3:
+            case MULLER4:
+            case MULLERGENERALIZED3:
+            case MULLERGENERALIZED8:
+            case MULLERSIN:
+            case MULLERCOS:
+            case PARHALLEY3:
+            case PARHALLEY4:
+            case PARHALLEYGENERALIZED3:
+            case PARHALLEYGENERALIZED8:
+            case PARHALLEYSIN:
+            case PARHALLEYCOS:
+            case LAGUERRE3:
+            case LAGUERRE4:
+            case LAGUERREGENERALIZED3:
+            case LAGUERREGENERALIZED8:
+            case LAGUERRESIN:
+            case LAGUERRECOS:
+            case NEWTONFORMULA:
+            case HALLEYFORMULA:
+            case SCHRODERFORMULA:
+            case HOUSEHOLDERFORMULA:
+            case SECANTFORMULA:
+            case STEFFENSENFORMULA:
+            case MULLERFORMULA:
+            case PARHALLEYFORMULA:
+            case LAGUERREFORMULA:
+                optionsEnableShortcut2();
+                break;
+            case MANDELPOLY:
+            case NEWTONPOLY:
+            case HALLEYPOLY:
+            case SCHRODERPOLY:
+            case HOUSEHOLDERPOLY:
+            case SECANTPOLY:
+            case STEFFENSENPOLY:
+            case MULLERPOLY:
+            case PARHALLEYPOLY:
+            case LAGUERREPOLY:
+                if (s.fns.function == MANDELPOLY) {
+                    optionsEnableShortcut();
+                } else {
+                    optionsEnableShortcut2();
+                }
+                break;
+            case NOVA:
+                options_menu.getPeriodicityChecking().setEnabled(false);
+                options_menu.getBailout().setEnabled(false);
+                options_menu.getBailoutConditionMenu().setEnabled(false);
+                optionsEnableShortcut();
+                break;
+            case KLEINIAN:
+                optionsEnableShortcut();
+                tools_menu.getJulia().setEnabled(false);
+                toolbar.getJuliaButton().setEnabled(false);
+                tools_menu.getJuliaMap().setEnabled(false);
+                toolbar.getJuliaMapButton().setEnabled(false);
+                options_menu.getPeriodicityChecking().setEnabled(false);
+                options_menu.getPerturbation().setEnabled(false);
+                options_menu.getInitialValue().setEnabled(false);
+                options_menu.getBailout().setEnabled(false);
+                options_menu.getBailoutConditionMenu().setEnabled(false);
+                break;
+            case SIERPINSKI_GASKET:
+                optionsEnableShortcut();
+                tools_menu.getJulia().setEnabled(false);
+                toolbar.getJuliaButton().setEnabled(false);
+                tools_menu.getJuliaMap().setEnabled(false);
+                toolbar.getJuliaMapButton().setEnabled(false);
+                options_menu.getPeriodicityChecking().setEnabled(false);
+                options_menu.getPerturbation().setEnabled(false);
+                options_menu.getInitialValue().setEnabled(false);
+                break;
+            case MANDELBROT:
+                if (!s.ds.domain_coloring) {
+                    options_menu.getDistanceEstimation().setEnabled(true);
+                }
+                if (s.fns.out_coloring_algorithm != DISTANCE_ESTIMATOR) {
+                    out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(true);
+                }
+                if (s.fns.out_coloring_algorithm != BIOMORPH) {
+                    out_coloring_modes[BIOMORPH].setEnabled(true);
+                }
+                if (s.fns.out_coloring_algorithm != BANDED) {
+                    out_coloring_modes[BANDED].setEnabled(true);
+                }
+                if (s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+                    out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
+                }
+                if (s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+                    out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
+                }
+                if (s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+                    out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
+                }
+                if (s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+                    out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
+                }
+                if (s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+                    out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
+                }
+                if (s.fns.out_coloring_algorithm != ITERATIONS_PLUS_RE) {
+                    out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
+                }
+                if (s.fns.out_coloring_algorithm != ITERATIONS_PLUS_IM) {
+                    out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
+                }
+                if (s.fns.out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
+                    out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
+                }
+                if (s.fns.out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
+                    out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
+                }
+                if (s.fns.out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
+                    out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
+                }
+                if (s.fns.out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
+                    out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
+                }
+                if (s.fns.out_coloring_algorithm != ESCAPE_TIME_GRID) {
+                    out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
+                }
+                if (s.fns.out_coloring_algorithm != ESCAPE_TIME_FIELD_LINES) {
+                    out_coloring_modes[ESCAPE_TIME_FIELD_LINES].setEnabled(true);
+                }
+                if (s.fns.out_coloring_algorithm != ESCAPE_TIME_FIELD_LINES2) {
+                    out_coloring_modes[ESCAPE_TIME_FIELD_LINES2].setEnabled(true);
+                }
+
+                break;
+            case USER_FORMULA:
+            case USER_FORMULA_ITERATION_BASED:
+            case USER_FORMULA_CONDITIONAL:
+            case USER_FORMULA_COUPLED:
+
+                if (!s.user_formula_c) {
+                    tools_menu.getJulia().setEnabled(false);
+                    toolbar.getJuliaButton().setEnabled(false);
+                    tools_menu.getJuliaMap().setEnabled(false);
+                    toolbar.getJuliaMapButton().setEnabled(false);
+                    options_menu.getPerturbation().setEnabled(false);
+                    options_menu.getInitialValue().setEnabled(false);
+                }
+
+                if (s.fns.bail_technique == 1) {
+                    options_menu.getBailout().setEnabled(false);
+                    options_menu.getBailoutConditionMenu().setEnabled(false);
+                    options_menu.getPeriodicityChecking().setEnabled(false);
+                }
+
+                optionsEnableShortcut();
+                break;
+            default:
+                optionsEnableShortcut();
+                break;
+        }
+
+        options_menu.getPalette()[s.color_choice].setSelected(true);
+        updateColorPalettesMenu();
+        updateMaxIterColorPreview();
+        updateGradientPreview();
+
+        options_menu.getBurningShipOpt().setSelected(s.fns.burning_ship);
+        options_menu.getMandelGrassOpt().setSelected(s.fns.mandel_grass);
+
+        planes[s.fns.plane_type].setSelected(true);
+    }
+
     public void loadSettings() {
 
         resetOrbit();
@@ -1661,387 +2124,9 @@ public class MainWindow extends JFrame implements Constants {
             File file = file_chooser.getSelectedFile();
 
             try {
-
                 s.readSettings(file.toString(), scroll_pane);
 
-                julia_map = false;
-                tools_menu.getJuliaMap().setSelected(false);
-                toolbar.getJuliaMapButton().setSelected(false);
-                options_menu.getJuliaMapOptions().setEnabled(false);
-
-                zoom_window = false;
-                tools_menu.getZoomWindow().setSelected(false);
-
-                if (s.julia) {
-                    first_seed = false;
-                    tools_menu.getJulia().setSelected(true);
-                    toolbar.getJuliaButton().setSelected(true);
-                    tools_menu.getJuliaMap().setEnabled(false);
-                    toolbar.getJuliaMapButton().setEnabled(false);
-                    options_menu.getPerturbation().setEnabled(false);
-                    options_menu.getInitialValue().setEnabled(false);
-                    rootFindingMethodsSetEnabled(false);
-                    fractal_functions[SIERPINSKI_GASKET].setEnabled(false);
-                } else {
-                    first_seed = true;
-                    tools_menu.getJulia().setSelected(false);
-                    toolbar.getJuliaButton().setSelected(false);
-
-                    if (!s.perturbation && !s.init_val) {
-                        rootFindingMethodsSetEnabled(true);
-                        fractal_functions[SIERPINSKI_GASKET].setEnabled(true);
-                    } else {
-                        tools_menu.getJulia().setEnabled(false);
-                        toolbar.getJuliaButton().setEnabled(false);
-                        tools_menu.getJuliaMap().setEnabled(false);
-                        toolbar.getJuliaMapButton().setEnabled(false);
-                        rootFindingMethodsSetEnabled(false);
-                        fractal_functions[SIERPINSKI_GASKET].setEnabled(false);
-                    }
-                }
-
-                options_menu.getPerturbation().setSelected(s.perturbation);
-                options_menu.getInitialValue().setSelected(s.init_val);
-
-                if (s.size < 0.05) {
-                    tools_menu.getBoundaries().setEnabled(false);
-                    boundaries = false;
-                    tools_menu.getBoundaries().setSelected(false);
-                }
-
-                if (s.rotation != 0 && s.rotation != 360 && s.rotation != -360) {
-                    tools_menu.getGrid().setEnabled(false);
-                    grid = false;
-                    tools_menu.getGrid().setSelected(false);
-
-                    tools_menu.getBoundaries().setEnabled(false);
-                    boundaries = false;
-                    tools_menu.getBoundaries().setSelected(false);
-                }
-
-                if (s.in_coloring_algorithm != MAX_ITERATIONS) {
-                    periodicity_checking = false;
-                    options_menu.getPeriodicityChecking().setSelected(false);
-                    options_menu.getPeriodicityChecking().setEnabled(false);
-                    options_menu.getInColoringMenu().setEnabledAllButMaxIterations(true);
-                }
-
-                for (int k = 0; k < fractal_functions.length; k++) {
-                    if (k != PARHALLEY3 && k != PARHALLEY4 && k != PARHALLEYGENERALIZED3 && k != PARHALLEYGENERALIZED8 && k != PARHALLEYSIN && k != PARHALLEYCOS && k != PARHALLEYPOLY && k != PARHALLEYFORMULA
-                            && k != LAGUERRE3 && k != LAGUERRE4 && k != LAGUERREGENERALIZED3 && k != LAGUERREGENERALIZED8 && k != LAGUERRESIN && k != LAGUERRECOS && k != LAGUERREPOLY && k != LAGUERREFORMULA
-                            && k != MULLER3 && k != MULLER4 && k != MULLERGENERALIZED3 && k != MULLERGENERALIZED8 && k != MULLERSIN && k != MULLERCOS && k != MULLERPOLY && k != MULLERFORMULA
-                            && k != SIERPINSKI_GASKET && k != NEWTON3 && k != STEFFENSENPOLY && k != NEWTON4 && k != NEWTONGENERALIZED3 && k != NEWTONGENERALIZED8 && k != NEWTONSIN && k != NEWTONCOS && k != NEWTONPOLY
-                            && k != HALLEY3 && k != HALLEY4 && k != HALLEYGENERALIZED3 && k != HALLEYGENERALIZED8 && k != HALLEYSIN && k != HALLEYCOS && k != HALLEYPOLY
-                            && k != SCHRODER3 && k != SCHRODER4 && k != SCHRODERGENERALIZED3 && k != SCHRODERGENERALIZED8 && k != SCHRODERSIN && k != SCHRODERCOS && k != SCHRODERPOLY
-                            && k != HOUSEHOLDER3 && k != HOUSEHOLDER4 && k != HOUSEHOLDERGENERALIZED3 && k != HOUSEHOLDERGENERALIZED8 && k != HOUSEHOLDERSIN && k != HOUSEHOLDERCOS && k != HOUSEHOLDERPOLY
-                            && k != SECANT3 && k != SECANT4 && k != SECANTGENERALIZED3 && k != SECANTGENERALIZED8 && k != SECANTCOS && k != SECANTPOLY
-                            && k != STEFFENSEN3 && k != STEFFENSEN4 && k != STEFFENSENGENERALIZED3 && k != NEWTONFORMULA && k != HALLEYFORMULA && k != SCHRODERFORMULA && k != HOUSEHOLDERFORMULA && k != SECANTFORMULA && k != STEFFENSENFORMULA) {
-                        fractal_functions[k].setEnabled(true);
-                    }
-
-                    if (k == SIERPINSKI_GASKET && !s.julia && !s.perturbation && !s.init_val) {
-                        fractal_functions[k].setEnabled(true);
-                    }
-                }
-
-                options_menu.getBurningShipOpt().setEnabled(true);
-                options_menu.getMandelGrassOpt().setEnabled(true);
-
-                if (s.out_coloring_algorithm == DISTANCE_ESTIMATOR || s.exterior_de) {
-                    for (int k = 1; k < fractal_functions.length; k++) {
-                        fractal_functions[k].setEnabled(false);
-                    }
-                } else if (s.out_coloring_algorithm == ESCAPE_TIME_FIELD_LINES2 || s.out_coloring_algorithm == ESCAPE_TIME_FIELD_LINES || s.out_coloring_algorithm == ESCAPE_TIME_ESCAPE_RADIUS || s.out_coloring_algorithm == ESCAPE_TIME_GRID || s.out_coloring_algorithm == BIOMORPH || s.out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER || s.out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER2 || s.out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER3 || s.out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER4 || s.out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER5 || s.out_coloring_algorithm == ITERATIONS_PLUS_RE || s.out_coloring_algorithm == ITERATIONS_PLUS_IM || s.out_coloring_algorithm == ITERATIONS_PLUS_RE_DIVIDE_IM || s.out_coloring_algorithm == ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM || s.out_coloring_algorithm == ESCAPE_TIME_ALGORITHM2 || s.out_coloring_algorithm == BANDED) {
-                    rootFindingMethodsSetEnabled(false);
-                } else {
-                    if (!s.julia && !s.perturbation && !s.init_val) {
-                        rootFindingMethodsSetEnabled(true);
-                    }
-                }
-
-                options_menu.getApplyPlaneOnWholeJuliaOpt().setSelected(s.apply_plane_on_julia);
-                options_menu.getApplyPlaneOnJuliaSeedOpt().setSelected(s.apply_plane_on_julia_seed);
-
-                out_coloring_modes[s.out_coloring_algorithm].setSelected(true);
-
-                in_coloring_modes[s.in_coloring_algorithm].setSelected(true);
-
-                options_menu.getBlendingModes()[s.color_blending].setSelected(true);
-                options_menu.getTranferFunctions()[s.transfer_function].setSelected(true);
-
-                bailout_tests[s.bailout_test_algorithm].setSelected(true);
-
-                if (s.polar_projection) {
-                    tools_menu.getGrid().setEnabled(false);
-                    tools_menu.getZoomWindow().setEnabled(false);
-
-                    grid = false;
-                    boundaries = false;
-
-                    tools_menu.getGrid().setSelected(false);
-                    tools_menu.getBoundaries().setSelected(false);
-
-                    options_menu.getPolarProjectionOptions().setEnabled(true);
-
-                } else {
-                    options_menu.getPolarProjectionOptions().setEnabled(false);
-                }
-
-                tools_menu.getPolarProjection().setSelected(s.polar_projection);
-                toolbar.getPolarProjectionButton().setSelected(s.polar_projection);
-
-                if (s.ds.domain_coloring) {
-                    tools_menu.getJuliaMap().setEnabled(false);
-                    toolbar.getJuliaMapButton().setEnabled(false);
-                    tools_menu.getJulia().setEnabled(false);
-                    toolbar.getJuliaButton().setEnabled(false);
-                    tools_menu.getColorCyling().setEnabled(false);
-                    toolbar.getColorCyclingButton().setEnabled(false);
-
-                    if (!s.ds.use_palette_domain_coloring) {
-                        toolbar.getCustomPaletteButton().setEnabled(false);
-                        toolbar.getRandomPaletteButton().setEnabled(false);
-
-                        options_menu.getRandomPalette().setEnabled(false);
-                        options_menu.getRollPaletteMenu().setEnabled(false);
-                        options_menu.getPaletteMenu().setEnabled(false);
-                        options_menu.getColorIntensity().setEnabled(false);
-                        options_menu.getColorTransferMenu().setEnabled(false);
-                        options_menu.getProcessing().setEnabled(false);                      
-                    } else {
-                        options_menu.getDistanceEstimation().setEnabled(false);
-                        options_menu.getBumpMap().setEnabled(false);
-
-                        options_menu.getFakeDistanceEstimation().setEnabled(false);
-
-                        options_menu.getEntropyColoring().setEnabled(false);
-                        options_menu.getOffsetColoring().setEnabled(false);
-                        options_menu.getGreyScaleColoring().setEnabled(false);
-
-                        options_menu.getRainbowPalette().setEnabled(false);
-                        options_menu.getOrbitTraps().setEnabled(false);
-                    }
-
-                    options_menu.getOutColoringMenu().setEnabled(false);
-                    options_menu.getInColoringMenu().setEnabled(false);
-                    options_menu.getFractalColor().setEnabled(false);
-
-                    options_menu.getGreedyAlgorithm().setEnabled(false);
-                    options_menu.getPeriodicityChecking().setEnabled(false);
-                    options_menu.getBailout().setEnabled(false);
-                    options_menu.getBailoutConditionMenu().setEnabled(false);
-
-                    infobar.getMaxIterationsColorPreview().setVisible(false);
-                    infobar.getMaxIterationsColorPreviewLabel().setVisible(false);
-
-                    options_menu.getDomainColoringOptions().setEnabled(true);
-                } else {
-                    infobar.getMaxIterationsColorPreview().setVisible(true);
-                    infobar.getMaxIterationsColorPreviewLabel().setVisible(true);
-
-                    options_menu.getDomainColoringOptions().setEnabled(false);
-                }
-
-                tools_menu.getDomainColoring().setSelected(s.ds.domain_coloring);
-                toolbar.getDomainColoringButton().setSelected(s.ds.domain_coloring);
-                
-                if(s.ots.useTraps) {
-                    tools_menu.getColorCyling().setEnabled(false);
-                    toolbar.getColorCyclingButton().setEnabled(false);
-                    options_menu.getPeriodicityChecking().setEnabled(false);
-                }
-                
-                filters_menu.setCheckedFilters(s.fs.filters);
-
-                fractal_functions[s.function].setSelected(true);
-
-                switch (s.function) {
-                    case NEWTON3:
-                    case NEWTON4:
-                    case NEWTONGENERALIZED3:
-                    case NEWTONGENERALIZED8:
-                    case NEWTONSIN:
-                    case NEWTONCOS:
-                    case HALLEY3:
-                    case HALLEY4:
-                    case HALLEYGENERALIZED3:
-                    case HALLEYGENERALIZED8:
-                    case HALLEYSIN:
-                    case HALLEYCOS:
-                    case SCHRODER3:
-                    case SCHRODER4:
-                    case SCHRODERGENERALIZED3:
-                    case SCHRODERGENERALIZED8:
-                    case SCHRODERSIN:
-                    case SCHRODERCOS:
-                    case HOUSEHOLDER3:
-                    case HOUSEHOLDER4:
-                    case HOUSEHOLDERGENERALIZED3:
-                    case HOUSEHOLDERGENERALIZED8:
-                    case HOUSEHOLDERSIN:
-                    case HOUSEHOLDERCOS:
-                    case SECANT3:
-                    case SECANT4:
-                    case SECANTGENERALIZED3:
-                    case SECANTGENERALIZED8:
-                    case SECANTCOS:
-                    case STEFFENSEN3:
-                    case STEFFENSEN4:
-                    case STEFFENSENGENERALIZED3:
-                    case MULLER3:
-                    case MULLER4:
-                    case MULLERGENERALIZED3:
-                    case MULLERGENERALIZED8:
-                    case MULLERSIN:
-                    case MULLERCOS:
-                    case PARHALLEY3:
-                    case PARHALLEY4:
-                    case PARHALLEYGENERALIZED3:
-                    case PARHALLEYGENERALIZED8:
-                    case PARHALLEYSIN:
-                    case PARHALLEYCOS:
-                    case LAGUERRE3:
-                    case LAGUERRE4:
-                    case LAGUERREGENERALIZED3:
-                    case LAGUERREGENERALIZED8:
-                    case LAGUERRESIN:
-                    case LAGUERRECOS:
-                    case NEWTONFORMULA:
-                    case HALLEYFORMULA:
-                    case SCHRODERFORMULA:
-                    case HOUSEHOLDERFORMULA:
-                    case SECANTFORMULA:
-                    case STEFFENSENFORMULA:
-                    case MULLERFORMULA:
-                    case PARHALLEYFORMULA:
-                    case LAGUERREFORMULA:
-                        optionsEnableShortcut2();
-                        break;
-                    case MANDELPOLY:
-                    case NEWTONPOLY:
-                    case HALLEYPOLY:
-                    case SCHRODERPOLY:
-                    case HOUSEHOLDERPOLY:
-                    case SECANTPOLY:
-                    case STEFFENSENPOLY:
-                    case MULLERPOLY:
-                    case PARHALLEYPOLY:
-                    case LAGUERREPOLY:
-                        if (s.function == MANDELPOLY) {
-                            optionsEnableShortcut();
-                        } else {
-                            optionsEnableShortcut2();
-                        }
-                        break;
-                    case NOVA:
-                        options_menu.getPeriodicityChecking().setEnabled(false);
-                        options_menu.getBailout().setEnabled(false);
-                        options_menu.getBailoutConditionMenu().setEnabled(false);
-                        optionsEnableShortcut();
-                        break;
-                    case SIERPINSKI_GASKET:
-                        optionsEnableShortcut();
-                        tools_menu.getJulia().setEnabled(false);
-                        toolbar.getJuliaButton().setEnabled(false);
-                        tools_menu.getJuliaMap().setEnabled(false);
-                        toolbar.getJuliaMapButton().setEnabled(false);
-                        options_menu.getPeriodicityChecking().setEnabled(false);
-                        options_menu.getPerturbation().setEnabled(false);
-                        options_menu.getInitialValue().setEnabled(false);
-                        break;
-                    case MANDELBROT:
-                        if (!s.ds.domain_coloring) {
-                            options_menu.getDistanceEstimation().setEnabled(true);
-                        }
-                        if (s.out_coloring_algorithm != DISTANCE_ESTIMATOR) {
-                            out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(true);
-                        }
-                        if (s.out_coloring_algorithm != BIOMORPH) {
-                            out_coloring_modes[BIOMORPH].setEnabled(true);
-                        }
-                        if (s.out_coloring_algorithm != BANDED) {
-                            out_coloring_modes[BANDED].setEnabled(true);
-                        }
-                        if (s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
-                            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
-                        }
-                        if (s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
-                            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
-                        }
-                        if (s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
-                            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
-                        }
-                        if (s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
-                            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
-                        }
-                        if (s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
-                            out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
-                        }
-                        if (s.out_coloring_algorithm != ITERATIONS_PLUS_RE) {
-                            out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
-                        }
-                        if (s.out_coloring_algorithm != ITERATIONS_PLUS_IM) {
-                            out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
-                        }
-                        if (s.out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
-                            out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                        }
-                        if (s.out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
-                            out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
-                        }
-                        if (s.out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
-                            out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
-                        }
-                        if (s.out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
-                            out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
-                        }
-                        if (s.out_coloring_algorithm != ESCAPE_TIME_GRID) {
-                            out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
-                        }
-                        if (s.out_coloring_algorithm != ESCAPE_TIME_FIELD_LINES) {
-                            out_coloring_modes[ESCAPE_TIME_FIELD_LINES].setEnabled(true);
-                        }
-                        if (s.out_coloring_algorithm != ESCAPE_TIME_FIELD_LINES2) {
-                            out_coloring_modes[ESCAPE_TIME_FIELD_LINES2].setEnabled(true);
-                        }
-
-                        break;
-                    case USER_FORMULA:
-                    case USER_FORMULA_ITERATION_BASED:
-                    case USER_FORMULA_CONDITIONAL:
-                    case USER_FORMULA_COUPLED:
-
-                        if (!s.user_formula_c) {
-                            tools_menu.getJulia().setEnabled(false);
-                            toolbar.getJuliaButton().setEnabled(false);
-                            tools_menu.getJuliaMap().setEnabled(false);
-                            toolbar.getJuliaMapButton().setEnabled(false);
-                            options_menu.getPerturbation().setEnabled(false);
-                            options_menu.getInitialValue().setEnabled(false);
-                        }
-
-                        if (s.bail_technique == 1) {
-                            options_menu.getBailout().setEnabled(false);
-                            options_menu.getBailoutConditionMenu().setEnabled(false);
-                            options_menu.getPeriodicityChecking().setEnabled(false);
-                        }
-
-                        optionsEnableShortcut();
-                        break;
-                    default:
-                        optionsEnableShortcut();
-                        break;
-                }
-
-                options_menu.getPalette()[s.color_choice].setSelected(true);
-                updateColorPalettesMenu();
-                updateMaxIterColorPreview();
-                updateGradientPreview();
-
-                options_menu.getBurningShipOpt().setSelected(s.burning_ship);
-                options_menu.getMandelGrassOpt().setSelected(s.mandel_grass);
-
-                planes[s.plane_type].setSelected(true);
+                prepareUI();
 
                 setOptions(false);
 
@@ -2304,7 +2389,7 @@ public class MainWindow extends JFrame implements Constants {
 
             JTextField field_real = new JTextField();
 
-            Point2D.Double p = MathUtils.rotatePointRelativeToPoint(s.xCenter, s.yCenter, s.rotation_vals, s.rotation_center);
+            Point2D.Double p = MathUtils.rotatePointRelativeToPoint(s.xCenter, s.yCenter, s.fns.rotation_vals, s.fns.rotation_center);
 
             if (p.x == 0) {
                 field_real.setText("" + 0.0);
@@ -2340,8 +2425,8 @@ public class MainWindow extends JFrame implements Constants {
 
             if (res == JOptionPane.OK_OPTION) {
                 try {
-                    tempReal = Double.parseDouble(field_real.getText()) - s.rotation_center[0];
-                    tempImaginary = Double.parseDouble(field_imaginary.getText()) - s.rotation_center[1];
+                    tempReal = Double.parseDouble(field_real.getText()) - s.fns.rotation_center[0];
+                    tempImaginary = Double.parseDouble(field_imaginary.getText()) - s.fns.rotation_center[1];
                     tempSize = Double.parseDouble(field_size.getText());
                 } catch (Exception ex) {
                     JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
@@ -2361,8 +2446,8 @@ public class MainWindow extends JFrame implements Constants {
 
             s.size = tempSize;
             /* Inverse rotation */
-            s.xCenter = tempReal * s.rotation_vals[0] + tempImaginary * s.rotation_vals[1] + s.rotation_center[0];
-            s.yCenter = -tempReal * s.rotation_vals[1] + tempImaginary * s.rotation_vals[0] + s.rotation_center[1];
+            s.xCenter = tempReal * s.fns.rotation_vals[0] + tempImaginary * s.fns.rotation_vals[1] + s.fns.rotation_center[0];
+            s.yCenter = -tempReal * s.fns.rotation_vals[1] + tempImaginary * s.fns.rotation_vals[0] + s.fns.rotation_center[1];
 
             if (s.size < 0.05) {
                 tools_menu.getBoundaries().setEnabled(false);
@@ -2442,7 +2527,7 @@ public class MainWindow extends JFrame implements Constants {
                         field_imaginary.setEditable(true);
                     } else {
 
-                        Point2D.Double p = MathUtils.rotatePointRelativeToPoint(s.xCenter, s.yCenter, s.rotation_vals, s.rotation_center);
+                        Point2D.Double p = MathUtils.rotatePointRelativeToPoint(s.xCenter, s.yCenter, s.fns.rotation_vals, s.fns.rotation_center);
 
                         field_real.setText("" + p.x);
                         field_real.setEditable(false);
@@ -2495,12 +2580,12 @@ public class MainWindow extends JFrame implements Constants {
             orbit_vals[0] = tempReal;
             orbit_vals[1] = tempImaginary;
 
-            tempReal -= s.rotation_center[0];
-            tempImaginary -= s.rotation_center[1];
+            tempReal -= s.fns.rotation_center[0];
+            tempImaginary -= s.fns.rotation_center[1];
 
             /* Inversed Rotation */
-            double x_real = tempReal * s.rotation_vals[0] + tempImaginary * s.rotation_vals[1] + s.rotation_center[0];
-            double y_imag = -tempReal * s.rotation_vals[1] + tempImaginary * s.rotation_vals[0] + s.rotation_center[1];
+            double x_real = tempReal * s.fns.rotation_vals[0] + tempImaginary * s.fns.rotation_vals[1] + s.fns.rotation_center[0];
+            double y_imag = -tempReal * s.fns.rotation_vals[1] + tempImaginary * s.fns.rotation_vals[0] + s.fns.rotation_center[1];
 
             if (pixels_orbit != null) {
                 try {
@@ -2533,7 +2618,7 @@ public class MainWindow extends JFrame implements Constants {
             if (first_seed) {
                 JTextField field_real = new JTextField();
 
-                Point2D.Double p = MathUtils.rotatePointRelativeToPoint(s.xCenter, s.yCenter, s.rotation_vals, s.rotation_center);
+                Point2D.Double p = MathUtils.rotatePointRelativeToPoint(s.xCenter, s.yCenter, s.fns.rotation_vals, s.fns.rotation_center);
 
                 if (p.x == 0) {
                     field_real.setText("" + 0.0);
@@ -2579,7 +2664,7 @@ public class MainWindow extends JFrame implements Constants {
             } else {
                 JTextField field_real = new JTextField();
 
-                Point2D.Double p = MathUtils.rotatePointRelativeToPoint(s.xCenter, s.yCenter, s.rotation_vals, s.rotation_center);
+                Point2D.Double p = MathUtils.rotatePointRelativeToPoint(s.xCenter, s.yCenter, s.fns.rotation_vals, s.fns.rotation_center);
 
                 if (p.x == 0) {
                     field_real.setText("" + 0.0);
@@ -2636,8 +2721,8 @@ public class MainWindow extends JFrame implements Constants {
 
                 if (res == JOptionPane.OK_OPTION) {
                     try {
-                        tempReal = Double.parseDouble(field_real.getText()) - s.rotation_center[0];
-                        tempImaginary = Double.parseDouble(field_imaginary.getText()) - s.rotation_center[1];
+                        tempReal = Double.parseDouble(field_real.getText()) - s.fns.rotation_center[0];
+                        tempImaginary = Double.parseDouble(field_imaginary.getText()) - s.fns.rotation_center[1];
                         tempSize = Double.parseDouble(field_size.getText());
                     } catch (Exception ex) {
                         JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
@@ -2657,8 +2742,8 @@ public class MainWindow extends JFrame implements Constants {
 
                 s.size = tempSize;
                 /* Inverse rotation */
-                s.xCenter = tempReal * s.rotation_vals[0] + tempImaginary * s.rotation_vals[1] + s.rotation_center[0];
-                s.yCenter = -tempReal * s.rotation_vals[1] + tempImaginary * s.rotation_vals[0] + s.rotation_center[1];
+                s.xCenter = tempReal * s.fns.rotation_vals[0] + tempImaginary * s.fns.rotation_vals[1] + s.fns.rotation_center[0];
+                s.yCenter = -tempReal * s.fns.rotation_vals[1] + tempImaginary * s.fns.rotation_vals[0] + s.fns.rotation_center[1];
 
                 if (s.size < 0.05) {
                     tools_menu.getBoundaries().setEnabled(false);
@@ -2731,7 +2816,7 @@ public class MainWindow extends JFrame implements Constants {
                         field_imaginary.setEditable(true);
                     } else {
 
-                        Point2D.Double p = MathUtils.rotatePointRelativeToPoint(s.xCenter, s.yCenter, s.rotation_vals, s.rotation_center);
+                        Point2D.Double p = MathUtils.rotatePointRelativeToPoint(s.xCenter, s.yCenter, s.fns.rotation_vals, s.fns.rotation_center);
 
                         field_real.setText("" + p.x);
                         field_real.setEditable(false);
@@ -2784,11 +2869,11 @@ public class MainWindow extends JFrame implements Constants {
             orbit_vals[0] = tempReal;
             orbit_vals[1] = tempImaginary;
 
-            tempReal -= s.rotation_center[0];
-            tempImaginary -= s.rotation_center[1];
+            tempReal -= s.fns.rotation_center[0];
+            tempImaginary -= s.fns.rotation_center[1];
 
-            double x_real = tempReal * s.rotation_vals[0] + tempImaginary * s.rotation_vals[1] + s.rotation_center[0];
-            double y_imag = -tempReal * s.rotation_vals[1] + tempImaginary * s.rotation_vals[0] + s.rotation_center[1];
+            double x_real = tempReal * s.fns.rotation_vals[0] + tempImaginary * s.fns.rotation_vals[1] + s.fns.rotation_center[0];
+            double y_imag = -tempReal * s.fns.rotation_vals[1] + tempImaginary * s.fns.rotation_vals[0] + s.fns.rotation_center[1];
 
             if (pixels_orbit != null) {
                 try {
@@ -2842,13 +2927,11 @@ public class MainWindow extends JFrame implements Constants {
                         } else {
                             s.fractal_color = new Color(s.fractal_color.getRed(), s.fractal_color.getGreen(), s.fractal_color.getBlue() + 1);
                         }
+                    } else if (s.fractal_color.getBlue() == 0) {
+                        s.fractal_color = new Color(s.fractal_color.getRed(), s.fractal_color.getGreen(), s.fractal_color.getBlue() + 1);
+                        fractal_color_up = true;
                     } else {
-                        if (s.fractal_color.getBlue() == 0) {
-                            s.fractal_color = new Color(s.fractal_color.getRed(), s.fractal_color.getGreen(), s.fractal_color.getBlue() + 1);
-                            fractal_color_up = true;
-                        } else {
-                            s.fractal_color = new Color(s.fractal_color.getRed(), s.fractal_color.getGreen(), s.fractal_color.getBlue() - 1);
-                        }
+                        s.fractal_color = new Color(s.fractal_color.getRed(), s.fractal_color.getGreen(), s.fractal_color.getBlue() - 1);
                     }
                     flag = true;
                 }
@@ -2861,13 +2944,11 @@ public class MainWindow extends JFrame implements Constants {
                         } else {
                             s.dem_color = new Color(s.dem_color.getRed() + 1, s.dem_color.getGreen(), s.dem_color.getBlue());
                         }
+                    } else if (s.dem_color.getRed() == 0) {
+                        s.dem_color = new Color(s.dem_color.getRed() + 1, s.dem_color.getGreen(), s.dem_color.getBlue());
+                        dem_color_up = true;
                     } else {
-                        if (s.dem_color.getRed() == 0) {
-                            s.dem_color = new Color(s.dem_color.getRed() + 1, s.dem_color.getGreen(), s.dem_color.getBlue());
-                            dem_color_up = true;
-                        } else {
-                            s.dem_color = new Color(s.dem_color.getRed() - 1, s.dem_color.getGreen(), s.dem_color.getBlue());
-                        }
+                        s.dem_color = new Color(s.dem_color.getRed() - 1, s.dem_color.getGreen(), s.dem_color.getBlue());
                     }
 
                     flag = true;
@@ -2881,13 +2962,11 @@ public class MainWindow extends JFrame implements Constants {
                         } else {
                             s.special_color = new Color(s.special_color.getRed(), s.special_color.getGreen() + 1, s.special_color.getBlue());
                         }
+                    } else if (s.special_color.getGreen() == 0) {
+                        s.special_color = new Color(s.special_color.getRed(), s.special_color.getGreen() + 1, s.special_color.getBlue());
+                        special_color_up = true;
                     } else {
-                        if (s.special_color.getGreen() == 0) {
-                            s.special_color = new Color(s.special_color.getRed(), s.special_color.getGreen() + 1, s.special_color.getBlue());
-                            special_color_up = true;
-                        } else {
-                            s.special_color = new Color(s.special_color.getRed(), s.special_color.getGreen() - 1, s.special_color.getBlue());
-                        }
+                        s.special_color = new Color(s.special_color.getRed(), s.special_color.getGreen() - 1, s.special_color.getBlue());
                     }
                     flag = true;
                 }
@@ -2905,13 +2984,11 @@ public class MainWindow extends JFrame implements Constants {
                     } else {
                         s.dem_color = new Color(s.dem_color.getRed() + 1, s.dem_color.getGreen(), s.dem_color.getBlue());
                     }
+                } else if (s.dem_color.getRed() == 0) {
+                    s.dem_color = new Color(s.dem_color.getRed() + 1, s.dem_color.getGreen(), s.dem_color.getBlue());
+                    dem_color_up = true;
                 } else {
-                    if (s.dem_color.getRed() == 0) {
-                        s.dem_color = new Color(s.dem_color.getRed() + 1, s.dem_color.getGreen(), s.dem_color.getBlue());
-                        dem_color_up = true;
-                    } else {
-                        s.dem_color = new Color(s.dem_color.getRed() - 1, s.dem_color.getGreen(), s.dem_color.getBlue());
-                    }
+                    s.dem_color = new Color(s.dem_color.getRed() - 1, s.dem_color.getGreen(), s.dem_color.getBlue());
                 }
                 flag = true;
             }
@@ -2924,13 +3001,11 @@ public class MainWindow extends JFrame implements Constants {
                     } else {
                         s.special_color = new Color(s.special_color.getRed(), s.special_color.getGreen() + 1, s.special_color.getBlue());
                     }
+                } else if (s.special_color.getGreen() == 0) {
+                    s.special_color = new Color(s.special_color.getRed(), s.special_color.getGreen() + 1, s.special_color.getBlue());
+                    special_color_up = true;
                 } else {
-                    if (s.special_color.getGreen() == 0) {
-                        s.special_color = new Color(s.special_color.getRed(), s.special_color.getGreen() + 1, s.special_color.getBlue());
-                        special_color_up = true;
-                    } else {
-                        s.special_color = new Color(s.special_color.getRed(), s.special_color.getGreen() - 1, s.special_color.getBlue());
-                    }
+                    s.special_color = new Color(s.special_color.getRed(), s.special_color.getGreen() - 1, s.special_color.getBlue());
                 }
                 flag = true;
             }
@@ -2943,13 +3018,11 @@ public class MainWindow extends JFrame implements Constants {
                     } else {
                         s.special_color = new Color(s.special_color.getRed(), s.special_color.getGreen() + 1, s.special_color.getBlue());
                     }
+                } else if (s.special_color.getGreen() == 0) {
+                    s.special_color = new Color(s.special_color.getRed(), s.special_color.getGreen() + 1, s.special_color.getBlue());
+                    special_color_up = true;
                 } else {
-                    if (s.special_color.getGreen() == 0) {
-                        s.special_color = new Color(s.special_color.getRed(), s.special_color.getGreen() + 1, s.special_color.getBlue());
-                        special_color_up = true;
-                    } else {
-                        s.special_color = new Color(s.special_color.getRed(), s.special_color.getGreen() - 1, s.special_color.getBlue());
-                    }
+                    s.special_color = new Color(s.special_color.getRed(), s.special_color.getGreen() - 1, s.special_color.getBlue());
                 }
                 flag = true;
             }
@@ -2980,9 +3053,9 @@ public class MainWindow extends JFrame implements Constants {
         ColorAlgorithm.GlobalIncrementBypass = special_bypass;
 
         if (s.color_choice == CUSTOM_PALETTE_ID) {
-            ThreadDraw.palette = new CustomPalette(s.custom_palette, s.color_interpolation, s.color_space, s.reversed_palette, s.scale_factor_palette_val, s.processing_alg, s.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color);
+            ThreadDraw.palette = new CustomPalette(s.custom_palette, s.color_interpolation, s.color_space, s.reversed_palette, s.scale_factor_palette_val, s.processing_alg, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color);
         } else {
-            ThreadDraw.palette = new PresetPalette(s.color_choice, s.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color);
+            ThreadDraw.palette = new PresetPalette(s.color_choice, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color);
         }
 
         updateColors();
@@ -3040,12 +3113,10 @@ public class MainWindow extends JFrame implements Constants {
                 main_panel.repaint();
                 JOptionPane.showMessageDialog(scroll_pane, "Maximum iterations number must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
                 return;
-            } else {
-                if (temp > 80000) {
-                    main_panel.repaint();
-                    JOptionPane.showMessageDialog(scroll_pane, "Maximum iterations number must be less than 80001.", "Error!", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
+            } else if (temp > 80000) {
+                main_panel.repaint();
+                JOptionPane.showMessageDialog(scroll_pane, "Maximum iterations number must be less than 80001.", "Error!", JOptionPane.ERROR_MESSAGE);
+                return;
             }
 
             s.max_iterations = temp;
@@ -3152,12 +3223,10 @@ public class MainWindow extends JFrame implements Constants {
                 main_panel.repaint();
                 JOptionPane.showMessageDialog(scroll_pane, "Zooming factor must be greater than 1.05.", "Error!", JOptionPane.ERROR_MESSAGE);
                 return;
-            } else {
-                if (temp > 32) {
-                    main_panel.repaint();
-                    JOptionPane.showMessageDialog(scroll_pane, "Zooming factor must be less than 33.", "Error!", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
+            } else if (temp > 32) {
+                main_panel.repaint();
+                JOptionPane.showMessageDialog(scroll_pane, "Zooming factor must be less than 33.", "Error!", JOptionPane.ERROR_MESSAGE);
+                return;
             }
 
             zoom_factor = temp;
@@ -3185,12 +3254,10 @@ public class MainWindow extends JFrame implements Constants {
                 main_panel.repaint();
                 JOptionPane.showMessageDialog(scroll_pane, "The first dimension number of the 2D threads\ngrid must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
                 return;
-            } else {
-                if (temp > 100) {
-                    main_panel.repaint();
-                    JOptionPane.showMessageDialog(scroll_pane, "The first dimension number of the 2D threads\ngrid must be lower than 101.", "Error!", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
+            } else if (temp > 100) {
+                main_panel.repaint();
+                JOptionPane.showMessageDialog(scroll_pane, "The first dimension number of the 2D threads\ngrid must be lower than 101.", "Error!", JOptionPane.ERROR_MESSAGE);
+                return;
             }
 
             n = temp;
@@ -3218,9 +3285,9 @@ public class MainWindow extends JFrame implements Constants {
         options_menu.getPalette()[s.color_choice].setSelected(true);
 
         if (s.color_choice == CUSTOM_PALETTE_ID) {
-            ThreadDraw.palette = new CustomPalette(s.custom_palette, s.color_interpolation, s.color_space, s.reversed_palette, s.scale_factor_palette_val, s.processing_alg, s.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color);
+            ThreadDraw.palette = new CustomPalette(s.custom_palette, s.color_interpolation, s.color_space, s.reversed_palette, s.scale_factor_palette_val, s.processing_alg, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color);
         } else {
-            ThreadDraw.palette = new PresetPalette(s.color_choice, s.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color);
+            ThreadDraw.palette = new PresetPalette(s.color_choice, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color);
         }
 
         updateColors();
@@ -3282,7 +3349,7 @@ public class MainWindow extends JFrame implements Constants {
                 resetImage();
 
                 whole_image_done = false;
-                
+
                 if (s.d3s.d3) {
                     Arrays.fill(((DataBufferInt) image.getRaster().getDataBuffer()).getData(), Color.BLACK.getRGB());
                 }
@@ -3399,7 +3466,7 @@ public class MainWindow extends JFrame implements Constants {
         if (!tools_menu.getGrid().isSelected()) {
             grid = false;
             old_grid = grid;
-            if (!zoom_window && !julia_map && !orbit && !boundaries) {
+            if (!zoom_window && !julia_map && !orbit && !boundaries && !ThreadDraw.USE_DIRECT_COLOR) {
                 tools_menu.get3D().setEnabled(true);
                 toolbar.get3DButton().setEnabled(true);
             }
@@ -3428,7 +3495,7 @@ public class MainWindow extends JFrame implements Constants {
         if (!tools_menu.getBoundaries().isSelected()) {
             boundaries = false;
             old_boundaries = boundaries;
-            if (!zoom_window && !julia_map && !orbit && !grid) {
+            if (!zoom_window && !julia_map && !orbit && !grid && !ThreadDraw.USE_DIRECT_COLOR) {
                 tools_menu.get3D().setEnabled(true);
                 toolbar.get3DButton().setEnabled(true);
             }
@@ -3448,16 +3515,16 @@ public class MainWindow extends JFrame implements Constants {
         resetOrbit();
         if (!tools_menu.getZoomWindow().isSelected()) {
             zoom_window = false;
-            if (!s.ds.domain_coloring && s.functionSupportsC() && !s.init_val && !s.perturbation) {
+            if (!s.ds.domain_coloring && s.functionSupportsC() && !s.fns.init_val && !s.fns.perturbation) {
                 tools_menu.getJulia().setEnabled(true);
                 toolbar.getJuliaButton().setEnabled(true);
-                if (!s.julia) {
+                if (!s.fns.julia) {
                     tools_menu.getJuliaMap().setEnabled(true);
                     toolbar.getJuliaMapButton().setEnabled(true);
                 }
             }
 
-            if (!grid && !boundaries) {
+            if (!grid && !boundaries && !ThreadDraw.USE_DIRECT_COLOR) {
                 tools_menu.get3D().setEnabled(true);
                 toolbar.get3DButton().setEnabled(true);
             }
@@ -3467,8 +3534,8 @@ public class MainWindow extends JFrame implements Constants {
                 toolbar.getPolarProjectionButton().setEnabled(true);
             }
 
-            if (!s.ds.domain_coloring) {
-                tools_menu.getColorCyling().setEnabled(true);
+            if (!s.ds.domain_coloring && !ThreadDraw.USE_DIRECT_COLOR) {
+                tools_menu.getColorCycling().setEnabled(true);
                 toolbar.getColorCyclingButton().setEnabled(true);
             }
             main_panel.repaint();
@@ -3482,7 +3549,7 @@ public class MainWindow extends JFrame implements Constants {
             toolbar.getJuliaMapButton().setEnabled(false);
             tools_menu.getOrbit().setEnabled(false);
             toolbar.getOrbitButton().setEnabled(false);
-            tools_menu.getColorCyling().setEnabled(false);
+            tools_menu.getColorCycling().setEnabled(false);
             toolbar.getColorCyclingButton().setEnabled(false);
             tools_menu.getPolarProjection().setEnabled(false);
             toolbar.getPolarProjectionButton().setEnabled(false);
@@ -3732,10 +3799,10 @@ public class MainWindow extends JFrame implements Constants {
         double temp_x = s.xCenter - size_2_x + temp_size_image_size_x * curX;
         double temp_y = s.yCenter + size_2_y - temp_size_image_size_y * curY;
 
-        Point2D.Double p = MathUtils.rotatePointRelativeToPoint(temp_x, temp_y, s.rotation_vals, s.rotation_center);
+        Point2D.Double p = MathUtils.rotatePointRelativeToPoint(temp_x, temp_y, s.fns.rotation_vals, s.fns.rotation_center);
 
-        s.plane_transform_center[0] = p.x;
-        s.plane_transform_center[1] = p.y;
+        s.fns.plane_transform_center[0] = p.x;
+        s.fns.plane_transform_center[1] = p.y;
 
         setOptions(false);
 
@@ -3786,28 +3853,28 @@ public class MainWindow extends JFrame implements Constants {
         } else if (Math.abs(new_angle - old_angle) > 350 && new_angle < old_angle) {
             new_angle += 360;
         }
-        s.rotation += new_angle - old_angle;
+        s.fns.rotation += new_angle - old_angle;
 
-        if (s.rotation > 360) {
-            s.rotation -= 2 * 360;
-        } else if (s.rotation < -360) {
-            s.rotation += 2 * 360;
+        if (s.fns.rotation > 360) {
+            s.fns.rotation -= 2 * 360;
+        } else if (s.fns.rotation < -360) {
+            s.fns.rotation += 2 * 360;
         }
 
         oldDragX = curX;
         oldDragY = curY;
 
-        Point2D.Double p = MathUtils.rotatePointRelativeToPoint(s.xCenter, s.yCenter, s.rotation_vals, s.rotation_center);
+        Point2D.Double p = MathUtils.rotatePointRelativeToPoint(s.xCenter, s.yCenter, s.fns.rotation_vals, s.fns.rotation_center);
 
-        s.rotation_vals[0] = Math.cos(Math.toRadians(s.rotation));
-        s.rotation_vals[1] = Math.sin(Math.toRadians(s.rotation));
+        s.fns.rotation_vals[0] = Math.cos(Math.toRadians(s.fns.rotation));
+        s.fns.rotation_vals[1] = Math.sin(Math.toRadians(s.fns.rotation));
 
-        s.rotation_center[0] = p.x;
-        s.rotation_center[1] = p.y;
-        s.xCenter = s.rotation_center[0];
-        s.yCenter = s.rotation_center[1];
+        s.fns.rotation_center[0] = p.x;
+        s.fns.rotation_center[1] = p.y;
+        s.xCenter = s.fns.rotation_center[0];
+        s.yCenter = s.fns.rotation_center[1];
 
-        if (s.rotation != 0 && s.rotation != 360 && s.rotation != -360) {
+        if (s.fns.rotation != 0 && s.fns.rotation != 360 && s.fns.rotation != -360) {
             tools_menu.getGrid().setEnabled(false);
             grid = false;
             tools_menu.getGrid().setSelected(false);
@@ -3939,7 +4006,7 @@ public class MainWindow extends JFrame implements Constants {
 
                     r = Math.exp(x1 * mulx + start);
 
-                    Point2D.Double p = MathUtils.rotatePointRelativeToPoint(s.xCenter + r * cf, s.yCenter + r * sf, s.rotation_vals, s.rotation_center);
+                    Point2D.Double p = MathUtils.rotatePointRelativeToPoint(s.xCenter + r * cf, s.yCenter + r * sf, s.fns.rotation_vals, s.fns.rotation_center);
 
                     s.xJuliaCenter = p.x;
                     s.yJuliaCenter = p.y;
@@ -3949,7 +4016,7 @@ public class MainWindow extends JFrame implements Constants {
                     double temp_size_image_size_x = s.size / image_size;
                     double temp_size_image_size_y = (s.size * s.height_ratio) / image_size;
 
-                    Point2D.Double p = MathUtils.rotatePointRelativeToPoint(s.xCenter - size_2_x + temp_size_image_size_x * x1, s.yCenter + size_2_y - temp_size_image_size_y * y1, s.rotation_vals, s.rotation_center);
+                    Point2D.Double p = MathUtils.rotatePointRelativeToPoint(s.xCenter - size_2_x + temp_size_image_size_x * x1, s.yCenter + size_2_y - temp_size_image_size_y * y1, s.fns.rotation_vals, s.fns.rotation_center);
 
                     s.xJuliaCenter = p.x;
                     s.yJuliaCenter = p.y;
@@ -4077,13 +4144,14 @@ public class MainWindow extends JFrame implements Constants {
 
         resetOrbit();
         if (!tools_menu.getJulia().isSelected()) {
-            s.julia = false;
+            s.fns.julia = false;
             toolbar.getJuliaButton().setSelected(false);
-            if (s.out_coloring_algorithm != ESCAPE_TIME_FIELD_LINES2 && s.out_coloring_algorithm != ESCAPE_TIME_FIELD_LINES && s.out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS && s.out_coloring_algorithm != ESCAPE_TIME_GRID && s.out_coloring_algorithm != BIOMORPH && s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER && s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3 && s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5 && s.out_coloring_algorithm != ITERATIONS_PLUS_RE && s.out_coloring_algorithm != ITERATIONS_PLUS_IM && s.out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && s.out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM && s.out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && s.out_coloring_algorithm != DISTANCE_ESTIMATOR && !s.exterior_de && s.out_coloring_algorithm != BANDED) {
+            if (s.fns.out_coloring_algorithm != ESCAPE_TIME_FIELD_LINES2 && s.fns.out_coloring_algorithm != ESCAPE_TIME_FIELD_LINES && s.fns.out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS && s.fns.out_coloring_algorithm != ESCAPE_TIME_GRID && s.fns.out_coloring_algorithm != BIOMORPH && s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER && s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3 && s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5 && s.fns.out_coloring_algorithm != ITERATIONS_PLUS_RE && s.fns.out_coloring_algorithm != ITERATIONS_PLUS_IM && s.fns.out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && s.fns.out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM && s.fns.out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && s.fns.out_coloring_algorithm != DISTANCE_ESTIMATOR && !s.exterior_de && s.fns.out_coloring_algorithm != BANDED) {
                 rootFindingMethodsSetEnabled(true);
             }
-            if (s.out_coloring_algorithm != DISTANCE_ESTIMATOR && !s.exterior_de) {
+            if (s.fns.out_coloring_algorithm != DISTANCE_ESTIMATOR && !s.exterior_de) {
                 fractal_functions[SIERPINSKI_GASKET].setEnabled(true);
+                fractal_functions[KLEINIAN].setEnabled(true);
             }
             if (!first_seed) {
                 defaultFractalSettings();
@@ -4093,7 +4161,7 @@ public class MainWindow extends JFrame implements Constants {
                 main_panel.repaint();
             }
         } else {
-            s.julia = true;
+            s.fns.julia = true;
             toolbar.getJuliaButton().setSelected(true);
             first_seed = true;
             tools_menu.getOrbit().setEnabled(false);
@@ -4104,6 +4172,7 @@ public class MainWindow extends JFrame implements Constants {
             options_menu.getInitialValue().setEnabled(false);
             rootFindingMethodsSetEnabled(false);
             fractal_functions[SIERPINSKI_GASKET].setEnabled(false);
+            fractal_functions[KLEINIAN].setEnabled(false);
             setOptions(false);
         }
 
@@ -4116,16 +4185,16 @@ public class MainWindow extends JFrame implements Constants {
             orbit = false;
 
             toolbar.getOrbitButton().setSelected(false);
-            if (!s.ds.domain_coloring && s.functionSupportsC() && !s.init_val && !s.perturbation) {
+            if (!s.ds.domain_coloring && s.functionSupportsC() && !s.fns.init_val && !s.fns.perturbation) {
                 tools_menu.getJulia().setEnabled(true);
                 toolbar.getJuliaButton().setEnabled(true);
-                if (!s.julia) {
+                if (!s.fns.julia) {
                     tools_menu.getJuliaMap().setEnabled(true);
                     toolbar.getJuliaMapButton().setEnabled(true);
                 }
             }
 
-            if (!grid && !boundaries) {
+            if (!grid && !boundaries && !ThreadDraw.USE_DIRECT_COLOR) {
                 tools_menu.get3D().setEnabled(true);
                 toolbar.get3DButton().setEnabled(true);
             }
@@ -4134,8 +4203,8 @@ public class MainWindow extends JFrame implements Constants {
                 tools_menu.getZoomWindow().setEnabled(true);
             }
 
-            if (!s.ds.domain_coloring) {
-                tools_menu.getColorCyling().setEnabled(true);
+            if (!s.ds.domain_coloring && !ThreadDraw.USE_DIRECT_COLOR) {
+                tools_menu.getColorCycling().setEnabled(true);
                 toolbar.getColorCyclingButton().setEnabled(true);
             }
         } else {
@@ -4147,7 +4216,7 @@ public class MainWindow extends JFrame implements Constants {
             toolbar.getJuliaMapButton().setEnabled(false);
             tools_menu.get3D().setEnabled(false);
             toolbar.get3DButton().setEnabled(false);
-            tools_menu.getColorCyling().setEnabled(false);
+            tools_menu.getColorCycling().setEnabled(false);
             toolbar.getColorCyclingButton().setEnabled(false);
             tools_menu.getZoomWindow().setEnabled(false);
         }
@@ -4245,7 +4314,7 @@ public class MainWindow extends JFrame implements Constants {
 
                 r = Math.exp(x1 * mulx + start);
 
-                Point2D.Double p = MathUtils.rotatePointRelativeToPoint(s.xCenter + r * cf, s.yCenter + r * sf, s.rotation_vals, s.rotation_center);
+                Point2D.Double p = MathUtils.rotatePointRelativeToPoint(s.xCenter + r * cf, s.yCenter + r * sf, s.fns.rotation_vals, s.fns.rotation_center);
 
                 statusbar.getReal().setText("" + p.x);
 
@@ -4261,7 +4330,7 @@ public class MainWindow extends JFrame implements Constants {
                 double temp_size_image_size_x = s.size / image_size;
                 double temp_size_image_size_y = (s.size * s.height_ratio) / image_size;
 
-                Point2D.Double p = MathUtils.rotatePointRelativeToPoint(temp_xcenter_size + temp_size_image_size_x * x1, temp_ycenter_size - temp_size_image_size_y * y1, s.rotation_vals, s.rotation_center);
+                Point2D.Double p = MathUtils.rotatePointRelativeToPoint(temp_xcenter_size + temp_size_image_size_x * x1, temp_ycenter_size - temp_size_image_size_y * y1, s.fns.rotation_vals, s.fns.rotation_center);
 
                 statusbar.getReal().setText("" + p.x);
 
@@ -4397,27 +4466,27 @@ public class MainWindow extends JFrame implements Constants {
         resetOrbit();
         if (where == UP) {
             if (s.polar_projection) {
-                s.rotation -= s.circle_period * 360;
+                s.fns.rotation -= s.circle_period * 360;
 
-                if (s.rotation < -360) {
-                    s.rotation = ((int) (-s.rotation / 360) + 1) * 360 + s.rotation;
+                if (s.fns.rotation < -360) {
+                    s.fns.rotation = ((int) (-s.fns.rotation / 360) + 1) * 360 + s.fns.rotation;
                 }
 
-                s.rotation_vals[0] = Math.cos(Math.toRadians(s.rotation));
-                s.rotation_vals[1] = Math.sin(Math.toRadians(s.rotation));
+                s.fns.rotation_vals[0] = Math.cos(Math.toRadians(s.fns.rotation));
+                s.fns.rotation_vals[1] = Math.sin(Math.toRadians(s.fns.rotation));
             } else {
                 s.yCenter += (s.size * s.height_ratio);
             }
         } else if (where == DOWN) {
             if (s.polar_projection) {
-                s.rotation += s.circle_period * 360;
+                s.fns.rotation += s.circle_period * 360;
 
-                if (s.rotation > 360) {
-                    s.rotation = ((int) (-s.rotation / 360) - 1) * 360 + s.rotation;
+                if (s.fns.rotation > 360) {
+                    s.fns.rotation = ((int) (-s.fns.rotation / 360) - 1) * 360 + s.fns.rotation;
                 }
 
-                s.rotation_vals[0] = Math.cos(Math.toRadians(s.rotation));
-                s.rotation_vals[1] = Math.sin(Math.toRadians(s.rotation));
+                s.fns.rotation_vals[0] = Math.cos(Math.toRadians(s.fns.rotation));
+                s.fns.rotation_vals[1] = Math.sin(Math.toRadians(s.fns.rotation));
             } else {
                 s.yCenter -= (s.size * s.height_ratio);
             }
@@ -4437,21 +4506,19 @@ public class MainWindow extends JFrame implements Constants {
             } else {
                 s.xCenter -= s.size;
             }
+        } else if (s.polar_projection) {
+            double start = Math.log(s.size);
+            double end;
+
+            double muly = (2 * s.circle_period * Math.PI) / image_size;
+
+            double mulx = muly * s.height_ratio;
+
+            end = mulx * image_size + start;
+
+            s.size = Math.exp(end);
         } else {
-            if (s.polar_projection) {
-                double start = Math.log(s.size);
-                double end;
-
-                double muly = (2 * s.circle_period * Math.PI) / image_size;
-
-                double mulx = muly * s.height_ratio;
-
-                end = mulx * image_size + start;
-
-                s.size = Math.exp(end);
-            } else {
-                s.xCenter += s.size;
-            }
+            s.xCenter += s.size;
         }
 
         if (s.size < 0.05) {
@@ -4504,7 +4571,7 @@ public class MainWindow extends JFrame implements Constants {
         file_menu.getCodeEditor().setEnabled(option);
         file_menu.getCompileCode().setEnabled(option);
 
-        if ((!s.julia || !first_seed)) {
+        if ((!s.fns.julia || !first_seed)) {
             file_menu.getGoTo().setEnabled(option);
         }
 
@@ -4512,12 +4579,14 @@ public class MainWindow extends JFrame implements Constants {
 
         options_menu.getColorsMenu().setEnabled(option);
 
+        file_menu.getDefaults().setEnabled(option);
+
         options_menu.getIterationsMenu().setEnabled(option);
         options_menu.getSizeOfImage().setEnabled(option);
 
         options_menu.getHeightRatio().setEnabled(option);
 
-        if (!s.ds.domain_coloring || (s.ds.domain_coloring && s.ds.use_palette_domain_coloring)) {
+        if ((!s.ds.domain_coloring || (s.ds.domain_coloring && s.ds.use_palette_domain_coloring)) && !ThreadDraw.USE_DIRECT_COLOR) {
             toolbar.getCustomPaletteButton().setEnabled(option);
             toolbar.getRandomPaletteButton().setEnabled(option);
         }
@@ -4527,7 +4596,7 @@ public class MainWindow extends JFrame implements Constants {
         toolbar.getSaveImageAndSettignsButton().setEnabled(option);
         options_menu.getPoint().setEnabled(option);
 
-        if (!s.ds.domain_coloring && !s.isConvergingType()) {
+        if (!s.ds.domain_coloring && !s.isConvergingType() && s.fns.function != KLEINIAN) {
             options_menu.getBailout().setEnabled(option);
             options_menu.getBailoutConditionMenu().setEnabled(option);
         }
@@ -4535,7 +4604,11 @@ public class MainWindow extends JFrame implements Constants {
         options_menu.getOptimizationsMenu().setEnabled(option);
         options_menu.getToolsOptionsMenu().setEnabled(option);
 
-        if (!s.ds.domain_coloring && !s.isConvergingType() && s.function != SIERPINSKI_GASKET && !s.ots.useTraps) {
+        if (!s.d3s.d3 && (s.fns.out_coloring_algorithm == USER_OUTCOLORING_ALGORITHM || s.fns.in_coloring_algorithm == USER_INCOLORING_ALGORITHM) && !s.ds.domain_coloring) {
+            options_menu.getDirectColor().setEnabled(option);
+        }
+
+        if (!s.ds.domain_coloring && !s.isConvergingType() && s.fns.function != KLEINIAN && s.fns.function != SIERPINSKI_GASKET && !s.ots.useTraps) {
             options_menu.getPeriodicityChecking().setEnabled(option);
         }
 
@@ -4543,17 +4616,17 @@ public class MainWindow extends JFrame implements Constants {
             options_menu.getGreedyAlgorithm().setEnabled(option);
         }
 
-        if (((!s.julia && !orbit) || (!first_seed && !orbit)) && !s.ds.domain_coloring && !zoom_window && !julia_map && !s.d3s.d3 && !s.perturbation && !s.init_val && s.functionSupportsC()) {
+        if (((!s.fns.julia && !orbit) || (!first_seed && !orbit)) && !s.ds.domain_coloring && !zoom_window && !julia_map && !s.d3s.d3 && !s.fns.perturbation && !s.fns.init_val && s.functionSupportsC()) {
             tools_menu.getJulia().setEnabled(option);
             toolbar.getJuliaButton().setEnabled(option);
         }
 
-        if (!zoom_window && !orbit && !color_cycling && !s.d3s.d3 && !s.ds.domain_coloring && !s.ots.useTraps) {
-            tools_menu.getColorCyling().setEnabled(option);
+        if (!zoom_window && !orbit && !color_cycling && !s.d3s.d3 && !s.ds.domain_coloring && !s.ots.useTraps && !ThreadDraw.USE_DIRECT_COLOR) {
+            tools_menu.getColorCycling().setEnabled(option);
             toolbar.getColorCyclingButton().setEnabled(option);
         }
 
-        if (!color_cycling && !julia_map) {
+        if (!color_cycling && !julia_map && !ThreadDraw.USE_DIRECT_COLOR) {
             tools_menu.getDomainColoring().setEnabled(option);
             toolbar.getDomainColoringButton().setEnabled(option);
         }
@@ -4561,11 +4634,13 @@ public class MainWindow extends JFrame implements Constants {
         tools_menu.getPlaneVizualization().setEnabled(option);
 
         if (!s.ds.domain_coloring) {
-            if (s.function == MANDELBROT) {
+            if (s.fns.function == MANDELBROT) {
                 options_menu.getDistanceEstimation().setEnabled(option);
             }
 
             options_menu.getBumpMap().setEnabled(option);
+
+            options_menu.getContourColoring().setEnabled(option);
 
             options_menu.getFakeDistanceEstimation().setEnabled(option);
 
@@ -4576,17 +4651,19 @@ public class MainWindow extends JFrame implements Constants {
             options_menu.getRainbowPalette().setEnabled(option);
 
             options_menu.getOffsetColoring().setEnabled(option);
-            
-            if(!periodicity_checking) {
+
+            if (!periodicity_checking) {
                 options_menu.getOrbitTraps().setEnabled(option);
             }
 
             options_menu.getOutColoringMenu().setEnabled(option);
             options_menu.getInColoringMenu().setEnabled(option);
-            options_menu.getFractalColor().setEnabled(option);
+            if (!ThreadDraw.USE_DIRECT_COLOR) {
+                options_menu.getFractalColor().setEnabled(option);
+            }
         }
 
-        if (!s.ds.domain_coloring || (s.ds.domain_coloring && s.ds.use_palette_domain_coloring)) {
+        if ((!s.ds.domain_coloring || (s.ds.domain_coloring && s.ds.use_palette_domain_coloring)) && !ThreadDraw.USE_DIRECT_COLOR) {
             options_menu.getRandomPalette().setEnabled(option);
             options_menu.getRollPaletteMenu().setEnabled(option);
             options_menu.getPaletteMenu().setEnabled(option);
@@ -4611,11 +4688,11 @@ public class MainWindow extends JFrame implements Constants {
 
         toolbar.getFiltersOptionsButton().setEnabled(option);
 
-        if ((s.rotation == 0 || s.rotation == 360 || s.rotation == -360) && !s.d3s.d3 && !s.polar_projection) {
+        if ((s.fns.rotation == 0 || s.fns.rotation == 360 || s.fns.rotation == -360) && !s.d3s.d3 && !s.polar_projection) {
             tools_menu.getGrid().setEnabled(option);
         }
 
-        if ((s.rotation == 0 || s.rotation == 360 || s.rotation == -360) && !s.d3s.d3 && s.size >= 0.05) {
+        if ((s.fns.rotation == 0 || s.fns.rotation == 360 || s.fns.rotation == -360) && !s.d3s.d3 && s.size >= 0.05) {
             tools_menu.getBoundaries().setEnabled(option);
         }
 
@@ -4641,25 +4718,30 @@ public class MainWindow extends JFrame implements Constants {
         }
         options_menu.getPlanesMenu().setEnabled(option);
 
-        if (!s.ds.domain_coloring && !zoom_window && !s.julia && !s.perturbation && !s.init_val && !orbit && !s.d3s.d3 && s.functionSupportsC()) {
+        if (!s.ds.domain_coloring && !zoom_window && !s.fns.julia && !s.fns.perturbation && !s.fns.init_val && !orbit && !s.d3s.d3 && s.functionSupportsC()) {
             tools_menu.getJuliaMap().setEnabled(option);
             toolbar.getJuliaMapButton().setEnabled(option);
         }
 
-        if (!zoom_window && !orbit && !julia_map && !grid && !boundaries) {
+        if (!zoom_window && !orbit && !julia_map && !grid && !boundaries && !ThreadDraw.USE_DIRECT_COLOR) {
             tools_menu.get3D().setEnabled(option);
             toolbar.get3DButton().setEnabled(option);
         }
 
         options_menu.getRotationMenu().setEnabled(option);
 
-        if (!s.julia && !julia_map && s.functionSupportsC()) {
+        if (!s.fns.julia && !julia_map && s.functionSupportsC()) {
             options_menu.getPerturbation().setEnabled(option);
             options_menu.getInitialValue().setEnabled(option);
         }
 
         options_menu.getOverview().setEnabled(option);
         infobar.getOverview().setEnabled(option);
+
+        if (!ThreadDraw.USE_DIRECT_COLOR) {
+            options_menu.getGradient().setEnabled(option);
+            options_menu.getColorBlending().setEnabled(option);
+        }
 
     }
 
@@ -4761,19 +4843,19 @@ public class MainWindow extends JFrame implements Constants {
     public void setFunction(int temp) {
 
         resetOrbit();
-        int oldSelected = s.function;
-        s.function = temp;
+        int oldSelected = s.fns.function;
+        s.fns.function = temp;
         int l;
 
-        switch (s.function) {
+        switch (s.fns.function) {
             case MANDELBROTNTH:
                 main_panel.repaint();
 
-                String ans = (String) JOptionPane.showInputDialog(scroll_pane, "Enter the exponent of z.\nThe exponent can be a real number.", "Exponent", JOptionPane.QUESTION_MESSAGE, null, null, s.z_exponent);
+                String ans = (String) JOptionPane.showInputDialog(scroll_pane, "Enter the exponent of z.\nThe exponent can be a real number.", "Exponent", JOptionPane.QUESTION_MESSAGE, null, null, s.fns.z_exponent);
 
                 try {
-                    s.z_exponent = Double.parseDouble(ans);
-                    s.z_exponent = s.z_exponent == 0.0 ? 0.0 : s.z_exponent;
+                    s.fns.z_exponent = Double.parseDouble(ans);
+                    s.fns.z_exponent = s.fns.z_exponent == 0.0 ? 0.0 : s.fns.z_exponent;
                 } catch (Exception ex) {
                     if (ans == null) {
                         main_panel.repaint();
@@ -4782,7 +4864,7 @@ public class MainWindow extends JFrame implements Constants {
                         main_panel.repaint();
                     }
                     fractal_functions[oldSelected].setSelected(true);
-                    s.function = oldSelected;
+                    s.fns.function = oldSelected;
                     return;
                 }
                 optionsEnableShortcut();
@@ -4793,11 +4875,11 @@ public class MainWindow extends JFrame implements Constants {
                 zw.setIcon(getIcon("/fractalzoomer/icons/zw.png"));
 
                 JTextField field_real = new JTextField();
-                field_real.setText("" + s.z_exponent_complex[0]);
+                field_real.setText("" + s.fns.z_exponent_complex[0]);
                 field_real.addAncestorListener(new RequestFocusListener());
 
                 JTextField field_imaginary = new JTextField();
-                field_imaginary.setText("" + s.z_exponent_complex[1]);
+                field_imaginary.setText("" + s.fns.z_exponent_complex[1]);
 
                 Object[] message = {
                     " ",
@@ -4820,18 +4902,18 @@ public class MainWindow extends JFrame implements Constants {
                         JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
                         main_panel.repaint();
                         fractal_functions[oldSelected].setSelected(true);
-                        s.function = oldSelected;
+                        s.fns.function = oldSelected;
                         return;
                     }
                 } else {
                     main_panel.repaint();
                     fractal_functions[oldSelected].setSelected(true);
-                    s.function = oldSelected;
+                    s.fns.function = oldSelected;
                     return;
                 }
 
-                s.z_exponent_complex[0] = temp3 == 0.0 ? 0.0 : temp3;
-                s.z_exponent_complex[1] = temp4 == 0.0 ? 0.0 : temp4;
+                s.fns.z_exponent_complex[0] = temp3 == 0.0 ? 0.0 : temp3;
+                s.fns.z_exponent_complex[1] = temp4 == 0.0 ? 0.0 : temp4;
 
                 optionsEnableShortcut();
                 break;
@@ -4905,7 +4987,7 @@ public class MainWindow extends JFrame implements Constants {
                 poly_label_1.setIcon(getIcon("/fractalzoomer/icons/a10.png"));
                 JTextField poly_coef_1 = new JTextField(30);
                 poly_coef_1.addAncestorListener(new RequestFocusListener());
-                poly_coef_1.setText("" + s.coefficients[0]);
+                poly_coef_1.setText("" + s.fns.coefficients[0]);
                 poly1.setLayout(new FlowLayout());
                 poly1.add(poly_label_1);
                 poly1.add(new JLabel(""));
@@ -4915,7 +4997,7 @@ public class MainWindow extends JFrame implements Constants {
                 JLabel poly_label_2 = new JLabel();
                 poly_label_2.setIcon(getIcon("/fractalzoomer/icons/a9.png"));
                 JTextField poly_coef_2 = new JTextField(30);
-                poly_coef_2.setText("" + s.coefficients[1]);
+                poly_coef_2.setText("" + s.fns.coefficients[1]);
                 poly2.setLayout(new FlowLayout());
                 poly2.add(poly_label_2);
                 poly2.add(new JLabel(" "));
@@ -4925,7 +5007,7 @@ public class MainWindow extends JFrame implements Constants {
                 JLabel poly_label_3 = new JLabel();
                 poly_label_3.setIcon(getIcon("/fractalzoomer/icons/a8.png"));
                 JTextField poly_coef_3 = new JTextField(30);
-                poly_coef_3.setText("" + s.coefficients[2]);
+                poly_coef_3.setText("" + s.fns.coefficients[2]);
                 poly3.setLayout(new FlowLayout());
                 poly3.add(poly_label_3);
                 poly3.add(new JLabel(" "));
@@ -4935,7 +5017,7 @@ public class MainWindow extends JFrame implements Constants {
                 JLabel poly_label_4 = new JLabel();
                 poly_label_4.setIcon(getIcon("/fractalzoomer/icons/a7.png"));
                 JTextField poly_coef_4 = new JTextField(30);
-                poly_coef_4.setText("" + s.coefficients[3]);
+                poly_coef_4.setText("" + s.fns.coefficients[3]);
                 poly4.setLayout(new FlowLayout());
                 poly4.add(poly_label_4);
                 poly4.add(new JLabel(" "));
@@ -4945,7 +5027,7 @@ public class MainWindow extends JFrame implements Constants {
                 JLabel poly_label_5 = new JLabel();
                 poly_label_5.setIcon(getIcon("/fractalzoomer/icons/a6.png"));
                 JTextField poly_coef_5 = new JTextField(30);
-                poly_coef_5.setText("" + s.coefficients[4]);
+                poly_coef_5.setText("" + s.fns.coefficients[4]);
                 poly5.setLayout(new FlowLayout());
                 poly5.add(poly_label_5);
                 poly5.add(new JLabel(" "));
@@ -4955,7 +5037,7 @@ public class MainWindow extends JFrame implements Constants {
                 JLabel poly_label_6 = new JLabel();
                 poly_label_6.setIcon(getIcon("/fractalzoomer/icons/a5.png"));
                 JTextField poly_coef_6 = new JTextField(30);
-                poly_coef_6.setText("" + s.coefficients[5]);
+                poly_coef_6.setText("" + s.fns.coefficients[5]);
                 poly6.setLayout(new FlowLayout());
                 poly6.add(poly_label_6);
                 poly6.add(new JLabel(" "));
@@ -4965,7 +5047,7 @@ public class MainWindow extends JFrame implements Constants {
                 JLabel poly_label_7 = new JLabel();
                 poly_label_7.setIcon(getIcon("/fractalzoomer/icons/a4.png"));
                 JTextField poly_coef_7 = new JTextField(30);
-                poly_coef_7.setText("" + s.coefficients[6]);
+                poly_coef_7.setText("" + s.fns.coefficients[6]);
                 poly7.setLayout(new FlowLayout());
                 poly7.add(poly_label_7);
                 poly7.add(new JLabel(" "));
@@ -4975,7 +5057,7 @@ public class MainWindow extends JFrame implements Constants {
                 JLabel poly_label_8 = new JLabel();
                 poly_label_8.setIcon(getIcon("/fractalzoomer/icons/a3.png"));
                 JTextField poly_coef_8 = new JTextField(30);
-                poly_coef_8.setText("" + s.coefficients[7]);
+                poly_coef_8.setText("" + s.fns.coefficients[7]);
                 poly8.setLayout(new FlowLayout());
                 poly8.add(poly_label_8);
                 poly8.add(new JLabel(" "));
@@ -4985,7 +5067,7 @@ public class MainWindow extends JFrame implements Constants {
                 JLabel poly_label_9 = new JLabel();
                 poly_label_9.setIcon(getIcon("/fractalzoomer/icons/a2.png"));
                 JTextField poly_coef_9 = new JTextField(30);
-                poly_coef_9.setText("" + s.coefficients[8]);
+                poly_coef_9.setText("" + s.fns.coefficients[8]);
                 poly9.setLayout(new FlowLayout());
                 poly9.add(poly_label_9);
                 poly9.add(new JLabel(" "));
@@ -4995,7 +5077,7 @@ public class MainWindow extends JFrame implements Constants {
                 JLabel poly_label_10 = new JLabel();
                 poly_label_10.setIcon(getIcon("/fractalzoomer/icons/a1.png"));
                 JTextField poly_coef_10 = new JTextField(30);
-                poly_coef_10.setText("" + s.coefficients[9]);
+                poly_coef_10.setText("" + s.fns.coefficients[9]);
                 poly10.setLayout(new FlowLayout());
                 poly10.add(poly_label_10);
                 poly10.add(new JLabel(" "));
@@ -5005,7 +5087,7 @@ public class MainWindow extends JFrame implements Constants {
                 JLabel poly_label_11 = new JLabel();
                 poly_label_11.setIcon(getIcon("/fractalzoomer/icons/a0.png"));
                 JTextField poly_coef_11 = new JTextField(30);
-                poly_coef_11.setText("" + s.coefficients[10]);
+                poly_coef_11.setText("" + s.fns.coefficients[10]);
                 poly11.setLayout(new FlowLayout());
                 poly11.add(poly_label_11);
                 poly11.add(new JLabel(" "));
@@ -5050,18 +5132,18 @@ public class MainWindow extends JFrame implements Constants {
                         JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
                         main_panel.repaint();
                         fractal_functions[oldSelected].setSelected(true);
-                        s.function = oldSelected;
+                        s.fns.function = oldSelected;
                         return;
                     }
                 } else {
                     main_panel.repaint();
                     fractal_functions[oldSelected].setSelected(true);
-                    s.function = oldSelected;
+                    s.fns.function = oldSelected;
                     return;
                 }
 
                 boolean non_zero = false;
-                for (l = 0; l < s.coefficients.length; l++) {
+                for (l = 0; l < s.fns.coefficients.length; l++) {
                     if (temp_coef[l] != 0) {
                         non_zero = true;
                         break;
@@ -5072,17 +5154,17 @@ public class MainWindow extends JFrame implements Constants {
                     JOptionPane.showMessageDialog(scroll_pane, "At least one coefficient must be non zero!", "Error!", JOptionPane.ERROR_MESSAGE);
                     main_panel.repaint();
                     fractal_functions[oldSelected].setSelected(true);
-                    s.function = oldSelected;
+                    s.fns.function = oldSelected;
                     return;
                 }
 
-                for (l = 0; l < s.coefficients.length; l++) {
-                    s.coefficients[l] = temp_coef[l] == 0.0 ? 0.0 : temp_coef[l];
+                for (l = 0; l < s.fns.coefficients.length; l++) {
+                    s.fns.coefficients[l] = temp_coef[l] == 0.0 ? 0.0 : temp_coef[l];
                 }
 
                 s.createPoly();
 
-                if (s.function == MANDELPOLY) {
+                if (s.fns.function == MANDELPOLY) {
                     optionsEnableShortcut();
                 } else {
                     optionsEnableShortcut2();
@@ -5091,17 +5173,17 @@ public class MainWindow extends JFrame implements Constants {
 
             case NEWTONFORMULA:
 
-                if (s.function != oldSelected) {
-                    s.user_fz_formula = "z^3 - 1";
-                    s.user_dfz_formula = "3*z^2";
+                if (s.fns.function != oldSelected) {
+                    s.fns.user_fz_formula = "z^3 - 1";
+                    s.fns.user_dfz_formula = "3*z^2";
                 }
 
                 JTextField field_fz_formula = new JTextField(50);
-                field_fz_formula.setText(s.user_fz_formula);
+                field_fz_formula.setText(s.fns.user_fz_formula);
                 field_fz_formula.addAncestorListener(new RequestFocusListener());
 
                 JTextField field_dfz_formula = new JTextField(50);
-                field_dfz_formula.setText(s.user_dfz_formula);
+                field_dfz_formula.setText(s.fns.user_dfz_formula);
 
                 JPanel formula_fz_panel = new JPanel();
 
@@ -5138,7 +5220,7 @@ public class MainWindow extends JFrame implements Constants {
                             JOptionPane.showMessageDialog(scroll_pane, "The variables: c, bail, cbail cannot be used in the f(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                             main_panel.repaint();
                             fractal_functions[oldSelected].setSelected(true);
-                            s.function = oldSelected;
+                            s.fns.function = oldSelected;
                             return;
                         }
 
@@ -5148,23 +5230,23 @@ public class MainWindow extends JFrame implements Constants {
                             JOptionPane.showMessageDialog(scroll_pane, "The variables: c, bail, cbail cannot be used in the f '(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                             main_panel.repaint();
                             fractal_functions[oldSelected].setSelected(true);
-                            s.function = oldSelected;
+                            s.fns.function = oldSelected;
                             return;
                         }
 
-                        s.user_fz_formula = field_fz_formula.getText();
-                        s.user_dfz_formula = field_dfz_formula.getText();
+                        s.fns.user_fz_formula = field_fz_formula.getText();
+                        s.fns.user_dfz_formula = field_dfz_formula.getText();
                     } catch (ParserException e) {
                         JOptionPane.showMessageDialog(scroll_pane, e.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                         main_panel.repaint();
                         fractal_functions[oldSelected].setSelected(true);
-                        s.function = oldSelected;
+                        s.fns.function = oldSelected;
                         return;
                     }
                 } else {
                     main_panel.repaint();
                     fractal_functions[oldSelected].setSelected(true);
-                    s.function = oldSelected;
+                    s.fns.function = oldSelected;
                     return;
                 }
 
@@ -5175,21 +5257,21 @@ public class MainWindow extends JFrame implements Constants {
             case HOUSEHOLDERFORMULA:
             case PARHALLEYFORMULA:
 
-                if (s.function != oldSelected) {
-                    s.user_fz_formula = "z^3 - 1";
-                    s.user_dfz_formula = "3*z^2";
-                    s.user_ddfz_formula = "6*z";
+                if (s.fns.function != oldSelected) {
+                    s.fns.user_fz_formula = "z^3 - 1";
+                    s.fns.user_dfz_formula = "3*z^2";
+                    s.fns.user_ddfz_formula = "6*z";
                 }
 
                 JTextField field_fz_formula2 = new JTextField(50);
-                field_fz_formula2.setText(s.user_fz_formula);
+                field_fz_formula2.setText(s.fns.user_fz_formula);
                 field_fz_formula2.addAncestorListener(new RequestFocusListener());
 
                 JTextField field_dfz_formula2 = new JTextField(50);
-                field_dfz_formula2.setText(s.user_dfz_formula);
+                field_dfz_formula2.setText(s.fns.user_dfz_formula);
 
                 JTextField field_ddfz_formula2 = new JTextField(50);
-                field_ddfz_formula2.setText(s.user_ddfz_formula);
+                field_ddfz_formula2.setText(s.fns.user_ddfz_formula);
 
                 JPanel formula_fz_panel2 = new JPanel();
 
@@ -5208,13 +5290,13 @@ public class MainWindow extends JFrame implements Constants {
 
                 JLabel imagelabel41 = new JLabel();
 
-                if (s.function == HALLEYFORMULA) {
+                if (s.fns.function == HALLEYFORMULA) {
                     imagelabel41.setIcon(getIcon("/fractalzoomer/icons/halley.png"));
-                } else if (s.function == SCHRODERFORMULA) {
+                } else if (s.fns.function == SCHRODERFORMULA) {
                     imagelabel41.setIcon(getIcon("/fractalzoomer/icons/schroder.png"));
-                } else if (s.function == HOUSEHOLDERFORMULA) {
+                } else if (s.fns.function == HOUSEHOLDERFORMULA) {
                     imagelabel41.setIcon(getIcon("/fractalzoomer/icons/householder.png"));
-                } else if (s.function == PARHALLEYFORMULA) {
+                } else if (s.fns.function == PARHALLEYFORMULA) {
                     imagelabel41.setIcon(getIcon("/fractalzoomer/icons/parhalley.png"));
                 }
 
@@ -5235,13 +5317,13 @@ public class MainWindow extends JFrame implements Constants {
 
                 String title = "";
 
-                if (s.function == HALLEYFORMULA) {
+                if (s.fns.function == HALLEYFORMULA) {
                     title = "Halley Formula";
-                } else if (s.function == SCHRODERFORMULA) {
+                } else if (s.fns.function == SCHRODERFORMULA) {
                     title = "Schroder Formula";
-                } else if (s.function == HOUSEHOLDERFORMULA) {
+                } else if (s.fns.function == HOUSEHOLDERFORMULA) {
                     title = "Householder Formula";
-                } else if (s.function == PARHALLEYFORMULA) {
+                } else if (s.fns.function == PARHALLEYFORMULA) {
                     title = "Parhalley Formula";
                 }
 
@@ -5254,7 +5336,7 @@ public class MainWindow extends JFrame implements Constants {
                             JOptionPane.showMessageDialog(scroll_pane, "The variables: c, bail, cbail cannot be used in the f(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                             main_panel.repaint();
                             fractal_functions[oldSelected].setSelected(true);
-                            s.function = oldSelected;
+                            s.fns.function = oldSelected;
                             return;
                         }
 
@@ -5264,7 +5346,7 @@ public class MainWindow extends JFrame implements Constants {
                             JOptionPane.showMessageDialog(scroll_pane, "The variables: c, bail, cbail cannot be used in the f '(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                             main_panel.repaint();
                             fractal_functions[oldSelected].setSelected(true);
-                            s.function = oldSelected;
+                            s.fns.function = oldSelected;
                             return;
                         }
 
@@ -5274,36 +5356,36 @@ public class MainWindow extends JFrame implements Constants {
                             JOptionPane.showMessageDialog(scroll_pane, "The variables: c, bail, cbail cannot be used in the f ''(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                             main_panel.repaint();
                             fractal_functions[oldSelected].setSelected(true);
-                            s.function = oldSelected;
+                            s.fns.function = oldSelected;
                             return;
                         }
 
-                        s.user_fz_formula = field_fz_formula2.getText();
-                        s.user_dfz_formula = field_dfz_formula2.getText();
-                        s.user_ddfz_formula = field_ddfz_formula2.getText();
+                        s.fns.user_fz_formula = field_fz_formula2.getText();
+                        s.fns.user_dfz_formula = field_dfz_formula2.getText();
+                        s.fns.user_ddfz_formula = field_ddfz_formula2.getText();
                     } catch (ParserException e) {
                         JOptionPane.showMessageDialog(scroll_pane, e.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                         main_panel.repaint();
                         fractal_functions[oldSelected].setSelected(true);
-                        s.function = oldSelected;
+                        s.fns.function = oldSelected;
                         return;
                     }
                 } else {
                     main_panel.repaint();
                     fractal_functions[oldSelected].setSelected(true);
-                    s.function = oldSelected;
+                    s.fns.function = oldSelected;
                     return;
                 }
 
                 optionsEnableShortcut2();
                 break;
             case SECANTFORMULA:
-                if (s.function != oldSelected) {
-                    s.user_fz_formula = "z^3 - 1";
+                if (s.fns.function != oldSelected) {
+                    s.fns.user_fz_formula = "z^3 - 1";
                 }
 
                 JTextField field_fz_formula5 = new JTextField(50);
-                field_fz_formula5.setText(s.user_fz_formula);
+                field_fz_formula5.setText(s.fns.user_fz_formula);
                 field_fz_formula5.addAncestorListener(new RequestFocusListener());
 
                 JPanel formula_fz_panel5 = new JPanel();
@@ -5335,34 +5417,34 @@ public class MainWindow extends JFrame implements Constants {
                             JOptionPane.showMessageDialog(scroll_pane, "The variables: c, bail, cbail cannot be used in the f(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                             main_panel.repaint();
                             fractal_functions[oldSelected].setSelected(true);
-                            s.function = oldSelected;
+                            s.fns.function = oldSelected;
                             return;
                         }
 
-                        s.user_fz_formula = field_fz_formula5.getText();
+                        s.fns.user_fz_formula = field_fz_formula5.getText();
                     } catch (ParserException e) {
                         JOptionPane.showMessageDialog(scroll_pane, e.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                         main_panel.repaint();
                         fractal_functions[oldSelected].setSelected(true);
-                        s.function = oldSelected;
+                        s.fns.function = oldSelected;
                         return;
                     }
                 } else {
                     main_panel.repaint();
                     fractal_functions[oldSelected].setSelected(true);
-                    s.function = oldSelected;
+                    s.fns.function = oldSelected;
                     return;
                 }
 
                 optionsEnableShortcut2();
                 break;
             case STEFFENSENFORMULA:
-                if (s.function != oldSelected) {
-                    s.user_fz_formula = "z^3 - 1";
+                if (s.fns.function != oldSelected) {
+                    s.fns.user_fz_formula = "z^3 - 1";
                 }
 
                 JTextField field_fz_formula6 = new JTextField(50);
-                field_fz_formula6.setText(s.user_fz_formula);
+                field_fz_formula6.setText(s.fns.user_fz_formula);
                 field_fz_formula6.addAncestorListener(new RequestFocusListener());
 
                 JPanel formula_fz_panel6 = new JPanel();
@@ -5394,33 +5476,33 @@ public class MainWindow extends JFrame implements Constants {
                             JOptionPane.showMessageDialog(scroll_pane, "The variables: c, bail, cbail cannot be used in the f(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                             main_panel.repaint();
                             fractal_functions[oldSelected].setSelected(true);
-                            s.function = oldSelected;
+                            s.fns.function = oldSelected;
                             return;
                         }
 
-                        s.user_fz_formula = field_fz_formula6.getText();
+                        s.fns.user_fz_formula = field_fz_formula6.getText();
                     } catch (ParserException e) {
                         JOptionPane.showMessageDialog(scroll_pane, e.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                         main_panel.repaint();
                         fractal_functions[oldSelected].setSelected(true);
-                        s.function = oldSelected;
+                        s.fns.function = oldSelected;
                         return;
                     }
                 } else {
                     main_panel.repaint();
                     fractal_functions[oldSelected].setSelected(true);
-                    s.function = oldSelected;
+                    s.fns.function = oldSelected;
                     return;
                 }
                 optionsEnableShortcut2();
                 break;
             case MULLERFORMULA:
-                if (s.function != oldSelected) {
-                    s.user_fz_formula = "z^3 - 1";
+                if (s.fns.function != oldSelected) {
+                    s.fns.user_fz_formula = "z^3 - 1";
                 }
 
                 JTextField field_fz_formula7 = new JTextField(50);
-                field_fz_formula7.setText(s.user_fz_formula);
+                field_fz_formula7.setText(s.fns.user_fz_formula);
                 field_fz_formula7.addAncestorListener(new RequestFocusListener());
 
                 JPanel formula_fz_panel7 = new JPanel();
@@ -5484,22 +5566,22 @@ public class MainWindow extends JFrame implements Constants {
                             JOptionPane.showMessageDialog(scroll_pane, "The variables: c, bail, cbail cannot be used in the f(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                             main_panel.repaint();
                             fractal_functions[oldSelected].setSelected(true);
-                            s.function = oldSelected;
+                            s.fns.function = oldSelected;
                             return;
                         }
 
-                        s.user_fz_formula = field_fz_formula7.getText();
+                        s.fns.user_fz_formula = field_fz_formula7.getText();
                     } catch (ParserException e) {
                         JOptionPane.showMessageDialog(scroll_pane, e.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                         main_panel.repaint();
                         fractal_functions[oldSelected].setSelected(true);
-                        s.function = oldSelected;
+                        s.fns.function = oldSelected;
                         return;
                     }
                 } else {
                     main_panel.repaint();
                     fractal_functions[oldSelected].setSelected(true);
-                    s.function = oldSelected;
+                    s.fns.function = oldSelected;
                     return;
                 }
 
@@ -5507,21 +5589,21 @@ public class MainWindow extends JFrame implements Constants {
                 break;
             case LAGUERREFORMULA:
 
-                if (s.function != oldSelected) {
-                    s.user_fz_formula = "z^3 - 1";
-                    s.user_dfz_formula = "3*z^2";
-                    s.user_ddfz_formula = "6*z";
+                if (s.fns.function != oldSelected) {
+                    s.fns.user_fz_formula = "z^3 - 1";
+                    s.fns.user_dfz_formula = "3*z^2";
+                    s.fns.user_ddfz_formula = "6*z";
                 }
 
                 JTextField field_fz_formula9 = new JTextField(50);
-                field_fz_formula9.setText(s.user_fz_formula);
+                field_fz_formula9.setText(s.fns.user_fz_formula);
                 field_fz_formula9.addAncestorListener(new RequestFocusListener());
 
                 JTextField field_dfz_formula9 = new JTextField(50);
-                field_dfz_formula9.setText(s.user_dfz_formula);
+                field_dfz_formula9.setText(s.fns.user_dfz_formula);
 
                 JTextField field_ddfz_formula9 = new JTextField(50);
-                field_ddfz_formula9.setText(s.user_ddfz_formula);
+                field_ddfz_formula9.setText(s.fns.user_ddfz_formula);
 
                 JPanel formula_fz_panel9 = new JPanel();
 
@@ -5546,10 +5628,10 @@ public class MainWindow extends JFrame implements Constants {
                 JPanel degree_panel = new JPanel();
 
                 JTextField field_real8 = new JTextField(20);
-                field_real8.setText("" + s.laguerre_deg[0]);
+                field_real8.setText("" + s.fns.laguerre_deg[0]);
 
                 JTextField field_imaginary8 = new JTextField(20);
-                field_imaginary8.setText("" + s.laguerre_deg[1]);
+                field_imaginary8.setText("" + s.fns.laguerre_deg[1]);
 
                 degree_panel.add(new JLabel("Degree = "));
                 degree_panel.add(new JLabel("Real:"));
@@ -5584,7 +5666,7 @@ public class MainWindow extends JFrame implements Constants {
                             JOptionPane.showMessageDialog(scroll_pane, "The variables: c, bail, cbail cannot be used in the f(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                             main_panel.repaint();
                             fractal_functions[oldSelected].setSelected(true);
-                            s.function = oldSelected;
+                            s.fns.function = oldSelected;
                             return;
                         }
 
@@ -5594,7 +5676,7 @@ public class MainWindow extends JFrame implements Constants {
                             JOptionPane.showMessageDialog(scroll_pane, "The variables: c, bail, cbail cannot be used in the f '(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                             main_panel.repaint();
                             fractal_functions[oldSelected].setSelected(true);
-                            s.function = oldSelected;
+                            s.fns.function = oldSelected;
                             return;
                         }
 
@@ -5604,32 +5686,32 @@ public class MainWindow extends JFrame implements Constants {
                             JOptionPane.showMessageDialog(scroll_pane, "The variables: c, bail, cbail cannot be used in the f ''(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                             main_panel.repaint();
                             fractal_functions[oldSelected].setSelected(true);
-                            s.function = oldSelected;
+                            s.fns.function = oldSelected;
                             return;
                         }
 
-                        s.user_fz_formula = field_fz_formula9.getText();
-                        s.user_dfz_formula = field_dfz_formula9.getText();
-                        s.user_ddfz_formula = field_ddfz_formula9.getText();
-                        s.laguerre_deg[0] = temp5;
-                        s.laguerre_deg[1] = temp6;
+                        s.fns.user_fz_formula = field_fz_formula9.getText();
+                        s.fns.user_dfz_formula = field_dfz_formula9.getText();
+                        s.fns.user_ddfz_formula = field_ddfz_formula9.getText();
+                        s.fns.laguerre_deg[0] = temp5;
+                        s.fns.laguerre_deg[1] = temp6;
                     } catch (ParserException e) {
                         JOptionPane.showMessageDialog(scroll_pane, e.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                         main_panel.repaint();
                         fractal_functions[oldSelected].setSelected(true);
-                        s.function = oldSelected;
+                        s.fns.function = oldSelected;
                         return;
                     } catch (Exception ex) {
                         JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
                         main_panel.repaint();
                         fractal_functions[oldSelected].setSelected(true);
-                        s.function = oldSelected;
+                        s.fns.function = oldSelected;
                         return;
                     }
                 } else {
                     main_panel.repaint();
                     fractal_functions[oldSelected].setSelected(true);
-                    s.function = oldSelected;
+                    s.fns.function = oldSelected;
                     return;
                 }
 
@@ -5640,22 +5722,22 @@ public class MainWindow extends JFrame implements Constants {
                 novazw.setIcon(getIcon("/fractalzoomer/icons/novazw.png"));
 
                 field_real = new JTextField();
-                field_real.setText("" + s.z_exponent_nova[0]);
+                field_real.setText("" + s.fns.z_exponent_nova[0]);
                 field_real.addAncestorListener(new RequestFocusListener());
 
                 field_imaginary = new JTextField();
-                field_imaginary.setText("" + s.z_exponent_nova[1]);
+                field_imaginary.setText("" + s.fns.z_exponent_nova[1]);
 
                 JTextField field_real2 = new JTextField();
-                field_real2.setText("" + s.relaxation[0]);
+                field_real2.setText("" + s.fns.relaxation[0]);
 
                 JTextField field_imaginary2 = new JTextField();
-                field_imaginary2.setText("" + s.relaxation[1]);
+                field_imaginary2.setText("" + s.fns.relaxation[1]);
 
                 String[] method = {"Newton", "Halley", "Schroder", "Householder", "Secant", "Steffensen", "Muller", "Parhalley", "Laguerre"};
 
                 JComboBox method_choice = new JComboBox(method);
-                method_choice.setSelectedIndex(s.nova_method);
+                method_choice.setSelectedIndex(s.fns.nova_method);
                 method_choice.setToolTipText("Selects the root finding method for the Nova function.");
                 method_choice.setFocusable(false);
 
@@ -5690,27 +5772,91 @@ public class MainWindow extends JFrame implements Constants {
                         JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
                         main_panel.repaint();
                         fractal_functions[oldSelected].setSelected(true);
-                        s.function = oldSelected;
+                        s.fns.function = oldSelected;
                         return;
                     }
                 } else {
                     main_panel.repaint();
                     fractal_functions[oldSelected].setSelected(true);
-                    s.function = oldSelected;
+                    s.fns.function = oldSelected;
                     return;
                 }
 
-                s.z_exponent_nova[0] = temp3 == 0.0 ? 0.0 : temp3;
-                s.z_exponent_nova[1] = temp4 == 0.0 ? 0.0 : temp4;
+                s.fns.z_exponent_nova[0] = temp3 == 0.0 ? 0.0 : temp3;
+                s.fns.z_exponent_nova[1] = temp4 == 0.0 ? 0.0 : temp4;
 
-                s.relaxation[0] = temp5 == 0.0 ? 0.0 : temp5;
-                s.relaxation[1] = temp6 == 0.0 ? 0.0 : temp6;
+                s.fns.relaxation[0] = temp5 == 0.0 ? 0.0 : temp5;
+                s.fns.relaxation[1] = temp6 == 0.0 ? 0.0 : temp6;
 
-                s.nova_method = temp7;
+                s.fns.nova_method = temp7;
 
                 optionsEnableShortcut();
 
                 options_menu.getPeriodicityChecking().setEnabled(false);
+                options_menu.getBailout().setEnabled(false);
+                options_menu.getBailoutConditionMenu().setEnabled(false);
+                break;
+            case KLEINIAN:
+
+                field_real = new JTextField();
+                field_real.setText("" + s.fns.kleinianLine[0]);
+                field_real.addAncestorListener(new RequestFocusListener());
+
+                field_imaginary = new JTextField();
+                field_imaginary.setText("" + s.fns.kleinianLine[1]);
+
+                JTextField field_K = new JTextField();
+                field_K.setText("" + s.fns.kleinianK);
+
+                JTextField field_M = new JTextField();
+                field_M.setText("" + s.fns.kleinianM);
+
+                Object[] message6 = {
+                    " ",
+                    "Set the real and imaginary part of the Moebius Transformation.",
+                    "Real:", field_real,
+                    "Imaginary:", field_imaginary,
+                    " ",
+                    "Set the constants of the exponential function.",
+                    "scale factor K:", field_K,
+                    "exponent M:", field_M,
+                    " "};
+
+                res = JOptionPane.showConfirmDialog(scroll_pane, message6, "Kleinian Maskit Parametrisation", JOptionPane.OK_CANCEL_OPTION);
+
+                if (res == JOptionPane.OK_OPTION) {
+                    try {
+                        temp3 = Double.parseDouble(field_real.getText());
+                        temp4 = Double.parseDouble(field_imaginary.getText());
+                        temp5 = Double.parseDouble(field_K.getText());
+                        temp6 = Double.parseDouble(field_M.getText());
+                    } catch (Exception ex) {
+                        JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
+                        main_panel.repaint();
+                        fractal_functions[oldSelected].setSelected(true);
+                        s.fns.function = oldSelected;
+                        return;
+                    }
+                } else {
+                    main_panel.repaint();
+                    fractal_functions[oldSelected].setSelected(true);
+                    s.fns.function = oldSelected;
+                    return;
+                }
+
+                s.fns.kleinianLine[0] = temp3;
+                s.fns.kleinianLine[1] = temp4;
+                s.fns.kleinianK = temp5;
+                s.fns.kleinianM = temp6;
+
+                optionsEnableShortcut();
+                tools_menu.getJulia().setEnabled(false);
+                toolbar.getJuliaButton().setEnabled(false);
+                tools_menu.getJuliaMap().setEnabled(false);
+                toolbar.getJuliaMapButton().setEnabled(false);
+                options_menu.getPeriodicityChecking().setEnabled(false);
+                options_menu.getPerturbation().setEnabled(false);
+                options_menu.getInitialValue().setEnabled(false);
                 options_menu.getBailout().setEnabled(false);
                 options_menu.getBailoutConditionMenu().setEnabled(false);
                 break;
@@ -5727,17 +5873,17 @@ public class MainWindow extends JFrame implements Constants {
             case USER_FORMULA_ITERATION_BASED:
 
                 JTextField field_formula_it_based1 = new JTextField(50);
-                field_formula_it_based1.setText(s.user_formula_iteration_based[0]);
+                field_formula_it_based1.setText(s.fns.user_formula_iteration_based[0]);
                 field_formula_it_based1.addAncestorListener(new RequestFocusListener());
 
                 JTextField field_formula_it_based2 = new JTextField(50);
-                field_formula_it_based2.setText(s.user_formula_iteration_based[1]);
+                field_formula_it_based2.setText(s.fns.user_formula_iteration_based[1]);
 
                 JTextField field_formula_it_based3 = new JTextField(50);
-                field_formula_it_based3.setText(s.user_formula_iteration_based[2]);
+                field_formula_it_based3.setText(s.fns.user_formula_iteration_based[2]);
 
                 JTextField field_formula_it_based4 = new JTextField(50);
-                field_formula_it_based4.setText(s.user_formula_iteration_based[3]);
+                field_formula_it_based4.setText(s.fns.user_formula_iteration_based[3]);
 
                 JPanel formula_panel_it1 = new JPanel();
 
@@ -5765,7 +5911,7 @@ public class MainWindow extends JFrame implements Constants {
                 String[] method42 = {"Escaping Algorithm", "Converging Algorithm"};
 
                 JComboBox method42_choice = new JComboBox(method42);
-                method42_choice.setSelectedIndex(s.bail_technique);
+                method42_choice.setSelectedIndex(s.fns.bail_technique);
                 method42_choice.setToolTipText("Selects the bailout technique.");
                 method42_choice.setFocusable(false);
 
@@ -5795,7 +5941,7 @@ public class MainWindow extends JFrame implements Constants {
                             JOptionPane.showMessageDialog(scroll_pane, "The variables: bail, cbail cannot be used in the 1st iteration formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                             main_panel.repaint();
                             fractal_functions[oldSelected].setSelected(true);
-                            s.function = oldSelected;
+                            s.fns.function = oldSelected;
                             return;
                         }
 
@@ -5807,7 +5953,7 @@ public class MainWindow extends JFrame implements Constants {
                             JOptionPane.showMessageDialog(scroll_pane, "The variables: bail, cbail cannot be used in the 2nd iteration formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                             main_panel.repaint();
                             fractal_functions[oldSelected].setSelected(true);
-                            s.function = oldSelected;
+                            s.fns.function = oldSelected;
                             return;
                         }
 
@@ -5819,7 +5965,7 @@ public class MainWindow extends JFrame implements Constants {
                             JOptionPane.showMessageDialog(scroll_pane, "The variables: bail, cbail cannot be used in the 3rd iteration formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                             main_panel.repaint();
                             fractal_functions[oldSelected].setSelected(true);
-                            s.function = oldSelected;
+                            s.fns.function = oldSelected;
                             return;
                         }
 
@@ -5831,31 +5977,31 @@ public class MainWindow extends JFrame implements Constants {
                             JOptionPane.showMessageDialog(scroll_pane, "The variables: bail, cbail cannot be used in the 4th iteration formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                             main_panel.repaint();
                             fractal_functions[oldSelected].setSelected(true);
-                            s.function = oldSelected;
+                            s.fns.function = oldSelected;
                             return;
                         }
 
                         temp_bool = temp_bool | s.parser.foundC();
 
-                        s.user_formula_iteration_based[0] = field_formula_it_based1.getText();
-                        s.user_formula_iteration_based[1] = field_formula_it_based2.getText();
-                        s.user_formula_iteration_based[2] = field_formula_it_based3.getText();
-                        s.user_formula_iteration_based[3] = field_formula_it_based4.getText();
+                        s.fns.user_formula_iteration_based[0] = field_formula_it_based1.getText();
+                        s.fns.user_formula_iteration_based[1] = field_formula_it_based2.getText();
+                        s.fns.user_formula_iteration_based[2] = field_formula_it_based3.getText();
+                        s.fns.user_formula_iteration_based[3] = field_formula_it_based4.getText();
                         s.user_formula_c = temp_bool;
-                        s.bail_technique = method42_choice.getSelectedIndex();
+                        s.fns.bail_technique = method42_choice.getSelectedIndex();
 
                         setUserFormulaOptions();
                     } catch (ParserException e) {
                         JOptionPane.showMessageDialog(scroll_pane, e.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                         main_panel.repaint();
                         fractal_functions[oldSelected].setSelected(true);
-                        s.function = oldSelected;
+                        s.fns.function = oldSelected;
                         return;
                     }
                 } else {
                     main_panel.repaint();
                     fractal_functions[oldSelected].setSelected(true);
-                    s.function = oldSelected;
+                    s.fns.function = oldSelected;
                     return;
                 }
 
@@ -5867,11 +6013,11 @@ public class MainWindow extends JFrame implements Constants {
                 formula_panel_cond1.setLayout(new GridLayout(2, 2));
 
                 JTextField field_condition = new JTextField(24);
-                field_condition.setText(s.user_formula_conditions[0]);
+                field_condition.setText(s.fns.user_formula_conditions[0]);
                 field_condition.addAncestorListener(new RequestFocusListener());
 
                 JTextField field_condition2 = new JTextField(24);
-                field_condition2.setText(s.user_formula_conditions[1]);
+                field_condition2.setText(s.fns.user_formula_conditions[1]);
 
                 formula_panel_cond1.add(new JLabel("Left operand:", SwingConstants.HORIZONTAL));
                 formula_panel_cond1.add(new JLabel("Right operand:", SwingConstants.HORIZONTAL));
@@ -5879,13 +6025,13 @@ public class MainWindow extends JFrame implements Constants {
                 formula_panel_cond1.add(field_condition2);
 
                 JTextField field_formula_cond1 = new JTextField(50);
-                field_formula_cond1.setText(s.user_formula_condition_formula[0]);
+                field_formula_cond1.setText(s.fns.user_formula_condition_formula[0]);
 
                 JTextField field_formula_cond2 = new JTextField(50);
-                field_formula_cond2.setText(s.user_formula_condition_formula[1]);
+                field_formula_cond2.setText(s.fns.user_formula_condition_formula[1]);
 
                 JTextField field_formula_cond3 = new JTextField(50);
-                field_formula_cond3.setText(s.user_formula_condition_formula[2]);
+                field_formula_cond3.setText(s.fns.user_formula_condition_formula[2]);
 
                 JPanel formula_panel_cond11 = new JPanel();
 
@@ -5908,7 +6054,7 @@ public class MainWindow extends JFrame implements Constants {
                 String[] method43 = {"Escaping Algorithm", "Converging Algorithm"};
 
                 JComboBox method43_choice = new JComboBox(method43);
-                method43_choice.setSelectedIndex(s.bail_technique);
+                method43_choice.setSelectedIndex(s.fns.bail_technique);
                 method43_choice.setToolTipText("Selects the bailout technique.");
                 method43_choice.setFocusable(false);
 
@@ -5938,7 +6084,7 @@ public class MainWindow extends JFrame implements Constants {
                             JOptionPane.showMessageDialog(scroll_pane, "The variables: bail, cbail cannot be used in the left condition formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                             main_panel.repaint();
                             fractal_functions[oldSelected].setSelected(true);
-                            s.function = oldSelected;
+                            s.fns.function = oldSelected;
                             return;
                         }
 
@@ -5948,7 +6094,7 @@ public class MainWindow extends JFrame implements Constants {
                             JOptionPane.showMessageDialog(scroll_pane, "The variables: bail, cbail cannot be used in the right condition formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                             main_panel.repaint();
                             fractal_functions[oldSelected].setSelected(true);
-                            s.function = oldSelected;
+                            s.fns.function = oldSelected;
                             return;
                         }
 
@@ -5958,7 +6104,7 @@ public class MainWindow extends JFrame implements Constants {
                             JOptionPane.showMessageDialog(scroll_pane, "The variables: bail, cbail cannot be used in the left > right z formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                             main_panel.repaint();
                             fractal_functions[oldSelected].setSelected(true);
-                            s.function = oldSelected;
+                            s.fns.function = oldSelected;
                             return;
                         }
 
@@ -5969,7 +6115,7 @@ public class MainWindow extends JFrame implements Constants {
                             JOptionPane.showMessageDialog(scroll_pane, "The variables: bail, cbail cannot be used in the left < right z formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                             main_panel.repaint();
                             fractal_functions[oldSelected].setSelected(true);
-                            s.function = oldSelected;
+                            s.fns.function = oldSelected;
                             return;
                         }
 
@@ -5980,32 +6126,32 @@ public class MainWindow extends JFrame implements Constants {
                             JOptionPane.showMessageDialog(scroll_pane, "The variables: bail, cbail cannot be used in the left = right z formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                             main_panel.repaint();
                             fractal_functions[oldSelected].setSelected(true);
-                            s.function = oldSelected;
+                            s.fns.function = oldSelected;
                             return;
                         }
 
                         temp_bool = temp_bool | s.parser.foundC();
 
-                        s.user_formula_condition_formula[0] = field_formula_cond1.getText();
-                        s.user_formula_condition_formula[1] = field_formula_cond2.getText();
-                        s.user_formula_condition_formula[2] = field_formula_cond3.getText();
-                        s.user_formula_conditions[0] = field_condition.getText();
-                        s.user_formula_conditions[1] = field_condition2.getText();
+                        s.fns.user_formula_condition_formula[0] = field_formula_cond1.getText();
+                        s.fns.user_formula_condition_formula[1] = field_formula_cond2.getText();
+                        s.fns.user_formula_condition_formula[2] = field_formula_cond3.getText();
+                        s.fns.user_formula_conditions[0] = field_condition.getText();
+                        s.fns.user_formula_conditions[1] = field_condition2.getText();
                         s.user_formula_c = temp_bool;
-                        s.bail_technique = method43_choice.getSelectedIndex();
+                        s.fns.bail_technique = method43_choice.getSelectedIndex();
 
                         setUserFormulaOptions();
                     } catch (ParserException e) {
                         JOptionPane.showMessageDialog(scroll_pane, e.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                         main_panel.repaint();
                         fractal_functions[oldSelected].setSelected(true);
-                        s.function = oldSelected;
+                        s.fns.function = oldSelected;
                         return;
                     }
                 } else {
                     main_panel.repaint();
                     fractal_functions[oldSelected].setSelected(true);
-                    s.function = oldSelected;
+                    s.fns.function = oldSelected;
                     return;
                 }
 
@@ -6015,66 +6161,66 @@ public class MainWindow extends JFrame implements Constants {
                 if (!s.ds.domain_coloring) {
                     options_menu.getDistanceEstimation().setEnabled(true);
                 }
-                if (s.out_coloring_algorithm != DISTANCE_ESTIMATOR) {
+                if (s.fns.out_coloring_algorithm != DISTANCE_ESTIMATOR) {
                     out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(true);
                 }
-                if (s.out_coloring_algorithm != BIOMORPH) {
+                if (s.fns.out_coloring_algorithm != BIOMORPH) {
                     out_coloring_modes[BIOMORPH].setEnabled(true);
                 }
-                if (s.out_coloring_algorithm != BANDED) {
+                if (s.fns.out_coloring_algorithm != BANDED) {
                     out_coloring_modes[BANDED].setEnabled(true);
                 }
-                if (s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+                if (s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
                     out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
                 }
-                if (s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+                if (s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
                     out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
                 }
-                if (s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+                if (s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
                     out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
                 }
-                if (s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+                if (s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
                     out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
                 }
-                if (s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+                if (s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
                     out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
                 }
-                if (s.out_coloring_algorithm != ITERATIONS_PLUS_RE) {
+                if (s.fns.out_coloring_algorithm != ITERATIONS_PLUS_RE) {
                     out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
                 }
-                if (s.out_coloring_algorithm != ITERATIONS_PLUS_IM) {
+                if (s.fns.out_coloring_algorithm != ITERATIONS_PLUS_IM) {
                     out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
                 }
-                if (s.out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
+                if (s.fns.out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
                     out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
                 }
-                if (s.out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
+                if (s.fns.out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
                     out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
                 }
-                if (s.out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
+                if (s.fns.out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
                     out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
                 }
-                if (s.out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
+                if (s.fns.out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
                     out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
                 }
-                if (s.out_coloring_algorithm != ESCAPE_TIME_GRID) {
+                if (s.fns.out_coloring_algorithm != ESCAPE_TIME_GRID) {
                     out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
                 }
-                if (s.out_coloring_algorithm != ESCAPE_TIME_FIELD_LINES) {
+                if (s.fns.out_coloring_algorithm != ESCAPE_TIME_FIELD_LINES) {
                     out_coloring_modes[ESCAPE_TIME_FIELD_LINES].setEnabled(true);
                 }
-                if (s.out_coloring_algorithm != ESCAPE_TIME_FIELD_LINES2) {
+                if (s.fns.out_coloring_algorithm != ESCAPE_TIME_FIELD_LINES2) {
                     out_coloring_modes[ESCAPE_TIME_FIELD_LINES2].setEnabled(true);
                 }
                 break;
             case USER_FORMULA:
 
                 JTextField field_formula = new JTextField(50);
-                field_formula.setText(s.user_formula);
+                field_formula.setText(s.fns.user_formula);
                 field_formula.addAncestorListener(new RequestFocusListener());
 
                 JTextField field_formula2 = new JTextField(50);
-                field_formula2.setText(s.user_formula2);
+                field_formula2.setText(s.fns.user_formula2);
 
                 JPanel formula_panel = new JPanel();
 
@@ -6092,7 +6238,7 @@ public class MainWindow extends JFrame implements Constants {
                 String[] method4 = {"Escaping Algorithm", "Converging Algorithm"};
 
                 JComboBox method4_choice = new JComboBox(method4);
-                method4_choice.setSelectedIndex(s.bail_technique);
+                method4_choice.setSelectedIndex(s.fns.bail_technique);
                 method4_choice.setToolTipText("Selects the bailout technique.");
                 method4_choice.setFocusable(false);
 
@@ -6116,7 +6262,7 @@ public class MainWindow extends JFrame implements Constants {
                             JOptionPane.showMessageDialog(scroll_pane, "The variables: bail, cbail cannot be used in the z formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                             main_panel.repaint();
                             fractal_functions[oldSelected].setSelected(true);
-                            s.function = oldSelected;
+                            s.fns.function = oldSelected;
                             return;
                         }
 
@@ -6128,27 +6274,27 @@ public class MainWindow extends JFrame implements Constants {
                             JOptionPane.showMessageDialog(scroll_pane, "The variables: bail, cbail cannot be used in the c formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                             main_panel.repaint();
                             fractal_functions[oldSelected].setSelected(true);
-                            s.function = oldSelected;
+                            s.fns.function = oldSelected;
                             return;
                         }
 
-                        s.user_formula = field_formula.getText();
-                        s.user_formula2 = field_formula2.getText();
+                        s.fns.user_formula = field_formula.getText();
+                        s.fns.user_formula2 = field_formula2.getText();
                         s.user_formula_c = temp_bool;
-                        s.bail_technique = method4_choice.getSelectedIndex();
+                        s.fns.bail_technique = method4_choice.getSelectedIndex();
 
                         setUserFormulaOptions();
                     } catch (ParserException e) {
                         JOptionPane.showMessageDialog(scroll_pane, e.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                         main_panel.repaint();
                         fractal_functions[oldSelected].setSelected(true);
-                        s.function = oldSelected;
+                        s.fns.function = oldSelected;
                         return;
                     }
                 } else {
                     main_panel.repaint();
                     fractal_functions[oldSelected].setSelected(true);
-                    s.function = oldSelected;
+                    s.fns.function = oldSelected;
                     return;
                 }
 
@@ -6156,14 +6302,14 @@ public class MainWindow extends JFrame implements Constants {
                 break;
             case USER_FORMULA_COUPLED:
                 JTextField field_formula_coupled = new JTextField(50);
-                field_formula_coupled.setText(s.user_formula_coupled[0]);
+                field_formula_coupled.setText(s.fns.user_formula_coupled[0]);
                 field_formula_coupled.addAncestorListener(new RequestFocusListener());
 
                 JTextField field_formula_coupled2 = new JTextField(50);
-                field_formula_coupled2.setText(s.user_formula_coupled[1]);
+                field_formula_coupled2.setText(s.fns.user_formula_coupled[1]);
 
                 JTextField field_formula_coupled3 = new JTextField(50);
-                field_formula_coupled3.setText(s.user_formula_coupled[2]);
+                field_formula_coupled3.setText(s.fns.user_formula_coupled[2]);
 
                 JPanel formula_panel_coupled = new JPanel();
 
@@ -6186,7 +6332,7 @@ public class MainWindow extends JFrame implements Constants {
                 String[] method5 = {"Escaping Algorithm", "Converging Algorithm"};
 
                 JComboBox method5_choice = new JComboBox(method5);
-                method5_choice.setSelectedIndex(s.bail_technique);
+                method5_choice.setSelectedIndex(s.fns.bail_technique);
                 method5_choice.setToolTipText("Selects the bailout technique.");
                 method5_choice.setFocusable(false);
 
@@ -6200,7 +6346,7 @@ public class MainWindow extends JFrame implements Constants {
                 tabbedPane.addTab("Formula", formula_panel3);
                 tabbedPane.addTab("Coupling", coupling_options_panel);
 
-                JSlider coupling_slid = new JSlider(JSlider.HORIZONTAL, 0, 100, (int) (s.coupling * 100));
+                JSlider coupling_slid = new JSlider(JSlider.HORIZONTAL, 0, 100, (int) (s.fns.coupling * 100));
                 coupling_slid.setPreferredSize(new Dimension(360, 45));
                 coupling_slid.setFocusable(false);
                 coupling_slid.setToolTipText("Sets the percentange of coupling.");
@@ -6219,18 +6365,18 @@ public class MainWindow extends JFrame implements Constants {
                 coupling_panel.add(coupling_slid);
 
                 final JTextField field_amplitude = new JTextField(8);
-                field_amplitude.setText("" + s.coupling_amplitude);
+                field_amplitude.setText("" + s.fns.coupling_amplitude);
 
                 final JTextField field_frequency = new JTextField(8);
-                field_frequency.setText("" + s.coupling_frequency);
+                field_frequency.setText("" + s.fns.coupling_frequency);
 
                 final JTextField field_seed = new JTextField(8);
-                field_seed.setText("" + s.coupling_seed);
+                field_seed.setText("" + s.fns.coupling_seed);
 
                 String[] coupling_method_str = {"Simple", "Cosine", "Random"};
 
                 final JComboBox coupling_method_choice = new JComboBox(coupling_method_str);
-                coupling_method_choice.setSelectedIndex(s.coupling_method);
+                coupling_method_choice.setSelectedIndex(s.fns.coupling_method);
                 coupling_method_choice.setToolTipText("Selects the coupling method.");
                 coupling_method_choice.setFocusable(false);
 
@@ -6272,11 +6418,11 @@ public class MainWindow extends JFrame implements Constants {
                 coupling_options_panel.add(coupling_panel2);
                 coupling_options_panel.add(coupling_panel);
 
-                if (s.coupling_method == 0) {
+                if (s.fns.coupling_method == 0) {
                     field_seed.setEnabled(false);
                     field_frequency.setEnabled(false);
                     field_amplitude.setEnabled(false);
-                } else if (s.coupling_method == 1) {
+                } else if (s.fns.coupling_method == 1) {
                     field_seed.setEnabled(false);
                     field_frequency.setEnabled(true);
                     field_amplitude.setEnabled(true);
@@ -6323,7 +6469,7 @@ public class MainWindow extends JFrame implements Constants {
                             JOptionPane.showMessageDialog(scroll_pane, "The variables: bail, cbail cannot be used in the z formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                             main_panel.repaint();
                             fractal_functions[oldSelected].setSelected(true);
-                            s.function = oldSelected;
+                            s.fns.function = oldSelected;
                             return;
                         }
 
@@ -6335,7 +6481,7 @@ public class MainWindow extends JFrame implements Constants {
                             JOptionPane.showMessageDialog(scroll_pane, "The variables: bail, cbail cannot be used in the z2 formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                             main_panel.repaint();
                             fractal_functions[oldSelected].setSelected(true);
-                            s.function = oldSelected;
+                            s.fns.function = oldSelected;
                             return;
                         }
 
@@ -6347,7 +6493,7 @@ public class MainWindow extends JFrame implements Constants {
                             JOptionPane.showMessageDialog(scroll_pane, "The variables: z, n, s, p, pp, bail, cbail cannot be used in the z2(0) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                             main_panel.repaint();
                             fractal_functions[oldSelected].setSelected(true);
-                            s.function = oldSelected;
+                            s.fns.function = oldSelected;
                             return;
                         }
 
@@ -6361,33 +6507,33 @@ public class MainWindow extends JFrame implements Constants {
                             JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
                             main_panel.repaint();
                             fractal_functions[oldSelected].setSelected(true);
-                            s.function = oldSelected;
+                            s.fns.function = oldSelected;
                             return;
                         }
 
-                        s.user_formula_coupled[0] = field_formula_coupled.getText();
-                        s.user_formula_coupled[1] = field_formula_coupled2.getText();
-                        s.user_formula_coupled[2] = field_formula_coupled3.getText();
+                        s.fns.user_formula_coupled[0] = field_formula_coupled.getText();
+                        s.fns.user_formula_coupled[1] = field_formula_coupled2.getText();
+                        s.fns.user_formula_coupled[2] = field_formula_coupled3.getText();
                         s.user_formula_c = temp_bool;
-                        s.bail_technique = method5_choice.getSelectedIndex();
-                        s.coupling = coupling_slid.getValue() / 100.0;
-                        s.coupling_amplitude = temp_amp;
-                        s.coupling_seed = temp_seed;
-                        s.coupling_frequency = temp_freq;
-                        s.coupling_method = coupling_method_choice.getSelectedIndex();
+                        s.fns.bail_technique = method5_choice.getSelectedIndex();
+                        s.fns.coupling = coupling_slid.getValue() / 100.0;
+                        s.fns.coupling_amplitude = temp_amp;
+                        s.fns.coupling_seed = temp_seed;
+                        s.fns.coupling_frequency = temp_freq;
+                        s.fns.coupling_method = coupling_method_choice.getSelectedIndex();
 
                         setUserFormulaOptions();
                     } catch (ParserException e) {
                         JOptionPane.showMessageDialog(scroll_pane, e.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                         main_panel.repaint();
                         fractal_functions[oldSelected].setSelected(true);
-                        s.function = oldSelected;
+                        s.fns.function = oldSelected;
                         return;
                     }
                 } else {
                     main_panel.repaint();
                     fractal_functions[oldSelected].setSelected(true);
-                    s.function = oldSelected;
+                    s.fns.function = oldSelected;
                     return;
                 }
                 optionsEnableShortcut();
@@ -6397,7 +6543,7 @@ public class MainWindow extends JFrame implements Constants {
                 break;
         }
 
-        if (oldSelected != s.function) {
+        if (oldSelected != s.fns.function) {
             s.resetUserOutColoringFormulas();
         }
 
@@ -6408,7 +6554,7 @@ public class MainWindow extends JFrame implements Constants {
     public void setBailout() {
 
         resetOrbit();
-        String ans = JOptionPane.showInputDialog(scroll_pane, "You are using " + s.bailout + " for bailout number.\nEnter the new bailout number.", "Bailout Number", JOptionPane.QUESTION_MESSAGE);
+        String ans = JOptionPane.showInputDialog(scroll_pane, "You are using " + s.fns.bailout + " for bailout number.\nEnter the new bailout number.", "Bailout Number", JOptionPane.QUESTION_MESSAGE);
 
         try {
             double temp = Double.parseDouble(ans);
@@ -6417,14 +6563,12 @@ public class MainWindow extends JFrame implements Constants {
                 main_panel.repaint();
                 JOptionPane.showMessageDialog(scroll_pane, "Bailout value must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
                 return;
-            } else {
-                if (temp > 1e70) {
-                    main_panel.repaint();
-                    JOptionPane.showMessageDialog(scroll_pane, "Bailout value must be less than 1e70.", "Error!", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
+            } else if (temp > 1e70) {
+                main_panel.repaint();
+                JOptionPane.showMessageDialog(scroll_pane, "Bailout value must be less than 1e70.", "Error!", JOptionPane.ERROR_MESSAGE);
+                return;
             }
-            s.bailout = temp;
+            s.fns.bailout = temp;
 
             setOptions(false);
 
@@ -6466,7 +6610,7 @@ public class MainWindow extends JFrame implements Constants {
     public void setRotation() {
 
         resetOrbit();
-        final JSlider rotation_slid = new JSlider(JSlider.HORIZONTAL, -360, 360, ((int) (s.rotation)));
+        final JSlider rotation_slid = new JSlider(JSlider.HORIZONTAL, -360, 360, ((int) (s.fns.rotation)));
         rotation_slid.setPreferredSize(new Dimension(300, 35));
         rotation_slid.setMajorTickSpacing(90);
         rotation_slid.setMinorTickSpacing(1);
@@ -6477,7 +6621,7 @@ public class MainWindow extends JFrame implements Constants {
         rotation_slid.setFocusable(false);
 
         final JTextField field_rotation = new JTextField();
-        field_rotation.setText("" + s.rotation);
+        field_rotation.setText("" + s.fns.rotation);
 
         field_rotation.addAncestorListener(new RequestFocusListener());
 
@@ -6529,18 +6673,18 @@ public class MainWindow extends JFrame implements Constants {
 
         final JTextField field_real = new JTextField();
 
-        if (s.rotation_center[0] == 0) {
+        if (s.fns.rotation_center[0] == 0) {
             field_real.setText("" + 0.0);
         } else {
-            field_real.setText("" + s.rotation_center[0]);
+            field_real.setText("" + s.fns.rotation_center[0]);
         }
 
         final JTextField field_imaginary = new JTextField();
 
-        if (s.rotation_center[1] == 0) {
+        if (s.fns.rotation_center[1] == 0) {
             field_imaginary.setText("" + 0.0);
         } else {
-            field_imaginary.setText("" + s.rotation_center[1]);
+            field_imaginary.setText("" + s.fns.rotation_center[1]);
         }
 
         final JCheckBox current_center = new JCheckBox("Current Center");
@@ -6553,22 +6697,22 @@ public class MainWindow extends JFrame implements Constants {
             public void actionPerformed(ActionEvent e) {
 
                 if (!current_center.isSelected()) {
-                    if (s.rotation_center[0] == 0) {
+                    if (s.fns.rotation_center[0] == 0) {
                         field_real.setText("" + 0.0);
                     } else {
-                        field_real.setText("" + s.rotation_center[0]);
+                        field_real.setText("" + s.fns.rotation_center[0]);
                     }
 
                     field_real.setEditable(true);
 
-                    if (s.rotation_center[1] == 0) {
+                    if (s.fns.rotation_center[1] == 0) {
                         field_imaginary.setText("" + 0.0);
                     } else {
-                        field_imaginary.setText("" + s.rotation_center[1]);
+                        field_imaginary.setText("" + s.fns.rotation_center[1]);
                     }
                     field_imaginary.setEditable(true);
                 } else {
-                    Point2D.Double p = MathUtils.rotatePointRelativeToPoint(s.xCenter, s.yCenter, s.rotation_vals, s.rotation_center);
+                    Point2D.Double p = MathUtils.rotatePointRelativeToPoint(s.xCenter, s.yCenter, s.fns.rotation_vals, s.fns.rotation_center);
 
                     field_real.setText("" + p.x);
                     field_real.setEditable(false);
@@ -6611,27 +6755,25 @@ public class MainWindow extends JFrame implements Constants {
             main_panel.repaint();
             JOptionPane.showMessageDialog(scroll_pane, "Rotation angle must be greater than -361.", "Error!", JOptionPane.ERROR_MESSAGE);
             return;
-        } else {
-            if (temp > 360) {
-                main_panel.repaint();
-                JOptionPane.showMessageDialog(scroll_pane, "Rotation angle must be less than 361.", "Error!", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
+        } else if (temp > 360) {
+            main_panel.repaint();
+            JOptionPane.showMessageDialog(scroll_pane, "Rotation angle must be less than 361.", "Error!", JOptionPane.ERROR_MESSAGE);
+            return;
         }
 
-        s.rotation = temp;
+        s.fns.rotation = temp;
 
-        s.rotation_vals[0] = Math.cos(Math.toRadians(s.rotation));
-        s.rotation_vals[1] = Math.sin(Math.toRadians(s.rotation));
+        s.fns.rotation_vals[0] = Math.cos(Math.toRadians(s.fns.rotation));
+        s.fns.rotation_vals[1] = Math.sin(Math.toRadians(s.fns.rotation));
 
-        s.rotation_center[0] = tempReal;
-        s.rotation_center[1] = tempImaginary;
+        s.fns.rotation_center[0] = tempReal;
+        s.fns.rotation_center[1] = tempImaginary;
 
-        s.rotation_center[0] = s.rotation_center[0] == 0 ? 0 : s.rotation_center[0];
-        s.rotation_center[1] = s.rotation_center[1] == 0 ? 0 : s.rotation_center[1];
+        s.fns.rotation_center[0] = s.fns.rotation_center[0] == 0 ? 0 : s.fns.rotation_center[0];
+        s.fns.rotation_center[1] = s.fns.rotation_center[1] == 0 ? 0 : s.fns.rotation_center[1];
 
-        s.xCenter = s.rotation_center[0];
-        s.yCenter = s.rotation_center[1];
+        s.xCenter = s.fns.rotation_center[0];
+        s.yCenter = s.fns.rotation_center[1];
 
         setOptions(false);
 
@@ -6643,7 +6785,7 @@ public class MainWindow extends JFrame implements Constants {
             Arrays.fill(((DataBufferInt) image.getRaster().getDataBuffer()).getData(), Color.BLACK.getRGB());
         }
 
-        if (s.rotation != 0 && s.rotation != 360 && s.rotation != -360) {
+        if (s.fns.rotation != 0 && s.fns.rotation != 360 && s.fns.rotation != -360) {
             tools_menu.getGrid().setEnabled(false);
             grid = false;
             tools_menu.getGrid().setSelected(false);
@@ -6674,19 +6816,19 @@ public class MainWindow extends JFrame implements Constants {
     public void increaseRotation() {
 
         resetOrbit();
-        if (s.rotation == 360) {
-            s.rotation = 0;
+        if (s.fns.rotation == 360) {
+            s.fns.rotation = 0;
         }
-        s.rotation++;
+        s.fns.rotation++;
 
-        s.rotation_vals[0] = Math.cos(Math.toRadians(s.rotation));
-        s.rotation_vals[1] = Math.sin(Math.toRadians(s.rotation));
+        s.fns.rotation_vals[0] = Math.cos(Math.toRadians(s.fns.rotation));
+        s.fns.rotation_vals[1] = Math.sin(Math.toRadians(s.fns.rotation));
 
         setOptions(false);
 
         progress.setValue(0);
 
-        if (s.rotation != 0 && s.rotation != 360 && s.rotation != -360) {
+        if (s.fns.rotation != 0 && s.fns.rotation != 360 && s.fns.rotation != -360) {
             tools_menu.getGrid().setEnabled(false);
             grid = false;
             tools_menu.getGrid().setSelected(false);
@@ -6723,19 +6865,19 @@ public class MainWindow extends JFrame implements Constants {
     public void decreaseRotation() {
 
         resetOrbit();
-        if (s.rotation == -360) {
-            s.rotation = 0;
+        if (s.fns.rotation == -360) {
+            s.fns.rotation = 0;
         }
-        s.rotation--;
+        s.fns.rotation--;
 
-        s.rotation_vals[0] = Math.cos(Math.toRadians(s.rotation));
-        s.rotation_vals[1] = Math.sin(Math.toRadians(s.rotation));
+        s.fns.rotation_vals[0] = Math.cos(Math.toRadians(s.fns.rotation));
+        s.fns.rotation_vals[1] = Math.sin(Math.toRadians(s.fns.rotation));
 
         setOptions(false);
 
         progress.setValue(0);
 
-        if (s.rotation != 0 && s.rotation != 360 && s.rotation != -360) {
+        if (s.fns.rotation != 0 && s.fns.rotation != 360 && s.fns.rotation != -360) {
             tools_menu.getGrid().setEnabled(false);
             grid = false;
             tools_menu.getGrid().setSelected(false);
@@ -6773,12 +6915,12 @@ public class MainWindow extends JFrame implements Constants {
 
         resetOrbit();
         if (!options_menu.getBurningShipOpt().isSelected()) {
-            s.burning_ship = false;
+            s.fns.burning_ship = false;
         } else {
-            s.burning_ship = true;
+            s.fns.burning_ship = true;
         }
 
-        if (s.function <= 9 || s.function == MANDELPOLY || s.function == MANDELBROTWTH) {
+        if (s.fns.function <= 9 || s.fns.function == MANDELPOLY || s.fns.function == MANDELBROTWTH) {
             defaultFractalSettings();
         }
 
@@ -6788,15 +6930,15 @@ public class MainWindow extends JFrame implements Constants {
 
         resetOrbit();
         if (!options_menu.getMandelGrassOpt().isSelected()) {
-            s.mandel_grass = false;
+            s.fns.mandel_grass = false;
         } else {
 
             JTextField field_real = new JTextField();
-            field_real.setText("" + s.mandel_grass_vals[0]);
+            field_real.setText("" + s.fns.mandel_grass_vals[0]);
             field_real.addAncestorListener(new RequestFocusListener());
 
             JTextField field_imaginary = new JTextField();
-            field_imaginary.setText("" + s.mandel_grass_vals[1]);
+            field_imaginary.setText("" + s.fns.mandel_grass_vals[1]);
 
             Object[] message = {
                 " ",
@@ -6824,13 +6966,13 @@ public class MainWindow extends JFrame implements Constants {
                 return;
             }
 
-            s.mandel_grass_vals[0] = temp;
-            s.mandel_grass_vals[1] = temp2;
+            s.fns.mandel_grass_vals[0] = temp;
+            s.fns.mandel_grass_vals[1] = temp2;
 
-            s.mandel_grass = true;
+            s.fns.mandel_grass = true;
         }
 
-        if (s.function <= 9 || s.function == MANDELPOLY || s.function == MANDELBROTWTH) {
+        if (s.fns.function <= 9 || s.fns.function == MANDELPOLY || s.fns.function == MANDELBROTWTH) {
             defaultFractalSettings();
         }
 
@@ -7037,7 +7179,7 @@ public class MainWindow extends JFrame implements Constants {
 
             r = Math.exp(x1 * mulx + start);
 
-            Point2D.Double p = MathUtils.rotatePointRelativeToPoint(s.xCenter + r * cf, s.yCenter + r * sf, s.rotation_vals, s.rotation_center);
+            Point2D.Double p = MathUtils.rotatePointRelativeToPoint(s.xCenter + r * cf, s.yCenter + r * sf, s.fns.rotation_vals, s.fns.rotation_center);
 
             temp_xJuliaCenter = p.x;
 
@@ -7050,7 +7192,7 @@ public class MainWindow extends JFrame implements Constants {
             double temp_size_image_size_x = s.size / image_size;
             double temp_size_image_size_y = (s.size * s.height_ratio) / image_size;
 
-            Point2D.Double p = MathUtils.rotatePointRelativeToPoint(temp_xcenter_size + temp_size_image_size_x * x1, temp_ycenter_size - temp_size_image_size_y * y1, s.rotation_vals, s.rotation_center);
+            Point2D.Double p = MathUtils.rotatePointRelativeToPoint(temp_xcenter_size + temp_size_image_size_x * x1, temp_ycenter_size - temp_size_image_size_y * y1, s.fns.rotation_vals, s.fns.rotation_center);
 
             temp_xJuliaCenter = p.x;
             temp_yJuliaCenter = p.y;
@@ -7059,7 +7201,7 @@ public class MainWindow extends JFrame implements Constants {
 
         Arrays.fill(((DataBufferInt) fast_julia_image.getRaster().getDataBuffer()).getData(), 0);
 
-        switch (s.function) {
+        switch (s.fns.function) {
             case LAMBDA:
                 temp_xCenter = 0.5;
                 temp_yCenter = 0;
@@ -7170,12 +7312,12 @@ public class MainWindow extends JFrame implements Constants {
                 for (int j = 0; j < n; j++) {
                     if (greedy_algorithm) {
                         if (greedy_algorithm_selection == BOUNDARY_TRACING) {
-                            threads[i][j] = new BoundaryTracingDraw(j * FAST_JULIA_IMAGE_SIZE / n, (j + 1) * FAST_JULIA_IMAGE_SIZE / n, i * FAST_JULIA_IMAGE_SIZE / n, (i + 1) * FAST_JULIA_IMAGE_SIZE / n, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, s.bailout_test_algorithm, s.bailout, s.bailout_test_user_formula, s.bailout_test_user_formula2, s.bailout_test_comparison, s.n_norm, ptr, s.fractal_color, s.dem_color, fast_julia_filters, fast_julia_image, periodicity_checking, s.plane_type, s.apply_plane_on_julia, s.apply_plane_on_julia_seed, s.fs, s.out_coloring_algorithm, s.user_out_coloring_algorithm, s.outcoloring_formula, s.user_outcoloring_conditions, s.user_outcoloring_condition_formula, s.in_coloring_algorithm, s.user_in_coloring_algorithm, s.incoloring_formula, s.user_incoloring_conditions, s.user_incoloring_condition_formula, s.smoothing, s.burning_ship, s.mandel_grass, s.mandel_grass_vals, s.function, s.z_exponent, s.z_exponent_complex, s.color_cycling_location, s.rotation_vals, s.rotation_center, s.coefficients, s.z_exponent_nova, s.relaxation, s.nova_method, s.user_formula, s.user_formula2, s.bail_technique, s.user_plane, s.user_plane_algorithm, s.user_plane_conditions, s.user_plane_condition_formula, s.user_formula_iteration_based, s.user_formula_conditions, s.user_formula_condition_formula, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.plane_transform_center, s.plane_transform_angle, s.plane_transform_radius, s.plane_transform_scales, s.plane_transform_wavelength, s.waveType, s.plane_transform_angle2, s.plane_transform_sides, s.plane_transform_amount, s.escaping_smooth_algorithm, s.converging_smooth_algorithm, s.bms, s.color_intensity, s.transfer_function, s.polar_projection, s.circle_period, s.fdes, s.rps, s.coupling, s.user_formula_coupled, s.coupling_method, s.coupling_amplitude, s.coupling_frequency, s.coupling_seed, s.inverse_dem, s.ens, s.ofs, s.gss, s.color_blending, s.ots, temp_xJuliaCenter, temp_yJuliaCenter);
+                            threads[i][j] = new BoundaryTracingDraw(j * FAST_JULIA_IMAGE_SIZE / n, (j + 1) * FAST_JULIA_IMAGE_SIZE / n, i * FAST_JULIA_IMAGE_SIZE / n, (i + 1) * FAST_JULIA_IMAGE_SIZE / n, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, fast_julia_filters, fast_julia_image, periodicity_checking, s.fs, s.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.inverse_dem, s.color_intensity, s.transfer_function, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, temp_xJuliaCenter, temp_yJuliaCenter);
                         } else if (greedy_algorithm_selection == DIVIDE_AND_CONQUER) {
-                            threads[i][j] = new DivideAndConquerDraw(j * FAST_JULIA_IMAGE_SIZE / n, (j + 1) * FAST_JULIA_IMAGE_SIZE / n, i * FAST_JULIA_IMAGE_SIZE / n, (i + 1) * FAST_JULIA_IMAGE_SIZE / n, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, s.bailout_test_algorithm, s.bailout, s.bailout_test_user_formula, s.bailout_test_user_formula2, s.bailout_test_comparison, s.n_norm, ptr, s.fractal_color, s.dem_color, fast_julia_filters, fast_julia_image, periodicity_checking, s.plane_type, s.apply_plane_on_julia, s.apply_plane_on_julia_seed, s.fs, s.out_coloring_algorithm, s.user_out_coloring_algorithm, s.outcoloring_formula, s.user_outcoloring_conditions, s.user_outcoloring_condition_formula, s.in_coloring_algorithm, s.user_in_coloring_algorithm, s.incoloring_formula, s.user_incoloring_conditions, s.user_incoloring_condition_formula, s.smoothing, s.burning_ship, s.mandel_grass, s.mandel_grass_vals, s.function, s.z_exponent, s.z_exponent_complex, s.color_cycling_location, s.rotation_vals, s.rotation_center, s.coefficients, s.z_exponent_nova, s.relaxation, s.nova_method, s.user_formula, s.user_formula2, s.bail_technique, s.user_plane, s.user_plane_algorithm, s.user_plane_conditions, s.user_plane_condition_formula, s.user_formula_iteration_based, s.user_formula_conditions, s.user_formula_condition_formula, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.plane_transform_center, s.plane_transform_angle, s.plane_transform_radius, s.plane_transform_scales, s.plane_transform_wavelength, s.waveType, s.plane_transform_angle2, s.plane_transform_sides, s.plane_transform_amount, s.escaping_smooth_algorithm, s.converging_smooth_algorithm, s.bms, s.color_intensity, s.transfer_function, s.polar_projection, s.circle_period, s.fdes, s.rps, s.coupling, s.user_formula_coupled, s.coupling_method, s.coupling_amplitude, s.coupling_frequency, s.coupling_seed, s.inverse_dem, s.ens, s.ofs, s.gss, s.color_blending, s.ots, temp_xJuliaCenter, temp_yJuliaCenter);
+                            threads[i][j] = new DivideAndConquerDraw(j * FAST_JULIA_IMAGE_SIZE / n, (j + 1) * FAST_JULIA_IMAGE_SIZE / n, i * FAST_JULIA_IMAGE_SIZE / n, (i + 1) * FAST_JULIA_IMAGE_SIZE / n, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, fast_julia_filters, fast_julia_image, periodicity_checking, s.fs, s.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.inverse_dem, s.color_intensity, s.transfer_function, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, temp_xJuliaCenter, temp_yJuliaCenter);
                         }
                     } else {
-                        threads[i][j] = new BruteForceDraw(j * FAST_JULIA_IMAGE_SIZE / n, (j + 1) * FAST_JULIA_IMAGE_SIZE / n, i * FAST_JULIA_IMAGE_SIZE / n, (i + 1) * FAST_JULIA_IMAGE_SIZE / n, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, s.bailout_test_algorithm, s.bailout, s.bailout_test_user_formula, s.bailout_test_user_formula2, s.bailout_test_comparison, s.n_norm, ptr, s.fractal_color, s.dem_color, fast_julia_filters, fast_julia_image, periodicity_checking, s.plane_type, s.apply_plane_on_julia, s.apply_plane_on_julia_seed, s.fs, s.out_coloring_algorithm, s.user_out_coloring_algorithm, s.outcoloring_formula, s.user_outcoloring_conditions, s.user_outcoloring_condition_formula, s.in_coloring_algorithm, s.user_in_coloring_algorithm, s.incoloring_formula, s.user_incoloring_conditions, s.user_incoloring_condition_formula, s.smoothing, s.burning_ship, s.mandel_grass, s.mandel_grass_vals, s.function, s.z_exponent, s.z_exponent_complex, s.color_cycling_location, s.rotation_vals, s.rotation_center, s.coefficients, s.z_exponent_nova, s.relaxation, s.nova_method, s.user_formula, s.user_formula2, s.bail_technique, s.user_plane, s.user_plane_algorithm, s.user_plane_conditions, s.user_plane_condition_formula, s.user_formula_iteration_based, s.user_formula_conditions, s.user_formula_condition_formula, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.plane_transform_center, s.plane_transform_angle, s.plane_transform_radius, s.plane_transform_scales, s.plane_transform_wavelength, s.waveType, s.plane_transform_angle2, s.plane_transform_sides, s.plane_transform_amount, s.escaping_smooth_algorithm, s.converging_smooth_algorithm, s.bms, s.color_intensity, s.transfer_function, s.polar_projection, s.circle_period, s.fdes, s.rps, s.coupling, s.user_formula_coupled, s.coupling_method, s.coupling_amplitude, s.coupling_frequency, s.coupling_seed, s.inverse_dem, s.ens, s.ofs, s.gss, s.color_blending, s.ots, temp_xJuliaCenter, temp_yJuliaCenter);
+                        threads[i][j] = new BruteForceDraw(j * FAST_JULIA_IMAGE_SIZE / n, (j + 1) * FAST_JULIA_IMAGE_SIZE / n, i * FAST_JULIA_IMAGE_SIZE / n, (i + 1) * FAST_JULIA_IMAGE_SIZE / n, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, fast_julia_filters, fast_julia_image, periodicity_checking, s.fs, s.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.inverse_dem, s.color_intensity, s.transfer_function, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, temp_xJuliaCenter, temp_yJuliaCenter);
                     }
                 }
             }
@@ -7192,7 +7334,7 @@ public class MainWindow extends JFrame implements Constants {
     public void setColorCycling() {
 
         resetOrbit();
-        if (!tools_menu.getColorCyling().isSelected()) {
+        if (!tools_menu.getColorCycling().isSelected()) {
 
             color_cycling = false;
             toolbar.getColorCyclingButton().setSelected(false);
@@ -7270,7 +7412,7 @@ public class MainWindow extends JFrame implements Constants {
 
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
-                threads[i][j] = new BruteForceDraw(j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.color_cycling_location, s.fs, s.bms, s.color_intensity, s.transfer_function, s.fdes, s.rps, s.ens, s.ofs, s.gss, s.color_blending);
+                threads[i][j] = new BruteForceDraw(j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.color_cycling_location, s.fs, s.bms, s.color_intensity, s.transfer_function, s.fdes, s.rps, s.ens, s.ofs, s.gss, s.color_blending, s.cns);
             }
         }
     }
@@ -7281,7 +7423,7 @@ public class MainWindow extends JFrame implements Constants {
 
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
-                threads[i][j] = new BruteForceDraw(j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, s.max_iterations, ptr, s.fractal_color, s.dem_color, image, s.color_cycling_location, s.bms, s.color_intensity, s.transfer_function, s.fdes, s.rps, color_cycling_speed, s.fs, s.ens, s.ofs, s.gss, s.color_blending);
+                threads[i][j] = new BruteForceDraw(j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, s.max_iterations, ptr, s.fractal_color, s.dem_color, image, s.color_cycling_location, s.bms, s.color_intensity, s.transfer_function, s.fdes, s.rps, color_cycling_speed, s.fs, s.ens, s.ofs, s.gss, s.color_blending, s.cns);
             }
         }
     }
@@ -7386,17 +7528,17 @@ public class MainWindow extends JFrame implements Constants {
     public void setPlane(int temp) {
 
         resetOrbit();
-        int oldSelected = s.plane_type;
-        s.plane_type = temp;
+        int oldSelected = s.fns.plane_type;
+        s.fns.plane_type = temp;
 
-        if (s.plane_type == USER_PLANE) {
+        if (s.fns.plane_type == USER_PLANE) {
 
             JTabbedPane tabbedPane = new JTabbedPane();
             tabbedPane.setPreferredSize(new Dimension(430, 190));
             tabbedPane.setFocusable(false);
 
             JTextField field_formula = new JTextField(runsOnWindows ? 45 : 40);
-            field_formula.setText(s.user_plane);
+            field_formula.setText(s.fns.user_plane);
             field_formula.addAncestorListener(new RequestFocusListener());
 
             JPanel formula_panel = new JPanel();
@@ -7410,24 +7552,24 @@ public class MainWindow extends JFrame implements Constants {
             formula_panel_cond1.setLayout(new GridLayout(2, 2));
 
             JTextField field_condition = new JTextField(24);
-            field_condition.setText(s.user_plane_conditions[0]);
+            field_condition.setText(s.fns.user_plane_conditions[0]);
             field_condition.addAncestorListener(new RequestFocusListener());
 
             JTextField field_condition2 = new JTextField(24);
-            field_condition2.setText(s.user_plane_conditions[1]);
+            field_condition2.setText(s.fns.user_plane_conditions[1]);
 
             formula_panel_cond1.add(new JLabel("Left operand:", SwingConstants.HORIZONTAL));
             formula_panel_cond1.add(new JLabel("Right operand:", SwingConstants.HORIZONTAL));
             formula_panel_cond1.add(field_condition);
             formula_panel_cond1.add(field_condition2);
             JTextField field_formula_cond1 = new JTextField(runsOnWindows ? 45 : 40);
-            field_formula_cond1.setText(s.user_plane_condition_formula[0]);
+            field_formula_cond1.setText(s.fns.user_plane_condition_formula[0]);
 
             JTextField field_formula_cond2 = new JTextField(runsOnWindows ? 45 : 40);
-            field_formula_cond2.setText(s.user_plane_condition_formula[1]);
+            field_formula_cond2.setText(s.fns.user_plane_condition_formula[1]);
 
             JTextField field_formula_cond3 = new JTextField(runsOnWindows ? 45 : 40);
-            field_formula_cond3.setText(s.user_plane_condition_formula[2]);
+            field_formula_cond3.setText(s.fns.user_plane_condition_formula[2]);
 
             JPanel formula_panel_cond11 = new JPanel();
 
@@ -7457,7 +7599,7 @@ public class MainWindow extends JFrame implements Constants {
 
             Object[] labels3 = createUserFormulaLabels("z, maxn, center, size, sizei, v1 - v30, point");
 
-            tabbedPane.setSelectedIndex(s.user_plane_algorithm);
+            tabbedPane.setSelectedIndex(s.fns.user_plane_algorithm);
 
             Object[] message3 = {
                 labels3,
@@ -7477,7 +7619,7 @@ public class MainWindow extends JFrame implements Constants {
                             JOptionPane.showMessageDialog(scroll_pane, "The variables: c, n, s, p, pp, bail, cbail cannot be used in the z formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                             main_panel.repaint();
                             planes[oldSelected].setSelected(true);
-                            s.plane_type = oldSelected;
+                            s.fns.plane_type = oldSelected;
                             return;
                         }
                     } else {
@@ -7487,7 +7629,7 @@ public class MainWindow extends JFrame implements Constants {
                             JOptionPane.showMessageDialog(scroll_pane, "The variables: c, n, s, p, pp, bail, cbail cannot be used in the left condition formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                             main_panel.repaint();
                             planes[oldSelected].setSelected(true);
-                            s.plane_type = oldSelected;
+                            s.fns.plane_type = oldSelected;
                             return;
                         }
 
@@ -7497,7 +7639,7 @@ public class MainWindow extends JFrame implements Constants {
                             JOptionPane.showMessageDialog(scroll_pane, "The variables: c, n, s, p, pp, bail, cbail cannot be used in the right condition formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                             main_panel.repaint();
                             planes[oldSelected].setSelected(true);
-                            s.plane_type = oldSelected;
+                            s.fns.plane_type = oldSelected;
                             return;
                         }
 
@@ -7507,7 +7649,7 @@ public class MainWindow extends JFrame implements Constants {
                             JOptionPane.showMessageDialog(scroll_pane, "The variables: c, n, s, p, pp, bail, cbail cannot be used in the left > right z formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                             main_panel.repaint();
                             planes[oldSelected].setSelected(true);
-                            s.plane_type = oldSelected;
+                            s.fns.plane_type = oldSelected;
                             return;
                         }
 
@@ -7517,7 +7659,7 @@ public class MainWindow extends JFrame implements Constants {
                             JOptionPane.showMessageDialog(scroll_pane, "The variables: c, n, s, p, pp, bail, cbail cannot be used in the left < right z formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                             main_panel.repaint();
                             planes[oldSelected].setSelected(true);
-                            s.plane_type = oldSelected;
+                            s.fns.plane_type = oldSelected;
                             return;
                         }
 
@@ -7527,21 +7669,21 @@ public class MainWindow extends JFrame implements Constants {
                             JOptionPane.showMessageDialog(scroll_pane, "The variables: c, n, s, p, pp, bail, cbail cannot be used in the left = right z formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                             main_panel.repaint();
                             planes[oldSelected].setSelected(true);
-                            s.plane_type = oldSelected;
+                            s.fns.plane_type = oldSelected;
                             return;
                         }
                     }
 
-                    s.user_plane_algorithm = tabbedPane.getSelectedIndex();
+                    s.fns.user_plane_algorithm = tabbedPane.getSelectedIndex();
 
-                    if (s.user_plane_algorithm == 0) {
-                        s.user_plane = field_formula.getText();
+                    if (s.fns.user_plane_algorithm == 0) {
+                        s.fns.user_plane = field_formula.getText();
                     } else {
-                        s.user_plane_conditions[0] = field_condition.getText();
-                        s.user_plane_conditions[1] = field_condition2.getText();
-                        s.user_plane_condition_formula[0] = field_formula_cond1.getText();
-                        s.user_plane_condition_formula[1] = field_formula_cond2.getText();
-                        s.user_plane_condition_formula[2] = field_formula_cond3.getText();
+                        s.fns.user_plane_conditions[0] = field_condition.getText();
+                        s.fns.user_plane_conditions[1] = field_condition2.getText();
+                        s.fns.user_plane_condition_formula[0] = field_formula_cond1.getText();
+                        s.fns.user_plane_condition_formula[1] = field_formula_cond2.getText();
+                        s.fns.user_plane_condition_formula[2] = field_formula_cond3.getText();
                     }
 
                     defaultFractalSettings();
@@ -7550,38 +7692,38 @@ public class MainWindow extends JFrame implements Constants {
                     JOptionPane.showMessageDialog(scroll_pane, e.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                     main_panel.repaint();
                     planes[oldSelected].setSelected(true);
-                    s.plane_type = oldSelected;
+                    s.fns.plane_type = oldSelected;
                     return;
                 }
             } else {
                 planes[oldSelected].setSelected(true);
-                s.plane_type = oldSelected;
+                s.fns.plane_type = oldSelected;
                 return;
             }
-        } else if (s.plane_type == TWIRL_PLANE) {
+        } else if (s.fns.plane_type == TWIRL_PLANE) {
             JTextField field_rotation = new JTextField();
-            field_rotation.setText("" + s.plane_transform_angle);
+            field_rotation.setText("" + s.fns.plane_transform_angle);
 
             field_rotation.addAncestorListener(new RequestFocusListener());
 
             final JTextField field_real = new JTextField();
 
-            if (s.plane_transform_center[0] == 0) {
+            if (s.fns.plane_transform_center[0] == 0) {
                 field_real.setText("" + 0.0);
             } else {
-                field_real.setText("" + s.plane_transform_center[0]);
+                field_real.setText("" + s.fns.plane_transform_center[0]);
             }
 
             final JTextField field_imaginary = new JTextField();
 
-            if (s.plane_transform_center[1] == 0) {
+            if (s.fns.plane_transform_center[1] == 0) {
                 field_imaginary.setText("" + 0.0);
             } else {
-                field_imaginary.setText("" + s.plane_transform_center[1]);
+                field_imaginary.setText("" + s.fns.plane_transform_center[1]);
             }
 
             JTextField field_radius = new JTextField();
-            field_radius.setText("" + s.plane_transform_radius);
+            field_radius.setText("" + s.fns.plane_transform_radius);
 
             final JCheckBox current_center = new JCheckBox("Current Center");
             current_center.setSelected(false);
@@ -7593,22 +7735,22 @@ public class MainWindow extends JFrame implements Constants {
                 public void actionPerformed(ActionEvent e) {
 
                     if (!current_center.isSelected()) {
-                        if (s.plane_transform_center[0] == 0) {
+                        if (s.fns.plane_transform_center[0] == 0) {
                             field_real.setText("" + 0.0);
                         } else {
-                            field_real.setText("" + s.plane_transform_center[0]);
+                            field_real.setText("" + s.fns.plane_transform_center[0]);
                         }
 
                         field_real.setEditable(true);
 
-                        if (s.plane_transform_center[1] == 0) {
+                        if (s.fns.plane_transform_center[1] == 0) {
                             field_imaginary.setText("" + 0.0);
                         } else {
-                            field_imaginary.setText("" + s.plane_transform_center[1]);
+                            field_imaginary.setText("" + s.fns.plane_transform_center[1]);
                         }
                         field_imaginary.setEditable(true);
                     } else {
-                        Point2D.Double p = MathUtils.rotatePointRelativeToPoint(s.xCenter, s.yCenter, s.rotation_vals, s.rotation_center);
+                        Point2D.Double p = MathUtils.rotatePointRelativeToPoint(s.xCenter, s.yCenter, s.fns.rotation_vals, s.fns.rotation_center);
 
                         field_real.setText("" + p.x);
                         field_real.setEditable(false);
@@ -7645,38 +7787,38 @@ public class MainWindow extends JFrame implements Constants {
                     JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
                     main_panel.repaint();
                     planes[oldSelected].setSelected(true);
-                    s.plane_type = oldSelected;
+                    s.fns.plane_type = oldSelected;
                     return;
                 }
             } else {
                 main_panel.repaint();
                 planes[oldSelected].setSelected(true);
-                s.plane_type = oldSelected;
+                s.fns.plane_type = oldSelected;
                 return;
             }
 
             if (temp4 <= 0) {
                 main_panel.repaint();
                 planes[oldSelected].setSelected(true);
-                s.plane_type = oldSelected;
+                s.fns.plane_type = oldSelected;
                 JOptionPane.showMessageDialog(scroll_pane, "Twirl radius must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
-            s.plane_transform_center[0] = tempReal;
-            s.plane_transform_center[1] = tempImaginary;
-            s.plane_transform_angle = temp3;
-            s.plane_transform_radius = temp4;
+            s.fns.plane_transform_center[0] = tempReal;
+            s.fns.plane_transform_center[1] = tempImaginary;
+            s.fns.plane_transform_angle = temp3;
+            s.fns.plane_transform_radius = temp4;
 
             defaultFractalSettings();
-        } else if (s.plane_type == SHEAR_PLANE) {
+        } else if (s.fns.plane_type == SHEAR_PLANE) {
             JTextField field_scale_real = new JTextField();
-            field_scale_real.setText("" + s.plane_transform_scales[0]);
+            field_scale_real.setText("" + s.fns.plane_transform_scales[0]);
 
             field_scale_real.addAncestorListener(new RequestFocusListener());
 
             JTextField field_scale_imaginary = new JTextField();
-            field_scale_imaginary.setText("" + s.plane_transform_scales[1]);
+            field_scale_imaginary.setText("" + s.fns.plane_transform_scales[1]);
 
             Object[] message = {
                 " ",
@@ -7697,39 +7839,39 @@ public class MainWindow extends JFrame implements Constants {
                     JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
                     main_panel.repaint();
                     planes[oldSelected].setSelected(true);
-                    s.plane_type = oldSelected;
+                    s.fns.plane_type = oldSelected;
                     return;
                 }
             } else {
                 main_panel.repaint();
                 planes[oldSelected].setSelected(true);
-                s.plane_type = oldSelected;
+                s.fns.plane_type = oldSelected;
                 return;
             }
 
-            s.plane_transform_scales[0] = temp3 == 0.0 ? 0.0 : temp3;
-            s.plane_transform_scales[1] = temp4 == 0.0 ? 0.0 : temp4;
+            s.fns.plane_transform_scales[0] = temp3 == 0.0 ? 0.0 : temp3;
+            s.fns.plane_transform_scales[1] = temp4 == 0.0 ? 0.0 : temp4;
 
             defaultFractalSettings();
-        } else if (s.plane_type == RIPPLES_PLANE) {
+        } else if (s.fns.plane_type == RIPPLES_PLANE) {
             JTextField field_scale_real = new JTextField();
-            field_scale_real.setText("" + s.plane_transform_scales[0]);
+            field_scale_real.setText("" + s.fns.plane_transform_scales[0]);
 
             field_scale_real.addAncestorListener(new RequestFocusListener());
 
             JTextField field_scale_imaginary = new JTextField();
-            field_scale_imaginary.setText("" + s.plane_transform_scales[1]);
+            field_scale_imaginary.setText("" + s.fns.plane_transform_scales[1]);
 
             JTextField field_wavelength_real = new JTextField();
-            field_wavelength_real.setText("" + s.plane_transform_wavelength[0]);
+            field_wavelength_real.setText("" + s.fns.plane_transform_wavelength[0]);
 
             JTextField field_wavelength_imaginary = new JTextField();
-            field_wavelength_imaginary.setText("" + s.plane_transform_wavelength[1]);
+            field_wavelength_imaginary.setText("" + s.fns.plane_transform_wavelength[1]);
 
             final JComboBox wavetype_combobox = new JComboBox(waveTypes);
             wavetype_combobox.setFocusable(false);
             wavetype_combobox.setToolTipText("Sets type of wave.");
-            wavetype_combobox.setSelectedIndex(s.waveType);
+            wavetype_combobox.setSelectedIndex(s.fns.waveType);
 
             Object[] message = {
                 " ",
@@ -7760,53 +7902,53 @@ public class MainWindow extends JFrame implements Constants {
                     JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
                     main_panel.repaint();
                     planes[oldSelected].setSelected(true);
-                    s.plane_type = oldSelected;
+                    s.fns.plane_type = oldSelected;
                     return;
                 }
             } else {
                 main_panel.repaint();
                 planes[oldSelected].setSelected(true);
-                s.plane_type = oldSelected;
+                s.fns.plane_type = oldSelected;
                 return;
             }
 
-            s.plane_transform_scales[0] = temp3 == 0.0 ? 0.0 : temp3;
-            s.plane_transform_scales[1] = temp4 == 0.0 ? 0.0 : temp4;
-            s.plane_transform_wavelength[0] = temp7 == 0.0 ? 0.0 : temp7;
-            s.plane_transform_wavelength[1] = temp8 == 0.0 ? 0.0 : temp8;
-            s.waveType = wavetype_combobox.getSelectedIndex();
+            s.fns.plane_transform_scales[0] = temp3 == 0.0 ? 0.0 : temp3;
+            s.fns.plane_transform_scales[1] = temp4 == 0.0 ? 0.0 : temp4;
+            s.fns.plane_transform_wavelength[0] = temp7 == 0.0 ? 0.0 : temp7;
+            s.fns.plane_transform_wavelength[1] = temp8 == 0.0 ? 0.0 : temp8;
+            s.fns.waveType = wavetype_combobox.getSelectedIndex();
 
             defaultFractalSettings();
-        } else if (s.plane_type == KALEIDOSCOPE_PLANE) {
+        } else if (s.fns.plane_type == KALEIDOSCOPE_PLANE) {
             JTextField field_rotation = new JTextField();
-            field_rotation.setText("" + s.plane_transform_angle);
+            field_rotation.setText("" + s.fns.plane_transform_angle);
 
             field_rotation.addAncestorListener(new RequestFocusListener());
 
             JTextField field_rotation2 = new JTextField();
-            field_rotation2.setText("" + s.plane_transform_angle2);
+            field_rotation2.setText("" + s.fns.plane_transform_angle2);
 
             final JTextField field_real = new JTextField();
 
-            if (s.plane_transform_center[0] == 0) {
+            if (s.fns.plane_transform_center[0] == 0) {
                 field_real.setText("" + 0.0);
             } else {
-                field_real.setText("" + s.plane_transform_center[0]);
+                field_real.setText("" + s.fns.plane_transform_center[0]);
             }
 
             final JTextField field_imaginary = new JTextField();
 
-            if (s.plane_transform_center[1] == 0) {
+            if (s.fns.plane_transform_center[1] == 0) {
                 field_imaginary.setText("" + 0.0);
             } else {
-                field_imaginary.setText("" + s.plane_transform_center[1]);
+                field_imaginary.setText("" + s.fns.plane_transform_center[1]);
             }
 
             JTextField field_radius = new JTextField();
-            field_radius.setText("" + s.plane_transform_radius);
+            field_radius.setText("" + s.fns.plane_transform_radius);
 
             JTextField field_sides = new JTextField();
-            field_sides.setText("" + s.plane_transform_sides);
+            field_sides.setText("" + s.fns.plane_transform_sides);
 
             final JCheckBox current_center = new JCheckBox("Current Center");
             current_center.setSelected(false);
@@ -7818,22 +7960,22 @@ public class MainWindow extends JFrame implements Constants {
                 public void actionPerformed(ActionEvent e) {
 
                     if (!current_center.isSelected()) {
-                        if (s.plane_transform_center[0] == 0) {
+                        if (s.fns.plane_transform_center[0] == 0) {
                             field_real.setText("" + 0.0);
                         } else {
-                            field_real.setText("" + s.plane_transform_center[0]);
+                            field_real.setText("" + s.fns.plane_transform_center[0]);
                         }
 
                         field_real.setEditable(true);
 
-                        if (s.plane_transform_center[1] == 0) {
+                        if (s.fns.plane_transform_center[1] == 0) {
                             field_imaginary.setText("" + 0.0);
                         } else {
-                            field_imaginary.setText("" + s.plane_transform_center[1]);
+                            field_imaginary.setText("" + s.fns.plane_transform_center[1]);
                         }
                         field_imaginary.setEditable(true);
                     } else {
-                        Point2D.Double p = MathUtils.rotatePointRelativeToPoint(s.xCenter, s.yCenter, s.rotation_vals, s.rotation_center);
+                        Point2D.Double p = MathUtils.rotatePointRelativeToPoint(s.xCenter, s.yCenter, s.fns.rotation_vals, s.fns.rotation_center);
 
                         field_real.setText("" + p.x);
                         field_real.setEditable(false);
@@ -7877,20 +8019,20 @@ public class MainWindow extends JFrame implements Constants {
                     JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
                     main_panel.repaint();
                     planes[oldSelected].setSelected(true);
-                    s.plane_type = oldSelected;
+                    s.fns.plane_type = oldSelected;
                     return;
                 }
             } else {
                 main_panel.repaint();
                 planes[oldSelected].setSelected(true);
-                s.plane_type = oldSelected;
+                s.fns.plane_type = oldSelected;
                 return;
             }
 
             if (temp4 <= 0) {
                 main_panel.repaint();
                 planes[oldSelected].setSelected(true);
-                s.plane_type = oldSelected;
+                s.fns.plane_type = oldSelected;
                 JOptionPane.showMessageDialog(scroll_pane, "Kaleidoscope radius must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
                 return;
             }
@@ -7898,46 +8040,46 @@ public class MainWindow extends JFrame implements Constants {
             if (temp6 <= 0) {
                 main_panel.repaint();
                 planes[oldSelected].setSelected(true);
-                s.plane_type = oldSelected;
+                s.fns.plane_type = oldSelected;
                 JOptionPane.showMessageDialog(scroll_pane, "Kaleidoscope sides must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
-            s.plane_transform_center[0] = tempReal;
-            s.plane_transform_center[1] = tempImaginary;
-            s.plane_transform_angle = temp3;
-            s.plane_transform_radius = temp4;
-            s.plane_transform_angle2 = temp5;
-            s.plane_transform_sides = temp6;
+            s.fns.plane_transform_center[0] = tempReal;
+            s.fns.plane_transform_center[1] = tempImaginary;
+            s.fns.plane_transform_angle = temp3;
+            s.fns.plane_transform_radius = temp4;
+            s.fns.plane_transform_angle2 = temp5;
+            s.fns.plane_transform_sides = temp6;
 
             defaultFractalSettings();
-        } else if (s.plane_type == PINCH_PLANE) {
+        } else if (s.fns.plane_type == PINCH_PLANE) {
             JTextField field_rotation = new JTextField();
-            field_rotation.setText("" + s.plane_transform_angle);
+            field_rotation.setText("" + s.fns.plane_transform_angle);
 
             field_rotation.addAncestorListener(new RequestFocusListener());
 
             final JTextField field_real = new JTextField();
 
-            if (s.plane_transform_center[0] == 0) {
+            if (s.fns.plane_transform_center[0] == 0) {
                 field_real.setText("" + 0.0);
             } else {
-                field_real.setText("" + s.plane_transform_center[0]);
+                field_real.setText("" + s.fns.plane_transform_center[0]);
             }
 
             final JTextField field_imaginary = new JTextField();
 
-            if (s.plane_transform_center[1] == 0) {
+            if (s.fns.plane_transform_center[1] == 0) {
                 field_imaginary.setText("" + 0.0);
             } else {
-                field_imaginary.setText("" + s.plane_transform_center[1]);
+                field_imaginary.setText("" + s.fns.plane_transform_center[1]);
             }
 
             JTextField field_radius = new JTextField();
-            field_radius.setText("" + s.plane_transform_radius);
+            field_radius.setText("" + s.fns.plane_transform_radius);
 
             JTextField field_amount = new JTextField();
-            field_amount.setText("" + s.plane_transform_amount);
+            field_amount.setText("" + s.fns.plane_transform_amount);
 
             final JCheckBox current_center = new JCheckBox("Current Center");
             current_center.setSelected(false);
@@ -7949,22 +8091,22 @@ public class MainWindow extends JFrame implements Constants {
                 public void actionPerformed(ActionEvent e) {
 
                     if (!current_center.isSelected()) {
-                        if (s.plane_transform_center[0] == 0) {
+                        if (s.fns.plane_transform_center[0] == 0) {
                             field_real.setText("" + 0.0);
                         } else {
-                            field_real.setText("" + s.plane_transform_center[0]);
+                            field_real.setText("" + s.fns.plane_transform_center[0]);
                         }
 
                         field_real.setEditable(true);
 
-                        if (s.plane_transform_center[1] == 0) {
+                        if (s.fns.plane_transform_center[1] == 0) {
                             field_imaginary.setText("" + 0.0);
                         } else {
-                            field_imaginary.setText("" + s.plane_transform_center[1]);
+                            field_imaginary.setText("" + s.fns.plane_transform_center[1]);
                         }
                         field_imaginary.setEditable(true);
                     } else {
-                        Point2D.Double p = MathUtils.rotatePointRelativeToPoint(s.xCenter, s.yCenter, s.rotation_vals, s.rotation_center);
+                        Point2D.Double p = MathUtils.rotatePointRelativeToPoint(s.xCenter, s.yCenter, s.fns.rotation_vals, s.fns.rotation_center);
 
                         field_real.setText("" + p.x);
                         field_real.setEditable(false);
@@ -8005,48 +8147,48 @@ public class MainWindow extends JFrame implements Constants {
                     JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
                     main_panel.repaint();
                     planes[oldSelected].setSelected(true);
-                    s.plane_type = oldSelected;
+                    s.fns.plane_type = oldSelected;
                     return;
                 }
             } else {
                 main_panel.repaint();
                 planes[oldSelected].setSelected(true);
-                s.plane_type = oldSelected;
+                s.fns.plane_type = oldSelected;
                 return;
             }
 
             if (temp4 <= 0) {
                 main_panel.repaint();
                 planes[oldSelected].setSelected(true);
-                s.plane_type = oldSelected;
+                s.fns.plane_type = oldSelected;
                 JOptionPane.showMessageDialog(scroll_pane, "Pinch radius must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
-            s.plane_transform_center[0] = tempReal;
-            s.plane_transform_center[1] = tempImaginary;
-            s.plane_transform_angle = temp3;
-            s.plane_transform_radius = temp4;
-            s.plane_transform_amount = temp5 == 0.0 ? 0.0 : temp5;
+            s.fns.plane_transform_center[0] = tempReal;
+            s.fns.plane_transform_center[1] = tempImaginary;
+            s.fns.plane_transform_angle = temp3;
+            s.fns.plane_transform_radius = temp4;
+            s.fns.plane_transform_amount = temp5 == 0.0 ? 0.0 : temp5;
 
             defaultFractalSettings();
-        } else if (s.plane_type == FOLDUP_PLANE || s.plane_type == FOLDDOWN_PLANE || s.plane_type == FOLDRIGHT_PLANE || s.plane_type == FOLDLEFT_PLANE || s.plane_type == INFLECTION_PLANE || s.plane_type == BIPOLAR_PLANE || s.plane_type == INVERSED_BIPOLAR_PLANE) {
+        } else if (s.fns.plane_type == FOLDUP_PLANE || s.fns.plane_type == FOLDDOWN_PLANE || s.fns.plane_type == FOLDRIGHT_PLANE || s.fns.plane_type == FOLDLEFT_PLANE || s.fns.plane_type == INFLECTION_PLANE || s.fns.plane_type == BIPOLAR_PLANE || s.fns.plane_type == INVERSED_BIPOLAR_PLANE) {
 
             final JTextField field_real = new JTextField();
             field_real.addAncestorListener(new RequestFocusListener());
 
-            if (s.plane_transform_center[0] == 0) {
+            if (s.fns.plane_transform_center[0] == 0) {
                 field_real.setText("" + 0.0);
             } else {
-                field_real.setText("" + s.plane_transform_center[0]);
+                field_real.setText("" + s.fns.plane_transform_center[0]);
             }
 
             final JTextField field_imaginary = new JTextField();
 
-            if (s.plane_transform_center[1] == 0) {
+            if (s.fns.plane_transform_center[1] == 0) {
                 field_imaginary.setText("" + 0.0);
             } else {
-                field_imaginary.setText("" + s.plane_transform_center[1]);
+                field_imaginary.setText("" + s.fns.plane_transform_center[1]);
             }
 
             final JCheckBox current_center = new JCheckBox("Current Center");
@@ -8059,22 +8201,22 @@ public class MainWindow extends JFrame implements Constants {
                 public void actionPerformed(ActionEvent e) {
 
                     if (!current_center.isSelected()) {
-                        if (s.plane_transform_center[0] == 0) {
+                        if (s.fns.plane_transform_center[0] == 0) {
                             field_real.setText("" + 0.0);
                         } else {
-                            field_real.setText("" + s.plane_transform_center[0]);
+                            field_real.setText("" + s.fns.plane_transform_center[0]);
                         }
 
                         field_real.setEditable(true);
 
-                        if (s.plane_transform_center[1] == 0) {
+                        if (s.fns.plane_transform_center[1] == 0) {
                             field_imaginary.setText("" + 0.0);
                         } else {
-                            field_imaginary.setText("" + s.plane_transform_center[1]);
+                            field_imaginary.setText("" + s.fns.plane_transform_center[1]);
                         }
                         field_imaginary.setEditable(true);
                     } else {
-                        Point2D.Double p = MathUtils.rotatePointRelativeToPoint(s.xCenter, s.yCenter, s.rotation_vals, s.rotation_center);
+                        Point2D.Double p = MathUtils.rotatePointRelativeToPoint(s.xCenter, s.yCenter, s.fns.rotation_vals, s.fns.rotation_center);
 
                         field_real.setText("" + p.x);
                         field_real.setEditable(false);
@@ -8086,10 +8228,10 @@ public class MainWindow extends JFrame implements Constants {
 
             String str = "Set the point about the fold (User Point).";
             String title = "Fold";
-            if (s.plane_type == INFLECTION_PLANE) {
+            if (s.fns.plane_type == INFLECTION_PLANE) {
                 str = "Set the point about the inflection (User Point).";
                 title = "Inflection";
-            } else if (s.plane_type == BIPOLAR_PLANE || s.plane_type == INVERSED_BIPOLAR_PLANE) {
+            } else if (s.fns.plane_type == BIPOLAR_PLANE || s.fns.plane_type == INVERSED_BIPOLAR_PLANE) {
                 str = "Set the focal point (User Point).";
                 title = "Bipolar/Inversed Bipolar";
             }
@@ -8113,24 +8255,24 @@ public class MainWindow extends JFrame implements Constants {
                     JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
                     main_panel.repaint();
                     planes[oldSelected].setSelected(true);
-                    s.plane_type = oldSelected;
+                    s.fns.plane_type = oldSelected;
                     return;
                 }
             } else {
                 main_panel.repaint();
                 planes[oldSelected].setSelected(true);
-                s.plane_type = oldSelected;
+                s.fns.plane_type = oldSelected;
                 return;
             }
 
-            s.plane_transform_center[0] = tempReal;
-            s.plane_transform_center[1] = tempImaginary;
+            s.fns.plane_transform_center[0] = tempReal;
+            s.fns.plane_transform_center[1] = tempImaginary;
 
             defaultFractalSettings();
-        } else if (s.plane_type == FOLDIN_PLANE || s.plane_type == FOLDOUT_PLANE) {
+        } else if (s.fns.plane_type == FOLDIN_PLANE || s.fns.plane_type == FOLDOUT_PLANE) {
 
             JTextField field_radius = new JTextField();
-            field_radius.setText("" + s.plane_transform_radius);
+            field_radius.setText("" + s.fns.plane_transform_radius);
             field_radius.addAncestorListener(new RequestFocusListener());
 
             Object[] message = {
@@ -8150,48 +8292,48 @@ public class MainWindow extends JFrame implements Constants {
                     JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
                     main_panel.repaint();
                     planes[oldSelected].setSelected(true);
-                    s.plane_type = oldSelected;
+                    s.fns.plane_type = oldSelected;
                     return;
                 }
             } else {
                 main_panel.repaint();
                 planes[oldSelected].setSelected(true);
-                s.plane_type = oldSelected;
+                s.fns.plane_type = oldSelected;
                 return;
             }
 
             if (temp3 <= 0) {
                 main_panel.repaint();
                 planes[oldSelected].setSelected(true);
-                s.plane_type = oldSelected;
+                s.fns.plane_type = oldSelected;
                 JOptionPane.showMessageDialog(scroll_pane, "Fold radius must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
-            s.plane_transform_radius = temp3;
+            s.fns.plane_transform_radius = temp3;
 
             defaultFractalSettings();
-        } else if (s.plane_type == CIRCLEINVERSION_PLANE) {
+        } else if (s.fns.plane_type == CIRCLEINVERSION_PLANE) {
 
             final JTextField field_real = new JTextField();
             field_real.addAncestorListener(new RequestFocusListener());
 
-            if (s.plane_transform_center[0] == 0) {
+            if (s.fns.plane_transform_center[0] == 0) {
                 field_real.setText("" + 0.0);
             } else {
-                field_real.setText("" + s.plane_transform_center[0]);
+                field_real.setText("" + s.fns.plane_transform_center[0]);
             }
 
             final JTextField field_imaginary = new JTextField();
 
-            if (s.plane_transform_center[1] == 0) {
+            if (s.fns.plane_transform_center[1] == 0) {
                 field_imaginary.setText("" + 0.0);
             } else {
-                field_imaginary.setText("" + s.plane_transform_center[1]);
+                field_imaginary.setText("" + s.fns.plane_transform_center[1]);
             }
 
             JTextField field_radius = new JTextField();
-            field_radius.setText("" + s.plane_transform_radius);
+            field_radius.setText("" + s.fns.plane_transform_radius);
 
             final JCheckBox current_center = new JCheckBox("Current Center");
             current_center.setSelected(false);
@@ -8203,22 +8345,22 @@ public class MainWindow extends JFrame implements Constants {
                 public void actionPerformed(ActionEvent e) {
 
                     if (!current_center.isSelected()) {
-                        if (s.plane_transform_center[0] == 0) {
+                        if (s.fns.plane_transform_center[0] == 0) {
                             field_real.setText("" + 0.0);
                         } else {
-                            field_real.setText("" + s.plane_transform_center[0]);
+                            field_real.setText("" + s.fns.plane_transform_center[0]);
                         }
 
                         field_real.setEditable(true);
 
-                        if (s.plane_transform_center[1] == 0) {
+                        if (s.fns.plane_transform_center[1] == 0) {
                             field_imaginary.setText("" + 0.0);
                         } else {
-                            field_imaginary.setText("" + s.plane_transform_center[1]);
+                            field_imaginary.setText("" + s.fns.plane_transform_center[1]);
                         }
                         field_imaginary.setEditable(true);
                     } else {
-                        Point2D.Double p = MathUtils.rotatePointRelativeToPoint(s.xCenter, s.yCenter, s.rotation_vals, s.rotation_center);
+                        Point2D.Double p = MathUtils.rotatePointRelativeToPoint(s.xCenter, s.yCenter, s.fns.rotation_vals, s.fns.rotation_center);
 
                         field_real.setText("" + p.x);
                         field_real.setEditable(false);
@@ -8251,27 +8393,27 @@ public class MainWindow extends JFrame implements Constants {
                     JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
                     main_panel.repaint();
                     planes[oldSelected].setSelected(true);
-                    s.plane_type = oldSelected;
+                    s.fns.plane_type = oldSelected;
                     return;
                 }
             } else {
                 main_panel.repaint();
                 planes[oldSelected].setSelected(true);
-                s.plane_type = oldSelected;
+                s.fns.plane_type = oldSelected;
                 return;
             }
 
             if (temp4 <= 0) {
                 main_panel.repaint();
                 planes[oldSelected].setSelected(true);
-                s.plane_type = oldSelected;
+                s.fns.plane_type = oldSelected;
                 JOptionPane.showMessageDialog(scroll_pane, "Circle inversion radius must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
-            s.plane_transform_center[0] = tempReal;
-            s.plane_transform_center[1] = tempImaginary;
-            s.plane_transform_radius = temp4;
+            s.fns.plane_transform_center[0] = tempReal;
+            s.fns.plane_transform_center[1] = tempImaginary;
+            s.fns.plane_transform_radius = temp4;
 
             defaultFractalSettings();
         } else {
@@ -8282,41 +8424,41 @@ public class MainWindow extends JFrame implements Constants {
     public void setBailoutTest(int temp) {
 
         resetOrbit();
-        int oldSelection = s.bailout_test_algorithm;
-        s.bailout_test_algorithm = temp;
+        int oldSelection = s.fns.bailout_test_algorithm;
+        s.fns.bailout_test_algorithm = temp;
 
-        if (s.bailout_test_algorithm == BAILOUT_CONDITION_NNORM) {
+        if (s.fns.bailout_test_algorithm == BAILOUT_CONDITION_NNORM) {
 
-            String ans = JOptionPane.showInputDialog(scroll_pane, "You are using " + s.n_norm + " as the N-Norm.\nEnter the new N-Norm number.", "N-Norm", JOptionPane.QUESTION_MESSAGE);
+            String ans = JOptionPane.showInputDialog(scroll_pane, "You are using " + s.fns.n_norm + " as the N-Norm.\nEnter the new N-Norm number.", "N-Norm", JOptionPane.QUESTION_MESSAGE);
 
             try {
                 double temp3 = Double.parseDouble(ans);
 
-                s.n_norm = temp3;
+                s.fns.n_norm = temp3;
 
             } catch (Exception ex) {
                 if (ans == null) {
                     main_panel.repaint();
                     bailout_tests[oldSelection].setSelected(true);
-                    s.bailout_test_algorithm = oldSelection;
+                    s.fns.bailout_test_algorithm = oldSelection;
                 } else {
                     JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
                     main_panel.repaint();
                     bailout_tests[oldSelection].setSelected(true);
-                    s.bailout_test_algorithm = oldSelection;
+                    s.fns.bailout_test_algorithm = oldSelection;
                 }
                 return;
             }
-        } else if (s.bailout_test_algorithm == BAILOUT_CONDITION_USER) {
+        } else if (s.fns.bailout_test_algorithm == BAILOUT_CONDITION_USER) {
             JPanel formula_panel_cond1 = new JPanel();
             formula_panel_cond1.setLayout(new GridLayout(2, 2));
 
             JTextField field_condition = new JTextField(24);
-            field_condition.setText(s.bailout_test_user_formula);
+            field_condition.setText(s.fns.bailout_test_user_formula);
             field_condition.addAncestorListener(new RequestFocusListener());
 
             JTextField field_condition2 = new JTextField(24);
-            field_condition2.setText(s.bailout_test_user_formula2);
+            field_condition2.setText(s.fns.bailout_test_user_formula2);
 
             formula_panel_cond1.add(new JLabel("Left operand:", SwingConstants.HORIZONTAL));
             formula_panel_cond1.add(new JLabel("Right operand:", SwingConstants.HORIZONTAL));
@@ -8338,27 +8480,27 @@ public class MainWindow extends JFrame implements Constants {
             combo_box_less.setFocusable(false);
             combo_box_less.setToolTipText("Sets the test option for the less than case.");
 
-            if (s.bailout_test_comparison == GREATER) { // >
+            if (s.fns.bailout_test_comparison == GREATER) { // >
                 combo_box_greater.setSelectedIndex(0);
                 combo_box_equal.setSelectedIndex(1);
                 combo_box_less.setSelectedIndex(1);
-            } else if (s.bailout_test_comparison == GREATER_EQUAL) { // >=
+            } else if (s.fns.bailout_test_comparison == GREATER_EQUAL) { // >=
                 combo_box_greater.setSelectedIndex(0);
                 combo_box_equal.setSelectedIndex(0);
                 combo_box_less.setSelectedIndex(1);
-            } else if (s.bailout_test_comparison == LOWER) { // <
+            } else if (s.fns.bailout_test_comparison == LOWER) { // <
                 combo_box_greater.setSelectedIndex(1);
                 combo_box_equal.setSelectedIndex(1);
                 combo_box_less.setSelectedIndex(0);
-            } else if (s.bailout_test_comparison == LOWER_EQUAL) { // <=
+            } else if (s.fns.bailout_test_comparison == LOWER_EQUAL) { // <=
                 combo_box_greater.setSelectedIndex(1);
                 combo_box_equal.setSelectedIndex(0);
                 combo_box_less.setSelectedIndex(0);
-            } else if (s.bailout_test_comparison == EQUAL) { // ==
+            } else if (s.fns.bailout_test_comparison == EQUAL) { // ==
                 combo_box_greater.setSelectedIndex(1);
                 combo_box_equal.setSelectedIndex(0);
                 combo_box_less.setSelectedIndex(1);
-            } else if (s.bailout_test_comparison == NOT_EQUAL) { // !=
+            } else if (s.fns.bailout_test_comparison == NOT_EQUAL) { // !=
                 combo_box_greater.setSelectedIndex(0);
                 combo_box_equal.setSelectedIndex(1);
                 combo_box_less.setSelectedIndex(0);
@@ -8400,7 +8542,7 @@ public class MainWindow extends JFrame implements Constants {
                         JOptionPane.showMessageDialog(scroll_pane, "The variable: cbail cannot be used in left condition formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                         main_panel.repaint();
                         bailout_tests[oldSelection].setSelected(true);
-                        s.bailout_test_algorithm = oldSelection;
+                        s.fns.bailout_test_algorithm = oldSelection;
                         return;
                     }
 
@@ -8410,7 +8552,7 @@ public class MainWindow extends JFrame implements Constants {
                         JOptionPane.showMessageDialog(scroll_pane, "The variable: cbail cannot be used in the right condition formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                         main_panel.repaint();
                         bailout_tests[oldSelection].setSelected(true);
-                        s.bailout_test_algorithm = oldSelection;
+                        s.fns.bailout_test_algorithm = oldSelection;
                         return;
                     }
 
@@ -8418,13 +8560,13 @@ public class MainWindow extends JFrame implements Constants {
                     JOptionPane.showMessageDialog(scroll_pane, e.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                     main_panel.repaint();
                     bailout_tests[oldSelection].setSelected(true);
-                    s.bailout_test_algorithm = oldSelection;
+                    s.fns.bailout_test_algorithm = oldSelection;
                     return;
                 }
             } else {
                 main_panel.repaint();
                 bailout_tests[oldSelection].setSelected(true);
-                s.bailout_test_algorithm = oldSelection;
+                s.fns.bailout_test_algorithm = oldSelection;
                 return;
             }
 
@@ -8434,25 +8576,25 @@ public class MainWindow extends JFrame implements Constants {
                 JOptionPane.showMessageDialog(scroll_pane, "You cannot set all the outcomes to Escaped or Not Escaped.", "Error!", JOptionPane.ERROR_MESSAGE);
                 main_panel.repaint();
                 bailout_tests[oldSelection].setSelected(true);
-                s.bailout_test_algorithm = oldSelection;
+                s.fns.bailout_test_algorithm = oldSelection;
                 return;
             }
 
-            s.bailout_test_user_formula = field_condition.getText();
-            s.bailout_test_user_formula2 = field_condition2.getText();
+            s.fns.bailout_test_user_formula = field_condition.getText();
+            s.fns.bailout_test_user_formula2 = field_condition2.getText();
 
             if (combo_box_greater.getSelectedIndex() == 0 && combo_box_equal.getSelectedIndex() == 1 && combo_box_less.getSelectedIndex() == 1) { // >
-                s.bailout_test_comparison = GREATER;
+                s.fns.bailout_test_comparison = GREATER;
             } else if (combo_box_greater.getSelectedIndex() == 0 && combo_box_equal.getSelectedIndex() == 0 && combo_box_less.getSelectedIndex() == 1) { // >=
-                s.bailout_test_comparison = GREATER_EQUAL;
+                s.fns.bailout_test_comparison = GREATER_EQUAL;
             } else if (combo_box_greater.getSelectedIndex() == 1 && combo_box_equal.getSelectedIndex() == 1 && combo_box_less.getSelectedIndex() == 0) { // <
-                s.bailout_test_comparison = LOWER;
+                s.fns.bailout_test_comparison = LOWER;
             } else if (combo_box_greater.getSelectedIndex() == 1 && combo_box_equal.getSelectedIndex() == 0 && combo_box_less.getSelectedIndex() == 0) { // <=
-                s.bailout_test_comparison = LOWER_EQUAL;
+                s.fns.bailout_test_comparison = LOWER_EQUAL;
             } else if (combo_box_greater.getSelectedIndex() == 1 && combo_box_equal.getSelectedIndex() == 0 && combo_box_less.getSelectedIndex() == 1) { // ==
-                s.bailout_test_comparison = EQUAL;
+                s.fns.bailout_test_comparison = EQUAL;
             } else if (combo_box_greater.getSelectedIndex() == 0 && combo_box_equal.getSelectedIndex() == 1 && combo_box_less.getSelectedIndex() == 0) { // !=
-                s.bailout_test_comparison = NOT_EQUAL;
+                s.fns.bailout_test_comparison = NOT_EQUAL;
             }
         }
 
@@ -8487,15 +8629,15 @@ public class MainWindow extends JFrame implements Constants {
     public void setOutColoringMode(int temp) {
 
         resetOrbit();
-        int oldSelected = s.out_coloring_algorithm;
+        int oldSelected = s.fns.out_coloring_algorithm;
 
-        s.out_coloring_algorithm = temp;
+        s.fns.out_coloring_algorithm = temp;
 
         for (int k = 0; k < fractal_functions.length; k++) {
             if (k != PARHALLEY3 && k != PARHALLEY4 && k != PARHALLEYGENERALIZED3 && k != PARHALLEYGENERALIZED8 && k != PARHALLEYSIN && k != PARHALLEYCOS && k != PARHALLEYPOLY && k != PARHALLEYFORMULA
                     && k != LAGUERRE3 && k != LAGUERRE4 && k != LAGUERREGENERALIZED3 && k != LAGUERREGENERALIZED8 && k != LAGUERRESIN && k != LAGUERRECOS && k != LAGUERREPOLY && k != LAGUERREFORMULA
                     && k != MULLER3 && k != MULLER4 && k != MULLERGENERALIZED3 && k != MULLERGENERALIZED8 && k != MULLERSIN && k != MULLERCOS && k != MULLERPOLY && k != MULLERFORMULA
-                    && k != SIERPINSKI_GASKET && k != NEWTON3 && k != STEFFENSENPOLY && k != NEWTON4 && k != NEWTONGENERALIZED3 && k != NEWTONGENERALIZED8 && k != NEWTONSIN && k != NEWTONCOS && k != NEWTONPOLY
+                    && k != KLEINIAN && k != SIERPINSKI_GASKET && k != NEWTON3 && k != STEFFENSENPOLY && k != NEWTON4 && k != NEWTONGENERALIZED3 && k != NEWTONGENERALIZED8 && k != NEWTONSIN && k != NEWTONCOS && k != NEWTONPOLY
                     && k != HALLEY3 && k != HALLEY4 && k != HALLEYGENERALIZED3 && k != HALLEYGENERALIZED8 && k != HALLEYSIN && k != HALLEYCOS && k != HALLEYPOLY
                     && k != SCHRODER3 && k != SCHRODER4 && k != SCHRODERGENERALIZED3 && k != SCHRODERGENERALIZED8 && k != SCHRODERSIN && k != SCHRODERCOS && k != SCHRODERPOLY
                     && k != HOUSEHOLDER3 && k != HOUSEHOLDER4 && k != HOUSEHOLDERGENERALIZED3 && k != HOUSEHOLDERGENERALIZED8 && k != HOUSEHOLDERSIN && k != HOUSEHOLDERCOS && k != HOUSEHOLDERPOLY
@@ -8504,18 +8646,18 @@ public class MainWindow extends JFrame implements Constants {
                 fractal_functions[k].setEnabled(true);
             }
 
-            if (k == SIERPINSKI_GASKET && !s.julia && !julia_map && !s.perturbation && !s.init_val) {
+            if ((k == KLEINIAN || k == SIERPINSKI_GASKET) && !s.fns.julia && !julia_map && !s.fns.perturbation && !s.fns.init_val) {
                 fractal_functions[k].setEnabled(true);
             }
         }
 
-        if (s.out_coloring_algorithm == DISTANCE_ESTIMATOR || s.exterior_de) {
+        if (s.fns.out_coloring_algorithm == DISTANCE_ESTIMATOR || s.exterior_de) {
             for (int k = 1; k < fractal_functions.length; k++) {
                 fractal_functions[k].setEnabled(false);
             }
-        } else if (s.out_coloring_algorithm == ESCAPE_TIME_FIELD_LINES2 || s.out_coloring_algorithm == ESCAPE_TIME_FIELD_LINES || s.out_coloring_algorithm == ESCAPE_TIME_ESCAPE_RADIUS || s.out_coloring_algorithm == ESCAPE_TIME_GRID || s.out_coloring_algorithm == BIOMORPH || s.out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER || s.out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER2 || s.out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER3 || s.out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER4 || s.out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER5 || s.out_coloring_algorithm == ITERATIONS_PLUS_RE || s.out_coloring_algorithm == ITERATIONS_PLUS_IM || s.out_coloring_algorithm == ITERATIONS_PLUS_RE_DIVIDE_IM || s.out_coloring_algorithm == ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM || s.out_coloring_algorithm == ESCAPE_TIME_ALGORITHM2 || s.out_coloring_algorithm == BANDED) {
+        } else if (s.fns.out_coloring_algorithm == ESCAPE_TIME_FIELD_LINES2 || s.fns.out_coloring_algorithm == ESCAPE_TIME_FIELD_LINES || s.fns.out_coloring_algorithm == ESCAPE_TIME_ESCAPE_RADIUS || s.fns.out_coloring_algorithm == ESCAPE_TIME_GRID || s.fns.out_coloring_algorithm == BIOMORPH || s.fns.out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER || s.fns.out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER2 || s.fns.out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER3 || s.fns.out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER4 || s.fns.out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER5 || s.fns.out_coloring_algorithm == ITERATIONS_PLUS_RE || s.fns.out_coloring_algorithm == ITERATIONS_PLUS_IM || s.fns.out_coloring_algorithm == ITERATIONS_PLUS_RE_DIVIDE_IM || s.fns.out_coloring_algorithm == ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM || s.fns.out_coloring_algorithm == ESCAPE_TIME_ALGORITHM2 || s.fns.out_coloring_algorithm == BANDED) {
             rootFindingMethodsSetEnabled(false);
-        } else if (s.out_coloring_algorithm == USER_OUTCOLORING_ALGORITHM) {
+        } else if (s.fns.out_coloring_algorithm == USER_OUTCOLORING_ALGORITHM) {
 
             JTabbedPane tabbedPane = new JTabbedPane();
             tabbedPane.setPreferredSize(new Dimension(495, 190));
@@ -8523,7 +8665,7 @@ public class MainWindow extends JFrame implements Constants {
             tabbedPane.setFocusable(false);
 
             JTextField field_formula = new JTextField(runsOnWindows ? 50 : 45);//48
-            field_formula.setText(s.outcoloring_formula);
+            field_formula.setText(s.fns.outcoloring_formula);
             field_formula.addAncestorListener(new RequestFocusListener());
 
             JPanel formula_panel = new JPanel();
@@ -8538,11 +8680,11 @@ public class MainWindow extends JFrame implements Constants {
             formula_panel_cond1.setLayout(new GridLayout(2, 2));
 
             JTextField field_condition = new JTextField(24);
-            field_condition.setText(s.user_outcoloring_conditions[0]);
+            field_condition.setText(s.fns.user_outcoloring_conditions[0]);
             field_condition.addAncestorListener(new RequestFocusListener());
 
             JTextField field_condition2 = new JTextField(24);
-            field_condition2.setText(s.user_outcoloring_conditions[1]);
+            field_condition2.setText(s.fns.user_outcoloring_conditions[1]);
 
             formula_panel_cond1.add(new JLabel("Left operand:", SwingConstants.HORIZONTAL));
             formula_panel_cond1.add(new JLabel("Right operand:", SwingConstants.HORIZONTAL));
@@ -8550,13 +8692,13 @@ public class MainWindow extends JFrame implements Constants {
             formula_panel_cond1.add(field_condition2);
 
             JTextField field_formula_cond1 = new JTextField(runsOnWindows ? 45 : 40);//35
-            field_formula_cond1.setText(s.user_outcoloring_condition_formula[0]);
+            field_formula_cond1.setText(s.fns.user_outcoloring_condition_formula[0]);
 
             JTextField field_formula_cond2 = new JTextField(runsOnWindows ? 45 : 40);//35
-            field_formula_cond2.setText(s.user_outcoloring_condition_formula[1]);
+            field_formula_cond2.setText(s.fns.user_outcoloring_condition_formula[1]);
 
             JTextField field_formula_cond3 = new JTextField(runsOnWindows ? 45 : 40);//35
-            field_formula_cond3.setText(s.user_outcoloring_condition_formula[2]);
+            field_formula_cond3.setText(s.fns.user_outcoloring_condition_formula[2]);
 
             JPanel formula_panel_cond11 = new JPanel();
 
@@ -8585,7 +8727,7 @@ public class MainWindow extends JFrame implements Constants {
 
             Object[] labels33 = createUserFormulaLabels("z, c, s, p, pp, n, maxn, bail, cbail, center, size, sizei, v1 - v30, point");
 
-            tabbedPane.setSelectedIndex(s.user_out_coloring_algorithm);
+            tabbedPane.setSelectedIndex(s.fns.user_out_coloring_algorithm);
 
             Object[] message3 = {
                 labels33,
@@ -8605,17 +8747,15 @@ public class MainWindow extends JFrame implements Constants {
                                 JOptionPane.showMessageDialog(scroll_pane, "The variable: bail can only be used in escaping type fractals.", "Error!", JOptionPane.ERROR_MESSAGE);
                                 main_panel.repaint();
                                 out_coloring_modes[oldSelected].setSelected(true);
-                                s.out_coloring_algorithm = oldSelected;
+                                s.fns.out_coloring_algorithm = oldSelected;
                                 return;
                             }
-                        } else {
-                            if (s.parser.foundCbail()) {
-                                JOptionPane.showMessageDialog(scroll_pane, "The variable: cbail can only be used in converging type fractals\n(Root finding methods, Nova, User converging formulas).", "Error!", JOptionPane.ERROR_MESSAGE);
-                                main_panel.repaint();
-                                out_coloring_modes[oldSelected].setSelected(true);
-                                s.out_coloring_algorithm = oldSelected;
-                                return;
-                            }
+                        } else if (s.parser.foundCbail()) {
+                            JOptionPane.showMessageDialog(scroll_pane, "The variable: cbail can only be used in converging type fractals\n(Root finding methods, Nova, User converging formulas).", "Error!", JOptionPane.ERROR_MESSAGE);
+                            main_panel.repaint();
+                            out_coloring_modes[oldSelected].setSelected(true);
+                            s.fns.out_coloring_algorithm = oldSelected;
+                            return;
                         }
                     } else {
                         s.parser.parse(field_condition.getText());
@@ -8625,17 +8765,15 @@ public class MainWindow extends JFrame implements Constants {
                                 JOptionPane.showMessageDialog(scroll_pane, "The variable: bail can only be used in escaping type fractals.", "Error!", JOptionPane.ERROR_MESSAGE);
                                 main_panel.repaint();
                                 out_coloring_modes[oldSelected].setSelected(true);
-                                s.out_coloring_algorithm = oldSelected;
+                                s.fns.out_coloring_algorithm = oldSelected;
                                 return;
                             }
-                        } else {
-                            if (s.parser.foundCbail()) {
-                                JOptionPane.showMessageDialog(scroll_pane, "The variable: cbail can only be used in converging type fractals\n(Root finding methods, Nova, User converging formulas).", "Error!", JOptionPane.ERROR_MESSAGE);
-                                main_panel.repaint();
-                                out_coloring_modes[oldSelected].setSelected(true);
-                                s.out_coloring_algorithm = oldSelected;
-                                return;
-                            }
+                        } else if (s.parser.foundCbail()) {
+                            JOptionPane.showMessageDialog(scroll_pane, "The variable: cbail can only be used in converging type fractals\n(Root finding methods, Nova, User converging formulas).", "Error!", JOptionPane.ERROR_MESSAGE);
+                            main_panel.repaint();
+                            out_coloring_modes[oldSelected].setSelected(true);
+                            s.fns.out_coloring_algorithm = oldSelected;
+                            return;
                         }
 
                         s.parser.parse(field_condition2.getText());
@@ -8645,17 +8783,15 @@ public class MainWindow extends JFrame implements Constants {
                                 JOptionPane.showMessageDialog(scroll_pane, "The variable: bail can only be used in escaping type fractals.", "Error!", JOptionPane.ERROR_MESSAGE);
                                 main_panel.repaint();
                                 out_coloring_modes[oldSelected].setSelected(true);
-                                s.out_coloring_algorithm = oldSelected;
+                                s.fns.out_coloring_algorithm = oldSelected;
                                 return;
                             }
-                        } else {
-                            if (s.parser.foundCbail()) {
-                                JOptionPane.showMessageDialog(scroll_pane, "The variable: cbail can only be used in converging type fractals\n(Root finding methods, Nova, User converging formulas).", "Error!", JOptionPane.ERROR_MESSAGE);
-                                main_panel.repaint();
-                                out_coloring_modes[oldSelected].setSelected(true);
-                                s.out_coloring_algorithm = oldSelected;
-                                return;
-                            }
+                        } else if (s.parser.foundCbail()) {
+                            JOptionPane.showMessageDialog(scroll_pane, "The variable: cbail can only be used in converging type fractals\n(Root finding methods, Nova, User converging formulas).", "Error!", JOptionPane.ERROR_MESSAGE);
+                            main_panel.repaint();
+                            out_coloring_modes[oldSelected].setSelected(true);
+                            s.fns.out_coloring_algorithm = oldSelected;
+                            return;
                         }
 
                         s.parser.parse(field_formula_cond1.getText());
@@ -8665,17 +8801,15 @@ public class MainWindow extends JFrame implements Constants {
                                 JOptionPane.showMessageDialog(scroll_pane, "The variable: bail can only be used in escaping type fractals.", "Error!", JOptionPane.ERROR_MESSAGE);
                                 main_panel.repaint();
                                 out_coloring_modes[oldSelected].setSelected(true);
-                                s.out_coloring_algorithm = oldSelected;
+                                s.fns.out_coloring_algorithm = oldSelected;
                                 return;
                             }
-                        } else {
-                            if (s.parser.foundCbail()) {
-                                JOptionPane.showMessageDialog(scroll_pane, "The variable: cbail can only be used in converging type fractals\n(Root finding methods, Nova, User converging formulas).", "Error!", JOptionPane.ERROR_MESSAGE);
-                                main_panel.repaint();
-                                out_coloring_modes[oldSelected].setSelected(true);
-                                s.out_coloring_algorithm = oldSelected;
-                                return;
-                            }
+                        } else if (s.parser.foundCbail()) {
+                            JOptionPane.showMessageDialog(scroll_pane, "The variable: cbail can only be used in converging type fractals\n(Root finding methods, Nova, User converging formulas).", "Error!", JOptionPane.ERROR_MESSAGE);
+                            main_panel.repaint();
+                            out_coloring_modes[oldSelected].setSelected(true);
+                            s.fns.out_coloring_algorithm = oldSelected;
+                            return;
                         }
 
                         s.parser.parse(field_formula_cond2.getText());
@@ -8685,17 +8819,15 @@ public class MainWindow extends JFrame implements Constants {
                                 JOptionPane.showMessageDialog(scroll_pane, "The variable: bail can only be used in escaping type fractals.", "Error!", JOptionPane.ERROR_MESSAGE);
                                 main_panel.repaint();
                                 out_coloring_modes[oldSelected].setSelected(true);
-                                s.out_coloring_algorithm = oldSelected;
+                                s.fns.out_coloring_algorithm = oldSelected;
                                 return;
                             }
-                        } else {
-                            if (s.parser.foundCbail()) {
-                                JOptionPane.showMessageDialog(scroll_pane, "The variable: cbail can only be used in converging type fractals\n(Root finding methods, Nova, User converging formulas).", "Error!", JOptionPane.ERROR_MESSAGE);
-                                main_panel.repaint();
-                                out_coloring_modes[oldSelected].setSelected(true);
-                                s.out_coloring_algorithm = oldSelected;
-                                return;
-                            }
+                        } else if (s.parser.foundCbail()) {
+                            JOptionPane.showMessageDialog(scroll_pane, "The variable: cbail can only be used in converging type fractals\n(Root finding methods, Nova, User converging formulas).", "Error!", JOptionPane.ERROR_MESSAGE);
+                            main_panel.repaint();
+                            out_coloring_modes[oldSelected].setSelected(true);
+                            s.fns.out_coloring_algorithm = oldSelected;
+                            return;
                         }
 
                         s.parser.parse(field_formula_cond3.getText());
@@ -8705,17 +8837,15 @@ public class MainWindow extends JFrame implements Constants {
                                 JOptionPane.showMessageDialog(scroll_pane, "The variable: bail can only be used in escaping type fractals.", "Error!", JOptionPane.ERROR_MESSAGE);
                                 main_panel.repaint();
                                 out_coloring_modes[oldSelected].setSelected(true);
-                                s.out_coloring_algorithm = oldSelected;
+                                s.fns.out_coloring_algorithm = oldSelected;
                                 return;
                             }
-                        } else {
-                            if (s.parser.foundCbail()) {
-                                JOptionPane.showMessageDialog(scroll_pane, "The variable: cbail can only be used in converging type fractals\n(Root finding methods, Nova, User converging formulas).", "Error!", JOptionPane.ERROR_MESSAGE);
-                                main_panel.repaint();
-                                out_coloring_modes[oldSelected].setSelected(true);
-                                s.out_coloring_algorithm = oldSelected;
-                                return;
-                            }
+                        } else if (s.parser.foundCbail()) {
+                            JOptionPane.showMessageDialog(scroll_pane, "The variable: cbail can only be used in converging type fractals\n(Root finding methods, Nova, User converging formulas).", "Error!", JOptionPane.ERROR_MESSAGE);
+                            main_panel.repaint();
+                            out_coloring_modes[oldSelected].setSelected(true);
+                            s.fns.out_coloring_algorithm = oldSelected;
+                            return;
                         }
                     }
 
@@ -8723,35 +8853,48 @@ public class MainWindow extends JFrame implements Constants {
                     JOptionPane.showMessageDialog(scroll_pane, e.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                     main_panel.repaint();
                     out_coloring_modes[oldSelected].setSelected(true);
-                    s.out_coloring_algorithm = oldSelected;
+                    s.fns.out_coloring_algorithm = oldSelected;
                     return;
                 }
             } else {
                 main_panel.repaint();
                 out_coloring_modes[oldSelected].setSelected(true);
-                s.out_coloring_algorithm = oldSelected;
+                s.fns.out_coloring_algorithm = oldSelected;
                 return;
             }
 
-            s.user_out_coloring_algorithm = tabbedPane.getSelectedIndex();
+            s.fns.user_out_coloring_algorithm = tabbedPane.getSelectedIndex();
 
-            if (s.user_out_coloring_algorithm == 0) {
-                s.outcoloring_formula = field_formula.getText();
+            if (s.fns.user_out_coloring_algorithm == 0) {
+                s.fns.outcoloring_formula = field_formula.getText();
             } else {
-                s.user_outcoloring_conditions[0] = field_condition.getText();
-                s.user_outcoloring_conditions[1] = field_condition2.getText();
-                s.user_outcoloring_condition_formula[0] = field_formula_cond1.getText();
-                s.user_outcoloring_condition_formula[1] = field_formula_cond2.getText();
-                s.user_outcoloring_condition_formula[2] = field_formula_cond3.getText();
+                s.fns.user_outcoloring_conditions[0] = field_condition.getText();
+                s.fns.user_outcoloring_conditions[1] = field_condition2.getText();
+                s.fns.user_outcoloring_condition_formula[0] = field_formula_cond1.getText();
+                s.fns.user_outcoloring_condition_formula[1] = field_formula_cond2.getText();
+                s.fns.user_outcoloring_condition_formula[2] = field_formula_cond3.getText();
             }
 
-            if (!julia_map && !s.julia && !s.perturbation && !s.init_val && !s.isRootFindingMethod()) {
+            if (!julia_map && !s.fns.julia && !s.fns.perturbation && !s.fns.init_val && !s.isRootFindingMethod()) {
                 rootFindingMethodsSetEnabled(true);
             }
-        } else {
-            if (!julia_map && !s.julia && !s.perturbation && !s.init_val && !s.isRootFindingMethod()) {
-                rootFindingMethodsSetEnabled(true);
+        } else if (!julia_map && !s.fns.julia && !s.fns.perturbation && !s.fns.init_val && !s.isRootFindingMethod()) {
+            rootFindingMethodsSetEnabled(true);
+        }
+
+        if (s.fns.out_coloring_algorithm != USER_OUTCOLORING_ALGORITHM && s.fns.in_coloring_algorithm != USER_INCOLORING_ALGORITHM) {
+            options_menu.getDirectColor().setEnabled(false);
+            options_menu.getDirectColor().setSelected(false);
+            ThreadDraw.USE_DIRECT_COLOR = false;
+
+            if (!s.ds.domain_coloring) {
+                infobar.getMaxIterationsColorPreview().setVisible(true);
+                infobar.getMaxIterationsColorPreviewLabel().setVisible(true);
             }
+            infobar.getGradientPreviewLabel().setVisible(true);
+            infobar.getGradientPreview().setVisible(true);
+            infobar.getPalettePreview().setVisible(true);
+            infobar.getPalettePreviewLabel().setVisible(true);
         }
 
         setOptions(false);
@@ -8785,23 +8928,23 @@ public class MainWindow extends JFrame implements Constants {
     public void setInColoringMode(int temp) {
 
         resetOrbit();
-        int oldSelected = s.in_coloring_algorithm;
+        int oldSelected = s.fns.in_coloring_algorithm;
 
-        s.in_coloring_algorithm = temp;
+        s.fns.in_coloring_algorithm = temp;
 
-        if (s.in_coloring_algorithm == MAX_ITERATIONS) {
-            if (!s.ds.domain_coloring && !s.isConvergingType() && s.function != SIERPINSKI_GASKET && !s.ots.useTraps) {
+        if (s.fns.in_coloring_algorithm == MAX_ITERATIONS) {
+            if (!s.ds.domain_coloring && !s.isConvergingType() && s.fns.function != KLEINIAN && s.fns.function != SIERPINSKI_GASKET && !s.ots.useTraps) {
                 options_menu.getPeriodicityChecking().setEnabled(true);
             }
         } else {
-            if (s.in_coloring_algorithm == USER_INCOLORING_ALGORITHM) {
+            if (s.fns.in_coloring_algorithm == USER_INCOLORING_ALGORITHM) {
                 JTabbedPane tabbedPane = new JTabbedPane();
                 //tabbedPane.setPreferredSize(new Dimension(550, 210));
                 tabbedPane.setPreferredSize(new Dimension(495, 190));
                 tabbedPane.setFocusable(false);
 
                 JTextField field_formula = new JTextField(runsOnWindows ? 50 : 45);//48
-                field_formula.setText(s.incoloring_formula);
+                field_formula.setText(s.fns.incoloring_formula);
                 field_formula.addAncestorListener(new RequestFocusListener());
 
                 JPanel formula_panel = new JPanel();
@@ -8816,11 +8959,11 @@ public class MainWindow extends JFrame implements Constants {
                 formula_panel_cond1.setLayout(new GridLayout(2, 2));
 
                 JTextField field_condition = new JTextField(24);
-                field_condition.setText(s.user_incoloring_conditions[0]);
+                field_condition.setText(s.fns.user_incoloring_conditions[0]);
                 field_condition.addAncestorListener(new RequestFocusListener());
 
                 JTextField field_condition2 = new JTextField(24);
-                field_condition2.setText(s.user_incoloring_conditions[1]);
+                field_condition2.setText(s.fns.user_incoloring_conditions[1]);
 
                 formula_panel_cond1.add(new JLabel("Left operand:", SwingConstants.HORIZONTAL));
                 formula_panel_cond1.add(new JLabel("Right operand:", SwingConstants.HORIZONTAL));
@@ -8828,13 +8971,13 @@ public class MainWindow extends JFrame implements Constants {
                 formula_panel_cond1.add(field_condition2);
 
                 JTextField field_formula_cond1 = new JTextField(runsOnWindows ? 45 : 40);//35
-                field_formula_cond1.setText(s.user_incoloring_condition_formula[0]);
+                field_formula_cond1.setText(s.fns.user_incoloring_condition_formula[0]);
 
                 JTextField field_formula_cond2 = new JTextField(runsOnWindows ? 45 : 40);//35
-                field_formula_cond2.setText(s.user_incoloring_condition_formula[1]);
+                field_formula_cond2.setText(s.fns.user_incoloring_condition_formula[1]);
 
                 JTextField field_formula_cond3 = new JTextField(runsOnWindows ? 45 : 40);//35
-                field_formula_cond3.setText(s.user_incoloring_condition_formula[2]);
+                field_formula_cond3.setText(s.fns.user_incoloring_condition_formula[2]);
 
                 JPanel formula_panel_cond11 = new JPanel();
 
@@ -8864,7 +9007,7 @@ public class MainWindow extends JFrame implements Constants {
 
                 Object[] labels3 = createUserFormulaLabels("z, c, s, p, pp, n, maxn, bail, cbail, center, size, sizei, v1 - v30, point");
 
-                tabbedPane.setSelectedIndex(s.user_in_coloring_algorithm);
+                tabbedPane.setSelectedIndex(s.fns.user_in_coloring_algorithm);
 
                 Object[] message3 = {
                     labels3,
@@ -8884,17 +9027,15 @@ public class MainWindow extends JFrame implements Constants {
                                     JOptionPane.showMessageDialog(scroll_pane, "The variable: bail can only be used in escaping type fractals.", "Error!", JOptionPane.ERROR_MESSAGE);
                                     main_panel.repaint();
                                     in_coloring_modes[oldSelected].setSelected(true);
-                                    s.in_coloring_algorithm = oldSelected;
+                                    s.fns.in_coloring_algorithm = oldSelected;
                                     return;
                                 }
-                            } else {
-                                if (s.parser.foundCbail()) {
-                                    JOptionPane.showMessageDialog(scroll_pane, "The variable: cbail can only be used in converging type fractals\n(Root finding methods, Nova, User converging formulas).", "Error!", JOptionPane.ERROR_MESSAGE);
-                                    main_panel.repaint();
-                                    in_coloring_modes[oldSelected].setSelected(true);
-                                    s.in_coloring_algorithm = oldSelected;
-                                    return;
-                                }
+                            } else if (s.parser.foundCbail()) {
+                                JOptionPane.showMessageDialog(scroll_pane, "The variable: cbail can only be used in converging type fractals\n(Root finding methods, Nova, User converging formulas).", "Error!", JOptionPane.ERROR_MESSAGE);
+                                main_panel.repaint();
+                                in_coloring_modes[oldSelected].setSelected(true);
+                                s.fns.in_coloring_algorithm = oldSelected;
+                                return;
                             }
                         } else {
                             s.parser.parse(field_condition.getText());
@@ -8904,17 +9045,15 @@ public class MainWindow extends JFrame implements Constants {
                                     JOptionPane.showMessageDialog(scroll_pane, "The variable: bail can only be used in escaping type fractals.", "Error!", JOptionPane.ERROR_MESSAGE);
                                     main_panel.repaint();
                                     in_coloring_modes[oldSelected].setSelected(true);
-                                    s.in_coloring_algorithm = oldSelected;
+                                    s.fns.in_coloring_algorithm = oldSelected;
                                     return;
                                 }
-                            } else {
-                                if (s.parser.foundCbail()) {
-                                    JOptionPane.showMessageDialog(scroll_pane, "The variable: cbail can only be used in converging type fractals\n(Root finding methods, Nova, User converging formulas).", "Error!", JOptionPane.ERROR_MESSAGE);
-                                    main_panel.repaint();
-                                    in_coloring_modes[oldSelected].setSelected(true);
-                                    s.in_coloring_algorithm = oldSelected;
-                                    return;
-                                }
+                            } else if (s.parser.foundCbail()) {
+                                JOptionPane.showMessageDialog(scroll_pane, "The variable: cbail can only be used in converging type fractals\n(Root finding methods, Nova, User converging formulas).", "Error!", JOptionPane.ERROR_MESSAGE);
+                                main_panel.repaint();
+                                in_coloring_modes[oldSelected].setSelected(true);
+                                s.fns.in_coloring_algorithm = oldSelected;
+                                return;
                             }
 
                             s.parser.parse(field_condition2.getText());
@@ -8924,17 +9063,15 @@ public class MainWindow extends JFrame implements Constants {
                                     JOptionPane.showMessageDialog(scroll_pane, "The variable: bail can only be used in escaping type fractals.", "Error!", JOptionPane.ERROR_MESSAGE);
                                     main_panel.repaint();
                                     in_coloring_modes[oldSelected].setSelected(true);
-                                    s.in_coloring_algorithm = oldSelected;
+                                    s.fns.in_coloring_algorithm = oldSelected;
                                     return;
                                 }
-                            } else {
-                                if (s.parser.foundCbail()) {
-                                    JOptionPane.showMessageDialog(scroll_pane, "The variable: cbail can only be used in converging type fractals\n(Root finding methods, Nova, User converging formulas).", "Error!", JOptionPane.ERROR_MESSAGE);
-                                    main_panel.repaint();
-                                    in_coloring_modes[oldSelected].setSelected(true);
-                                    s.in_coloring_algorithm = oldSelected;
-                                    return;
-                                }
+                            } else if (s.parser.foundCbail()) {
+                                JOptionPane.showMessageDialog(scroll_pane, "The variable: cbail can only be used in converging type fractals\n(Root finding methods, Nova, User converging formulas).", "Error!", JOptionPane.ERROR_MESSAGE);
+                                main_panel.repaint();
+                                in_coloring_modes[oldSelected].setSelected(true);
+                                s.fns.in_coloring_algorithm = oldSelected;
+                                return;
                             }
 
                             s.parser.parse(field_formula_cond1.getText());
@@ -8944,17 +9081,15 @@ public class MainWindow extends JFrame implements Constants {
                                     JOptionPane.showMessageDialog(scroll_pane, "The variable: bail can only be used in escaping type fractals.", "Error!", JOptionPane.ERROR_MESSAGE);
                                     main_panel.repaint();
                                     in_coloring_modes[oldSelected].setSelected(true);
-                                    s.in_coloring_algorithm = oldSelected;
+                                    s.fns.in_coloring_algorithm = oldSelected;
                                     return;
                                 }
-                            } else {
-                                if (s.parser.foundCbail()) {
-                                    JOptionPane.showMessageDialog(scroll_pane, "The variable: cbail can only be used in converging type fractals\n(Root finding methods, Nova, User converging formulas).", "Error!", JOptionPane.ERROR_MESSAGE);
-                                    main_panel.repaint();
-                                    in_coloring_modes[oldSelected].setSelected(true);
-                                    s.in_coloring_algorithm = oldSelected;
-                                    return;
-                                }
+                            } else if (s.parser.foundCbail()) {
+                                JOptionPane.showMessageDialog(scroll_pane, "The variable: cbail can only be used in converging type fractals\n(Root finding methods, Nova, User converging formulas).", "Error!", JOptionPane.ERROR_MESSAGE);
+                                main_panel.repaint();
+                                in_coloring_modes[oldSelected].setSelected(true);
+                                s.fns.in_coloring_algorithm = oldSelected;
+                                return;
                             }
 
                             s.parser.parse(field_formula_cond2.getText());
@@ -8964,17 +9099,15 @@ public class MainWindow extends JFrame implements Constants {
                                     JOptionPane.showMessageDialog(scroll_pane, "The variable: bail can only be used in escaping type fractals.", "Error!", JOptionPane.ERROR_MESSAGE);
                                     main_panel.repaint();
                                     in_coloring_modes[oldSelected].setSelected(true);
-                                    s.in_coloring_algorithm = oldSelected;
+                                    s.fns.in_coloring_algorithm = oldSelected;
                                     return;
                                 }
-                            } else {
-                                if (s.parser.foundCbail()) {
-                                    JOptionPane.showMessageDialog(scroll_pane, "The variable: cbail can only be used in converging type fractals\n(Root finding methods, Nova, User converging formulas).", "Error!", JOptionPane.ERROR_MESSAGE);
-                                    main_panel.repaint();
-                                    in_coloring_modes[oldSelected].setSelected(true);
-                                    s.in_coloring_algorithm = oldSelected;
-                                    return;
-                                }
+                            } else if (s.parser.foundCbail()) {
+                                JOptionPane.showMessageDialog(scroll_pane, "The variable: cbail can only be used in converging type fractals\n(Root finding methods, Nova, User converging formulas).", "Error!", JOptionPane.ERROR_MESSAGE);
+                                main_panel.repaint();
+                                in_coloring_modes[oldSelected].setSelected(true);
+                                s.fns.in_coloring_algorithm = oldSelected;
+                                return;
                             }
 
                             s.parser.parse(field_formula_cond3.getText());
@@ -8984,17 +9117,15 @@ public class MainWindow extends JFrame implements Constants {
                                     JOptionPane.showMessageDialog(scroll_pane, "The variable: bail can only be used in escaping type fractals.", "Error!", JOptionPane.ERROR_MESSAGE);
                                     main_panel.repaint();
                                     in_coloring_modes[oldSelected].setSelected(true);
-                                    s.in_coloring_algorithm = oldSelected;
+                                    s.fns.in_coloring_algorithm = oldSelected;
                                     return;
                                 }
-                            } else {
-                                if (s.parser.foundCbail()) {
-                                    JOptionPane.showMessageDialog(scroll_pane, "The variable: cbail can only be used in converging type fractals\n(Root finding methods, Nova, User converging formulas).", "Error!", JOptionPane.ERROR_MESSAGE);
-                                    main_panel.repaint();
-                                    in_coloring_modes[oldSelected].setSelected(true);
-                                    s.in_coloring_algorithm = oldSelected;
-                                    return;
-                                }
+                            } else if (s.parser.foundCbail()) {
+                                JOptionPane.showMessageDialog(scroll_pane, "The variable: cbail can only be used in converging type fractals\n(Root finding methods, Nova, User converging formulas).", "Error!", JOptionPane.ERROR_MESSAGE);
+                                main_panel.repaint();
+                                in_coloring_modes[oldSelected].setSelected(true);
+                                s.fns.in_coloring_algorithm = oldSelected;
+                                return;
                             }
                         }
 
@@ -9002,29 +9133,44 @@ public class MainWindow extends JFrame implements Constants {
                         JOptionPane.showMessageDialog(scroll_pane, e.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                         main_panel.repaint();
                         in_coloring_modes[oldSelected].setSelected(true);
-                        s.in_coloring_algorithm = oldSelected;
+                        s.fns.in_coloring_algorithm = oldSelected;
                         return;
                     }
                 } else {
                     main_panel.repaint();
                     in_coloring_modes[oldSelected].setSelected(true);
-                    s.in_coloring_algorithm = oldSelected;
+                    s.fns.in_coloring_algorithm = oldSelected;
                     return;
                 }
 
-                s.user_in_coloring_algorithm = tabbedPane.getSelectedIndex();
+                s.fns.user_in_coloring_algorithm = tabbedPane.getSelectedIndex();
 
-                if (s.user_in_coloring_algorithm == 0) {
-                    s.incoloring_formula = field_formula.getText();
+                if (s.fns.user_in_coloring_algorithm == 0) {
+                    s.fns.incoloring_formula = field_formula.getText();
                 } else {
-                    s.user_incoloring_conditions[0] = field_condition.getText();
-                    s.user_incoloring_conditions[1] = field_condition2.getText();
-                    s.user_incoloring_condition_formula[0] = field_formula_cond1.getText();
-                    s.user_incoloring_condition_formula[1] = field_formula_cond2.getText();
-                    s.user_incoloring_condition_formula[2] = field_formula_cond3.getText();
+                    s.fns.user_incoloring_conditions[0] = field_condition.getText();
+                    s.fns.user_incoloring_conditions[1] = field_condition2.getText();
+                    s.fns.user_incoloring_condition_formula[0] = field_formula_cond1.getText();
+                    s.fns.user_incoloring_condition_formula[1] = field_formula_cond2.getText();
+                    s.fns.user_incoloring_condition_formula[2] = field_formula_cond3.getText();
                 }
             }
             options_menu.getPeriodicityChecking().setEnabled(false);
+        }
+
+        if (s.fns.out_coloring_algorithm != USER_OUTCOLORING_ALGORITHM && s.fns.in_coloring_algorithm != USER_INCOLORING_ALGORITHM) {
+            options_menu.getDirectColor().setEnabled(false);
+            options_menu.getDirectColor().setSelected(false);
+            ThreadDraw.USE_DIRECT_COLOR = false;
+
+            if (!s.ds.domain_coloring) {
+                infobar.getMaxIterationsColorPreview().setVisible(true);
+                infobar.getMaxIterationsColorPreviewLabel().setVisible(true);
+            }
+            infobar.getGradientPreviewLabel().setVisible(true);
+            infobar.getGradientPreview().setVisible(true);
+            infobar.getPalettePreview().setVisible(true);
+            infobar.getPalettePreviewLabel().setVisible(true);
         }
 
         setOptions(false);
@@ -9059,20 +9205,20 @@ public class MainWindow extends JFrame implements Constants {
 
         resetOrbit();
         final JCheckBox enable_smoothing = new JCheckBox("Smoothing");
-        enable_smoothing.setSelected(s.smoothing);
+        enable_smoothing.setSelected(s.fns.smoothing);
         enable_smoothing.setFocusable(false);
 
         String[] escaping_algorithm_str = {"Algorithm 1", "Algorithm 2"};
 
         JComboBox escaping_alg_combo = new JComboBox(escaping_algorithm_str);
-        escaping_alg_combo.setSelectedIndex(s.escaping_smooth_algorithm);
+        escaping_alg_combo.setSelectedIndex(s.fns.escaping_smooth_algorithm);
         escaping_alg_combo.setFocusable(false);
         escaping_alg_combo.setToolTipText("Sets the smooting algorithm for escaping functions.");
 
         String[] converging_algorithm_str = {"Algorithm 1", "Algorithm 2"};
 
         JComboBox converging_alg_combo = new JComboBox(converging_algorithm_str);
-        converging_alg_combo.setSelectedIndex(s.converging_smooth_algorithm);
+        converging_alg_combo.setSelectedIndex(s.fns.converging_smooth_algorithm);
         converging_alg_combo.setFocusable(false);
         converging_alg_combo.setToolTipText("Sets the smooting algorithm for converging functions.");
 
@@ -9102,9 +9248,9 @@ public class MainWindow extends JFrame implements Constants {
 
         if (res == JOptionPane.OK_OPTION) {
 
-            s.smoothing = enable_smoothing.isSelected();
-            s.escaping_smooth_algorithm = escaping_alg_combo.getSelectedIndex();
-            s.converging_smooth_algorithm = converging_alg_combo.getSelectedIndex();
+            s.fns.smoothing = enable_smoothing.isSelected();
+            s.fns.escaping_smooth_algorithm = escaping_alg_combo.getSelectedIndex();
+            s.fns.converging_smooth_algorithm = converging_alg_combo.getSelectedIndex();
             s.color_smoothing_method = combo_box_color_interp.getSelectedIndex();
         } else {
             main_panel.repaint();
@@ -9112,9 +9258,9 @@ public class MainWindow extends JFrame implements Constants {
         }
 
         if (s.color_choice == CUSTOM_PALETTE_ID) {
-            ThreadDraw.palette = new CustomPalette(s.custom_palette, s.color_interpolation, s.color_space, s.reversed_palette, s.scale_factor_palette_val, s.processing_alg, s.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color);
+            ThreadDraw.palette = new CustomPalette(s.custom_palette, s.color_interpolation, s.color_space, s.reversed_palette, s.scale_factor_palette_val, s.processing_alg, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color);
         } else {
-            ThreadDraw.palette = new PresetPalette(s.color_choice, s.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color);
+            ThreadDraw.palette = new PresetPalette(s.color_choice, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color);
         }
 
         updateColorPalettesMenu();
@@ -9302,7 +9448,7 @@ public class MainWindow extends JFrame implements Constants {
             s.bms.bumpProcessing = bump_processing_method_opt.getSelectedIndex();
             s.bms.bump_blending = color_blend_opt.getValue() / 100.0;
 
-            if (!s.smoothing && s.bms.bump_map) {
+            if (!s.fns.smoothing && s.bms.bump_map) {
                 JOptionPane.showMessageDialog(scroll_pane, "Smoothing is disabled.\nYou should enable smoothing for a better result.", "Warning!", JOptionPane.WARNING_MESSAGE);
             }
 
@@ -9467,7 +9613,7 @@ public class MainWindow extends JFrame implements Constants {
         s.rps.rp_blending = color_blend_opt.getValue() / 100.0;
         s.rps.rainbow_algorithm = rainbow_coloring_method_opt.getSelectedIndex();
 
-        if (!s.smoothing && s.rps.rainbow_palette) {
+        if (!s.fns.smoothing && s.rps.rainbow_palette) {
             JOptionPane.showMessageDialog(scroll_pane, "Smoothing is disabled.\nYou should enable smoothing for a better result.", "Warning!", JOptionPane.WARNING_MESSAGE);
         }
 
@@ -9567,7 +9713,7 @@ public class MainWindow extends JFrame implements Constants {
         s.fdes.fake_de_factor = temp;
         s.fdes.inverse_fake_dem = invert_fake_de.isSelected();
 
-        if (!s.smoothing && s.fdes.fake_de) {
+        if (!s.fns.smoothing && s.fdes.fake_de) {
             JOptionPane.showMessageDialog(scroll_pane, "Smoothing is disabled.\nYou should enable smoothing for a better result.", "Warning!", JOptionPane.WARNING_MESSAGE);
         }
 
@@ -9814,7 +9960,7 @@ public class MainWindow extends JFrame implements Constants {
         s.ens.en_blending = color_blend_opt.getValue() / 100.0;
         s.ens.entropy_algorithm = entropy_coloring_method_opt.getSelectedIndex();
 
-        if (!s.smoothing && s.ens.entropy_coloring) {
+        if (!s.fns.smoothing && s.ens.entropy_coloring) {
             JOptionPane.showMessageDialog(scroll_pane, "Smoothing is disabled.\nYou should enable smoothing for a better result.", "Warning!", JOptionPane.WARNING_MESSAGE);
         }
 
@@ -9934,7 +10080,7 @@ public class MainWindow extends JFrame implements Constants {
         s.ofs.of_noise_reducing_factor = temp2;
         s.ofs.of_blending = color_blend_opt.getValue() / 100.0;
 
-        if (!s.smoothing && s.ofs.offset_coloring) {
+        if (!s.fns.smoothing && s.ofs.offset_coloring) {
             JOptionPane.showMessageDialog(scroll_pane, "Smoothing is disabled.\nYou should enable smoothing for a better result.", "Warning!", JOptionPane.WARNING_MESSAGE);
         }
 
@@ -10039,7 +10185,7 @@ public class MainWindow extends JFrame implements Constants {
                 if (k != PARHALLEY3 && k != PARHALLEY4 && k != PARHALLEYGENERALIZED3 && k != PARHALLEYGENERALIZED8 && k != PARHALLEYSIN && k != PARHALLEYCOS && k != PARHALLEYPOLY && k != PARHALLEYFORMULA
                         && k != LAGUERRE3 && k != LAGUERRE4 && k != LAGUERREGENERALIZED3 && k != LAGUERREGENERALIZED8 && k != LAGUERRESIN && k != LAGUERRECOS && k != LAGUERREPOLY && k != LAGUERREFORMULA
                         && k != MULLER3 && k != MULLER4 && k != MULLERGENERALIZED3 && k != MULLERGENERALIZED8 && k != MULLERSIN && k != MULLERCOS && k != MULLERPOLY && k != MULLERFORMULA
-                        && k != SIERPINSKI_GASKET && k != NEWTON3 && k != STEFFENSENPOLY && k != NEWTON4 && k != NEWTONGENERALIZED3 && k != NEWTONGENERALIZED8 && k != NEWTONSIN && k != NEWTONCOS && k != NEWTONPOLY
+                        && k != KLEINIAN && k != SIERPINSKI_GASKET && k != NEWTON3 && k != STEFFENSENPOLY && k != NEWTON4 && k != NEWTONGENERALIZED3 && k != NEWTONGENERALIZED8 && k != NEWTONSIN && k != NEWTONCOS && k != NEWTONPOLY
                         && k != HALLEY3 && k != HALLEY4 && k != HALLEYGENERALIZED3 && k != HALLEYGENERALIZED8 && k != HALLEYSIN && k != HALLEYCOS && k != HALLEYPOLY
                         && k != SCHRODER3 && k != SCHRODER4 && k != SCHRODERGENERALIZED3 && k != SCHRODERGENERALIZED8 && k != SCHRODERSIN && k != SCHRODERCOS && k != SCHRODERPOLY
                         && k != HOUSEHOLDER3 && k != HOUSEHOLDER4 && k != HOUSEHOLDERGENERALIZED3 && k != HOUSEHOLDERGENERALIZED8 && k != HOUSEHOLDERSIN && k != HOUSEHOLDERCOS && k != HOUSEHOLDERPOLY
@@ -10048,12 +10194,12 @@ public class MainWindow extends JFrame implements Constants {
                     fractal_functions[k].setEnabled(true);
                 }
 
-                if (k == SIERPINSKI_GASKET && !s.julia && !julia_map && !s.perturbation && !s.init_val) {
+                if ((k == KLEINIAN || k == SIERPINSKI_GASKET) && !s.fns.julia && !julia_map && !s.fns.perturbation && !s.fns.init_val) {
                     fractal_functions[k].setEnabled(true);
                 }
             }
 
-            if (s.out_coloring_algorithm != ESCAPE_TIME_FIELD_LINES2 && s.out_coloring_algorithm != ESCAPE_TIME_FIELD_LINES && s.out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS && s.out_coloring_algorithm != ESCAPE_TIME_GRID && s.out_coloring_algorithm != DISTANCE_ESTIMATOR && !s.exterior_de && s.out_coloring_algorithm != BIOMORPH && s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER && s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3 && s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5 && s.out_coloring_algorithm != ITERATIONS_PLUS_RE && s.out_coloring_algorithm != ITERATIONS_PLUS_IM && s.out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && s.out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM && s.out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && s.out_coloring_algorithm != BANDED && !s.julia && !julia_map && !s.perturbation && !s.init_val) {
+            if (s.fns.out_coloring_algorithm != ESCAPE_TIME_FIELD_LINES2 && s.fns.out_coloring_algorithm != ESCAPE_TIME_FIELD_LINES && s.fns.out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS && s.fns.out_coloring_algorithm != ESCAPE_TIME_GRID && s.fns.out_coloring_algorithm != DISTANCE_ESTIMATOR && !s.exterior_de && s.fns.out_coloring_algorithm != BIOMORPH && s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER && s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3 && s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5 && s.fns.out_coloring_algorithm != ITERATIONS_PLUS_RE && s.fns.out_coloring_algorithm != ITERATIONS_PLUS_IM && s.fns.out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && s.fns.out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM && s.fns.out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && s.fns.out_coloring_algorithm != BANDED && !s.fns.julia && !julia_map && !s.fns.perturbation && !s.fns.init_val) {
                 rootFindingMethodsSetEnabled(true);
             }
         }
@@ -10097,12 +10243,13 @@ public class MainWindow extends JFrame implements Constants {
 
             setOptions(false);
 
-            if (s.out_coloring_algorithm != ESCAPE_TIME_FIELD_LINES2 && s.out_coloring_algorithm != ESCAPE_TIME_FIELD_LINES && s.out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS && s.out_coloring_algorithm != ESCAPE_TIME_GRID && s.out_coloring_algorithm != DISTANCE_ESTIMATOR && !s.exterior_de && s.out_coloring_algorithm != BIOMORPH && s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER && s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3 && s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5 && s.out_coloring_algorithm != ITERATIONS_PLUS_RE && s.out_coloring_algorithm != ITERATIONS_PLUS_IM && s.out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && s.out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM && s.out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && s.out_coloring_algorithm != BANDED) {
+            if (s.fns.out_coloring_algorithm != ESCAPE_TIME_FIELD_LINES2 && s.fns.out_coloring_algorithm != ESCAPE_TIME_FIELD_LINES && s.fns.out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS && s.fns.out_coloring_algorithm != ESCAPE_TIME_GRID && s.fns.out_coloring_algorithm != DISTANCE_ESTIMATOR && !s.exterior_de && s.fns.out_coloring_algorithm != BIOMORPH && s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER && s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3 && s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5 && s.fns.out_coloring_algorithm != ITERATIONS_PLUS_RE && s.fns.out_coloring_algorithm != ITERATIONS_PLUS_IM && s.fns.out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && s.fns.out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM && s.fns.out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && s.fns.out_coloring_algorithm != BANDED) {
                 rootFindingMethodsSetEnabled(true);
             }
 
-            if (s.out_coloring_algorithm != DISTANCE_ESTIMATOR && !s.exterior_de) {
+            if (s.fns.out_coloring_algorithm != DISTANCE_ESTIMATOR && !s.exterior_de) {
                 fractal_functions[SIERPINSKI_GASKET].setEnabled(true);
+                fractal_functions[KLEINIAN].setEnabled(true);
             }
 
             threads = new ThreadDraw[n][n];
@@ -10134,14 +10281,12 @@ public class MainWindow extends JFrame implements Constants {
                     tools_menu.getJuliaMap().setSelected(false);
                     toolbar.getJuliaMapButton().setSelected(false);
                     return;
-                } else {
-                    if (temp > 200) {
-                        main_panel.repaint();
-                        JOptionPane.showMessageDialog(scroll_pane, "The grid's first dimension number must be less than 201.", "Error!", JOptionPane.ERROR_MESSAGE);
-                        tools_menu.getJuliaMap().setSelected(false);
-                        toolbar.getJuliaMapButton().setSelected(false);
-                        return;
-                    }
+                } else if (temp > 200) {
+                    main_panel.repaint();
+                    JOptionPane.showMessageDialog(scroll_pane, "The grid's first dimension number must be less than 201.", "Error!", JOptionPane.ERROR_MESSAGE);
+                    tools_menu.getJuliaMap().setSelected(false);
+                    toolbar.getJuliaMapButton().setSelected(false);
+                    return;
                 }
 
                 julia_grid_first_dimension = temp;
@@ -10157,6 +10302,7 @@ public class MainWindow extends JFrame implements Constants {
 
                 rootFindingMethodsSetEnabled(false);
                 fractal_functions[SIERPINSKI_GASKET].setEnabled(false);
+                fractal_functions[KLEINIAN].setEnabled(false);
 
                 options_menu.getPerturbation().setEnabled(false);
                 options_menu.getInitialValue().setEnabled(false);
@@ -10206,12 +10352,10 @@ public class MainWindow extends JFrame implements Constants {
                 main_panel.repaint();
                 JOptionPane.showMessageDialog(scroll_pane, "The grid's first dimension number must be greater than 1.", "Error!", JOptionPane.ERROR_MESSAGE);
                 return;
-            } else {
-                if (temp > 200) {
-                    main_panel.repaint();
-                    JOptionPane.showMessageDialog(scroll_pane, "The grid's first dimension number must be less than 201.", "Error!", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
+            } else if (temp > 200) {
+                main_panel.repaint();
+                JOptionPane.showMessageDialog(scroll_pane, "The grid's first dimension number must be less than 201.", "Error!", JOptionPane.ERROR_MESSAGE);
+                return;
             }
 
             julia_grid_first_dimension = temp;
@@ -10312,7 +10456,7 @@ public class MainWindow extends JFrame implements Constants {
                     num = i;
                 }
 
-                if (num == s.bailout && !s.isConvergingType()) {
+                if (num == s.fns.bailout && !s.isConvergingType() && s.fns.function != KLEINIAN) {
                     continue;
                 }
 
@@ -10326,8 +10470,8 @@ public class MainWindow extends JFrame implements Constants {
                 }
             }
 
-            if (s.bailout < 100 && !s.isConvergingType()) {
-                int radius_x = (int) ((Math.log(s.bailout) - start) / mulx + 0.5);
+            if (s.fns.bailout < 100 && !s.isConvergingType() && s.fns.function != KLEINIAN) {
+                int radius_x = (int) ((Math.log(s.fns.bailout) - start) / mulx + 0.5);
 
                 BasicStroke old_stroke = (BasicStroke) brush.getStroke();
 
@@ -10342,9 +10486,9 @@ public class MainWindow extends JFrame implements Constants {
                 brush.drawLine(radius_x, 0, radius_x, image_size);
 
                 if (mode) {
-                    brush.drawString("" + s.bailout, radius_x + 6, 12 + scroll_pane.getVerticalScrollBar().getValue());
+                    brush.drawString("" + s.fns.bailout, radius_x + 6, 12 + scroll_pane.getVerticalScrollBar().getValue());
                 } else {
-                    brush.drawString("" + s.bailout, radius_x + 6, 12);
+                    brush.drawString("" + s.fns.bailout, radius_x + 6, 12);
                 }
                 brush.setStroke(old_stroke);
             }
@@ -10381,7 +10525,7 @@ public class MainWindow extends JFrame implements Constants {
                         num = i;
                     }
 
-                    if (num == s.bailout && !s.isConvergingType()) {
+                    if (num == s.fns.bailout && !s.isConvergingType() && s.fns.function != KLEINIAN) {
                         continue;
                     }
 
@@ -10392,9 +10536,9 @@ public class MainWindow extends JFrame implements Constants {
                     brush.drawString("" + num, (int) (x0 - (radius_x * Math.sqrt(2.0) / 2.0)) - 15, (int) (y0 - (radius_y * Math.sqrt(2.0) / 2.0)) - 10);
                 }
 
-                if (s.bailout < 100 && !s.isConvergingType()) {
-                    int radius_x = Math.abs(x0 - (int) ((s.bailout - temp_xcenter_size) / temp_size_image_size_x + 0.5));
-                    int radius_y = Math.abs(y0 - (int) ((-s.bailout + temp_ycenter_size) / temp_size_image_size_y + 0.5));
+                if (s.fns.bailout < 100 && !s.isConvergingType() && s.fns.function != KLEINIAN) {
+                    int radius_x = Math.abs(x0 - (int) ((s.fns.bailout - temp_xcenter_size) / temp_size_image_size_x + 0.5));
+                    int radius_y = Math.abs(y0 - (int) ((-s.fns.bailout + temp_ycenter_size) / temp_size_image_size_y + 0.5));
 
                     BasicStroke old_stroke = (BasicStroke) brush.getStroke();
 
@@ -10408,7 +10552,7 @@ public class MainWindow extends JFrame implements Constants {
 
                     brush.drawOval(x0 - radius_x, y0 - radius_y, 2 * radius_x, 2 * radius_y);
 
-                    brush.drawString("" + s.bailout, (int) (x0 - (radius_x * Math.sqrt(2.0) / 2.0)) - 15, (int) (y0 - (radius_y * Math.sqrt(2.0) / 2.0)) - 10);
+                    brush.drawString("" + s.fns.bailout, (int) (x0 - (radius_x * Math.sqrt(2.0) / 2.0)) - 15, (int) (y0 - (radius_y * Math.sqrt(2.0) / 2.0)) - 10);
 
                     brush.setStroke(old_stroke);
                 }
@@ -10423,7 +10567,7 @@ public class MainWindow extends JFrame implements Constants {
                         num = i;
                     }
 
-                    if (num == s.bailout && !s.isConvergingType()) {
+                    if (num == s.fns.bailout && !s.isConvergingType() && s.fns.function != KLEINIAN) {
                         continue;
                     }
 
@@ -10435,10 +10579,10 @@ public class MainWindow extends JFrame implements Constants {
                     brush.drawString("" + num, x0 - radius_x - 10, y0 - radius_y - 5);
                 }
 
-                if (s.bailout < 100 && !s.isConvergingType()) {
+                if (s.fns.bailout < 100 && !s.isConvergingType() && s.fns.function != KLEINIAN) {
 
-                    int radius_x = Math.abs(x0 - (int) ((s.bailout - temp_xcenter_size) / temp_size_image_size_x + 0.5));
-                    int radius_y = Math.abs(y0 - (int) ((-s.bailout + temp_ycenter_size) / temp_size_image_size_y + 0.5));
+                    int radius_x = Math.abs(x0 - (int) ((s.fns.bailout - temp_xcenter_size) / temp_size_image_size_x + 0.5));
+                    int radius_y = Math.abs(y0 - (int) ((-s.fns.bailout + temp_ycenter_size) / temp_size_image_size_y + 0.5));
 
                     BasicStroke old_stroke = (BasicStroke) brush.getStroke();
 
@@ -10452,7 +10596,7 @@ public class MainWindow extends JFrame implements Constants {
 
                     brush.drawRect(x0 - radius_x, y0 - radius_y, 2 * radius_x, 2 * radius_y);
 
-                    brush.drawString("" + s.bailout, x0 - radius_x - 10, y0 - radius_y - 5);
+                    brush.drawString("" + s.fns.bailout, x0 - radius_x - 10, y0 - radius_y - 5);
 
                     brush.setStroke(old_stroke);
 
@@ -10467,7 +10611,7 @@ public class MainWindow extends JFrame implements Constants {
                         num = i;
                     }
 
-                    if (num == s.bailout && !s.isConvergingType()) {
+                    if (num == s.fns.bailout && !s.isConvergingType() && s.fns.function != KLEINIAN) {
                         continue;
                     }
 
@@ -10485,10 +10629,10 @@ public class MainWindow extends JFrame implements Constants {
                     brush.drawString("" + num, x0 - radius_x / 2 - 15, y0 - radius_y / 2 - 10);
                 }
 
-                if (s.bailout < 100 && !s.isConvergingType()) {
+                if (s.fns.bailout < 100 && !s.isConvergingType() && s.fns.function != KLEINIAN) {
 
-                    int radius_x = Math.abs(x0 - (int) ((s.bailout - temp_xcenter_size) / temp_size_image_size_x + 0.5));
-                    int radius_y = Math.abs(y0 - (int) ((-s.bailout + temp_ycenter_size) / temp_size_image_size_y + 0.5));
+                    int radius_x = Math.abs(x0 - (int) ((s.fns.bailout - temp_xcenter_size) / temp_size_image_size_x + 0.5));
+                    int radius_y = Math.abs(y0 - (int) ((-s.fns.bailout + temp_ycenter_size) / temp_size_image_size_y + 0.5));
 
                     BasicStroke old_stroke = (BasicStroke) brush.getStroke();
 
@@ -10508,7 +10652,7 @@ public class MainWindow extends JFrame implements Constants {
 
                     brush.drawLine(x0 - radius_x, y0, x0, y0 + radius_y);
 
-                    brush.drawString("" + s.bailout, x0 - radius_x / 2 - 15, y0 - radius_y / 2 - 10);
+                    brush.drawString("" + s.fns.bailout, x0 - radius_x / 2 - 15, y0 - radius_y / 2 - 10);
 
                     brush.setStroke(old_stroke);
 
@@ -10626,7 +10770,7 @@ public class MainWindow extends JFrame implements Constants {
     private void customPaletteEditor(final int number) {
 
         resetOrbit();
-        new CustomPaletteEditorFrame(ptr, options_menu.getPalette(), s.smoothing, greedy_algorithm, s.d3s.d3, julia_map, number, s.color_choice, s.custom_palette, s.color_interpolation, s.color_space, s.reversed_palette, s.temp_color_cycling_location, s.scale_factor_palette_val, s.processing_alg);
+        new CustomPaletteEditorFrame(ptr, options_menu.getPalette(), s.fns.smoothing, greedy_algorithm, s.d3s.d3, julia_map, number, s.color_choice, s.custom_palette, s.color_interpolation, s.color_space, s.reversed_palette, s.temp_color_cycling_location, s.scale_factor_palette_val, s.processing_alg);
 
     }
 
@@ -10639,7 +10783,7 @@ public class MainWindow extends JFrame implements Constants {
     public void goTo() {
 
         resetOrbit();
-        if (s.julia) {
+        if (s.fns.julia) {
             goToJulia();
         } else {
             goToFractal();
@@ -10656,11 +10800,9 @@ public class MainWindow extends JFrame implements Constants {
             ptr.saveSettings();
             ptr.savePreferences();
             System.exit(0);
-        } else {
-            if (ans == JOptionPane.NO_OPTION) {
-                ptr.savePreferences();
-                System.exit(0);
-            }
+        } else if (ans == JOptionPane.NO_OPTION) {
+            ptr.savePreferences();
+            System.exit(0);
         }
     }
 
@@ -10673,7 +10815,7 @@ public class MainWindow extends JFrame implements Constants {
         try {
             for (int i = 0; i < n; i++) {
                 for (int j = 0; j < n; j++) {
-                    threads[i][j] = new BruteForceDraw(j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, s.xCenter, s.yCenter, s.size, s.max_iterations, s.bailout_test_algorithm, s.bailout, s.bailout_test_user_formula, s.bailout_test_user_formula2, s.bailout_test_comparison, s.n_norm, ptr, s.fractal_color, s.dem_color, image, s.fs, s.out_coloring_algorithm, s.user_out_coloring_algorithm, s.outcoloring_formula, s.user_outcoloring_conditions, s.user_outcoloring_condition_formula, s.in_coloring_algorithm, s.user_in_coloring_algorithm, s.incoloring_formula, s.user_incoloring_conditions, s.user_incoloring_condition_formula, s.smoothing, periodicity_checking, s.plane_type, s.apply_plane_on_julia, s.apply_plane_on_julia_seed, s.burning_ship, s.mandel_grass, s.mandel_grass_vals, s.function, s.z_exponent, s.z_exponent_complex, s.color_cycling_location, s.rotation_vals, s.rotation_center, s.coefficients, s.z_exponent_nova, s.relaxation, s.nova_method, s.user_formula, s.user_formula2, s.bail_technique, s.user_plane, s.user_plane_algorithm, s.user_plane_conditions, s.user_plane_condition_formula, s.user_formula_iteration_based, s.user_formula_conditions, s.user_formula_condition_formula, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.plane_transform_center, s.plane_transform_angle, s.plane_transform_radius, s.plane_transform_scales, s.plane_transform_wavelength, s.waveType, s.plane_transform_angle2, s.plane_transform_sides, s.plane_transform_amount, s.escaping_smooth_algorithm, s.converging_smooth_algorithm, s.bms, s.color_intensity, s.transfer_function, s.polar_projection, s.circle_period, s.fdes, s.rps, s.coupling, s.user_formula_coupled, s.coupling_method, s.coupling_amplitude, s.coupling_frequency, s.coupling_seed, s.inverse_dem, s.ens, s.ofs, s.gss, s.color_blending, s.ots);
+                    threads[i][j] = new BruteForceDraw(j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.inverse_dem, s.color_intensity, s.transfer_function, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns);
                 }
             }
         } catch (ParserException e) {
@@ -10869,14 +11011,15 @@ public class MainWindow extends JFrame implements Constants {
 
         resetOrbit();
         if (!options_menu.getPerturbation().isSelected()) {
-            s.perturbation = false;
+            s.fns.perturbation = false;
 
-            if (s.out_coloring_algorithm != ESCAPE_TIME_FIELD_LINES2 && s.out_coloring_algorithm != ESCAPE_TIME_FIELD_LINES && s.out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS && s.out_coloring_algorithm != ESCAPE_TIME_GRID && s.out_coloring_algorithm != DISTANCE_ESTIMATOR && !s.exterior_de && s.out_coloring_algorithm != BIOMORPH && s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER && s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3 && s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5 && s.out_coloring_algorithm != ITERATIONS_PLUS_RE && s.out_coloring_algorithm != ITERATIONS_PLUS_IM && s.out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && s.out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM && s.out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && s.out_coloring_algorithm != BANDED && !s.init_val) {
+            if (s.fns.out_coloring_algorithm != ESCAPE_TIME_FIELD_LINES2 && s.fns.out_coloring_algorithm != ESCAPE_TIME_FIELD_LINES && s.fns.out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS && s.fns.out_coloring_algorithm != ESCAPE_TIME_GRID && s.fns.out_coloring_algorithm != DISTANCE_ESTIMATOR && !s.exterior_de && s.fns.out_coloring_algorithm != BIOMORPH && s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER && s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3 && s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5 && s.fns.out_coloring_algorithm != ITERATIONS_PLUS_RE && s.fns.out_coloring_algorithm != ITERATIONS_PLUS_IM && s.fns.out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && s.fns.out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM && s.fns.out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && s.fns.out_coloring_algorithm != BANDED && !s.fns.init_val) {
                 rootFindingMethodsSetEnabled(true);
             }
 
-            if (!s.init_val && s.out_coloring_algorithm != DISTANCE_ESTIMATOR && !s.exterior_de) {
+            if (!s.fns.init_val && s.fns.out_coloring_algorithm != DISTANCE_ESTIMATOR && !s.exterior_de) {
                 fractal_functions[SIERPINSKI_GASKET].setEnabled(true);
+                fractal_functions[KLEINIAN].setEnabled(true);
             }
         } else {
             JPanel panel1 = new JPanel();
@@ -10886,11 +11029,11 @@ public class MainWindow extends JFrame implements Constants {
             panel2.setLayout(new FlowLayout());
 
             JTextField field_real = new JTextField(45);
-            field_real.setText("" + s.perturbation_vals[0]);
+            field_real.setText("" + s.fns.perturbation_vals[0]);
             field_real.addAncestorListener(new RequestFocusListener());
 
             JTextField field_imaginary = new JTextField(45);
-            field_imaginary.setText("" + s.perturbation_vals[1]);
+            field_imaginary.setText("" + s.fns.perturbation_vals[1]);
 
             JTabbedPane tabbedPane = new JTabbedPane();
             tabbedPane.setPreferredSize(new Dimension(runsOnWindows ? 550 : 630, 595));
@@ -10920,7 +11063,7 @@ public class MainWindow extends JFrame implements Constants {
             panel21.add(html_label);
 
             JTextField field_formula = new JTextField(45);
-            field_formula.setText("" + s.perturbation_user_formula);
+            field_formula.setText("" + s.fns.perturbation_user_formula);
 
             JTabbedPane tabbedPane2 = new JTabbedPane();
             tabbedPane2.setPreferredSize(new Dimension(runsOnWindows ? 500 : 580, 190));
@@ -10935,11 +11078,11 @@ public class MainWindow extends JFrame implements Constants {
             formula_panel_cond1.setLayout(new GridLayout(2, 2));
 
             JTextField field_condition = new JTextField(24);
-            field_condition.setText(s.user_perturbation_conditions[0]);
+            field_condition.setText(s.fns.user_perturbation_conditions[0]);
             field_condition.addAncestorListener(new RequestFocusListener());
 
             JTextField field_condition2 = new JTextField(24);
-            field_condition2.setText(s.user_perturbation_conditions[1]);
+            field_condition2.setText(s.fns.user_perturbation_conditions[1]);
 
             formula_panel_cond1.add(new JLabel("Left operand:", SwingConstants.HORIZONTAL));
             formula_panel_cond1.add(new JLabel("Right operand:", SwingConstants.HORIZONTAL));
@@ -10947,13 +11090,13 @@ public class MainWindow extends JFrame implements Constants {
             formula_panel_cond1.add(field_condition2);
 
             JTextField field_formula_cond1 = new JTextField(37);
-            field_formula_cond1.setText(s.user_perturbation_condition_formula[0]);
+            field_formula_cond1.setText(s.fns.user_perturbation_condition_formula[0]);
 
             JTextField field_formula_cond2 = new JTextField(37);
-            field_formula_cond2.setText(s.user_perturbation_condition_formula[1]);
+            field_formula_cond2.setText(s.fns.user_perturbation_condition_formula[1]);
 
             JTextField field_formula_cond3 = new JTextField(37);
-            field_formula_cond3.setText(s.user_perturbation_condition_formula[2]);
+            field_formula_cond3.setText(s.fns.user_perturbation_condition_formula[2]);
 
             JPanel formula_panel_cond11 = new JPanel();
 
@@ -11046,9 +11189,9 @@ public class MainWindow extends JFrame implements Constants {
             tabbedPane.addTab("Static value", panel1);
             tabbedPane.addTab("Variable value", panel2);
 
-            if (s.variable_perturbation) {
+            if (s.fns.variable_perturbation) {
                 tabbedPane.setSelectedIndex(1);
-                tabbedPane2.setSelectedIndex(s.user_perturbation_algorithm);
+                tabbedPane2.setSelectedIndex(s.fns.user_perturbation_algorithm);
             } else {
                 tabbedPane.setSelectedIndex(0);
             }
@@ -11066,60 +11209,58 @@ public class MainWindow extends JFrame implements Constants {
                     if (tabbedPane.getSelectedIndex() == 0) {
                         temp = Double.parseDouble(field_real.getText());
                         temp2 = Double.parseDouble(field_imaginary.getText());
+                    } else if (tabbedPane2.getSelectedIndex() == 0) {
+                        s.parser.parse(field_formula.getText());
+                        if (s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail()) {
+                            JOptionPane.showMessageDialog(scroll_pane, "The variables: z, n, s, p, pp, bail, cbail cannot be used in the z(0) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                            options_menu.getPerturbation().setSelected(false);
+                            main_panel.repaint();
+                            return;
+                        }
                     } else {
-                        if (tabbedPane2.getSelectedIndex() == 0) {
-                            s.parser.parse(field_formula.getText());
-                            if (s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail()) {
-                                JOptionPane.showMessageDialog(scroll_pane, "The variables: z, n, s, p, pp, bail, cbail cannot be used in the z(0) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                options_menu.getPerturbation().setSelected(false);
-                                main_panel.repaint();
-                                return;
-                            }
-                        } else {
-                            s.parser.parse(field_condition.getText());
+                        s.parser.parse(field_condition.getText());
 
-                            if (s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail()) {
-                                JOptionPane.showMessageDialog(scroll_pane, "The variables: z, n, s, p, pp, bail, cbail cannot be used in the left condition formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                options_menu.getPerturbation().setSelected(false);
-                                main_panel.repaint();
-                                return;
-                            }
+                        if (s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail()) {
+                            JOptionPane.showMessageDialog(scroll_pane, "The variables: z, n, s, p, pp, bail, cbail cannot be used in the left condition formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                            options_menu.getPerturbation().setSelected(false);
+                            main_panel.repaint();
+                            return;
+                        }
 
-                            s.parser.parse(field_condition2.getText());
+                        s.parser.parse(field_condition2.getText());
 
-                            if (s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail()) {
-                                JOptionPane.showMessageDialog(scroll_pane, "The variables: z, n, s, p, pp, bail, cbail cannot be used in the right condition formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                options_menu.getPerturbation().setSelected(false);
-                                main_panel.repaint();
-                                return;
-                            }
+                        if (s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail()) {
+                            JOptionPane.showMessageDialog(scroll_pane, "The variables: z, n, s, p, pp, bail, cbail cannot be used in the right condition formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                            options_menu.getPerturbation().setSelected(false);
+                            main_panel.repaint();
+                            return;
+                        }
 
-                            s.parser.parse(field_formula_cond1.getText());
+                        s.parser.parse(field_formula_cond1.getText());
 
-                            if (s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail()) {
-                                JOptionPane.showMessageDialog(scroll_pane, "The variables: z, n, s, p, pp, bail, cbail cannot be used in the left > right z(0) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                options_menu.getPerturbation().setSelected(false);
-                                main_panel.repaint();
-                                return;
-                            }
+                        if (s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail()) {
+                            JOptionPane.showMessageDialog(scroll_pane, "The variables: z, n, s, p, pp, bail, cbail cannot be used in the left > right z(0) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                            options_menu.getPerturbation().setSelected(false);
+                            main_panel.repaint();
+                            return;
+                        }
 
-                            s.parser.parse(field_formula_cond2.getText());
+                        s.parser.parse(field_formula_cond2.getText());
 
-                            if (s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail()) {
-                                JOptionPane.showMessageDialog(scroll_pane, "The variables: z, n, s, p, pp, bail, cbail cannot be used in the left < right z(0) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                options_menu.getPerturbation().setSelected(false);
-                                main_panel.repaint();
-                                return;
-                            }
+                        if (s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail()) {
+                            JOptionPane.showMessageDialog(scroll_pane, "The variables: z, n, s, p, pp, bail, cbail cannot be used in the left < right z(0) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                            options_menu.getPerturbation().setSelected(false);
+                            main_panel.repaint();
+                            return;
+                        }
 
-                            s.parser.parse(field_formula_cond3.getText());
+                        s.parser.parse(field_formula_cond3.getText());
 
-                            if (s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail()) {
-                                JOptionPane.showMessageDialog(scroll_pane, "The variables: z, n, s, p, pp, bail, cbail cannot be used in the left = right z(0) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                options_menu.getPerturbation().setSelected(false);
-                                main_panel.repaint();
-                                return;
-                            }
+                        if (s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail()) {
+                            JOptionPane.showMessageDialog(scroll_pane, "The variables: z, n, s, p, pp, bail, cbail cannot be used in the left = right z(0) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                            options_menu.getPerturbation().setSelected(false);
+                            main_panel.repaint();
+                            return;
                         }
                     }
                 } catch (ParserException e) {
@@ -11140,32 +11281,33 @@ public class MainWindow extends JFrame implements Constants {
             }
 
             if (tabbedPane.getSelectedIndex() == 0) {
-                s.perturbation_vals[0] = temp == 0.0 ? 0.0 : temp;
-                s.perturbation_vals[1] = temp2 == 0.0 ? 0.0 : temp2;
-                s.variable_perturbation = false;
+                s.fns.perturbation_vals[0] = temp == 0.0 ? 0.0 : temp;
+                s.fns.perturbation_vals[1] = temp2 == 0.0 ? 0.0 : temp2;
+                s.fns.variable_perturbation = false;
             } else {
-                s.variable_perturbation = true;
+                s.fns.variable_perturbation = true;
 
-                s.user_perturbation_algorithm = tabbedPane2.getSelectedIndex();
+                s.fns.user_perturbation_algorithm = tabbedPane2.getSelectedIndex();
 
-                if (s.user_perturbation_algorithm == 0) {
-                    s.perturbation_user_formula = field_formula.getText();
+                if (s.fns.user_perturbation_algorithm == 0) {
+                    s.fns.perturbation_user_formula = field_formula.getText();
                 } else {
-                    s.user_perturbation_conditions[0] = field_condition.getText();
-                    s.user_perturbation_conditions[1] = field_condition2.getText();
-                    s.user_perturbation_condition_formula[0] = field_formula_cond1.getText();
-                    s.user_perturbation_condition_formula[1] = field_formula_cond2.getText();
-                    s.user_perturbation_condition_formula[2] = field_formula_cond3.getText();
+                    s.fns.user_perturbation_conditions[0] = field_condition.getText();
+                    s.fns.user_perturbation_conditions[1] = field_condition2.getText();
+                    s.fns.user_perturbation_condition_formula[0] = field_formula_cond1.getText();
+                    s.fns.user_perturbation_condition_formula[1] = field_formula_cond2.getText();
+                    s.fns.user_perturbation_condition_formula[2] = field_formula_cond3.getText();
                 }
             }
 
-            s.perturbation = true;
+            s.fns.perturbation = true;
             tools_menu.getJulia().setEnabled(false);
             toolbar.getJuliaButton().setEnabled(false);
             tools_menu.getJuliaMap().setEnabled(false);
             toolbar.getJuliaMapButton().setEnabled(false);
             rootFindingMethodsSetEnabled(false);
             fractal_functions[SIERPINSKI_GASKET].setEnabled(false);
+            fractal_functions[KLEINIAN].setEnabled(false);
         }
 
         defaultFractalSettings();
@@ -11176,14 +11318,15 @@ public class MainWindow extends JFrame implements Constants {
 
         resetOrbit();
         if (!options_menu.getInitialValue().isSelected()) {
-            s.init_val = false;
+            s.fns.init_val = false;
 
-            if (s.out_coloring_algorithm != ESCAPE_TIME_FIELD_LINES2 && s.out_coloring_algorithm != ESCAPE_TIME_FIELD_LINES && s.out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS && s.out_coloring_algorithm != ESCAPE_TIME_GRID && s.out_coloring_algorithm != DISTANCE_ESTIMATOR && !s.exterior_de && s.out_coloring_algorithm != BIOMORPH && s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER && s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3 && s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5 && s.out_coloring_algorithm != ITERATIONS_PLUS_RE && s.out_coloring_algorithm != ITERATIONS_PLUS_IM && s.out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && s.out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM && s.out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && s.out_coloring_algorithm != BANDED && !s.perturbation) {
+            if (s.fns.out_coloring_algorithm != ESCAPE_TIME_FIELD_LINES2 && s.fns.out_coloring_algorithm != ESCAPE_TIME_FIELD_LINES && s.fns.out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS && s.fns.out_coloring_algorithm != ESCAPE_TIME_GRID && s.fns.out_coloring_algorithm != DISTANCE_ESTIMATOR && !s.exterior_de && s.fns.out_coloring_algorithm != BIOMORPH && s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER && s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3 && s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5 && s.fns.out_coloring_algorithm != ITERATIONS_PLUS_RE && s.fns.out_coloring_algorithm != ITERATIONS_PLUS_IM && s.fns.out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && s.fns.out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM && s.fns.out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && s.fns.out_coloring_algorithm != BANDED && !s.fns.perturbation) {
                 rootFindingMethodsSetEnabled(true);
             }
 
-            if (!s.perturbation && s.out_coloring_algorithm != DISTANCE_ESTIMATOR && !s.exterior_de) {
+            if (!s.fns.perturbation && s.fns.out_coloring_algorithm != DISTANCE_ESTIMATOR && !s.exterior_de) {
                 fractal_functions[SIERPINSKI_GASKET].setEnabled(true);
+                fractal_functions[KLEINIAN].setEnabled(true);
             }
         } else {
 
@@ -11194,11 +11337,11 @@ public class MainWindow extends JFrame implements Constants {
             panel2.setLayout(new FlowLayout());
 
             JTextField field_real = new JTextField(45);
-            field_real.setText("" + s.initial_vals[0]);
+            field_real.setText("" + s.fns.initial_vals[0]);
             field_real.addAncestorListener(new RequestFocusListener());
 
             JTextField field_imaginary = new JTextField(45);
-            field_imaginary.setText("" + s.initial_vals[1]);
+            field_imaginary.setText("" + s.fns.initial_vals[1]);
 
             JTabbedPane tabbedPane = new JTabbedPane();
             tabbedPane.setPreferredSize(new Dimension(runsOnWindows ? 550 : 630, 595));
@@ -11228,7 +11371,7 @@ public class MainWindow extends JFrame implements Constants {
             panel21.add(html_label);
 
             JTextField field_formula = new JTextField(45);
-            field_formula.setText("" + s.initial_value_user_formula);
+            field_formula.setText("" + s.fns.initial_value_user_formula);
 
             JTabbedPane tabbedPane2 = new JTabbedPane();
             tabbedPane2.setPreferredSize(new Dimension(runsOnWindows ? 500 : 580, 190));
@@ -11243,11 +11386,11 @@ public class MainWindow extends JFrame implements Constants {
             formula_panel_cond1.setLayout(new GridLayout(2, 2));
 
             JTextField field_condition = new JTextField(24);
-            field_condition.setText(s.user_initial_value_conditions[0]);
+            field_condition.setText(s.fns.user_initial_value_conditions[0]);
             field_condition.addAncestorListener(new RequestFocusListener());
 
             JTextField field_condition2 = new JTextField(24);
-            field_condition2.setText(s.user_initial_value_conditions[1]);
+            field_condition2.setText(s.fns.user_initial_value_conditions[1]);
 
             formula_panel_cond1.add(new JLabel("Left operand:", SwingConstants.HORIZONTAL));
             formula_panel_cond1.add(new JLabel("Right operand:", SwingConstants.HORIZONTAL));
@@ -11255,13 +11398,13 @@ public class MainWindow extends JFrame implements Constants {
             formula_panel_cond1.add(field_condition2);
 
             JTextField field_formula_cond1 = new JTextField(37);
-            field_formula_cond1.setText(s.user_initial_value_condition_formula[0]);
+            field_formula_cond1.setText(s.fns.user_initial_value_condition_formula[0]);
 
             JTextField field_formula_cond2 = new JTextField(37);
-            field_formula_cond2.setText(s.user_initial_value_condition_formula[1]);
+            field_formula_cond2.setText(s.fns.user_initial_value_condition_formula[1]);
 
             JTextField field_formula_cond3 = new JTextField(37);
-            field_formula_cond3.setText(s.user_initial_value_condition_formula[2]);
+            field_formula_cond3.setText(s.fns.user_initial_value_condition_formula[2]);
 
             JPanel formula_panel_cond11 = new JPanel();
 
@@ -11354,9 +11497,9 @@ public class MainWindow extends JFrame implements Constants {
             tabbedPane.addTab("Static value", panel1);
             tabbedPane.addTab("Variable value", panel2);
 
-            if (s.variable_init_value) {
+            if (s.fns.variable_init_value) {
                 tabbedPane.setSelectedIndex(1);
-                tabbedPane2.setSelectedIndex(s.user_initial_value_algorithm);
+                tabbedPane2.setSelectedIndex(s.fns.user_initial_value_algorithm);
             } else {
                 tabbedPane.setSelectedIndex(0);
             }
@@ -11374,60 +11517,58 @@ public class MainWindow extends JFrame implements Constants {
                     if (tabbedPane.getSelectedIndex() == 0) {
                         temp = Double.parseDouble(field_real.getText());
                         temp2 = Double.parseDouble(field_imaginary.getText());
+                    } else if (tabbedPane2.getSelectedIndex() == 0) {
+                        s.parser.parse(field_formula.getText());
+                        if (s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail()) {
+                            JOptionPane.showMessageDialog(scroll_pane, "The variables: z, n, s, p, pp, bail, cbail cannot be used in the z(0) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                            options_menu.getInitialValue().setSelected(false);
+                            main_panel.repaint();
+                            return;
+                        }
                     } else {
-                        if (tabbedPane2.getSelectedIndex() == 0) {
-                            s.parser.parse(field_formula.getText());
-                            if (s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail()) {
-                                JOptionPane.showMessageDialog(scroll_pane, "The variables: z, n, s, p, pp, bail, cbail cannot be used in the z(0) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                options_menu.getInitialValue().setSelected(false);
-                                main_panel.repaint();
-                                return;
-                            }
-                        } else {
-                            s.parser.parse(field_condition.getText());
+                        s.parser.parse(field_condition.getText());
 
-                            if (s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail()) {
-                                JOptionPane.showMessageDialog(scroll_pane, "The variables: z, n, s, p, pp, bail, cbail cannot be used in the left condition formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                options_menu.getInitialValue().setSelected(false);
-                                main_panel.repaint();
-                                return;
-                            }
+                        if (s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail()) {
+                            JOptionPane.showMessageDialog(scroll_pane, "The variables: z, n, s, p, pp, bail, cbail cannot be used in the left condition formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                            options_menu.getInitialValue().setSelected(false);
+                            main_panel.repaint();
+                            return;
+                        }
 
-                            s.parser.parse(field_condition2.getText());
+                        s.parser.parse(field_condition2.getText());
 
-                            if (s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail()) {
-                                JOptionPane.showMessageDialog(scroll_pane, "The variables: z, n, s, p, pp, bail, cbail cannot be used in the right condition formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                options_menu.getInitialValue().setSelected(false);
-                                main_panel.repaint();
-                                return;
-                            }
+                        if (s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail()) {
+                            JOptionPane.showMessageDialog(scroll_pane, "The variables: z, n, s, p, pp, bail, cbail cannot be used in the right condition formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                            options_menu.getInitialValue().setSelected(false);
+                            main_panel.repaint();
+                            return;
+                        }
 
-                            s.parser.parse(field_formula_cond1.getText());
+                        s.parser.parse(field_formula_cond1.getText());
 
-                            if (s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail()) {
-                                JOptionPane.showMessageDialog(scroll_pane, "The variables: z, n, s, p, pp, bail, cbail cannot be used in the left > right z(0) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                options_menu.getInitialValue().setSelected(false);
-                                main_panel.repaint();
-                                return;
-                            }
+                        if (s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail()) {
+                            JOptionPane.showMessageDialog(scroll_pane, "The variables: z, n, s, p, pp, bail, cbail cannot be used in the left > right z(0) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                            options_menu.getInitialValue().setSelected(false);
+                            main_panel.repaint();
+                            return;
+                        }
 
-                            s.parser.parse(field_formula_cond2.getText());
+                        s.parser.parse(field_formula_cond2.getText());
 
-                            if (s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail()) {
-                                JOptionPane.showMessageDialog(scroll_pane, "The variables: z, n, s, p, pp, bail, cbail cannot be used in the left < right z(0) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                options_menu.getInitialValue().setSelected(false);
-                                main_panel.repaint();
-                                return;
-                            }
+                        if (s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail()) {
+                            JOptionPane.showMessageDialog(scroll_pane, "The variables: z, n, s, p, pp, bail, cbail cannot be used in the left < right z(0) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                            options_menu.getInitialValue().setSelected(false);
+                            main_panel.repaint();
+                            return;
+                        }
 
-                            s.parser.parse(field_formula_cond3.getText());
+                        s.parser.parse(field_formula_cond3.getText());
 
-                            if (s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail()) {
-                                JOptionPane.showMessageDialog(scroll_pane, "The variables: z, n, s, p, pp, bail, cbail cannot be used in the left = right z(0) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                options_menu.getInitialValue().setSelected(false);
-                                main_panel.repaint();
-                                return;
-                            }
+                        if (s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail()) {
+                            JOptionPane.showMessageDialog(scroll_pane, "The variables: z, n, s, p, pp, bail, cbail cannot be used in the left = right z(0) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                            options_menu.getInitialValue().setSelected(false);
+                            main_panel.repaint();
+                            return;
                         }
                     }
                 } catch (ParserException e) {
@@ -11448,31 +11589,32 @@ public class MainWindow extends JFrame implements Constants {
             }
 
             if (tabbedPane.getSelectedIndex() == 0) {
-                s.initial_vals[0] = temp == 0.0 ? 0.0 : temp;
-                s.initial_vals[1] = temp2 == 0.0 ? 0.0 : temp2;
-                s.variable_init_value = false;
+                s.fns.initial_vals[0] = temp == 0.0 ? 0.0 : temp;
+                s.fns.initial_vals[1] = temp2 == 0.0 ? 0.0 : temp2;
+                s.fns.variable_init_value = false;
             } else {
-                s.variable_init_value = true;
-                s.user_initial_value_algorithm = tabbedPane2.getSelectedIndex();
+                s.fns.variable_init_value = true;
+                s.fns.user_initial_value_algorithm = tabbedPane2.getSelectedIndex();
 
-                if (s.user_initial_value_algorithm == 0) {
-                    s.initial_value_user_formula = field_formula.getText();
+                if (s.fns.user_initial_value_algorithm == 0) {
+                    s.fns.initial_value_user_formula = field_formula.getText();
                 } else {
-                    s.user_initial_value_conditions[0] = field_condition.getText();
-                    s.user_initial_value_conditions[1] = field_condition2.getText();
-                    s.user_initial_value_condition_formula[0] = field_formula_cond1.getText();
-                    s.user_initial_value_condition_formula[1] = field_formula_cond2.getText();
-                    s.user_initial_value_condition_formula[2] = field_formula_cond3.getText();
+                    s.fns.user_initial_value_conditions[0] = field_condition.getText();
+                    s.fns.user_initial_value_conditions[1] = field_condition2.getText();
+                    s.fns.user_initial_value_condition_formula[0] = field_formula_cond1.getText();
+                    s.fns.user_initial_value_condition_formula[1] = field_formula_cond2.getText();
+                    s.fns.user_initial_value_condition_formula[2] = field_formula_cond3.getText();
                 }
             }
 
-            s.init_val = true;
+            s.fns.init_val = true;
             tools_menu.getJulia().setEnabled(false);
             toolbar.getJuliaButton().setEnabled(false);
             tools_menu.getJuliaMap().setEnabled(false);
             toolbar.getJuliaMapButton().setEnabled(false);
             rootFindingMethodsSetEnabled(false);
             fractal_functions[SIERPINSKI_GASKET].setEnabled(false);
+            fractal_functions[KLEINIAN].setEnabled(false);
         }
 
         defaultFractalSettings();
@@ -11484,10 +11626,10 @@ public class MainWindow extends JFrame implements Constants {
         resetOrbit();
         if (!toolbar.getColorCyclingButton().isSelected()) {
             toolbar.getColorCyclingButton().setSelected(true);
-            tools_menu.getColorCyling().setSelected(true);
+            tools_menu.getColorCycling().setSelected(true);
         } else {
             toolbar.getColorCyclingButton().setSelected(false);
-            tools_menu.getColorCyling().setSelected(false);
+            tools_menu.getColorCycling().setSelected(false);
         }
 
         setColorCycling();
@@ -11716,7 +11858,7 @@ public class MainWindow extends JFrame implements Constants {
         } else {
             JTextField field_real = new JTextField();
 
-            Point2D.Double p = MathUtils.rotatePointRelativeToPoint(s.xCenter, s.yCenter, s.rotation_vals, s.rotation_center);
+            Point2D.Double p = MathUtils.rotatePointRelativeToPoint(s.xCenter, s.yCenter, s.fns.rotation_vals, s.fns.rotation_center);
 
             if (p.x == 0) {
                 field_real.setText("" + 0.0);
@@ -11759,8 +11901,8 @@ public class MainWindow extends JFrame implements Constants {
 
             if (res == JOptionPane.OK_OPTION) {
                 try {
-                    tempReal = Double.parseDouble(field_real.getText()) - s.rotation_center[0];
-                    tempImaginary = Double.parseDouble(field_imaginary.getText()) - s.rotation_center[1];
+                    tempReal = Double.parseDouble(field_real.getText()) - s.fns.rotation_center[0];
+                    tempImaginary = Double.parseDouble(field_imaginary.getText()) - s.fns.rotation_center[1];
                     tempSize = Double.parseDouble(field_size.getText());
                     temp_circle_period = Double.parseDouble(field_circle_period.getText());
 
@@ -11773,8 +11915,8 @@ public class MainWindow extends JFrame implements Constants {
                     }
 
                     s.size = tempSize;
-                    s.xCenter = tempReal * s.rotation_vals[0] + tempImaginary * s.rotation_vals[1] + s.rotation_center[0];
-                    s.yCenter = -tempReal * s.rotation_vals[1] + tempImaginary * s.rotation_vals[0] + s.rotation_center[1];
+                    s.xCenter = tempReal * s.fns.rotation_vals[0] + tempImaginary * s.fns.rotation_vals[1] + s.fns.rotation_center[0];
+                    s.yCenter = -tempReal * s.fns.rotation_vals[1] + tempImaginary * s.fns.rotation_vals[0] + s.fns.rotation_center[1];
                     s.circle_period = temp_circle_period;
 
                     s.polar_projection = true;
@@ -11835,7 +11977,7 @@ public class MainWindow extends JFrame implements Constants {
         resetOrbit();
         JTextField field_real = new JTextField();
 
-        Point2D.Double p = MathUtils.rotatePointRelativeToPoint(s.xCenter, s.yCenter, s.rotation_vals, s.rotation_center);
+        Point2D.Double p = MathUtils.rotatePointRelativeToPoint(s.xCenter, s.yCenter, s.fns.rotation_vals, s.fns.rotation_center);
 
         if (p.x == 0) {
             field_real.setText("" + 0.0);
@@ -11878,8 +12020,8 @@ public class MainWindow extends JFrame implements Constants {
 
         if (res == JOptionPane.OK_OPTION) {
             try {
-                tempReal = Double.parseDouble(field_real.getText()) - s.rotation_center[0];
-                tempImaginary = Double.parseDouble(field_imaginary.getText()) - s.rotation_center[1];
+                tempReal = Double.parseDouble(field_real.getText()) - s.fns.rotation_center[0];
+                tempImaginary = Double.parseDouble(field_imaginary.getText()) - s.fns.rotation_center[1];
                 tempSize = Double.parseDouble(field_size.getText());
                 temp_circle_period = Double.parseDouble(field_circle_period.getText());
 
@@ -11890,8 +12032,8 @@ public class MainWindow extends JFrame implements Constants {
                 }
 
                 s.size = tempSize;
-                s.xCenter = tempReal * s.rotation_vals[0] + tempImaginary * s.rotation_vals[1] + s.rotation_center[0];
-                s.yCenter = -tempReal * s.rotation_vals[1] + tempImaginary * s.rotation_vals[0] + s.rotation_center[1];
+                s.xCenter = tempReal * s.fns.rotation_vals[0] + tempImaginary * s.fns.rotation_vals[1] + s.fns.rotation_center[0];
+                s.yCenter = -tempReal * s.fns.rotation_vals[1] + tempImaginary * s.fns.rotation_vals[0] + s.fns.rotation_center[1];
                 s.circle_period = temp_circle_period;
 
                 setOptions(false);
@@ -11942,7 +12084,7 @@ public class MainWindow extends JFrame implements Constants {
         toolbar.getJuliaMapButton().setEnabled(false);
         tools_menu.getJulia().setEnabled(false);
         toolbar.getJuliaButton().setEnabled(false);
-        tools_menu.getColorCyling().setEnabled(false);
+        tools_menu.getColorCycling().setEnabled(false);
         toolbar.getColorCyclingButton().setEnabled(false);
 
         if (!s.ds.use_palette_domain_coloring) {
@@ -11960,15 +12102,25 @@ public class MainWindow extends JFrame implements Constants {
             options_menu.getBumpMap().setEnabled(false);
 
             options_menu.getFakeDistanceEstimation().setEnabled(false);
+            options_menu.getContourColoring().setEnabled(false);
 
             options_menu.getEntropyColoring().setEnabled(false);
             options_menu.getOffsetColoring().setEnabled(false);
             options_menu.getGreyScaleColoring().setEnabled(false);
 
             options_menu.getRainbowPalette().setEnabled(false);
-            
+
             options_menu.getOrbitTraps().setEnabled(false);
         }
+
+        options_menu.getDirectColor().setEnabled(false);
+        options_menu.getDirectColor().setSelected(false);
+        ThreadDraw.USE_DIRECT_COLOR = false;
+
+        infobar.getGradientPreviewLabel().setVisible(true);
+        infobar.getGradientPreview().setVisible(true);
+        infobar.getPalettePreview().setVisible(true);
+        infobar.getPalettePreviewLabel().setVisible(true);
 
         options_menu.getOutColoringMenu().setEnabled(false);
         options_menu.getInColoringMenu().setEnabled(false);
@@ -12138,7 +12290,7 @@ public class MainWindow extends JFrame implements Constants {
             temp_p3.add(scale_max_val_opt);
             temp_p3.add(scale_range);
 
-            String[] height_options = {"120 / (x + 1)", "e^(-x + 5)", "40 * log(x + 1)", "150 - e^(-x + 5)", "40 * log(log(x + 1) + 1)", "150 / (1 + e^(-3*x+3))"};
+            String[] height_options = {"log(x + 1)", "log(log(x + 1) + 1)", "1 / (x + 1)", "e^(-x + 5)", "150 - e^(-x + 5)", "150 / (1 + e^(-3*x+3))"};
 
             JComboBox height_algorithm_opt = new JComboBox(height_options);
             height_algorithm_opt.setSelectedIndex(s.d3s.height_algorithm);
@@ -12308,14 +12460,12 @@ public class MainWindow extends JFrame implements Constants {
                         tools_menu.get3D().setSelected(false);
                         toolbar.get3DButton().setSelected(false);
                         return;
-                    } else {
-                        if (temp > 2000) {
-                            main_panel.repaint();
-                            JOptionPane.showMessageDialog(scroll_pane, "The 3D detail level must be less than 2001.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            tools_menu.get3D().setSelected(false);
-                            toolbar.get3DButton().setSelected(false);
-                            return;
-                        }
+                    } else if (temp > 2000) {
+                        main_panel.repaint();
+                        JOptionPane.showMessageDialog(scroll_pane, "The 3D detail level must be less than 2001.", "Error!", JOptionPane.ERROR_MESSAGE);
+                        tools_menu.get3D().setSelected(false);
+                        toolbar.get3DButton().setSelected(false);
+                        return;
                     }
 
                     if (temp2 <= 0) {
@@ -12363,6 +12513,19 @@ public class MainWindow extends JFrame implements Constants {
 
                     s.d3s.fiX = 0.64;
                     s.d3s.fiY = 0.82;
+
+                    options_menu.getDirectColor().setEnabled(false);
+                    options_menu.getDirectColor().setSelected(false);
+                    ThreadDraw.USE_DIRECT_COLOR = false;
+
+                    if (!s.ds.domain_coloring) {
+                        infobar.getMaxIterationsColorPreview().setVisible(true);
+                        infobar.getMaxIterationsColorPreviewLabel().setVisible(true);
+                    }
+                    infobar.getGradientPreviewLabel().setVisible(true);
+                    infobar.getGradientPreview().setVisible(true);
+                    infobar.getPalettePreview().setVisible(true);
+                    infobar.getPalettePreviewLabel().setVisible(true);
 
                     setOptions(false);
 
@@ -12453,7 +12616,7 @@ public class MainWindow extends JFrame implements Constants {
         temp_p3.add(scale_max_val_opt);
         temp_p3.add(scale_range);
 
-        String[] height_options = {"120 / (x + 1)", "e^(-x + 5)", "40 * log(x + 1)", "150 - e^(-x + 5)", "40 * log(log(x + 1) + 1)", "150 / (1 + e^(-3*x+3))"};
+        String[] height_options = {"log(x + 1)", "log(log(x + 1) + 1)", "1 / (x + 1)", "e^(-x + 5)", "150 - e^(-x + 5)", "150 / (1 + e^(-3*x+3))"};
 
         JComboBox height_algorithm_opt = new JComboBox(height_options);
         height_algorithm_opt.setSelectedIndex(s.d3s.height_algorithm);
@@ -12621,12 +12784,10 @@ public class MainWindow extends JFrame implements Constants {
                     main_panel.repaint();
                     JOptionPane.showMessageDialog(scroll_pane, "The 3D detail level must be greater than 9.", "Error!", JOptionPane.ERROR_MESSAGE);
                     return;
-                } else {
-                    if (temp > 2000) {
-                        main_panel.repaint();
-                        JOptionPane.showMessageDialog(scroll_pane, "The 3D detail level must be less than 2001.", "Error!", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
+                } else if (temp > 2000) {
+                    main_panel.repaint();
+                    JOptionPane.showMessageDialog(scroll_pane, "The 3D detail level must be less than 2001.", "Error!", JOptionPane.ERROR_MESSAGE);
+                    return;
                 }
 
                 if (temp2 <= 0) {
@@ -12744,12 +12905,10 @@ public class MainWindow extends JFrame implements Constants {
                     main_panel.repaint();
                     JOptionPane.showMessageDialog(scroll_pane, "Boundaries number must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
                     return;
-                } else {
-                    if (temp > 64) {
-                        main_panel.repaint();
-                        JOptionPane.showMessageDialog(scroll_pane, "Boundaries number must be less than 65.", "Error!", JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
+                } else if (temp > 64) {
+                    main_panel.repaint();
+                    JOptionPane.showMessageDialog(scroll_pane, "Boundaries number must be less than 65.", "Error!", JOptionPane.ERROR_MESSAGE);
+                    return;
                 }
 
                 boundaries_num = temp;
@@ -12782,12 +12941,10 @@ public class MainWindow extends JFrame implements Constants {
                 main_panel.repaint();
                 JOptionPane.showMessageDialog(scroll_pane, "Grid tiles number must be greater than 1.", "Error!", JOptionPane.ERROR_MESSAGE);
                 return;
-            } else {
-                if (temp > 64) {
-                    main_panel.repaint();
-                    JOptionPane.showMessageDialog(scroll_pane, "Grid tiles number must be less than 65.", "Error!", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
+            } else if (temp > 64) {
+                main_panel.repaint();
+                JOptionPane.showMessageDialog(scroll_pane, "Grid tiles number must be less than 65.", "Error!", JOptionPane.ERROR_MESSAGE);
+                return;
             }
 
             grid_tiles = temp;
@@ -12944,52 +13101,52 @@ public class MainWindow extends JFrame implements Constants {
     private void optionsEnableShortcut() {
         out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
         options_menu.getDistanceEstimation().setEnabled(false);
-        if (s.out_coloring_algorithm != BIOMORPH) {
+        if (s.fns.out_coloring_algorithm != BIOMORPH) {
             out_coloring_modes[BIOMORPH].setEnabled(true);
         }
-        if (s.out_coloring_algorithm != BANDED) {
+        if (s.fns.out_coloring_algorithm != BANDED) {
             out_coloring_modes[BANDED].setEnabled(true);
         }
-        if (s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
+        if (s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER) {
             out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER].setEnabled(true);
         }
-        if (s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
+        if (s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2) {
             out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER2].setEnabled(true);
         }
-        if (s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
+        if (s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3) {
             out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER3].setEnabled(true);
         }
-        if (s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
+        if (s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4) {
             out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER4].setEnabled(true);
         }
-        if (s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
+        if (s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5) {
             out_coloring_modes[ESCAPE_TIME_GAUSSIAN_INTEGER5].setEnabled(true);
         }
-        if (s.out_coloring_algorithm != ITERATIONS_PLUS_RE) {
+        if (s.fns.out_coloring_algorithm != ITERATIONS_PLUS_RE) {
             out_coloring_modes[ITERATIONS_PLUS_RE].setEnabled(true);
         }
-        if (s.out_coloring_algorithm != ITERATIONS_PLUS_IM) {
+        if (s.fns.out_coloring_algorithm != ITERATIONS_PLUS_IM) {
             out_coloring_modes[ITERATIONS_PLUS_IM].setEnabled(true);
         }
-        if (s.out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
+        if (s.fns.out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM) {
             out_coloring_modes[ITERATIONS_PLUS_RE_DIVIDE_IM].setEnabled(true);
         }
-        if (s.out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
+        if (s.fns.out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM) {
             out_coloring_modes[ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setEnabled(true);
         }
-        if (s.out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
+        if (s.fns.out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2) {
             out_coloring_modes[ESCAPE_TIME_ALGORITHM2].setEnabled(true);
         }
-        if (s.out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
+        if (s.fns.out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS) {
             out_coloring_modes[ESCAPE_TIME_ESCAPE_RADIUS].setEnabled(true);
         }
-        if (s.out_coloring_algorithm != ESCAPE_TIME_GRID) {
+        if (s.fns.out_coloring_algorithm != ESCAPE_TIME_GRID) {
             out_coloring_modes[ESCAPE_TIME_GRID].setEnabled(true);
         }
-        if (s.out_coloring_algorithm != ESCAPE_TIME_FIELD_LINES) {
+        if (s.fns.out_coloring_algorithm != ESCAPE_TIME_FIELD_LINES) {
             out_coloring_modes[ESCAPE_TIME_FIELD_LINES].setEnabled(true);
         }
-        if (s.out_coloring_algorithm != ESCAPE_TIME_FIELD_LINES2) {
+        if (s.fns.out_coloring_algorithm != ESCAPE_TIME_FIELD_LINES2) {
             out_coloring_modes[ESCAPE_TIME_FIELD_LINES2].setEnabled(true);
         }
 
@@ -13037,11 +13194,11 @@ public class MainWindow extends JFrame implements Constants {
         old_size = s.size;
         old_height_ratio = s.height_ratio;
 
-        old_rotation_vals[0] = s.rotation_vals[0];
-        old_rotation_vals[1] = s.rotation_vals[1];
+        old_rotation_vals[0] = s.fns.rotation_vals[0];
+        old_rotation_vals[1] = s.fns.rotation_vals[1];
 
-        old_rotation_center[0] = s.rotation_center[0];
-        old_rotation_center[1] = s.rotation_center[1];
+        old_rotation_center[0] = s.fns.rotation_center[0];
+        old_rotation_center[1] = s.fns.rotation_center[1];
 
         old_d3 = s.d3s.d3;
         old_polar_projection = s.polar_projection;
@@ -13094,12 +13251,12 @@ public class MainWindow extends JFrame implements Constants {
         resetOrbit();
 
         if (!options_menu.getApplyPlaneOnWholeJuliaOpt().isSelected()) {
-            s.apply_plane_on_julia = false;
+            s.fns.apply_plane_on_julia = false;
         } else {
-            s.apply_plane_on_julia = true;
+            s.fns.apply_plane_on_julia = true;
         }
 
-        if (s.julia || julia_map) {
+        if (s.fns.julia || julia_map) {
             defaultFractalSettings();
         }
 
@@ -13110,12 +13267,12 @@ public class MainWindow extends JFrame implements Constants {
         resetOrbit();
 
         if (!options_menu.getApplyPlaneOnJuliaSeedOpt().isSelected()) {
-            s.apply_plane_on_julia_seed = false;
+            s.fns.apply_plane_on_julia_seed = false;
         } else {
-            s.apply_plane_on_julia_seed = true;
+            s.fns.apply_plane_on_julia_seed = true;
         }
 
-        if (s.julia || julia_map) {
+        if (s.fns.julia || julia_map) {
             defaultFractalSettings();
         }
 
@@ -13179,18 +13336,17 @@ public class MainWindow extends JFrame implements Constants {
                 } else {
                     c = CustomPalette.getPalette(s.custom_palette, s.color_interpolation, s.color_space, s.reversed_palette, s.color_cycling_location, s.scale_factor_palette_val, s.processing_alg);
                 }
-            } else { // the remaining palettes
-                if (i != CUSTOM_PALETTE_ID) {
+            } else // the remaining palettes
+             if (i != CUSTOM_PALETTE_ID) {
                     c = CustomPalette.getPalette(CustomPaletteEditorFrame.editor_default_palettes[i], INTERPOLATION_LINEAR, COLOR_SPACE_RGB, false, 0, 0, PROCESSING_NONE); // 0 color cycling loc
                 } else {
                     c = CustomPalette.getPalette(s.custom_palette, s.color_interpolation, s.color_space, s.reversed_palette, s.temp_color_cycling_location, s.scale_factor_palette_val, s.processing_alg); // temp color cycling loc
                 }
-            }
 
             BufferedImage palette_preview = new BufferedImage(250, 24, BufferedImage.TYPE_INT_ARGB);
             Graphics2D g = palette_preview.createGraphics();
             for (int j = 0; j < c.length; j++) {
-                if (s.smoothing) {
+                if (s.fns.smoothing) {
                     GradientPaint gp = new GradientPaint(j * palette_preview.getWidth() / c.length, 0, c[j], (j + 1) * palette_preview.getWidth() / c.length, 0, c[(j + 1) % c.length]);
                     g.setPaint(gp);
                     g.fill(new Rectangle2D.Double(j * palette_preview.getWidth() / c.length, 0, (j + 1) * palette_preview.getWidth() / c.length - j * palette_preview.getWidth() / c.length, palette_preview.getHeight()));
@@ -13632,7 +13788,7 @@ public class MainWindow extends JFrame implements Constants {
     public void filtersOptionsChanged(int[] filters_options_vals, int[][] filters_options_extra_vals, Color[] filters_colors, Color[][] filters_extra_colors, int[] filters_order, boolean[] activeFilters) {
 
         if (filters_options_vals != null) {
-            for (k = 0; k < filters_options_vals.length; k++) {
+            for (int k = 0; k < filters_options_vals.length; k++) {
                 s.fs.filters_options_vals[k] = filters_options_vals[k];
                 s.fs.filters_options_extra_vals[0][k] = filters_options_extra_vals[0][k];
                 s.fs.filters_options_extra_vals[1][k] = filters_options_extra_vals[1][k];
@@ -13643,7 +13799,7 @@ public class MainWindow extends JFrame implements Constants {
                 filters_opt[k].setSelected(s.fs.filters[k]);
             }
 
-            for (k = 0; k < filters_order.length; k++) {
+            for (int k = 0; k < filters_order.length; k++) {
                 s.fs.filters_order[k] = filters_order[k];
             }
         } else {
@@ -13694,7 +13850,7 @@ public class MainWindow extends JFrame implements Constants {
 
     public void customPaletteChanged(int[][] temp_custom_palette, int color_interpolation, int color_space, boolean reversed_palette, int temp_color_cycling_location, double scale_factor_palette_val, int processing_alg) {
 
-        for (k = 0; k < s.custom_palette.length; k++) {
+        for (int k = 0; k < s.custom_palette.length; k++) {
             for (int j = 0; j < s.custom_palette[0].length; j++) {
                 s.custom_palette[k][j] = temp_custom_palette[k][j];
             }
@@ -13710,41 +13866,44 @@ public class MainWindow extends JFrame implements Constants {
     }
 
     private void setUserFormulaOptions() {
-        if (s.julia) {
-            s.julia = false;
+        if (s.fns.julia) {
+            s.fns.julia = false;
             toolbar.getJuliaButton().setSelected(false);
             tools_menu.getJulia().setSelected(false);
-            if (s.out_coloring_algorithm != ESCAPE_TIME_FIELD_LINES2 && s.out_coloring_algorithm != ESCAPE_TIME_FIELD_LINES && s.out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS && s.out_coloring_algorithm != ESCAPE_TIME_GRID && s.out_coloring_algorithm != BIOMORPH && s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER && s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3 && s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5 && s.out_coloring_algorithm != ITERATIONS_PLUS_RE && s.out_coloring_algorithm != ITERATIONS_PLUS_IM && s.out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && s.out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM && s.out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && s.out_coloring_algorithm != DISTANCE_ESTIMATOR && !s.exterior_de && s.out_coloring_algorithm != BANDED) {
+            if (s.fns.out_coloring_algorithm != ESCAPE_TIME_FIELD_LINES2 && s.fns.out_coloring_algorithm != ESCAPE_TIME_FIELD_LINES && s.fns.out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS && s.fns.out_coloring_algorithm != ESCAPE_TIME_GRID && s.fns.out_coloring_algorithm != BIOMORPH && s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER && s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3 && s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5 && s.fns.out_coloring_algorithm != ITERATIONS_PLUS_RE && s.fns.out_coloring_algorithm != ITERATIONS_PLUS_IM && s.fns.out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && s.fns.out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM && s.fns.out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && s.fns.out_coloring_algorithm != DISTANCE_ESTIMATOR && !s.exterior_de && s.fns.out_coloring_algorithm != BANDED) {
                 rootFindingMethodsSetEnabled(true);
             }
-            if (s.out_coloring_algorithm != DISTANCE_ESTIMATOR && !s.exterior_de) {
+            if (s.fns.out_coloring_algorithm != DISTANCE_ESTIMATOR && !s.exterior_de) {
                 fractal_functions[SIERPINSKI_GASKET].setEnabled(true);
+                fractal_functions[KLEINIAN].setEnabled(true);
             }
         }
 
-        if (s.init_val) {
-            s.init_val = false;
+        if (s.fns.init_val) {
+            s.fns.init_val = false;
             options_menu.getInitialValue().setSelected(false);
 
-            if (s.out_coloring_algorithm != ESCAPE_TIME_FIELD_LINES2 && s.out_coloring_algorithm != ESCAPE_TIME_FIELD_LINES && s.out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS && s.out_coloring_algorithm != ESCAPE_TIME_GRID && s.out_coloring_algorithm != DISTANCE_ESTIMATOR && !s.exterior_de && s.out_coloring_algorithm != BIOMORPH && s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER && s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3 && s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5 && s.out_coloring_algorithm != ITERATIONS_PLUS_RE && s.out_coloring_algorithm != ITERATIONS_PLUS_IM && s.out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && s.out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM && s.out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && s.out_coloring_algorithm != BANDED && !s.perturbation) {
+            if (s.fns.out_coloring_algorithm != ESCAPE_TIME_FIELD_LINES2 && s.fns.out_coloring_algorithm != ESCAPE_TIME_FIELD_LINES && s.fns.out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS && s.fns.out_coloring_algorithm != ESCAPE_TIME_GRID && s.fns.out_coloring_algorithm != DISTANCE_ESTIMATOR && !s.exterior_de && s.fns.out_coloring_algorithm != BIOMORPH && s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER && s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3 && s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5 && s.fns.out_coloring_algorithm != ITERATIONS_PLUS_RE && s.fns.out_coloring_algorithm != ITERATIONS_PLUS_IM && s.fns.out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && s.fns.out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM && s.fns.out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && s.fns.out_coloring_algorithm != BANDED && !s.fns.perturbation) {
                 rootFindingMethodsSetEnabled(true);
             }
 
-            if (!s.perturbation && s.out_coloring_algorithm != DISTANCE_ESTIMATOR && !s.exterior_de) {
+            if (!s.fns.perturbation && s.fns.out_coloring_algorithm != DISTANCE_ESTIMATOR && !s.exterior_de) {
                 fractal_functions[SIERPINSKI_GASKET].setEnabled(true);
+                fractal_functions[KLEINIAN].setEnabled(true);
             }
         }
 
-        if (s.perturbation) {
-            s.perturbation = false;
+        if (s.fns.perturbation) {
+            s.fns.perturbation = false;
             options_menu.getPerturbation().setSelected(false);
 
-            if (s.out_coloring_algorithm != ESCAPE_TIME_FIELD_LINES2 && s.out_coloring_algorithm != ESCAPE_TIME_FIELD_LINES && s.out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS && s.out_coloring_algorithm != ESCAPE_TIME_GRID && s.out_coloring_algorithm != DISTANCE_ESTIMATOR && !s.exterior_de && s.out_coloring_algorithm != BIOMORPH && s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER && s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3 && s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5 && s.out_coloring_algorithm != ITERATIONS_PLUS_RE && s.out_coloring_algorithm != ITERATIONS_PLUS_IM && s.out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && s.out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM && s.out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && s.out_coloring_algorithm != BANDED && !s.init_val) {
+            if (s.fns.out_coloring_algorithm != ESCAPE_TIME_FIELD_LINES2 && s.fns.out_coloring_algorithm != ESCAPE_TIME_FIELD_LINES && s.fns.out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS && s.fns.out_coloring_algorithm != ESCAPE_TIME_GRID && s.fns.out_coloring_algorithm != DISTANCE_ESTIMATOR && !s.exterior_de && s.fns.out_coloring_algorithm != BIOMORPH && s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER && s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3 && s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5 && s.fns.out_coloring_algorithm != ITERATIONS_PLUS_RE && s.fns.out_coloring_algorithm != ITERATIONS_PLUS_IM && s.fns.out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && s.fns.out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM && s.fns.out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && s.fns.out_coloring_algorithm != BANDED && !s.fns.init_val) {
                 rootFindingMethodsSetEnabled(true);
             }
 
-            if (!s.init_val && s.out_coloring_algorithm != DISTANCE_ESTIMATOR && !s.exterior_de) {
+            if (!s.fns.init_val && s.fns.out_coloring_algorithm != DISTANCE_ESTIMATOR && !s.exterior_de) {
                 fractal_functions[SIERPINSKI_GASKET].setEnabled(true);
+                fractal_functions[KLEINIAN].setEnabled(true);
             }
         }
 
@@ -13755,12 +13914,13 @@ public class MainWindow extends JFrame implements Constants {
             options_menu.getJuliaMapOptions().setEnabled(false);
             setOptions(false);
 
-            if (s.out_coloring_algorithm != ESCAPE_TIME_FIELD_LINES2 && s.out_coloring_algorithm != ESCAPE_TIME_FIELD_LINES && s.out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS && s.out_coloring_algorithm != ESCAPE_TIME_GRID && s.out_coloring_algorithm != DISTANCE_ESTIMATOR && !s.exterior_de && s.out_coloring_algorithm != BIOMORPH && s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER && s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3 && s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && s.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5 && s.out_coloring_algorithm != ITERATIONS_PLUS_RE && s.out_coloring_algorithm != ITERATIONS_PLUS_IM && s.out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && s.out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM && s.out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && s.out_coloring_algorithm != BANDED) {
+            if (s.fns.out_coloring_algorithm != ESCAPE_TIME_FIELD_LINES2 && s.fns.out_coloring_algorithm != ESCAPE_TIME_FIELD_LINES && s.fns.out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS && s.fns.out_coloring_algorithm != ESCAPE_TIME_GRID && s.fns.out_coloring_algorithm != DISTANCE_ESTIMATOR && !s.exterior_de && s.fns.out_coloring_algorithm != BIOMORPH && s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER && s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3 && s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5 && s.fns.out_coloring_algorithm != ITERATIONS_PLUS_RE && s.fns.out_coloring_algorithm != ITERATIONS_PLUS_IM && s.fns.out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && s.fns.out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM && s.fns.out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && s.fns.out_coloring_algorithm != BANDED) {
                 rootFindingMethodsSetEnabled(true);
             }
 
-            if (s.out_coloring_algorithm != DISTANCE_ESTIMATOR && !s.exterior_de) {
+            if (s.fns.out_coloring_algorithm != DISTANCE_ESTIMATOR && !s.exterior_de) {
                 fractal_functions[SIERPINSKI_GASKET].setEnabled(true);
+                fractal_functions[KLEINIAN].setEnabled(true);
             }
 
         }
@@ -13774,7 +13934,7 @@ public class MainWindow extends JFrame implements Constants {
             options_menu.getInitialValue().setEnabled(false);
         }
 
-        if (s.bail_technique == 1) {
+        if (s.fns.bail_technique == 1) {
             options_menu.getBailout().setEnabled(false);
             options_menu.getBailoutConditionMenu().setEnabled(false);
             options_menu.getPeriodicityChecking().setEnabled(false);
@@ -14051,18 +14211,18 @@ public class MainWindow extends JFrame implements Constants {
         final JTextField field_real = new JTextField();
         field_real.addAncestorListener(new RequestFocusListener());
 
-        if (s.plane_transform_center[0] == 0) {
+        if (s.fns.plane_transform_center[0] == 0) {
             field_real.setText("" + 0.0);
         } else {
-            field_real.setText("" + s.plane_transform_center[0]);
+            field_real.setText("" + s.fns.plane_transform_center[0]);
         }
 
         final JTextField field_imaginary = new JTextField();
 
-        if (s.plane_transform_center[1] == 0) {
+        if (s.fns.plane_transform_center[1] == 0) {
             field_imaginary.setText("" + 0.0);
         } else {
-            field_imaginary.setText("" + s.plane_transform_center[1]);
+            field_imaginary.setText("" + s.fns.plane_transform_center[1]);
         }
 
         final JCheckBox current_center = new JCheckBox("Current Center");
@@ -14075,22 +14235,22 @@ public class MainWindow extends JFrame implements Constants {
             public void actionPerformed(ActionEvent e) {
 
                 if (!current_center.isSelected()) {
-                    if (s.plane_transform_center[0] == 0) {
+                    if (s.fns.plane_transform_center[0] == 0) {
                         field_real.setText("" + 0.0);
                     } else {
-                        field_real.setText("" + s.plane_transform_center[0]);
+                        field_real.setText("" + s.fns.plane_transform_center[0]);
                     }
 
                     field_real.setEditable(true);
 
-                    if (s.plane_transform_center[1] == 0) {
+                    if (s.fns.plane_transform_center[1] == 0) {
                         field_imaginary.setText("" + 0.0);
                     } else {
-                        field_imaginary.setText("" + s.plane_transform_center[1]);
+                        field_imaginary.setText("" + s.fns.plane_transform_center[1]);
                     }
                     field_imaginary.setEditable(true);
                 } else {
-                    Point2D.Double p = MathUtils.rotatePointRelativeToPoint(s.xCenter, s.yCenter, s.rotation_vals, s.rotation_center);
+                    Point2D.Double p = MathUtils.rotatePointRelativeToPoint(s.xCenter, s.yCenter, s.fns.rotation_vals, s.fns.rotation_center);
 
                     field_real.setText("" + p.x);
                     field_real.setEditable(false);
@@ -14125,8 +14285,8 @@ public class MainWindow extends JFrame implements Constants {
             return;
         }
 
-        s.plane_transform_center[0] = tempReal;
-        s.plane_transform_center[1] = tempImaginary;
+        s.fns.plane_transform_center[0] = tempReal;
+        s.fns.plane_transform_center[1] = tempImaginary;
 
         setOptions(false);
 
@@ -14417,7 +14577,7 @@ public class MainWindow extends JFrame implements Constants {
 
         setOptions(false);
 
-        tools_menu.getColorCyling().setEnabled(false);
+        tools_menu.getColorCycling().setEnabled(false);
         toolbar.getColorCyclingButton().setEnabled(false);
         options_menu.getPeriodicityChecking().setEnabled(false);
 
@@ -14430,6 +14590,232 @@ public class MainWindow extends JFrame implements Constants {
         if (s.d3s.d3) {
             Arrays.fill(((DataBufferInt) image.getRaster().getDataBuffer()).getData(), Color.BLACK.getRGB());
         }
+
+        if (julia_map) {
+            createThreadsJuliaMap();
+        } else {
+            createThreads(false);
+        }
+
+        calculation_time = System.currentTimeMillis();
+
+        if (julia_map) {
+            startThreads(julia_grid_first_dimension);
+        } else {
+            startThreads(n);
+        }
+    }
+
+    public void setDirectColor() {
+
+        if (!options_menu.getDirectColor().isSelected()) {
+            ThreadDraw.USE_DIRECT_COLOR = false;
+
+            if (!s.ds.domain_coloring) {
+                infobar.getMaxIterationsColorPreview().setVisible(true);
+                infobar.getMaxIterationsColorPreviewLabel().setVisible(true);
+            }
+            infobar.getGradientPreviewLabel().setVisible(true);
+            infobar.getGradientPreview().setVisible(true);
+            infobar.getPalettePreview().setVisible(true);
+            infobar.getPalettePreviewLabel().setVisible(true);
+        } else {
+            ThreadDraw.USE_DIRECT_COLOR = true;
+            s.ots.useTraps = false;
+
+            tools_menu.getColorCycling().setEnabled(false);
+            toolbar.getColorCyclingButton().setEnabled(false);
+
+            tools_menu.getDomainColoring().setEnabled(false);
+            toolbar.getDomainColoringButton().setEnabled(false);
+
+            toolbar.getCustomPaletteButton().setEnabled(false);
+            toolbar.getRandomPaletteButton().setEnabled(false);
+
+            tools_menu.get3D().setEnabled(false);
+            toolbar.get3DButton().setEnabled(false);
+
+            options_menu.getFractalColor().setEnabled(false);
+            options_menu.getRandomPalette().setEnabled(false);
+            options_menu.getRollPaletteMenu().setEnabled(false);
+            options_menu.getPaletteMenu().setEnabled(false);
+            options_menu.getColorIntensity().setEnabled(false);
+            options_menu.getColorTransferMenu().setEnabled(false);
+            options_menu.getProcessing().setEnabled(false);
+            options_menu.getGradient().setEnabled(false);
+            options_menu.getColorBlending().setEnabled(false);
+
+            infobar.getMaxIterationsColorPreview().setVisible(false);
+            infobar.getMaxIterationsColorPreviewLabel().setVisible(false);
+            infobar.getGradientPreviewLabel().setVisible(false);
+            infobar.getGradientPreview().setVisible(false);
+            infobar.getPalettePreview().setVisible(false);
+            infobar.getPalettePreviewLabel().setVisible(false);
+        }
+
+        setOptions(false);
+
+        progress.setValue(0);
+
+        resetImage();
+
+        whole_image_done = false;
+
+        if (s.d3s.d3) {
+            Arrays.fill(((DataBufferInt) image.getRaster().getDataBuffer()).getData(), Color.BLACK.getRGB());
+        }
+
+        if (julia_map) {
+            createThreadsJuliaMap();
+        } else {
+            createThreads(false);
+        }
+
+        calculation_time = System.currentTimeMillis();
+
+        if (julia_map) {
+            startThreads(julia_grid_first_dimension);
+        } else {
+            startThreads(n);
+        }
+
+    }
+
+    public void setContourColoring() {
+        resetOrbit();
+
+        final JCheckBox enable_contour_coloring = new JCheckBox("Contour Coloring");
+        enable_contour_coloring.setSelected(s.cns.contour_coloring);
+        enable_contour_coloring.setFocusable(false);
+
+        final JComboBox contour_coloring_algorithm_opt = new JComboBox(Constants.contourColorAlgorithmNames);
+        contour_coloring_algorithm_opt.setSelectedIndex(s.cns.contour_algorithm);
+        contour_coloring_algorithm_opt.setFocusable(false);
+        contour_coloring_algorithm_opt.setToolTipText("Sets the contour coloring algorithm.");
+        contour_coloring_algorithm_opt.setPreferredSize(new Dimension(150, 20));
+
+        JSlider color_blend_opt = new JSlider(JSlider.HORIZONTAL, 0, 100, (int) (s.cns.cn_blending * 100));
+        color_blend_opt.setMajorTickSpacing(25);
+        color_blend_opt.setMinorTickSpacing(1);
+        color_blend_opt.setToolTipText("Sets the color blending percentage.");
+        color_blend_opt.setFocusable(false);
+        color_blend_opt.setPaintLabels(true);
+
+        JTextField noise_factor_field = new JTextField();
+        noise_factor_field.setText("" + s.cns.cn_noise_reducing_factor);
+
+        Object[] message = {
+            " ",
+            enable_contour_coloring,
+            " ",
+            "Set the contour coloring algorthm",
+            "Contour Coloring Algorithm:", contour_coloring_algorithm_opt,
+            " ",
+            "Set the color blending percentage.",
+            "Color Blending:", color_blend_opt,
+            " ",
+            "Set the image noise reducing factor.",
+            "Noise reducing factor:",
+            noise_factor_field,
+            " "};
+
+        int res = JOptionPane.showConfirmDialog(scroll_pane, message, "Contour Coloring", JOptionPane.OK_CANCEL_OPTION);
+
+        double temp2;
+        if (res == JOptionPane.OK_OPTION) {
+            try {
+                temp2 = Double.parseDouble(noise_factor_field.getText());
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
+                main_panel.repaint();
+                return;
+            }
+        } else {
+            main_panel.repaint();
+            return;
+        }
+
+        if (temp2 <= 0) {
+            main_panel.repaint();
+            JOptionPane.showMessageDialog(scroll_pane, "The noise reducing factor must be greater that 0.", "Error!", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        if (greedy_algorithm && enable_contour_coloring.isSelected() && !julia_map && !s.d3s.d3) {
+            JOptionPane.showMessageDialog(scroll_pane, "Greedy Drawing Algorithm is enabled, which creates glitches in the image.\nYou should disable it for a better result.", "Warning!", JOptionPane.WARNING_MESSAGE);
+        }
+
+        s.cns.contour_coloring = enable_contour_coloring.isSelected();
+        s.cns.cn_noise_reducing_factor = temp2;
+        s.cns.cn_blending = color_blend_opt.getValue() / 100.0;
+        s.cns.contour_algorithm = contour_coloring_algorithm_opt.getSelectedIndex();
+
+        if (!s.fns.smoothing && s.cns.contour_coloring) {
+            JOptionPane.showMessageDialog(scroll_pane, "Smoothing is disabled.\nYou should enable smoothing for a better result.", "Warning!", JOptionPane.WARNING_MESSAGE);
+        }
+
+        setOptions(false);
+
+        progress.setValue(0);
+
+        resetImage();
+
+        if (s.d3s.d3) {
+            Arrays.fill(((DataBufferInt) image.getRaster().getDataBuffer()).getData(), Color.BLACK.getRGB());
+        }
+
+        whole_image_done = false;
+
+        if (s.fs.filters[ANTIALIASING] || s.ots.useTraps) {
+            if (julia_map) {
+                createThreadsJuliaMap();
+            } else {
+                createThreads(false);
+            }
+
+            calculation_time = System.currentTimeMillis();
+
+            if (julia_map) {
+                startThreads(julia_grid_first_dimension);
+            } else {
+                startThreads(n);
+            }
+        } else {
+            if (s.d3s.d3) {
+                createThreads(false);
+            } else {
+                createThreadsPaletteAndFilter();
+            }
+
+            calculation_time = System.currentTimeMillis();
+
+            startThreads(n);
+        }
+    }
+
+    public void defaultSettings() {
+        resetOrbit();
+
+        s.defaultValues();
+
+        prepareUI();
+
+        setOptions(false);
+
+        progress.setValue(0);
+
+        resetImage();
+
+        scroll_pane.getHorizontalScrollBar().setValue((int) (scroll_pane.getHorizontalScrollBar().getMaximum() / 2 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2));
+        scroll_pane.getVerticalScrollBar().setValue((int) (scroll_pane.getVerticalScrollBar().getMaximum() / 2 - scroll_pane.getVerticalScrollBar().getSize().getHeight() / 2));
+
+        if (s.d3s.d3) {
+            s.d3s.fiX = 0.64;
+            s.d3s.fiY = 0.82;
+            Arrays.fill(((DataBufferInt) image.getRaster().getDataBuffer()).getData(), Color.BLACK.getRGB());
+        }
+
+        whole_image_done = false;
 
         if (julia_map) {
             createThreadsJuliaMap();

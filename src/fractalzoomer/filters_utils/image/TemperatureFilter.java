@@ -47,7 +47,7 @@ public class TemperatureFilter extends PointFilter
     public void setTemperatureFromRGB(int rgb)
     {
         float r = rgb >> 16 & 0xff;
-        float g = rgb >> 8 & 0xff;
+        //float g = rgb >> 8 & 0xff;
         float b = rgb & 0xff;
         float rb = r / b;
         int start = 0;

@@ -30,7 +30,8 @@ import javax.swing.KeyStroke;
  * @author kaloch
  */
 public class FileMenu extends JMenu {
-    private MainWindow ptr;
+	private static final long serialVersionUID = -3961782140061944788L;
+	private MainWindow ptr;
     private JMenuItem exit;
     private JMenuItem save_image;
     private JMenuItem starting_position;
@@ -46,6 +47,7 @@ public class FileMenu extends JMenu {
     private JMenuItem down;
     private JMenuItem left;
     private JMenuItem right;
+    private JMenuItem default_opt;
     
     public FileMenu(MainWindow ptr2, String name) {
 
@@ -65,6 +67,8 @@ public class FileMenu extends JMenu {
         down = new JMenuItem("Down", getIcon("/fractalzoomer/icons/down.png"));
         left = new JMenuItem("Left", getIcon("/fractalzoomer/icons/left.png"));
         right = new JMenuItem("Right", getIcon("/fractalzoomer/icons/right.png"));
+        
+        default_opt = new JMenuItem("Default Settings", getIcon("/fractalzoomer/icons/default.png"));
 
         save_settings = new JMenuItem("Save Settings As...", getIcon("/fractalzoomer/icons/save.png"));
 
@@ -94,6 +98,7 @@ public class FileMenu extends JMenu {
         code_editor.setToolTipText("<html>Opens the java code, containing the user defined functions,<br>with a text editor.</html>");
         compile_code.setToolTipText("Compiles the java code, containing the user defined functions.");
         exit.setToolTipText("Exits the application.");
+        default_opt.setToolTipText("Resets all fractal settings to the default values.");
         
         starting_position.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F2, ActionEvent.CTRL_MASK));
         go_to.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F3, ActionEvent.CTRL_MASK));
@@ -110,6 +115,17 @@ public class FileMenu extends JMenu {
         compile_code.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F5, 0));
         code_editor.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F6, 0));
         exit.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F4, ActionEvent.ALT_MASK));
+        default_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_1, ActionEvent.SHIFT_MASK));
+        
+        default_opt.addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.defaultSettings();
+
+            }
+        });
+
         
         starting_position.addActionListener(new ActionListener() {
 
@@ -273,6 +289,7 @@ public class FileMenu extends JMenu {
         addSeparator();
         add(save_settings);
         add(load_settings);
+        add(default_opt);
         addSeparator();
         add(save_image);
         add(save_settings_image);
@@ -371,6 +388,12 @@ public class FileMenu extends JMenu {
     public JMenuItem getSaveImageAndSettings() {
         
         return save_settings_image;
+        
+    }
+    
+    public JMenuItem getDefaults() {
+        
+        return default_opt;
         
     }
     

@@ -20,7 +20,6 @@ import java.awt.image.*;
 import fractalzoomer.filters_utils.math.*;
 import fractalzoomer.filters_utils.vecmath.*;
 import java.awt.*;
-import java.io.*;
 import java.util.*;
 
 /**

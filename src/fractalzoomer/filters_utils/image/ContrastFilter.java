@@ -16,9 +16,6 @@ limitations under the License.
 
 package fractalzoomer.filters_utils.image;
 
-import java.awt.*;
-import java.awt.image.*;
-
 /**
  * A filter to change the brightness and contrast of an image.
  */

@@ -21,6 +21,7 @@ import fractalzoomer.functions.Fractal;
 import fractalzoomer.in_coloring_algorithms.AtanReTimesImTimesAbsReTimesAbsIm;
 import fractalzoomer.in_coloring_algorithms.CosMag;
 import fractalzoomer.in_coloring_algorithms.DecompositionLike;
+import fractalzoomer.in_coloring_algorithms.InColorAlgorithm;
 import fractalzoomer.in_coloring_algorithms.MagTimesCosReSquared;
 import fractalzoomer.in_coloring_algorithms.MaximumIterations;
 import fractalzoomer.in_coloring_algorithms.ReDivideIm;
@@ -38,6 +39,7 @@ import fractalzoomer.out_coloring_algorithms.ColorDecompositionRootFindingMethod
 import fractalzoomer.out_coloring_algorithms.EscapeTime;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeAlgorithm1;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeColorDecompositionRootFindingMethod;
+import fractalzoomer.out_coloring_algorithms.OutColorAlgorithm;
 import fractalzoomer.out_coloring_algorithms.SmoothBinaryDecomposition2RootFindingMethod;
 import fractalzoomer.out_coloring_algorithms.SmoothBinaryDecompositionRootFindingMethod;
 import fractalzoomer.out_coloring_algorithms.SmoothColorDecompositionRootFindingMethod;
@@ -132,7 +134,7 @@ public abstract class RootFindingMethods extends Fractal {
 
             if ((temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
                 Object[] object = {iterations, complex[0], temp, zold, zold2, pixel, start, vars};
-                double[] array = {out_color_algorithm.transformResultToHeight(out_color_algorithm.getResult3D(object), max_iterations), out_color_algorithm.getResult(object)};
+                double[] array = {OutColorAlgorithm.transformResultToHeight(out_color_algorithm.getResult3D(object), max_iterations), out_color_algorithm.getResult(object)};
                 return array;
             }
             zold2.assign(zold);
@@ -143,7 +145,7 @@ public abstract class RootFindingMethods extends Fractal {
 
         Object[] object = {complex[0], zold, zold2, pixel, start, vars};
         double temp2 = in_color_algorithm.getResult(object);
-        double[] array = {in_color_algorithm.transformResultToHeight(temp2, max_iterations), temp2};
+        double[] array = {InColorAlgorithm.transformResultToHeight(temp2, max_iterations), temp2};
         return array;
 
     }

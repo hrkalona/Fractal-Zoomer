@@ -31,8 +31,8 @@ import javax.swing.KeyStroke;
  * @author hrkalona2
  */
 public class FiltersMenu extends JMenu {
-
-    private JMenu detail_filters_menu;
+	private static final long serialVersionUID = 2385174283291846647L;
+	private JMenu detail_filters_menu;
     private JMenu color_filters_menu;
     private JMenu texture_filters_menu;
     private JMenu light_filters_menu;

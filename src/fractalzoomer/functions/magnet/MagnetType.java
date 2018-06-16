@@ -21,6 +21,7 @@ import fractalzoomer.functions.Julia;
 import fractalzoomer.in_coloring_algorithms.AtanReTimesImTimesAbsReTimesAbsIm;
 import fractalzoomer.in_coloring_algorithms.CosMag;
 import fractalzoomer.in_coloring_algorithms.DecompositionLike;
+import fractalzoomer.in_coloring_algorithms.InColorAlgorithm;
 import fractalzoomer.in_coloring_algorithms.MagTimesCosReSquared;
 import fractalzoomer.in_coloring_algorithms.MaximumIterations;
 import fractalzoomer.in_coloring_algorithms.ReDivideIm;
@@ -54,6 +55,7 @@ import fractalzoomer.out_coloring_algorithms.EscapeTimePlusIm;
 import fractalzoomer.out_coloring_algorithms.EscapeTimePlusRe;
 import fractalzoomer.out_coloring_algorithms.EscapeTimePlusReDivideIm;
 import fractalzoomer.out_coloring_algorithms.EscapeTimePlusRePlusImPlusReDivideIm;
+import fractalzoomer.out_coloring_algorithms.OutColorAlgorithm;
 import fractalzoomer.out_coloring_algorithms.SmoothBinaryDecomposition2Magnet;
 import fractalzoomer.out_coloring_algorithms.SmoothBinaryDecompositionMagnet;
 import fractalzoomer.out_coloring_algorithms.SmoothBiomorphsMagnet;
@@ -325,7 +327,7 @@ public abstract class MagnetType extends Julia {
             if (temp1 || temp2) {
                 Object[] object = {iterations, complex[0], temp2, temp4, zold, zold2, complex[1], start, vars};
                 temp3 = out_color_algorithm.getResult(object);
-                double[] array = {out_color_algorithm.transformResultToHeight(temp3, max_iterations), temp3};
+                double[] array = {OutColorAlgorithm.transformResultToHeight(temp3, max_iterations), temp3};
                 return array;
             }
             zold2.assign(zold);
@@ -380,7 +382,7 @@ public abstract class MagnetType extends Julia {
             if (temp1 || temp2) {
                 Object[] object = {iterations, complex[0], temp2, temp4, zold, zold2, complex[1], start, vars};
                 temp3 = out_color_algorithm.getResult(object);
-                double[] array = {out_color_algorithm.transformResultToHeight(temp3, max_iterations), temp3};
+                double[] array = {OutColorAlgorithm.transformResultToHeight(temp3, max_iterations), temp3};
                 return array;
             }
             zold2.assign(zold);
@@ -391,7 +393,7 @@ public abstract class MagnetType extends Julia {
 
         Object[] object = {complex[0], zold, zold2, complex[1], start, vars};
         temp3 = in_color_algorithm.getResult(object);
-        double[] array = {in_color_algorithm.transformResultToHeight(temp3, max_iterations), temp3};
+        double[] array = {InColorAlgorithm.transformResultToHeight(temp3, max_iterations), temp3};
         return array;
 
     }
@@ -426,7 +428,7 @@ public abstract class MagnetType extends Julia {
             if (temp1 || temp2) {
                 Object[] object = {iterations, complex[0], temp2, temp4, zold, zold2, complex[1], start, vars};
                 temp3 = out_color_algorithm.getResult(object);
-                double[] array = {out_color_algorithm.transformResultToHeight(temp3, max_iterations), temp3};
+                double[] array = {OutColorAlgorithm.transformResultToHeight(temp3, max_iterations), temp3};
                 return array;
             }
             zold2.assign(zold);
@@ -476,7 +478,7 @@ public abstract class MagnetType extends Julia {
             if (temp1 || temp2) {
                 Object[] object = {iterations, complex[0], temp2, temp4, zold, zold2, complex[1], start, vars};
                 temp3 = out_color_algorithm.getResult(object);
-                double[] array = {out_color_algorithm.transformResultToHeight(temp3, max_iterations), temp3};
+                double[] array = {OutColorAlgorithm.transformResultToHeight(temp3, max_iterations), temp3};
                 return array;
             }
             zold2.assign(zold);
@@ -487,7 +489,7 @@ public abstract class MagnetType extends Julia {
 
         Object[] object = {complex[0], zold, zold2, complex[1], start, vars};
         temp3 = in_color_algorithm.getResult(object);
-        double[] array = {in_color_algorithm.transformResultToHeight(temp3, max_iterations), temp3};
+        double[] array = {InColorAlgorithm.transformResultToHeight(temp3, max_iterations), temp3};
         return array;
 
     }

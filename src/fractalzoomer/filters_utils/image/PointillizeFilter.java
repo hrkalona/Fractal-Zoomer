@@ -16,10 +16,6 @@ limitations under the License.
 
 package fractalzoomer.filters_utils.image;
 
-import java.awt.*;
-import java.util.*;
-import fractalzoomer.filters_utils.math.*;
-
 public class PointillizeFilter extends CellularFilter {
 
 	private float edgeThickness = 0.4f;
