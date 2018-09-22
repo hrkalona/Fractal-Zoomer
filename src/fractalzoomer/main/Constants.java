@@ -23,7 +23,7 @@ import java.awt.Color;
  * @author hrkalona2
  */
 public interface Constants {
-    public static final int VERSION = 1069;
+    public static final int VERSION = 1070;
     public static final int FAST_JULIA_IMAGE_SIZE = 252;
     public static final int TOTAL_PALETTES = 19;
     public static final int TOTAL_INCOLORING_ALGORITHMS = 11;
@@ -33,7 +33,8 @@ public interface Constants {
     public static final int TOTAL_FUNCTIONS = 158;
     public static final int TOTAL_FILTERS = 35;
     public static final int TOTAL_COLOR_TRANSFER_FILTERS = 7;
-    public static final int TOTAL_COLOR_BLENDING = 18;
+    public static final int TOTAL_COLOR_BLENDING = 30;
+    public static final int TOTAL_POST_PROCESS_ALGORITHMS = 7;
     
     public static final String[] domainAlgNames = {"Black Grid, White Circles log2", "White Grid, Black Circles log2", "Black Grid", "White Grid", "Black Grid, Bright Contours log2", "White Grid, Dark Contours log2", "Norm, Black Grid, White Circles log2", "Norm, White Grid, Black Circles log2", "Norm, Black Grid", "Norm, White Grid", "Norm, Black Grid, Bright Contours log2", "Norm, White Grid, Dark Contours log2", "White Circles log2", "Black Circles log2", "Bright Contours log2", "Dark Contours log2", "Norm, White Circles log2", "Norm, Black Circles log2", "Norm, Bright Contours log2", "Norm, Dark Contours log2",
     "Black Grid, Contours log2, Iso-Argument lines", "Norm, Black Grid, Contours log2, Iso-Argument lines", "Black Grid, Iso-Argument Contours", "Norm, Black Grid, Iso-Argument Contours", "Iso-Argument Contours, Contours log2", "Norm, Iso-Argument Contours, Contours log2",
@@ -514,7 +515,7 @@ public interface Constants {
     public static final int SUBTRACTION_BLENDING = 4;
     public static final int DIFFERENCE_BLENDING = 5;
     public static final int VALUE_BLENDING = 6;
-    public static final int OVERLAY_BLENDING = 7;
+    public static final int SOFT_LIGHT_BLENDING = 7;
     public static final int SCREEN_BLENDING = 8;
     public static final int DODGE_BLENDING = 9;
     public static final int BURN_BLENDING = 10;
@@ -525,6 +526,18 @@ public interface Constants {
     public static final int GRAIN_MERGE_BLENDING = 15;
     public static final int SATURATION_BLENDING = 16;
     public static final int COLOR_BLENDING = 17;
+    public static final int HUE_BLENDING = 18;
+    public static final int EXCLUSION_BLENDING = 19;
+    public static final int PIN_LIGHT_BLENDING = 20;
+    public static final int LINEAR_LIGHT_BLENDING = 21;
+    public static final int VIVID_LIGHT_BLENDING = 22;
+    public static final int OVERLAY_BLENDING = 23;
+    public static final int LCH_CHROMA_BLENDING = 24;
+    public static final int LCH_COLOR_BLENDING = 25;
+    public static final int LCH_HUE_BLENDING = 26;
+    public static final int LCH_LIGHTNESS_BLENDING = 27;
+    public static final int LUMINANCE_BLENDING = 28;
+    public static final int LINEAR_BURN_BLENDING = 29;
     
     /**
      * **************************************
@@ -577,6 +590,22 @@ public interface Constants {
     public static final int N_NORM_POINT_TRAP = 18;
     public static final int N_NORM_POINT_N_NORM_TRAP = 19;
      /**
+     * **************************************
+     */
+    
+    /**
+     * ****POST PROCESSING******
+     */
+    public static final int FAKE_DISTANCE_ESTIMATION = 0;
+    public static final int ENTROPY_COLORING = 1;
+    public static final int OFFSET_COLORING = 2;
+    public static final int RAINBOW_PALETTE = 3;
+    public static final int GREYSCALE_COLORING = 4;
+    public static final int CONTOUR_COLORING = 5;
+    public static final int BUMP_MAPPING = 6;
+    
+    public static String[] processingAlgorithNames = {"Fake Distance Estimation", "Entropy Coloring", "Offset Coloring", "Rainbow Palette", "Greyscale Coloring", "Contour Coloring", "Bump Mapping"};
+    /**
      * **************************************
      */
 

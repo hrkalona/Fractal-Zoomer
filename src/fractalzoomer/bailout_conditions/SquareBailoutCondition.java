@@ -32,7 +32,7 @@ public class SquareBailoutCondition extends BailoutCondition {
     }
     
      @Override //infinity norm   
-     public boolean escaped(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex[] vars) {
+     public boolean escaped(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start) {
          
         return Math.max(z.getAbsRe(), z.getAbsIm()) >= bound;
          

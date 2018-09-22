@@ -36,11 +36,14 @@ public class UserBailoutCondition extends BailoutCondition {
     private Complex c_max_iterations;
     private Complex c_center;
     private Complex c_size;
+    private Complex[] globalVars;
 
-    public UserBailoutCondition(double bound, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, int max_iterations, double xCenter, double yCenter, double size, double[] point) {
+    public UserBailoutCondition(double bound, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, int max_iterations, double xCenter, double yCenter, double size, double[] point, Complex[] globalVars) {
 
         super(bound);
 
+        this.globalVars = globalVars;
+        
         parser = new Parser[2];
         expr = new ExpressionNode[2];
         
@@ -114,7 +117,7 @@ public class UserBailoutCondition extends BailoutCondition {
     }
 
     @Override
-    public boolean escaped(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex[] vars) {
+    public boolean escaped(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start) {
         
         /*LEFT*/
         if(parser[0].foundN()) {
@@ -143,7 +146,7 @@ public class UserBailoutCondition extends BailoutCondition {
         
         for(int i = 0; i < Parser.EXTRA_VARS; i++) {
             if(parser[0].foundVar(i)) {
-                parser[0].setVarsvalue(i, vars[i]);
+                parser[0].setVarsvalue(i, globalVars[i]);
             }
         }
         
@@ -174,7 +177,7 @@ public class UserBailoutCondition extends BailoutCondition {
         
         for(int i = 0; i < Parser.EXTRA_VARS; i++) {
             if(parser[1].foundVar(i)) {
-                parser[1].setVarsvalue(i, vars[i]);
+                parser[1].setVarsvalue(i, globalVars[i]);
             }
         }
 

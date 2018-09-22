@@ -40,6 +40,7 @@ import fractalzoomer.settings.SettingsFractals1066;
 import fractalzoomer.settings.SettingsFractals1067;
 import fractalzoomer.settings.SettingsFractals1068;
 import fractalzoomer.settings.SettingsFractals1069;
+import fractalzoomer.settings.SettingsFractals1070;
 import fractalzoomer.settings.SettingsJulia;
 import fractalzoomer.settings.SettingsJulia1049;
 import fractalzoomer.settings.SettingsJulia1050;
@@ -58,6 +59,7 @@ import fractalzoomer.settings.SettingsJulia1066;
 import fractalzoomer.settings.SettingsJulia1067;
 import fractalzoomer.settings.SettingsJulia1068;
 import fractalzoomer.settings.SettingsJulia1069;
+import fractalzoomer.settings.SettingsJulia1070;
 import fractalzoomer.utils.ColorAlgorithm;
 import java.awt.Component;
 import java.io.FileInputStream;
@@ -114,6 +116,7 @@ public class Settings implements Constants {
     public OrbitTrapSettings ots;
     public ContourColoringSettings cns;
     public FunctionSettings fns;
+    public int[] post_processing_order;
     public String poly;
     public boolean user_formula_c;
     public Parser parser;
@@ -129,7 +132,7 @@ public class Settings implements Constants {
 
     public void defaultValues() {
 
-        parser = new Parser();
+        parser = new Parser(true);
         user_formula_c = true;
 
         xCenter = 0;
@@ -191,12 +194,28 @@ public class Settings implements Constants {
         d3s = new D3Settings();
 
         if (color_choice == CUSTOM_PALETTE_ID) {
-            ThreadDraw.palette = new CustomPalette(custom_palette, color_interpolation, color_space, reversed_palette, scale_factor_palette_val, processing_alg, fns.smoothing, special_color, color_smoothing_method, special_use_palette_color);
+            ThreadDraw.palette = new CustomPalette(custom_palette, color_interpolation, color_space, reversed_palette, scale_factor_palette_val, processing_alg, fns.smoothing, special_color, color_smoothing_method, special_use_palette_color).getRawPalette();
         } else {
-            ThreadDraw.palette = new PresetPalette(color_choice, fns.smoothing, special_color, color_smoothing_method, special_use_palette_color);
+            ThreadDraw.palette = new PresetPalette(color_choice, fns.smoothing, special_color, color_smoothing_method, special_use_palette_color).getRawPalette();
         }
         
         ThreadDraw.USE_DIRECT_COLOR = false;
+        
+        post_processing_order = new int[TOTAL_POST_PROCESS_ALGORITHMS];
+        defaultProcessingOrder();
+
+    }
+    
+    private void defaultProcessingOrder() {
+        
+        post_processing_order[0] = OFFSET_COLORING;
+        post_processing_order[1] = ENTROPY_COLORING;
+        post_processing_order[2] = RAINBOW_PALETTE;
+        post_processing_order[3] = CONTOUR_COLORING;
+        post_processing_order[4] = GREYSCALE_COLORING;
+        post_processing_order[5] = BUMP_MAPPING;
+        post_processing_order[6] = FAKE_DISTANCE_ESTIMATION;
+        
     }
 
     public void readSettings(String filename, Component parent) throws FileNotFoundException, IOException, ClassNotFoundException {
@@ -264,8 +283,15 @@ public class Settings implements Constants {
                 xJuliaCenter = ((SettingsJulia1069) settings).getXJuliaCenter();
                 yJuliaCenter = ((SettingsJulia1069) settings).getYJuliaCenter();
             }
+            else if (version == 1070) {
+                xJuliaCenter = ((SettingsJulia1070) settings).getXJuliaCenter();
+                yJuliaCenter = ((SettingsJulia1070) settings).getYJuliaCenter();
+            }
 
             fns.julia = true;
+            
+            fns.perturbation = false;
+            fns.init_val = false;
 
         } else {
             fns.julia = false;
@@ -421,6 +447,11 @@ public class Settings implements Constants {
                 }
             } else if (fs.filters_order.length > temp_filters_order.length) {
                 int[] filters_order_union = new int[fs.filters_order.length];
+                
+                for (int i = 0; i < filters_order_union.length; i++) {
+                    filters_order_union[i] = -1;
+                }
+                
                 for (int i = 0; i < temp_filters_order.length; i++) {
                     filters_order_union[i] = temp_filters_order[i];
                 }
@@ -491,6 +522,51 @@ public class Settings implements Constants {
             fns.kleinianM = ((SettingsFractals1069)settings).getKleinianM();
             
             ots.lineType = ((SettingsFractals1069)settings).getLineType();
+        }
+        
+        if (version < 1070) {
+            defaultProcessingOrder();
+        }
+        else {
+            defaultProcessingOrder();
+            
+            int[] temp_post_processing_order = ((SettingsFractals1070) settings).getPostProcessingOrder();
+            
+            if (temp_post_processing_order.length == post_processing_order.length) {
+                for (int i = 0; i < temp_post_processing_order.length; i++) {
+                    post_processing_order[i] = temp_post_processing_order[i];
+                }
+            } else if (post_processing_order.length > temp_post_processing_order.length) {
+                int[] post_processing_order_union = new int[post_processing_order.length];
+                
+                for (int i = 0; i < post_processing_order_union.length; i++) {
+                    post_processing_order_union[i] = -1;
+                }
+                
+                for (int i = 0; i < temp_post_processing_order.length; i++) {
+                    post_processing_order_union[i] = temp_post_processing_order[i];
+                }
+
+                int k = temp_post_processing_order.length;
+                for (int i = 0; i < post_processing_order.length; i++) {//add all the missing post processing to the end
+                    boolean found = false;
+                    for (int j = 0; j < post_processing_order_union.length; j++) {
+                        if (post_processing_order_union[j] == post_processing_order[i]) {
+                            found = true;
+                            break;
+                        }
+                    }
+
+                    if (!found) {
+                        post_processing_order_union[k] = post_processing_order[i];
+                        k++;
+                    }
+                }
+
+                for (int i = 0; i < post_processing_order_union.length; i++) {
+                    post_processing_order[i] = post_processing_order_union[i];
+                }
+            }
         }
 
         if (version < 1068) {
@@ -863,9 +939,9 @@ public class Settings implements Constants {
         ThreadDraw.gradient = CustomPalette.createGradient(gs.colorA.getRGB(), gs.colorB.getRGB(), Constants.GRADIENT_LENGTH, gs.gradient_interpolation, gs.gradient_color_space, gs.gradient_reversed);
 
         if (color_choice == CUSTOM_PALETTE_ID) {
-            ThreadDraw.palette = new CustomPalette(custom_palette, color_interpolation, color_space, reversed_palette, scale_factor_palette_val, processing_alg, fns.smoothing, special_color, color_smoothing_method, special_use_palette_color);
+            ThreadDraw.palette = new CustomPalette(custom_palette, color_interpolation, color_space, reversed_palette, scale_factor_palette_val, processing_alg, fns.smoothing, special_color, color_smoothing_method, special_use_palette_color).getRawPalette();
         } else {
-            ThreadDraw.palette = new PresetPalette(color_choice, fns.smoothing, special_color, color_smoothing_method, special_use_palette_color);
+            ThreadDraw.palette = new PresetPalette(color_choice, fns.smoothing, special_color, color_smoothing_method, special_use_palette_color).getRawPalette();
         }
 
         switch (fns.function) {
@@ -1007,7 +1083,7 @@ public class Settings implements Constants {
             file_temp = new ObjectOutputStream(new FileOutputStream(filename));
             SettingsFractals settings;
             if (fns.julia) {
-                settings = new SettingsJulia1069(xCenter, yCenter, size, max_iterations, color_choice, fractal_color, fns.out_coloring_algorithm, fns.user_out_coloring_algorithm, fns.outcoloring_formula, fns.user_outcoloring_conditions, fns.user_outcoloring_condition_formula, fns.in_coloring_algorithm, fns.user_in_coloring_algorithm, fns.incoloring_formula, fns.user_incoloring_conditions, fns.user_incoloring_condition_formula, fns.smoothing, fns.function, fns.bailout_test_algorithm, fns.bailout, fns.bailout_test_user_formula, fns.bailout_test_user_formula2, fns.bailout_test_comparison, fns.n_norm, fns.plane_type, fns.apply_plane_on_julia, fns.burning_ship, fns.z_exponent, fns.z_exponent_complex, color_cycling_location, fns.coefficients, custom_palette, color_interpolation, color_space, reversed_palette, fns.rotation, fns.rotation_center, fns.mandel_grass, fns.mandel_grass_vals, fns.z_exponent_nova, fns.relaxation, fns.nova_method, fns.user_formula, fns.user_formula2, fns.bail_technique, fns.user_plane, fns.user_plane_algorithm, fns.user_plane_conditions, fns.user_plane_condition_formula, fns.user_formula_iteration_based, fns.user_formula_conditions, fns.user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, fns.plane_transform_center, fns.plane_transform_angle, fns.plane_transform_radius, fns.plane_transform_scales, fns.plane_transform_angle2, fns.plane_transform_sides, fns.plane_transform_amount, color_intensity, fns.escaping_smooth_algorithm, fns.converging_smooth_algorithm, bms.bump_map, bms.bumpMappingStrength, bms.bumpMappingDepth, bms.lightDirectionDegrees, polar_projection, circle_period, fdes.fake_de, fdes.fake_de_factor, dem_color, special_color, special_use_palette_color, rps.rainbow_palette, rps.rainbow_palette_factor, fs.filters, fs.filters_options_vals, scale_factor_palette_val, processing_alg, fs.filters_colors, fns.coupling, fns.user_formula_coupled, fns.coupling_method, fns.coupling_amplitude, fns.coupling_frequency, fns.coupling_seed, ds.domain_coloring, ds.use_palette_domain_coloring, ds.domain_coloring_alg, inverse_dem, fdes.inverse_fake_dem, fs.filters_options_extra_vals, fs.filters_extra_colors, color_smoothing_method, fs.filters_order, bms.bm_noise_reducing_factor, rps.rp_noise_reducing_factor, ens.entropy_coloring, ens.entropy_palette_factor, ens.en_noise_reducing_factor, fns.apply_plane_on_julia_seed, ofs.offset_coloring, ofs.post_process_offset, ofs.of_noise_reducing_factor, ens.en_blending, rps.rp_blending, ofs.of_blending, ens.entropy_offset, rps.rainbow_offset, gss.greyscale_coloring, gss.gs_noise_reducing_factor, transfer_function, color_blending, bms.bump_transfer_function, bms.bump_transfer_factor, bms.bump_blending, bms.bumpProcessing, ColorAlgorithm.GlobalIncrementBypass, fns.waveType, fns.plane_transform_wavelength, fns.laguerre_deg, ds.iso_distance, ds.iso_factor, ds.logBase, ds.normType, ds.gridFactor, ds.circlesBlending, ds.isoLinesBlendingFactor, ds.gridBlending, ds.gridColor, ds.circlesColor, ds.isoLinesColor, ds.contourBlending, ds.drawColor, ds.drawContour, ds.drawGrid, ds.drawCircles, ds.drawIsoLines, ds.customDomainColoring, ds.colorType, ds.contourType, ens.entropy_algorithm, ds.domainOrder, gs.colorA, gs.colorB, gs.gradient_color_space, gs.gradient_interpolation, gs.gradient_reversed, rps.rainbow_algorithm, ots.useTraps, ots.trapPoint, ots.trapLength, ots.trapWidth, ots.trapType, ots.trapMaxDistance, ots.trapBlending, ots.trapNorm, ots.trapUseSpecialColor, ots.lineType, cns.contour_coloring, cns.cn_noise_reducing_factor, cns.cn_blending, cns.contour_algorithm, ThreadDraw.USE_DIRECT_COLOR, fns.kleinianLine, fns.kleinianK, fns.kleinianM, xJuliaCenter, yJuliaCenter);
+                settings = new SettingsJulia1070(xCenter, yCenter, size, max_iterations, color_choice, fractal_color, fns.out_coloring_algorithm, fns.user_out_coloring_algorithm, fns.outcoloring_formula, fns.user_outcoloring_conditions, fns.user_outcoloring_condition_formula, fns.in_coloring_algorithm, fns.user_in_coloring_algorithm, fns.incoloring_formula, fns.user_incoloring_conditions, fns.user_incoloring_condition_formula, fns.smoothing, fns.function, fns.bailout_test_algorithm, fns.bailout, fns.bailout_test_user_formula, fns.bailout_test_user_formula2, fns.bailout_test_comparison, fns.n_norm, fns.plane_type, fns.apply_plane_on_julia, fns.burning_ship, fns.z_exponent, fns.z_exponent_complex, color_cycling_location, fns.coefficients, custom_palette, color_interpolation, color_space, reversed_palette, fns.rotation, fns.rotation_center, fns.mandel_grass, fns.mandel_grass_vals, fns.z_exponent_nova, fns.relaxation, fns.nova_method, fns.user_formula, fns.user_formula2, fns.bail_technique, fns.user_plane, fns.user_plane_algorithm, fns.user_plane_conditions, fns.user_plane_condition_formula, fns.user_formula_iteration_based, fns.user_formula_conditions, fns.user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, fns.plane_transform_center, fns.plane_transform_angle, fns.plane_transform_radius, fns.plane_transform_scales, fns.plane_transform_angle2, fns.plane_transform_sides, fns.plane_transform_amount, color_intensity, fns.escaping_smooth_algorithm, fns.converging_smooth_algorithm, bms.bump_map, bms.bumpMappingStrength, bms.bumpMappingDepth, bms.lightDirectionDegrees, polar_projection, circle_period, fdes.fake_de, fdes.fake_de_factor, dem_color, special_color, special_use_palette_color, rps.rainbow_palette, rps.rainbow_palette_factor, fs.filters, fs.filters_options_vals, scale_factor_palette_val, processing_alg, fs.filters_colors, fns.coupling, fns.user_formula_coupled, fns.coupling_method, fns.coupling_amplitude, fns.coupling_frequency, fns.coupling_seed, ds.domain_coloring, ds.use_palette_domain_coloring, ds.domain_coloring_alg, inverse_dem, fdes.inverse_fake_dem, fs.filters_options_extra_vals, fs.filters_extra_colors, color_smoothing_method, fs.filters_order, bms.bm_noise_reducing_factor, rps.rp_noise_reducing_factor, ens.entropy_coloring, ens.entropy_palette_factor, ens.en_noise_reducing_factor, fns.apply_plane_on_julia_seed, ofs.offset_coloring, ofs.post_process_offset, ofs.of_noise_reducing_factor, ens.en_blending, rps.rp_blending, ofs.of_blending, ens.entropy_offset, rps.rainbow_offset, gss.greyscale_coloring, gss.gs_noise_reducing_factor, transfer_function, color_blending, bms.bump_transfer_function, bms.bump_transfer_factor, bms.bump_blending, bms.bumpProcessing, ColorAlgorithm.GlobalIncrementBypass, fns.waveType, fns.plane_transform_wavelength, fns.laguerre_deg, ds.iso_distance, ds.iso_factor, ds.logBase, ds.normType, ds.gridFactor, ds.circlesBlending, ds.isoLinesBlendingFactor, ds.gridBlending, ds.gridColor, ds.circlesColor, ds.isoLinesColor, ds.contourBlending, ds.drawColor, ds.drawContour, ds.drawGrid, ds.drawCircles, ds.drawIsoLines, ds.customDomainColoring, ds.colorType, ds.contourType, ens.entropy_algorithm, ds.domainOrder, gs.colorA, gs.colorB, gs.gradient_color_space, gs.gradient_interpolation, gs.gradient_reversed, rps.rainbow_algorithm, ots.useTraps, ots.trapPoint, ots.trapLength, ots.trapWidth, ots.trapType, ots.trapMaxDistance, ots.trapBlending, ots.trapNorm, ots.trapUseSpecialColor, ots.lineType, cns.contour_coloring, cns.cn_noise_reducing_factor, cns.cn_blending, cns.contour_algorithm, ThreadDraw.USE_DIRECT_COLOR, fns.kleinianLine, fns.kleinianK, fns.kleinianM, post_processing_order, xJuliaCenter, yJuliaCenter);
             } else {
                 int temp_bailout_test_algorithm = 0;
 
@@ -1015,10 +1091,10 @@ public class Settings implements Constants {
                     temp_bailout_test_algorithm = fns.bailout_test_algorithm;
                 }
 
-                settings = new SettingsFractals1069(xCenter, yCenter, size, max_iterations, color_choice, fractal_color, fns.out_coloring_algorithm, fns.user_out_coloring_algorithm, fns.outcoloring_formula, fns.user_outcoloring_conditions, fns.user_outcoloring_condition_formula, fns.in_coloring_algorithm, fns.user_in_coloring_algorithm, fns.incoloring_formula, fns.user_incoloring_conditions, fns.user_incoloring_condition_formula, fns.smoothing, fns.function, temp_bailout_test_algorithm, fns.bailout, fns.bailout_test_user_formula, fns.bailout_test_user_formula2, fns.bailout_test_comparison, fns.n_norm, fns.plane_type, fns.apply_plane_on_julia, fns.burning_ship, fns.z_exponent, fns.z_exponent_complex, color_cycling_location, fns.coefficients, custom_palette, color_interpolation, color_space, reversed_palette, fns.rotation, fns.rotation_center, fns.perturbation, fns.perturbation_vals, fns.variable_perturbation, fns.user_perturbation_algorithm, fns.user_perturbation_conditions, fns.user_perturbation_condition_formula, fns.perturbation_user_formula, fns.init_val, fns.initial_vals, fns.variable_init_value, fns.user_initial_value_algorithm, fns.user_initial_value_conditions, fns.user_initial_value_condition_formula, fns.initial_value_user_formula, fns.mandel_grass, fns.mandel_grass_vals, fns.z_exponent_nova, fns.relaxation, fns.nova_method, fns.user_formula, fns.user_formula2, fns.bail_technique, fns.user_plane, fns.user_plane_algorithm, fns.user_plane_conditions, fns.user_plane_condition_formula, fns.user_formula_iteration_based, fns.user_formula_conditions, fns.user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, fns.plane_transform_center, fns.plane_transform_angle, fns.plane_transform_radius, fns.plane_transform_scales, fns.plane_transform_angle2, fns.plane_transform_sides, fns.plane_transform_amount, color_intensity, fns.escaping_smooth_algorithm, fns.converging_smooth_algorithm, bms.bump_map, bms.bumpMappingStrength, bms.bumpMappingDepth, bms.lightDirectionDegrees, polar_projection, circle_period, fdes.fake_de, fdes.fake_de_factor, fns.user_fz_formula, fns.user_dfz_formula, fns.user_ddfz_formula, dem_color, special_color, special_use_palette_color, rps.rainbow_palette, rps.rainbow_palette_factor, fs.filters, fs.filters_options_vals, scale_factor_palette_val, processing_alg, fs.filters_colors, fns.coupling, fns.user_formula_coupled, fns.coupling_method, fns.coupling_amplitude, fns.coupling_frequency, fns.coupling_seed, ds.domain_coloring, ds.use_palette_domain_coloring, ds.domain_coloring_alg, inverse_dem, fdes.inverse_fake_dem, fs.filters_options_extra_vals, fs.filters_extra_colors, color_smoothing_method, fs.filters_order, bms.bm_noise_reducing_factor, rps.rp_noise_reducing_factor, ens.entropy_coloring, ens.entropy_palette_factor, ens.en_noise_reducing_factor, fns.apply_plane_on_julia_seed, ofs.offset_coloring, ofs.post_process_offset, ofs.of_noise_reducing_factor, ens.en_blending, rps.rp_blending, ofs.of_blending, ens.entropy_offset, rps.rainbow_offset, gss.greyscale_coloring, gss.gs_noise_reducing_factor, transfer_function, color_blending, bms.bump_transfer_function, bms.bump_transfer_factor, bms.bump_blending, bms.bumpProcessing, ColorAlgorithm.GlobalIncrementBypass, fns.waveType, fns.plane_transform_wavelength, fns.laguerre_deg, ds.iso_distance, ds.iso_factor, ds.logBase, ds.normType, ds.gridFactor, ds.circlesBlending, ds.isoLinesBlendingFactor, ds.gridBlending, ds.gridColor, ds.circlesColor, ds.isoLinesColor, ds.contourBlending, ds.drawColor, ds.drawContour, ds.drawGrid, ds.drawCircles, ds.drawIsoLines, ds.customDomainColoring, ds.colorType, ds.contourType, ens.entropy_algorithm, ds.domainOrder, gs.colorA, gs.colorB, gs.gradient_color_space, gs.gradient_interpolation, gs.gradient_reversed, rps.rainbow_algorithm, ots.useTraps, ots.trapPoint, ots.trapLength, ots.trapWidth, ots.trapType, ots.trapMaxDistance, ots.trapBlending, ots.trapNorm, ots.trapUseSpecialColor, ots.lineType, cns.contour_coloring, cns.cn_noise_reducing_factor, cns.cn_blending, cns.contour_algorithm, ThreadDraw.USE_DIRECT_COLOR, fns.kleinianLine, fns.kleinianK, fns.kleinianM);
+                settings = new SettingsFractals1070(xCenter, yCenter, size, max_iterations, color_choice, fractal_color, fns.out_coloring_algorithm, fns.user_out_coloring_algorithm, fns.outcoloring_formula, fns.user_outcoloring_conditions, fns.user_outcoloring_condition_formula, fns.in_coloring_algorithm, fns.user_in_coloring_algorithm, fns.incoloring_formula, fns.user_incoloring_conditions, fns.user_incoloring_condition_formula, fns.smoothing, fns.function, temp_bailout_test_algorithm, fns.bailout, fns.bailout_test_user_formula, fns.bailout_test_user_formula2, fns.bailout_test_comparison, fns.n_norm, fns.plane_type, fns.apply_plane_on_julia, fns.burning_ship, fns.z_exponent, fns.z_exponent_complex, color_cycling_location, fns.coefficients, custom_palette, color_interpolation, color_space, reversed_palette, fns.rotation, fns.rotation_center, fns.perturbation, fns.perturbation_vals, fns.variable_perturbation, fns.user_perturbation_algorithm, fns.user_perturbation_conditions, fns.user_perturbation_condition_formula, fns.perturbation_user_formula, fns.init_val, fns.initial_vals, fns.variable_init_value, fns.user_initial_value_algorithm, fns.user_initial_value_conditions, fns.user_initial_value_condition_formula, fns.initial_value_user_formula, fns.mandel_grass, fns.mandel_grass_vals, fns.z_exponent_nova, fns.relaxation, fns.nova_method, fns.user_formula, fns.user_formula2, fns.bail_technique, fns.user_plane, fns.user_plane_algorithm, fns.user_plane_conditions, fns.user_plane_condition_formula, fns.user_formula_iteration_based, fns.user_formula_conditions, fns.user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, fns.plane_transform_center, fns.plane_transform_angle, fns.plane_transform_radius, fns.plane_transform_scales, fns.plane_transform_angle2, fns.plane_transform_sides, fns.plane_transform_amount, color_intensity, fns.escaping_smooth_algorithm, fns.converging_smooth_algorithm, bms.bump_map, bms.bumpMappingStrength, bms.bumpMappingDepth, bms.lightDirectionDegrees, polar_projection, circle_period, fdes.fake_de, fdes.fake_de_factor, fns.user_fz_formula, fns.user_dfz_formula, fns.user_ddfz_formula, dem_color, special_color, special_use_palette_color, rps.rainbow_palette, rps.rainbow_palette_factor, fs.filters, fs.filters_options_vals, scale_factor_palette_val, processing_alg, fs.filters_colors, fns.coupling, fns.user_formula_coupled, fns.coupling_method, fns.coupling_amplitude, fns.coupling_frequency, fns.coupling_seed, ds.domain_coloring, ds.use_palette_domain_coloring, ds.domain_coloring_alg, inverse_dem, fdes.inverse_fake_dem, fs.filters_options_extra_vals, fs.filters_extra_colors, color_smoothing_method, fs.filters_order, bms.bm_noise_reducing_factor, rps.rp_noise_reducing_factor, ens.entropy_coloring, ens.entropy_palette_factor, ens.en_noise_reducing_factor, fns.apply_plane_on_julia_seed, ofs.offset_coloring, ofs.post_process_offset, ofs.of_noise_reducing_factor, ens.en_blending, rps.rp_blending, ofs.of_blending, ens.entropy_offset, rps.rainbow_offset, gss.greyscale_coloring, gss.gs_noise_reducing_factor, transfer_function, color_blending, bms.bump_transfer_function, bms.bump_transfer_factor, bms.bump_blending, bms.bumpProcessing, ColorAlgorithm.GlobalIncrementBypass, fns.waveType, fns.plane_transform_wavelength, fns.laguerre_deg, ds.iso_distance, ds.iso_factor, ds.logBase, ds.normType, ds.gridFactor, ds.circlesBlending, ds.isoLinesBlendingFactor, ds.gridBlending, ds.gridColor, ds.circlesColor, ds.isoLinesColor, ds.contourBlending, ds.drawColor, ds.drawContour, ds.drawGrid, ds.drawCircles, ds.drawIsoLines, ds.customDomainColoring, ds.colorType, ds.contourType, ens.entropy_algorithm, ds.domainOrder, gs.colorA, gs.colorB, gs.gradient_color_space, gs.gradient_interpolation, gs.gradient_reversed, rps.rainbow_algorithm, ots.useTraps, ots.trapPoint, ots.trapLength, ots.trapWidth, ots.trapType, ots.trapMaxDistance, ots.trapBlending, ots.trapNorm, ots.trapUseSpecialColor, ots.lineType, cns.contour_coloring, cns.cn_noise_reducing_factor, cns.cn_blending, cns.contour_algorithm, ThreadDraw.USE_DIRECT_COLOR, fns.kleinianLine, fns.kleinianK, fns.kleinianM, post_processing_order);
             }
             file_temp.writeObject(settings);
-            file_temp.flush();
+            file_temp.flush();     
         } catch (IOException ex) {
         }
 
@@ -1538,6 +1614,12 @@ public class Settings implements Constants {
         return isRootFindingMethod()
                 || fns.function == NOVA
                 || (fns.function == USER_FORMULA && fns.bail_technique == 1) || (fns.function == USER_FORMULA_ITERATION_BASED && fns.bail_technique == 1) || (fns.function == USER_FORMULA_CONDITIONAL && fns.bail_technique == 1) || (fns.function == USER_FORMULA_COUPLED && fns.bail_technique == 1);
+
+    }
+    
+    public boolean isMagnetType() {
+
+        return fns.function == MAGNET1 || fns.function == MAGNET2;
 
     }
 

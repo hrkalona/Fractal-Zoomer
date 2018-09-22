@@ -32,7 +32,7 @@ public class RhombusBailoutCondition extends BailoutCondition {
     } 
     
     @Override //one norm  
-    public boolean escaped(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex[] vars) {
+    public boolean escaped(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start) {
          
         return z.getAbsRe() + z.getAbsIm() >= bound;
          

@@ -33,6 +33,7 @@ public class Toolbar extends JToolBar {
     private JButton starting_position_button;
     private JButton zoom_in_button;
     private JButton zoom_out_button;
+    private JButton repaint_button;
     private JButton save_image_button;
     private JButton save_image_and_settings_button;
     private JButton custom_palette_button;
@@ -106,6 +107,23 @@ public class Toolbar extends JToolBar {
         });
 
         add(zoom_out_button);
+        
+        repaint_button = new JButton();
+        repaint_button.setIcon(getIcon("/fractalzoomer/icons/refresh_image.png"));
+        repaint_button.setFocusable(false);
+        repaint_button.setToolTipText("Repaints the image, using the current active settings.");
+
+        repaint_button.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.redraw();
+
+            }
+        });
+
+        add(repaint_button);
 
         addSeparator();
 
@@ -480,6 +498,12 @@ public class Toolbar extends JToolBar {
     public JButton getFiltersOptionsButton() {
         
         return filters_options_button;
+        
+    }
+    
+    public JButton getRepaintButton() {
+        
+        return repaint_button;
         
     }
 }

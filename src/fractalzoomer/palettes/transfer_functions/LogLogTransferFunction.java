@@ -21,23 +21,33 @@ package fractalzoomer.palettes.transfer_functions;
  * @author hrkalona2
  */
 public class LogLogTransferFunction extends TransferFunction {
+
     private double color_intensity;
 
     public LogLogTransferFunction(int paletteLength, double color_intensity) {
-        
+
         super(paletteLength);
         this.color_intensity = color_intensity;
-        
+
     }
-    
+
     @Override
-    protected double function(double result) {
-        
-        result /= paletteLength; //scale to palette multiple        
-        result = Math.log(Math.log(result * color_intensity + 1) + 1);
-        result *= paletteLength; // rescale to palette length      
+    public double transfer(double result) {
+
+        if (result < 0) {
+            result *= -1; // transfer to positive
+            result /= paletteLength; //scale to palette multiple        
+            result = Math.log(Math.log(result * color_intensity + 1) + 1);
+            result *= paletteLength; // rescale to palette length    
+            result *= -1; // transfer to negative
+        } else {
+            result /= paletteLength; //scale to palette multiple        
+            result = Math.log(Math.log(result * color_intensity + 1) + 1);
+            result *= paletteLength; // rescale to palette length     
+        }
+
         return result;
-        
+
     }
-    
+
 }

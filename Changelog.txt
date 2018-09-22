@@ -1,3 +1,12 @@
+Version 1.0.7.0
+    -Added new color blending modes, and organized all of them into categories.
+    -Added an example template function in UserDefinedFunctions.java that lets the user load a pattern image, and use that for coloring.
+    -Added a new option that lets the user select the order of application, for the processing algorithms.
+    -Added new settings for Crystallize and Pointilize filters.
+    -General GUI improvements.
+    -Fixed some performance issues in Boundary Tracing and Divide and Conquer algorithms.
+    -Fixed a bug that would cause multiple redraws of the palette in Custom Palette Editor, causing a slowdown.
+
 Version 1.0.6.9
     -Added a new fractal function "Kleinian" which uses the maskit parametrisation.
     -Added a new processing algorithm, Contour Coloring.

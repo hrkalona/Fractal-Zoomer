@@ -1169,13 +1169,38 @@ public class FiltersOptionsFrame extends JFrame {
             
         });
         
-        final JCheckBox fade_edges = new JCheckBox("Fade Edges");
+        final JCheckBox original_color_crys = new JCheckBox("Original");
+        original_color_crys.setFocusable(false);
+        original_color_crys.setBackground(MainWindow.bg_color);
+        original_color_crys.setToolTipText("Uses the original color pixel color.");
+        
+        final JCheckBox fade_edges = new JCheckBox("Fade");
         fade_edges.setFocusable(false);
         fade_edges.setBackground(MainWindow.bg_color);
         fade_edges.setToolTipText("Fades the edges.");
         
+        fade_edges.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                original_color_crys.setEnabled(!fade_edges.isSelected());
+            }           
+        });
+        
+        original_color_crys.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                fade_edges.setEnabled(!original_color_crys.isSelected());
+            }           
+        });
+        
         if((int)(filters_options_vals[MainWindow.CRYSTALLIZE] / 10000000.0) == 1) {
             fade_edges.setSelected(true);
+            original_color_crys.setEnabled(false);
+        }
+        
+        if(filters_options_extra_vals[0][MainWindow.CRYSTALLIZE] == 1) {
+            original_color_crys.setSelected(true);
+            fade_edges.setEnabled(false);
         }
         
         JPanel filter_color_panel = new JPanel();
@@ -1183,6 +1208,7 @@ public class FiltersOptionsFrame extends JFrame {
         filter_color_panel.add(new JLabel("Color: "));
         filter_color_panel.add(filter_color_label);
         filter_color_panel.add(fade_edges);
+        filter_color_panel.add(original_color_crys);
         
         JPanel crys_label_panel = new JPanel();
         crys_label_panel.setBackground(MainWindow.bg_color);
@@ -1277,8 +1303,33 @@ public class FiltersOptionsFrame extends JFrame {
         fill.setBackground(MainWindow.bg_color);
         fill.setToolTipText("Fills the point.");
         
+        final JCheckBox original_color_point = new JCheckBox("Original");
+        original_color_point.setFocusable(false);
+        original_color_point.setBackground(MainWindow.bg_color);
+        original_color_point.setToolTipText("Uses the original color pixel color.");
+        
+        fill.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                original_color_point.setEnabled(!fill.isSelected());
+            }           
+        });
+        
+        original_color_point.addActionListener(new ActionListener(){
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                fill.setEnabled(!original_color_point.isSelected());
+            }           
+        });
+        
         if((int)(filters_options_vals[MainWindow.POINTILLIZE] / 1000000000.0) == 1) {
             fill.setSelected(true);
+            original_color_point.setEnabled(false);
+        }
+        
+        if(filters_options_extra_vals[0][MainWindow.POINTILLIZE] == 1) {
+            original_color_point.setSelected(true);
+            fill.setEnabled(false);
         }
         
         JPanel rand_fuz_panel = new JPanel();
@@ -1328,6 +1379,7 @@ public class FiltersOptionsFrame extends JFrame {
         filter_color_panel2.add(new JLabel("Color: "));
         filter_color_panel2.add(filter_color_label2);
         filter_color_panel2.add(fill);
+        filter_color_panel2.add(original_color_point);
         
         JPanel pointi_label_panel = new JPanel();
         pointi_label_panel.setBackground(MainWindow.bg_color);
@@ -2741,15 +2793,19 @@ public class FiltersOptionsFrame extends JFrame {
                                 }                               
                             }
                         }
-                        else if(k == MainWindow.CRYSTALLIZE) {                      
+                        else if(k == MainWindow.CRYSTALLIZE) {
+                            int orig = original_color_crys.isSelected() ? 1 : 0 ;
                             int fe = fade_edges.isSelected() ? 1 : 0;
                             filters_options_vals[k] = fe * 10000000 + shape_box.getSelectedIndex() * 1000000 + edge_size_slid.getValue() * 10000 + random_slid.getValue() * 100 + size_slid.getValue();
                             filters_colors[k] = filter_color_label.getBackground();
+                            filters_options_extra_vals[0][k] = orig;
                         }
                         else if(k == MainWindow.POINTILLIZE) {
                             int fl = fill.isSelected() ? 1 : 0;
+                            int orig = original_color_point.isSelected() ? 1 : 0 ;
                             filters_options_vals[k] = fl * 1000000000 + shape_box2.getSelectedIndex() * 100000000 + point_size_slid.getValue() * 1000000 + point_fuzziness_slid.getValue() * 10000 + point_randomness_slid.getValue() * 100 + grid_point_size_slid.getValue();
                             filters_colors[k] = filter_color_label2.getBackground();
+                            filters_options_extra_vals[0][k] = orig;
                         }
                         else if(k == MainWindow.GLOW) {
                             filters_options_vals[k] = glow_softness_slid.getValue() * 1000 + glow_amount_slid.getValue();

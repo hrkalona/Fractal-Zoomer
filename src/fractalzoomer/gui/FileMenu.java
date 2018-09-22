@@ -43,6 +43,7 @@ public class FileMenu extends JMenu {
     private JMenuItem compile_code;
     private JMenuItem zoom_in;
     private JMenuItem zoom_out;
+    private JMenuItem repaint_opt;
     private JMenuItem up;
     private JMenuItem down;
     private JMenuItem left;
@@ -62,6 +63,8 @@ public class FileMenu extends JMenu {
         zoom_in = new JMenuItem("Zoom In", getIcon("/fractalzoomer/icons/zoom_in.png"));
 
         zoom_out = new JMenuItem("Zoom Out", getIcon("/fractalzoomer/icons/zoom_out.png"));
+        
+        repaint_opt = new JMenuItem("Repaint", getIcon("/fractalzoomer/icons/refresh_image.png"));
 
         up = new JMenuItem("Up", getIcon("/fractalzoomer/icons/up.png"));
         down = new JMenuItem("Down", getIcon("/fractalzoomer/icons/down.png"));
@@ -99,6 +102,7 @@ public class FileMenu extends JMenu {
         compile_code.setToolTipText("Compiles the java code, containing the user defined functions.");
         exit.setToolTipText("Exits the application.");
         default_opt.setToolTipText("Resets all fractal settings to the default values.");
+        repaint_opt.setToolTipText("Repaints the image, using the current active settings.");
         
         starting_position.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F2, ActionEvent.CTRL_MASK));
         go_to.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F3, ActionEvent.CTRL_MASK));
@@ -116,6 +120,7 @@ public class FileMenu extends JMenu {
         code_editor.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F6, 0));
         exit.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F4, ActionEvent.ALT_MASK));
         default_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_1, ActionEvent.SHIFT_MASK));
+        repaint_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F6, ActionEvent.CTRL_MASK));
         
         default_opt.addActionListener(new ActionListener() {
 
@@ -133,6 +138,16 @@ public class FileMenu extends JMenu {
             public void actionPerformed(ActionEvent e) {
 
                 ptr.startingPosition();
+
+            }
+        });
+        
+        repaint_opt.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.redraw();
 
             }
         });
@@ -281,6 +296,7 @@ public class FileMenu extends JMenu {
         add(go_to);
         add(zoom_in);
         add(zoom_out);
+        add(repaint_opt);
         addSeparator();
         add(up);
         add(down);
@@ -394,6 +410,12 @@ public class FileMenu extends JMenu {
     public JMenuItem getDefaults() {
         
         return default_opt;
+        
+    }
+    
+    public JMenuItem getRepaint() {
+        
+        return repaint_opt;
         
     }
     

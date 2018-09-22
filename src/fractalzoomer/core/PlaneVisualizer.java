@@ -113,6 +113,8 @@ public class PlaneVisualizer {
         this.yCenter = s.yCenter;
         
         usesCenter = false;
+        
+        vars = createGlobalVars();
 
         switch (s.fns.plane_type) {
             case MainWindow.MU_PLANE:
@@ -261,11 +263,11 @@ public class PlaneVisualizer {
                 break;
             case MainWindow.USER_PLANE:
                 if(s.fns.user_plane_algorithm == 0) {
-                    plane = new UserPlane(s.fns.user_plane, xCenter, yCenter, size, s.max_iterations, s.fns.plane_transform_center);
+                    plane = new UserPlane(s.fns.user_plane, xCenter, yCenter, size, s.max_iterations, s.fns.plane_transform_center, vars);
                     usesCenter = ((UserPlane)plane).usesCenter();
                 }
                 else {
-                    plane = new UserPlaneConditional(s.fns.user_plane_conditions, s.fns.user_plane_condition_formula, xCenter, yCenter, size, s.max_iterations, s.fns.plane_transform_center);
+                    plane = new UserPlaneConditional(s.fns.user_plane_conditions, s.fns.user_plane_condition_formula, xCenter, yCenter, size, s.max_iterations, s.fns.plane_transform_center, vars);
                     usesCenter = ((UserPlaneConditional)plane).usesCenter();
                 }
                 break;
@@ -312,9 +314,6 @@ public class PlaneVisualizer {
                 plane = new RipplesPlane(s.fns.plane_transform_scales, s.fns.plane_transform_wavelength, s.fns.waveType);
                 break;
         }
-        
-        vars = createGlobalVars();
-        plane.setGlobalVars(vars);
 
     }
     

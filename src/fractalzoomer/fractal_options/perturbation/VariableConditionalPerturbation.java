@@ -31,10 +31,13 @@ public class VariableConditionalPerturbation extends PlanePointOption {
     private Parser[] parser;
     private ExpressionNode[] expr2;
     private Parser[] parser2;
+    private Complex[] globalVars;
     
-    public VariableConditionalPerturbation(String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, double xCenter, double yCenter, double size, int max_iterations, double[] point) {
+    public VariableConditionalPerturbation(String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, double xCenter, double yCenter, double size, int max_iterations, double[] point, Complex[] globalVars) {
         
         super();
+        
+        this.globalVars = globalVars;
         
         parser = new Parser[user_perturbation_conditions.length];
         expr = new ExpressionNode[user_perturbation_conditions.length];

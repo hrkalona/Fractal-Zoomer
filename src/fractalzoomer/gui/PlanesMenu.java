@@ -992,7 +992,7 @@ public class PlanesMenu extends JMenu {
 
         planes[MainWindow.USER_PLANE] = new JRadioButtonMenuItem(planeNames[MainWindow.USER_PLANE]);
         planes[MainWindow.USER_PLANE].setToolTipText("A plane defined by the user.");
-        planes[MainWindow.USER_PLANE].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, 0));
+        planes[MainWindow.USER_PLANE].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, ActionEvent.CTRL_MASK));
         planes[MainWindow.USER_PLANE].addActionListener(new ActionListener() {
 
             public void actionPerformed(ActionEvent e) {

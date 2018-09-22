@@ -16,7 +16,7 @@
  */
 package fractalzoomer.utils;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.NoSuchElementException;
 
 /**
@@ -25,7 +25,8 @@ import java.util.NoSuchElementException;
  */
 public class ExpandingQueue<Item> {
 
-    private ArrayList<Item[]> LinkedQueues;
+    private static final int LINKED_QUEUES_SIZE = 1000;
+    private Object[] LinkedQueues;
     private Item[] headQueue;
     private Item[] tailQueue;
     private int size;
@@ -36,10 +37,10 @@ public class ExpandingQueue<Item> {
 
     public ExpandingQueue(int initSize) {
 
-        LinkedQueues = new ArrayList<Item[]>(1000);
+        LinkedQueues = new Object[LINKED_QUEUES_SIZE];
         head = tail = 0;
         headQueue = tailQueue = (Item[]) new Object[initSize];
-        LinkedQueues.add(headQueue);
+        LinkedQueues[0] = headQueue;
         size = 0;
         initialAllocation = initSize;
 
@@ -71,13 +72,19 @@ public class ExpandingQueue<Item> {
         int locationInQueue = tail % initialAllocation;
 
         tailQueue[locationInQueue] = item;
+        
+        if(locationInQueue == initialAllocation - 1) {
+            tailQueue = (Item[])new Object[initialAllocation];
+
+            int LinkedQueueuIndex = tail / initialAllocation + 1;
+            if (LinkedQueueuIndex >= LinkedQueues.length) {
+                LinkedQueues = Arrays.copyOf(LinkedQueues, 2 * LinkedQueues.length);
+            }
+            LinkedQueues[LinkedQueueuIndex] = tailQueue;
+        }
+        
         tail++;
         size++;
-
-        if (locationInQueue == initialAllocation - 1) {
-            tailQueue = (Item[]) new Object[initialAllocation];
-            LinkedQueues.add(tailQueue);
-        }
 
         /*if (size > max_size) {
             max_size = size;
@@ -94,10 +101,10 @@ public class ExpandingQueue<Item> {
         Item item = headQueue[locationInQueue];
         headQueue[locationInQueue] = null;
 
-        if (locationInQueue == initialAllocation - 1) {
+        if(locationInQueue == initialAllocation - 1) {
             int currentQueue = head / initialAllocation;
-            LinkedQueues.set(currentQueue, null);
-            headQueue = LinkedQueues.get(currentQueue + 1); //assuming that tail is always greater or equal to head, this access shoud be fine
+            LinkedQueues[currentQueue] = null;           
+            headQueue = (Item[])LinkedQueues[currentQueue + 1]; //assuming that tail is always greater or equal to head, this access shoud be fine
         }
 
         head++;

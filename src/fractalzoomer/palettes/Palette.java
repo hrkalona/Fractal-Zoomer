@@ -23,26 +23,14 @@ package fractalzoomer.palettes;
 public class Palette {
     protected PaletteColor palette_color;
     
-    public Palette() 
-    {
+    public Palette() {
         
     }
     
-    public int getPaletteColor(double result) {
+    public PaletteColor getRawPalette() {
         
-        return palette_color.getPaletteColor(result);
-        
-    }
-    
-    public int getPaletteLength() {
-        
-        return palette_color.getPaletteLength();
+        return palette_color;
         
     }
     
-    public int getSpecialColor() {
-        
-        return palette_color.getSpecialColor();
-        
-    }
 }

@@ -34,7 +34,7 @@ public class NNormBailoutCondition extends BailoutCondition {
     }
     
      @Override //N norm
-     public boolean escaped(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex[] vars) {
+     public boolean escaped(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start) {
          
         return z.nnorm(n_norm) >= bound;
          

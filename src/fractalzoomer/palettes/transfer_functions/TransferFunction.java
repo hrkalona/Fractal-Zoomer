@@ -29,19 +29,6 @@ public abstract class TransferFunction {
         
     }
     
-    public double transfer(double result) {
-       
-        if(result < 0) {
-            result *= -1; // transfer to positive
-            result = function(result); // apply transfer
-            result *= -1; // transfer to negative
-        }
-        else {
-            result = function(result); // apply transfer
-        }
+    public abstract double transfer(double result);
 
-        return result;
-    }
-    
-    protected abstract double function(double result);
 }

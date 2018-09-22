@@ -31,10 +31,13 @@ public class UserInColorAlgorithm extends InColorAlgorithm {
     private ExpressionNode expr;
     private Parser parser;
     private int max_iterations;
+    private Complex[] globalVars;
     
-    public UserInColorAlgorithm(String incoloring_formula, int max_iterations, double xCenter, double yCenter, double size, double[] point, double genericBail) {
+    public UserInColorAlgorithm(String incoloring_formula, int max_iterations, double xCenter, double yCenter, double size, double[] point, double genericBail, Complex[] globalVars) {
         
         super();
+        
+        this.globalVars = globalVars;
         
         parser = new Parser();
         expr = parser.parse(incoloring_formula); 
@@ -100,10 +103,9 @@ public class UserInColorAlgorithm extends InColorAlgorithm {
             parser.setPPvalue(((Complex)object[2]));
         }
         
-        Complex[] vars = (Complex[])object[5];
         for(int i = 0; i < Parser.EXTRA_VARS; i++) {
             if(parser.foundVar(i)) {
-                parser.setVarsvalue(i, vars[i]);
+                parser.setVarsvalue(i, globalVars[i]);
             }
         }
         

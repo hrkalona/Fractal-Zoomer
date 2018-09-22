@@ -31,10 +31,13 @@ public class UserOutColorAlgorithm extends OutColorAlgorithm {
     protected ExpressionNode expr;
     protected Parser parser;
     protected int max_iterations;
+    protected Complex[] globalVars;
 
-    public UserOutColorAlgorithm(String outcoloring_formula, double bailout, int max_iterations, double xCenter, double yCenter, double size, double[] point) {
+    public UserOutColorAlgorithm(String outcoloring_formula, double bailout, int max_iterations, double xCenter, double yCenter, double size, double[] point, Complex[] globalVars) {
 
         super();
+        
+        this.globalVars = globalVars;
         
         this.max_iterations = max_iterations;
         
@@ -94,11 +97,10 @@ public class UserOutColorAlgorithm extends OutColorAlgorithm {
         if(parser.foundPP()) {
             parser.setPPvalue(((Complex)object[3]));
         }
-        
-        Complex[] vars = (Complex[])object[6];
+
         for(int i = 0; i < Parser.EXTRA_VARS; i++) {
             if(parser.foundVar(i)) {
-                parser.setVarsvalue(i, vars[i]);
+                parser.setVarsvalue(i, globalVars[i]);
             }
         }
 

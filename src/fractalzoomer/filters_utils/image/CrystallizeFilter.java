@@ -24,11 +24,16 @@ public class CrystallizeFilter extends CellularFilter {
 	private float edgeThickness = 0.4f;
 	private boolean fadeEdges = false;
 	private int edgeColor = 0xff000000;
+        private boolean useOriginalColor = false;
 
 	public CrystallizeFilter() {
 		setScale(16);
 		setRandomness(0.0f);
 	}
+        
+        public void setUseOriginalColor(boolean useOriginalColor) {
+            this.useOriginalColor = useOriginalColor;
+        }
 	
 	public void setEdgeThickness(float edgeThickness) {
 		this.edgeThickness = edgeThickness;
@@ -65,8 +70,8 @@ public class CrystallizeFilter extends CellularFilter {
 
 		float f1 = results[0].distance;
 		float f2 = results[1].distance;
-		int srcx = ImageMath.clamp((int)((results[0].x-1000)*scale), 0, width-1);
-		int srcy = ImageMath.clamp((int)((results[0].y-1000)*scale), 0, height-1);
+		int srcx = useOriginalColor ? x : ImageMath.clamp((int)((results[0].x-1000)*scale), 0, width-1);
+		int srcy = useOriginalColor ? y : ImageMath.clamp((int)((results[0].y-1000)*scale), 0, height-1);
 		int v = inPixels[srcy * width + srcx];
 		f = (f2 - f1) / edgeThickness;
 		f = ImageMath.smoothStep(0, edgeThickness, f);

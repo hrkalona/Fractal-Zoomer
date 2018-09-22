@@ -130,9 +130,6 @@ public abstract class MagnetType extends Julia {
 
         period = new Complex();
 
-        pertur_val.setGlobalVars(vars);
-        init_val.setGlobalVars(vars);
-
         Complex tempz = new Complex(pertur_val.getValue(init_val.getValue(pixel)));
 
         Complex[] complex = new Complex[2];
@@ -145,9 +142,9 @@ public abstract class MagnetType extends Julia {
 
         for (; iterations < max_iterations; iterations++) {
             temp1 = (temp4 = complex[0].distance_squared(1)) <= convergent_bailout;
-            temp2 = bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, vars);
+            temp2 = bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start);
             if (temp1 || temp2) {
-                Object[] object = {iterations, complex[0], temp2, temp4, zold, zold2, complex[1], start, vars};
+                Object[] object = {iterations, complex[0], temp2, temp4, zold, zold2, complex[1], start};
                 return out_color_algorithm.getResult(object);
             }
             zold2.assign(zold);
@@ -173,9 +170,6 @@ public abstract class MagnetType extends Julia {
             trap.initialize();
         }
 
-        pertur_val.setGlobalVars(vars);
-        init_val.setGlobalVars(vars);
-
         Complex tempz = new Complex(pertur_val.getValue(init_val.getValue(pixel)));
 
         Complex[] complex = new Complex[2];
@@ -193,9 +187,9 @@ public abstract class MagnetType extends Julia {
             }
 
             temp1 = (temp4 = complex[0].distance_squared(1)) <= convergent_bailout;
-            temp2 = bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, vars);
+            temp2 = bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start);
             if (temp1 || temp2) {
-                Object[] object = {iterations, complex[0], temp2, temp4, zold, zold2, complex[1], start, vars};
+                Object[] object = {iterations, complex[0], temp2, temp4, zold, zold2, complex[1], start};
                 return out_color_algorithm.getResult(object);
             }
             zold2.assign(zold);
@@ -204,7 +198,7 @@ public abstract class MagnetType extends Julia {
 
         }
 
-        Object[] object = {complex[0], zold, zold2, complex[1], start, vars};
+        Object[] object = {complex[0], zold, zold2, complex[1], start};
         return in_color_algorithm.getResult(object);
 
     }
@@ -233,9 +227,9 @@ public abstract class MagnetType extends Julia {
 
         for (; iterations < max_iterations; iterations++) {
             temp1 = (temp4 = complex[0].distance_squared(1)) <= convergent_bailout;
-            temp2 = bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, vars);
+            temp2 = bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start);
             if (temp1 || temp2) {
-                Object[] object = {iterations, complex[0], temp2, temp4, zold, zold2, complex[1], start, vars};
+                Object[] object = {iterations, complex[0], temp2, temp4, zold, zold2, complex[1], start};
                 return out_color_algorithm.getResult(object);
             }
             zold2.assign(zold);
@@ -276,9 +270,9 @@ public abstract class MagnetType extends Julia {
             }
 
             temp1 = (temp4 = complex[0].distance_squared(1)) <= convergent_bailout;
-            temp2 = bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, vars);
+            temp2 = bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start);
             if (temp1 || temp2) {
-                Object[] object = {iterations, complex[0], temp2, temp4, zold, zold2, complex[1], start, vars};
+                Object[] object = {iterations, complex[0], temp2, temp4, zold, zold2, complex[1], start};
                 return out_color_algorithm.getResult(object);
             }
             zold2.assign(zold);
@@ -287,7 +281,7 @@ public abstract class MagnetType extends Julia {
 
         }
 
-        Object[] object = {complex[0], zold, zold2, complex[1], start, vars};
+        Object[] object = {complex[0], zold, zold2, complex[1], start};
         return in_color_algorithm.getResult(object);
 
     }
@@ -306,9 +300,6 @@ public abstract class MagnetType extends Julia {
 
         period = new Complex();
 
-        pertur_val.setGlobalVars(vars);
-        init_val.setGlobalVars(vars);
-
         Complex tempz = new Complex(pertur_val.getValue(init_val.getValue(pixel)));
 
         Complex[] complex = new Complex[2];
@@ -323,9 +314,9 @@ public abstract class MagnetType extends Julia {
 
         for (; iterations < max_iterations; iterations++) {
             temp1 = (temp4 = complex[0].distance_squared(1)) <= convergent_bailout;
-            temp2 = bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, vars);
+            temp2 = bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start);
             if (temp1 || temp2) {
-                Object[] object = {iterations, complex[0], temp2, temp4, zold, zold2, complex[1], start, vars};
+                Object[] object = {iterations, complex[0], temp2, temp4, zold, zold2, complex[1], start};
                 temp3 = out_color_algorithm.getResult(object);
                 double[] array = {OutColorAlgorithm.transformResultToHeight(temp3, max_iterations), temp3};
                 return array;
@@ -356,9 +347,6 @@ public abstract class MagnetType extends Julia {
             trap.initialize();
         }
 
-        pertur_val.setGlobalVars(vars);
-        init_val.setGlobalVars(vars);
-
         Complex tempz = new Complex(pertur_val.getValue(init_val.getValue(pixel)));
 
         Complex[] complex = new Complex[2];
@@ -378,9 +366,9 @@ public abstract class MagnetType extends Julia {
             }
 
             temp1 = (temp4 = complex[0].distance_squared(1)) <= convergent_bailout;
-            temp2 = bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, vars);
+            temp2 = bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start);
             if (temp1 || temp2) {
-                Object[] object = {iterations, complex[0], temp2, temp4, zold, zold2, complex[1], start, vars};
+                Object[] object = {iterations, complex[0], temp2, temp4, zold, zold2, complex[1], start};
                 temp3 = out_color_algorithm.getResult(object);
                 double[] array = {OutColorAlgorithm.transformResultToHeight(temp3, max_iterations), temp3};
                 return array;
@@ -391,7 +379,7 @@ public abstract class MagnetType extends Julia {
 
         }
 
-        Object[] object = {complex[0], zold, zold2, complex[1], start, vars};
+        Object[] object = {complex[0], zold, zold2, complex[1], start};
         temp3 = in_color_algorithm.getResult(object);
         double[] array = {InColorAlgorithm.transformResultToHeight(temp3, max_iterations), temp3};
         return array;
@@ -424,9 +412,9 @@ public abstract class MagnetType extends Julia {
 
         for (; iterations < max_iterations; iterations++) {
             temp1 = (temp4 = complex[0].distance_squared(1)) <= convergent_bailout;
-            temp2 = bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, vars);
+            temp2 = bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start);
             if (temp1 || temp2) {
-                Object[] object = {iterations, complex[0], temp2, temp4, zold, zold2, complex[1], start, vars};
+                Object[] object = {iterations, complex[0], temp2, temp4, zold, zold2, complex[1], start};
                 temp3 = out_color_algorithm.getResult(object);
                 double[] array = {OutColorAlgorithm.transformResultToHeight(temp3, max_iterations), temp3};
                 return array;
@@ -474,9 +462,9 @@ public abstract class MagnetType extends Julia {
             }
 
             temp1 = (temp4 = complex[0].distance_squared(1)) <= convergent_bailout;
-            temp2 = bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, vars);
+            temp2 = bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start);
             if (temp1 || temp2) {
-                Object[] object = {iterations, complex[0], temp2, temp4, zold, zold2, complex[1], start, vars};
+                Object[] object = {iterations, complex[0], temp2, temp4, zold, zold2, complex[1], start};
                 temp3 = out_color_algorithm.getResult(object);
                 double[] array = {OutColorAlgorithm.transformResultToHeight(temp3, max_iterations), temp3};
                 return array;
@@ -487,7 +475,7 @@ public abstract class MagnetType extends Julia {
 
         }
 
-        Object[] object = {complex[0], zold, zold2, complex[1], start, vars};
+        Object[] object = {complex[0], zold, zold2, complex[1], start};
         temp3 = in_color_algorithm.getResult(object);
         double[] array = {InColorAlgorithm.transformResultToHeight(temp3, max_iterations), temp3};
         return array;
@@ -633,9 +621,9 @@ public abstract class MagnetType extends Julia {
                 break;
             case MainWindow.USER_OUTCOLORING_ALGORITHM:
                 if (user_out_coloring_algorithm == 0) {
-                    out_color_algorithm = new UserOutColorAlgorithmMagnet(outcoloring_formula, bailout, max_iterations, xCenter, yCenter, size, plane_transform_center);
+                    out_color_algorithm = new UserOutColorAlgorithmMagnet(outcoloring_formula, bailout, max_iterations, xCenter, yCenter, size, plane_transform_center, globalVars);
                 } else {
-                    out_color_algorithm = new UserConditionalOutColorAlgorithmMagnet(user_outcoloring_conditions, user_outcoloring_condition_formula, bailout, max_iterations, xCenter, yCenter, size, plane_transform_center);
+                    out_color_algorithm = new UserConditionalOutColorAlgorithmMagnet(user_outcoloring_conditions, user_outcoloring_condition_formula, bailout, max_iterations, xCenter, yCenter, size, plane_transform_center, globalVars);
                 }
                 break;
 
@@ -680,9 +668,9 @@ public abstract class MagnetType extends Julia {
                 break;
             case MainWindow.USER_INCOLORING_ALGORITHM:
                 if (user_in_coloring_algorithm == 0) {
-                    in_color_algorithm = new UserInColorAlgorithm(incoloring_formula, max_iterations, xCenter, yCenter, size, plane_transform_center, bailout);
+                    in_color_algorithm = new UserInColorAlgorithm(incoloring_formula, max_iterations, xCenter, yCenter, size, plane_transform_center, bailout, globalVars);
                 } else {
-                    in_color_algorithm = new UserConditionalInColorAlgorithm(user_incoloring_conditions, user_incoloring_condition_formula, max_iterations, xCenter, yCenter, size, plane_transform_center, bailout);
+                    in_color_algorithm = new UserConditionalInColorAlgorithm(user_incoloring_conditions, user_incoloring_condition_formula, max_iterations, xCenter, yCenter, size, plane_transform_center, bailout, globalVars);
                 }
                 break;
 

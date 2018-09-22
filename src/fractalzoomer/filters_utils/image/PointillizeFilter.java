@@ -22,11 +22,16 @@ public class PointillizeFilter extends CellularFilter {
 	private boolean fadeEdges = false;
 	private int edgeColor = 0xff000000;
 	private float fuzziness = 0.1f;
+        private boolean useOriginalColor = false;
 
 	public PointillizeFilter() {
 		setScale(16);
 		setRandomness(0.0f);
 	}
+        
+        public void setUseOriginalColor(boolean useOriginalColor) {
+            this.useOriginalColor = useOriginalColor;
+        }
 	
 	public void setEdgeThickness(float edgeThickness) {
 		this.edgeThickness = edgeThickness;
@@ -70,8 +75,8 @@ public class PointillizeFilter extends CellularFilter {
 		float f = evaluate(nx, ny);
 
 		float f1 = results[0].distance;
-		int srcx = ImageMath.clamp((int)((results[0].x-1000)*scale), 0, width-1);
-		int srcy = ImageMath.clamp((int)((results[0].y-1000)*scale), 0, height-1);
+		int srcx = useOriginalColor ? x : ImageMath.clamp((int)((results[0].x-1000)*scale), 0, width-1);
+		int srcy = useOriginalColor ? y : ImageMath.clamp((int)((results[0].y-1000)*scale), 0, height-1);
 		int v = inPixels[srcy * width + srcx];
 
 		if (fadeEdges) {

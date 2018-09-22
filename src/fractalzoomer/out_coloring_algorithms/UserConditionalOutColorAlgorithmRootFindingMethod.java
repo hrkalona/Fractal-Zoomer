@@ -37,11 +37,14 @@ public class UserConditionalOutColorAlgorithmRootFindingMethod extends OutColorA
     private Complex c_center;
     private Complex c_size;
     protected int max_iterations;
+    private Complex[] globalVars;
 
-    public UserConditionalOutColorAlgorithmRootFindingMethod(String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, double convergent_bailout, int max_iterations, double xCenter, double yCenter, double size, double[] point) {
+    public UserConditionalOutColorAlgorithmRootFindingMethod(String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, double convergent_bailout, int max_iterations, double xCenter, double yCenter, double size, double[] point, Complex[] globalVars) {
 
         super();
 
+        this.globalVars = globalVars;
+        
         this.max_iterations = max_iterations;
         
         parser = new Parser[user_outcoloring_conditions.length];
@@ -222,10 +225,9 @@ public class UserConditionalOutColorAlgorithmRootFindingMethod extends OutColorA
             parser[0].setPPvalue(((Complex)object[4]));
         }
 
-        Complex[] vars = (Complex[])object[7];
         for(int i = 0; i < Parser.EXTRA_VARS; i++) {
             if(parser[0].foundVar(i)) {
-                parser[0].setVarsvalue(i, vars[i]);
+                parser[0].setVarsvalue(i, globalVars[i]);
             }
         }
 
@@ -256,7 +258,7 @@ public class UserConditionalOutColorAlgorithmRootFindingMethod extends OutColorA
 
         for(int i = 0; i < Parser.EXTRA_VARS; i++) {
             if(parser[1].foundVar(i)) {
-                parser[1].setVarsvalue(i, vars[i]);
+                parser[1].setVarsvalue(i, globalVars[i]);
             }
         }
 
@@ -289,7 +291,7 @@ public class UserConditionalOutColorAlgorithmRootFindingMethod extends OutColorA
 
             for(int i = 0; i < Parser.EXTRA_VARS; i++) {
                 if(parser2[0].foundVar(i)) {
-                    parser2[0].setVarsvalue(i, vars[i]);
+                    parser2[0].setVarsvalue(i, globalVars[i]);
                 }
             }
 
@@ -328,7 +330,7 @@ public class UserConditionalOutColorAlgorithmRootFindingMethod extends OutColorA
             
             for(int i = 0; i < Parser.EXTRA_VARS; i++) {
                 if(parser2[1].foundVar(i)) {
-                    parser2[1].setVarsvalue(i, vars[i]);
+                    parser2[1].setVarsvalue(i, globalVars[i]);
                 }
             }
 
@@ -367,7 +369,7 @@ public class UserConditionalOutColorAlgorithmRootFindingMethod extends OutColorA
             
             for(int i = 0; i < Parser.EXTRA_VARS; i++) {
                 if(parser2[2].foundVar(i)) {
-                    parser2[2].setVarsvalue(i, vars[i]);
+                    parser2[2].setVarsvalue(i, globalVars[i]);
                 }
             }
 

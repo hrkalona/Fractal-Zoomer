@@ -30,7 +30,13 @@ public class BurnBlending extends Blending {
 
     @Override
     public int blend(int redA, int greenA, int blueA, int redB, int greenB, int blueB, double coef) {
-
+        
+        if(redB == 255 && greenB == 255 && blueB == 255) {
+            redB = 254;
+            greenB = 254;
+            blueB = 254;
+        }
+        
         int temp_red = (int)(255 - (256.0 * (255 - redB)) / (redA + 1));
         int temp_green = (int)(255 - (256.0 * (255 - greenB)) / (greenA + 1));
         int temp_blue = (int)(255 - (256.0 * (255 - blueB)) / (blueA + 1));

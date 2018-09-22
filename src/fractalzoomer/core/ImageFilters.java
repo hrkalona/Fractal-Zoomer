@@ -1316,13 +1316,14 @@ public class ImageFilters {
 
     }
 
-    private static void filterCrystallize(BufferedImage image, int filter_value, Color filter_color) {
+    private static void filterCrystallize(BufferedImage image, int filter_value, int filter_value2, Color filter_color) {
 
         double size = (((int)(((int)(((int)(((int)(filter_value % 10000000.0)) % 1000000.0)) % 10000.0)) % 100.0)) / 80.0) * 100;
         double randomness = ((int)(((int)(((int)(((int)(filter_value % 10000000.0)) % 1000000.0)) % 10000.0)) / 100.0)) / 80.0;
         double edge_size = ((int)(((int)(((int)(filter_value % 10000000.0)) % 1000000.0)) / 10000.0)) / 80.0;
         int shape = ((int)(((int)(filter_value % 10000000.0)) / 1000000.0));
         int fade_edges = (int)(filter_value / 10000000.0);
+        int original = filter_value2;
 
         CrystallizeFilter f = new CrystallizeFilter();
 
@@ -1331,6 +1332,13 @@ public class ImageFilters {
         }
         else {
             f.setFadeEdges(false);
+        }
+        
+        if(original == 1) {
+            f.setUseOriginalColor(true);
+        }
+        else {
+            f.setUseOriginalColor(false);
         }
 
         f.setGridType(shape);
@@ -1370,7 +1378,7 @@ public class ImageFilters {
 
     }
 
-    private static void filterPointillize(BufferedImage image, int filter_value, Color filter_color) {
+    private static void filterPointillize(BufferedImage image, int filter_value, int filter_value2, Color filter_color) {
 
         PointillizeFilter f = new PointillizeFilter();
 
@@ -1380,12 +1388,20 @@ public class ImageFilters {
         double fuzziness = ((int)(((int)(((int)(((int)(filter_value % 1000000000.0)) % 100000000.0)) % 1000000.0)) / 10000.0)) / 80.0;
         double randomness = ((int)(((int)(((int)(((int)(((int)(filter_value % 1000000000.0)) % 100000000.0)) % 1000000.0)) % 10000.0)) / 100.0)) / 80.0;
         double grid_size = ((int)(((int)(((int)(((int)(((int)(filter_value % 1000000000.0)) % 100000000.0)) % 1000000.0)) % 10000.0)) % 100.0)) / 80.0 * 100;
-
+        int original = filter_value2;
+                
         if(fill == 1) {
             f.setFadeEdges(true);
         }
         else {
             f.setFadeEdges(false);
+        }
+        
+        if(original == 1) {
+            f.setUseOriginalColor(true);
+        }
+        else {
+            f.setUseOriginalColor(false);
         }
 
         f.setScale((float)grid_size);
@@ -1710,7 +1726,7 @@ public class ImageFilters {
             switch (filters_order[i]) {
                 case MainWindow.CRYSTALLIZE:
                     if(filters[MainWindow.CRYSTALLIZE]) {
-                        ImageFilters.filterCrystallize(image, filters_options_vals[MainWindow.CRYSTALLIZE], filters_colors[MainWindow.CRYSTALLIZE]);
+                        ImageFilters.filterCrystallize(image, filters_options_vals[MainWindow.CRYSTALLIZE], filters_options_extra_vals[0][MainWindow.CRYSTALLIZE], filters_colors[MainWindow.CRYSTALLIZE]);
                         if(progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
@@ -1719,7 +1735,7 @@ public class ImageFilters {
                     break;
                 case MainWindow.POINTILLIZE:
                     if(filters[MainWindow.POINTILLIZE]) {
-                        ImageFilters.filterPointillize(image, filters_options_vals[MainWindow.POINTILLIZE], filters_colors[MainWindow.POINTILLIZE]);
+                        ImageFilters.filterPointillize(image, filters_options_vals[MainWindow.POINTILLIZE], filters_options_extra_vals[0][MainWindow.POINTILLIZE], filters_colors[MainWindow.POINTILLIZE]);
                         if(progressbar != null) {
                             active++;
                             setProgress(progressbar, active);

@@ -20,7 +20,7 @@ import fractalzoomer.core.Complex;
 import fractalzoomer.core.blending.Blending;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.DomainColoringSettings;
-import fractalzoomer.palettes.Palette;
+import fractalzoomer.palettes.PaletteColor;
 import fractalzoomer.palettes.transfer_functions.TransferFunction;
 
 /**
@@ -39,7 +39,7 @@ public class CustomDomainColoring extends DomainColoring {
     private double normType;
     private int[] order;
 
-    public CustomDomainColoring(DomainColoringSettings ds, Palette palette, TransferFunction color_transfer, int color_cycling_location, Blending blending, int[] gradient) {
+    public CustomDomainColoring(DomainColoringSettings ds, PaletteColor palette, TransferFunction color_transfer, int color_cycling_location, Blending blending, int[] gradient) {
 
         super(ds.use_palette_domain_coloring, palette, color_transfer, color_cycling_location, MainWindow.INTERPOLATION_LINEAR, blending);
 

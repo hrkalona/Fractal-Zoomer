@@ -32,10 +32,13 @@ public class UserOutColorAlgorithmRootFindingMethod extends OutColorAlgorithm {
     private ExpressionNode expr;
     private Parser parser;
     protected int max_iterations;
+    private Complex[] globalVars;
     
-    public UserOutColorAlgorithmRootFindingMethod(String outcoloring_formula, double convergent_bailout, int max_iterations, double xCenter, double yCenter, double size, double[] point) {
+    public UserOutColorAlgorithmRootFindingMethod(String outcoloring_formula, double convergent_bailout, int max_iterations, double xCenter, double yCenter, double size, double[] point, Complex[] globalVars) {
         
         super();
+        
+        this.globalVars = globalVars;
         
         this.max_iterations = max_iterations;
         
@@ -97,10 +100,9 @@ public class UserOutColorAlgorithmRootFindingMethod extends OutColorAlgorithm {
             parser.setPPvalue(((Complex)object[4]));
         }
         
-        Complex[] vars = (Complex[])object[7];
         for(int i = 0; i < Parser.EXTRA_VARS; i++) {
             if(parser.foundVar(i)) {
-                parser.setVarsvalue(i, vars[i]);
+                parser.setVarsvalue(i, globalVars[i]);
             }
         }
         

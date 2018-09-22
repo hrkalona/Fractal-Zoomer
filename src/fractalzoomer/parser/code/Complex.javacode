@@ -43,6 +43,13 @@ public final class Complex {
         im = z.im;
 
     }
+    
+    public final void reset() {
+
+        re = 0;
+        im = 0;
+
+    }
 
     public final double getRe() {
 
@@ -2263,6 +2270,18 @@ public final class Complex {
 
         return new Complex(re + amplitude.re * fx, im + amplitude.im * fy);
 
+    }
+    
+    /* more efficient z^2 + c */
+    public final Complex square_mutable_plus_c_mutable(Complex c) {
+        
+        double temp = re * im;
+
+        re = (re + im) * (re - im) + c.re;
+        im = temp + temp + c.im;
+        
+        return this;
+        
     }
 
     private double triangle(double x) {

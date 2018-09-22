@@ -39,10 +39,55 @@ import javax.tools.ToolProvider;
  * Parsing is implemented in the form of a recursive descent parser.
  *
  */
+
+/*
+The defined grammar:
+
+expression -> signed_term sum_op
+signed_term -> PLUSMINUS signed_term
+signed_term -> term
+sum_op -> PLUSMINUS signed_term sum_op
+sum_op -> EPSILON
+term -> factor term_op
+factor -> argument factor_op
+term_op -> MULTDIV signed_factor term_op
+term_op -> EPSILON
+signed_factor -> PLUSMINUS signed_factor
+signed_factor -> factor
+factor_op -> RAISED signed_factor
+factor_op -> EPSILON
+argument -> FUNCTION function_argument
+argument -> FUNCTION_2ARG function_argument2
+argument -> FUNCTION_USER_1_ARG function_argument
+argument -> FUNCTION_USER_2_ARG function_argument2
+argument -> FUNCTION_USER_MULTI_ARG function_max_multi_arg
+argument -> FUNCTION_USER_MULTI_2_ARG function_max_multi_arg
+argument -> OPEN_BRACKET expression CLOSE_BRACKET
+argument -> value
+function_argument -> OPEN_BRACKET expression CLOSE_BRACKET
+function_argument2 -> OPEN_BRACKET expression COMMA expression CLOSE_BRACKET
+function_max_multi_arg -> OPEN_BRACKET expression more_args CLOSE_BRACKET
+more_args -> COMMA expression more_args
+more_args -> EPSILON
+value -> REAL
+value -> IMAGINARY
+value -> VARIABLE
+
+*/
 public class Parser {
 
     public static URLClassLoader loader;
-    static Class<?> userClass;
+    public static Class<?> userClass;
+    public static boolean usesUserCode = false;
+    private boolean parseOnlyMode;
+    
+    public Parser() {
+        parseOnlyMode = false;
+    }
+    
+    public Parser(boolean parserOnlyMode) {
+        this.parseOnlyMode = parserOnlyMode;
+    }
 
     /**
      * the tokens to parse
@@ -371,7 +416,7 @@ public class Parser {
      * handles the non-terminal factor_op
      */
     private ExpressionNode factorOp(ExpressionNode expr) {
-        // factor_op -> RAISED expression
+        // factor_op -> RAISED signed_factor
         if(lookahead.token == Token.RAISED) {
             nextToken();
             ExpressionNode exponent = signedFactor();
@@ -387,49 +432,65 @@ public class Parser {
      * handles the non-terminal argument
      */
     private ExpressionNode argument() {
-        // argument -> FUNCTION argument
+        // argument -> FUNCTION function_argument
         if(lookahead.token == Token.FUNCTION) {
             int function = FunctionExpressionNode.stringToFunction(lookahead.sequence);
 
             nextToken();
             ExpressionNode expr = functionArgument();
             return new FunctionExpressionNode(function, expr);
-        } // argument -> FUNCTION_2ARG argument
+        } // argument -> FUNCTION_2ARG function_argument2
         else if(lookahead.token == Token.FUNCTION_2ARGUMENTS) {
             int function = Function2ArgumentsExpressionNode.stringToFunction(lookahead.sequence);
 
             nextToken();
             ExpressionNode expr[] = functionArgument2();
             return new Function2ArgumentsExpressionNode(function, expr[0], expr[1]);
-        } // argument -> FUNCTION_USER_1_ARG argument
+        } // argument -> FUNCTION_USER_1_ARG function_argument
         else if(lookahead.token == Token.FUNCTION_USER_ONE_ARGUMENT) {
             int function = FunctionUser1ArgumentExpressionNode.stringToFunction(lookahead.sequence);
 
+            if(!parseOnlyMode) {
+                usesUserCode = true;
+            }
+            
             nextToken();
             ExpressionNode expr = functionArgument();
             return new FunctionUser1ArgumentExpressionNode(function, expr);
-        } // argument -> FUNCTION_USER_2_ARG argument
+        } // argument -> FUNCTION_USER_2_ARG function_argument2
         else if(lookahead.token == Token.FUNCTION_USER_TWO_ARGUMENTS) {
             int function = FunctionUser2ArgumentExpressionNode.stringToFunction(lookahead.sequence);
 
+            if(!parseOnlyMode) {
+                usesUserCode = true;
+            }
+            
             nextToken();
             ExpressionNode expr[] = functionArgument2();
             return new FunctionUser2ArgumentExpressionNode(function, expr[0], expr[1]);
-        } // argument -> FUNCTION_USER_MULTI_ARG argument
+        } // argument -> FUNCTION_USER_MULTI_ARG function_max_multi_arg
         else if(lookahead.token == Token.FUNCTION_USER_MULTI_ARGUMENTS) {
             int function = FunctionUserMultiArgumentExpressionNode.stringToFunction(lookahead.sequence);
 
+            if(!parseOnlyMode) {
+                usesUserCode = true;
+            }
+            
             nextToken();
             ExpressionNode expr[] = functionUserMultiArguments(FunctionUserMultiArgumentExpressionNode.MAX_ARGUMENTS);
             return new FunctionUserMultiArgumentExpressionNode(function, expr);
-        } // argument -> FUNCTION_USER_MULTI_2_ARG) argument
+        } // argument -> FUNCTION_USER_MULTI_2_ARG function_max_multi_arg
         else if(lookahead.token == Token.FUNCTION_USER_MULTI_2_ARGUMENTS) {
             int function = FunctionUserMultiArgument2ExpressionNode.stringToFunction(lookahead.sequence);
 
+            if(!parseOnlyMode) {
+                usesUserCode = true;
+            }
+            
             nextToken();
             ExpressionNode expr[] = functionUserMultiArguments(FunctionUserMultiArgument2ExpressionNode.MAX_ARGUMENTS);
             return new FunctionUserMultiArgument2ExpressionNode(function, expr);
-        }// argument -> OPEN_BRACKET sum CLOSE_BRACKET
+        }// argument -> OPEN_BRACKET expression CLOSE_BRACKET
         else if(lookahead.token == Token.OPEN_BRACKET) {
             nextToken();
             ExpressionNode expr = expression();
@@ -446,6 +507,7 @@ public class Parser {
 
     /*handles the function with 2 arguments */
     private ExpressionNode[] functionArgument2() {
+        // function_argument2 -> OPEN_BRACKET expression COMMA expression CLOSE_BRACKET
         if(lookahead.token == Token.OPEN_BRACKET) {
             ExpressionNode[] exprs = new ExpressionNode[2];
 
@@ -468,12 +530,16 @@ public class Parser {
 
     /*handles the function with user multi arguments */
     private ExpressionNode[] functionUserMultiArguments(int max_arguments) {
+        
+        //function_max_multi_arg -> OPEN_BRACKET expression more_args CLOSE_BRACKET
         if(lookahead.token == Token.OPEN_BRACKET) {
             ExpressionNode[] exprs = new ExpressionNode[max_arguments];
 
             nextToken();
             exprs[0] = expression();
 
+            // more_args -> COMMA expression more_args
+            // more_args -> EPSILON
             for(int i = 1; i < exprs.length; i++) {
                 if(lookahead.token == Token.CLOSE_BRACKET) {
                     break;
@@ -504,6 +570,7 @@ public class Parser {
 
     /*handles the function with 1 argument */
     private ExpressionNode functionArgument() {
+        // function_argument -> OPEN_BRACKET expression CLOSE_BRACKET
         if(lookahead.token == Token.OPEN_BRACKET) {
             nextToken();
             ExpressionNode expr = expression();
@@ -521,14 +588,14 @@ public class Parser {
      * handles the non-terminal value
      */
     private ExpressionNode value() {
-        // argument -> REAL_NUMBER
+        // value -> REAL_NUMBER
         if(lookahead.token == Token.REAL_NUMBER) {
             ExpressionNode expr = new RealConstantExpressionNode(lookahead.sequence);
             nextToken();
             return expr;
         }
 
-        // argument -> IMAGINARY_NUMBER
+        // value -> IMAGINARY_NUMBER
         if(lookahead.token == Token.IMAGINARY_NUMBER) {
             StringTokenizer tok = new StringTokenizer(lookahead.sequence, "iI");
             ExpressionNode expr;
@@ -542,7 +609,7 @@ public class Parser {
             return expr;
         }
 
-        // argument -> VARIABLE
+        // value -> VARIABLE
         if(lookahead.token == Token.VARIABLE) {
 
             String temp = lookahead.sequence;

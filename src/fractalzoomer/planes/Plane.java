@@ -24,18 +24,11 @@ import fractalzoomer.core.Complex;
  * @author hrkalona
  */
 public abstract class Plane {
-    protected Complex[] globalVars;
 
     public Plane() {
 
     }
 
     public abstract Complex transform(Complex pixel);
-    
-    public void setGlobalVars(Complex[] vars) {
-        
-        globalVars = vars;
-        
-    }
 
 }

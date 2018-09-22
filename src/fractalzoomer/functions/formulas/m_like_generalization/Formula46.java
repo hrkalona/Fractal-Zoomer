@@ -41,10 +41,10 @@ public class Formula46 extends Julia {
         if(perturbation) {
             if(variable_perturbation) {
                 if(user_perturbation_algorithm == 0) {
-                    pertur_val = new VariablePerturbation(perturbation_user_formula, xCenter, yCenter, size, max_iterations, plane_transform_center);
+                    pertur_val = new VariablePerturbation(perturbation_user_formula, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
                 }
                 else {
-                    pertur_val = new VariableConditionalPerturbation(user_perturbation_conditions, user_perturbation_condition_formula, xCenter, yCenter, size, max_iterations, plane_transform_center);
+                    pertur_val = new VariableConditionalPerturbation(user_perturbation_conditions, user_perturbation_condition_formula, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
                 }
             }
             else {
@@ -58,10 +58,10 @@ public class Formula46 extends Julia {
         if(init_value) {
             if(variable_init_value) {
                 if(user_initial_value_algorithm == 0) {
-                    init_val = new VariableInitialValue(initial_value_user_formula, xCenter, yCenter, size, max_iterations, plane_transform_center);
+                    init_val = new VariableInitialValue(initial_value_user_formula, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
                 }
                 else {
-                    init_val = new VariableConditionalInitialValue(user_initial_value_conditions, user_initial_value_condition_formula, xCenter, yCenter, size, max_iterations, plane_transform_center);
+                    init_val = new VariableConditionalInitialValue(user_initial_value_conditions, user_initial_value_condition_formula, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
                 }
             }
             else {
@@ -69,7 +69,7 @@ public class Formula46 extends Julia {
             }
         }
         else {
-            init_val = new VariableInitialValue("(0.275i / c) / (2 * (-0.4 + 0.2i) * c)", xCenter, yCenter, size, max_iterations, plane_transform_center);
+            init_val = new VariableInitialValue("(0.275i / c) / (2 * (-0.4 + 0.2i) * c)", xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
         }
 
         OutColoringAlgorithmFactory(out_coloring_algorithm, smoothing, escaping_smooth_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, plane_transform_center);
@@ -96,10 +96,10 @@ public class Formula46 extends Julia {
         if(perturbation) {
             if(variable_perturbation) {
                 if(user_perturbation_algorithm == 0) {
-                    pertur_val = new VariablePerturbation(perturbation_user_formula, xCenter, yCenter, size, max_iterations, plane_transform_center);
+                    pertur_val = new VariablePerturbation(perturbation_user_formula, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
                 }
                 else {
-                    pertur_val = new VariableConditionalPerturbation(user_perturbation_conditions, user_perturbation_condition_formula, xCenter, yCenter, size, max_iterations, plane_transform_center);
+                    pertur_val = new VariableConditionalPerturbation(user_perturbation_conditions, user_perturbation_condition_formula, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
                 }
             }
             else {
@@ -113,10 +113,10 @@ public class Formula46 extends Julia {
         if(init_value) {
             if(variable_init_value) {
                 if(user_initial_value_algorithm == 0) {
-                    init_val = new VariableInitialValue(initial_value_user_formula, xCenter, yCenter, size, max_iterations, plane_transform_center);
+                    init_val = new VariableInitialValue(initial_value_user_formula, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
                 }
                 else {
-                    init_val = new VariableConditionalInitialValue(user_initial_value_conditions, user_initial_value_condition_formula, xCenter, yCenter, size, max_iterations, plane_transform_center);
+                    init_val = new VariableConditionalInitialValue(user_initial_value_conditions, user_initial_value_condition_formula, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
                 }
             }
             else {
@@ -124,7 +124,7 @@ public class Formula46 extends Julia {
             }
         }
         else {
-            init_val = new VariableInitialValue("(0.275i / c) / (2 * (-0.4 + 0.2i) * c)", xCenter, yCenter, size, max_iterations, plane_transform_center);
+            init_val = new VariableInitialValue("(0.275i / c) / (2 * (-0.4 + 0.2i) * c)", xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
         }
 
     }

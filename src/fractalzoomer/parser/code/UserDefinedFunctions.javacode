@@ -1,5 +1,8 @@
 import fractalzoomer.core.Complex;
 import java.awt.Color;
+import java.awt.image.BufferedImage;
+import java.io.*;
+import javax.imageio.*;
 
 /**
  * You may change this class as you please.
@@ -26,6 +29,8 @@ import java.awt.Color;
  *	 You should check some of the examples at the bottom of this file.
  *
  *	-If you somehow break the code and you do not know how to make it work, just delete the UserDefinedFunctions.java file and restart the application.
+ *
+ *	-Dont forget to save a copy of this file, when saving settings that use any of these functions!
  **/
 
 public class UserDefinedFunctions {
@@ -1578,9 +1583,33 @@ public class UserDefinedFunctions {
 	
 	}
 	
-	public static Complex k58(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
+	/*Example for image loading as a texture, by using Direct Color. In order to use this function set the user out coloring formula to k58(z, bail, p) and the user in coloring formula to 0. Dont forget to enable Direct Color.*/
+	public static Complex k58(Complex z, Complex bail, Complex p, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
 	
-		return new Complex();
+		if(img == null)
+			loadImage("image.png"); //set the path to your texture image
+			
+		double re = (((z.arg() + Math.PI) / (2 * Math.PI))) % 1.0;
+		//double im = 1 - Math.log(z.norm()) / Math.log(bail.getRe())); //the original example used this line to map the im coordinate, it should be used only in mandelbrot set
+		
+		double temp = p.norm_squared();
+		double temp2 = z.norm_squared();
+		
+		temp2 = Math.log(temp2);
+		double r = temp2 / Math.log(temp);
+		r = r <= 0 ? 1e-33 : r;
+		temp2 = temp2 <= 0 ? 1e-33 : temp2;
+		
+		double a = Math.log(temp2 / Math.log(bail.getRe() * bail.getRe()));
+		double im =  1 - a / Math.log(r);
+		
+		int width = img.getWidth();
+		int height = img.getHeight();
+		
+		int pixel_x = (int)(re * width + 0.5);
+		int pixel_y = (int)(im * height + 0.5);
+		
+		return new Complex(img.getRGB(pixel_x % width, pixel_y % height), 0);
 	
 	}
 	
@@ -1710,6 +1739,13 @@ public class UserDefinedFunctions {
 		
 		return new Complex(red << 16 | green << 8 | blue, 0);
 		
+	}
+	
+	static BufferedImage img = null;
+	public static void loadImage(String imagePath) {
+		try {
+			img = ImageIO.read(new File(imagePath));
+		} catch (IOException e) {}
 	}
 
 }

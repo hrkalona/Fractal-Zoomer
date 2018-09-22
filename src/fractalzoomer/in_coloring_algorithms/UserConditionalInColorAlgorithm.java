@@ -33,11 +33,14 @@ public class UserConditionalInColorAlgorithm extends InColorAlgorithm {
     private ExpressionNode[] expr2;
     private Parser[] parser2;
     private int max_iterations;
+    private Complex[] globalVars;
 
-    public UserConditionalInColorAlgorithm(String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, int max_iterations, double xCenter, double yCenter, double size, double[] point, double genericBail) {
+    public UserConditionalInColorAlgorithm(String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, int max_iterations, double xCenter, double yCenter, double size, double[] point, double genericBail, Complex[] globalVars) {
 
         super();
 
+        this.globalVars = globalVars;
+        
         parser = new Parser[user_incoloring_conditions.length];
         expr = new ExpressionNode[user_incoloring_conditions.length];
 
@@ -253,10 +256,9 @@ public class UserConditionalInColorAlgorithm extends InColorAlgorithm {
             parser[0].setPPvalue(((Complex)object[2]));
         }
 
-        Complex[] vars = (Complex[])object[5];
         for(int i = 0; i < Parser.EXTRA_VARS; i++) {
             if(parser[0].foundVar(i)) {
-                parser[0].setVarsvalue(i, vars[i]);
+                parser[0].setVarsvalue(i, globalVars[i]);
             }
         }
 
@@ -284,7 +286,7 @@ public class UserConditionalInColorAlgorithm extends InColorAlgorithm {
 
         for(int i = 0; i < Parser.EXTRA_VARS; i++) {
             if(parser[1].foundVar(i)) {
-                parser[1].setVarsvalue(i, vars[i]);
+                parser[1].setVarsvalue(i, globalVars[i]);
             }
         }
 
@@ -313,7 +315,7 @@ public class UserConditionalInColorAlgorithm extends InColorAlgorithm {
 
             for(int i = 0; i < Parser.EXTRA_VARS; i++) {
                 if(parser2[0].foundVar(i)) {
-                    parser2[0].setVarsvalue(i, vars[i]);
+                    parser2[0].setVarsvalue(i, globalVars[i]);
                 }
             }
 
@@ -348,7 +350,7 @@ public class UserConditionalInColorAlgorithm extends InColorAlgorithm {
             
             for(int i = 0; i < Parser.EXTRA_VARS; i++) {
                 if(parser2[1].foundVar(i)) {
-                    parser2[1].setVarsvalue(i, vars[i]);
+                    parser2[1].setVarsvalue(i, globalVars[i]);
                 }
             }
 
@@ -383,7 +385,7 @@ public class UserConditionalInColorAlgorithm extends InColorAlgorithm {
             
             for(int i = 0; i < Parser.EXTRA_VARS; i++) {
                 if(parser2[2].foundVar(i)) {
-                    parser2[2].setVarsvalue(i, vars[i]);
+                    parser2[2].setVarsvalue(i, globalVars[i]);
                 }
             }
 

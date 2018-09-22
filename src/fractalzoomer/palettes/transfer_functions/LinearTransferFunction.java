@@ -31,8 +31,8 @@ public class LinearTransferFunction extends TransferFunction {
     }
     
     @Override
-    protected double function(double result) {
-        
+    public double transfer(double result) {
+       
         return color_intensity * result;
         
     }

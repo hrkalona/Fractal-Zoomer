@@ -19,7 +19,7 @@ package fractalzoomer.core.domain_coloring;
 import fractalzoomer.core.Complex;
 import fractalzoomer.core.blending.Blending;
 import fractalzoomer.main.MainWindow;
-import fractalzoomer.palettes.Palette;
+import fractalzoomer.palettes.PaletteColor;
 import fractalzoomer.palettes.transfer_functions.TransferFunction;
 
 /**
@@ -28,7 +28,7 @@ import fractalzoomer.palettes.transfer_functions.TransferFunction;
  */
 public class WhiteGridDarkContoursLog2DomainColoring extends DomainColoring {
 
-    public WhiteGridDarkContoursLog2DomainColoring(boolean use_palette_domain_coloring, Palette palette, TransferFunction color_transfer, int color_cycling_location, Blending blending) {
+    public WhiteGridDarkContoursLog2DomainColoring(boolean use_palette_domain_coloring, PaletteColor palette, TransferFunction color_transfer, int color_cycling_location, Blending blending) {
 
         super(use_palette_domain_coloring, palette, color_transfer, color_cycling_location, MainWindow.INTERPOLATION_LINEAR, blending);
         

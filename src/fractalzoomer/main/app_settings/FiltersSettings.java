@@ -53,6 +53,10 @@ public class FiltersSettings {
             if(reset_checked) {
                 filters[k] = false;
             }
+            
+            filters_options_extra_vals[0][k] = 0;
+            filters_options_extra_vals[1][k] = 0;
+            filters_colors[k] = Color.BLACK;
 
             if(k == Constants.SPARKLE || k == Constants.COLOR_CHANNEL_MIXING) {
                 filters_colors[k] = Color.WHITE;

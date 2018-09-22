@@ -20,10 +20,12 @@ package fractalzoomer.gui;
 import fractalzoomer.main.MainWindow;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JMenu;
 import javax.swing.JRadioButtonMenuItem;
+import javax.swing.KeyStroke;
 
 /**
  *
@@ -162,6 +164,7 @@ public class BailoutConditionsMenu extends JMenu {
 
             }
         });
+        bailout_conditions[MainWindow.BAILOUT_CONDITION_USER].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, ActionEvent.CTRL_MASK));
         add(bailout_conditions[MainWindow.BAILOUT_CONDITION_USER]);
         bailout_tests_group.add(bailout_conditions[MainWindow.BAILOUT_CONDITION_USER]);
         

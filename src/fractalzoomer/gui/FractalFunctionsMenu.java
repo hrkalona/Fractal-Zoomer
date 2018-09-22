@@ -280,7 +280,7 @@ public class FractalFunctionsMenu extends JMenu {
         burning_ship_opt.setToolTipText("Enables the burning ship variation.");
         mandel_grass_opt.setToolTipText("Enables the mandel grass variation.");
 
-        burning_ship_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, ActionEvent.CTRL_MASK));
+        burning_ship_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, 0));
         mandel_grass_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_M, 0));
 
         fractal_functions = new JRadioButtonMenuItem[functionNames.length];
@@ -1427,6 +1427,7 @@ public class FractalFunctionsMenu extends JMenu {
 
             }
         });
+        fractal_functions[MainWindow.USER_FORMULA].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_U, ActionEvent.CTRL_MASK));
         user_formulas_type_functions.add(fractal_functions[MainWindow.USER_FORMULA]);
         functions_button_group.add(fractal_functions[MainWindow.USER_FORMULA]);
 

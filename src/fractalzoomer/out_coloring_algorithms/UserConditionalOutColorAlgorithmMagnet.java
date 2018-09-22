@@ -28,9 +28,9 @@ public class UserConditionalOutColorAlgorithmMagnet extends UserConditionalOutCo
 
     protected int max_iterations;
     
-    public UserConditionalOutColorAlgorithmMagnet(String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, double bailout, int max_iterations, double xCenter, double yCenter, double size, double[] point) {
+    public UserConditionalOutColorAlgorithmMagnet(String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, double bailout, int max_iterations, double xCenter, double yCenter, double size, double[] point, Complex[] globalVars) {
 
-        super(user_outcoloring_conditions, user_outcoloring_condition_formula, bailout, max_iterations, xCenter, yCenter, size, point);
+        super(user_outcoloring_conditions, user_outcoloring_condition_formula, bailout, max_iterations, xCenter, yCenter, size, point, globalVars);
         this.max_iterations = max_iterations;
         OutNotUsingIncrement = true;
         
@@ -64,10 +64,9 @@ public class UserConditionalOutColorAlgorithmMagnet extends UserConditionalOutCo
             parser[0].setPPvalue(((Complex)object[5]));
         }
 
-        Complex[] vars = (Complex[])object[8];
         for(int i = 0; i < Parser.EXTRA_VARS; i++) {
             if(parser[0].foundVar(i)) {
-                parser[0].setVarsvalue(i, vars[i]);
+                parser[0].setVarsvalue(i, globalVars[i]);
             }
         }
 
@@ -98,7 +97,7 @@ public class UserConditionalOutColorAlgorithmMagnet extends UserConditionalOutCo
 
         for(int i = 0; i < Parser.EXTRA_VARS; i++) {
             if(parser[1].foundVar(i)) {
-                parser[1].setVarsvalue(i, vars[i]);
+                parser[1].setVarsvalue(i, globalVars[i]);
             }
         }
 
@@ -131,7 +130,7 @@ public class UserConditionalOutColorAlgorithmMagnet extends UserConditionalOutCo
 
             for(int i = 0; i < Parser.EXTRA_VARS; i++) {
                 if(parser2[0].foundVar(i)) {
-                    parser2[0].setVarsvalue(i, vars[i]);
+                    parser2[0].setVarsvalue(i, globalVars[i]);
                 }
             }
             
@@ -175,7 +174,7 @@ public class UserConditionalOutColorAlgorithmMagnet extends UserConditionalOutCo
             
             for(int i = 0; i < Parser.EXTRA_VARS; i++) {
                 if(parser2[1].foundVar(i)) {
-                    parser2[1].setVarsvalue(i, vars[i]);
+                    parser2[1].setVarsvalue(i, globalVars[i]);
                 }
             }
 
@@ -219,7 +218,7 @@ public class UserConditionalOutColorAlgorithmMagnet extends UserConditionalOutCo
             
             for(int i = 0; i < Parser.EXTRA_VARS; i++) {
                 if(parser2[2].foundVar(i)) {
-                    parser2[2].setVarsvalue(i, vars[i]);
+                    parser2[2].setVarsvalue(i, globalVars[i]);
                 }
             }
 

@@ -99,7 +99,7 @@ public class NewtonFormula extends NewtonRootFindingMethod {
 
         for (int i = 0; i < Parser.EXTRA_VARS; i++) {
             if (parser.foundVar(i)) {
-                parser.setVarsvalue(i, vars[i]);
+                parser.setVarsvalue(i, globalVars[i]);
             }
         }
 
@@ -115,7 +115,7 @@ public class NewtonFormula extends NewtonRootFindingMethod {
 
         for (int i = 0; i < Parser.EXTRA_VARS; i++) {
             if (parser2.foundVar(i)) {
-                parser2.setVarsvalue(i, vars[i]);
+                parser2.setVarsvalue(i, globalVars[i]);
             }
         }
 
@@ -149,7 +149,7 @@ public class NewtonFormula extends NewtonRootFindingMethod {
             }
 
             if ((temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
-                Object[] object = {iterations, complex[0], temp, zold, zold2, pixel, start, vars};
+                Object[] object = {iterations, complex[0], temp, zold, zold2, pixel, start};
                 return out_color_algorithm.getResult(object);
             }
             zold2.assign(zold);
@@ -160,7 +160,7 @@ public class NewtonFormula extends NewtonRootFindingMethod {
 
         }
 
-        Object[] object = {complex[0], zold, zold2, pixel, start, vars};
+        Object[] object = {complex[0], zold, zold2, pixel, start};
         return in_color_algorithm.getResult(object);
 
     }
@@ -190,7 +190,7 @@ public class NewtonFormula extends NewtonRootFindingMethod {
             }
 
             if ((temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
-                Object[] object = {iterations, complex[0], temp, zold, zold2, pixel, start, vars};
+                Object[] object = {iterations, complex[0], temp, zold, zold2, pixel, start};
                 double[] array = {OutColorAlgorithm.transformResultToHeight(out_color_algorithm.getResult3D(object), max_iterations), out_color_algorithm.getResult(object)};
                 return array;
             }
@@ -202,7 +202,7 @@ public class NewtonFormula extends NewtonRootFindingMethod {
 
         }
 
-        Object[] object = {complex[0], zold, zold2, pixel, start, vars};
+        Object[] object = {complex[0], zold, zold2, pixel, start};
         double temp2 = in_color_algorithm.getResult(object);
         double[] array = {InColorAlgorithm.transformResultToHeight(temp2, max_iterations), temp2};
         return array;

@@ -88,7 +88,7 @@ public class MullerSin extends MullerRootFindingMethod {
             }
 
             if ((temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
-                Object[] object = {iterations, complex[0], temp, zold, zold2, pixel, start, vars};
+                Object[] object = {iterations, complex[0], temp, zold, zold2, pixel, start};
                 return out_color_algorithm.getResult(object);
             }
             zold2.assign(zold);
@@ -97,7 +97,7 @@ public class MullerSin extends MullerRootFindingMethod {
 
         }
 
-        Object[] object = {complex[0], zold, zold2, pixel, start, vars};
+        Object[] object = {complex[0], zold, zold2, pixel, start};
         return in_color_algorithm.getResult(object);
 
     }
@@ -176,7 +176,7 @@ public class MullerSin extends MullerRootFindingMethod {
             }
 
             if ((temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
-                Object[] object = {iterations, complex[0], temp, zold, zold2, pixel, start, vars};
+                Object[] object = {iterations, complex[0], temp, zold, zold2, pixel, start};
                 double[] array = {OutColorAlgorithm.transformResultToHeight(out_color_algorithm.getResult3D(object), max_iterations), out_color_algorithm.getResult(object)};
                 return array;
             }
@@ -186,7 +186,7 @@ public class MullerSin extends MullerRootFindingMethod {
 
         }
 
-        Object[] object = {complex[0], zold, zold2, pixel, start, vars};
+        Object[] object = {complex[0], zold, zold2, pixel, start};
         double temp2 = in_color_algorithm.getResult(object);
         double[] array = {InColorAlgorithm.transformResultToHeight(temp2, max_iterations), temp2};
         return array;

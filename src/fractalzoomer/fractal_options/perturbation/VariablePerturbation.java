@@ -30,10 +30,13 @@ import fractalzoomer.parser.Parser;
 public class VariablePerturbation extends PlanePointOption {
     private ExpressionNode expr;
     private Parser parser;
+    private Complex[] globalVars;
     
-    public VariablePerturbation(String perturbation_user_formula, double xCenter, double yCenter, double size, int max_iterations, double[] point) {
+    public VariablePerturbation(String perturbation_user_formula, double xCenter, double yCenter, double size, int max_iterations, double[] point, Complex[] globalVars) {
     
         super();
+        
+        this.globalVars = globalVars;
         
         parser = new Parser();
         expr = parser.parse(perturbation_user_formula);

@@ -111,13 +111,13 @@ public class Kleinian extends Fractal {
             }
 
             if (complex[0].getIm() < 0.0 || complex[0].getIm() > u) {     
-                Object[] object = {iterations, complex[0], zold, zold2, pixel, start, vars};
+                Object[] object = {iterations, complex[0], zold, zold2, pixel, start};
                 return out_color_algorithm.getResult(object);         
             }
             
             //If the iterated points enters a 2-cycle , bail out.
             if (iterations != 0 && complex[0].distance_squared(zold2) < error) {               
-                Object[] object = {complex[0], zold, zold2, pixel, start, vars};
+                Object[] object = {complex[0], zold, zold2, pixel, start};
                 return in_color_algorithm.getResult(object);
             }
             
@@ -127,7 +127,7 @@ public class Kleinian extends Fractal {
             function(complex);
         }
 
-        Object[] object = {complex[0], zold, zold2, pixel, start, vars};
+        Object[] object = {complex[0], zold, zold2, pixel, start};
         return in_color_algorithm.getResult(object);
 
     }
@@ -156,7 +156,7 @@ public class Kleinian extends Fractal {
             }
 
             if (complex[0].getIm() < 0.0 || complex[0].getIm() > u) {
-                Object[] object = {iterations, complex[0], zold, zold2, pixel, start, vars};
+                Object[] object = {iterations, complex[0], zold, zold2, pixel, start};
                 temp = out_color_algorithm.getResult(object);
                 double[] array = {OutColorAlgorithm.transformResultToHeight(temp, max_iterations), temp};
                 return array;
@@ -165,7 +165,7 @@ public class Kleinian extends Fractal {
 
             //If the iterated points enters a 2-cycle , bail out.
             if (iterations != 0 && complex[0].distance_squared(zold2) < error) {                
-                Object[] object = {complex[0], zold, zold2, pixel, start, vars};
+                Object[] object = {complex[0], zold, zold2, pixel, start};
                 temp = in_color_algorithm.getResult(object);
                 double[] array = {InColorAlgorithm.transformResultToHeight(temp, max_iterations), temp};
                 return array;
@@ -176,7 +176,7 @@ public class Kleinian extends Fractal {
             function(complex);
         }
 
-        Object[] object = {complex[0], zold, zold2, pixel, start, vars};
+        Object[] object = {complex[0], zold, zold2, pixel, start};
         temp = in_color_algorithm.getResult(object);
         double[] array = {InColorAlgorithm.transformResultToHeight(temp, max_iterations), temp};
         return array;

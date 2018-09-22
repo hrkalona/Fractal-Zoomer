@@ -100,7 +100,7 @@ public class ColorsMenu extends JMenu {
         gradient.setToolTipText("Sets the gradient for color blending.");
         direct_color_opt.setToolTipText("Enables the use of direct color, via the use of user code, in user out coloring and in coloring modes.");
      
-        color_intensity_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, ActionEvent.CTRL_MASK));
+        color_intensity_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_5, ActionEvent.CTRL_MASK));
 
         fract_color.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T, 0));
         random_palette.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, ActionEvent.SHIFT_MASK));
@@ -201,10 +201,10 @@ public class ColorsMenu extends JMenu {
         add(direct_color_opt);
         addSeparator();
         add(processing);
-        addSeparator();                
+        addSeparator();
         add(color_blending_menu); 
         add(gradient);
-        addSeparator();
+        addSeparator();                
         add(fract_color);
         addSeparator();
         add(palette_menu);
@@ -382,6 +382,12 @@ public class ColorsMenu extends JMenu {
     public JMenuItem getContourColoring() {
         
         return processing.getContourColoring();
+        
+    }
+    
+    public JMenuItem getProcessingOrder() {
+        
+        return processing.getProcessingOrder();
         
     }
 }

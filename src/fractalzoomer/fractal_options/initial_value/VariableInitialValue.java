@@ -30,10 +30,13 @@ public class VariableInitialValue extends PlanePointOption {
 
     private ExpressionNode expr;
     private Parser parser;
+    private Complex[] globalVars;
 
-    public VariableInitialValue(String initial_value_user_formula, double xCenter, double yCenter, double size, int max_iterations, double[] point) {
+    public VariableInitialValue(String initial_value_user_formula, double xCenter, double yCenter, double size, int max_iterations, double[] point, Complex[] globalVars) {
 
         super();
+        
+        this.globalVars = globalVars;
 
         parser = new Parser();
         expr = parser.parse(initial_value_user_formula);

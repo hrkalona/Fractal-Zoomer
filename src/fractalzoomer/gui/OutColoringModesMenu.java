@@ -19,10 +19,12 @@ package fractalzoomer.gui;
 import fractalzoomer.main.MainWindow;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JMenu;
 import javax.swing.JRadioButtonMenuItem;
+import javax.swing.KeyStroke;
 
 /**
  *
@@ -398,6 +400,7 @@ public class OutColoringModesMenu extends JMenu {
 
             }
         });
+        out_coloring_modes[MainWindow.USER_OUTCOLORING_ALGORITHM].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.CTRL_MASK));
         add(out_coloring_modes[MainWindow.USER_OUTCOLORING_ALGORITHM]);
         outcoloring_button_group.add(out_coloring_modes[MainWindow.USER_OUTCOLORING_ALGORITHM]);
 

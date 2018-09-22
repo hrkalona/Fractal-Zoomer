@@ -135,7 +135,7 @@ public class OptionsMenu extends JMenu {
         iterations.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, 0));
         increase_iterations.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, ActionEvent.ALT_MASK));
         decrease_iterations.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, ActionEvent.ALT_MASK));
-        bailout_number.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_U, ActionEvent.CTRL_MASK));
+        bailout_number.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_U, ActionEvent.ALT_MASK));
         set_rotation.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, ActionEvent.ALT_MASK));
         increase_rotation.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, ActionEvent.CTRL_MASK));
         decrease_rotation.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, ActionEvent.CTRL_MASK));
@@ -743,6 +743,12 @@ public class OptionsMenu extends JMenu {
     public JMenuItem getContourColoring() {
         
         return colors_menu.getContourColoring();
+        
+    }
+    
+    public JMenuItem getProcessingOrder() {
+        
+        return colors_menu.getProcessingOrder();
         
     }
 

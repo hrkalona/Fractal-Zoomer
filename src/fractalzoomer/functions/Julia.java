@@ -44,10 +44,7 @@ public abstract class Julia extends Fractal {
 
         super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, ots);
 
-        if (apply_plane_on_julia_seed) {
-            vars = createGlobalVars();
-            plane.setGlobalVars(vars);
-
+        if (apply_plane_on_julia_seed) {;
             seed = plane.transform(new Complex(xJuliaCenter, yJuliaCenter));
         } else {
             seed = new Complex(xJuliaCenter, yJuliaCenter);
@@ -86,8 +83,7 @@ public abstract class Julia extends Fractal {
     @Override
     public double calculateJulia(Complex pixel) {
 
-        vars = createGlobalVars();
-        plane.setGlobalVars(vars);
+        resetGlobalVars();
 
         if (apply_plane_on_julia) {
             return periodicity_checking ? calculateJuliaWithPeriodicity(plane.transform(rotation.rotate(pixel))) : calculateJuliaWithoutPeriodicity(plane.transform(rotation.rotate(pixel)));
@@ -100,8 +96,7 @@ public abstract class Julia extends Fractal {
     @Override
     public double[] calculateJulia3D(Complex pixel) {
 
-        vars = createGlobalVars();
-        plane.setGlobalVars(vars);
+        resetGlobalVars();
 
         if (apply_plane_on_julia) {
             return periodicity_checking ? calculateJulia3DWithPeriodicity(plane.transform(rotation.rotate(pixel))) : calculateJulia3DWithoutPeriodicity(plane.transform(rotation.rotate(pixel)));
@@ -131,8 +126,8 @@ public abstract class Julia extends Fractal {
         Complex start = new Complex(complex[0]);
 
         for (; iterations < max_iterations; iterations++) {
-            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, vars)) {
-                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, vars};
+            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
+                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start};
                 return out_color_algorithm.getResult(object);
             }
             zold2.assign(zold);
@@ -168,8 +163,8 @@ public abstract class Julia extends Fractal {
                 trap.check(complex[0]);
             }
 
-            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, vars)) {
-                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, vars};
+            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
+                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start};
                 return out_color_algorithm.getResult(object);
             }
             zold2.assign(zold);
@@ -178,7 +173,7 @@ public abstract class Julia extends Fractal {
 
         }
 
-        Object[] object = {complex[0], zold, zold2, complex[1], start, vars};
+        Object[] object = {complex[0], zold, zold2, complex[1], start};
         return in_color_algorithm.getResult(object);
 
     }
@@ -205,8 +200,8 @@ public abstract class Julia extends Fractal {
         double temp;
 
         for (; iterations < max_iterations; iterations++) {
-            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, vars)) {
-                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, vars};
+            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
+                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start};
                 temp = out_color_algorithm.getResult(object);
                 double[] array = {OutColorAlgorithm.transformResultToHeight(temp, max_iterations), temp};
                 return array;
@@ -249,8 +244,8 @@ public abstract class Julia extends Fractal {
                 trap.check(complex[0]);
             }
 
-            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, vars)) {
-                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, vars};
+            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
+                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start};
                 temp = out_color_algorithm.getResult(object);
                 double[] array = {OutColorAlgorithm.transformResultToHeight(temp, max_iterations), temp};
                 return array;
@@ -261,7 +256,7 @@ public abstract class Julia extends Fractal {
 
         }
 
-        Object[] object = {complex[0], zold, zold2, complex[1], start, vars};
+        Object[] object = {complex[0], zold, zold2, complex[1], start};
         temp = in_color_algorithm.getResult(object);
         double[] array = {InColorAlgorithm.transformResultToHeight(temp, max_iterations), temp};
         return array;
@@ -294,8 +289,7 @@ public abstract class Julia extends Fractal {
     @Override
     public Complex calculateJuliaDomain(Complex pixel) {
 
-        vars = createGlobalVars();
-        plane.setGlobalVars(vars);
+        resetGlobalVars();
 
         if (apply_plane_on_julia) {
             return iterateJuliaDomain(plane.transform(rotation.rotate(pixel)));

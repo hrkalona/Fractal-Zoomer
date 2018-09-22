@@ -84,8 +84,8 @@ public class SierpinskiGasket extends Fractal {
                 trap.check(complex[0]);
             }
 
-            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, pixel, start, vars)) {
-                Object[] object = {iterations, complex[0], zold, zold2, pixel, start, vars};
+            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, pixel, start)) {
+                Object[] object = {iterations, complex[0], zold, zold2, pixel, start};
                 return out_color_algorithm.getResult(object);
             }
             zold2.assign(zold);
@@ -94,7 +94,7 @@ public class SierpinskiGasket extends Fractal {
 
         }
 
-        Object[] object = {complex[0], zold, zold2, pixel, start, vars};
+        Object[] object = {complex[0], zold, zold2, pixel, start};
         return in_color_algorithm.getResult(object);
 
     }
@@ -122,8 +122,8 @@ public class SierpinskiGasket extends Fractal {
                 trap.check(complex[0]);
             }
 
-            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, pixel, start, vars)) {
-                Object[] object = {iterations, complex[0], zold, zold2, pixel, start, vars};
+            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, pixel, start)) {
+                Object[] object = {iterations, complex[0], zold, zold2, pixel, start};
                 temp = out_color_algorithm.getResult(object);
                 double[] array = {OutColorAlgorithm.transformResultToHeight(temp, max_iterations), temp};
                 return array;
@@ -134,7 +134,7 @@ public class SierpinskiGasket extends Fractal {
 
         }
 
-        Object[] object = {complex[0], zold, zold2, pixel, start, vars};
+        Object[] object = {complex[0], zold, zold2, pixel, start};
         temp = in_color_algorithm.getResult(object);
         double[] array = {InColorAlgorithm.transformResultToHeight(temp, max_iterations), temp};
         return array;

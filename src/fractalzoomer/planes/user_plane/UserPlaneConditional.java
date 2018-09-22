@@ -33,12 +33,15 @@ public class UserPlaneConditional extends Plane {
     private ExpressionNode[] expr2;
     private Parser[] parser2;
     private boolean usesCenter;
+    private Complex[] globalVars;
     
-    public UserPlaneConditional(String[] user_plane_conditions, String[] user_plane_condition_formula, double xCenter, double yCenter, double size, int max_iterations, double[] point) {
+    public UserPlaneConditional(String[] user_plane_conditions, String[] user_plane_condition_formula, double xCenter, double yCenter, double size, int max_iterations, double[] point, Complex[] globalVars) {
         
         super();
         
         usesCenter = false;
+        
+        this.globalVars = globalVars;
         
         parser = new Parser[user_plane_conditions.length];
         expr = new ExpressionNode[user_plane_conditions.length];

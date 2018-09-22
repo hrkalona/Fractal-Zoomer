@@ -64,9 +64,9 @@ public class UserFormulaCoupledConverging extends ExtendedConvergentType {
         if (perturbation) {
             if (variable_perturbation) {
                 if (user_perturbation_algorithm == 0) {
-                    pertur_val = new VariablePerturbation(perturbation_user_formula, xCenter, yCenter, size, max_iterations, plane_transform_center);
+                    pertur_val = new VariablePerturbation(perturbation_user_formula, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
                 } else {
-                    pertur_val = new VariableConditionalPerturbation(user_perturbation_conditions, user_perturbation_condition_formula, xCenter, yCenter, size, max_iterations, plane_transform_center);
+                    pertur_val = new VariableConditionalPerturbation(user_perturbation_conditions, user_perturbation_condition_formula, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
                 }
             } else {
                 pertur_val = new Perturbation(perturbation_vals[0], perturbation_vals[1]);
@@ -78,9 +78,9 @@ public class UserFormulaCoupledConverging extends ExtendedConvergentType {
         if (init_value) {
             if (variable_init_value) {
                 if (user_initial_value_algorithm == 0) {
-                    init_val = new VariableInitialValue(initial_value_user_formula, xCenter, yCenter, size, max_iterations, plane_transform_center);
+                    init_val = new VariableInitialValue(initial_value_user_formula, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
                 } else {
-                    init_val = new VariableConditionalInitialValue(user_initial_value_conditions, user_initial_value_condition_formula, xCenter, yCenter, size, max_iterations, plane_transform_center);
+                    init_val = new VariableConditionalInitialValue(user_initial_value_conditions, user_initial_value_condition_formula, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
                 }
             } else {
                 init_val = new InitialValue(initial_vals[0], initial_vals[1]);
@@ -111,7 +111,7 @@ public class UserFormulaCoupledConverging extends ExtendedConvergentType {
                 break;
         }
 
-        init_val2 = new VariableInitialValue(user_formula_coupled[2], xCenter, yCenter, size, max_iterations, plane_transform_center);
+        init_val2 = new VariableInitialValue(user_formula_coupled[2], xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
 
         point = new Complex(plane_transform_center[0], plane_transform_center[1]);
 
@@ -162,7 +162,7 @@ public class UserFormulaCoupledConverging extends ExtendedConvergentType {
                 break;
         }
 
-        init_val2 = new VariableInitialValue(user_formula_coupled[2], xCenter, yCenter, size, max_iterations, plane_transform_center);
+        init_val2 = new VariableInitialValue(user_formula_coupled[2], xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
 
         point = new Complex(plane_transform_center[0], plane_transform_center[1]);
 
@@ -176,9 +176,9 @@ public class UserFormulaCoupledConverging extends ExtendedConvergentType {
         if (perturbation) {
             if (variable_perturbation) {
                 if (user_perturbation_algorithm == 0) {
-                    pertur_val = new VariablePerturbation(perturbation_user_formula, xCenter, yCenter, size, max_iterations, plane_transform_center);
+                    pertur_val = new VariablePerturbation(perturbation_user_formula, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
                 } else {
-                    pertur_val = new VariableConditionalPerturbation(user_perturbation_conditions, user_perturbation_condition_formula, xCenter, yCenter, size, max_iterations, plane_transform_center);
+                    pertur_val = new VariableConditionalPerturbation(user_perturbation_conditions, user_perturbation_condition_formula, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
                 }
             } else {
                 pertur_val = new Perturbation(perturbation_vals[0], perturbation_vals[1]);
@@ -190,9 +190,9 @@ public class UserFormulaCoupledConverging extends ExtendedConvergentType {
         if (init_value) {
             if (variable_init_value) {
                 if (user_initial_value_algorithm == 0) {
-                    init_val = new VariableInitialValue(initial_value_user_formula, xCenter, yCenter, size, max_iterations, plane_transform_center);
+                    init_val = new VariableInitialValue(initial_value_user_formula, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
                 } else {
-                    init_val = new VariableConditionalInitialValue(user_initial_value_conditions, user_initial_value_condition_formula, xCenter, yCenter, size, max_iterations, plane_transform_center);
+                    init_val = new VariableConditionalInitialValue(user_initial_value_conditions, user_initial_value_condition_formula, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
                 }
             } else {
                 init_val = new InitialValue(initial_vals[0], initial_vals[1]);
@@ -219,7 +219,7 @@ public class UserFormulaCoupledConverging extends ExtendedConvergentType {
                 break;
         }
 
-        init_val2 = new VariableInitialValue(user_formula_coupled[2], xCenter, yCenter, size, max_iterations, plane_transform_center);
+        init_val2 = new VariableInitialValue(user_formula_coupled[2], xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
 
         point = new Complex(plane_transform_center[0], plane_transform_center[1]);
 
@@ -247,7 +247,7 @@ public class UserFormulaCoupledConverging extends ExtendedConvergentType {
                 break;
         }
 
-        init_val2 = new VariableInitialValue(user_formula_coupled[2], xCenter, yCenter, size, max_iterations, plane_transform_center);
+        init_val2 = new VariableInitialValue(user_formula_coupled[2], xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
 
         point = new Complex(plane_transform_center[0], plane_transform_center[1]);
 
@@ -275,7 +275,7 @@ public class UserFormulaCoupledConverging extends ExtendedConvergentType {
 
         for (int i = 0; i < Parser.EXTRA_VARS; i++) {
             if (parser.foundVar(i)) {
-                parser.setVarsvalue(i, vars[i]);
+                parser.setVarsvalue(i, globalVars[i]);
             }
         }
 
@@ -300,7 +300,7 @@ public class UserFormulaCoupledConverging extends ExtendedConvergentType {
 
         for (int i = 0; i < Parser.EXTRA_VARS; i++) {
             if (parser2.foundVar(i)) {
-                parser2.setVarsvalue(i, vars[i]);
+                parser2.setVarsvalue(i, globalVars[i]);
             }
         }
 
@@ -323,10 +323,6 @@ public class UserFormulaCoupledConverging extends ExtendedConvergentType {
             trap.initialize();
         }
 
-        pertur_val.setGlobalVars(vars);
-        init_val.setGlobalVars(vars);
-        init_val2.setGlobalVars(vars);
-
         Complex tempz = new Complex(pertur_val.getValue(init_val.getValue(pixel)));
         Complex tempz2 = new Complex(init_val2.getValue(pixel));
 
@@ -348,7 +344,7 @@ public class UserFormulaCoupledConverging extends ExtendedConvergentType {
             }
 
             if ((temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
-                Object[] object = {iterations, complex[0], temp, zold, zold2, complex[1], start, vars};
+                Object[] object = {iterations, complex[0], temp, zold, zold2, complex[1], start};
                 return out_color_algorithm.getResult(object);
             }
             zold2.assign(zold);
@@ -359,7 +355,7 @@ public class UserFormulaCoupledConverging extends ExtendedConvergentType {
 
         }
 
-        Object[] object = {complex[0], zold, zold2, complex[1], start, vars};
+        Object[] object = {complex[0], zold, zold2, complex[1], start};
         return in_color_algorithm.getResult(object);
 
     }
@@ -372,8 +368,6 @@ public class UserFormulaCoupledConverging extends ExtendedConvergentType {
         if (trap != null) {
             trap.initialize();
         }
-
-        init_val2.setGlobalVars(vars);
 
         Complex tempz2 = new Complex(init_val2.getValue(pixel));
 
@@ -395,7 +389,7 @@ public class UserFormulaCoupledConverging extends ExtendedConvergentType {
             }
 
             if ((temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
-                Object[] object = {iterations, complex[0], temp, zold, zold2, complex[1], start, vars};
+                Object[] object = {iterations, complex[0], temp, zold, zold2, complex[1], start};
                 return out_color_algorithm.getResult(object);
             }
             zold2.assign(zold);
@@ -406,7 +400,7 @@ public class UserFormulaCoupledConverging extends ExtendedConvergentType {
 
         }
 
-        Object[] object = {complex[0], zold, zold2, complex[1], start, vars};
+        Object[] object = {complex[0], zold, zold2, complex[1], start};
         return in_color_algorithm.getResult(object);
 
     }
@@ -419,10 +413,6 @@ public class UserFormulaCoupledConverging extends ExtendedConvergentType {
         if (trap != null) {
             trap.initialize();
         }
-
-        pertur_val.setGlobalVars(vars);
-        init_val.setGlobalVars(vars);
-        init_val2.setGlobalVars(vars);
 
         Complex tempz = new Complex(pertur_val.getValue(init_val.getValue(pixel)));
         Complex tempz2 = new Complex(init_val2.getValue(pixel));
@@ -447,7 +437,7 @@ public class UserFormulaCoupledConverging extends ExtendedConvergentType {
             }
 
             if ((temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
-                Object[] object = {iterations, complex[0], temp, zold, zold2, complex[1], start, vars};
+                Object[] object = {iterations, complex[0], temp, zold, zold2, complex[1], start};
                 double[] array = {OutColorAlgorithm.transformResultToHeight(out_color_algorithm.getResult3D(object), max_iterations), out_color_algorithm.getResult(object)};
                 return array;
             }
@@ -459,7 +449,7 @@ public class UserFormulaCoupledConverging extends ExtendedConvergentType {
 
         }
 
-        Object[] object = {complex[0], zold, zold2, complex[1], start, vars};
+        Object[] object = {complex[0], zold, zold2, complex[1], start};
         temp2 = in_color_algorithm.getResult(object);
         double[] array = {InColorAlgorithm.transformResultToHeight(temp2, max_iterations), temp2};
         return array;
@@ -474,8 +464,6 @@ public class UserFormulaCoupledConverging extends ExtendedConvergentType {
         if (trap != null) {
             trap.initialize();
         }
-
-        init_val2.setGlobalVars(vars);
 
         Complex tempz2 = new Complex(init_val2.getValue(pixel));
 
@@ -497,7 +485,7 @@ public class UserFormulaCoupledConverging extends ExtendedConvergentType {
             }
 
             if ((temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
-                Object[] object = {iterations, complex[0], temp, zold, zold2, complex[1], start, vars};
+                Object[] object = {iterations, complex[0], temp, zold, zold2, complex[1], start};
                 double[] array = {OutColorAlgorithm.transformResultToHeight(out_color_algorithm.getResult3D(object), max_iterations), out_color_algorithm.getResult(object)};
                 return array;
             }
@@ -509,7 +497,7 @@ public class UserFormulaCoupledConverging extends ExtendedConvergentType {
 
         }
 
-        Object[] object = {complex[0], zold, zold2, complex[1], start, vars};
+        Object[] object = {complex[0], zold, zold2, complex[1], start};
         double temp2 = in_color_algorithm.getResult(object);
         double[] array = {InColorAlgorithm.transformResultToHeight(temp2, max_iterations), temp2};
         return array;
@@ -519,10 +507,6 @@ public class UserFormulaCoupledConverging extends ExtendedConvergentType {
     @Override
     public void calculateFractalOrbit() {
         iterations = 0;
-
-        pertur_val.setGlobalVars(vars);
-        init_val.setGlobalVars(vars);
-        init_val2.setGlobalVars(vars);
 
         Complex[] complex = new Complex[3];
         complex[0] = new Complex(pertur_val.getValue(init_val.getValue(pixel_orbit)));//z
@@ -559,8 +543,6 @@ public class UserFormulaCoupledConverging extends ExtendedConvergentType {
     public void calculateJuliaOrbit() {
         iterations = 0;
 
-        init_val2.setGlobalVars(vars);
-
         Complex[] complex = new Complex[3];
         complex[0] = new Complex(pixel_orbit);//z
         complex[1] = new Complex(seed);//c
@@ -596,10 +578,6 @@ public class UserFormulaCoupledConverging extends ExtendedConvergentType {
     public Complex iterateFractalDomain(Complex pixel) {
         iterations = 0;
 
-        pertur_val.setGlobalVars(vars);
-        init_val.setGlobalVars(vars);
-        init_val2.setGlobalVars(vars);
-
         Complex tempz = new Complex(pertur_val.getValue(init_val.getValue(pixel)));
         Complex tempz2 = new Complex(init_val2.getValue(pixel));
 
@@ -631,8 +609,6 @@ public class UserFormulaCoupledConverging extends ExtendedConvergentType {
     @Override
     public Complex iterateJuliaDomain(Complex pixel) {
         iterations = 0;
-
-        init_val2.setGlobalVars(vars);
 
         Complex tempz2 = new Complex(init_val2.getValue(pixel));
 

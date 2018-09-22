@@ -192,7 +192,7 @@ public abstract class Fractal {
     protected int update;
     protected int update_counter;
     protected Complex period;
-    protected Complex[] vars;
+    protected Complex[] globalVars;
     protected OrbitTrap trap;
 
     public Fractal(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, OrbitTrapSettings ots) {
@@ -204,6 +204,8 @@ public abstract class Fractal {
         this.bailout = bailout;
         bailout_squared = bailout * bailout;
         this.periodicity_checking = periodicity_checking;
+        
+        globalVars = createGlobalVars();
 
         if (ots.useTraps) {
             TrapFactory(ots);
@@ -214,7 +216,7 @@ public abstract class Fractal {
         PlaneFactory(plane_type, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
 
         BailoutConditionFactory(bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, plane_transform_center);
-
+        
     }
 
     //orbit
@@ -226,13 +228,12 @@ public abstract class Fractal {
         this.max_iterations = max_iterations;
         this.complex_orbit = complex_orbit;
         pixel_orbit = this.complex_orbit.get(0);
+        
+        globalVars = createGlobalVars();
 
         rotation = new Rotation(rotation_vals[0], rotation_vals[1], rotation_center[0], rotation_center[1]);
 
         PlaneFactory(plane_type, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
-
-        vars = createGlobalVars();
-        plane.setGlobalVars(vars);
 
         pixel_orbit = plane.transform(rotation.rotate(pixel_orbit));
 
@@ -275,8 +276,7 @@ public abstract class Fractal {
 
     public double calculateFractal(Complex pixel) {
 
-        vars = createGlobalVars();
-        plane.setGlobalVars(vars);
+        resetGlobalVars();
 
         return periodicity_checking ? calculateFractalWithPeriodicity(plane.transform(rotation.rotate(pixel))) : calculateFractalWithoutPeriodicity(plane.transform(rotation.rotate(pixel)));
 
@@ -284,8 +284,7 @@ public abstract class Fractal {
 
     public double[] calculateFractal3D(Complex pixel) {
 
-        vars = createGlobalVars();
-        plane.setGlobalVars(vars);
+        resetGlobalVars();
 
         return periodicity_checking ? calculateFractal3DWithPeriodicity(plane.transform(rotation.rotate(pixel))) : calculateFractal3DWithoutPeriodicity(plane.transform(rotation.rotate(pixel)));
 
@@ -301,6 +300,13 @@ public abstract class Fractal {
 
         return vars;
     }
+    
+    protected void resetGlobalVars() {
+
+        for (int i = 0; i < globalVars.length; i++) {
+            globalVars[i].reset();
+        }
+    }
 
     protected double calculateFractalWithPeriodicity(Complex pixel) {
 
@@ -314,9 +320,6 @@ public abstract class Fractal {
 
         period = new Complex();
 
-        pertur_val.setGlobalVars(vars);
-        init_val.setGlobalVars(vars);
-
         Complex tempz = new Complex(pertur_val.getValue(init_val.getValue(pixel)));
 
         Complex[] complex = new Complex[2];
@@ -328,8 +331,8 @@ public abstract class Fractal {
         Complex start = new Complex(complex[0]);
 
         for (; iterations < max_iterations; iterations++) {
-            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, vars)) {
-                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, vars};
+            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
+                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start};
                 return out_color_algorithm.getResult(object);
             }
             zold2.assign(zold);
@@ -354,9 +357,6 @@ public abstract class Fractal {
             trap.initialize();
         }
 
-        pertur_val.setGlobalVars(vars);
-        init_val.setGlobalVars(vars);
-
         Complex tempz = new Complex(pertur_val.getValue(init_val.getValue(pixel)));
 
         Complex[] complex = new Complex[2];
@@ -373,8 +373,8 @@ public abstract class Fractal {
                 trap.check(complex[0]);
             }
 
-            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, vars)) {
-                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, vars};
+            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
+                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start};
                 return out_color_algorithm.getResult(object);
             }
             zold2.assign(zold);
@@ -383,7 +383,7 @@ public abstract class Fractal {
 
         }
 
-        Object[] object = {complex[0], zold, zold2, complex[1], start, vars};
+        Object[] object = {complex[0], zold, zold2, complex[1], start};
         return in_color_algorithm.getResult(object);
 
         /* int iterations = 0; 
@@ -442,9 +442,6 @@ public abstract class Fractal {
 
         period = new Complex();
 
-        pertur_val.setGlobalVars(vars);
-        init_val.setGlobalVars(vars);
-
         Complex tempz = new Complex(pertur_val.getValue(init_val.getValue(pixel)));
 
         Complex[] complex = new Complex[2];
@@ -458,8 +455,8 @@ public abstract class Fractal {
         double temp;
 
         for (; iterations < max_iterations; iterations++) {
-            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, vars)) {
-                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, vars};
+            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
+                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start};
                 temp = out_color_algorithm.getResult(object);
                 double[] array = {OutColorAlgorithm.transformResultToHeight(temp, max_iterations), temp};
                 return array;
@@ -488,9 +485,6 @@ public abstract class Fractal {
             trap.initialize();
         }
 
-        pertur_val.setGlobalVars(vars);
-        init_val.setGlobalVars(vars);
-
         Complex tempz = new Complex(pertur_val.getValue(init_val.getValue(pixel)));
 
         Complex[] complex = new Complex[2];
@@ -508,8 +502,8 @@ public abstract class Fractal {
                 trap.check(complex[0]);
             }
 
-            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, vars)) {
-                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, vars};
+            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
+                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start};
                 temp = out_color_algorithm.getResult(object);
                 double[] array = {OutColorAlgorithm.transformResultToHeight(temp, max_iterations), temp};
                 return array;
@@ -521,7 +515,7 @@ public abstract class Fractal {
 
         }
 
-        Object[] object = {complex[0], zold, zold2, complex[1], start, vars};
+        Object[] object = {complex[0], zold, zold2, complex[1], start};
         temp = in_color_algorithm.getResult(object);
         double[] array = {InColorAlgorithm.transformResultToHeight(temp, max_iterations), temp};
         return array;
@@ -570,9 +564,6 @@ public abstract class Fractal {
      */
     public void calculateFractalOrbit() {
         int iterations = 0;
-
-        pertur_val.setGlobalVars(vars);
-        init_val.setGlobalVars(vars);
 
         Complex[] complex = new Complex[2];
         complex[0] = new Complex(pertur_val.getValue(init_val.getValue(pixel_orbit)));//z
@@ -624,8 +615,7 @@ public abstract class Fractal {
      }*/
     public Complex calculateFractalDomain(Complex pixel) {
 
-        vars = createGlobalVars();
-        plane.setGlobalVars(vars);
+        resetGlobalVars();
 
         return iterateFractalDomain(plane.transform(rotation.rotate(pixel)));
 
@@ -634,9 +624,6 @@ public abstract class Fractal {
     protected Complex iterateFractalDomain(Complex pixel) {
 
         int iterations = 0;
-
-        pertur_val.setGlobalVars(vars);
-        init_val.setGlobalVars(vars);
 
         Complex tempz = new Complex(pertur_val.getValue(init_val.getValue(pixel)));
 
@@ -733,7 +720,7 @@ public abstract class Fractal {
                 bailout_algorithm = new NNormBailoutCondition(bailout, n_norm);
                 break;
             case MainWindow.BAILOUT_CONDITION_USER:
-                bailout_algorithm = new UserBailoutCondition(bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, max_iterations, xCenter, yCenter, size, plane_transform_center);
+                bailout_algorithm = new UserBailoutCondition(bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, max_iterations, xCenter, yCenter, size, plane_transform_center, globalVars);
                 break;
             case MainWindow.BAILOUT_CONDITION_FIELD_LINES:
                 bailout_algorithm = new FieldLinesBailoutCondition(bailout);
@@ -892,9 +879,9 @@ public abstract class Fractal {
                 break;
             case MainWindow.USER_PLANE:
                 if (user_plane_algorithm == 0) {
-                    plane = new UserPlane(user_plane, xCenter, yCenter, size, max_iterations, plane_transform_center);
+                    plane = new UserPlane(user_plane, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
                 } else {
-                    plane = new UserPlaneConditional(user_plane_conditions, user_plane_condition_formula, xCenter, yCenter, size, max_iterations, plane_transform_center);
+                    plane = new UserPlaneConditional(user_plane_conditions, user_plane_condition_formula, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
                 }
                 break;
             case MainWindow.GAMMA_PLANE:
@@ -1042,9 +1029,9 @@ public abstract class Fractal {
                 break;
             case MainWindow.USER_OUTCOLORING_ALGORITHM:
                 if (user_out_coloring_algorithm == 0) {
-                    out_color_algorithm = new UserOutColorAlgorithm(outcoloring_formula, bailout, max_iterations, xCenter, yCenter, size, plane_transform_center);
+                    out_color_algorithm = new UserOutColorAlgorithm(outcoloring_formula, bailout, max_iterations, xCenter, yCenter, size, plane_transform_center, globalVars);
                 } else {
-                    out_color_algorithm = new UserConditionalOutColorAlgorithm(user_outcoloring_conditions, user_outcoloring_condition_formula, bailout, max_iterations, xCenter, yCenter, size, plane_transform_center);
+                    out_color_algorithm = new UserConditionalOutColorAlgorithm(user_outcoloring_conditions, user_outcoloring_condition_formula, bailout, max_iterations, xCenter, yCenter, size, plane_transform_center, globalVars);
                 }
                 break;
 
@@ -1087,9 +1074,9 @@ public abstract class Fractal {
                 break;
             case MainWindow.USER_INCOLORING_ALGORITHM:
                 if (user_in_coloring_algorithm == 0) {
-                    in_color_algorithm = new UserInColorAlgorithm(incoloring_formula, max_iterations, xCenter, yCenter, size, plane_transform_center, bailout);
+                    in_color_algorithm = new UserInColorAlgorithm(incoloring_formula, max_iterations, xCenter, yCenter, size, plane_transform_center, bailout, globalVars);
                 } else {
-                    in_color_algorithm = new UserConditionalInColorAlgorithm(user_incoloring_conditions, user_incoloring_condition_formula, max_iterations, xCenter, yCenter, size, plane_transform_center, bailout);
+                    in_color_algorithm = new UserConditionalInColorAlgorithm(user_incoloring_conditions, user_incoloring_condition_formula, max_iterations, xCenter, yCenter, size, plane_transform_center, bailout, globalVars);
                 }
                 break;
 
@@ -1169,4 +1156,5 @@ public abstract class Fractal {
         return trap;
 
     }
+    
 }

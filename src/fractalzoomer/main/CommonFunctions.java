@@ -681,62 +681,10 @@ public class CommonFunctions implements Constants {
                 overview += tab + "Interpolation = " + color_interp_str[s.color_smoothing_method] + "<br><br>";
             }
         }
-
+        
         if (!s.ds.domain_coloring && !ThreadDraw.USE_DIRECT_COLOR) {
-            if (s.bms.bump_map) {
-                overview += "<b><font color='red'>Bump Mapping:</font></b><br>";
-                overview += tab + "Light Direction = " + s.bms.lightDirectionDegrees + " degrees<br>";
-                overview += tab + "Depth = " + s.bms.bumpMappingDepth + "<br>";
-                overview += tab + "Strength = " + s.bms.bumpMappingStrength + "<br>";
-                overview += tab + "Transfer Function = " + Constants.bumpTransferNames[s.bms.bump_transfer_function] + "<br>";
-                overview += tab + "Transfer Factor = " + s.bms.bump_transfer_factor + "<br>";
-                overview += tab + "Processing Method = " + Constants.bumpProcessingMethod[s.bms.bumpProcessing] + "<br>";
-
-                if (s.bms.bumpProcessing == 1) {
-                    overview += tab + "Color Blending = " + s.bms.bump_blending + "<br>";
-                }
-                overview += tab + "Noise Reduction Factor = " + s.bms.bm_noise_reducing_factor + "<br><br>";
-            }
-
-            if (s.ens.entropy_coloring && !ThreadDraw.USE_DIRECT_COLOR) {
-                overview += "<b><font color='red'>Entropy Coloring:</font></b><br>";
-                overview += tab + "Factor = " + s.ens.entropy_palette_factor + "<br>";
-                overview += tab + "Color Transfer Method = " + entropyMethod[s.ens.entropy_algorithm] + "<br>";
-
-                if (s.ens.entropy_algorithm == 0) {
-                    overview += tab + "Offset = " + s.ens.entropy_offset + "<br>";
-                }
-
-                overview += tab + "Color Blending = " + s.ens.en_blending + "<br>";
-                overview += tab + "Noise Reduction Factor = " + s.ens.en_noise_reducing_factor + "<br><br>";
-            }
-
-            if (s.ofs.offset_coloring && !ThreadDraw.USE_DIRECT_COLOR) {
-                overview += "<b><font color='red'>Offset Coloring:</font></b><br>";
-                overview += tab + "Offset = " + s.ofs.post_process_offset + "<br>";
-                overview += tab + "Color Blending = " + s.ofs.of_blending + "<br>";
-                overview += tab + "Noise Reduction Factor = " + s.ofs.of_noise_reducing_factor + "<br><br>";
-            }
-
-            if (s.rps.rainbow_palette && !ThreadDraw.USE_DIRECT_COLOR) {
-                overview += "<b><font color='red'>Rainbow Palette:</font></b><br>";
-                overview += tab + "Factor = " + s.rps.rainbow_palette_factor + "<br>";
-                overview += tab + "Color Transfer Method = " + rainbowMethod[s.rps.rainbow_algorithm] + "<br>";
-
-                if (s.rps.rainbow_algorithm == 0) {
-                    overview += tab + "Offset = " + s.rps.rainbow_offset + "<br>";
-                }
-
-                overview += tab + "Color Blending = " + s.rps.rp_blending + "<br>";
-                overview += tab + "Noise Reduction Factor = " + s.rps.rp_noise_reducing_factor + "<br><br>";
-            }
-
-            if (s.gss.greyscale_coloring && !ThreadDraw.USE_DIRECT_COLOR) {
-                overview += "<b><font color='red'>Greyscale Coloring:</font></b><br>";
-                overview += tab + "Noise Reduction Factor = " + s.gss.gs_noise_reducing_factor + "<br><br>";
-            }
-
-            if (s.exterior_de && !ThreadDraw.USE_DIRECT_COLOR) {
+            
+            if (s.exterior_de) {
                 overview += "<b><font color='red'>Distance Estimation:</font></b><br>";
 
                 if (s.inverse_dem) {
@@ -747,18 +695,7 @@ public class CommonFunctions implements Constants {
                 }
             }
 
-            if (s.fdes.fake_de && !ThreadDraw.USE_DIRECT_COLOR) {
-                overview += "<b><font color='red'>Fake Distance Estimation:</font></b><br>";
-
-                if (s.fdes.inverse_fake_dem) {
-                    overview += tab + "Factor = " + s.fdes.fake_de_factor + "<br>";
-                    overview += tab + "Inverted Coloring<br><br>";
-                } else {
-                    overview += tab + "Factor = " + s.fdes.fake_de_factor + "<br><br>";
-                }
-            }
-
-            if (s.ots.useTraps && !ThreadDraw.USE_DIRECT_COLOR) {
+            if (s.ots.useTraps) {
                 overview += "<b><font color='red'>Orbit Traps:</font></b><br>";
                 overview += tab + "Shape = " + Constants.orbitTrapsNames[s.ots.trapType] + "<br>";
                 overview += tab + "Center = " + Complex.toString2(s.ots.trapPoint[0], s.ots.trapPoint[1]) + "<br>";
@@ -784,11 +721,89 @@ public class CommonFunctions implements Constants {
             }
         }
         
-        if(!s.ds.domain_coloring && s.cns.contour_coloring && !ThreadDraw.USE_DIRECT_COLOR) {
-            overview += "<b><font color='red'>Contour Coloring:</font></b><br>";
-            overview += tab + "Algorithm = " + Constants.contourColorAlgorithmNames[s.cns.contour_algorithm] + "<br>";
-            overview += tab + "Color Blending = " + s.cns.cn_blending + "<br>";
-            overview += tab + "Noise Reduction Factor = " + s.cns.cn_noise_reducing_factor + "<br><br>";
+        if(!s.ds.domain_coloring && !ThreadDraw.USE_DIRECT_COLOR) {
+            for(int i = 0; i < s.post_processing_order.length; i++) {
+                switch (s.post_processing_order[i]) {
+                    case FAKE_DISTANCE_ESTIMATION:
+                        if (s.fdes.fake_de) {
+                            overview += "<b><font color='red'>Fake Distance Estimation:</font></b><br>";
+
+                            if (s.fdes.inverse_fake_dem) {
+                                overview += tab + "Factor = " + s.fdes.fake_de_factor + "<br>";
+                                overview += tab + "Inverted Coloring<br><br>";
+                            } else {
+                                overview += tab + "Factor = " + s.fdes.fake_de_factor + "<br><br>";
+                            }
+                        }
+                        break;
+                    case ENTROPY_COLORING:
+                        if (s.ens.entropy_coloring) {
+                            overview += "<b><font color='red'>Entropy Coloring:</font></b><br>";
+                            overview += tab + "Factor = " + s.ens.entropy_palette_factor + "<br>";
+                            overview += tab + "Color Transfer Method = " + entropyMethod[s.ens.entropy_algorithm] + "<br>";
+
+                            if (s.ens.entropy_algorithm == 0) {
+                                overview += tab + "Offset = " + s.ens.entropy_offset + "<br>";
+                            }
+
+                            overview += tab + "Color Blending = " + s.ens.en_blending + "<br>";
+                            overview += tab + "Noise Reduction Factor = " + s.ens.en_noise_reducing_factor + "<br><br>";
+                        }
+                        break;
+                    case OFFSET_COLORING:
+                        if (s.ofs.offset_coloring) {
+                            overview += "<b><font color='red'>Offset Coloring:</font></b><br>";
+                            overview += tab + "Offset = " + s.ofs.post_process_offset + "<br>";
+                            overview += tab + "Color Blending = " + s.ofs.of_blending + "<br>";
+                            overview += tab + "Noise Reduction Factor = " + s.ofs.of_noise_reducing_factor + "<br><br>";
+                        }
+                        break;
+                    case RAINBOW_PALETTE:
+                        if (s.rps.rainbow_palette) {
+                            overview += "<b><font color='red'>Rainbow Palette:</font></b><br>";
+                            overview += tab + "Factor = " + s.rps.rainbow_palette_factor + "<br>";
+                            overview += tab + "Color Transfer Method = " + rainbowMethod[s.rps.rainbow_algorithm] + "<br>";
+
+                            if (s.rps.rainbow_algorithm == 0) {
+                                overview += tab + "Offset = " + s.rps.rainbow_offset + "<br>";
+                            }
+
+                            overview += tab + "Color Blending = " + s.rps.rp_blending + "<br>";
+                            overview += tab + "Noise Reduction Factor = " + s.rps.rp_noise_reducing_factor + "<br><br>";
+                        }
+                        break;
+                    case GREYSCALE_COLORING:
+                        if (s.gss.greyscale_coloring) {
+                            overview += "<b><font color='red'>Greyscale Coloring:</font></b><br>";
+                            overview += tab + "Noise Reduction Factor = " + s.gss.gs_noise_reducing_factor + "<br><br>";
+                        }
+                        break;
+                    case CONTOUR_COLORING:
+                        if(s.cns.contour_coloring) {
+                            overview += "<b><font color='red'>Contour Coloring:</font></b><br>";
+                            overview += tab + "Algorithm = " + Constants.contourColorAlgorithmNames[s.cns.contour_algorithm] + "<br>";
+                            overview += tab + "Color Blending = " + s.cns.cn_blending + "<br>";
+                            overview += tab + "Noise Reduction Factor = " + s.cns.cn_noise_reducing_factor + "<br><br>";
+                        }
+                        break;
+                    case BUMP_MAPPING:
+                        if (s.bms.bump_map) {
+                            overview += "<b><font color='red'>Bump Mapping:</font></b><br>";
+                            overview += tab + "Light Direction = " + s.bms.lightDirectionDegrees + " degrees<br>";
+                            overview += tab + "Depth = " + s.bms.bumpMappingDepth + "<br>";
+                            overview += tab + "Strength = " + s.bms.bumpMappingStrength + "<br>";
+                            overview += tab + "Transfer Function = " + Constants.bumpTransferNames[s.bms.bump_transfer_function] + "<br>";
+                            overview += tab + "Transfer Factor = " + s.bms.bump_transfer_factor + "<br>";
+                            overview += tab + "Processing Method = " + Constants.bumpProcessingMethod[s.bms.bumpProcessing] + "<br>";
+
+                            if (s.bms.bumpProcessing == 1) {
+                                overview += tab + "Color Blending = " + s.bms.bump_blending + "<br>";
+                            }
+                            overview += tab + "Noise Reduction Factor = " + s.bms.bm_noise_reducing_factor + "<br><br>";
+                        }
+                        break;
+                }
+            }
         }
 
         if (!ThreadDraw.USE_DIRECT_COLOR) {
@@ -994,7 +1009,7 @@ public class CommonFunctions implements Constants {
                 + "applying processing algorithms like Bump-Mapping or Entropy Coloring.<br>"
                 + "The same issue arises also in 3d mode, so in order to alleviate the problem,<br>"
                 + "this constant needs to be subtracted before applying any processing.<br><br>"
-                + "This action is already been taken for the included coloring algorithms, but<br>"
+                + "This action is already applied on the included coloring algorithms, but<br>"
                 + "it will not be used for the User Out/In Coloring Algorithms.<br>"
                 + "If you want to set your own coloring algorithm that uses this offset, you<br>"
                 + "must always choose the value of 50 to be the offset, and always produce a<br>"

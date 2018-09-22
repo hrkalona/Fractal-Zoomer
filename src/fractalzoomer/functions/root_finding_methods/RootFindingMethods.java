@@ -96,7 +96,7 @@ public abstract class RootFindingMethods extends Fractal {
             }
 
             if ((temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
-                Object[] object = {iterations, complex[0], temp, zold, zold2, pixel, start, vars};
+                Object[] object = {iterations, complex[0], temp, zold, zold2, pixel, start};
                 return out_color_algorithm.getResult(object);
             }
             zold2.assign(zold);
@@ -105,7 +105,7 @@ public abstract class RootFindingMethods extends Fractal {
 
         }
 
-        Object[] object = {complex[0], zold, zold2, pixel, start, vars};
+        Object[] object = {complex[0], zold, zold2, pixel, start};
         return in_color_algorithm.getResult(object);
 
     }
@@ -133,7 +133,7 @@ public abstract class RootFindingMethods extends Fractal {
             }
 
             if ((temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
-                Object[] object = {iterations, complex[0], temp, zold, zold2, pixel, start, vars};
+                Object[] object = {iterations, complex[0], temp, zold, zold2, pixel, start};
                 double[] array = {OutColorAlgorithm.transformResultToHeight(out_color_algorithm.getResult3D(object), max_iterations), out_color_algorithm.getResult(object)};
                 return array;
             }
@@ -143,7 +143,7 @@ public abstract class RootFindingMethods extends Fractal {
 
         }
 
-        Object[] object = {complex[0], zold, zold2, pixel, start, vars};
+        Object[] object = {complex[0], zold, zold2, pixel, start};
         double temp2 = in_color_algorithm.getResult(object);
         double[] array = {InColorAlgorithm.transformResultToHeight(temp2, max_iterations), temp2};
         return array;
@@ -262,9 +262,9 @@ public abstract class RootFindingMethods extends Fractal {
                 break;
             case MainWindow.USER_OUTCOLORING_ALGORITHM:
                 if (user_out_coloring_algorithm == 0) {
-                    out_color_algorithm = new UserOutColorAlgorithmRootFindingMethod(outcoloring_formula, convergent_bailout, max_iterations, xCenter, yCenter, size, plane_transform_center);
+                    out_color_algorithm = new UserOutColorAlgorithmRootFindingMethod(outcoloring_formula, convergent_bailout, max_iterations, xCenter, yCenter, size, plane_transform_center, globalVars);
                 } else {
-                    out_color_algorithm = new UserConditionalOutColorAlgorithmRootFindingMethod(user_outcoloring_conditions, user_outcoloring_condition_formula, convergent_bailout, max_iterations, xCenter, yCenter, size, plane_transform_center);
+                    out_color_algorithm = new UserConditionalOutColorAlgorithmRootFindingMethod(user_outcoloring_conditions, user_outcoloring_condition_formula, convergent_bailout, max_iterations, xCenter, yCenter, size, plane_transform_center, globalVars);
                 }
                 break;
 
@@ -308,9 +308,9 @@ public abstract class RootFindingMethods extends Fractal {
                 break;
             case MainWindow.USER_INCOLORING_ALGORITHM:
                 if (user_in_coloring_algorithm == 0) {
-                    in_color_algorithm = new UserInColorAlgorithm(incoloring_formula, max_iterations, xCenter, yCenter, size, plane_transform_center, convergent_bailout);
+                    in_color_algorithm = new UserInColorAlgorithm(incoloring_formula, max_iterations, xCenter, yCenter, size, plane_transform_center, convergent_bailout, globalVars);
                 } else {
-                    in_color_algorithm = new UserConditionalInColorAlgorithm(user_incoloring_conditions, user_incoloring_condition_formula, max_iterations, xCenter, yCenter, size, plane_transform_center, convergent_bailout);
+                    in_color_algorithm = new UserConditionalInColorAlgorithm(user_incoloring_conditions, user_incoloring_condition_formula, max_iterations, xCenter, yCenter, size, plane_transform_center, convergent_bailout, globalVars);
                 }
                 break;
 

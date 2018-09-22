@@ -31,7 +31,7 @@ public class FieldLinesBailoutCondition extends BailoutCondition {
     }
     
     @Override
-     public boolean escaped(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex[] vars) {
+     public boolean escaped(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start) {
 
         return iterations > 0 && z.getRe() / zold.getRe() >= bound && z.getIm() / zold.getIm() >= bound;
          

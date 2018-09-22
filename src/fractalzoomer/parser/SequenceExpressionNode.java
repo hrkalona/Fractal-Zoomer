@@ -17,7 +17,7 @@
 
 package fractalzoomer.parser;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * A base class for AdditionExpressionNode and MultiplicationExpressionNode.
@@ -27,6 +27,7 @@ import java.util.ArrayList;
  */
 public abstract class SequenceExpressionNode implements ExpressionNode
 {
+  private static final int INIT_TERM_SIZE = 10;
   /**
    * An inner class that defines a pair containing an ExpressionNode and a
    * boolean flag.
@@ -52,7 +53,8 @@ public abstract class SequenceExpressionNode implements ExpressionNode
   }
 
   /** the list of terms in the sequence */
-  protected ArrayList<Term> terms;
+  protected Term[] terms;
+  protected int termCount;
   protected ExpressionNode firstNode;
   protected int firstMode;
 
@@ -61,7 +63,8 @@ public abstract class SequenceExpressionNode implements ExpressionNode
    */
   public SequenceExpressionNode()
   {
-    this.terms = new ArrayList<Term>();
+      terms = new Term[INIT_TERM_SIZE];
+      termCount = 0;
   }
 
   /**
@@ -74,7 +77,8 @@ public abstract class SequenceExpressionNode implements ExpressionNode
    */
   public SequenceExpressionNode(ExpressionNode a, int mode)
   {
-    this.terms = new ArrayList<Term>();
+    terms = new Term[INIT_TERM_SIZE];
+    termCount = 0;
     this.firstNode = a;
     this.firstMode = mode;
   }
@@ -88,7 +92,11 @@ public abstract class SequenceExpressionNode implements ExpressionNode
    */
   public void add(ExpressionNode node, int mode)
   {
-    this.terms.add(new Term(mode, node));
+     if(termCount >= terms.length) {
+         terms = Arrays.copyOf(terms, 2 * terms.length);
+     }
+     terms[termCount] = new Term(mode, node);
+     termCount++;
   }
 
 }

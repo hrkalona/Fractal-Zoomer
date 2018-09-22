@@ -32,11 +32,14 @@ public class VariableConditionalInitialValue extends PlanePointOption {
     private Parser[] parser;
     private ExpressionNode[] expr2;
     private Parser[] parser2;
+    private Complex[] globalVars;
 
-    public VariableConditionalInitialValue(String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, double xCenter, double yCenter, double size, int max_iterations, double[] point) {
+    public VariableConditionalInitialValue(String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, double xCenter, double yCenter, double size, int max_iterations, double[] point, Complex[] globalVars) {
 
         super();
 
+        this.globalVars = globalVars;
+        
         parser = new Parser[user_initial_value_conditions.length];
         expr = new ExpressionNode[user_initial_value_conditions.length];
 

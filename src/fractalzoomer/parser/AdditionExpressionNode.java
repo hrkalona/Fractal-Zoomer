@@ -69,8 +69,9 @@ public class AdditionExpressionNode extends SequenceExpressionNode
         sum.negative_mutable();
     }
     
-    for (Term t : terms)
+    for (int i = 0; i < termCount; i++)
     {
+      Term t = terms[i];
       if (t.mode == ADD)
         sum.plus_mutable(t.expression.getValue());
       else
@@ -91,8 +92,10 @@ public class AdditionExpressionNode extends SequenceExpressionNode
   public void accept(ExpressionNodeVisitor visitor)
   {
     visitor.visit(this);
-    for (Term t : terms)
-      t.expression.accept(visitor);
+    for (int i = 0; i < termCount; i++)
+    {
+      terms[i].expression.accept(visitor);
+    }
   }
 
 }

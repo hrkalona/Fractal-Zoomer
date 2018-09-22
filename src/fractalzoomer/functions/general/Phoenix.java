@@ -46,9 +46,9 @@ public class Phoenix extends Julia {
         if (perturbation) {
             if (variable_perturbation) {
                 if (user_perturbation_algorithm == 0) {
-                    pertur_val = new VariablePerturbation(perturbation_user_formula, xCenter, yCenter, size, max_iterations, plane_transform_center);
+                    pertur_val = new VariablePerturbation(perturbation_user_formula, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
                 } else {
-                    pertur_val = new VariableConditionalPerturbation(user_perturbation_conditions, user_perturbation_condition_formula, xCenter, yCenter, size, max_iterations, plane_transform_center);
+                    pertur_val = new VariableConditionalPerturbation(user_perturbation_conditions, user_perturbation_condition_formula, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
                 }
             } else {
                 pertur_val = new Perturbation(perturbation_vals[0], perturbation_vals[1]);
@@ -60,9 +60,9 @@ public class Phoenix extends Julia {
         if (init_value) {
             if (variable_init_value) {
                 if (user_initial_value_algorithm == 0) {
-                    init_val = new VariableInitialValue(initial_value_user_formula, xCenter, yCenter, size, max_iterations, plane_transform_center);
+                    init_val = new VariableInitialValue(initial_value_user_formula, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
                 } else {
-                    init_val = new VariableConditionalInitialValue(user_initial_value_conditions, user_initial_value_condition_formula, xCenter, yCenter, size, max_iterations, plane_transform_center);
+                    init_val = new VariableConditionalInitialValue(user_initial_value_conditions, user_initial_value_condition_formula, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
                 }
             } else {
                 init_val = new InitialValue(initial_vals[0], initial_vals[1]);
@@ -95,9 +95,9 @@ public class Phoenix extends Julia {
         if (perturbation) {
             if (variable_perturbation) {
                 if (user_perturbation_algorithm == 0) {
-                    pertur_val = new VariablePerturbation(perturbation_user_formula, xCenter, yCenter, size, max_iterations, plane_transform_center);
+                    pertur_val = new VariablePerturbation(perturbation_user_formula, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
                 } else {
-                    pertur_val = new VariableConditionalPerturbation(user_perturbation_conditions, user_perturbation_condition_formula, xCenter, yCenter, size, max_iterations, plane_transform_center);
+                    pertur_val = new VariableConditionalPerturbation(user_perturbation_conditions, user_perturbation_condition_formula, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
                 }
             } else {
                 pertur_val = new Perturbation(perturbation_vals[0], perturbation_vals[1]);
@@ -109,9 +109,9 @@ public class Phoenix extends Julia {
         if (init_value) {
             if (variable_init_value) {
                 if (user_initial_value_algorithm == 0) {
-                    init_val = new VariableInitialValue(initial_value_user_formula, xCenter, yCenter, size, max_iterations, plane_transform_center);
+                    init_val = new VariableInitialValue(initial_value_user_formula, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
                 } else {
-                    init_val = new VariableConditionalInitialValue(user_initial_value_conditions, user_initial_value_condition_formula, xCenter, yCenter, size, max_iterations, plane_transform_center);
+                    init_val = new VariableConditionalInitialValue(user_initial_value_conditions, user_initial_value_condition_formula, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
                 }
             } else {
                 init_val = new InitialValue(initial_vals[0], initial_vals[1]);
@@ -150,9 +150,6 @@ public class Phoenix extends Julia {
 
         period = new Complex();
 
-        pertur_val.setGlobalVars(vars);
-        init_val.setGlobalVars(vars);
-
         Complex temp_z = new Complex(pertur_val.getValue(init_val.getValue(pixel)));
 
         Complex[] complex = new Complex[3];
@@ -165,8 +162,8 @@ public class Phoenix extends Julia {
         Complex start = new Complex(complex[0]);
 
         for (; iterations < max_iterations; iterations++) {
-            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, vars)) {
-                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, vars};
+            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
+                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start};
                 return out_color_algorithm.getResult(object);
             }
             zold2.assign(zold);
@@ -190,9 +187,6 @@ public class Phoenix extends Julia {
             trap.initialize();
         }
 
-        pertur_val.setGlobalVars(vars);
-        init_val.setGlobalVars(vars);
-
         Complex temp_z = new Complex(pertur_val.getValue(init_val.getValue(pixel)));
 
         Complex[] complex = new Complex[3];
@@ -210,8 +204,8 @@ public class Phoenix extends Julia {
                 trap.check(complex[0]);
             }
 
-            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, vars)) {
-                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, vars};
+            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
+                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start};
                 return out_color_algorithm.getResult(object);
             }
             zold2.assign(zold);
@@ -220,7 +214,7 @@ public class Phoenix extends Julia {
 
         }
 
-        Object[] object = {complex[0], zold, zold2, complex[1], start, vars};
+        Object[] object = {complex[0], zold, zold2, complex[1], start};
         return in_color_algorithm.getResult(object);
 
     }
@@ -247,8 +241,8 @@ public class Phoenix extends Julia {
         Complex start = new Complex(complex[0]);
 
         for (; iterations < max_iterations; iterations++) {
-            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, vars)) {
-                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, vars};
+            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
+                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start};
                 return out_color_algorithm.getResult(object);
             }
             zold2.assign(zold);
@@ -287,8 +281,8 @@ public class Phoenix extends Julia {
                 trap.check(complex[0]);
             }
 
-            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, vars)) {
-                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, vars};
+            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
+                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start};
                 return out_color_algorithm.getResult(object);
             }
             zold2.assign(zold);
@@ -297,7 +291,7 @@ public class Phoenix extends Julia {
 
         }
 
-        Object[] object = {complex[0], zold, zold2, complex[1], start, vars};
+        Object[] object = {complex[0], zold, zold2, complex[1], start};
         return in_color_algorithm.getResult(object);
 
     }
@@ -314,9 +308,6 @@ public class Phoenix extends Julia {
 
         period = new Complex();
 
-        pertur_val.setGlobalVars(vars);
-        init_val.setGlobalVars(vars);
-
         Complex temp_z = new Complex(pertur_val.getValue(init_val.getValue(pixel)));
 
         Complex[] complex = new Complex[3];
@@ -331,8 +322,8 @@ public class Phoenix extends Julia {
         double temp;
 
         for (; iterations < max_iterations; iterations++) {
-            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, vars)) {
-                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, vars};
+            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
+                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start};
                 temp = out_color_algorithm.getResult(object);
                 double[] array = {OutColorAlgorithm.transformResultToHeight(temp, max_iterations), temp};
                 return array;
@@ -361,9 +352,6 @@ public class Phoenix extends Julia {
             trap.initialize();
         }
 
-        pertur_val.setGlobalVars(vars);
-        init_val.setGlobalVars(vars);
-
         Complex temp_z = new Complex(pertur_val.getValue(init_val.getValue(pixel)));
 
         Complex[] complex = new Complex[3];
@@ -383,8 +371,8 @@ public class Phoenix extends Julia {
                 trap.check(complex[0]);
             }
 
-            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, vars)) {
-                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, vars};
+            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
+                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start};
                 temp = out_color_algorithm.getResult(object);
                 double[] array = {OutColorAlgorithm.transformResultToHeight(temp, max_iterations), temp};
                 return array;
@@ -395,7 +383,7 @@ public class Phoenix extends Julia {
 
         }
 
-        Object[] object = {complex[0], zold, zold2, complex[1], start, vars};
+        Object[] object = {complex[0], zold, zold2, complex[1], start};
         temp = in_color_algorithm.getResult(object);
         double[] array = {InColorAlgorithm.transformResultToHeight(temp, max_iterations), temp};
         return array;
@@ -426,8 +414,8 @@ public class Phoenix extends Julia {
         double temp;
 
         for (; iterations < max_iterations; iterations++) {
-            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, vars)) {
-                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, vars};
+            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
+                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start};
                 temp = out_color_algorithm.getResult(object);
                 double[] array = {OutColorAlgorithm.transformResultToHeight(temp, max_iterations), temp};
                 return array;
@@ -472,8 +460,8 @@ public class Phoenix extends Julia {
                 trap.check(complex[0]);
             }
 
-            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, vars)) {
-                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, vars};
+            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
+                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start};
                 temp = out_color_algorithm.getResult(object);
                 double[] array = {OutColorAlgorithm.transformResultToHeight(temp, max_iterations), temp};
                 return array;
@@ -484,7 +472,7 @@ public class Phoenix extends Julia {
 
         }
 
-        Object[] object = {complex[0], zold, zold2, complex[1], start, vars};
+        Object[] object = {complex[0], zold, zold2, complex[1], start};
         temp = in_color_algorithm.getResult(object);
         double[] array = {InColorAlgorithm.transformResultToHeight(temp, max_iterations), temp};
         return array;
@@ -494,9 +482,6 @@ public class Phoenix extends Julia {
     @Override
     public void calculateFractalOrbit() {
         int iterations = 0;
-
-        pertur_val.setGlobalVars(vars);
-        init_val.setGlobalVars(vars);
 
         Complex[] complex = new Complex[3];
         complex[0] = new Complex(pertur_val.getValue(init_val.getValue(pixel_orbit)));//z
@@ -545,9 +530,6 @@ public class Phoenix extends Julia {
     @Override
     public Complex iterateFractalDomain(Complex pixel) {
         int iterations = 0;
-
-        pertur_val.setGlobalVars(vars);
-        init_val.setGlobalVars(vars);
 
         Complex temp_z = new Complex(pertur_val.getValue(init_val.getValue(pixel)));
 

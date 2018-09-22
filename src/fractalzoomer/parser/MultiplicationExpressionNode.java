@@ -65,8 +65,9 @@ public class MultiplicationExpressionNode extends SequenceExpressionNode
   {
     Complex prod = new Complex(firstNode.getValue());
       
-    for (Term t : terms)
+    for (int i = 0; i < termCount; i++)
     {
+      Term t = terms[i];
       if (t.mode == MULT)
         prod.times_mutable(t.expression.getValue());
       else if(t.mode == DIV)
@@ -89,7 +90,9 @@ public class MultiplicationExpressionNode extends SequenceExpressionNode
   public void accept(ExpressionNodeVisitor visitor)
   {
     visitor.visit(this);  
-    for (Term t: terms)
-      t.expression.accept(visitor);
+    for (int i = 0; i < termCount; i++)
+    {
+      terms[i].expression.accept(visitor);
+    }
   }
 }
