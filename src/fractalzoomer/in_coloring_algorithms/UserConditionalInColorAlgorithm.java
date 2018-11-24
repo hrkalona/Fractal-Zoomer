@@ -325,7 +325,7 @@ public class UserConditionalInColorAlgorithm extends InColorAlgorithm {
                 return result2 < 0 ? -ColorAlgorithm.MAXIMUM_ITERATIONS : ColorAlgorithm.MAXIMUM_ITERATIONS;
             }
         
-            return result2;       
+            return result2 < 0 ? result2 - max_iterations : result2 + max_iterations;        
         }
         else if(result == 1) { // right > left
             if(parser2[1].foundZ()) {
@@ -360,7 +360,7 @@ public class UserConditionalInColorAlgorithm extends InColorAlgorithm {
                 return result2 < 0 ? -ColorAlgorithm.MAXIMUM_ITERATIONS : ColorAlgorithm.MAXIMUM_ITERATIONS;
             }
         
-            return result2;  
+            return result2 < 0 ? result2 - max_iterations : result2 + max_iterations;   
         }
         else if(result == 0) { //left == right
             if(parser2[2].foundZ()) {
@@ -395,7 +395,7 @@ public class UserConditionalInColorAlgorithm extends InColorAlgorithm {
                 return result2 < 0 ? -ColorAlgorithm.MAXIMUM_ITERATIONS : ColorAlgorithm.MAXIMUM_ITERATIONS;
             }
         
-            return result2;   
+            return result2 < 0 ? result2 - max_iterations : result2 + max_iterations;   
         }
 
         return ColorAlgorithm.MAXIMUM_ITERATIONS;

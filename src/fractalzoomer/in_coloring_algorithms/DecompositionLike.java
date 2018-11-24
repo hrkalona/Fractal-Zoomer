@@ -26,22 +26,24 @@ import fractalzoomer.core.Complex;
 public class DecompositionLike  extends InColorAlgorithm {
   private double pi2;
   private double pi59;
+  private int max_iterations;
     
 
-    public DecompositionLike() { 
+    public DecompositionLike(int max_iterations) { 
         
         super();
         
         pi2 = 2 * Math.PI;
         pi59 = 59 * Math.PI;
         InNotUsingIncrement = true;
+        this.max_iterations = max_iterations;
         
     }
     
     @Override
     public double getResult(Object[] object) {
         
-        return Math.abs((((Complex)object[0]).arg() / (pi2)  + 0.75) * pi59);
+        return max_iterations + Math.abs((((Complex)object[0]).arg() / (pi2)  + 0.75) * pi59);
 
     }
     

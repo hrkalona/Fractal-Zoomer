@@ -41,4 +41,10 @@ public class ColorAlgorithm {
         return Math.abs(result);
 
     }
+    
+    public static double transformResultToHeight(double result, int max_iterations) {
+        
+        return Math.abs(result) == ColorAlgorithm.MAXIMUM_ITERATIONS ? max_iterations : getResultWithoutIncrement(result);
+        
+    }
 }

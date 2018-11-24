@@ -25,11 +25,13 @@ import fractalzoomer.core.Complex;
  * @author hrkalona2
  */
 public class MagTimesCosReSquared extends InColorAlgorithm {
-
-    public MagTimesCosReSquared() { 
+    private int max_iterations;
+    
+    public MagTimesCosReSquared(int max_iterations) { 
        
         super();
         InNotUsingIncrement = true;
+        this.max_iterations = max_iterations;
     
     }
     
@@ -38,7 +40,7 @@ public class MagTimesCosReSquared extends InColorAlgorithm {
         
         double re = ((Complex)object[0]).getRe();
         
-        return ((Complex)object[0]).norm_squared() * Math.abs(Math.cos(re * re)) * 400; 
+        return max_iterations + ((Complex)object[0]).norm_squared() * Math.abs(Math.cos(re * re)) * 400; 
              
     }
     

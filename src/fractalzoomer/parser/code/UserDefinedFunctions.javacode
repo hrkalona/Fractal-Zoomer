@@ -770,8 +770,8 @@ public class UserDefinedFunctions {
 	
 	}
 	
-	//out coloring (usage with Triangle Inequality/Stripe/Curvature Average Coloring), use it in the user out coloring formula like this: m3(v1, v2, n, z, bail, p) with direct color enabled, and in user in coloring mode return 0 for black
-	public static Complex m3(Complex sum, Complex sum2, Complex n, Complex z, Complex bail, Complex p, Complex z7, Complex z8, Complex z9, Complex z10) {
+	//out coloring (usage with Triangle Inequality/Stripe/Curvature Average Coloring), use it in the user out coloring formula like this: m3(v1, v2, v4, z, bail, p) with direct color enabled, and in user in coloring mode return 0 for black
+	public static Complex m3(Complex sum, Complex sum2, Complex samples, Complex z, Complex bail, Complex p, Complex z7, Complex z8, Complex z9, Complex z10) {
 
 		double temp = p.norm_squared();
 		double temp2 = z.norm_squared();
@@ -781,11 +781,11 @@ public class UserDefinedFunctions {
 	
 		double f = 1 - (Math.log(bail.getRe() * bail.getRe()) - temp) / (Math.log(temp2) - temp);
 
-		if(n.getRe() < 2)
+		if(samples.getRe() < 2)
 			return new Complex(f, 0);
-
-		sum.setRe(sum.getRe() / (n.getRe() + 1));
-		sum2.setRe(sum2.getRe() / n.getRe());	
+	
+		sum.setRe(sum.getRe() / samples.getRe());
+		sum2.setRe(sum2.getRe() / (samples.getRe() - 1));	
 
 		double mix = sum.plus((sum2.sub(sum)).times(f)).getRe();
 		
@@ -798,8 +798,8 @@ public class UserDefinedFunctions {
 	
 	}
 	
-	//out coloring (usage with Triangle Inequality/Stripe/Curvature Average Coloring), use it in the user out coloring formula like this: m4(v1, v2, n, z, bail, p) * 100
-	public static Complex m4(Complex sum, Complex sum2, Complex n, Complex z, Complex bail, Complex p, Complex z7, Complex z8, Complex z9, Complex z10) {
+	//out coloring (usage with Triangle Inequality/Stripe/Curvature Average Coloring), use it in the user out coloring formula like this: m4(v1, v2, v4, z, bail, p) * 100
+	public static Complex m4(Complex sum, Complex sum2, Complex samples, Complex z, Complex bail, Complex p, Complex z7, Complex z8, Complex z9, Complex z10) {
 		
 		double temp = p.norm_squared();
 		double temp2 = z.norm_squared();
@@ -809,18 +809,18 @@ public class UserDefinedFunctions {
 	
 		double f = 1 - (Math.log(bail.getRe() * bail.getRe()) - temp) / (Math.log(temp2) - temp);
 	
-		if(n.getRe() < 2)
+		if(samples.getRe() < 2)
 			return new Complex(f, 0);
 	
-		sum.setRe(sum.getRe() / (n.getRe() + 1));
-		sum2.setRe(sum2.getRe() / n.getRe());
+		sum.setRe(sum.getRe() / samples.getRe());
+		sum2.setRe(sum2.getRe() / (samples.getRe() - 1));
 	
 		return sum.plus((sum2.sub(sum)).times(f));
 		
 	}
 	
-	//Triangle Inequality Average Coloring, use it in the user formula like this: m5(z, c, n, v1, v2, v3)	
-	public static Complex m5(Complex z, Complex c, Complex n, Complex sum, Complex sum2, Complex mc, Complex z7, Complex z8, Complex z9, Complex z10) {
+	//Triangle Inequality Average Coloring, use it in the user formula like this: m5(z, c, n, v1, v2, v3, v4)	
+	public static Complex m5(Complex z, Complex c, Complex n, Complex sum, Complex sum2, Complex mc, Complex samples, Complex z8, Complex z9, Complex z10) {
 	
 		Complex temp = z.square();
 		Complex temp2 = temp.plus(c);
@@ -829,6 +829,7 @@ public class UserDefinedFunctions {
 			mc.setRe(c.norm());
 	
 		sum2.assign(sum);
+                samples.plus_mutable(1);
 
 		double mp = temp.norm();
 		double m = Math.abs(mp - mc.getRe());
@@ -839,12 +840,13 @@ public class UserDefinedFunctions {
 	
 	}
 	
-	//Stripe Average Coloring, use it in the user formula like this: m6(z, c, n, v1, v2)	
-	public static Complex m6(Complex z, Complex c, Complex n, Complex sum, Complex sum2, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10) {
+	//Stripe Average Coloring, use it in the user formula like this: m6(z, c, n, v1, v2, v4)	
+	public static Complex m6(Complex z, Complex c, Complex n, Complex sum, Complex sum2, Complex samples, Complex z7, Complex z8, Complex z9, Complex z10) {
 	
 		Complex temp = z.square().plus(c);
 	
 		sum2.assign(sum);
+                samples.plus_mutable(1);
 
 		double StripeDensity = 2.5;
 		sum.setRe(sum.getRe() + 0.5 * Math.sin(StripeDensity * (Math.atan2(temp.getIm(), temp.getRe()) + Math.PI)) + 0.5);
@@ -853,13 +855,14 @@ public class UserDefinedFunctions {
 	
 	}
 	
-	//Curvature Average Coloring, use it in the user formula like this: m7(z, c, n, v1, v2, p)
-	public static Complex m7(Complex z, Complex c, Complex n, Complex sum, Complex sum2, Complex p, Complex z7, Complex z8, Complex z9, Complex z10) {
+	//Curvature Average Coloring, use it in the user formula like this: m7(z, c, n, v1, v2, p, v4)
+	public static Complex m7(Complex z, Complex c, Complex n, Complex sum, Complex sum2, Complex p, Complex samples, Complex z8, Complex z9, Complex z10) {
 	
 		Complex temp = z.square().plus(c);
 	
 		sum2.assign(sum);
-	
+                samples.plus_mutable(1);
+
 		Complex a = temp.sub(z);
 		Complex b = z.sub(p);
 		Complex d = a.divide(b);
@@ -948,26 +951,62 @@ public class UserDefinedFunctions {
 		u = u.divide(u.norm());  // normal vector: (u.re,u.im,1) 
 		double t = u.getRe()*v.getRe() + u.getIm()*v.getIm() + h2;  // dot product with the incoming light
 		t = t/(1+h2);  // rescale so that t does not get bigger than 1
-	
+		
 		return new Complex(t, 0);
+		
+	}
+	
+	/*Example for image loading as a texture, by using Direct Color. In order to use this function set the user out coloring formula to m13(z, bail, p) and the user in coloring formula to 0. Dont forget to enable Direct Color.*/
+	public static Complex m13(Complex z, Complex bail, Complex p, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10) {
+	
+		if(img == null)
+			loadImage("image.png"); //set the path to your texture image
+			
+		double re = (((z.arg() + Math.PI) / (2 * Math.PI))) % 1.0;
+		//double im = 1 - Math.log(z.norm()) / Math.log(bail.getRe())); //the original example used this line to map the im coordinate, it should be used only in mandelbrot set
+		
+		double temp = p.norm_squared();
+		double temp2 = z.norm_squared();
+		
+		temp2 = Math.log(temp2);
+		double r = temp2 / Math.log(temp);
+		r = r <= 0 ? 1e-33 : r;
+		temp2 = temp2 <= 0 ? 1e-33 : temp2;
+		
+		double a = Math.log(temp2 / Math.log(bail.getRe() * bail.getRe()));
+		double im =  1 - a / Math.log(r);
+		
+		int width = img.getWidth();
+		int height = img.getHeight();
+		
+		int pixel_x = (int)(re * width + 0.5);
+		int pixel_y = (int)(im * height + 0.5);
+		
+		return new Complex(img.getRGB(pixel_x % width, pixel_y % height), 0);
 	
 	}
 	
-	public static Complex m13(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10) {
-	
-		return new Complex();	
-	
+	/* Example for direct color: using the angle of the complex number, we can colorize the image. Do not forget to enable Direct Color option.*/
+	public static Complex m14(Complex z, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10) {
+		
+		double h = z.arg() / Math.PI * 0.5;
+		h = h < 0 ? h + 1 : h;
+		
+		return directHSBColor(h, 1, 1);
+		
 	}
 	
-	public static Complex m14(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10) {
+	/* Example for direct color: using the defined palette "templatePalette" and the number of iteration, we can colorize the image 
+	Use this function both in user outcoloring and user in coloring modes. Do not forget to enable Direct Color option.*/
+	public static Complex m15(Complex n, Complex maxn, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10) {
 	
-		return new Complex();
+		if(n.getRe() == maxn.getRe()) {
+			return directRGBColor(0, 0, 0); //paint it black
+		}
 	
-	}
+		int index = ((int)n.getRe()) % examplePalette.length;
 	
-	public static Complex m15(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10) {
-	
-		return new Complex();
+		return directRGBColor(examplePalette[index][0], examplePalette[index][1], examplePalette[index][2]);
 	
 	}
 	
@@ -1583,59 +1622,24 @@ public class UserDefinedFunctions {
 	
 	}
 	
-	/*Example for image loading as a texture, by using Direct Color. In order to use this function set the user out coloring formula to k58(z, bail, p) and the user in coloring formula to 0. Dont forget to enable Direct Color.*/
-	public static Complex k58(Complex z, Complex bail, Complex p, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
+	public static Complex k58(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
 	
-		if(img == null)
-			loadImage("image.png"); //set the path to your texture image
-			
-		double re = (((z.arg() + Math.PI) / (2 * Math.PI))) % 1.0;
-		//double im = 1 - Math.log(z.norm()) / Math.log(bail.getRe())); //the original example used this line to map the im coordinate, it should be used only in mandelbrot set
-		
-		double temp = p.norm_squared();
-		double temp2 = z.norm_squared();
-		
-		temp2 = Math.log(temp2);
-		double r = temp2 / Math.log(temp);
-		r = r <= 0 ? 1e-33 : r;
-		temp2 = temp2 <= 0 ? 1e-33 : temp2;
-		
-		double a = Math.log(temp2 / Math.log(bail.getRe() * bail.getRe()));
-		double im =  1 - a / Math.log(r);
-		
-		int width = img.getWidth();
-		int height = img.getHeight();
-		
-		int pixel_x = (int)(re * width + 0.5);
-		int pixel_y = (int)(im * height + 0.5);
-		
-		return new Complex(img.getRGB(pixel_x % width, pixel_y % height), 0);
+		return new Complex();
 	
 	}
 	
-	/* Example for direct color: using the angle of the complex number, we can colorize the image. Do not forget to enable Direct Color option.*/
-	public static Complex k59(Complex z, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
-		
-		double h = z.arg() / Math.PI * 0.5;
-		h = h < 0 ? h + 1 : h;
-		
-		return directHSBColor(h, 1, 1);
+	public static Complex k59(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
+	
+		return new Complex();
 	
 	}
-
-	/* Example for direct color: using the defined palette "templatePalette" and the number of iteration, we can colorize the image 
-	Use this function both in user outcoloring and user in coloring modes. Do not forget to enable Direct Color option.*/
-	public static Complex k60(Complex n, Complex maxn, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
 	
-		if(n.getRe() == maxn.getRe()) {
-			return directRGBColor(0, 0, 0); //paint it black
-		}
-
-		int index = ((int)n.getRe()) % examplePalette.length;
-
-		return directRGBColor(examplePalette[index][0], examplePalette[index][1], examplePalette[index][2]);
+	public static Complex k60(Complex z1, Complex z2, Complex z3, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10, Complex z11, Complex z12, Complex z13, Complex z14, Complex z15, Complex z16, Complex z17, Complex z18, Complex z19, Complex z20) {
+	
+		return new Complex();
 	
 	}
+	
 	
 	static int examplePalette[][] = {{66, 30, 15}, {25, 7, 26}, {9, 1, 47}, {4, 4, 73}, {0, 7, 100}, {12, 44, 138},
 									 {24, 82, 177}, {57, 125, 209}, {134, 181, 229}, {211, 236, 248}, {241, 233, 191}, 

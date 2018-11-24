@@ -23,7 +23,7 @@ public class SquarePointOrbitTrap extends OrbitTrap {
     public SquarePointOrbitTrap(double pointRe, double pointIm, double trapLength, double trapWidth) {
 
         super(pointRe, pointIm, trapLength, trapWidth);
-
+ 
     }
 
     @Override
@@ -35,14 +35,21 @@ public class SquarePointOrbitTrap extends OrbitTrap {
 
         if(dist < trapWidth && dist < distance) {
             distance = dist;
-        }
+            trapId = 0;
+        } 
         
         dist = val.distance(point);
 
         if(dist < trapLength && dist < distance) {
             distance = dist;
-        }
+            trapId = 1;
+        } 
 
+    }
+    
+    @Override
+    public double getMaxValue() {
+        return trapId == 1 ? trapLength : trapWidth;
     }
     
 }

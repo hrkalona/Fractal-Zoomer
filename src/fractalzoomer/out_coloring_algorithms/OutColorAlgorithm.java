@@ -17,6 +17,7 @@
 
 package fractalzoomer.out_coloring_algorithms;
 
+import fractalzoomer.core.Complex;
 import fractalzoomer.utils.ColorAlgorithm;
 
 public abstract class OutColorAlgorithm extends ColorAlgorithm {
@@ -28,9 +29,45 @@ public abstract class OutColorAlgorithm extends ColorAlgorithm {
         
     }
     
-    public static double transformResultToHeight(double result, int max_iterations) {
+    public static double fractionalPartEscaping(Complex z, Complex zold, double log_bailout_squared) {
+        double temp = zold.norm_squared();
+        double temp2 = z.norm_squared();
+            
+        temp2 = Math.log(temp2);
+        double p = temp2 / Math.log(temp);
+           
+        p = p <= 0 ? 1e-33 : p;
+        temp2 = temp2 <= 0 ? 1e-33 : temp2;
+            
+        double a = Math.log(temp2 / log_bailout_squared);
+        double f =  a / Math.log(p);
+            
+        return f;
+    }
+    
+    public static double fractionalPartConverging(Complex z, Complex zold, Complex zold2, double log_convergent_bailout) {
+    
+        double temp4 = Math.log(z.distance_squared(zold) + 1e-33);
+
+        double power = temp4 / Math.log(zold.distance_squared(zold2));
+
+        power = power <= 0 ? 1e-33 : power;
+            
+        double f = Math.log(log_convergent_bailout / temp4) / Math.log(power);
+
+        return 1 - f;
         
-        return Math.abs(result) == ColorAlgorithm.MAXIMUM_ITERATIONS ? max_iterations : getResultWithoutIncrement(result);
+    }
+    
+    public static double fractionalPartMagnetConverging(Complex z, Complex zold, Complex root, double log_convergent_bailout) {
+    
+        double temp4 = Math.log(z.distance_squared(root));
+
+        double power = temp4 / Math.log(zold.distance_squared(root));
+
+        double f = Math.log(log_convergent_bailout / temp4) / Math.log(power);
+
+        return 1 - f;
         
     }
  

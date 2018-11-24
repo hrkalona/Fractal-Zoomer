@@ -38,6 +38,8 @@ import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.event.MouseListener;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 public class ComponentTitledBorder implements Border, MouseListener, MouseMotionListener, SwingConstants {
 
@@ -62,11 +64,22 @@ public class ComponentTitledBorder implements Border, MouseListener, MouseMotion
     public boolean isBorderOpaque() {
         return true;
     }
+    
+    public void setChangeListener() {
+        
+        if(comp instanceof JCheckBox) {
+            setCheckBoxListener((JCheckBox)comp);
+        }
+        else if(comp instanceof JRadioButton) {
+            setRadioButtonListener((JRadioButton)comp);
+        }
+    }
 
-    public void setCheckBoxListener() {
-        ((JCheckBox) comp).addActionListener(new ActionListener() {
+    private void setCheckBoxListener(JCheckBox element) {
+        element.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
-                boolean enable = ((JCheckBox) comp).isSelected();
+                boolean enable = element.isSelected();
                 Component components[] = container.getComponents();
                 
                 for (int i = 0; i < components.length; i++) {
@@ -74,9 +87,32 @@ public class ComponentTitledBorder implements Border, MouseListener, MouseMotion
                 }
 
                 if (parentFrame instanceof OrbitTrapsFrame) {
-                    ((OrbitTrapsFrame) parentFrame).toggled(((JCheckBox) comp).isSelected());
+                    ((OrbitTrapsFrame) parentFrame).toggled(element.isSelected());
+                }
+                else if(parentFrame instanceof CustomDomainColoringFrame) {
+                    ((CustomDomainColoringFrame) parentFrame).toggled(element.isSelected());
                 }
             }
+        });
+
+    }
+    
+    private void setRadioButtonListener(JRadioButton element) {
+        
+        element.addChangeListener(new ChangeListener() {
+
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                boolean enable = element.isSelected();
+                Component components[] = container.getComponents();
+                
+                for (int i = 0; i < components.length; i++) {
+                    setComponentState(components[i], enable);
+                }
+                
+                container.repaint();
+            }
+            
         });
 
     }

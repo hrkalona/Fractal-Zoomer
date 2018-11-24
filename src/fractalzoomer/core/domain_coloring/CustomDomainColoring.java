@@ -41,7 +41,7 @@ public class CustomDomainColoring extends DomainColoring {
 
     public CustomDomainColoring(DomainColoringSettings ds, PaletteColor palette, TransferFunction color_transfer, int color_cycling_location, Blending blending, int[] gradient) {
 
-        super(ds.use_palette_domain_coloring, palette, color_transfer, color_cycling_location, MainWindow.INTERPOLATION_LINEAR, blending);
+        super(ds.domain_coloring_mode, palette, color_transfer, color_cycling_location, MainWindow.INTERPOLATION_LINEAR, blending);
 
         circlesBlending = ds.circlesBlending;
         gridBlending = ds.gridBlending;
@@ -59,13 +59,19 @@ public class CustomDomainColoring extends DomainColoring {
         isoLinesColorRed = ds.isoLinesColor.getRed();
         isoLinesColorGreen = ds.isoLinesColor.getGreen();
         isoLinesColorBlue = ds.isoLinesColor.getBlue();
+        
+        contourMethod = ds.contourMethod;
 
         this.gradient = gradient;
 
-        gridFactor = ds.gridFactor;
+        gridFactor = (Math.PI / ds.gridFactor);
         logBaseFinal = Math.log(ds.logBase);
 
         order = ds.domainOrder;
+        
+        circleFadeFunction = ds.circleFadeFunction;
+        gridFadeFunction = ds.gridFadeFunction;
+        max_norm_re_im_value = ds.max_norm_re_im_value;
 
         switch (ds.iso_distance) {
             case 0: //2pi

@@ -23,26 +23,26 @@ import java.awt.Color;
  * @author hrkalona2
  */
 public interface Constants {
-    public static final int VERSION = 1070;
+    public static final int VERSION = 1071;
     public static final int FAST_JULIA_IMAGE_SIZE = 252;
     public static final int TOTAL_PALETTES = 19;
     public static final int TOTAL_INCOLORING_ALGORITHMS = 11;
     public static final int TOTAL_OUTCOLORING_ALGORITHMS = 25;
     public static final int TOTAL_BAILOUT_CONDITIONS = 8;
     public static final int TOTAL_PLANES = 63;
-    public static final int TOTAL_FUNCTIONS = 158;
+    public static final int TOTAL_FUNCTIONS = 160;
     public static final int TOTAL_FILTERS = 35;
     public static final int TOTAL_COLOR_TRANSFER_FILTERS = 7;
     public static final int TOTAL_COLOR_BLENDING = 30;
-    public static final int TOTAL_POST_PROCESS_ALGORITHMS = 7;
+    public static final int TOTAL_POST_PROCESS_ALGORITHMS = 8;
     
     public static final String[] domainAlgNames = {"Black Grid, White Circles log2", "White Grid, Black Circles log2", "Black Grid", "White Grid", "Black Grid, Bright Contours log2", "White Grid, Dark Contours log2", "Norm, Black Grid, White Circles log2", "Norm, White Grid, Black Circles log2", "Norm, Black Grid", "Norm, White Grid", "Norm, Black Grid, Bright Contours log2", "Norm, White Grid, Dark Contours log2", "White Circles log2", "Black Circles log2", "Bright Contours log2", "Dark Contours log2", "Norm, White Circles log2", "Norm, Black Circles log2", "Norm, Bright Contours log2", "Norm, Dark Contours log2",
     "Black Grid, Contours log2, Iso-Argument lines", "Norm, Black Grid, Contours log2, Iso-Argument lines", "Black Grid, Iso-Argument Contours", "Norm, Black Grid, Iso-Argument Contours", "Iso-Argument Contours, Contours log2", "Norm, Iso-Argument Contours, Contours log2",
     "Grid Contours, Iso-Argument Lines", "Norm, Grid Contours, Iso-Argument Lines"};
     public static final String[] waveTypes = {"Sine", "Sawtooth", "Triangle", "Noise"};
-    public static final String[] bumpTransferNames = {"1.5 / (x*factor + 1.5)", "1 / sqrt(x*factor + 1)", "1 / cbrt(x*factor + 1)", "2^(-x*factor)"};
+    public static final String[] bumpTransferNames = {"1.5 / (x * factor + 1.5)", "1 / sqrt(x * factor + 1)", "1 / cbrt(x * factor + 1)", "2^(-x * factor)"};
     public static final String[] color_interp_str = {"Linear", "Cosine", "Acceleration", "Deceleration", "Exponential", "Catmull-Rom", "Catmull-Rom 2", "Sigmoid"};
-    public static final String[] bumpProcessingMethod = {"Color Scaling", "Color Blending", "Color Blending Alternative"};
+    public static final String[] bumpProcessingMethod = {"RGB Scaling", "Blending", "Blending Alternative", "Lab", "HSB", "HSL"};
     public static final String[] entropyMethod = {"Palette Coloring", "Gradient Coloring"};
     public static final String[] rainbowMethod = {"Palette Coloring", "Gradient Coloring"};
     public static final String[] domainColors = {"Argument", "Norm", "Re", "Im"};
@@ -51,6 +51,12 @@ public interface Constants {
     public static final String[] orbitTrapsNames = {"Point", "Point Square", "Point Rhombus", "Point N-Norm", "Cross", "Re", "Im", "Circle", "Square", "Rhombus", "N-Norm", "Circle/Cross", "Square/Cross", "Rhombus/Cross", "N-Norm/Cross", "Circle/Point", "Square/Point", "Rhombus/Point", "N-Norm/Point", "N-Norm/Point N-Norm"};
     public static final String[] orbitTrapLineTypes = {"Line", "Sin", "Cos", "Tan", "Sinh", "Cosh", "Tanh", "Asin", "Acos", "Atan", "Square", "Cube", "Sqrt", "Cbrt", "Exp", "Log", "Abs" };
     public static final String[] contourColorAlgorithmNames = {"Non-smooth Transitions", "Smooth Transitions"};
+    public static final String[] circleAndGridFadeNames = {"Square Root", "Cube Root", "Fourth Root"};
+    public static final String[] colorMethod = {"Lab", "HSB", "HSL", "Blending", "RGB Scaling"};
+    public static final String[] lightTransfer = {"x * factor", "sqrt(x * factor)", "(x * factor)^2"};
+    public static final String[] lightModes = {"Mode 1", "Mode 2", "Mode 3"};
+    public static final String[] statisticalColoringName = {"Stripe Average", "Curvature Average", "Triange Inequality Average", "cos(density * arg(z)) / norm(z) Average", "cos(density * (arg(z - p) + pi)) / (factor + 1 / norm(z - p))"};
+    public static final String[] domainProcessingTransferNames = {"x * factor", "1 / (x * factor)"};
     /**
      * ** FUNCTION ***
      */
@@ -212,6 +218,8 @@ public interface Constants {
     public static final int LAGUERREPOLY = 155;
     public static final int LAGUERREFORMULA = 156;
     public static final int KLEINIAN = 157;
+    public static final int LAMBDA2 = 158;
+    public static final int LAMBDA3 = 159;
     /**
      * ***************
      */
@@ -228,6 +236,16 @@ public interface Constants {
     public static final int NOVA_MULLER = 6;
     public static final int NOVA_PARHALLEY = 7;
     public static final int NOVA_LAGUERRE = 8;
+    /**
+     * *******************
+     */
+    
+    /**
+     * ** FRACTAL TYPE ***
+     */
+    public static final int ESCAPING = 0;
+    public static final int CONVERGING = 1;
+    public static final int ESCAPING_AND_CONVERGING = 2;
     /**
      * *******************
      */
@@ -422,6 +440,7 @@ public interface Constants {
     public static final int COLOR_SPACE_XYZ = 7;
     public static final int COLOR_SPACE_LCH = 8;
     public static final int COLOR_SPACE_BEZIER_RGB = 9;
+    public static final int COLOR_SPACE_HSL = 10;
     /**
      * *******************
      */
@@ -567,6 +586,19 @@ public interface Constants {
      */
     
     /**
+     * *********STATISTICS********
+     */
+    public static final int STRIPE_AVERAGE = 0;
+    public static final int CURVATURE_AVERAGE = 1;
+    public static final int TRIANGLE_INEQUALITY_AVERAGE = 2;
+    public static final int COS_ARG_DIVIDE_NORM_AVERAGE = 3;
+    public static final int COS_ARG_DIVIDE_INVERSE_NORM = 4;
+    
+    /**
+     * **************************************
+     */
+    
+    /**
      * *********ORBIT TRAPS********
      */
     public static final int POINT_TRAP = 0;
@@ -603,8 +635,9 @@ public interface Constants {
     public static final int GREYSCALE_COLORING = 4;
     public static final int CONTOUR_COLORING = 5;
     public static final int BUMP_MAPPING = 6;
+    public static final int LIGHT = 7;
     
-    public static String[] processingAlgorithNames = {"Fake Distance Estimation", "Entropy Coloring", "Offset Coloring", "Rainbow Palette", "Greyscale Coloring", "Contour Coloring", "Bump Mapping"};
+    public static String[] processingAlgorithNames = {"Fake Distance Estimation", "Entropy Coloring", "Offset Coloring", "Rainbow Palette", "Greyscale Coloring", "Contour Coloring", "Bump Mapping", "Light"};
     /**
      * **************************************
      */

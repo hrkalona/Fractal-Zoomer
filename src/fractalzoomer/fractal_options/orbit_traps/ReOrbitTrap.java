@@ -39,8 +39,14 @@ public class ReOrbitTrap extends OrbitTrap {
         
         if(dist < trapWidth && Math.abs(val.getRe() - point.getRe()) < trapLength && dist < distance) {
             distance = dist;
+            trapId = 0;
         }
 
+    }
+    
+    @Override
+    public double getMaxValue() {
+        return trapWidth;
     }
     
 }

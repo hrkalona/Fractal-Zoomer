@@ -35,4 +35,10 @@ public abstract class IterationAlgorithm {
     public abstract void calculateOrbit();
     public abstract double[] calculate3D(Complex number);
     
+    public boolean escaped() {
+        
+        return fractal.escaped();
+        
+    }
+      
 }

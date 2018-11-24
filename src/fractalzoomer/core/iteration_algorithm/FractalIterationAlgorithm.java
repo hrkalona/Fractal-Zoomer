@@ -55,7 +55,8 @@ public class FractalIterationAlgorithm extends IterationAlgorithm {
     @Override
     public double[] calculate3D(Complex number) {
         
-        return fractal.calculateFractal3D(number);
+        double value = fractal.calculateFractal(number);
+        return new double[] {fractal.getFractal3DHeight(value), value};
         
     }
     

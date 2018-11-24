@@ -25,19 +25,21 @@ import fractalzoomer.core.Complex;
  * @author hrkalona2
  */
 public class AtanReTimesImTimesAbsReTimesAbsIm extends InColorAlgorithm {
-
-    public AtanReTimesImTimesAbsReTimesAbsIm() { 
+    private int max_iterations;
+    
+    public AtanReTimesImTimesAbsReTimesAbsIm(int max_iterations) { 
         
         super();
         
         InNotUsingIncrement = true;
+        this.max_iterations = max_iterations;
         
     }
     
     @Override
     public double getResult(Object[] object) {
         
-        return Math.abs(Math.atan(((Complex)object[0]).getRe() * ((Complex)object[0]).getIm() * ((Complex)object[0]).getAbsRe() * ((Complex)object[0]).getAbsIm())) * 400;
+        return max_iterations + Math.abs(Math.atan(((Complex)object[0]).getRe() * ((Complex)object[0]).getIm() * ((Complex)object[0]).getAbsRe() * ((Complex)object[0]).getAbsIm())) * 400;
          
     }
     

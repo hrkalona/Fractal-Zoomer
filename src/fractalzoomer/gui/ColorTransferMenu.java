@@ -46,7 +46,7 @@ public class ColorTransferMenu extends JMenu {
         colorTransferNames[MainWindow.ATAN] = "Atan";
     }
 
-    public ColorTransferMenu(MainWindow ptr2, String name, int selection) {
+    public ColorTransferMenu(MainWindow ptr2, String name, int selection, final boolean outcoloring) {
 
         super(name);
 
@@ -64,7 +64,7 @@ public class ColorTransferMenu extends JMenu {
             @Override
             public void actionPerformed(ActionEvent e) {
 
-                ptr.setColorTransfer(MainWindow.LINEAR);
+                ptr.setColorTransfer(MainWindow.LINEAR, outcoloring);
 
             }
         });
@@ -79,7 +79,7 @@ public class ColorTransferMenu extends JMenu {
             @Override
             public void actionPerformed(ActionEvent e) {
 
-                ptr.setColorTransfer(MainWindow.SQUARE_ROOT);
+                ptr.setColorTransfer(MainWindow.SQUARE_ROOT, outcoloring);
 
             }
         });
@@ -94,7 +94,7 @@ public class ColorTransferMenu extends JMenu {
             @Override
             public void actionPerformed(ActionEvent e) {
 
-                ptr.setColorTransfer(MainWindow.CUBE_ROOT);
+                ptr.setColorTransfer(MainWindow.CUBE_ROOT, outcoloring);
 
             }
         });
@@ -109,7 +109,7 @@ public class ColorTransferMenu extends JMenu {
             @Override
             public void actionPerformed(ActionEvent e) {
 
-                ptr.setColorTransfer(MainWindow.FOURTH_ROOT);
+                ptr.setColorTransfer(MainWindow.FOURTH_ROOT, outcoloring);
 
             }
         });
@@ -124,7 +124,7 @@ public class ColorTransferMenu extends JMenu {
             @Override
             public void actionPerformed(ActionEvent e) {
 
-                ptr.setColorTransfer(MainWindow.LOGARITHM);
+                ptr.setColorTransfer(MainWindow.LOGARITHM, outcoloring);
 
             }
         });
@@ -139,7 +139,7 @@ public class ColorTransferMenu extends JMenu {
             @Override
             public void actionPerformed(ActionEvent e) {
 
-                ptr.setColorTransfer(MainWindow.LOG_LOG);
+                ptr.setColorTransfer(MainWindow.LOG_LOG, outcoloring);
 
             }
         });
@@ -154,7 +154,7 @@ public class ColorTransferMenu extends JMenu {
             @Override
             public void actionPerformed(ActionEvent e) {
 
-                ptr.setColorTransfer(MainWindow.ATAN);
+                ptr.setColorTransfer(MainWindow.ATAN, outcoloring);
 
             }
         });

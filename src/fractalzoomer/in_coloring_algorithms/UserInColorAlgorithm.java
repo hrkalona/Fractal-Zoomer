@@ -115,7 +115,7 @@ public class UserInColorAlgorithm extends InColorAlgorithm {
             return result < 0 ? -ColorAlgorithm.MAXIMUM_ITERATIONS : ColorAlgorithm.MAXIMUM_ITERATIONS;
         }
         
-        return result; 
+        return result < 0 ? result - max_iterations : result + max_iterations; 
         
     }
     

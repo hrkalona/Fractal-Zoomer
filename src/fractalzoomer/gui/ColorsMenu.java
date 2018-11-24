@@ -18,6 +18,8 @@ package fractalzoomer.gui;
 
 import fractalzoomer.core.ThreadDraw;
 import fractalzoomer.main.MainWindow;
+import fractalzoomer.main.app_settings.PaletteSettings;
+import fractalzoomer.main.app_settings.Settings;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -35,23 +37,19 @@ import javax.swing.KeyStroke;
 public class ColorsMenu extends JMenu {
 	private static final long serialVersionUID = -6910654944774874305L;
 	private MainWindow ptr;
-    private PaletteMenu palette_menu;
-    private JMenu roll_palette_menu;
     private JMenuItem fract_color;
     private JMenuItem gradient;
     private JMenuItem random_palette;
-    private JMenuItem roll_palette;
-    private JMenuItem increase_roll_palette;
-    private JMenuItem decrease_roll_palette;
-    private JMenuItem color_intensity_opt;
+    private JMenuItem blend_palette_opt;
     private JCheckBoxMenuItem direct_color_opt;
     private ProcessingMenu processing;
     private OutColoringModesMenu out_coloring_mode_menu;
     private InColoringModesMenu in_coloring_mode_menu;
-    private ColorTransferMenu color_transfer_menu;
     private ColorBlendingMenu color_blending_menu;
+    private OutColoringPaletteMenu outcolor_palette_menu;
+    private InColoringPaletteMenu incolor_palette_menu;
     
-    public ColorsMenu(MainWindow ptr2, String name, int color_choice, boolean smoothing, int[][] custom_palette, int color_interpolation, int color_space, boolean reversed_palette, int color_cycling_location, double scale_factor_palette_val, int processing_alg, int out_coloring_algorithm, int in_coloring_algorithm, int transfer_function, int color_blending) {
+    public ColorsMenu(MainWindow ptr2, String name, PaletteSettings ps, PaletteSettings ps2, boolean smoothing, int out_coloring_algorithm, int in_coloring_algorithm, int color_blending) {
 
         super(name);
 
@@ -60,55 +58,38 @@ public class ColorsMenu extends JMenu {
         setIcon(getIcon("/fractalzoomer/icons/colors_menu.png"));
         
         fract_color = new JMenuItem("Fractal Colors", getIcon("/fractalzoomer/icons/color.png"));
-
-        palette_menu = new PaletteMenu(ptr, "Palette", color_choice, smoothing, custom_palette, color_interpolation, color_space, reversed_palette, color_cycling_location, scale_factor_palette_val, processing_alg);
-
-        color_intensity_opt = new JMenuItem("Color Intensity", getIcon("/fractalzoomer/icons/color_intensity.png"));
+        
+        outcolor_palette_menu = new OutColoringPaletteMenu(ptr, "Out Coloring Palette", ps, smoothing);
+        incolor_palette_menu = new InColoringPaletteMenu(ptr, "In Coloring Palette", ps2, smoothing);
+        
+        
 
         random_palette = new JMenuItem("Random Palette", getIcon("/fractalzoomer/icons/palette_random.png"));
+        blend_palette_opt = new JMenuItem("Palette/Gradient Merging", getIcon("/fractalzoomer/icons/palette_blending.png"));
 
         out_coloring_mode_menu = new OutColoringModesMenu(ptr, "Out Coloring Mode", out_coloring_algorithm);
         
         in_coloring_mode_menu = new InColoringModesMenu(ptr, "In Coloring Mode", in_coloring_algorithm);
         
         direct_color_opt = new JCheckBoxMenuItem("Direct Color");
-        
-        color_transfer_menu = new ColorTransferMenu(ptr, "Transfer Functions", transfer_function);
-        
+               
         processing = new ProcessingMenu(ptr, "Processing");      
         
         color_blending_menu = new ColorBlendingMenu(ptr, "Blending", color_blending);
         
         gradient = new JMenuItem("Gradient", getIcon("/fractalzoomer/icons/gradient.png"));
-        
-        roll_palette_menu = new JMenu("Palette Shifting");
-        roll_palette_menu.setIcon(getIcon("/fractalzoomer/icons/shift_palette.png"));
-
-        roll_palette = new JMenuItem("Shift Palette", getIcon("/fractalzoomer/icons/shift_palette.png"));
-
-        increase_roll_palette = new JMenuItem("Shift Palette Forward", getIcon("/fractalzoomer/icons/plus.png"));
-
-        decrease_roll_palette = new JMenuItem("Shift Palette Backward", getIcon("/fractalzoomer/icons/minus.png"));
      
-        color_intensity_opt.setToolTipText("Changes the color intensity of the palette.");
-        
         fract_color.setToolTipText("Sets the colors for maximum iterations, distance estimation and some color algorithms.");
-        random_palette.setToolTipText("Randomizes the palette.");
-        roll_palette.setToolTipText("Shifts the chosen palette by a number.");
-        increase_roll_palette.setToolTipText("Shifts the chosen palette forward by one.");
-        decrease_roll_palette.setToolTipText("Shifts the chosen palette backward by one.");
+        random_palette.setToolTipText("Randomizes the palette.");        
         gradient.setToolTipText("Sets the gradient for color blending.");
-        direct_color_opt.setToolTipText("Enables the use of direct color, via the use of user code, in user out coloring and in coloring modes.");
-     
-        color_intensity_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_5, ActionEvent.CTRL_MASK));
-
+        direct_color_opt.setToolTipText("Enables the use of direct color, via the use of user code, in user out-coloring and in-coloring modes.");
+        blend_palette_opt.setToolTipText("The coloring algorithm is mapped through the gradient and then it is merged with the palette.");        
+                
         fract_color.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T, 0));
         random_palette.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, ActionEvent.SHIFT_MASK));
-        roll_palette.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, ActionEvent.SHIFT_MASK));
-        increase_roll_palette.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS, ActionEvent.SHIFT_MASK));
-        decrease_roll_palette.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_MINUS, ActionEvent.SHIFT_MASK));
         gradient.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_5, 0));
         direct_color_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_7, 0));
+        blend_palette_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_0, 0));
 
         fract_color.addActionListener(new ActionListener() {
 
@@ -139,43 +120,13 @@ public class ColorsMenu extends JMenu {
 
             }
         });
-
-        roll_palette.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.shiftPalette();
-
-            }
-        });
-
-        increase_roll_palette.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.shiftPaletteForward();
-
-            }
-        });
-
-        decrease_roll_palette.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.shiftPaletteBackward();
-
-            }
-        });
         
-        color_intensity_opt.addActionListener(new ActionListener() {
+        blend_palette_opt.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
 
-                ptr.setColorIntensity();
+                ptr.setPaletteGradientMerging();
 
             }
         });
@@ -189,11 +140,7 @@ public class ColorsMenu extends JMenu {
 
             }
         });
-        
-        roll_palette_menu.add(roll_palette);
-        roll_palette_menu.add(increase_roll_palette);
-        roll_palette_menu.add(decrease_roll_palette);
-        
+
         direct_color_opt.setSelected(ThreadDraw.USE_DIRECT_COLOR);
         
         add(out_coloring_mode_menu);
@@ -207,13 +154,10 @@ public class ColorsMenu extends JMenu {
         addSeparator();                
         add(fract_color);
         addSeparator();
-        add(palette_menu);
+        add(outcolor_palette_menu);
+        add(incolor_palette_menu);
+        add(blend_palette_opt);
         add(random_palette);
-        add(roll_palette_menu);
-        addSeparator();
-        add(color_transfer_menu);    
-        addSeparator();
-        add(color_intensity_opt);
         
     }
     
@@ -223,9 +167,15 @@ public class ColorsMenu extends JMenu {
 
     }
     
-    public JRadioButtonMenuItem[] getPalette() {
+    public JRadioButtonMenuItem[] getOutColoringPalette() {
         
-        return palette_menu.getPalette();
+        return outcolor_palette_menu.getPalette();
+        
+    }
+    
+    public JRadioButtonMenuItem[] getInColoringPalette() {
+        
+        return incolor_palette_menu.getPalette();
         
     }
     
@@ -256,6 +206,12 @@ public class ColorsMenu extends JMenu {
     public JMenuItem getBumpMap() {
         
         return processing.getBumpMap();
+        
+    }
+    
+    public JMenuItem getLight() {
+        
+        return processing.getLight();
         
     }
     
@@ -301,9 +257,15 @@ public class ColorsMenu extends JMenu {
         
     }
     
-    public JRadioButtonMenuItem[] getTranferFunctions() {
+    public JRadioButtonMenuItem[] getOutColoringTranferFunctions() {
         
-        return color_transfer_menu.getTranferFunctions();
+        return outcolor_palette_menu.getOutColoringTranferFunctions();
+        
+    }
+    
+    public JRadioButtonMenuItem[] getInColoringTranferFunctions() {
+        
+        return incolor_palette_menu.getInColoringTranferFunctions();
         
     }
     
@@ -318,36 +280,26 @@ public class ColorsMenu extends JMenu {
         return in_coloring_mode_menu;
         
     }
-    
-    public ColorTransferMenu getColorTransferMenu() {
-        
-        return color_transfer_menu;
-        
-    }
-    
+     
     public JMenuItem getRandomPalette() {
         
         return random_palette;
         
     }
+   
     
-    public JMenu getRollPaletteMenu() {
+    public OutColoringPaletteMenu getOutColoringPaletteMenu() {
         
-        return roll_palette_menu;
+        return outcolor_palette_menu;
         
     }
+  
     
-    public PaletteMenu getPaletteMenu() {
+    public InColoringPaletteMenu getInColoringPaletteMenu() {
         
-        return palette_menu;
+        return incolor_palette_menu;
         
     }
-    
-    public JMenuItem getColorIntensity() {
-        
-        return color_intensity_opt;
-        
-    } 
     
     public ProcessingMenu getProcessing() {
         
@@ -389,5 +341,32 @@ public class ColorsMenu extends JMenu {
         
         return processing.getProcessingOrder();
         
+    }
+    
+    public JMenuItem getPaletteGradientMerging() {
+        return blend_palette_opt;
+    }
+    
+    public JCheckBoxMenuItem getUsePaletteForInColoring() {
+        
+        return incolor_palette_menu.getUsePaletteForInColoring();
+        
+    }
+    
+    public JMenuItem getStatisticsColoring() {
+        
+        return processing.getStatisticsColoring();
+        
+    }
+    
+    public void updateIcons(Settings s) {
+
+        if(s.pbs.palette_gradient_merge) {
+            blend_palette_opt.setIcon(getIcon("/fractalzoomer/icons/palette_blending_enabled.png"));
+        }
+        else {
+            blend_palette_opt.setIcon(getIcon("/fractalzoomer/icons/palette_blending.png"));
+        }
+  
     }
 }

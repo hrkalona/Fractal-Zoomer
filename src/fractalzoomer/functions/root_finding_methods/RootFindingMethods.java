@@ -17,11 +17,12 @@
 package fractalzoomer.functions.root_finding_methods;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.fractal_options.iteration_statistics.CosArgDivideInverseNorm;
+import fractalzoomer.fractal_options.iteration_statistics.UserStatisticColoringRootFindingMethod;
 import fractalzoomer.functions.Fractal;
 import fractalzoomer.in_coloring_algorithms.AtanReTimesImTimesAbsReTimesAbsIm;
 import fractalzoomer.in_coloring_algorithms.CosMag;
 import fractalzoomer.in_coloring_algorithms.DecompositionLike;
-import fractalzoomer.in_coloring_algorithms.InColorAlgorithm;
 import fractalzoomer.in_coloring_algorithms.MagTimesCosReSquared;
 import fractalzoomer.in_coloring_algorithms.MaximumIterations;
 import fractalzoomer.in_coloring_algorithms.ReDivideIm;
@@ -33,13 +34,13 @@ import fractalzoomer.in_coloring_algorithms.UserInColorAlgorithm;
 import fractalzoomer.in_coloring_algorithms.ZMag;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
+import fractalzoomer.main.app_settings.StatisticsSettings;
 import fractalzoomer.out_coloring_algorithms.BinaryDecomposition;
 import fractalzoomer.out_coloring_algorithms.BinaryDecomposition2;
 import fractalzoomer.out_coloring_algorithms.ColorDecompositionRootFindingMethod;
 import fractalzoomer.out_coloring_algorithms.EscapeTime;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeAlgorithm1;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeColorDecompositionRootFindingMethod;
-import fractalzoomer.out_coloring_algorithms.OutColorAlgorithm;
 import fractalzoomer.out_coloring_algorithms.SmoothBinaryDecomposition2RootFindingMethod;
 import fractalzoomer.out_coloring_algorithms.SmoothBinaryDecompositionRootFindingMethod;
 import fractalzoomer.out_coloring_algorithms.SmoothColorDecompositionRootFindingMethod;
@@ -47,6 +48,7 @@ import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeColorDecompositionR
 import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeRootFindingMethod;
 import fractalzoomer.out_coloring_algorithms.UserConditionalOutColorAlgorithmRootFindingMethod;
 import fractalzoomer.out_coloring_algorithms.UserOutColorAlgorithmRootFindingMethod;
+import fractalzoomer.utils.ColorAlgorithm;
 
 import java.util.ArrayList;
 
@@ -57,6 +59,7 @@ import java.util.ArrayList;
 public abstract class RootFindingMethods extends Fractal {
 
     protected double convergent_bailout;
+    protected Object[] iterationData;
 
     public RootFindingMethods(double xCenter, double yCenter, double size, int max_iterations, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, OrbitTrapSettings ots) {
 
@@ -96,57 +99,32 @@ public abstract class RootFindingMethods extends Fractal {
             }
 
             if ((temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
+                escaped = true;
                 Object[] object = {iterations, complex[0], temp, zold, zold2, pixel, start};
-                return out_color_algorithm.getResult(object);
+                iterationData = object;
+                double out = out_color_algorithm.getResult(object);
+                
+                out = getFinalValueOut(out);
+                
+                return out;
             }
             zold2.assign(zold);
             zold.assign(complex[0]);
             function(complex);
+            
+            if(statistic != null) {
+                statistic.insert(complex[0], zold, zold2, iterations, pixel, start);
+            }
 
         }
 
         Object[] object = {complex[0], zold, zold2, pixel, start};
-        return in_color_algorithm.getResult(object);
-
-    }
-
-    @Override
-    public double[] calculateFractal3DWithoutPeriodicity(Complex pixel) {
-        int iterations = 0;
-        double temp = 0;
-
-        if (trap != null) {
-            trap.initialize();
-        }
-
-        Complex[] complex = new Complex[1];
-        complex[0] = new Complex(pixel);//z
-
-        Complex zold = new Complex();
-        Complex zold2 = new Complex();
-        Complex start = new Complex(complex[0]);
-
-        for (; iterations < max_iterations; iterations++) {
-
-            if (trap != null) {
-                trap.check(complex[0]);
-            }
-
-            if ((temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
-                Object[] object = {iterations, complex[0], temp, zold, zold2, pixel, start};
-                double[] array = {OutColorAlgorithm.transformResultToHeight(out_color_algorithm.getResult3D(object), max_iterations), out_color_algorithm.getResult(object)};
-                return array;
-            }
-            zold2.assign(zold);
-            zold.assign(complex[0]);
-            function(complex);
-
-        }
-
-        Object[] object = {complex[0], zold, zold2, pixel, start};
-        double temp2 = in_color_algorithm.getResult(object);
-        double[] array = {InColorAlgorithm.transformResultToHeight(temp2, max_iterations), temp2};
-        return array;
+        iterationData = object;
+        double in = in_color_algorithm.getResult(object);
+        
+        in = getFinalValueIn(in);
+        
+        return in;
 
     }
 
@@ -192,11 +170,6 @@ public abstract class RootFindingMethods extends Fractal {
     @Override
     public double calculateJulia(Complex pixel) {
         return 0;
-    }
-
-    @Override
-    public double[] calculateJulia3D(Complex pixel) {
-        return null;
     }
 
     @Override
@@ -283,28 +256,28 @@ public abstract class RootFindingMethods extends Fractal {
                 in_color_algorithm = new ZMag(max_iterations);
                 break;
             case MainWindow.DECOMPOSITION_LIKE:
-                in_color_algorithm = new DecompositionLike();
+                in_color_algorithm = new DecompositionLike(max_iterations);
                 break;
             case MainWindow.RE_DIVIDE_IM:
-                in_color_algorithm = new ReDivideIm();
+                in_color_algorithm = new ReDivideIm(max_iterations);
                 break;
             case MainWindow.COS_MAG:
-                in_color_algorithm = new CosMag();
+                in_color_algorithm = new CosMag(max_iterations);
                 break;
             case MainWindow.MAG_TIMES_COS_RE_SQUARED:
-                in_color_algorithm = new MagTimesCosReSquared();
+                in_color_algorithm = new MagTimesCosReSquared(max_iterations);
                 break;
             case MainWindow.SIN_RE_SQUARED_MINUS_IM_SQUARED:
-                in_color_algorithm = new SinReSquaredMinusImSquared();
+                in_color_algorithm = new SinReSquaredMinusImSquared(max_iterations);
                 break;
             case MainWindow.ATAN_RE_TIMES_IM_TIMES_ABS_RE_TIMES_ABS_IM:
-                in_color_algorithm = new AtanReTimesImTimesAbsReTimesAbsIm();
+                in_color_algorithm = new AtanReTimesImTimesAbsReTimesAbsIm(max_iterations);
                 break;
             case MainWindow.SQUARES:
-                in_color_algorithm = new Squares();
+                in_color_algorithm = new Squares(max_iterations);
                 break;
             case MainWindow.SQUARES2:
-                in_color_algorithm = new Squares2();
+                in_color_algorithm = new Squares2(max_iterations);
                 break;
             case MainWindow.USER_INCOLORING_ALGORITHM:
                 if (user_in_coloring_algorithm == 0) {
@@ -316,6 +289,52 @@ public abstract class RootFindingMethods extends Fractal {
 
         }
 
+    }
+    
+    @Override
+    public double getFractal3DHeight(double value) {
+        
+        if(escaped) {           
+            double res = out_color_algorithm.getResult3D(iterationData);           
+
+            res = getFinalValueOut(res);
+            
+            return ColorAlgorithm.transformResultToHeight(res, max_iterations);
+        }
+        
+        return ColorAlgorithm.transformResultToHeight(value, max_iterations);
+        
+    }
+    
+    @Override
+    public double getJulia3DHeight(double value) {
+        
+         return 0;
+         
+    }
+    
+    @Override
+    public int type() {
+        
+        return MainWindow.CONVERGING;
+        
+    }
+    
+    @Override
+    protected void StatisticFactory(StatisticsSettings sts, double[] plane_transform_center) {
+        
+        if(sts.statisticGroup == 1) {
+            statistic = new UserStatisticColoringRootFindingMethod(sts.statistic_intensity, sts.user_statistic_formula, xCenter, yCenter, max_iterations, size, convergent_bailout, plane_transform_center, globalVars, sts.useAverage);
+            return;
+        }
+        
+        switch (sts.statistic_type) {
+
+            case MainWindow.COS_ARG_DIVIDE_INVERSE_NORM:
+                statistic = new CosArgDivideInverseNorm(sts.statistic_intensity, sts.cosArgInvStripeDensity, sts.StripeDenominatorFactor);
+                break;
+            
+        }
     }
 
 }

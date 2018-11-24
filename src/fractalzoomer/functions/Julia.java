@@ -17,9 +17,8 @@
 package fractalzoomer.functions;
 
 import fractalzoomer.core.Complex;
-import fractalzoomer.in_coloring_algorithms.InColorAlgorithm;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
-import fractalzoomer.out_coloring_algorithms.OutColorAlgorithm;
+import fractalzoomer.main.app_settings.StatisticsSettings;
 import fractalzoomer.utils.ColorAlgorithm;
 
 import java.util.ArrayList;
@@ -31,8 +30,8 @@ import java.util.ArrayList;
 public abstract class Julia extends Fractal {
 
     protected Complex seed;
-    protected boolean apply_plane_on_julia;
-    protected boolean apply_plane_on_julia_seed;
+    private boolean apply_plane_on_julia;
+    private boolean apply_plane_on_julia_seed;
 
     public Julia(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, OrbitTrapSettings ots) {
 
@@ -83,25 +82,18 @@ public abstract class Julia extends Fractal {
     @Override
     public double calculateJulia(Complex pixel) {
 
+        escaped = false;
+        
+        if(statistic != null) {
+            statistic.initialize();
+        }
+        
         resetGlobalVars();
 
         if (apply_plane_on_julia) {
             return periodicity_checking ? calculateJuliaWithPeriodicity(plane.transform(rotation.rotate(pixel))) : calculateJuliaWithoutPeriodicity(plane.transform(rotation.rotate(pixel)));
         } else {
             return periodicity_checking ? calculateJuliaWithPeriodicity(rotation.rotate(pixel)) : calculateJuliaWithoutPeriodicity(rotation.rotate(pixel));
-        }
-
-    }
-
-    @Override
-    public double[] calculateJulia3D(Complex pixel) {
-
-        resetGlobalVars();
-
-        if (apply_plane_on_julia) {
-            return periodicity_checking ? calculateJulia3DWithPeriodicity(plane.transform(rotation.rotate(pixel))) : calculateJulia3DWithoutPeriodicity(plane.transform(rotation.rotate(pixel)));
-        } else {
-            return periodicity_checking ? calculateJulia3DWithPeriodicity(rotation.rotate(pixel)) : calculateJulia3DWithoutPeriodicity(rotation.rotate(pixel));
         }
 
     }
@@ -127,8 +119,13 @@ public abstract class Julia extends Fractal {
 
         for (; iterations < max_iterations; iterations++) {
             if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
+                escaped = true;
                 Object[] object = {iterations, complex[0], zold, zold2, complex[1], start};
-                return out_color_algorithm.getResult(object);
+                double out = out_color_algorithm.getResult(object);
+                
+                out = getFinalValueOut(out);                
+                
+                return out;
             }
             zold2.assign(zold);
             zold.assign(complex[0]);
@@ -136,6 +133,10 @@ public abstract class Julia extends Fractal {
 
             if (periodicityCheck(complex[0])) {
                 return ColorAlgorithm.MAXIMUM_ITERATIONS;
+            }
+            
+            if(statistic != null) {
+                statistic.insert(complex[0], zold, zold2, iterations, complex[1], start);
             }
         }
 
@@ -164,102 +165,30 @@ public abstract class Julia extends Fractal {
             }
 
             if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
+                escaped = true;
                 Object[] object = {iterations, complex[0], zold, zold2, complex[1], start};
-                return out_color_algorithm.getResult(object);
+                double out = out_color_algorithm.getResult(object);
+                
+                out = getFinalValueOut(out);
+                
+                return out;
             }
             zold2.assign(zold);
             zold.assign(complex[0]);
             function(complex);
+            
+            if(statistic != null) {
+                statistic.insert(complex[0], zold, zold2, iterations, complex[1], start);
+            }
 
         }
 
         Object[] object = {complex[0], zold, zold2, complex[1], start};
-        return in_color_algorithm.getResult(object);
-
-    }
-
-    protected double[] calculateJulia3DWithPeriodicity(Complex pixel) {
-        int iterations = 0;
-
-        check = 3;
-        check_counter = 0;
-
-        update = 10;
-        update_counter = 0;
-
-        period = new Complex();
-
-        Complex[] complex = new Complex[2];
-        complex[0] = new Complex(pixel);//z
-        complex[1] = new Complex(seed);//c
-
-        Complex zold = new Complex();
-        Complex zold2 = new Complex();
-        Complex start = new Complex(complex[0]);
-
-        double temp;
-
-        for (; iterations < max_iterations; iterations++) {
-            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
-                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start};
-                temp = out_color_algorithm.getResult(object);
-                double[] array = {OutColorAlgorithm.transformResultToHeight(temp, max_iterations), temp};
-                return array;
-            }
-            zold2.assign(zold);
-            zold.assign(complex[0]);
-            function(complex);
-
-            if (periodicityCheck(complex[0])) {
-                double[] array = {max_iterations, ColorAlgorithm.MAXIMUM_ITERATIONS};
-                return array;
-            }
-        }
-
-        double[] array = {max_iterations, ColorAlgorithm.MAXIMUM_ITERATIONS};
-        return array;
-
-    }
-
-    protected double[] calculateJulia3DWithoutPeriodicity(Complex pixel) {
-        int iterations = 0;
-
-        if (trap != null) {
-            trap.initialize();
-        }
-
-        Complex[] complex = new Complex[2];
-        complex[0] = new Complex(pixel);//z
-        complex[1] = new Complex(seed);//c
-
-        Complex zold = new Complex();
-        Complex zold2 = new Complex();
-        Complex start = new Complex(complex[0]);
-
-        double temp;
-
-        for (; iterations < max_iterations; iterations++) {
-
-            if (trap != null) {
-                trap.check(complex[0]);
-            }
-
-            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
-                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start};
-                temp = out_color_algorithm.getResult(object);
-                double[] array = {OutColorAlgorithm.transformResultToHeight(temp, max_iterations), temp};
-                return array;
-            }
-            zold2.assign(zold);
-            zold.assign(complex[0]);
-            function(complex);
-
-        }
-
-        Object[] object = {complex[0], zold, zold2, complex[1], start};
-        temp = in_color_algorithm.getResult(object);
-        double[] array = {InColorAlgorithm.transformResultToHeight(temp, max_iterations), temp};
-        return array;
+        double in = in_color_algorithm.getResult(object);
+        
+        in = getFinalValueIn(in);
+        
+        return in;
 
     }
 
@@ -314,6 +243,13 @@ public abstract class Julia extends Fractal {
 
         return complex[0];
 
+    }
+    
+    @Override
+    public double getJulia3DHeight(double value) {
+        
+        return ColorAlgorithm.transformResultToHeight(value, max_iterations);
+        
     }
 
 }

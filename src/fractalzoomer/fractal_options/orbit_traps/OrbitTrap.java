@@ -27,6 +27,7 @@ public abstract class OrbitTrap {
     protected Complex point;
     protected double trapLength;
     protected double trapWidth;
+    protected int trapId;
     
     public OrbitTrap(double pointRe, double pointIm, double trapLength, double trapWidth) {
         
@@ -39,6 +40,7 @@ public abstract class OrbitTrap {
     public void initialize() {
         
         distance = Double.MAX_VALUE;
+        trapId = -1;
         
     }
     
@@ -49,6 +51,8 @@ public abstract class OrbitTrap {
         return distance;
         
     }
+    
+    public abstract double getMaxValue();
     
     public double applyLineFunction(int type, double value) {
         
@@ -90,6 +94,12 @@ public abstract class OrbitTrap {
         }
         
         return 0;
+    }
+    
+    public int getTrapId(){
+        
+        return trapId;
+                
     }
     
 }

@@ -24,10 +24,12 @@ import fractalzoomer.core.Complex;
  * @author hrkalona2
  */
 public class Squares2 extends InColorAlgorithm {
+    private int max_iterations;
     
-    public Squares2() { 
+    public Squares2(int max_iterations) { 
         super();
         InNotUsingIncrement = false;
+        this.max_iterations = max_iterations;
     }
     
     @Override
@@ -39,7 +41,7 @@ public class Squares2 extends InColorAlgorithm {
         double dx = Math.abs(x - Math.floor(x));
         double dy = Math.abs(y - Math.floor(y));
         
-        return (dx < 0.5 && dy < 0.5) || (dx > 0.5 && dy > 0.5) ? -INCREMENT : 0;
+        return (dx < 0.5 && dy < 0.5) || (dx > 0.5 && dy > 0.5) ? -(INCREMENT + max_iterations) : max_iterations;
         
     }
     

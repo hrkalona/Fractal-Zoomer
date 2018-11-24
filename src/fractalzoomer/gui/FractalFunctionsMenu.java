@@ -47,6 +47,7 @@ public class FractalFunctionsMenu extends JMenu {
     private JMenu muller_type_functions;
     private JMenu parhalley_type_functions;
     private JMenu laguerre_type_functions;
+    private JMenu lambda_type_functions;
     private JMenu barnsley_type_functions;
     private JMenu szegedi_butterfly_type_functions;
     private JMenu math_type_functions;
@@ -227,6 +228,8 @@ public class FractalFunctionsMenu extends JMenu {
         functionNames[MainWindow.LAGUERREPOLY] = "Laguerre Polynomial";
         functionNames[MainWindow.LAGUERREFORMULA] = "Laguerre Formula";
         functionNames[MainWindow.KLEINIAN] = "Kleinian";
+        functionNames[MainWindow.LAMBDA2] = "Lambda 2";
+        functionNames[MainWindow.LAMBDA3] = "Lambda 3";
  
     }
 
@@ -253,6 +256,8 @@ public class FractalFunctionsMenu extends JMenu {
         laguerre_type_functions = new JMenu("Laguerre Method");
 
         barnsley_type_functions = new JMenu("Barnsley Type");
+        
+        lambda_type_functions = new JMenu("Lambda Type");
 
         szegedi_butterfly_type_functions = new JMenu("Szegedi Butterfly Type");
 
@@ -449,7 +454,7 @@ public class FractalFunctionsMenu extends JMenu {
             }
         });
         c_azb_dze_type_functions.add(fractal_functions[MainWindow.FORMULA2]);
-        functions_button_group.add(fractal_functions[MainWindow.FORMULA42]);
+        functions_button_group.add(fractal_functions[MainWindow.FORMULA2]);
 
         fractal_functions[MainWindow.FORMULA3] = new JRadioButtonMenuItem(functionNames[MainWindow.FORMULA3]);
         fractal_functions[MainWindow.FORMULA3].addActionListener(new ActionListener() {
@@ -621,7 +626,7 @@ public class FractalFunctionsMenu extends JMenu {
             }
         });
         c_azb_dze_f_g_type_functions.add(fractal_functions[MainWindow.FORMULA15]);
-        functions_button_group.add(fractal_functions[MainWindow.FORMULA5]);
+        functions_button_group.add(fractal_functions[MainWindow.FORMULA15]);
 
         fractal_functions[MainWindow.FORMULA16] = new JRadioButtonMenuItem(functionNames[MainWindow.FORMULA16]);
         fractal_functions[MainWindow.FORMULA16].addActionListener(new ActionListener() {
@@ -633,7 +638,7 @@ public class FractalFunctionsMenu extends JMenu {
             }
         });
         c_azb_dze_f_g_type_functions.add(fractal_functions[MainWindow.FORMULA16]);
-        functions_button_group.add(fractal_functions[MainWindow.FORMULA6]);
+        functions_button_group.add(fractal_functions[MainWindow.FORMULA16]);
 
         fractal_functions[MainWindow.FORMULA17] = new JRadioButtonMenuItem(functionNames[MainWindow.FORMULA17]);
         fractal_functions[MainWindow.FORMULA17].addActionListener(new ActionListener() {
@@ -823,6 +828,7 @@ public class FractalFunctionsMenu extends JMenu {
         add(formulas_type_functions);
 
         addSeparator();
+        
 
         fractal_functions[MainWindow.LAMBDA] = new JRadioButtonMenuItem(functionNames[MainWindow.LAMBDA]);
         fractal_functions[MainWindow.LAMBDA].addActionListener(new ActionListener() {
@@ -833,8 +839,34 @@ public class FractalFunctionsMenu extends JMenu {
 
             }
         });
-        add(fractal_functions[MainWindow.LAMBDA]);
+        lambda_type_functions.add(fractal_functions[MainWindow.LAMBDA]);
         functions_button_group.add(fractal_functions[MainWindow.LAMBDA]);
+        
+        fractal_functions[MainWindow.LAMBDA2] = new JRadioButtonMenuItem(functionNames[MainWindow.LAMBDA2]);
+        fractal_functions[MainWindow.LAMBDA2].addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFunction(MainWindow.LAMBDA2);
+
+            }
+        });
+        lambda_type_functions.add(fractal_functions[MainWindow.LAMBDA2]);
+        functions_button_group.add(fractal_functions[MainWindow.LAMBDA2]);
+        
+        fractal_functions[MainWindow.LAMBDA3] = new JRadioButtonMenuItem(functionNames[MainWindow.LAMBDA3]);
+        fractal_functions[MainWindow.LAMBDA3].addActionListener(new ActionListener() {
+
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFunction(MainWindow.LAMBDA3);
+
+            }
+        });
+        lambda_type_functions.add(fractal_functions[MainWindow.LAMBDA3]);
+        functions_button_group.add(fractal_functions[MainWindow.LAMBDA3]);
+        
+        add(lambda_type_functions);
         addSeparator();
 
         fractal_functions[MainWindow.MAGNET1] = new JRadioButtonMenuItem(functionNames[MainWindow.MAGNET1]);

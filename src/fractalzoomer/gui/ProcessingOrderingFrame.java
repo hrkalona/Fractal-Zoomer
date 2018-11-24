@@ -32,7 +32,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import javax.swing.BorderFactory;
-import javax.swing.Box;
 import javax.swing.DefaultListModel;
 import javax.swing.DropMode;
 import javax.swing.Icon;
@@ -62,7 +61,7 @@ public class ProcessingOrderingFrame extends JFrame {
     private int[] processing_order;
     private Color activeColor;
 
-    public ProcessingOrderingFrame(MainWindow ptra, int[] processing_order, final boolean fake_distance_estimation, final boolean entropy_coloring, final boolean offset_coloring, final boolean rainbow_palette, final boolean greyscale_coloring, final boolean contour_coloring, final boolean bump_mapping) {
+    public ProcessingOrderingFrame(MainWindow ptra, int[] processing_order, final boolean fake_distance_estimation, final boolean entropy_coloring, final boolean offset_coloring, final boolean rainbow_palette, final boolean greyscale_coloring, final boolean contour_coloring, final boolean bump_mapping, final boolean light) {
 
         super();
 
@@ -74,7 +73,7 @@ public class ProcessingOrderingFrame extends JFrame {
 
         ptra2.setEnabled(false);
         int custom_palette_window_width = 580;
-        int custom_palette_window_height = 460;
+        int custom_palette_window_height = 480;
         setTitle("Processing Order");
         setIconImage(getIcon("/fractalzoomer/icons/list.png").getImage());
 
@@ -144,6 +143,9 @@ public class ProcessingOrderingFrame extends JFrame {
                 else if(MainWindow.processingAlgorithNames[6].equals(value)) {
                     icon.setIcon(getIcon("/fractalzoomer/icons/bump_map.png"));
                 }
+                else if(MainWindow.processingAlgorithNames[7].equals(value)) {
+                    icon.setIcon(getIcon("/fractalzoomer/icons/light.png"));
+                }
                 
                 label.setText(value);
                 label.setForeground(list.getForeground());
@@ -193,6 +195,12 @@ public class ProcessingOrderingFrame extends JFrame {
                         label.setForeground(list.getSelectionForeground());
                     }
                 }
+                else if(MainWindow.processingAlgorithNames[7].equals(value)) {
+                    if(light) {
+                        p.setBackground(activeColor);
+                        label.setForeground(list.getSelectionForeground());
+                    }
+                }
                 
                 if(isSelected) {
                     p.setBackground(list.getSelectionBackground());
@@ -206,8 +214,8 @@ public class ProcessingOrderingFrame extends JFrame {
         scroll_pane.setPreferredSize(new Dimension(440, 180));
         JPanel text = new JPanel();
         text.setBackground(MainWindow.bg_color);
-        text.setLayout(new GridLayout(3, 1));
-        text.setPreferredSize(new Dimension(440, 100));
+        text.setLayout(new GridLayout(4, 1));
+        text.setPreferredSize(new Dimension(440, 120));
         
         JPanel p1 = new JPanel();
         p1.setLayout(new FlowLayout(FlowLayout.LEFT));
@@ -219,8 +227,14 @@ public class ProcessingOrderingFrame extends JFrame {
         JPanel p2 = new JPanel();
         p2.setLayout(new FlowLayout(FlowLayout.LEFT));
         p2.setBackground(MainWindow.bg_color);
-        p2.add(new JLabel("Smoothing, Distance Estimation, and Orbit Traps are always performed first."));
+        p2.add(new JLabel("Smoothing, Distance Estimation, Orbit Traps, and Statistical Coloring"));
         text.add(p2);
+        
+        JPanel p4 = new JPanel();
+        p4.setLayout(new FlowLayout(FlowLayout.LEFT));
+        p4.setBackground(MainWindow.bg_color);
+        p4.add(new JLabel("are always performed first."));
+        text.add(p4);
         
         JLabel color = new JLabel();
         color.setPreferredSize(new Dimension(22, 22));
@@ -238,7 +252,7 @@ public class ProcessingOrderingFrame extends JFrame {
         
         JPanel panel = new JPanel();
         panel.setBackground(MainWindow.bg_color);
-        panel.setPreferredSize(new Dimension(480, 320));
+        panel.setPreferredSize(new Dimension(480, 340));
         panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Processing Order", TitledBorder.DEFAULT_POSITION, TitledBorder.DEFAULT_POSITION));
         
         panel.add(text);
@@ -281,7 +295,7 @@ public class ProcessingOrderingFrame extends JFrame {
 
         RoundedPanel round_panel = new RoundedPanel(true, true, true, 15);
         round_panel.setBackground(MainWindow.bg_color);
-        round_panel.setPreferredSize(new Dimension(510, 380));
+        round_panel.setPreferredSize(new Dimension(510, 400));
         round_panel.setLayout(new GridBagLayout());
 
         GridBagConstraints con = new GridBagConstraints();

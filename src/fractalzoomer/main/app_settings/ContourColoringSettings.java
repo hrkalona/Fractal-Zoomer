@@ -25,11 +25,13 @@ public class ContourColoringSettings {
     public double cn_noise_reducing_factor;
     public double cn_blending;
     public int contour_algorithm;
+    public int contourColorMethod;
  
     public ContourColoringSettings() {
         contour_coloring = false;
         cn_noise_reducing_factor = 0.4;
         cn_blending = 0.7;
         contour_algorithm = 0;
+        contourColorMethod = 3;
     }
 }

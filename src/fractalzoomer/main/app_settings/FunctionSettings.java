@@ -113,8 +113,8 @@ public class FunctionSettings implements Constants {
         
         smoothing = false;
         
-        escaping_smooth_algorithm = 0;
-        converging_smooth_algorithm = 0;
+        escaping_smooth_algorithm = 1;
+        converging_smooth_algorithm = 1;
 
         nova_method = NOVA_NEWTON;
         

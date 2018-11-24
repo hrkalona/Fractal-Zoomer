@@ -36,7 +36,8 @@ public class Toolbar extends JToolBar {
     private JButton repaint_button;
     private JButton save_image_button;
     private JButton save_image_and_settings_button;
-    private JButton custom_palette_button;
+    private JButton custom_palette_button_out;
+    private JButton custom_palette_button_in;
     private JButton random_palette_button;
     private JButton iterations_button;
     private JButton rotation_button;
@@ -163,22 +164,39 @@ public class Toolbar extends JToolBar {
 
         addSeparator();
 
-        custom_palette_button = new JButton();
-        custom_palette_button.setIcon(getIcon("/fractalzoomer/icons/palette.png"));
-        custom_palette_button.setFocusable(false);
-        custom_palette_button.setToolTipText("Loads the custom palette editor.");
+        custom_palette_button_out = new JButton();
+        custom_palette_button_out.setIcon(getIcon("/fractalzoomer/icons/palette_outcoloring.png"));
+        custom_palette_button_out.setFocusable(false);
+        custom_palette_button_out.setToolTipText("Loads the custom palette editor for the out-coloring palette.");
 
-        custom_palette_button.addActionListener(new ActionListener() {
+        custom_palette_button_out.addActionListener(new ActionListener() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
                 
-                ptr.openCustomPaletteEditor();
+                ptr.openCustomPaletteEditor(true);
                 
             }
         });
 
-        add(custom_palette_button);
+        add(custom_palette_button_out);
+        
+        custom_palette_button_in = new JButton();
+        custom_palette_button_in.setIcon(getIcon("/fractalzoomer/icons/palette_incoloring.png"));
+        custom_palette_button_in.setFocusable(false);
+        custom_palette_button_in.setToolTipText("Loads the custom palette editor for the in-coloring palette.");
+
+        custom_palette_button_in.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                
+                ptr.openCustomPaletteEditor(false);
+                
+            }
+        });
+
+        add(custom_palette_button_in);
 
         random_palette_button = new JButton();
         random_palette_button.setIcon(getIcon("/fractalzoomer/icons/palette_random.png"));
@@ -459,9 +477,15 @@ public class Toolbar extends JToolBar {
         
     }
     
-    public JButton getCustomPaletteButton() {
+    public JButton getOutCustomPaletteButton() {
         
-        return custom_palette_button;
+        return custom_palette_button_out;
+        
+    }
+    
+    public JButton getInCustomPaletteButton() {
+        
+        return custom_palette_button_in;
         
     }
     

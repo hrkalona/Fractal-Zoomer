@@ -230,7 +230,7 @@ public class GradientFrame extends JFrame {
 
         color_interp_panel.add(combo_box_color_interp);
 
-        String[] color_space_str = {"RGB", "HSB", "Exp", "Square", "Sqrt", "RYB", "LAB", "XYZ", "LCH", "Bezier RGB"};
+        String[] color_space_str = {"RGB", "HSB", "Exp", "Square", "Sqrt", "RYB", "LAB", "XYZ", "LCH", "Bezier RGB", "HSL"};
 
         combo_box_color_space = new JComboBox(color_space_str);
         combo_box_color_space.setSelectedIndex(gs.gradient_color_space);

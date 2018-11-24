@@ -33,6 +33,7 @@ import javax.swing.KeyStroke;
 public class ProcessingMenu extends JMenu {
 	private static final long serialVersionUID = 880061806683700045L;
 	private MainWindow ptr;
+    private JMenuItem light_opt;
     private JMenuItem bump_map_opt;
     private JMenuItem rainbow_palette_opt;
     private JMenuItem fake_de_opt;
@@ -43,6 +44,7 @@ public class ProcessingMenu extends JMenu {
     private JMenuItem exterior_de_opt;
     private JMenuItem orbit_traps_opt;
     private JMenuItem contour_coloring_opt;
+    private JMenuItem statistics_coloring_opt;
     private JMenuItem order_opt;
     
     public ProcessingMenu(MainWindow ptr2, String name) {
@@ -62,7 +64,9 @@ public class ProcessingMenu extends JMenu {
         rainbow_palette_opt = new JMenuItem("Rainbow Palette", getIcon("/fractalzoomer/icons/rainbow_palette.png"));
         orbit_traps_opt = new JMenuItem("Orbit Traps", getIcon("/fractalzoomer/icons/orbit_traps.png"));
         contour_coloring_opt = new JMenuItem("Contour Coloring", getIcon("/fractalzoomer/icons/contour_coloring.png"));
+        light_opt = new JMenuItem("Light", getIcon("/fractalzoomer/icons/light.png"));
         order_opt = new JMenuItem("Processing Order", getIcon("/fractalzoomer/icons/list.png"));
+        statistics_coloring_opt = new JMenuItem("Statistical Coloring", getIcon("/fractalzoomer/icons/statistics_coloring.png"));
         
         smoothing_opt.setToolTipText("Smooths the image's color transitions.");
         exterior_de_opt.setToolTipText("<html>Sets some points near the boundary of<br>the set to the maximum iterations value.</html>");
@@ -75,6 +79,8 @@ public class ProcessingMenu extends JMenu {
         orbit_traps_opt.setToolTipText("Applies a coloring effect when an orbit gets trapped under a specific condition.");
         contour_coloring_opt.setToolTipText("Blends the contours that are created by the fractional part of the iterations.");
         order_opt.setToolTipText("Changes the application order of the processing algorithms.");
+        light_opt.setToolTipText("Emulates a light source to create a pseudo 3d image.");
+        statistics_coloring_opt.setToolTipText("Enables the use of statistical coloring algorithms, that work along with out-coloring modes.");
         
         smoothing_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, 0));
         exterior_de_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, 0));
@@ -86,7 +92,9 @@ public class ProcessingMenu extends JMenu {
         rainbow_palette_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, 0));
         orbit_traps_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_6, 0));
         contour_coloring_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_8, 0));
+        light_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, 0));
         order_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_9, 0));
+        statistics_coloring_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_1, 0));
         
         contour_coloring_opt.addActionListener(new ActionListener() {
 
@@ -168,6 +176,14 @@ public class ProcessingMenu extends JMenu {
             }
         });
         
+        light_opt.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ptr.setLighting();
+            }
+        
+        });
+        
         order_opt.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -176,7 +192,18 @@ public class ProcessingMenu extends JMenu {
         
         });
         
+        statistics_coloring_opt.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.openStatisticsColoringFrame();
+
+            }
+        });
+        
         add(smoothing_opt);
+        add(statistics_coloring_opt);
         add(exterior_de_opt);
         add(fake_de_opt);
         add(entropy_coloring_opt);
@@ -186,6 +213,7 @@ public class ProcessingMenu extends JMenu {
         add(greyscale_coloring_opt);
         add(contour_coloring_opt);
         add(bump_map_opt);
+        add(light_opt);
         addSeparator();
         add(order_opt);
     }
@@ -223,6 +251,12 @@ public class ProcessingMenu extends JMenu {
     public JMenuItem getBumpMap() {
         
         return bump_map_opt;
+        
+    }
+    
+    public JMenuItem getLight() {
+        
+        return light_opt;
         
     }
     
@@ -333,6 +367,26 @@ public class ProcessingMenu extends JMenu {
         else {
             exterior_de_opt.setIcon(getIcon("/fractalzoomer/icons/distance_estimation.png"));
         }
+        
+        if(s.ls.lighting) {
+            light_opt.setIcon(getIcon("/fractalzoomer/icons/light_enabled.png"));
+        }
+        else {
+            light_opt.setIcon(getIcon("/fractalzoomer/icons/light.png"));
+        }
+        
+        if(s.sts.statistic) {
+            statistics_coloring_opt.setIcon(getIcon("/fractalzoomer/icons/statistics_coloring_enabled.png"));
+        }
+        else {
+            statistics_coloring_opt.setIcon(getIcon("/fractalzoomer/icons/statistics_coloring.png"));
+        }
+        
+    }
+    
+    public JMenuItem getStatisticsColoring() {
+        
+        return statistics_coloring_opt;
         
     }
     

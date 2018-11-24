@@ -28,26 +28,26 @@ public class OrbitTrapSettings {
     public double trapLength;
     public double trapWidth;
     public int trapType;
-    public double trapMaxDistance;
     public double trapBlending;
     public double trapNorm;
-    public boolean trapUseSpecialColor;
     public int lineType;
+    public int trapColorMethod;
+    public double trapIntensity;
     
     public OrbitTrapSettings() {
         
         trapType = Constants.POINT_TRAP;
         useTraps = false;
-        trapUseSpecialColor = false;
         trapPoint = new double[2];
         trapPoint[0] = 0.0;
         trapPoint[1] = 0.0;
         trapLength = 4;
         trapWidth = 0.4;
-        trapMaxDistance = 0.5;
         trapBlending = 0.5;
         trapNorm = 2;
         lineType = 0;
+        trapColorMethod = 3;
+        trapIntensity = 1;
         
     }
     

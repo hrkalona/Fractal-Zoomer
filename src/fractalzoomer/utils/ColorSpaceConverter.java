@@ -112,12 +112,65 @@ import java.awt.Color;
       int rgb = Color.HSBtoRGB((float) H, (float) S, (float) B);
       result[0] = (rgb >> 16) & 0xff;
       result[1] = (rgb >> 8) & 0xff;
-      result[2] = (rgb >> 0) & 0xff;
+      result[2] = rgb & 0xff;
       return result;
+    }
+    
+    public int[] HSLtoRGB(double H, double S, double L) {
+      
+        H = H * 360;
+        
+        double C = (1 -  Math.abs(2 * L  - 1)) * S;
+        
+        double Hprime =  H / 60;
+        
+        double X =  C * (1 - Math.abs((Hprime % 2.0) - 1));
+        
+        double R1 = 0, G1 = 0, B1 = 0;
+        
+        if(Hprime >= 0 && Hprime <= 1) {
+            R1 = C;
+            G1 = X;
+            B1 = 0;
+        }
+        else if(Hprime >= 1 && Hprime <= 2) {
+            R1 = X;
+            G1 = C;
+            B1 = 0;
+        }
+        else if(Hprime >= 2 && Hprime <= 3) {
+            R1 = 0;
+            G1 = C;
+            B1 = X;
+        }
+        else if(Hprime >= 3 && Hprime <= 4) {
+            R1 = 0;
+            G1 = X;
+            B1 = C;
+        }
+        else if(Hprime >= 4 && Hprime <= 5) {
+            R1 = X;
+            G1 = 0;
+            B1 = C;
+        }
+        else if(Hprime >= 5 && Hprime <= 6) {
+            R1 = C;
+            G1 = 0;
+            B1 = X;
+        }
+        
+        double m = L - C / 2.0;
+        
+        return new int[] {(int)((R1 + m) * 255 + 0.5), (int)((G1 + m) * 255 + 0.5), (int)((B1 + m) * 255 + 0.5)};
+        
     }
 
     public int[] HSBtoRGB(double[] HSB) {
       return HSBtoRGB(HSB[0], HSB[1], HSB[2]);
+    }
+    
+    public int[] HSLtoRGB(double[] HSL) {
+      return HSLtoRGB(HSL[0], HSL[1], HSL[2]);
     }
 
     /**
@@ -206,9 +259,61 @@ import java.awt.Color;
       result[2] = hsb[2];
       return result;
     }
+    
+    /**
+     * @param R Red in range 0..255
+     * @param G Green in range 0..255
+     * @param B Blue in range 0..255
+     * @return HSL values: H is 0..360 degrees / 360 (0..1), S is 0..1, L is 0..1
+     */
+    public double[] RGBtoHSL(int R, int G, int B) {
+      
+        double r = R / 255.0;
+        double g = G / 255.0;
+        double b = B / 255.0;
+        
+        double MAX = Math.max(Math.max(r, g), b);
+        double MIN = Math.min(Math.min(r, g), b);
+        
+        double H = 0;
+        if(MAX == MIN) {
+            H = 0;
+        }
+        else if(MAX == r) {
+            H = 60 * ((g - b) / (MAX - MIN));
+        }
+        else if(MAX == g) {
+            H = 60 * (2 + (b - r) / (MAX - MIN));
+        }
+        else if(MAX == b) {
+            H = 60 * (4 + (r - g) / (MAX - MIN));
+        }
+        
+        H = H < 0 ? H + 360 : H;
+        
+        double S = 0;
+        
+        if(MAX == 0) {
+            S = 0;
+        }
+        else if(MIN == 1) {
+            S = 0;
+        }
+        else {
+            S = (MAX - MIN) / (1 - Math.abs(MAX + MIN - 1));
+        }
+        
+        double L = (MIN + MAX) * 0.5;
+        
+        return new double[] {H / 360.0, S, L};
+    }
 
     public double[] RGBtoHSB(int[] RGB) {
       return RGBtoHSB(RGB[0], RGB[1], RGB[2]);
+    }
+    
+    public double[] RGBtoHSL(int[] RGB) {
+      return RGBtoHSL(RGB[0], RGB[1], RGB[2]);
     }
 
     /**
@@ -421,10 +526,14 @@ import java.awt.Color;
       b = (b < 0) ? 0 : b;
 
       // convert 0..1 into 0..255
-      result[0] = (int) Math.round(r * 255);
-      result[1] = (int) Math.round(g * 255);
-      result[2] = (int) Math.round(b * 255);
-
+      result[0] = (int) (r * 255 + 0.5 );
+      result[1] = (int) (g * 255 + 0.5);
+      result[2] = (int) (b * 255 + 0.5);
+     
+      result[0] = (result[0] > 255) ? 255 : result[0];
+      result[1] = (result[1]  > 255) ? 255 : result[1];
+      result[2] = (result[2]  > 255) ? 255 : result[2];
+      
       return result;
     }
 
@@ -673,6 +782,81 @@ import java.awt.Color;
 	return c;
                 
     }
+    
+    /*    
+     double finv(double t) {
+    return ((t > (216.f / 24389.f)) ?
+            t * t * t : (108.f / 841.f * (t - 4.f / 29.f)));
+    }
+
+ double K(double g) {
+    if(g > 0.0031308) {
+        return 1.055 * Math.pow(g, 1. / 2.4) - 0.055;
+    } else {
+        return 12.92 * g;
+    }
+}
+
+    double f(double t) {
+    return ((t > (216. / 24389.)) ?
+            Math.cbrt(t) : (841. / 108. * t + 4. / 29.));
+    }
+
+double g(double K) {
+    if(K > 0.04045) {
+        return Math.pow((K + 0.055) / 1.055f, 2.4);
+    } else {
+        return K / 12.92;
+    }
+}
+
+    double[] rgb2lab(int[] rgb) {
+    // fixme
+    // clamp values
+
+
+    // Convert to sRGB
+    double r0 = g(rgb[0] / 255.0);
+    double g0 = g(rgb[1] / 255.0);
+    double b0 = g(rgb[2] / 255.0);
+
+    // see http://www.brucelindbloom.com/index.html?Eqn_RGB_XYZ_Matrix.html
+    double X = 0.4124564 * r0 + 0.3575761 * g0 + 0.1804375 * b0;
+    double Y = 0.2126729 * r0 + 0.7151522 * g0 + 0.0721750 * b0;
+    double Z = 0.0193339 * r0 + 0.1191920 * g0 + 0.9503041 * b0;
+
+    double fx = f(X / 0.9505);
+    double fy = f(Y / 1.);
+    double fz = f(Z / 1.0890);
+
+    return new double[] {116. * fy - 16., 500. * (fx - fy), 200. * (fy - fz)};
+
+}
+    
+    int[] lab2rgb(double[] lab) {
+    double fx = (lab[0] + 16.) / 116. + lab[1] / 500.;
+    double fy = (lab[0] + 16.) / 116.;
+    double fz = (lab[0] + 16.) / 116. - lab[2] / 200.;
+
+    double X = 0.9505 * finv(fx);
+    double Y = 1. * finv(fy);
+    double Z = 1.0890 * finv(fz);
+
+    double r0 = X * 3.2404542 - Y * 1.5371385 - Z * 0.4985314; // red
+    double g0 = -X * 0.9692660 + Y * 1.8760108 + Z * 0.0415560; // green
+    double b0 = X * 0.0556434 - Y * 0.2040259 + Z * 1.0572252; // blue
+
+    int r = (int) (255. * K(r0) + 0.5);
+    int g = (int) (255. * K(g0) + 0.5);
+    int b = (int) (255. * K(b0) + 0.5);
+
+    // clamp values
+    if(r < 0) r = 0; else if(r > 255) r = 255;
+    if(g < 0) g = 0; else if(g > 255) g = 255;
+    if(b < 0) b = 0; else if(b > 255) b = 255;
+    
+    return new int[] {r, g, b};
+}*/
       
 
   }

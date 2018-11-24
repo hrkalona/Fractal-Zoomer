@@ -35,16 +35,22 @@ public class CrossOrbitTrap extends OrbitTrap {
     @Override
     public void check(Complex val) {
         
-        double dist = Math.abs(val.getRe() - applyLineFunction(lineType, val.getIm()) - point.getRe());
-        
+        double dist = Math.abs(val.getRe() - applyLineFunction(lineType, val.getIm()) - point.getRe());     
         if(dist < trapWidth && Math.abs(val.getIm() - point.getIm()) < trapLength && dist < distance) {
             distance = dist;
+            trapId = 0;
         }
 
         dist = Math.abs(val.getIm() - applyLineFunction(lineType, val.getRe()) - point.getIm());
         if(dist < trapWidth && Math.abs(val.getRe() - point.getRe()) < trapLength && dist < distance) {
             distance = dist;
+            trapId = 1;
         }
 
+    }
+    
+    @Override
+    public double getMaxValue() {
+        return trapWidth;
     }
 }

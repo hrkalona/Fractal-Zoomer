@@ -66,7 +66,7 @@ public class PaletteMenu extends JMenu {
         paletteNames[MainWindow.CUSTOM_PALETTE_ID] = "Custom Palette";
     }
 
-    public PaletteMenu(MainWindow ptr2, String name, int color_choice, boolean smoothing, int[][] custom_palette, int color_interpolation, int color_space, boolean reversed_palette, int color_cycling_location, double scale_factor_palette_val, int processing_alg) {
+    public PaletteMenu(MainWindow ptr2, String name, int color_choice, boolean smoothing, int[][] custom_palette, int color_interpolation, int color_space, boolean reversed_palette, int color_cycling_location, double scale_factor_palette_val, int processing_alg, final boolean outcoloring_mode) {
 
         super(name);
 
@@ -110,8 +110,8 @@ public class PaletteMenu extends JMenu {
 
                     public void actionPerformed(ActionEvent e) {
 
-                        ptr.setPalette(temp);
-
+                        ptr.setPalette(temp, outcoloring_mode ? 0 : 1);
+                        
                     }
                 });
             } else {
@@ -121,11 +121,17 @@ public class PaletteMenu extends JMenu {
 
                     public void actionPerformed(ActionEvent e) {
 
-                        ptr.openCustomPaletteEditor(temp);
-
+                        ptr.openCustomPaletteEditor(temp, outcoloring_mode);
+ 
                     }
                 });
-                palette[i].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, 0));
+                
+                if(outcoloring_mode) {
+                    palette[i].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, 0));
+                }
+                else {
+                    palette[i].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, 0));
+                }
                 
                 addSeparator();
             }

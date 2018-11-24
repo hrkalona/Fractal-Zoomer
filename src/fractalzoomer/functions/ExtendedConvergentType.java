@@ -17,6 +17,8 @@
 package fractalzoomer.functions;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.fractal_options.iteration_statistics.CosArgDivideInverseNorm;
+import fractalzoomer.fractal_options.iteration_statistics.UserStatisticColoringRootFindingMethod;
 import fractalzoomer.in_coloring_algorithms.AtanReTimesImTimesAbsReTimesAbsIm;
 import fractalzoomer.in_coloring_algorithms.CosMag;
 import fractalzoomer.in_coloring_algorithms.DecompositionLike;
@@ -31,6 +33,7 @@ import fractalzoomer.in_coloring_algorithms.UserInColorAlgorithm;
 import fractalzoomer.in_coloring_algorithms.ZMag;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
+import fractalzoomer.main.app_settings.StatisticsSettings;
 import fractalzoomer.out_coloring_algorithms.Banded;
 import fractalzoomer.out_coloring_algorithms.BinaryDecomposition;
 import fractalzoomer.out_coloring_algorithms.BinaryDecomposition2;
@@ -64,6 +67,7 @@ import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeGridNova;
 import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeRootFindingMethod;
 import fractalzoomer.out_coloring_algorithms.UserConditionalOutColorAlgorithmRootFindingMethod;
 import fractalzoomer.out_coloring_algorithms.UserOutColorAlgorithmRootFindingMethod;
+import fractalzoomer.utils.ColorAlgorithm;
 import java.util.ArrayList;
 
 /**
@@ -72,6 +76,7 @@ import java.util.ArrayList;
  */
 public abstract class ExtendedConvergentType extends Julia {
     protected double convergent_bailout;
+    protected Object[] iterationData;
     
     public ExtendedConvergentType(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula,  double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, OrbitTrapSettings ots) {
         
@@ -246,28 +251,28 @@ public abstract class ExtendedConvergentType extends Julia {
                 in_color_algorithm = new ZMag(max_iterations);
                 break;
             case MainWindow.DECOMPOSITION_LIKE:
-                in_color_algorithm = new DecompositionLike();
+                in_color_algorithm = new DecompositionLike(max_iterations);
                 break;
             case MainWindow.RE_DIVIDE_IM:
-                in_color_algorithm = new ReDivideIm();
+                in_color_algorithm = new ReDivideIm(max_iterations);
                 break;
             case MainWindow.COS_MAG:
-                in_color_algorithm = new CosMag();
+                in_color_algorithm = new CosMag(max_iterations);
                 break;
             case MainWindow.MAG_TIMES_COS_RE_SQUARED:
-                in_color_algorithm = new MagTimesCosReSquared();
+                in_color_algorithm = new MagTimesCosReSquared(max_iterations);
                 break;
             case MainWindow.SIN_RE_SQUARED_MINUS_IM_SQUARED:
-                in_color_algorithm = new SinReSquaredMinusImSquared();
+                in_color_algorithm = new SinReSquaredMinusImSquared(max_iterations);
                 break;
             case MainWindow.ATAN_RE_TIMES_IM_TIMES_ABS_RE_TIMES_ABS_IM:
-                in_color_algorithm = new AtanReTimesImTimesAbsReTimesAbsIm();
+                in_color_algorithm = new AtanReTimesImTimesAbsReTimesAbsIm(max_iterations);
                 break;
             case MainWindow.SQUARES:
-                in_color_algorithm = new Squares();
+                in_color_algorithm = new Squares(max_iterations);
                 break;
             case MainWindow.SQUARES2:
-                in_color_algorithm = new Squares2();
+                in_color_algorithm = new Squares2(max_iterations);
                 break;
             case MainWindow.USER_INCOLORING_ALGORITHM:
                 if(user_in_coloring_algorithm == 0) {
@@ -279,6 +284,45 @@ public abstract class ExtendedConvergentType extends Julia {
                 break;
 
         }
+        
+    }
+    
+    @Override
+    protected void StatisticFactory(StatisticsSettings sts, double[] plane_transform_center) {
+        
+        if(sts.statisticGroup == 1) {
+            statistic = new UserStatisticColoringRootFindingMethod(sts.statistic_intensity, sts.user_statistic_formula, xCenter, yCenter, max_iterations, size, convergent_bailout, plane_transform_center, globalVars, sts.useAverage);
+            return;
+        }
+        
+        switch (sts.statistic_type) {
+
+            case MainWindow.COS_ARG_DIVIDE_INVERSE_NORM:
+                statistic = new CosArgDivideInverseNorm(sts.statistic_intensity, sts.cosArgInvStripeDensity, sts.StripeDenominatorFactor);
+                break;
+            
+        }
+    }
+    
+    @Override
+    public double getJulia3DHeight(double value) {
+        
+        if(escaped) {           
+            double res = out_color_algorithm.getResult3D(iterationData);
+
+            res = getFinalValueOut(res);
+            
+            return ColorAlgorithm.transformResultToHeight(res, max_iterations);
+        }
+        
+        return ColorAlgorithm.transformResultToHeight(value, max_iterations);
+        
+    }
+    
+    @Override
+    public int type() {
+        
+        return MainWindow.CONVERGING;
         
     }
     

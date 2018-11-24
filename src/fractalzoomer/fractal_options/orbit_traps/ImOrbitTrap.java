@@ -39,8 +39,14 @@ public class ImOrbitTrap extends OrbitTrap {
         
         if(dist < trapWidth && Math.abs(val.getIm() - point.getIm()) < trapLength && dist < distance) {
             distance = dist;
+            trapId = 0;
         }
 
+    }
+    
+    @Override
+    public double getMaxValue() {
+        return trapWidth;
     }
     
 }

@@ -50,6 +50,11 @@ import fractalzoomer.fractal_options.orbit_traps.CircleOrbitTrap;
 import fractalzoomer.fractal_options.orbit_traps.CrossOrbitTrap;
 import fractalzoomer.fractal_options.orbit_traps.OrbitTrap;
 import fractalzoomer.fractal_options.PlanePointOption;
+import fractalzoomer.fractal_options.iteration_statistics.CosArgDivideNormAverage;
+import fractalzoomer.fractal_options.iteration_statistics.CurvatureAverage;
+import fractalzoomer.fractal_options.iteration_statistics.GenericStatistic;
+import fractalzoomer.fractal_options.iteration_statistics.StripeAverage;
+import fractalzoomer.fractal_options.iteration_statistics.UserStatisticColoring;
 import fractalzoomer.fractal_options.orbit_traps.CircleCrossOrbitTrap;
 import fractalzoomer.fractal_options.orbit_traps.CirclePointOrbitTrap;
 import fractalzoomer.fractal_options.orbit_traps.ImOrbitTrap;
@@ -81,6 +86,7 @@ import fractalzoomer.in_coloring_algorithms.UserConditionalInColorAlgorithm;
 import fractalzoomer.in_coloring_algorithms.UserInColorAlgorithm;
 import fractalzoomer.in_coloring_algorithms.ZMag;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
+import fractalzoomer.main.app_settings.StatisticsSettings;
 import fractalzoomer.out_coloring_algorithms.Banded;
 import fractalzoomer.out_coloring_algorithms.BinaryDecomposition;
 import fractalzoomer.out_coloring_algorithms.BinaryDecomposition2;
@@ -194,6 +200,10 @@ public abstract class Fractal {
     protected Complex period;
     protected Complex[] globalVars;
     protected OrbitTrap trap;
+    protected boolean escaped;
+    protected GenericStatistic statistic;
+    protected double log_bailout_squared;
+    private double trapIntesity;
 
     public Fractal(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, OrbitTrapSettings ots) {
 
@@ -204,11 +214,13 @@ public abstract class Fractal {
         this.bailout = bailout;
         bailout_squared = bailout * bailout;
         this.periodicity_checking = periodicity_checking;
-        
+        log_bailout_squared = Math.log(bailout_squared);
+
         globalVars = createGlobalVars();
 
-        if (ots.useTraps) {
+        if(ots.useTraps) {
             TrapFactory(ots);
+            trapIntesity = ots.trapIntensity;
         }
 
         rotation = new Rotation(rotation_vals[0], rotation_vals[1], rotation_center[0], rotation_center[1]);
@@ -216,7 +228,7 @@ public abstract class Fractal {
         PlaneFactory(plane_type, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
 
         BailoutConditionFactory(bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, plane_transform_center);
-        
+
     }
 
     //orbit
@@ -228,7 +240,7 @@ public abstract class Fractal {
         this.max_iterations = max_iterations;
         this.complex_orbit = complex_orbit;
         pixel_orbit = this.complex_orbit.get(0);
-        
+
         globalVars = createGlobalVars();
 
         rotation = new Rotation(rotation_vals[0], rotation_vals[1], rotation_center[0], rotation_center[1]);
@@ -250,16 +262,16 @@ public abstract class Fractal {
     protected final boolean periodicityCheck(Complex z) {
 
         //Check for period
-        if (z.distance_squared(period) < getPeriodSize()) {
+        if(z.distance_squared(period) < getPeriodSize()) {
             return true;
         }
 
         //Update history
-        if (check == check_counter) {
+        if(check == check_counter) {
             check_counter = 0;
 
             //Double the value of check
-            if (update == update_counter) {
+            if(update == update_counter) {
                 update_counter = 0;
                 check <<= 1;
             }
@@ -276,17 +288,15 @@ public abstract class Fractal {
 
     public double calculateFractal(Complex pixel) {
 
+        escaped = false;
+
+        if(statistic != null) {
+            statistic.initialize();
+        }
+
         resetGlobalVars();
 
         return periodicity_checking ? calculateFractalWithPeriodicity(plane.transform(rotation.rotate(pixel))) : calculateFractalWithoutPeriodicity(plane.transform(rotation.rotate(pixel)));
-
-    }
-
-    public double[] calculateFractal3D(Complex pixel) {
-
-        resetGlobalVars();
-
-        return periodicity_checking ? calculateFractal3DWithPeriodicity(plane.transform(rotation.rotate(pixel))) : calculateFractal3DWithoutPeriodicity(plane.transform(rotation.rotate(pixel)));
 
     }
 
@@ -294,16 +304,16 @@ public abstract class Fractal {
 
         Complex[] vars = new Complex[Parser.EXTRA_VARS];
 
-        for (int i = 0; i < vars.length; i++) {
+        for(int i = 0; i < vars.length; i++) {
             vars[i] = new Complex();
         }
 
         return vars;
     }
-    
+
     protected void resetGlobalVars() {
 
-        for (int i = 0; i < globalVars.length; i++) {
+        for(int i = 0; i < globalVars.length; i++) {
             globalVars[i].reset();
         }
     }
@@ -330,19 +340,27 @@ public abstract class Fractal {
         Complex zold2 = new Complex();
         Complex start = new Complex(complex[0]);
 
-        for (; iterations < max_iterations; iterations++) {
-            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
+        for(; iterations < max_iterations; iterations++) {
+            if(bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
+                escaped = true;
                 Object[] object = {iterations, complex[0], zold, zold2, complex[1], start};
-                return out_color_algorithm.getResult(object);
+                double out = out_color_algorithm.getResult(object);
+
+                out = getFinalValueOut(out);
+
+                return out;
             }
             zold2.assign(zold);
             zold.assign(complex[0]);
             function(complex);
 
-            if (periodicityCheck(complex[0])) {
+            if(periodicityCheck(complex[0])) {
                 return ColorAlgorithm.MAXIMUM_ITERATIONS;
             }
 
+            if(statistic != null) {
+                statistic.insert(complex[0], zold, zold2, iterations, complex[1], start);
+            }
         }
 
         return ColorAlgorithm.MAXIMUM_ITERATIONS;
@@ -353,7 +371,7 @@ public abstract class Fractal {
 
         int iterations = 0;
 
-        if (trap != null) {
+        if(trap != null) {
             trap.initialize();
         }
 
@@ -367,24 +385,36 @@ public abstract class Fractal {
         Complex zold2 = new Complex();
         Complex start = new Complex(complex[0]);
 
-        for (; iterations < max_iterations; iterations++) {
+        for(; iterations < max_iterations; iterations++) {
 
-            if (trap != null) {
+            if(trap != null) {
                 trap.check(complex[0]);
             }
 
-            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
+            if(bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
+                escaped = true;
                 Object[] object = {iterations, complex[0], zold, zold2, complex[1], start};
-                return out_color_algorithm.getResult(object);
+                double out = out_color_algorithm.getResult(object);
+
+                out = getFinalValueOut(out);
+
+                return out;
             }
             zold2.assign(zold);
             zold.assign(complex[0]);
             function(complex);
 
+            if(statistic != null) {
+                statistic.insert(complex[0], zold, zold2, iterations, complex[1], start);
+            }
         }
 
         Object[] object = {complex[0], zold, zold2, complex[1], start};
-        return in_color_algorithm.getResult(object);
+        double in = in_color_algorithm.getResult(object);
+        
+        in = getFinalValueIn(in);
+        
+        return in;
 
         /* int iterations = 0; 
         
@@ -430,97 +460,6 @@ public abstract class Fractal {
          return ColorAlgorithm.MAXIMUM_ITERATIONS;*/
     }
 
-    protected double[] calculateFractal3DWithPeriodicity(Complex pixel) {
-
-        int iterations = 0;
-
-        check = 3;
-        check_counter = 0;
-
-        update = 10;
-        update_counter = 0;
-
-        period = new Complex();
-
-        Complex tempz = new Complex(pertur_val.getValue(init_val.getValue(pixel)));
-
-        Complex[] complex = new Complex[2];
-        complex[0] = tempz;//z
-        complex[1] = new Complex(pixel);//c
-
-        Complex zold = new Complex();
-        Complex zold2 = new Complex();
-        Complex start = new Complex(complex[0]);
-
-        double temp;
-
-        for (; iterations < max_iterations; iterations++) {
-            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
-                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start};
-                temp = out_color_algorithm.getResult(object);
-                double[] array = {OutColorAlgorithm.transformResultToHeight(temp, max_iterations), temp};
-                return array;
-            }
-            zold2.assign(zold);
-            zold.assign(complex[0]);
-            function(complex);
-
-            if (periodicityCheck(complex[0])) {
-                double[] array = {max_iterations, ColorAlgorithm.MAXIMUM_ITERATIONS};
-                return array;
-            }
-
-        }
-
-        double[] array = {max_iterations, ColorAlgorithm.MAXIMUM_ITERATIONS};
-        return array;
-
-    }
-
-    protected double[] calculateFractal3DWithoutPeriodicity(Complex pixel) {
-
-        int iterations = 0;
-
-        if (trap != null) {
-            trap.initialize();
-        }
-
-        Complex tempz = new Complex(pertur_val.getValue(init_val.getValue(pixel)));
-
-        Complex[] complex = new Complex[2];
-        complex[0] = tempz;//z
-        complex[1] = new Complex(pixel);//c
-
-        Complex zold = new Complex();
-        Complex zold2 = new Complex();
-        Complex start = new Complex(complex[0]);
-        double temp;
-
-        for (; iterations < max_iterations; iterations++) {
-
-            if (trap != null) {
-                trap.check(complex[0]);
-            }
-
-            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
-                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start};
-                temp = out_color_algorithm.getResult(object);
-                double[] array = {OutColorAlgorithm.transformResultToHeight(temp, max_iterations), temp};
-                return array;
-
-            }
-            zold2.assign(zold);
-            zold.assign(complex[0]);
-            function(complex);
-
-        }
-
-        Object[] object = {complex[0], zold, zold2, complex[1], start};
-        temp = in_color_algorithm.getResult(object);
-        double[] array = {InColorAlgorithm.transformResultToHeight(temp, max_iterations), temp};
-        return array;
-
-    }
 
     /*
      int iterations = 0; 
@@ -571,11 +510,11 @@ public abstract class Fractal {
 
         Complex temp = null;
 
-        for (; iterations < max_iterations; iterations++) {
+        for(; iterations < max_iterations; iterations++) {
             function(complex);
             temp = rotation.rotateInverse(complex[0]);
 
-            if (Double.isNaN(temp.getRe()) || Double.isNaN(temp.getIm()) || Double.isInfinite(temp.getRe()) || Double.isInfinite(temp.getIm())) {
+            if(Double.isNaN(temp.getRe()) || Double.isNaN(temp.getIm()) || Double.isInfinite(temp.getRe()) || Double.isInfinite(temp.getIm())) {
                 break;
             }
 
@@ -631,7 +570,7 @@ public abstract class Fractal {
         complex[0] = tempz;//z
         complex[1] = new Complex(pixel);//c
 
-        for (; iterations < max_iterations; iterations++) {
+        for(; iterations < max_iterations; iterations++) {
 
             function(complex);
 
@@ -644,8 +583,6 @@ public abstract class Fractal {
     public abstract void calculateJuliaOrbit();
 
     public abstract double calculateJulia(Complex pixel);
-
-    public abstract double[] calculateJulia3D(Complex pixel);
 
     public abstract Complex calculateJuliaDomain(Complex pixel);
 
@@ -878,9 +815,10 @@ public abstract class Fractal {
                 plane = new NewtonGeneralized8Plane();
                 break;
             case MainWindow.USER_PLANE:
-                if (user_plane_algorithm == 0) {
+                if(user_plane_algorithm == 0) {
                     plane = new UserPlane(user_plane, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
-                } else {
+                }
+                else {
                     plane = new UserPlaneConditional(user_plane_conditions, user_plane_condition_formula, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
                 }
                 break;
@@ -934,24 +872,27 @@ public abstract class Fractal {
         switch (out_coloring_algorithm) {
 
             case MainWindow.ESCAPE_TIME:
-                if (!smoothing) {
+                if(!smoothing) {
                     out_color_algorithm = new EscapeTime();
-                } else {
-                    out_color_algorithm = new SmoothEscapeTime(Math.log(bailout_squared), escaping_smooth_algorithm);
+                }
+                else {
+                    out_color_algorithm = new SmoothEscapeTime(log_bailout_squared, escaping_smooth_algorithm);
                 }
                 break;
             case MainWindow.BINARY_DECOMPOSITION:
-                if (!smoothing) {
+                if(!smoothing) {
                     out_color_algorithm = new BinaryDecomposition();
-                } else {
-                    out_color_algorithm = new SmoothBinaryDecomposition(Math.log(bailout_squared), escaping_smooth_algorithm);
+                }
+                else {
+                    out_color_algorithm = new SmoothBinaryDecomposition(log_bailout_squared, escaping_smooth_algorithm);
                 }
                 break;
             case MainWindow.BINARY_DECOMPOSITION2:
-                if (!smoothing) {
+                if(!smoothing) {
                     out_color_algorithm = new BinaryDecomposition2();
-                } else {
-                    out_color_algorithm = new SmoothBinaryDecomposition2(Math.log(bailout_squared), escaping_smooth_algorithm);
+                }
+                else {
+                    out_color_algorithm = new SmoothBinaryDecomposition2(log_bailout_squared, escaping_smooth_algorithm);
                 }
                 break;
             case MainWindow.ITERATIONS_PLUS_RE:
@@ -967,10 +908,11 @@ public abstract class Fractal {
                 out_color_algorithm = new EscapeTimePlusRePlusImPlusReDivideIm();
                 break;
             case MainWindow.BIOMORPH:
-                if (!smoothing) {
+                if(!smoothing) {
                     out_color_algorithm = new Biomorphs(bailout);
-                } else {
-                    out_color_algorithm = new SmoothBiomorphs(Math.log(bailout_squared), bailout, escaping_smooth_algorithm);
+                }
+                else {
+                    out_color_algorithm = new SmoothBiomorphs(log_bailout_squared, bailout, escaping_smooth_algorithm);
                 }
                 break;
             case MainWindow.COLOR_DECOMPOSITION:
@@ -1001,36 +943,40 @@ public abstract class Fractal {
                 out_color_algorithm = new EscapeTimeAlgorithm2();
                 break;
             case MainWindow.ESCAPE_TIME_ESCAPE_RADIUS:
-                out_color_algorithm = new EscapeTimeEscapeRadius(Math.log(bailout_squared));
+                out_color_algorithm = new EscapeTimeEscapeRadius(log_bailout_squared);
                 break;
             case MainWindow.ESCAPE_TIME_GRID:
-                if (!smoothing) {
-                    out_color_algorithm = new EscapeTimeGrid(Math.log(bailout_squared));
-                } else {
-                    out_color_algorithm = new SmoothEscapeTimeGrid(Math.log(bailout_squared), escaping_smooth_algorithm);
+                if(!smoothing) {
+                    out_color_algorithm = new EscapeTimeGrid(log_bailout_squared);
+                }
+                else {
+                    out_color_algorithm = new SmoothEscapeTimeGrid(log_bailout_squared, escaping_smooth_algorithm);
                 }
                 break;
             case MainWindow.BANDED:
                 out_color_algorithm = new Banded();
                 break;
             case MainWindow.ESCAPE_TIME_FIELD_LINES:
-                if (!smoothing) {
-                    out_color_algorithm = new EscapeTimeFieldLines(Math.log(bailout_squared));
-                } else {
-                    out_color_algorithm = new SmoothEscapeTimeFieldLines(Math.log(bailout_squared), escaping_smooth_algorithm);
+                if(!smoothing) {
+                    out_color_algorithm = new EscapeTimeFieldLines(log_bailout_squared);
+                }
+                else {
+                    out_color_algorithm = new SmoothEscapeTimeFieldLines(log_bailout_squared, escaping_smooth_algorithm);
                 }
                 break;
             case MainWindow.ESCAPE_TIME_FIELD_LINES2:
-                if (!smoothing) {
-                    out_color_algorithm = new EscapeTimeFieldLines2(Math.log(bailout_squared));
-                } else {
-                    out_color_algorithm = new SmoothEscapeTimeFieldLines2(Math.log(bailout_squared), escaping_smooth_algorithm);
+                if(!smoothing) {
+                    out_color_algorithm = new EscapeTimeFieldLines2(log_bailout_squared);
+                }
+                else {
+                    out_color_algorithm = new SmoothEscapeTimeFieldLines2(log_bailout_squared, escaping_smooth_algorithm);
                 }
                 break;
             case MainWindow.USER_OUTCOLORING_ALGORITHM:
-                if (user_out_coloring_algorithm == 0) {
+                if(user_out_coloring_algorithm == 0) {
                     out_color_algorithm = new UserOutColorAlgorithm(outcoloring_formula, bailout, max_iterations, xCenter, yCenter, size, plane_transform_center, globalVars);
-                } else {
+                }
+                else {
                     out_color_algorithm = new UserConditionalOutColorAlgorithm(user_outcoloring_conditions, user_outcoloring_condition_formula, bailout, max_iterations, xCenter, yCenter, size, plane_transform_center, globalVars);
                 }
                 break;
@@ -1049,39 +995,116 @@ public abstract class Fractal {
                 in_color_algorithm = new ZMag(max_iterations);
                 break;
             case MainWindow.DECOMPOSITION_LIKE:
-                in_color_algorithm = new DecompositionLike();
+                in_color_algorithm = new DecompositionLike(max_iterations);
                 break;
             case MainWindow.RE_DIVIDE_IM:
-                in_color_algorithm = new ReDivideIm();
+                in_color_algorithm = new ReDivideIm(max_iterations);
                 break;
             case MainWindow.COS_MAG:
-                in_color_algorithm = new CosMag();
+                in_color_algorithm = new CosMag(max_iterations);
                 break;
             case MainWindow.MAG_TIMES_COS_RE_SQUARED:
-                in_color_algorithm = new MagTimesCosReSquared();
+                in_color_algorithm = new MagTimesCosReSquared(max_iterations);
                 break;
             case MainWindow.SIN_RE_SQUARED_MINUS_IM_SQUARED:
-                in_color_algorithm = new SinReSquaredMinusImSquared();
+                in_color_algorithm = new SinReSquaredMinusImSquared(max_iterations);
                 break;
             case MainWindow.ATAN_RE_TIMES_IM_TIMES_ABS_RE_TIMES_ABS_IM:
-                in_color_algorithm = new AtanReTimesImTimesAbsReTimesAbsIm();
+                in_color_algorithm = new AtanReTimesImTimesAbsReTimesAbsIm(max_iterations);
                 break;
             case MainWindow.SQUARES:
-                in_color_algorithm = new Squares();
+                in_color_algorithm = new Squares(max_iterations);
                 break;
             case MainWindow.SQUARES2:
-                in_color_algorithm = new Squares2();
+                in_color_algorithm = new Squares2(max_iterations);
                 break;
             case MainWindow.USER_INCOLORING_ALGORITHM:
-                if (user_in_coloring_algorithm == 0) {
+                if(user_in_coloring_algorithm == 0) {
                     in_color_algorithm = new UserInColorAlgorithm(incoloring_formula, max_iterations, xCenter, yCenter, size, plane_transform_center, bailout, globalVars);
-                } else {
+                }
+                else {
                     in_color_algorithm = new UserConditionalInColorAlgorithm(user_incoloring_conditions, user_incoloring_condition_formula, max_iterations, xCenter, yCenter, size, plane_transform_center, bailout, globalVars);
                 }
                 break;
 
         }
 
+    }
+
+    protected void StatisticFactory(StatisticsSettings sts, double[] plane_transform_center) {
+
+        if(sts.statisticGroup == 1) {
+            statistic = new UserStatisticColoring(sts.statistic_intensity, sts.user_statistic_formula, xCenter, yCenter, max_iterations, size, bailout, plane_transform_center, globalVars, sts.useAverage);
+            return;
+        }
+
+        switch (sts.statistic_type) {
+            case MainWindow.STRIPE_AVERAGE:
+                statistic = new StripeAverage(sts.statistic_intensity, sts.stripeAvgStripeDensity, log_bailout_squared);
+                break;
+            case MainWindow.CURVATURE_AVERAGE:
+                statistic = new CurvatureAverage(sts.statistic_intensity, log_bailout_squared);
+                break;
+            case MainWindow.COS_ARG_DIVIDE_NORM_AVERAGE:
+                statistic = new CosArgDivideNormAverage(sts.statistic_intensity, sts.cosArgStripeDensity, log_bailout_squared);
+                break;
+
+        }
+    }
+
+    protected double getStatistic(double result) {
+
+        if(Math.abs(result) == ColorAlgorithm.MAXIMUM_ITERATIONS) {
+            return result;
+        }
+
+        return result < 0 ? result - statistic.getValue() : result + statistic.getValue();
+        
+    }
+
+    protected double getTrap(double result) {
+
+        if(Math.abs(result) == ColorAlgorithm.MAXIMUM_ITERATIONS) {
+            return result;
+        }
+
+        double distance = trap.getDistance();
+        
+        if(distance == Double.MAX_VALUE) {
+            return result;
+        }
+        
+        double maxVal = trap.getMaxValue();
+        distance = (distance - maxVal) * -1;
+        distance =  distance * (1 / maxVal);
+        distance = (-Math.cos(Math.PI * distance) * 0.5 + 0.5) * trapIntesity; 
+
+        return result < 0 ? result - distance: result + distance;
+        
+    }
+    
+    protected double getFinalValueOut(double result) {
+        
+        if(trap != null) {
+            result = getTrap(result);
+        }
+        
+        if(statistic != null) {
+            result = getStatistic(result);
+        }
+        
+        return result;
+        
+    }
+    
+    protected double getFinalValueIn(double result) {
+        
+        if(trap != null) {
+            result = getTrap(result);
+        }
+        
+        return result;
+        
     }
 
     private void TrapFactory(OrbitTrapSettings ots) {
@@ -1156,5 +1179,25 @@ public abstract class Fractal {
         return trap;
 
     }
-    
+
+    public boolean escaped() {
+
+        return escaped;
+
+    }
+
+    public double getFractal3DHeight(double value) {
+
+        return ColorAlgorithm.transformResultToHeight(value, max_iterations);
+
+    }
+
+    public abstract double getJulia3DHeight(double value);
+
+    public int type() {
+
+        return MainWindow.ESCAPING;
+
+    }
+
 }

@@ -926,12 +926,7 @@ public class FunctionExpressionNode implements ExpressionNode {
     @Override
     public Complex getValue() {
  
-        try {
-            return function.evaluate(argument.getValue());
-        }
-        catch(Exception ex) {
-            throw new EvaluationException("Invalid function id " + functionId + "!");
-        }
+        return function.evaluate(argument.getValue());
         
     }
 

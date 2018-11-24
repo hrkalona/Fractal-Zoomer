@@ -41,16 +41,18 @@ import javax.swing.border.EtchedBorder;
 public class Infobar extends JToolBar {
 	private static final long serialVersionUID = -7006231616288046167L;
 	private MainWindow ptr;
-    private JLabel palette_toolbar_preview;
+    private JLabel outcoloring_palette_toolbar_preview;
+    private JLabel incoloring_palette_toolbar_preview;
     private JLabel max_it_color_preview;
     private JLabel palette_toolbar_preview_lbl;
+    private JLabel palette_toolbar_preview_lbl2;
     private JLabel max_it_color_preview_lbl;
     private JLabel gradient_toolbar_preview;
     private JLabel gradient_toolbar_preview_lbl;
     private JButton overview_button;
-    public static int PALETTE_PREVIEW_WIDTH = 250;
+    public static int PALETTE_PREVIEW_WIDTH = 175;
     public static int PALETTE_PREVIEW_HEIGHT = 24;
-    public static int GRADIENT_PREVIEW_WIDTH = 150;
+    public static int GRADIENT_PREVIEW_WIDTH = 80;
     public static int GRADIENT_PREVIEW_HEIGHT = 24;
     public static int SQUARE_TILE_SIZE = 24;
     
@@ -66,7 +68,9 @@ public class Infobar extends JToolBar {
         setBorderPainted(true);
         setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
       
-        BufferedImage palette_preview = CommonFunctions.getPalettePreview(s, s.color_cycling_location, PALETTE_PREVIEW_WIDTH, PALETTE_PREVIEW_HEIGHT);             
+        BufferedImage palette_preview = CommonFunctions.getOutColoringPalettePreview(s, s.ps.color_cycling_location, PALETTE_PREVIEW_WIDTH, PALETTE_PREVIEW_HEIGHT);
+        
+        BufferedImage palette_in_preview = CommonFunctions.getInColoringPalettePreview(s, s.ps2.color_cycling_location, PALETTE_PREVIEW_WIDTH, PALETTE_PREVIEW_HEIGHT); 
         
         BufferedImage gradient_preview = CommonFunctions.getGradientPreview(s.gs, GRADIENT_PREVIEW_WIDTH, GRADIENT_PREVIEW_HEIGHT);
  
@@ -76,12 +80,19 @@ public class Infobar extends JToolBar {
         g.setColor(s.fractal_color);
         g.fillRect(0, 0, max_it_preview.getWidth(), max_it_preview.getHeight());
 
-        palette_toolbar_preview = new JLabel();
-        palette_toolbar_preview.setToolTipText("Displays the active palette.");
-        palette_toolbar_preview.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
-        palette_toolbar_preview.setIcon(new ImageIcon(palette_preview));
-        palette_toolbar_preview.setMaximumSize(new Dimension(palette_preview.getWidth(), palette_preview.getHeight()));
-        palette_toolbar_preview.setMinimumSize(new Dimension(palette_preview.getWidth(), palette_preview.getHeight()));
+        outcoloring_palette_toolbar_preview = new JLabel();
+        outcoloring_palette_toolbar_preview.setToolTipText("Displays the active out-coloring palette.");
+        outcoloring_palette_toolbar_preview.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
+        outcoloring_palette_toolbar_preview.setIcon(new ImageIcon(palette_preview));
+        outcoloring_palette_toolbar_preview.setMaximumSize(new Dimension(palette_preview.getWidth(), palette_preview.getHeight()));
+        outcoloring_palette_toolbar_preview.setMinimumSize(new Dimension(palette_preview.getWidth(), palette_preview.getHeight()));
+        
+        incoloring_palette_toolbar_preview = new JLabel();
+        incoloring_palette_toolbar_preview.setToolTipText("Displays the active in-coloring palette.");
+        incoloring_palette_toolbar_preview.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
+        incoloring_palette_toolbar_preview.setIcon(new ImageIcon(palette_in_preview));
+        incoloring_palette_toolbar_preview.setMaximumSize(new Dimension(palette_in_preview.getWidth(), palette_in_preview.getHeight()));
+        incoloring_palette_toolbar_preview.setMinimumSize(new Dimension(palette_in_preview.getWidth(), palette_in_preview.getHeight()));
         
         gradient_toolbar_preview = new JLabel();
         gradient_toolbar_preview.setToolTipText("Displays the active gradient.");
@@ -97,10 +108,14 @@ public class Infobar extends JToolBar {
         max_it_color_preview.setMaximumSize(new Dimension(max_it_preview.getWidth(), max_it_preview.getHeight()));
         max_it_color_preview.setMinimumSize(new Dimension(max_it_preview.getWidth(), max_it_preview.getHeight()));
 
-        palette_toolbar_preview_lbl = new JLabel(" Palette: ");
+        palette_toolbar_preview_lbl = new JLabel(" Palette(Out): ");
         
         add(palette_toolbar_preview_lbl);
-        add(palette_toolbar_preview);
+        add(outcoloring_palette_toolbar_preview);
+        
+        palette_toolbar_preview_lbl2 = new JLabel("  Palette(In): ");
+        add(palette_toolbar_preview_lbl2);
+        add(incoloring_palette_toolbar_preview);
         
         gradient_toolbar_preview_lbl = new JLabel("  Gradient: ");
         add(gradient_toolbar_preview_lbl);
@@ -129,6 +144,8 @@ public class Infobar extends JToolBar {
         addSeparator();
         add(overview_button);
         
+        palette_toolbar_preview_lbl2.setVisible(false);
+        incoloring_palette_toolbar_preview.setVisible(false);
     }
     
     private ImageIcon getIcon(String path) {
@@ -143,9 +160,15 @@ public class Infobar extends JToolBar {
         
     }
     
-    public JLabel getPalettePreview() {
+    public JLabel getOutColoringPalettePreview() {
         
-        return palette_toolbar_preview;
+        return outcoloring_palette_toolbar_preview;
+        
+    }
+    
+    public JLabel getInColoringPalettePreview() {
+        
+        return incoloring_palette_toolbar_preview;
         
     }
     
@@ -155,9 +178,15 @@ public class Infobar extends JToolBar {
         
     }
     
-    public JLabel getPalettePreviewLabel() {
+    public JLabel getOutColoringPalettePreviewLabel() {
         
         return palette_toolbar_preview_lbl;
+        
+    }
+    
+    public JLabel getInColoringPalettePreviewLabel() {
+        
+        return palette_toolbar_preview_lbl2;
         
     }
     

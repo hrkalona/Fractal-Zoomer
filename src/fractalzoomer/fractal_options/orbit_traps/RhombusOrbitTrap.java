@@ -39,8 +39,14 @@ public class RhombusOrbitTrap extends OrbitTrap {
 
         if(dist < trapWidth && dist < distance) {
             distance = dist;
+            trapId = 0;
         }
 
+    }
+    
+    @Override
+    public double getMaxValue() {
+        return trapWidth;
     }
     
 }

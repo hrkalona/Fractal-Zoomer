@@ -100,7 +100,7 @@ public class GreedyAlgorithmsFrame extends JFrame {
         greedy_algorithm_opt.setSelected(greedy_algorithm);
         
         ComponentTitledBorder options_border = new ComponentTitledBorder(greedy_algorithm_opt, options_panel, BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), this_frame);
-        options_border.setCheckBoxListener();
+        options_border.setChangeListener();
         
         options_panel.setBorder(options_border);
 

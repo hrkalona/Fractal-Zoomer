@@ -39,8 +39,14 @@ public class PointSquareOrbitTrap extends OrbitTrap {
 
         if(dist < trapLength && dist < distance) {
             distance = dist;
+            trapId = 0;
         }
 
+    }
+    
+    @Override
+    public double getMaxValue() {
+        return trapLength;
     }
     
 }

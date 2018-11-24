@@ -29,9 +29,12 @@ import fractalzoomer.main.app_settings.FakeDistanceEstimationSettings;
 import fractalzoomer.main.app_settings.FiltersSettings;
 import fractalzoomer.main.app_settings.FunctionSettings;
 import fractalzoomer.main.app_settings.GreyscaleColoringSettings;
+import fractalzoomer.main.app_settings.LightSettings;
 import fractalzoomer.main.app_settings.OffsetColoringSettings;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
+import fractalzoomer.main.app_settings.PaletteGradientMergingSettings;
 import fractalzoomer.main.app_settings.RainbowPaletteSettings;
+import fractalzoomer.main.app_settings.StatisticsSettings;
 import fractalzoomer.utils.ExpandingQueue;
 import fractalzoomer.utils.Square;
 import java.awt.Color;
@@ -48,40 +51,40 @@ public class DivideAndConquerDraw extends ThreadDraw {
     private static final int MAX_TILE_SIZE = 6;
     private static final int INIT_QUEUE_SIZE = 6000;
 
-    public DivideAndConquerDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, FunctionSettings fns, D3Settings d3s, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, boolean exterior_de, double exterior_de_factor, double height_ratio, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, DomainColoringSettings ds, boolean inverse_dem, boolean quickDraw, double color_intensity, int transfer_function, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, int color_blending, OrbitTrapSettings ots, ContourColoringSettings cns, int[] post_processing_order) {
-        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns, d3s, ptr, fractal_color, dem_color, image, fs, periodicity_checking, color_cycling_location, exterior_de, exterior_de_factor, height_ratio, bms, polar_projection, circle_period, fdes, rps, ds, inverse_dem, quickDraw, color_intensity, transfer_function, ens, ofs, gss, color_blending, ots, cns, post_processing_order);
+    public DivideAndConquerDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, FunctionSettings fns, D3Settings d3s, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, DomainColoringSettings ds, boolean inverse_dem, boolean quickDraw, double color_intensity, int transfer_function, double color_intensity2, int transfer_function2, boolean usePaletteForInColoring, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, int color_blending, OrbitTrapSettings ots, ContourColoringSettings cns, int[] post_processing_order, LightSettings ls, PaletteGradientMergingSettings pbs, StatisticsSettings sts) {
+        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns, d3s, ptr, fractal_color, dem_color, image, fs, periodicity_checking, color_cycling_location, color_cycling_location2, exterior_de, exterior_de_factor, height_ratio, bms, polar_projection, circle_period, fdes, rps, ds, inverse_dem, quickDraw, color_intensity, transfer_function, color_intensity2, transfer_function2, usePaletteForInColoring, ens, ofs, gss, color_blending, ots, cns, post_processing_order, ls, pbs, sts);
+    }
+    
+    public DivideAndConquerDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, FunctionSettings fns, ImageExpanderWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, DomainColoringSettings ds, boolean inverse_dem, double color_intensity, int transfer_function, double color_intensity2, int transfer_function2, boolean usePaletteForInColoring, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, int color_blending, OrbitTrapSettings ots, ContourColoringSettings cns, int[] post_processing_order, LightSettings ls, PaletteGradientMergingSettings pbs, StatisticsSettings sts) {
+        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns, ptr, fractal_color, dem_color, image, fs, periodicity_checking, color_cycling_location, color_cycling_location2, exterior_de, exterior_de_factor, height_ratio, bms, polar_projection, circle_period, fdes, rps, ds, inverse_dem, color_intensity, transfer_function, color_intensity2, transfer_function2, usePaletteForInColoring, ens, ofs, gss, color_blending, ots, cns, post_processing_order, ls, pbs, sts);
+    }
+    
+    public DivideAndConquerDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, FunctionSettings fns, D3Settings d3s, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, DomainColoringSettings ds, boolean inverse_dem, boolean quickDraw, double color_intensity, int transfer_function, double color_intensity2, int transfer_function2, boolean usePaletteForInColoring, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, int color_blending, OrbitTrapSettings ots, ContourColoringSettings cns, int[] post_processing_order, LightSettings ls, PaletteGradientMergingSettings pbs, StatisticsSettings sts, double xJuliaCenter, double yJuliaCenter) {
+        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns, d3s, ptr, fractal_color, dem_color, image, fs, periodicity_checking, color_cycling_location, color_cycling_location2, exterior_de, exterior_de_factor, height_ratio, bms, polar_projection, circle_period, fdes, rps, ds, inverse_dem, quickDraw, color_intensity, transfer_function, color_intensity2, transfer_function2, usePaletteForInColoring, ens, ofs, gss, color_blending, ots, cns, post_processing_order, ls, pbs, sts, xJuliaCenter, yJuliaCenter);
+    }
+    
+    public DivideAndConquerDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, FunctionSettings fns, ImageExpanderWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, DomainColoringSettings ds, boolean inverse_dem, double color_intensity, int transfer_function, double color_intensity2, int transfer_function2, boolean usePaletteForInColoring, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, int color_blending, OrbitTrapSettings ots, ContourColoringSettings cns, int[] post_processing_order, LightSettings ls, PaletteGradientMergingSettings pbs, StatisticsSettings sts, double xJuliaCenter, double yJuliaCenter) {
+        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns, ptr, fractal_color, dem_color, image, fs, periodicity_checking, color_cycling_location, color_cycling_location2, exterior_de, exterior_de_factor, height_ratio, bms, polar_projection, circle_period, fdes, rps, ds, inverse_dem, color_intensity, transfer_function, color_intensity2, transfer_function2, usePaletteForInColoring, ens, ofs, gss, color_blending, ots, cns, post_processing_order, ls, pbs, sts, xJuliaCenter, yJuliaCenter);
+    }
+    
+    public DivideAndConquerDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, FunctionSettings fns, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, boolean inverse_dem, double color_intensity, int transfer_function, double color_intensity2, int transfer_function2, boolean usePaletteForInColoring, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, int color_blending, OrbitTrapSettings ots, ContourColoringSettings cns, int[] post_processing_order, LightSettings ls, PaletteGradientMergingSettings pbs, StatisticsSettings sts) {
+        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns, ptr, fractal_color, dem_color, image, fs, periodicity_checking, color_cycling_location, color_cycling_location2, exterior_de, exterior_de_factor, height_ratio, bms, polar_projection, circle_period, fdes, rps, inverse_dem, color_intensity, transfer_function, color_intensity2, transfer_function2, usePaletteForInColoring, ens, ofs, gss, color_blending, ots, cns, post_processing_order, ls, pbs, sts);
+    }
+    
+    public DivideAndConquerDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, FunctionSettings fns, MainWindow ptr, Color fractal_color, Color dem_color, boolean fast_julia_filters, BufferedImage image, boolean periodicity_checking, FiltersSettings fs, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, boolean inverse_dem, double color_intensity, int transfer_function, double color_intensity2, int transfer_function2, boolean usePaletteForInColoring, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, int color_blending, OrbitTrapSettings ots, ContourColoringSettings cns, int[] post_processing_order, LightSettings ls, PaletteGradientMergingSettings pbs, StatisticsSettings sts, double xJuliaCenter, double yJuliaCenter) {
+        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns, ptr, fractal_color, dem_color, fast_julia_filters, image, periodicity_checking, fs, color_cycling_location, color_cycling_location2, exterior_de, exterior_de_factor, height_ratio, bms, polar_projection, circle_period, fdes, rps, inverse_dem, color_intensity, transfer_function, color_intensity2, transfer_function2, usePaletteForInColoring, ens, ofs, gss, color_blending, ots, cns, post_processing_order, ls, pbs, sts, xJuliaCenter, yJuliaCenter);
     }
 
-    public DivideAndConquerDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, FunctionSettings fns, ImageExpanderWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, boolean exterior_de, double exterior_de_factor, double height_ratio, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, DomainColoringSettings ds, boolean inverse_dem, double color_intensity, int transfer_function, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, int color_blending, OrbitTrapSettings ots, ContourColoringSettings cns, int[] post_processing_order) {
-        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns, ptr, fractal_color, dem_color, image, fs, periodicity_checking, color_cycling_location, exterior_de, exterior_de_factor, height_ratio, bms, polar_projection, circle_period, fdes, rps, ds, inverse_dem, color_intensity, transfer_function, ens, ofs, gss, color_blending, ots, cns, post_processing_order);
+    public DivideAndConquerDraw(int FROMx, int TOx, int FROMy, int TOy, int max_iterations, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, int color_cycling_location, int color_cycling_location2, BumpMapSettings bms, double color_intensity, int transfer_function, double color_intensity2, int transfer_function2, boolean usePaletteForInColoring, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, int color_cycling_speed, FiltersSettings fs, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, int color_blending, ContourColoringSettings cns, int[] post_processing_order, LightSettings ls, PaletteGradientMergingSettings pbs, OrbitTrapSettings ots, boolean cycle_colors, boolean cycle_lights) {
+        super(FROMx, TOx, FROMy, TOy, max_iterations, ptr, fractal_color, dem_color, image, color_cycling_location, color_cycling_location2, bms, fdes, rps, color_cycling_speed, fs, color_intensity, transfer_function, color_intensity2, transfer_function2, usePaletteForInColoring, ens, ofs, gss, color_blending, cns, post_processing_order, ls, pbs, ots, cycle_colors, cycle_lights);
     }
 
-    public DivideAndConquerDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, FunctionSettings fns, D3Settings d3s, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, boolean exterior_de, double exterior_de_factor, double height_ratio, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, DomainColoringSettings ds, boolean inverse_dem, boolean quickDraw, double color_intensity, int transfer_function, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, int color_blending, OrbitTrapSettings ots, ContourColoringSettings cns, int[] post_processing_order, double xJuliaCenter, double yJuliaCenter) {
-        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns, d3s, ptr, fractal_color, dem_color, image, fs, periodicity_checking, color_cycling_location, exterior_de, exterior_de_factor, height_ratio, bms, polar_projection, circle_period, fdes, rps, ds, inverse_dem, quickDraw, color_intensity, transfer_function, ens, ofs, gss, color_blending, ots, cns, post_processing_order, xJuliaCenter, yJuliaCenter);
+    public DivideAndConquerDraw(int FROMx, int TOx, int FROMy, int TOy, int max_iterations, MainWindow ptr, BufferedImage image, Color fractal_color, Color dem_color, int color_cycling_location, int color_cycling_location2, FiltersSettings fs, BumpMapSettings bms, double color_intensity, int transfer_function, double color_intensity2, int transfer_function2, boolean usePaletteForInColoring, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, int color_blending, ContourColoringSettings cns, int[] post_processing_order, LightSettings ls, PaletteGradientMergingSettings pbs, OrbitTrapSettings ots) {
+        super(FROMx, TOx, FROMy, TOy, max_iterations, ptr, image, fractal_color, dem_color, color_cycling_location, color_cycling_location2, fs, bms, fdes, rps, color_intensity, transfer_function, color_intensity2, transfer_function2, usePaletteForInColoring, ens, ofs, gss, color_blending, cns, post_processing_order, ls, pbs, ots);
     }
 
-    public DivideAndConquerDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, FunctionSettings fns, ImageExpanderWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, boolean exterior_de, double exterior_de_factor, double height_ratio, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, DomainColoringSettings ds, boolean inverse_dem, double color_intensity, int transfer_function, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, int color_blending, OrbitTrapSettings ots, ContourColoringSettings cns, int[] post_processing_order, double xJuliaCenter, double yJuliaCenter) {
-        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns, ptr, fractal_color, dem_color, image, fs, periodicity_checking, color_cycling_location, exterior_de, exterior_de_factor, height_ratio, bms, polar_projection, circle_period, fdes, rps, ds, inverse_dem, color_intensity, transfer_function, ens, ofs, gss, color_blending, ots, cns, post_processing_order, xJuliaCenter, yJuliaCenter);
-    }
-
-    public DivideAndConquerDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, FunctionSettings fns, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, boolean exterior_de, double exterior_de_factor, double height_ratio, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, boolean inverse_dem, double color_intensity, int transfer_function, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, int color_blending, OrbitTrapSettings ots, ContourColoringSettings cns, int[] post_processing_order) {
-        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns, ptr, fractal_color, dem_color, image, fs, periodicity_checking, color_cycling_location, exterior_de, exterior_de_factor, height_ratio, bms, polar_projection, circle_period, fdes, rps, inverse_dem, color_intensity, transfer_function, ens, ofs, gss, color_blending, ots, cns, post_processing_order);
-    }
-
-    public DivideAndConquerDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, FunctionSettings fns, MainWindow ptr, Color fractal_color, Color dem_color, boolean fast_julia_filters, BufferedImage image, boolean periodicity_checking, FiltersSettings fs, int color_cycling_location, boolean exterior_de, double exterior_de_factor, double height_ratio, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, boolean inverse_dem, double color_intensity, int transfer_function, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, int color_blending, OrbitTrapSettings ots, ContourColoringSettings cns, int[] post_processing_order, double xJuliaCenter, double yJuliaCenter) {
-        super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns, ptr, fractal_color, dem_color, fast_julia_filters, image, periodicity_checking, fs, color_cycling_location, exterior_de, exterior_de_factor, height_ratio, bms, polar_projection, circle_period, fdes, rps, inverse_dem, color_intensity, transfer_function, ens, ofs, gss, color_blending, ots, cns, post_processing_order, xJuliaCenter, yJuliaCenter);
-    }
-
-    public DivideAndConquerDraw(int FROMx, int TOx, int FROMy, int TOy, int max_iterations, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, int color_cycling_location, BumpMapSettings bms, double color_intensity, int transfer_function, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, int color_cycling_speed, FiltersSettings fs, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, int color_blending, ContourColoringSettings cns, int[] post_processing_order) {
-        super(FROMx, TOx, FROMy, TOy, max_iterations, ptr, fractal_color, dem_color, image, color_cycling_location, bms, fdes, rps, color_cycling_speed, fs, color_intensity, transfer_function, ens, ofs, gss, color_blending, cns, post_processing_order);
-    }
-
-    public DivideAndConquerDraw(int FROMx, int TOx, int FROMy, int TOy, int max_iterations, MainWindow ptr, BufferedImage image, Color fractal_color, Color dem_color, int color_cycling_location, FiltersSettings fs, BumpMapSettings bms, double color_intensity, int transfer_function, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, int color_blending, ContourColoringSettings cns, int[] post_processing_order) {
-        super(FROMx, TOx, FROMy, TOy, max_iterations, ptr, image, fractal_color, dem_color, color_cycling_location, fs, bms, fdes, rps, color_intensity, transfer_function, ens, ofs, gss, color_blending, cns, post_processing_order);
-    }
-
-    public DivideAndConquerDraw(int FROMx, int TOx, int FROMy, int TOy, D3Settings d3s, boolean draw_action, MainWindow ptr, BufferedImage image, FiltersSettings fs, int color_blending) {
-        super(FROMx, TOx, FROMy, TOy, d3s, draw_action, ptr, image, fs, color_blending);
+    public DivideAndConquerDraw(int FROMx, int TOx, int FROMy, int TOy, D3Settings d3s, boolean draw_action, MainWindow ptr, BufferedImage image, FiltersSettings fs,  int color_blending) {
+        super(FROMx, TOx, FROMy, TOy, d3s, draw_action, ptr, image, fs,  color_blending);
     }
 
     @Override
@@ -108,7 +111,8 @@ public class DivideAndConquerDraw extends ThreadDraw {
             loc = y * image_size + x;
             if (rgbs[loc] == notCalculated) {
                 image_iterations[loc] = iteration_algorithm.calculate(new Complex(temp_xcenter_size + temp_size_image_size_x * x, temp_ycenter_size - temp_size_image_size_y * y));
-                rgbs[loc] = getFinalColor(image_iterations[loc]);
+                escaped[loc] = iteration_algorithm.escaped();
+                rgbs[loc] = getFinalColor(image_iterations[loc], escaped[loc]);
                 drawing_done++;
                 thread_calculated++;
             }
@@ -120,7 +124,8 @@ public class DivideAndConquerDraw extends ThreadDraw {
                 loc = y * image_size + x;
                 if (rgbs[loc] == notCalculated) {
                     image_iterations[loc] = iteration_algorithm.calculate(new Complex(temp_xcenter_size + temp_size_image_size_x * x, temp_ycenter_size - temp_size_image_size_y * y));
-                    rgbs[loc] = getFinalColor(image_iterations[loc]);
+                    escaped[loc] = iteration_algorithm.escaped();
+                    rgbs[loc] = getFinalColor(image_iterations[loc], escaped[loc]);
                     drawing_done++;
                     thread_calculated++;
                 }
@@ -131,7 +136,8 @@ public class DivideAndConquerDraw extends ThreadDraw {
         for (x = FROMx + 1, loc = y * image_size + x; x < TOx; x++, loc++) {
             if (rgbs[loc] == notCalculated) {
                 image_iterations[loc] = iteration_algorithm.calculate(new Complex(temp_xcenter_size + temp_size_image_size_x * x, temp_ycenter_size - temp_size_image_size_y * y));
-                rgbs[loc] = getFinalColor(image_iterations[loc]);
+                escaped[loc] = iteration_algorithm.escaped();
+                rgbs[loc] = getFinalColor(image_iterations[loc], escaped[loc]);
                 drawing_done++;
                 thread_calculated++;
             }
@@ -149,7 +155,8 @@ public class DivideAndConquerDraw extends ThreadDraw {
             for (x = FROMx + 1, loc = y * image_size + x; x < xLimit; x++, loc++) {
                 if (rgbs[loc] == notCalculated) {
                     image_iterations[loc] = iteration_algorithm.calculate(new Complex(temp_xcenter_size + temp_size_image_size_x * x, temp_ycenter_size - temp_size_image_size_y * y));
-                    rgbs[loc] = getFinalColor(image_iterations[loc]);
+                    escaped[loc] = iteration_algorithm.escaped();
+                    rgbs[loc] = getFinalColor(image_iterations[loc], escaped[loc]);
                     drawing_done++;
                     thread_calculated++;
                 }
@@ -188,6 +195,7 @@ public class DivideAndConquerDraw extends ThreadDraw {
         boolean whole_area;
         int temp_starting_pixel_color;
         double temp_starting_value;
+        boolean temp_starting_escaped;
 
         int skippedColor;
 
@@ -223,6 +231,7 @@ public class DivideAndConquerDraw extends ThreadDraw {
 
             temp_starting_value = image_iterations[loc];
             temp_starting_pixel_color = rgbs[loc];
+            temp_starting_escaped = escaped[loc];
 
             int loc2;
             for (loc = slice_FROMy * image_size + x, loc2 = slice_TOy * image_size + x; x <= slice_TOx; x++, loc++, loc2++) {
@@ -255,7 +264,8 @@ public class DivideAndConquerDraw extends ThreadDraw {
 
                         if (rgbs[loc] == notCalculated) {
                             image_iterations[loc] = iteration_algorithm.calculate(new Complex(temp_xcenter_size + temp_size_image_size_x * x, temp_ycenter_size - temp_size_image_size_y * y));
-                            rgbs[loc] = getFinalColor(image_iterations[loc]);
+                            escaped[loc] = iteration_algorithm.escaped();
+                            rgbs[loc] = getFinalColor(image_iterations[loc], escaped[loc]);
                             drawing_done++;
                             thread_calculated++;
                         }
@@ -267,7 +277,8 @@ public class DivideAndConquerDraw extends ThreadDraw {
 
                         if (rgbs[loc] == notCalculated) {
                             image_iterations[loc] = iteration_algorithm.calculate(new Complex(temp_xcenter_size + temp_size_image_size_x * x, temp_ycenter_size - temp_size_image_size_y * y));
-                            rgbs[loc] = getFinalColor(image_iterations[loc]);
+                            escaped[loc] = iteration_algorithm.escaped();
+                            rgbs[loc] = getFinalColor(image_iterations[loc], escaped[loc]);
                             drawing_done++;
                             thread_calculated++;
                         }
@@ -315,7 +326,8 @@ public class DivideAndConquerDraw extends ThreadDraw {
 
                             if (rgbs[loc] == notCalculated) {
                                 image_iterations[loc] = iteration_algorithm.calculate(new Complex(temp_xcenter_size + temp_size_image_size_x * x, temp_ycenter_size - temp_size_image_size_y * y));
-                                rgbs[loc] = getFinalColor(image_iterations[loc]);
+                                escaped[loc] = iteration_algorithm.escaped();
+                                rgbs[loc] = getFinalColor(image_iterations[loc], escaped[loc]);
                                 drawing_done++;
                                 thread_calculated++;
                             }
@@ -333,6 +345,7 @@ public class DivideAndConquerDraw extends ThreadDraw {
                 for (int k = y; k < slice_TOy; k++) {
                     Arrays.fill(rgbs, k * image_size + x, k * image_size + slice_TOx, skippedColor);
                     Arrays.fill(image_iterations, k * image_size + x, k * image_size + slice_TOx, temp_starting_value);
+                    Arrays.fill(escaped, k * image_size + x, k * image_size + slice_TOx, temp_starting_escaped);               
                     drawing_done += chunk;
                 }
 
@@ -386,7 +399,8 @@ public class DivideAndConquerDraw extends ThreadDraw {
                 r = Math.exp(x * mulx + start);
 
                 image_iterations[loc] = iteration_algorithm.calculate(new Complex(xcenter + r * cf, ycenter + r * sf));
-                rgbs[loc] = getFinalColor(image_iterations[loc]);
+                escaped[loc] = iteration_algorithm.escaped();
+                rgbs[loc] = getFinalColor(image_iterations[loc], escaped[loc]);
                 drawing_done++;
                 thread_calculated++;
             }
@@ -404,7 +418,8 @@ public class DivideAndConquerDraw extends ThreadDraw {
                     r = Math.exp(x * mulx + start);
 
                     image_iterations[loc] = iteration_algorithm.calculate(new Complex(xcenter + r * cf, ycenter + r * sf));
-                    rgbs[loc] = getFinalColor(image_iterations[loc]);
+                    escaped[loc] = iteration_algorithm.escaped();
+                    rgbs[loc] = getFinalColor(image_iterations[loc], escaped[loc]);
                     drawing_done++;
                     thread_calculated++;
                 }
@@ -421,7 +436,8 @@ public class DivideAndConquerDraw extends ThreadDraw {
                 r = Math.exp(x * mulx + start);
 
                 image_iterations[loc] = iteration_algorithm.calculate(new Complex(xcenter + r * cf, ycenter + r * sf));
-                rgbs[loc] = getFinalColor(image_iterations[loc]);
+                escaped[loc] = iteration_algorithm.escaped();
+                rgbs[loc] = getFinalColor(image_iterations[loc], escaped[loc]);
                 drawing_done++;
                 thread_calculated++;
             }
@@ -445,7 +461,8 @@ public class DivideAndConquerDraw extends ThreadDraw {
                     r = Math.exp(x * mulx + start);
 
                     image_iterations[loc] = iteration_algorithm.calculate(new Complex(xcenter + r * cf, ycenter + r * sf));
-                    rgbs[loc] = getFinalColor(image_iterations[loc]);
+                    escaped[loc] = iteration_algorithm.escaped();
+                    rgbs[loc] = getFinalColor(image_iterations[loc], escaped[loc]);
                     drawing_done++;
                     thread_calculated++;
                 }
@@ -484,6 +501,7 @@ public class DivideAndConquerDraw extends ThreadDraw {
         boolean whole_area;
         int temp_starting_pixel_color;
         double temp_starting_value;
+        boolean temp_starting_escaped;
 
         int skippedColor;
 
@@ -519,6 +537,7 @@ public class DivideAndConquerDraw extends ThreadDraw {
 
             temp_starting_value = image_iterations[loc];
             temp_starting_pixel_color = rgbs[loc];
+            temp_starting_escaped = escaped[loc];
 
             int loc2;
             for (loc = slice_FROMy * image_size + x, loc2 = slice_TOy * image_size + x; x <= slice_TOx; x++, loc++, loc2++) {
@@ -557,7 +576,8 @@ public class DivideAndConquerDraw extends ThreadDraw {
                             r = Math.exp(x * mulx + start);
 
                             image_iterations[loc] = iteration_algorithm.calculate(new Complex(xcenter + r * cf, ycenter + r * sf));
-                            rgbs[loc] = getFinalColor(image_iterations[loc]);
+                            escaped[loc] = iteration_algorithm.escaped();
+                            rgbs[loc] = getFinalColor(image_iterations[loc], escaped[loc]);
                             drawing_done++;
                             thread_calculated++;
                         }
@@ -575,7 +595,8 @@ public class DivideAndConquerDraw extends ThreadDraw {
                             r = Math.exp(x * mulx + start);
 
                             image_iterations[loc] = iteration_algorithm.calculate(new Complex(xcenter + r * cf, ycenter + r * sf));
-                            rgbs[loc] = getFinalColor(image_iterations[loc]);
+                            escaped[loc] = iteration_algorithm.escaped();
+                            rgbs[loc] = getFinalColor(image_iterations[loc], escaped[loc]);
                             drawing_done++;
                             thread_calculated++;
                         }
@@ -629,7 +650,8 @@ public class DivideAndConquerDraw extends ThreadDraw {
                                 r = Math.exp(x * mulx + start);
 
                                 image_iterations[loc] = iteration_algorithm.calculate(new Complex(xcenter + r * cf, ycenter + r * sf));
-                                rgbs[loc] = getFinalColor(image_iterations[loc]);
+                                escaped[loc] = iteration_algorithm.escaped();
+                                rgbs[loc] = getFinalColor(image_iterations[loc], escaped[loc]);
                                 drawing_done++;
                                 thread_calculated++;
                             }
@@ -647,6 +669,7 @@ public class DivideAndConquerDraw extends ThreadDraw {
                 for (int k = y; k < slice_TOy; k++) {
                     Arrays.fill(rgbs, k * image_size + x, k * image_size + slice_TOx, skippedColor);
                     Arrays.fill(image_iterations, k * image_size + x, k * image_size + slice_TOx, temp_starting_value);
+                    Arrays.fill(escaped, k * image_size + x, k * image_size + slice_TOx, temp_starting_escaped);
                     drawing_done += chunk;
                 }
 
@@ -714,7 +737,8 @@ public class DivideAndConquerDraw extends ThreadDraw {
                 r = Math.exp(x * mulx + start);
 
                 image_iterations[loc] = iteration_algorithm.calculate(new Complex(xcenter + r * cf, ycenter + r * sf));
-                color = getFinalColor(image_iterations[loc]);
+                escaped[loc] = iteration_algorithm.escaped();
+                color = getFinalColor(image_iterations[loc], escaped[loc]);
 
                 red = (color >> 16) & 0xff;
                 green = (color >> 8) & 0xff;
@@ -729,7 +753,7 @@ public class DivideAndConquerDraw extends ThreadDraw {
                     r2 = r * antialiasing_x[i];
 
                     temp_result = iteration_algorithm.calculate(new Complex(xcenter + r2 * cf2, ycenter + r2 * sf2));
-                    color = getFinalColor(temp_result);
+                    color = getFinalColor(temp_result, iteration_algorithm.escaped());
 
                     red += (color >> 16) & 0xff;
                     green += (color >> 8) & 0xff;
@@ -754,7 +778,8 @@ public class DivideAndConquerDraw extends ThreadDraw {
                     r = Math.exp(x * mulx + start);
 
                     image_iterations[loc] = iteration_algorithm.calculate(new Complex(xcenter + r * cf, ycenter + r * sf));
-                    color = getFinalColor(image_iterations[loc]);
+                    escaped[loc] = iteration_algorithm.escaped();
+                    color = getFinalColor(image_iterations[loc], escaped[loc]);
 
                     red = (color >> 16) & 0xff;
                     green = (color >> 8) & 0xff;
@@ -769,7 +794,7 @@ public class DivideAndConquerDraw extends ThreadDraw {
                         r2 = r * antialiasing_x[i];
 
                         temp_result = iteration_algorithm.calculate(new Complex(xcenter + r2 * cf2, ycenter + r2 * sf2));
-                        color = getFinalColor(temp_result);
+                        color = getFinalColor(temp_result, iteration_algorithm.escaped());
 
                         red += (color >> 16) & 0xff;
                         green += (color >> 8) & 0xff;
@@ -793,7 +818,8 @@ public class DivideAndConquerDraw extends ThreadDraw {
                 r = Math.exp(x * mulx + start);
 
                 image_iterations[loc] = iteration_algorithm.calculate(new Complex(xcenter + r * cf, ycenter + r * sf));
-                color = getFinalColor(image_iterations[loc]);
+                escaped[loc] = iteration_algorithm.escaped();
+                color = getFinalColor(image_iterations[loc], escaped[loc]);
 
                 red = (color >> 16) & 0xff;
                 green = (color >> 8) & 0xff;
@@ -808,7 +834,7 @@ public class DivideAndConquerDraw extends ThreadDraw {
                     r2 = r * antialiasing_x[i];
 
                     temp_result = iteration_algorithm.calculate(new Complex(xcenter + r2 * cf2, ycenter + r2 * sf2));
-                    color = getFinalColor(temp_result);
+                    color = getFinalColor(temp_result, iteration_algorithm.escaped());
 
                     red += (color >> 16) & 0xff;
                     green += (color >> 8) & 0xff;
@@ -839,7 +865,8 @@ public class DivideAndConquerDraw extends ThreadDraw {
                     r = Math.exp(x * mulx + start);
 
                     image_iterations[loc] = iteration_algorithm.calculate(new Complex(xcenter + r * cf, ycenter + r * sf));
-                    color = getFinalColor(image_iterations[loc]);
+                    escaped[loc] = iteration_algorithm.escaped();
+                    color = getFinalColor(image_iterations[loc], escaped[loc]);
 
                     red = (color >> 16) & 0xff;
                     green = (color >> 8) & 0xff;
@@ -854,7 +881,7 @@ public class DivideAndConquerDraw extends ThreadDraw {
                         r2 = r * antialiasing_x[i];
 
                         temp_result = iteration_algorithm.calculate(new Complex(xcenter + r2 * cf2, ycenter + r2 * sf2));
-                        color = getFinalColor(temp_result);
+                        color = getFinalColor(temp_result, iteration_algorithm.escaped());
 
                         red += (color >> 16) & 0xff;
                         green += (color >> 8) & 0xff;
@@ -900,6 +927,7 @@ public class DivideAndConquerDraw extends ThreadDraw {
         boolean whole_area;
         int temp_starting_pixel_color;
         double temp_starting_value;
+        boolean temp_starting_escaped;
 
         int skippedColor;
 
@@ -935,6 +963,7 @@ public class DivideAndConquerDraw extends ThreadDraw {
 
             temp_starting_value = image_iterations[loc];
             temp_starting_pixel_color = rgbs[loc];
+            temp_starting_escaped = escaped[loc];
 
             int loc2;
             for (loc = slice_FROMy * image_size + x, loc2 = slice_TOy * image_size + x; x <= slice_TOx; x++, loc++, loc2++) {
@@ -973,7 +1002,8 @@ public class DivideAndConquerDraw extends ThreadDraw {
                             r = Math.exp(x * mulx + start);
 
                             image_iterations[loc] = iteration_algorithm.calculate(new Complex(xcenter + r * cf, ycenter + r * sf));
-                            color = getFinalColor(image_iterations[loc]);
+                            escaped[loc] = iteration_algorithm.escaped();
+                            color = getFinalColor(image_iterations[loc], escaped[loc]);
 
                             red = (color >> 16) & 0xff;
                             green = (color >> 8) & 0xff;
@@ -988,7 +1018,7 @@ public class DivideAndConquerDraw extends ThreadDraw {
                                 r2 = r * antialiasing_x[i];
 
                                 temp_result = iteration_algorithm.calculate(new Complex(xcenter + r2 * cf2, ycenter + r2 * sf2));
-                                color = getFinalColor(temp_result);
+                                color = getFinalColor(temp_result, iteration_algorithm.escaped());
 
                                 red += (color >> 16) & 0xff;
                                 green += (color >> 8) & 0xff;
@@ -1013,7 +1043,8 @@ public class DivideAndConquerDraw extends ThreadDraw {
                             r = Math.exp(x * mulx + start);
 
                             image_iterations[loc] = iteration_algorithm.calculate(new Complex(xcenter + r * cf, ycenter + r * sf));
-                            color = getFinalColor(image_iterations[loc]);
+                            escaped[loc] = iteration_algorithm.escaped();
+                            color = getFinalColor(image_iterations[loc], escaped[loc]);
 
                             red = (color >> 16) & 0xff;
                             green = (color >> 8) & 0xff;
@@ -1028,7 +1059,7 @@ public class DivideAndConquerDraw extends ThreadDraw {
                                 r2 = r * antialiasing_x[i];
 
                                 temp_result = iteration_algorithm.calculate(new Complex(xcenter + r2 * cf2, ycenter + r2 * sf2));
-                                color = getFinalColor(temp_result);
+                                color = getFinalColor(temp_result, iteration_algorithm.escaped());
 
                                 red += (color >> 16) & 0xff;
                                 green += (color >> 8) & 0xff;
@@ -1089,7 +1120,8 @@ public class DivideAndConquerDraw extends ThreadDraw {
                                 r = Math.exp(x * mulx + start);
 
                                 image_iterations[loc] = iteration_algorithm.calculate(new Complex(xcenter + r * cf, ycenter + r * sf));
-                                color = getFinalColor(image_iterations[loc]);
+                                escaped[loc] = iteration_algorithm.escaped();
+                                color = getFinalColor(image_iterations[loc], escaped[loc]);
 
                                 red = (color >> 16) & 0xff;
                                 green = (color >> 8) & 0xff;
@@ -1104,7 +1136,7 @@ public class DivideAndConquerDraw extends ThreadDraw {
                                     r2 = r * antialiasing_x[i];
 
                                     temp_result = iteration_algorithm.calculate(new Complex(xcenter + r2 * cf2, ycenter + r2 * sf2));
-                                    color = getFinalColor(temp_result);
+                                    color = getFinalColor(temp_result, iteration_algorithm.escaped());
 
                                     red += (color >> 16) & 0xff;
                                     green += (color >> 8) & 0xff;
@@ -1129,6 +1161,7 @@ public class DivideAndConquerDraw extends ThreadDraw {
                 for (int k = y; k < slice_TOy; k++) {
                     Arrays.fill(rgbs, k * image_size + x, k * image_size + slice_TOx, skippedColor);
                     Arrays.fill(image_iterations, k * image_size + x, k * image_size + slice_TOx, temp_starting_value);
+                    Arrays.fill(escaped, k * image_size + x, k * image_size + slice_TOx, temp_starting_escaped);
                     drawing_done += chunk;
                 }
 
@@ -1187,7 +1220,8 @@ public class DivideAndConquerDraw extends ThreadDraw {
                 temp_y0 = temp_ycenter_size - temp_size_image_size_y * y;
 
                 image_iterations[loc] = iteration_algorithm.calculate(new Complex(temp_x0, temp_y0));
-                color = getFinalColor(image_iterations[loc]);
+                escaped[loc] = iteration_algorithm.escaped();
+                color = getFinalColor(image_iterations[loc], escaped[loc]);
 
                 red = (color >> 16) & 0xff;
                 green = (color >> 8) & 0xff;
@@ -1196,7 +1230,7 @@ public class DivideAndConquerDraw extends ThreadDraw {
                 //Supersampling
                 for (int i = 0; i < supersampling_num; i++) {
                     temp_result = iteration_algorithm.calculate(new Complex(temp_x0 + antialiasing_x[i], temp_y0 + antialiasing_y[i]));
-                    color = getFinalColor(temp_result);
+                    color = getFinalColor(temp_result, iteration_algorithm.escaped());
 
                     red += (color >> 16) & 0xff;
                     green += (color >> 8) & 0xff;
@@ -1219,7 +1253,8 @@ public class DivideAndConquerDraw extends ThreadDraw {
                     temp_y0 = temp_ycenter_size - temp_size_image_size_y * y;
 
                     image_iterations[loc] = iteration_algorithm.calculate(new Complex(temp_x0, temp_y0));
-                    color = getFinalColor(image_iterations[loc]);
+                    escaped[loc] = iteration_algorithm.escaped();
+                    color = getFinalColor(image_iterations[loc], escaped[loc]);
 
                     red = (color >> 16) & 0xff;
                     green = (color >> 8) & 0xff;
@@ -1228,7 +1263,7 @@ public class DivideAndConquerDraw extends ThreadDraw {
                     //Supersampling
                     for (int i = 0; i < supersampling_num; i++) {
                         temp_result = iteration_algorithm.calculate(new Complex(temp_x0 + antialiasing_x[i], temp_y0 + antialiasing_y[i]));
-                        color = getFinalColor(temp_result);
+                        color = getFinalColor(temp_result, iteration_algorithm.escaped());
 
                         red += (color >> 16) & 0xff;
                         green += (color >> 8) & 0xff;
@@ -1250,7 +1285,8 @@ public class DivideAndConquerDraw extends ThreadDraw {
                 temp_y0 = temp_ycenter_size - temp_size_image_size_y * y;
 
                 image_iterations[loc] = iteration_algorithm.calculate(new Complex(temp_x0, temp_y0));
-                color = getFinalColor(image_iterations[loc]);
+                escaped[loc] = iteration_algorithm.escaped();
+                color = getFinalColor(image_iterations[loc], escaped[loc]);
 
                 red = (color >> 16) & 0xff;
                 green = (color >> 8) & 0xff;
@@ -1259,7 +1295,7 @@ public class DivideAndConquerDraw extends ThreadDraw {
                 //Supersampling
                 for (int i = 0; i < supersampling_num; i++) {
                     temp_result = iteration_algorithm.calculate(new Complex(temp_x0 + antialiasing_x[i], temp_y0 + antialiasing_y[i]));
-                    color = getFinalColor(temp_result);
+                    color = getFinalColor(temp_result, iteration_algorithm.escaped());
 
                     red += (color >> 16) & 0xff;
                     green += (color >> 8) & 0xff;
@@ -1288,7 +1324,8 @@ public class DivideAndConquerDraw extends ThreadDraw {
                     temp_y0 = temp_ycenter_size - temp_size_image_size_y * y;
 
                     image_iterations[loc] = iteration_algorithm.calculate(new Complex(temp_x0, temp_y0));
-                    color = getFinalColor(image_iterations[loc]);
+                    escaped[loc] = iteration_algorithm.escaped();
+                    color = getFinalColor(image_iterations[loc], escaped[loc]);
 
                     red = (color >> 16) & 0xff;
                     green = (color >> 8) & 0xff;
@@ -1297,7 +1334,7 @@ public class DivideAndConquerDraw extends ThreadDraw {
                     //Supersampling
                     for (int i = 0; i < supersampling_num; i++) {
                         temp_result = iteration_algorithm.calculate(new Complex(temp_x0 + antialiasing_x[i], temp_y0 + antialiasing_y[i]));
-                        color = getFinalColor(temp_result);
+                        color = getFinalColor(temp_result, iteration_algorithm.escaped());
 
                         red += (color >> 16) & 0xff;
                         green += (color >> 8) & 0xff;
@@ -1344,6 +1381,7 @@ public class DivideAndConquerDraw extends ThreadDraw {
         boolean whole_area;
         int temp_starting_pixel_color;
         double temp_starting_value;
+        boolean temp_starting_escaped;
 
         int skippedColor;
 
@@ -1379,6 +1417,7 @@ public class DivideAndConquerDraw extends ThreadDraw {
 
             temp_starting_value = image_iterations[loc];
             temp_starting_pixel_color = rgbs[loc];
+            temp_starting_escaped = escaped[loc];
 
             int loc2;
             for (loc = slice_FROMy * image_size + x, loc2 = slice_TOy * image_size + x; x <= slice_TOx; x++, loc++, loc2++) {
@@ -1414,7 +1453,8 @@ public class DivideAndConquerDraw extends ThreadDraw {
                             temp_y0 = temp_ycenter_size - temp_size_image_size_y * y;
 
                             image_iterations[loc] = iteration_algorithm.calculate(new Complex(temp_x0, temp_y0));
-                            color = getFinalColor(image_iterations[loc]);
+                            escaped[loc] = iteration_algorithm.escaped();
+                            color = getFinalColor(image_iterations[loc], escaped[loc]);
 
                             red = (color >> 16) & 0xff;
                             green = (color >> 8) & 0xff;
@@ -1423,7 +1463,7 @@ public class DivideAndConquerDraw extends ThreadDraw {
                             //Supersampling
                             for (int i = 0; i < supersampling_num; i++) {
                                 temp_result = iteration_algorithm.calculate(new Complex(temp_x0 + antialiasing_x[i], temp_y0 + antialiasing_y[i]));
-                                color = getFinalColor(temp_result);
+                                color = getFinalColor(temp_result, iteration_algorithm.escaped());
 
                                 red += (color >> 16) & 0xff;
                                 green += (color >> 8) & 0xff;
@@ -1446,7 +1486,8 @@ public class DivideAndConquerDraw extends ThreadDraw {
                             temp_y0 = temp_ycenter_size - temp_size_image_size_y * y;
 
                             image_iterations[loc] = iteration_algorithm.calculate(new Complex(temp_x0, temp_y0));
-                            color = getFinalColor(image_iterations[loc]);
+                            escaped[loc] = iteration_algorithm.escaped();
+                            color = getFinalColor(image_iterations[loc], escaped[loc]);
 
                             red = (color >> 16) & 0xff;
                             green = (color >> 8) & 0xff;
@@ -1455,7 +1496,7 @@ public class DivideAndConquerDraw extends ThreadDraw {
                             //Supersampling
                             for (int i = 0; i < supersampling_num; i++) {
                                 temp_result = iteration_algorithm.calculate(new Complex(temp_x0 + antialiasing_x[i], temp_y0 + antialiasing_y[i]));
-                                color = getFinalColor(temp_result);
+                                color = getFinalColor(temp_result, iteration_algorithm.escaped());
 
                                 red += (color >> 16) & 0xff;
                                 green += (color >> 8) & 0xff;
@@ -1514,7 +1555,8 @@ public class DivideAndConquerDraw extends ThreadDraw {
                                 temp_y0 = temp_ycenter_size - temp_size_image_size_y * y;
 
                                 image_iterations[loc] = iteration_algorithm.calculate(new Complex(temp_x0, temp_y0));
-                                color = getFinalColor(image_iterations[loc]);
+                                escaped[loc] = iteration_algorithm.escaped();
+                                color = getFinalColor(image_iterations[loc], escaped[loc]);
 
                                 red = (color >> 16) & 0xff;
                                 green = (color >> 8) & 0xff;
@@ -1523,7 +1565,7 @@ public class DivideAndConquerDraw extends ThreadDraw {
                                 //Supersampling
                                 for (int i = 0; i < supersampling_num; i++) {
                                     temp_result = iteration_algorithm.calculate(new Complex(temp_x0 + antialiasing_x[i], temp_y0 + antialiasing_y[i]));
-                                    color = getFinalColor(temp_result);
+                                    color = getFinalColor(temp_result, iteration_algorithm.escaped());
 
                                     red += (color >> 16) & 0xff;
                                     green += (color >> 8) & 0xff;
@@ -1549,6 +1591,7 @@ public class DivideAndConquerDraw extends ThreadDraw {
                 for (int k = y; k < slice_TOy; k++) {
                     Arrays.fill(rgbs, k * image_size + x, k * image_size + slice_TOx, skippedColor);
                     Arrays.fill(image_iterations, k * image_size + x, k * image_size + slice_TOx, temp_starting_value);
+                    Arrays.fill(escaped, k * image_size + x, k * image_size + slice_TOx, temp_starting_escaped);
                     drawing_done += chunk;
                 }
 
@@ -1590,7 +1633,8 @@ public class DivideAndConquerDraw extends ThreadDraw {
             loc = y * image_size + x;
             if (rgbs[loc] == notCalculated) {
                 image_iterations_fast_julia[loc] = iteration_algorithm.calculate(new Complex(temp_xcenter_size + temp_size_image_size_x * x, temp_ycenter_size - temp_size_image_size_y * y));
-                rgbs[loc] = getFinalColor(image_iterations_fast_julia[loc]);
+                escaped_fast_julia[loc] = iteration_algorithm.escaped();
+                rgbs[loc] = getFinalColor(image_iterations_fast_julia[loc], escaped_fast_julia[loc]);
             }
         }
 
@@ -1600,7 +1644,8 @@ public class DivideAndConquerDraw extends ThreadDraw {
                 loc = y * image_size + x;
                 if (rgbs[loc] == notCalculated) {
                     image_iterations_fast_julia[loc] = iteration_algorithm.calculate(new Complex(temp_xcenter_size + temp_size_image_size_x * x, temp_ycenter_size - temp_size_image_size_y * y));
-                    rgbs[loc] = getFinalColor(image_iterations_fast_julia[loc]);
+                    escaped_fast_julia[loc] = iteration_algorithm.escaped();
+                    rgbs[loc] = getFinalColor(image_iterations_fast_julia[loc], escaped_fast_julia[loc]);
                 }
             }
         }
@@ -1609,7 +1654,8 @@ public class DivideAndConquerDraw extends ThreadDraw {
         for (x = FROMx + 1, loc = y * image_size + x; x < TOx; x++, loc++) {
             if (rgbs[loc] == notCalculated) {
                 image_iterations_fast_julia[loc] = iteration_algorithm.calculate(new Complex(temp_xcenter_size + temp_size_image_size_x * x, temp_ycenter_size - temp_size_image_size_y * y));
-                rgbs[loc] = getFinalColor(image_iterations_fast_julia[loc]);
+                escaped_fast_julia[loc] = iteration_algorithm.escaped();
+                rgbs[loc] = getFinalColor(image_iterations_fast_julia[loc], escaped_fast_julia[loc]);
             }
         }
 
@@ -1625,7 +1671,8 @@ public class DivideAndConquerDraw extends ThreadDraw {
             for (x = FROMx + 1, loc = y * image_size + x; x < xLimit; x++, loc++) {
                 if (rgbs[loc] == notCalculated) {
                     image_iterations_fast_julia[loc] = iteration_algorithm.calculate(new Complex(temp_xcenter_size + temp_size_image_size_x * x, temp_ycenter_size - temp_size_image_size_y * y));
-                    rgbs[loc] = getFinalColor(image_iterations_fast_julia[loc]);
+                    escaped_fast_julia[loc] = iteration_algorithm.escaped();
+                    rgbs[loc] = getFinalColor(image_iterations_fast_julia[loc], escaped_fast_julia[loc]);
                 }
             }
         }
@@ -1657,6 +1704,7 @@ public class DivideAndConquerDraw extends ThreadDraw {
         boolean whole_area;
         int temp_starting_pixel_color;
         double temp_starting_value;
+        boolean temp_starting_escaped;
 
         int skippedColor;
 
@@ -1692,6 +1740,7 @@ public class DivideAndConquerDraw extends ThreadDraw {
 
             temp_starting_value = image_iterations_fast_julia[loc];
             temp_starting_pixel_color = rgbs[loc];
+            temp_starting_escaped = escaped_fast_julia[loc];
 
             int loc2;
             for (loc = slice_FROMy * image_size + x, loc2 = slice_TOy * image_size + x; x <= slice_TOx; x++, loc++, loc2++) {
@@ -1724,7 +1773,8 @@ public class DivideAndConquerDraw extends ThreadDraw {
 
                         if (rgbs[loc] == notCalculated) {
                             image_iterations_fast_julia[loc] = iteration_algorithm.calculate(new Complex(temp_xcenter_size + temp_size_image_size_x * x, temp_ycenter_size - temp_size_image_size_y * y));
-                            rgbs[loc] = getFinalColor(image_iterations_fast_julia[loc]);
+                            escaped_fast_julia[loc] = iteration_algorithm.escaped();
+                            rgbs[loc] = getFinalColor(image_iterations_fast_julia[loc], escaped_fast_julia[loc]);
                         }
                     }
 
@@ -1734,7 +1784,8 @@ public class DivideAndConquerDraw extends ThreadDraw {
 
                         if (rgbs[loc] == notCalculated) {
                             image_iterations_fast_julia[loc] = iteration_algorithm.calculate(new Complex(temp_xcenter_size + temp_size_image_size_x * x, temp_ycenter_size - temp_size_image_size_y * y));
-                            rgbs[loc] = getFinalColor(image_iterations_fast_julia[loc]);
+                            escaped_fast_julia[loc] = iteration_algorithm.escaped();
+                            rgbs[loc] = getFinalColor(image_iterations_fast_julia[loc], escaped_fast_julia[loc]);
                         }
                     }
 
@@ -1780,7 +1831,8 @@ public class DivideAndConquerDraw extends ThreadDraw {
 
                             if (rgbs[loc] == notCalculated) {
                                 image_iterations_fast_julia[loc] = iteration_algorithm.calculate(new Complex(temp_xcenter_size + temp_size_image_size_x * x, temp_ycenter_size - temp_size_image_size_y * y));
-                                rgbs[loc] = getFinalColor(image_iterations_fast_julia[loc]);
+                                escaped_fast_julia[loc] = iteration_algorithm.escaped();
+                                rgbs[loc] = getFinalColor(image_iterations_fast_julia[loc], escaped_fast_julia[loc]);
                             }
                         }
                     }
@@ -1795,6 +1847,7 @@ public class DivideAndConquerDraw extends ThreadDraw {
                 for (int k = y; k < slice_TOy; k++) {
                     Arrays.fill(rgbs, k * image_size + x, k * image_size + slice_TOx, skippedColor);
                     Arrays.fill(image_iterations_fast_julia, k * image_size + x, k * image_size + slice_TOx, temp_starting_value);
+                    Arrays.fill(escaped_fast_julia, k * image_size + x, k * image_size + slice_TOx, temp_starting_escaped);
                 }
             }
 
@@ -1841,7 +1894,8 @@ public class DivideAndConquerDraw extends ThreadDraw {
                 r = Math.exp(x * mulx + start);
 
                 image_iterations_fast_julia[loc] = iteration_algorithm.calculate(new Complex(xcenter + r * cf, ycenter + r * sf));
-                rgbs[loc] = getFinalColor(image_iterations_fast_julia[loc]);
+                escaped_fast_julia[loc] = iteration_algorithm.escaped();
+                rgbs[loc] = getFinalColor(image_iterations_fast_julia[loc], escaped_fast_julia[loc]);
             }
         }
 
@@ -1857,7 +1911,8 @@ public class DivideAndConquerDraw extends ThreadDraw {
                     r = Math.exp(x * mulx + start);
 
                     image_iterations_fast_julia[loc] = iteration_algorithm.calculate(new Complex(xcenter + r * cf, ycenter + r * sf));
-                    rgbs[loc] = getFinalColor(image_iterations_fast_julia[loc]);
+                    escaped_fast_julia[loc] = iteration_algorithm.escaped();
+                    rgbs[loc] = getFinalColor(image_iterations_fast_julia[loc], escaped_fast_julia[loc]);
                 }
             }
         }
@@ -1872,7 +1927,8 @@ public class DivideAndConquerDraw extends ThreadDraw {
                 r = Math.exp(x * mulx + start);
 
                 image_iterations_fast_julia[loc] = iteration_algorithm.calculate(new Complex(xcenter + r * cf, ycenter + r * sf));
-                rgbs[loc] = getFinalColor(image_iterations_fast_julia[loc]);
+                escaped_fast_julia[loc] = iteration_algorithm.escaped();
+                rgbs[loc] = getFinalColor(image_iterations_fast_julia[loc], escaped_fast_julia[loc]);
             }
         }
 
@@ -1894,7 +1950,8 @@ public class DivideAndConquerDraw extends ThreadDraw {
                     r = Math.exp(x * mulx + start);
 
                     image_iterations_fast_julia[loc] = iteration_algorithm.calculate(new Complex(xcenter + r * cf, ycenter + r * sf));
-                    rgbs[loc] = getFinalColor(image_iterations_fast_julia[loc]);
+                    escaped_fast_julia[loc] = iteration_algorithm.escaped();
+                    rgbs[loc] = getFinalColor(image_iterations_fast_julia[loc], escaped_fast_julia[loc]);
                 }
             }
         }
@@ -1926,6 +1983,7 @@ public class DivideAndConquerDraw extends ThreadDraw {
         boolean whole_area;
         int temp_starting_pixel_color;
         double temp_starting_value;
+        boolean temp_starting_escaped;
 
         int skippedColor;
 
@@ -1961,6 +2019,7 @@ public class DivideAndConquerDraw extends ThreadDraw {
 
             temp_starting_value = image_iterations_fast_julia[loc];
             temp_starting_pixel_color = rgbs[loc];
+            temp_starting_escaped = escaped_fast_julia[loc];
 
             int loc2;
             for (loc = slice_FROMy * image_size + x, loc2 = slice_TOy * image_size + x; x <= slice_TOx; x++, loc++, loc2++) {
@@ -1999,7 +2058,8 @@ public class DivideAndConquerDraw extends ThreadDraw {
                             r = Math.exp(x * mulx + start);
 
                             image_iterations_fast_julia[loc] = iteration_algorithm.calculate(new Complex(xcenter + r * cf, ycenter + r * sf));
-                            rgbs[loc] = getFinalColor(image_iterations_fast_julia[loc]);
+                            escaped_fast_julia[loc] = iteration_algorithm.escaped();
+                            rgbs[loc] = getFinalColor(image_iterations_fast_julia[loc], escaped_fast_julia[loc]);
                         }
                     }
 
@@ -2015,7 +2075,8 @@ public class DivideAndConquerDraw extends ThreadDraw {
                             r = Math.exp(x * mulx + start);
 
                             image_iterations_fast_julia[loc] = iteration_algorithm.calculate(new Complex(xcenter + r * cf, ycenter + r * sf));
-                            rgbs[loc] = getFinalColor(image_iterations_fast_julia[loc]);
+                            escaped_fast_julia[loc] = iteration_algorithm.escaped();
+                            rgbs[loc] = getFinalColor(image_iterations_fast_julia[loc], escaped_fast_julia[loc]);
                         }
                     }
 
@@ -2067,7 +2128,8 @@ public class DivideAndConquerDraw extends ThreadDraw {
                                 r = Math.exp(x * mulx + start);
 
                                 image_iterations_fast_julia[loc] = iteration_algorithm.calculate(new Complex(xcenter + r * cf, ycenter + r * sf));
-                                rgbs[loc] = getFinalColor(image_iterations_fast_julia[loc]);
+                                escaped_fast_julia[loc] = iteration_algorithm.escaped();
+                                rgbs[loc] = getFinalColor(image_iterations_fast_julia[loc], escaped_fast_julia[loc]);
                             }
                         }
                     }
@@ -2082,6 +2144,7 @@ public class DivideAndConquerDraw extends ThreadDraw {
                 for (int k = y; k < slice_TOy; k++) {
                     Arrays.fill(rgbs, k * image_size + x, k * image_size + slice_TOx, skippedColor);
                     Arrays.fill(image_iterations_fast_julia, k * image_size + x, k * image_size + slice_TOx, temp_starting_value);
+                    Arrays.fill(escaped_fast_julia, k * image_size + x, k * image_size + slice_TOx, temp_starting_escaped);
                 }
             }
 
@@ -2134,7 +2197,8 @@ public class DivideAndConquerDraw extends ThreadDraw {
                 temp_y0 = temp_ycenter_size - temp_size_image_size_y * y;
 
                 image_iterations_fast_julia[loc] = iteration_algorithm.calculate(new Complex(temp_x0, temp_y0));
-                color = getFinalColor(image_iterations_fast_julia[loc]);
+                escaped_fast_julia[loc] = iteration_algorithm.escaped();
+                color = getFinalColor(image_iterations_fast_julia[loc], escaped_fast_julia[loc]);
 
                 red = (color >> 16) & 0xff;
                 green = (color >> 8) & 0xff;
@@ -2143,7 +2207,7 @@ public class DivideAndConquerDraw extends ThreadDraw {
                 //Supersampling
                 for (int i = 0; i < supersampling_num; i++) {
                     temp_result = iteration_algorithm.calculate(new Complex(temp_x0 + antialiasing_x[i], temp_y0 + antialiasing_y[i]));
-                    color = getFinalColor(temp_result);
+                    color = getFinalColor(temp_result, iteration_algorithm.escaped());
 
                     red += (color >> 16) & 0xff;
                     green += (color >> 8) & 0xff;
@@ -2163,7 +2227,8 @@ public class DivideAndConquerDraw extends ThreadDraw {
                     temp_y0 = temp_ycenter_size - temp_size_image_size_y * y;
 
                     image_iterations_fast_julia[loc] = iteration_algorithm.calculate(new Complex(temp_x0, temp_y0));
-                    color = getFinalColor(image_iterations_fast_julia[loc]);
+                    escaped_fast_julia[loc] = iteration_algorithm.escaped();
+                    color = getFinalColor(image_iterations_fast_julia[loc], escaped_fast_julia[loc]);
 
                     red = (color >> 16) & 0xff;
                     green = (color >> 8) & 0xff;
@@ -2172,7 +2237,7 @@ public class DivideAndConquerDraw extends ThreadDraw {
                     //Supersampling
                     for (int i = 0; i < supersampling_num; i++) {
                         temp_result = iteration_algorithm.calculate(new Complex(temp_x0 + antialiasing_x[i], temp_y0 + antialiasing_y[i]));
-                        color = getFinalColor(temp_result);
+                        color = getFinalColor(temp_result, iteration_algorithm.escaped());
 
                         red += (color >> 16) & 0xff;
                         green += (color >> 8) & 0xff;
@@ -2191,7 +2256,8 @@ public class DivideAndConquerDraw extends ThreadDraw {
                 temp_y0 = temp_ycenter_size - temp_size_image_size_y * y;
 
                 image_iterations_fast_julia[loc] = iteration_algorithm.calculate(new Complex(temp_x0, temp_y0));
-                color = getFinalColor(image_iterations_fast_julia[loc]);
+                escaped_fast_julia[loc] = iteration_algorithm.escaped();
+                color = getFinalColor(image_iterations_fast_julia[loc], escaped_fast_julia[loc]);
 
                 red = (color >> 16) & 0xff;
                 green = (color >> 8) & 0xff;
@@ -2200,7 +2266,7 @@ public class DivideAndConquerDraw extends ThreadDraw {
                 //Supersampling
                 for (int i = 0; i < supersampling_num; i++) {
                     temp_result = iteration_algorithm.calculate(new Complex(temp_x0 + antialiasing_x[i], temp_y0 + antialiasing_y[i]));
-                    color = getFinalColor(temp_result);
+                    color = getFinalColor(temp_result, iteration_algorithm.escaped());
 
                     red += (color >> 16) & 0xff;
                     green += (color >> 8) & 0xff;
@@ -2226,7 +2292,8 @@ public class DivideAndConquerDraw extends ThreadDraw {
                     temp_y0 = temp_ycenter_size - temp_size_image_size_y * y;
 
                     image_iterations_fast_julia[loc] = iteration_algorithm.calculate(new Complex(temp_x0, temp_y0));
-                    color = getFinalColor(image_iterations_fast_julia[loc]);
+                    escaped_fast_julia[loc] = iteration_algorithm.escaped();
+                    color = getFinalColor(image_iterations_fast_julia[loc], escaped_fast_julia[loc]);
 
                     red = (color >> 16) & 0xff;
                     green = (color >> 8) & 0xff;
@@ -2235,7 +2302,7 @@ public class DivideAndConquerDraw extends ThreadDraw {
                     //Supersampling
                     for (int i = 0; i < supersampling_num; i++) {
                         temp_result = iteration_algorithm.calculate(new Complex(temp_x0 + antialiasing_x[i], temp_y0 + antialiasing_y[i]));
-                        color = getFinalColor(temp_result);
+                        color = getFinalColor(temp_result, iteration_algorithm.escaped());
 
                         red += (color >> 16) & 0xff;
                         green += (color >> 8) & 0xff;
@@ -2274,6 +2341,7 @@ public class DivideAndConquerDraw extends ThreadDraw {
         boolean whole_area;
         int temp_starting_pixel_color;
         double temp_starting_value;
+        boolean temp_starting_escaped;
 
         int skippedColor;
 
@@ -2309,7 +2377,8 @@ public class DivideAndConquerDraw extends ThreadDraw {
 
             temp_starting_value = image_iterations_fast_julia[loc];
             temp_starting_pixel_color = rgbs[loc];
-
+            temp_starting_escaped = escaped_fast_julia[loc];
+            
             int loc2;
             for (loc = slice_FROMy * image_size + x, loc2 = slice_TOy * image_size + x; x <= slice_TOx; x++, loc++, loc2++) {
                 if (rgbs[loc] != temp_starting_pixel_color || rgbs[loc2] != temp_starting_pixel_color) {
@@ -2344,7 +2413,8 @@ public class DivideAndConquerDraw extends ThreadDraw {
                             temp_y0 = temp_ycenter_size - temp_size_image_size_y * y;
 
                             image_iterations_fast_julia[loc] = iteration_algorithm.calculate(new Complex(temp_x0, temp_y0));
-                            color = getFinalColor(image_iterations_fast_julia[loc]);
+                            escaped_fast_julia[loc] = iteration_algorithm.escaped();
+                            color = getFinalColor(image_iterations_fast_julia[loc], escaped_fast_julia[loc]);
 
                             red = (color >> 16) & 0xff;
                             green = (color >> 8) & 0xff;
@@ -2353,7 +2423,7 @@ public class DivideAndConquerDraw extends ThreadDraw {
                             //Supersampling
                             for (int i = 0; i < supersampling_num; i++) {
                                 temp_result = iteration_algorithm.calculate(new Complex(temp_x0 + antialiasing_x[i], temp_y0 + antialiasing_y[i]));
-                                color = getFinalColor(temp_result);
+                                color = getFinalColor(temp_result, iteration_algorithm.escaped());
 
                                 red += (color >> 16) & 0xff;
                                 green += (color >> 8) & 0xff;
@@ -2373,7 +2443,8 @@ public class DivideAndConquerDraw extends ThreadDraw {
                             temp_y0 = temp_ycenter_size - temp_size_image_size_y * y;
 
                             image_iterations_fast_julia[loc] = iteration_algorithm.calculate(new Complex(temp_x0, temp_y0));
-                            color = getFinalColor(image_iterations_fast_julia[loc]);
+                            escaped_fast_julia[loc] = iteration_algorithm.escaped();
+                            color = getFinalColor(image_iterations_fast_julia[loc], escaped_fast_julia[loc]);
 
                             red = (color >> 16) & 0xff;
                             green = (color >> 8) & 0xff;
@@ -2382,7 +2453,7 @@ public class DivideAndConquerDraw extends ThreadDraw {
                             //Supersampling
                             for (int i = 0; i < supersampling_num; i++) {
                                 temp_result = iteration_algorithm.calculate(new Complex(temp_x0 + antialiasing_x[i], temp_y0 + antialiasing_y[i]));
-                                color = getFinalColor(temp_result);
+                                color = getFinalColor(temp_result, iteration_algorithm.escaped());
 
                                 red += (color >> 16) & 0xff;
                                 green += (color >> 8) & 0xff;
@@ -2438,7 +2509,8 @@ public class DivideAndConquerDraw extends ThreadDraw {
                                 temp_y0 = temp_ycenter_size - temp_size_image_size_y * y;
 
                                 image_iterations_fast_julia[loc] = iteration_algorithm.calculate(new Complex(temp_x0, temp_y0));
-                                color = getFinalColor(image_iterations_fast_julia[loc]);
+                                escaped_fast_julia[loc] = iteration_algorithm.escaped();
+                                color = getFinalColor(image_iterations_fast_julia[loc], escaped_fast_julia[loc]);
 
                                 red = (color >> 16) & 0xff;
                                 green = (color >> 8) & 0xff;
@@ -2447,7 +2519,7 @@ public class DivideAndConquerDraw extends ThreadDraw {
                                 //Supersampling
                                 for (int i = 0; i < supersampling_num; i++) {
                                     temp_result = iteration_algorithm.calculate(new Complex(temp_x0 + antialiasing_x[i], temp_y0 + antialiasing_y[i]));
-                                    color = getFinalColor(temp_result);
+                                    color = getFinalColor(temp_result, iteration_algorithm.escaped());
 
                                     red += (color >> 16) & 0xff;
                                     green += (color >> 8) & 0xff;
@@ -2469,6 +2541,7 @@ public class DivideAndConquerDraw extends ThreadDraw {
                 for (int k = y; k < slice_TOy; k++) {
                     Arrays.fill(rgbs, k * image_size + x, k * image_size + slice_TOx, skippedColor);
                     Arrays.fill(image_iterations_fast_julia, k * image_size + x, k * image_size + slice_TOx, temp_starting_value);
+                    Arrays.fill(escaped_fast_julia, k * image_size + x, k * image_size + slice_TOx, temp_starting_escaped);
                 }
             }
 
@@ -2529,7 +2602,30 @@ public class DivideAndConquerDraw extends ThreadDraw {
                 r = Math.exp(x * mulx + start);
 
                 image_iterations_fast_julia[loc] = iteration_algorithm.calculate(new Complex(xcenter + r * cf, ycenter + r * sf));
-                rgbs[loc] = getFinalColor(image_iterations_fast_julia[loc]);
+                escaped_fast_julia[loc] = iteration_algorithm.escaped();
+                color = getFinalColor(image_iterations_fast_julia[loc], escaped_fast_julia[loc]);
+                
+                red = (color >> 16) & 0xff;
+                green = (color >> 8) & 0xff;
+                blue = color & 0xff;
+
+                //Supersampling
+                for (int i = 0; i < supersampling_num; i++) {
+
+                    sf2 = sf * antialiasing_y_cos[i] + cf * antialiasing_y_sin[i];
+                    cf2 = cf * antialiasing_y_cos[i] - sf * antialiasing_y_sin[i];
+
+                    r2 = r * antialiasing_x[i];
+
+                    temp_result = iteration_algorithm.calculate(new Complex(xcenter + r2 * cf2, ycenter + r2 * sf2));
+                    color = getFinalColor(temp_result, iteration_algorithm.escaped());
+
+                    red += (color >> 16) & 0xff;
+                    green += (color >> 8) & 0xff;
+                    blue += color & 0xff;
+                }
+
+                rgbs[loc] = 0xff000000 | (((int) (red / temp_samples + 0.5)) << 16) | (((int) (green / temp_samples + 0.5)) << 8) | ((int) (blue / temp_samples + 0.5));
             }
         }
 
@@ -2545,7 +2641,8 @@ public class DivideAndConquerDraw extends ThreadDraw {
                     r = Math.exp(x * mulx + start);
 
                     image_iterations_fast_julia[loc] = iteration_algorithm.calculate(new Complex(xcenter + r * cf, ycenter + r * sf));
-                    color = getFinalColor(image_iterations_fast_julia[loc]);
+                    escaped_fast_julia[loc] = iteration_algorithm.escaped();
+                    color = getFinalColor(image_iterations_fast_julia[loc], escaped_fast_julia[loc]);
 
                     red = (color >> 16) & 0xff;
                     green = (color >> 8) & 0xff;
@@ -2560,7 +2657,7 @@ public class DivideAndConquerDraw extends ThreadDraw {
                         r2 = r * antialiasing_x[i];
 
                         temp_result = iteration_algorithm.calculate(new Complex(xcenter + r2 * cf2, ycenter + r2 * sf2));
-                        color = getFinalColor(temp_result);
+                        color = getFinalColor(temp_result, iteration_algorithm.escaped());
 
                         red += (color >> 16) & 0xff;
                         green += (color >> 8) & 0xff;
@@ -2582,7 +2679,8 @@ public class DivideAndConquerDraw extends ThreadDraw {
                 r = Math.exp(x * mulx + start);
 
                 image_iterations_fast_julia[loc] = iteration_algorithm.calculate(new Complex(xcenter + r * cf, ycenter + r * sf));
-                color = getFinalColor(image_iterations_fast_julia[loc]);
+                escaped_fast_julia[loc] = iteration_algorithm.escaped();
+                color = getFinalColor(image_iterations_fast_julia[loc], escaped_fast_julia[loc]);
 
                 red = (color >> 16) & 0xff;
                 green = (color >> 8) & 0xff;
@@ -2597,7 +2695,7 @@ public class DivideAndConquerDraw extends ThreadDraw {
                     r2 = r * antialiasing_x[i];
 
                     temp_result = iteration_algorithm.calculate(new Complex(xcenter + r2 * cf2, ycenter + r2 * sf2));
-                    color = getFinalColor(temp_result);
+                    color = getFinalColor(temp_result, iteration_algorithm.escaped());
 
                     red += (color >> 16) & 0xff;
                     green += (color >> 8) & 0xff;
@@ -2626,7 +2724,8 @@ public class DivideAndConquerDraw extends ThreadDraw {
                     r = Math.exp(x * mulx + start);
 
                     image_iterations_fast_julia[loc] = iteration_algorithm.calculate(new Complex(xcenter + r * cf, ycenter + r * sf));
-                    color = getFinalColor(image_iterations_fast_julia[loc]);
+                    escaped_fast_julia[loc] = iteration_algorithm.escaped();
+                    color = getFinalColor(image_iterations_fast_julia[loc], escaped_fast_julia[loc]);
 
                     red = (color >> 16) & 0xff;
                     green = (color >> 8) & 0xff;
@@ -2641,7 +2740,7 @@ public class DivideAndConquerDraw extends ThreadDraw {
                         r2 = r * antialiasing_x[i];
 
                         temp_result = iteration_algorithm.calculate(new Complex(xcenter + r2 * cf2, ycenter + r2 * sf2));
-                        color = getFinalColor(temp_result);
+                        color = getFinalColor(temp_result, iteration_algorithm.escaped());
 
                         red += (color >> 16) & 0xff;
                         green += (color >> 8) & 0xff;
@@ -2680,6 +2779,7 @@ public class DivideAndConquerDraw extends ThreadDraw {
         boolean whole_area;
         int temp_starting_pixel_color;
         double temp_starting_value;
+        boolean temp_starting_escaped;
 
         int skippedColor;
 
@@ -2715,6 +2815,7 @@ public class DivideAndConquerDraw extends ThreadDraw {
 
             temp_starting_value = image_iterations_fast_julia[loc];
             temp_starting_pixel_color = rgbs[loc];
+            temp_starting_escaped = escaped_fast_julia[loc];
 
             int loc2;
             for (loc = slice_FROMy * image_size + x, loc2 = slice_TOy * image_size + x; x <= slice_TOx; x++, loc++, loc2++) {
@@ -2753,7 +2854,8 @@ public class DivideAndConquerDraw extends ThreadDraw {
                             r = Math.exp(x * mulx + start);
 
                             image_iterations_fast_julia[loc] = iteration_algorithm.calculate(new Complex(xcenter + r * cf, ycenter + r * sf));
-                            color = getFinalColor(image_iterations_fast_julia[loc]);
+                            escaped_fast_julia[loc] = iteration_algorithm.escaped();
+                            color = getFinalColor(image_iterations_fast_julia[loc], escaped_fast_julia[loc]);
 
                             red = (color >> 16) & 0xff;
                             green = (color >> 8) & 0xff;
@@ -2768,7 +2870,7 @@ public class DivideAndConquerDraw extends ThreadDraw {
                                 r2 = r * antialiasing_x[i];
 
                                 temp_result = iteration_algorithm.calculate(new Complex(xcenter + r2 * cf2, ycenter + r2 * sf2));
-                                color = getFinalColor(temp_result);
+                                color = getFinalColor(temp_result, iteration_algorithm.escaped());
 
                                 red += (color >> 16) & 0xff;
                                 green += (color >> 8) & 0xff;
@@ -2791,7 +2893,8 @@ public class DivideAndConquerDraw extends ThreadDraw {
                             r = Math.exp(x * mulx + start);
 
                             image_iterations_fast_julia[loc] = iteration_algorithm.calculate(new Complex(xcenter + r * cf, ycenter + r * sf));
-                            color = getFinalColor(image_iterations_fast_julia[loc]);
+                            escaped_fast_julia[loc] = iteration_algorithm.escaped();
+                            color = getFinalColor(image_iterations_fast_julia[loc], escaped_fast_julia[loc]);
 
                             red = (color >> 16) & 0xff;
                             green = (color >> 8) & 0xff;
@@ -2806,7 +2909,7 @@ public class DivideAndConquerDraw extends ThreadDraw {
                                 r2 = r * antialiasing_x[i];
 
                                 temp_result = iteration_algorithm.calculate(new Complex(xcenter + r2 * cf2, ycenter + r2 * sf2));
-                                color = getFinalColor(temp_result);
+                                color = getFinalColor(temp_result, iteration_algorithm.escaped());
 
                                 red += (color >> 16) & 0xff;
                                 green += (color >> 8) & 0xff;
@@ -2865,7 +2968,8 @@ public class DivideAndConquerDraw extends ThreadDraw {
                                 r = Math.exp(x * mulx + start);
 
                                 image_iterations_fast_julia[loc] = iteration_algorithm.calculate(new Complex(xcenter + r * cf, ycenter + r * sf));
-                                color = getFinalColor(image_iterations_fast_julia[loc]);
+                                escaped_fast_julia[loc] = iteration_algorithm.escaped();
+                                color = getFinalColor(image_iterations_fast_julia[loc], escaped_fast_julia[loc]);
 
                                 red = (color >> 16) & 0xff;
                                 green = (color >> 8) & 0xff;
@@ -2880,7 +2984,7 @@ public class DivideAndConquerDraw extends ThreadDraw {
                                     r2 = r * antialiasing_x[i];
 
                                     temp_result = iteration_algorithm.calculate(new Complex(xcenter + r2 * cf2, ycenter + r2 * sf2));
-                                    color = getFinalColor(temp_result);
+                                    color = getFinalColor(temp_result, iteration_algorithm.escaped());
 
                                     red += (color >> 16) & 0xff;
                                     green += (color >> 8) & 0xff;
@@ -2902,6 +3006,7 @@ public class DivideAndConquerDraw extends ThreadDraw {
                 for (int k = y; k < slice_TOy; k++) {
                     Arrays.fill(rgbs, k * image_size + x, k * image_size + slice_TOx, skippedColor);
                     Arrays.fill(image_iterations_fast_julia, k * image_size + x, k * image_size + slice_TOx, temp_starting_value);
+                    Arrays.fill(escaped_fast_julia, k * image_size + x, k * image_size + slice_TOx, temp_starting_escaped);
                 }
             }
 

@@ -25,11 +25,13 @@ import fractalzoomer.core.Complex;
  * @author hrkalona2
  */
 public class SinReSquaredMinusImSquared extends InColorAlgorithm {
+    private int max_iterations;
 
-    public SinReSquaredMinusImSquared() { 
+    public SinReSquaredMinusImSquared(int max_iterations) { 
        
         super();
         InNotUsingIncrement = true;
+        this.max_iterations = max_iterations;
 
     }
     
@@ -39,7 +41,7 @@ public class SinReSquaredMinusImSquared extends InColorAlgorithm {
         double re = ((Complex)object[0]).getRe();
         double im = ((Complex)object[0]).getIm();
         
-        return Math.abs(Math.sin(re * re - im * im)) * 400;
+        return max_iterations + Math.abs(Math.sin(re * re - im * im)) * 400;
              
     }
     

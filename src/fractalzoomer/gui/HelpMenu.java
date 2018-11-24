@@ -58,7 +58,6 @@ public class HelpMenu extends JMenu {
         about.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, 0));
         help_contents.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, 0));
         update.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_U, 0));
-        useful_links.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, 0));
         
         help_contents.addActionListener(new ActionListener() {
 

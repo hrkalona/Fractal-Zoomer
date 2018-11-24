@@ -22,11 +22,5 @@ import fractalzoomer.utils.ColorAlgorithm;
 public abstract class InColorAlgorithm extends ColorAlgorithm {
     
     public abstract double getResult(Object[] object);
-    
-    public static double transformResultToHeight(double result, int max_iterations) {
-        
-        return Math.abs(result) == ColorAlgorithm.MAXIMUM_ITERATIONS ? max_iterations : max_iterations + getResultWithoutIncrement(result);
-        
-    }
-    
+  
 }

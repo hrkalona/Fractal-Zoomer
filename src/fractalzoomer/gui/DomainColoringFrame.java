@@ -33,7 +33,6 @@ import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -62,8 +61,8 @@ public class DomainColoringFrame extends JFrame {
         this_frame = this;
 
         ptra2.setEnabled(false);
-        int custom_palette_window_width = 660;
-        int custom_palette_window_height = 270;
+        int custom_palette_window_width = 680;
+        int custom_palette_window_height = 330;
         setTitle("Domain Coloring");
         if(options) {
             setIconImage(getIcon("/fractalzoomer/icons/domain_coloring_options.png").getImage());
@@ -90,7 +89,7 @@ public class DomainColoringFrame extends JFrame {
 
         JPanel domain_coloring_panel = new JPanel();
 
-        domain_coloring_panel.setPreferredSize(new Dimension(560, 133));
+        domain_coloring_panel.setPreferredSize(new Dimension(580, 193));
         domain_coloring_panel.setLayout(new GridLayout(2, 1));
         domain_coloring_panel.setBackground(MainWindow.bg_color);
 
@@ -103,15 +102,43 @@ public class DomainColoringFrame extends JFrame {
         settings_panel.setBackground(MainWindow.bg_color);
         settings_panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Settings", TitledBorder.DEFAULT_POSITION, TitledBorder.DEFAULT_POSITION));
 
-        final JCheckBox use_palette_dc = new JCheckBox("Use Current Palette");
-        use_palette_dc.setSelected(s.ds.use_palette_domain_coloring);
+        String[] color_modes = {"HSB", "Current Palette", "LCH"};
+        final JComboBox use_palette_dc = new JComboBox(color_modes);
+        use_palette_dc.setSelectedIndex(s.ds.domain_coloring_mode);
         use_palette_dc.setBackground(MainWindow.bg_color);
         use_palette_dc.setFocusable(false);
-        use_palette_dc.setToolTipText("Enables the use of the current palette.");
+        use_palette_dc.setToolTipText("Sets the coloring mode.");
 
-        settings_panel.add(new JLabel("Maximum Iterations: "));
-        settings_panel.add(iterations_textfield);
-        settings_panel.add(use_palette_dc);
+        JPanel s1 = new JPanel();
+        s1.setLayout(new FlowLayout());
+        s1.setBackground(MainWindow.bg_color);
+        
+        s1.add(new JLabel("Maximum Iterations: "));
+        s1.add(iterations_textfield);
+        s1.add(new JLabel("  Color: "));
+        s1.add(use_palette_dc);
+        
+        JPanel s2 = new JPanel();
+        s2.setLayout(new FlowLayout());
+        s2.setBackground(MainWindow.bg_color);
+        
+        final JComboBox domain_processing_transfer_opt = new JComboBox(MainWindow.domainProcessingTransferNames);
+        domain_processing_transfer_opt.setSelectedIndex(s.ds.domainProcessingTransfer);
+        domain_processing_transfer_opt.setFocusable(false);
+        domain_processing_transfer_opt.setToolTipText("Sets the domain coloring processing transfer function.");
+        
+        final JTextField factor_textfield = new JTextField(10);
+        factor_textfield.addAncestorListener(new RequestFocusListener());
+        factor_textfield.setText("" + s.ds.domainProcessingHeightFactor);
+        
+        s2.add(new JLabel("Processing Transfer Function: "));
+        s2.add(domain_processing_transfer_opt);
+        s2.add(new JLabel("  Processing Factor: "));
+        s2.add(factor_textfield);
+        
+        settings_panel.add(s1);
+        settings_panel.add(s2);
+        
 
         final JComboBox color_domain_algs_opt = new JComboBox(domainAlgNames);
         color_domain_algs_opt.setSelectedIndex(s.ds.domain_coloring_alg);
@@ -214,12 +241,19 @@ public class DomainColoringFrame extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 
                 int tempIterations;
+                double tempFactor;
                 
                 try {
                     tempIterations = Integer.parseInt(iterations_textfield.getText());
+                    tempFactor = Double.parseDouble(factor_textfield.getText());
 
                     if (tempIterations <= 0) {
                         JOptionPane.showMessageDialog(this_frame, "Maximum iterations number must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                    
+                    if(tempFactor <= 0) {
+                        JOptionPane.showMessageDialog(this_frame, "Processing factor must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
 
@@ -240,7 +274,9 @@ public class DomainColoringFrame extends JFrame {
                 }
                 
                 s.ds.domain_coloring_alg = color_domain_algs_opt.getSelectedIndex();
-                s.ds.use_palette_domain_coloring = use_palette_dc.isSelected();
+                s.ds.domain_coloring_mode = use_palette_dc.getSelectedIndex();
+                s.ds.domainProcessingTransfer = domain_processing_transfer_opt.getSelectedIndex();
+                s.ds.domainProcessingHeightFactor = tempFactor;
 
                 s.ds.domain_coloring = true;
 
@@ -273,7 +309,7 @@ public class DomainColoringFrame extends JFrame {
 
         RoundedPanel round_panel = new RoundedPanel(true, true, true, 15);
         round_panel.setBackground(MainWindow.bg_color);
-        round_panel.setPreferredSize(new Dimension(590, 190));
+        round_panel.setPreferredSize(new Dimension(610, 250));
         round_panel.setLayout(new GridBagLayout());
 
         GridBagConstraints con = new GridBagConstraints();

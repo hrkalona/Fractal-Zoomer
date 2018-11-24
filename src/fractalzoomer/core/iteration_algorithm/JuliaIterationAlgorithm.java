@@ -55,7 +55,8 @@ public class JuliaIterationAlgorithm extends IterationAlgorithm {
     @Override
     public double[] calculate3D(Complex number) {
         
-        return fractal.calculateJulia3D(number);
+        double value = fractal.calculateJulia(number);
+        return new double[] {fractal.getJulia3DHeight(value), value};
         
     }
 }

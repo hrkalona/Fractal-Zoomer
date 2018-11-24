@@ -17,6 +17,7 @@
 package fractalzoomer.gui;
 
 import fractalzoomer.main.MainWindow;
+import fractalzoomer.main.app_settings.PaletteSettings;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -59,7 +60,7 @@ public class OptionsMenu extends JMenu {
     private JCheckBoxMenuItem statusbar_opt;
     private JCheckBoxMenuItem infobar_opt;
 
-    public OptionsMenu(MainWindow ptr2, String name, int color_choice, boolean smoothing, int[][] custom_palette, int color_interpolation, int color_space, boolean reversed_palette, int color_cycling_location, double scale_factor_palette_val, int processing_alg, boolean show_orbit_converging_point, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, int out_coloring_algorithm, int in_coloring_algorithm, int function, int plane_type, int bailout_test_algorithm, int transfer_function, int color_blending) {
+    public OptionsMenu(MainWindow ptr2, String name, PaletteSettings ps, PaletteSettings ps2, boolean smoothing, boolean show_orbit_converging_point, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, int out_coloring_algorithm, int in_coloring_algorithm, int function, int plane_type, int bailout_test_algorithm, int color_blending) {
 
         super(name);
 
@@ -106,7 +107,7 @@ public class OptionsMenu extends JMenu {
         window_menu = new JMenu("Window");
         window_menu.setIcon(getIcon("/fractalzoomer/icons/window.png"));
 
-        colors_menu = new ColorsMenu(ptr, "Colors", color_choice, smoothing, custom_palette, color_interpolation, color_space, reversed_palette, color_cycling_location, scale_factor_palette_val, processing_alg, out_coloring_algorithm, in_coloring_algorithm, transfer_function, color_blending);
+        colors_menu = new ColorsMenu(ptr, "Colors", ps, ps2, smoothing, out_coloring_algorithm, in_coloring_algorithm, color_blending);
 
         overview_opt = new JMenuItem("Options Overview", getIcon("/fractalzoomer/icons/overview.png"));
 
@@ -362,12 +363,18 @@ public class OptionsMenu extends JMenu {
 
     }
 
-    public JRadioButtonMenuItem[] getPalette() {
+    public JRadioButtonMenuItem[] getOutColoringPalette() {
 
-        return colors_menu.getPalette();
+        return colors_menu.getOutColoringPalette();
 
     }
 
+    public JRadioButtonMenuItem[] getInColoringPalette() {
+
+        return colors_menu.getInColoringPalette();
+
+    }
+    
     public JMenuItem getEntropyColoring() {
 
         return colors_menu.getEntropyColoring();
@@ -674,33 +681,27 @@ public class OptionsMenu extends JMenu {
         
     }
     
-    public JMenu getRollPaletteMenu() {
+    public OutColoringPaletteMenu getOutColoringPaletteMenu() {
         
-        return colors_menu.getRollPaletteMenu();
-        
-    }
-    
-    public PaletteMenu getPaletteMenu() {
-        
-        return colors_menu.getPaletteMenu();
+        return colors_menu.getOutColoringPaletteMenu();
         
     }
     
-    public ColorTransferMenu getColorTransferMenu() {
+    public InColoringPaletteMenu getInColoringPaletteMenu() {
         
-        return colors_menu.getColorTransferMenu();
-        
-    }
-    
-    public JMenuItem getColorIntensity() {
-        
-        return colors_menu.getColorIntensity();
+        return colors_menu.getInColoringPaletteMenu();
         
     }
-    
+     
     public ProcessingMenu getProcessing() {
         
         return colors_menu.getProcessing();
+        
+    }
+    
+    public JMenuItem getLight() {
+        
+        return colors_menu.getLight();
         
     }
     
@@ -716,9 +717,15 @@ public class OptionsMenu extends JMenu {
         
     }
     
-    public JRadioButtonMenuItem[] getTranferFunctions() {
+    public JRadioButtonMenuItem[] getInColoringTranferFunctions() {
         
-        return colors_menu.getTranferFunctions();
+        return colors_menu.getInColoringTranferFunctions();
+        
+    }
+    
+    public JRadioButtonMenuItem[] getOutColoringTranferFunctions() {
+        
+        return colors_menu.getOutColoringTranferFunctions();
         
     }
     
@@ -749,6 +756,22 @@ public class OptionsMenu extends JMenu {
     public JMenuItem getProcessingOrder() {
         
         return colors_menu.getProcessingOrder();
+        
+    }
+    
+     public JCheckBoxMenuItem getUsePaletteForInColoring() {
+        
+        return colors_menu.getUsePaletteForInColoring();
+        
+    }
+     
+     public JMenuItem getPaletteGradientMerging() {
+        return colors_menu.getPaletteGradientMerging();
+    }
+     
+     public JMenuItem getStatisticsColoring() {
+        
+        return colors_menu.getStatisticsColoring();
         
     }
 

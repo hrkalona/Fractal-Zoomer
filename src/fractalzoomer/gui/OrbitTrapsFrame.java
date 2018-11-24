@@ -16,6 +16,7 @@
  */
 package fractalzoomer.gui;
 
+import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
 import java.awt.Dimension;
@@ -47,8 +48,8 @@ public class OrbitTrapsFrame extends JFrame {
     private JComboBox orbit_traps_combo;
     private JComboBox lines_function_combo;
     private JTextField trap_width_field;
-    private JCheckBox useSpecialColorAsBg_check;
     private JSlider blend_opt;
+    private JComboBox color_method_combo;
 
     public OrbitTrapsFrame(MainWindow ptra, OrbitTrapSettings ots) {
 
@@ -87,7 +88,7 @@ public class OrbitTrapsFrame extends JFrame {
         orbit_traps_opt.setSelected(ots.useTraps);
 
         ComponentTitledBorder options_border = new ComponentTitledBorder(orbit_traps_opt, options_panel, BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), this_frame);
-        options_border.setCheckBoxListener();
+        options_border.setChangeListener();
 
         options_panel.setBorder(options_border);
 
@@ -144,7 +145,7 @@ public class OrbitTrapsFrame extends JFrame {
         trap_width_field.setText("" + ots.trapWidth);
         
         final JTextField trap_threshold_field = new JTextField(10);
-        trap_threshold_field.setText("" + ots.trapMaxDistance);
+        trap_threshold_field.setText("" + ots.trapIntensity);
 
         JPanel p3 = new JPanel();
         p3.setBackground(MainWindow.bg_color);
@@ -153,7 +154,7 @@ public class OrbitTrapsFrame extends JFrame {
         p3.add(trap_length_field);
         p3.add(new JLabel("  Width: "));
         p3.add(trap_width_field);
-        p3.add(new JLabel("  Max Distance: "));
+        p3.add(new JLabel("  Intensity: "));
         p3.add(trap_threshold_field);
 
         blend_opt = new JSlider(JSlider.HORIZONTAL, 0, 100, 0);
@@ -164,30 +165,26 @@ public class OrbitTrapsFrame extends JFrame {
         blend_opt.setToolTipText("Sets the trap blending percentage.");
         blend_opt.setFocusable(false);
         blend_opt.setPaintLabels(true);
-
-        useSpecialColorAsBg_check = new JCheckBox("Use Special Color as Background");
-        useSpecialColorAsBg_check.setSelected(ots.trapUseSpecialColor);
-        useSpecialColorAsBg_check.setBackground(MainWindow.bg_color);
-        useSpecialColorAsBg_check.setFocusable(false);
-        useSpecialColorAsBg_check.setToolTipText("Sets the special color to be the background color.");
-
-        useSpecialColorAsBg_check.addActionListener(new ActionListener() {
+        
+        color_method_combo = new JComboBox(Constants.colorMethod);
+        color_method_combo.setSelectedIndex(ots.trapColorMethod);
+        color_method_combo.setFocusable(false);
+        color_method_combo.setToolTipText("Sets the color method.");
+        
+        color_method_combo.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (useSpecialColorAsBg_check.isSelected()) {
-                    blend_opt.setEnabled(false);
-                } else {
-                    blend_opt.setEnabled(true);
-                }
-            }
-
+                blend_opt.setEnabled(color_method_combo.getSelectedIndex() == 3);
+            }         
         });
+      
         JPanel p4 = new JPanel();
         p4.setBackground(MainWindow.bg_color);
 
-        p4.add(new JLabel("Trap Blending: "));
+        p4.add(new JLabel("Color Method: "));
+        p4.add(color_method_combo);
+        p4.add(new JLabel("  Trap Blending: "));
         p4.add(blend_opt);
-        p4.add(useSpecialColorAsBg_check);
 
         options_panel.add(p1);
         options_panel.add(p2);
@@ -225,7 +222,7 @@ public class OrbitTrapsFrame extends JFrame {
                 }
 
                 if (temp6 <= 0) {
-                    JOptionPane.showMessageDialog(this_frame, "Max Distance must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(this_frame, "Trap Intesity must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
 
@@ -233,13 +230,13 @@ public class OrbitTrapsFrame extends JFrame {
                 ots.useTraps = orbit_traps_opt.isSelected();
                 ots.trapLength = temp4;
                 ots.trapWidth = temp5;
-                ots.trapMaxDistance = temp6;
+                ots.trapIntensity = temp6;
                 ots.trapNorm = temp;
                 ots.trapPoint[0] = temp2;
                 ots.trapPoint[1] = temp3;
                 ots.trapBlending = blend_opt.getValue() / 100.0;
-                ots.trapUseSpecialColor = useSpecialColorAsBg_check.isSelected();
                 ots.lineType = lines_function_combo.getSelectedIndex();
+                ots.trapColorMethod = color_method_combo.getSelectedIndex();
 
                 ptra2.setOrbitTrapSettings();
                 ptra2.setEnabled(true);
@@ -333,12 +330,8 @@ public class OrbitTrapsFrame extends JFrame {
         else {
             lines_function_combo.setEnabled(false);
         }
-
-        if (useSpecialColorAsBg_check.isSelected()) {
-            blend_opt.setEnabled(false);
-        } else {
-            blend_opt.setEnabled(true);
-        }
+        
+        blend_opt.setEnabled(color_method_combo.getSelectedIndex() == 3);
 
     }
 

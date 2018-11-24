@@ -24,7 +24,6 @@ import fractalzoomer.core.Complex;
  * @author hrkalona2
  */
 public class ZMag extends InColorAlgorithm {
-
     private int max_iterations;
 
     public ZMag(int max_iterations) {
@@ -38,7 +37,7 @@ public class ZMag extends InColorAlgorithm {
     @Override
     public double getResult(Object[] object) {
 
-        return ((Complex)object[0]).norm_squared() * (max_iterations / 3.0);
+        return max_iterations + ((Complex)object[0]).norm_squared() * (max_iterations / 3.0);
 
     }
 

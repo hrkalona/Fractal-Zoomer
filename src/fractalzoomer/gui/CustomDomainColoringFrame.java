@@ -72,6 +72,12 @@ public class CustomDomainColoringFrame extends JFrame {
     private JCheckBox enable_grid;
     private JCheckBox enable_circles;
     private JCheckBox enable_iso_lines;
+    private JTextField max_value_textfield;
+    private JComboBox domain_colors_combo;
+    private JCheckBox enable_colors;
+    private JComboBox domain_contours_colord_method_combo;
+    private JSlider contour_blend_opt;
+    private JCheckBox enable_contours;
 
     public static void setSettings(DomainColoringSettings settings) {
 
@@ -94,7 +100,7 @@ public class CustomDomainColoringFrame extends JFrame {
         this_frame = this;
 
         ptra2.setEnabled(false);
-        int custom_palette_window_width = 800;
+        int custom_palette_window_width = 860;
         int custom_palette_window_height = 630;
         setTitle("Custom Domain Coloring");
         setIconImage(getIcon("/fractalzoomer/icons/domain_coloring.png").getImage());
@@ -114,7 +120,7 @@ public class CustomDomainColoringFrame extends JFrame {
 
         JPanel domain_coloring_panel = new JPanel();
 
-        domain_coloring_panel.setPreferredSize(new Dimension(700, 495));
+        domain_coloring_panel.setPreferredSize(new Dimension(760, 495));
         domain_coloring_panel.setLayout(new FlowLayout());
         domain_coloring_panel.setBackground(MainWindow.bg_color);
 
@@ -231,7 +237,7 @@ public class CustomDomainColoringFrame extends JFrame {
         p2.setLayout(new FlowLayout());
         p2.setBackground(MainWindow.bg_color);
         
-        p2.add(new JLabel("Iso-Argument Line Distance: "));
+        p2.add(new JLabel("Iso-Arg Line Distance: "));
         p2.add(iso_lines_distance_opt);         
         p2.add(new JLabel("  Order: "));
         p2.add(scroll_pane);
@@ -262,24 +268,36 @@ public class CustomDomainColoringFrame extends JFrame {
         iso_lines_panel.setLayout(new FlowLayout());
         iso_lines_panel.setBackground(MainWindow.bg_color);
 
-        final JCheckBox enable_colors = new JCheckBox("Colors");
+        enable_colors = new JCheckBox("Colors");
         enable_colors.setBackground(MainWindow.bg_color);
         enable_colors.setSelected(ds.drawColor);
 
-        final JComboBox domain_colors_combo = new JComboBox(Constants.domainColors);
+        domain_colors_combo = new JComboBox(Constants.domainColors);
         domain_colors_combo.setSelectedIndex(ds.colorType);
         domain_colors_combo.setFocusable(false);
         domain_colors_combo.setToolTipText("Sets the coloring option.");
 
         ComponentTitledBorder colors_border = new ComponentTitledBorder(enable_colors, color_panel, BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), this_frame);
-        colors_border.setCheckBoxListener();
+        colors_border.setChangeListener();
 
         color_panel.setBorder(colors_border);
+        
+        max_value_textfield = new JTextField(10);
+        max_value_textfield.setText("" + ds.max_norm_re_im_value);        
+        
+        domain_colors_combo.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                max_value_textfield.setEnabled(domain_colors_combo.getSelectedIndex() != 0); 
+            }         
+        });
 
         color_panel.add(new JLabel("Type: "));
         color_panel.add(domain_colors_combo);
+        color_panel.add(new JLabel(" Max Norm/Re/Im Value: "));
+        color_panel.add(max_value_textfield);
 
-        final JCheckBox enable_contours = new JCheckBox("Contours");
+        enable_contours = new JCheckBox("Contours");
         enable_contours.setBackground(MainWindow.bg_color);
         enable_contours.setSelected(ds.drawContour);
 
@@ -287,8 +305,20 @@ public class CustomDomainColoringFrame extends JFrame {
         domain_contours_combo.setSelectedIndex(ds.contourType);
         domain_contours_combo.setFocusable(false);
         domain_contours_combo.setToolTipText("Sets the contouring option.");
-
-        final JSlider contour_blend_opt = new JSlider(JSlider.HORIZONTAL, 0, 100, 0);
+        
+        domain_contours_colord_method_combo = new JComboBox(Constants.colorMethod);
+        domain_contours_colord_method_combo.setSelectedIndex(ds.contourMethod);
+        domain_contours_colord_method_combo.setFocusable(false);
+        domain_contours_colord_method_combo.setToolTipText("Sets the contour color method.");
+        
+        domain_contours_colord_method_combo.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                contour_blend_opt.setEnabled(domain_contours_colord_method_combo.getSelectedIndex() == 3);
+            }         
+        });
+ 
+        contour_blend_opt = new JSlider(JSlider.HORIZONTAL, 0, 100, 0);
         contour_blend_opt.setValue((int)(100 * ds.contourBlending));
         contour_blend_opt.setBackground(MainWindow.bg_color);
         contour_blend_opt.setMajorTickSpacing(25);
@@ -299,11 +329,13 @@ public class CustomDomainColoringFrame extends JFrame {
 
         contours_panel.add(new JLabel("Type: "));
         contours_panel.add(domain_contours_combo);
+        contours_panel.add(new JLabel(" Color Method: "));
+        contours_panel.add(domain_contours_colord_method_combo);
         contours_panel.add(new JLabel(" Color Blending: "));
         contours_panel.add(contour_blend_opt);
 
         ComponentTitledBorder contours_border = new ComponentTitledBorder(enable_contours, contours_panel, BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), this_frame);
-        contours_border.setCheckBoxListener();
+        contours_border.setChangeListener();
 
         contours_panel.setBorder(contours_border);
 
@@ -369,13 +401,20 @@ public class CustomDomainColoringFrame extends JFrame {
 
         });
 
-        grid_panel.add(new JLabel("Strength: "));
+        final JComboBox grid_fade_combo = new JComboBox(Constants.circleAndGridFadeNames);
+        grid_fade_combo.setSelectedIndex(ds.gridFadeFunction);
+        grid_fade_combo.setFocusable(false);
+        grid_fade_combo.setToolTipText("Sets the fading option for grid.");
+        
+        grid_panel.add(new JLabel("Fading: "));
+        grid_panel.add(grid_fade_combo);
+        grid_panel.add(new JLabel(" Strength: "));
         grid_panel.add(grid_coef_opt);
         grid_panel.add(new JLabel(" Color: "));
         grid_panel.add(grid_color_label);
 
         ComponentTitledBorder grid_border = new ComponentTitledBorder(enable_grid, grid_panel, BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), this_frame);
-        grid_border.setCheckBoxListener();
+        grid_border.setChangeListener();
 
         grid_panel.setBorder(grid_border);
 
@@ -439,14 +478,21 @@ public class CustomDomainColoringFrame extends JFrame {
             }
 
         });
-
-        circles_panel.add(new JLabel("Strength: "));
+        
+        final JComboBox circle_fade_combo = new JComboBox(Constants.circleAndGridFadeNames);
+        circle_fade_combo.setSelectedIndex(ds.circleFadeFunction);
+        circle_fade_combo.setFocusable(false);
+        circle_fade_combo.setToolTipText("Sets the fading option for circles.");
+        
+        circles_panel.add(new JLabel("Fading: "));
+        circles_panel.add(circle_fade_combo);
+        circles_panel.add(new JLabel(" Strength: "));
         circles_panel.add(circles_coef_opt);
         circles_panel.add(new JLabel(" Color: "));
         circles_panel.add(circles_color_label);
 
         ComponentTitledBorder circles_border = new ComponentTitledBorder(enable_circles, circles_panel, BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), this_frame);
-        circles_border.setCheckBoxListener();
+        circles_border.setChangeListener();
 
         circles_panel.setBorder(circles_border);
 
@@ -470,11 +516,11 @@ public class CustomDomainColoringFrame extends JFrame {
         iso_lines_factor_opt.setPaintLabels(true);
 
         Hashtable<Integer, JLabel> table3 = new Hashtable<Integer, JLabel>();
-        table3.put(0, new JLabel("0.0"));
-        table3.put(25, new JLabel("0.25"));
-        table3.put(50, new JLabel("0.5"));
-        table3.put(75, new JLabel("0.75"));
-        table3.put(100, new JLabel("1.0"));
+        table3.put(0, new JLabel("0"));
+        table3.put(25, new JLabel("25"));
+        table3.put(50, new JLabel("50"));
+        table3.put(75, new JLabel("75"));
+        table3.put(100, new JLabel("100"));
 
         iso_lines_factor_opt.setLabelTable(table3);
 
@@ -535,7 +581,7 @@ public class CustomDomainColoringFrame extends JFrame {
         iso_lines_panel.add(iso_lines_color_label);
 
         ComponentTitledBorder iso_lines_border = new ComponentTitledBorder(enable_iso_lines, iso_lines_panel, BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), this_frame);
-        iso_lines_border.setCheckBoxListener();
+        iso_lines_border.setChangeListener();
 
         iso_lines_panel.setBorder(iso_lines_border);
 
@@ -548,7 +594,7 @@ public class CustomDomainColoringFrame extends JFrame {
         JPanel p4 = new JPanel();
         p4.setLayout(new GridLayout(1, 1));
         p4.setBackground(MainWindow.bg_color);
-        p4.setPreferredSize(new Dimension(700, 120));
+        p4.setPreferredSize(new Dimension(760, 120));
         
         p4.add(general_settings_panel);
 
@@ -557,7 +603,7 @@ public class CustomDomainColoringFrame extends JFrame {
         JPanel p3 = new JPanel();
         p3.setLayout(new GridLayout(5, 1));
         p3.setBackground(MainWindow.bg_color);
-        p3.setPreferredSize(new Dimension(700, 360));
+        p3.setPreferredSize(new Dimension(760, 360));
         
         p3.add(color_panel);
         p3.add(contours_panel);
@@ -570,6 +616,9 @@ public class CustomDomainColoringFrame extends JFrame {
         JPanel buttons = new JPanel();
         buttons.setLayout(new FlowLayout());
         buttons.setBackground(MainWindow.bg_color);
+        
+        max_value_textfield.setEnabled(ds.colorType != 0);
+        contour_blend_opt.setEnabled(ds.contourMethod == 3);
 
         JButton ok = new JButton("Ok");
         ok.setFocusable(false);
@@ -577,11 +626,12 @@ public class CustomDomainColoringFrame extends JFrame {
 
             public void actionPerformed(ActionEvent e) {
 
-                double temp, temp2, temp3;
+                double temp, temp2, temp3, temp4;
                 try {
                     temp = Double.parseDouble(log_base_textfield.getText());
                     temp2 = Double.parseDouble(grid_spacing_textfield.getText());
                     temp3 = Double.parseDouble(norm_type_textfield.getText());
+                    temp4 = Double.parseDouble(max_value_textfield.getText());
                 }
                 catch(Exception ex) {
                     JOptionPane.showMessageDialog(this_frame, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
@@ -598,10 +648,17 @@ public class CustomDomainColoringFrame extends JFrame {
                     return;
                 }
                 
+                if(temp4 <= 0) {
+                    JOptionPane.showMessageDialog(this_frame, "Max Norm/Re/Im Value must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                
                 ds.gridFactor = temp2;
                 ds.logBase = temp;
                 ds.normType = temp3;
                 ds.iso_distance = iso_lines_distance_opt.getSelectedIndex();
+                
+                ds.max_norm_re_im_value = temp4;
                 
                 ds.drawColor = enable_colors.isSelected();
                 ds.drawContour = enable_contours.isSelected();
@@ -624,6 +681,11 @@ public class CustomDomainColoringFrame extends JFrame {
                 ds.contourType = domain_contours_combo.getSelectedIndex();
                 
                 ds.domainOrder = getOrder();
+                
+                ds.circleFadeFunction = circle_fade_combo.getSelectedIndex();
+                ds.gridFadeFunction = grid_fade_combo.getSelectedIndex();
+                
+                ds.contourMethod = domain_contours_colord_method_combo.getSelectedIndex();
                 
                 ptra2.setEnabled(true);
                 dispose();
@@ -650,7 +712,7 @@ public class CustomDomainColoringFrame extends JFrame {
 
         RoundedPanel round_panel = new RoundedPanel(true, true, true, 15);
         round_panel.setBackground(MainWindow.bg_color);
-        round_panel.setPreferredSize(new Dimension(740, 550));
+        round_panel.setPreferredSize(new Dimension(800, 550));
         round_panel.setLayout(new GridBagLayout());
 
         GridBagConstraints con = new GridBagConstraints();
@@ -696,5 +758,20 @@ public class CustomDomainColoringFrame extends JFrame {
         }
         
         return order;
+    }
+    
+    public void toggled(boolean toggled) {
+
+        if (!toggled) {
+            return;
+        }
+
+        if(enable_colors.isSelected()) {
+            max_value_textfield.setEnabled(domain_colors_combo.getSelectedIndex() != 0); 
+        }
+        
+        if(enable_contours.isSelected()) {
+            contour_blend_opt.setEnabled(domain_contours_colord_method_combo.getSelectedIndex() == 3);
+        }
     }
 }

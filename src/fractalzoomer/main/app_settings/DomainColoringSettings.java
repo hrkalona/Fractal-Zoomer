@@ -26,7 +26,7 @@ import java.awt.Color;
 public class DomainColoringSettings {
     public boolean domain_coloring;
     public int domain_coloring_alg;
-    public boolean use_palette_domain_coloring;
+    public int domain_coloring_mode;
     public double logBase;
     public double normType;
     public double circlesBlending;
@@ -48,11 +48,17 @@ public class DomainColoringSettings {
     public int colorType;
     public int contourType;
     public int[] domainOrder;
+    public int circleFadeFunction;
+    public int gridFadeFunction;
+    public double max_norm_re_im_value;
+    public int contourMethod;
+    public double domainProcessingHeightFactor;
+    public int domainProcessingTransfer;
 
     public DomainColoringSettings(DomainColoringSettings copy ) {
         domain_coloring = copy.domain_coloring;
         domain_coloring_alg = copy.domain_coloring_alg;
-        use_palette_domain_coloring = copy.use_palette_domain_coloring;
+        domain_coloring_mode = copy.domain_coloring_mode;
         customDomainColoring = copy.customDomainColoring;
         
         logBase = copy.logBase;
@@ -82,13 +88,21 @@ public class DomainColoringSettings {
         contourType = copy.contourType;
         
         domainOrder = copy.domainOrder;
+        
+        gridFadeFunction = copy.gridFadeFunction;
+        circleFadeFunction = copy.circleFadeFunction;
+        max_norm_re_im_value = copy.max_norm_re_im_value;
+        contourMethod = copy.contourMethod;
+        
+        domainProcessingHeightFactor = copy.domainProcessingHeightFactor;
+        domainProcessingTransfer = copy.domainProcessingTransfer;
     }
     
     public DomainColoringSettings() {
         
         domain_coloring = false;
         domain_coloring_alg = 0;
-        use_palette_domain_coloring = false;
+        domain_coloring_mode = 0;
         customDomainColoring = false;
         
         logBase = 2.0;
@@ -99,7 +113,7 @@ public class DomainColoringSettings {
         iso_factor = 0.5;
         isoLinesBlendingFactor = 1.0;
         
-        gridFactor = 2.0;
+        gridFactor = 1.0;
         gridBlending = 1.0;
         
         gridColor = Color.BLACK;
@@ -121,6 +135,14 @@ public class DomainColoringSettings {
         domainOrder[0] = Constants.GRID;
         domainOrder[1] = Constants.CIRCLES;
         domainOrder[2] = Constants.ISO_LINES;
+        
+        circleFadeFunction = 1;
+        gridFadeFunction = 0;
+        max_norm_re_im_value = 20;
+        contourMethod = 3;
+        
+        domainProcessingHeightFactor = 10;
+        domainProcessingTransfer = 1;
         
     }
     

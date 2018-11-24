@@ -42,7 +42,7 @@ public class CosineInterpolation extends InterpolationMethod {
     @Override
     public double interpolate(double a, double b, double coef) {
         
-        coef = -Math.cos(Math.PI * coef) / 2 + 0.5;
+        coef = -Math.cos(Math.PI * coef) * 0.5 + 0.5;
         
         return a + (b - a) * coef;
         

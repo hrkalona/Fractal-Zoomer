@@ -1,3 +1,14 @@
+Version 1.0.7.1
+    -Added a secondary palette system, that can be used in in-coloring modes. The original palettes will be used in out-coloring modes.
+    -Added a new functionality that maps the fractal's values into the gradient and then merges the output color with the palette color.
+    -Added a new processing mode "Light".
+    -Added a new processing mode "Statistical Coloring", that implements algorithms like "Stripe Average" e.t.c.
+    -Bump Mapping and Light can now be used in Domain Coloring Mode.
+    -Added a new color space "HSL".
+    -Added new color mapping modes and options to Bump Mapping, Contour Coloring, Orbit Traps, and Domain Coloring.
+    -Added two new fractal functions "Lambda 2" and "Lambda 3".
+    -Code refactoring and bug-fixes.
+
 Version 1.0.7.0
     -Added new color blending modes, and organized all of them into categories.
     -Added an example template function in UserDefinedFunctions.java that lets the user load a pattern image, and use that for coloring.

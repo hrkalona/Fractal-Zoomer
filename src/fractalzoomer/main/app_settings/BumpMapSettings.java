@@ -31,6 +31,20 @@ public class BumpMapSettings {
     public int bumpProcessing;
     public double bump_blending;
     
+    public BumpMapSettings(BumpMapSettings copy) {
+        
+        bump_map = copy.bump_map;
+        bumpMappingStrength = copy.bumpMappingStrength;
+        bumpMappingDepth = copy.bumpMappingDepth;
+        lightDirectionDegrees = copy.lightDirectionDegrees;
+        bump_transfer_function = copy.bump_transfer_function;
+        bump_transfer_factor = copy.bump_transfer_factor;
+        bm_noise_reducing_factor = copy.bm_noise_reducing_factor;
+        bumpProcessing = copy.bumpProcessing;
+        bump_blending = copy.bump_blending;
+        
+    }
+    
     public BumpMapSettings() {
         
         bump_map = false;

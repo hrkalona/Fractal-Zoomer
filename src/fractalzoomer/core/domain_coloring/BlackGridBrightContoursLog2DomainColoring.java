@@ -28,9 +28,9 @@ import fractalzoomer.palettes.transfer_functions.TransferFunction;
  */
 public class BlackGridBrightContoursLog2DomainColoring extends DomainColoring {
 
-    public BlackGridBrightContoursLog2DomainColoring(boolean use_palette_domain_coloring, PaletteColor palette, TransferFunction color_transfer, int color_cycling_location, Blending blending) {
+    public BlackGridBrightContoursLog2DomainColoring(int domain_coloring_mode, PaletteColor palette, TransferFunction color_transfer, int color_cycling_location, Blending blending) {
 
-        super(use_palette_domain_coloring, palette, color_transfer, color_cycling_location, MainWindow.INTERPOLATION_LINEAR, blending);
+        super(domain_coloring_mode, palette, color_transfer, color_cycling_location, MainWindow.INTERPOLATION_LINEAR, blending);
         
         gridColorRed = 0;
         gridColorGreen = 0;

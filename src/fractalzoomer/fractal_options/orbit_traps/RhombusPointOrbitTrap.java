@@ -19,11 +19,10 @@ package fractalzoomer.fractal_options.orbit_traps;
 import fractalzoomer.core.Complex;
 
 public class RhombusPointOrbitTrap extends OrbitTrap {
-
+    
     public RhombusPointOrbitTrap(double pointRe, double pointIm, double trapLength, double trapWidth) {
 
         super(pointRe, pointIm, trapLength, trapWidth);
-
     }
 
     @Override
@@ -35,14 +34,21 @@ public class RhombusPointOrbitTrap extends OrbitTrap {
 
         if(dist < trapWidth && dist < distance) {
             distance = dist;
+            trapId = 0;
         }
         
         dist = val.distance(point);
 
         if(dist < trapLength && dist < distance) {
             distance = dist;
+            trapId = 1;
         }
 
+    }
+    
+    @Override
+    public double getMaxValue() {
+        return trapId == 1 ? trapLength : trapWidth;
     }
     
 }

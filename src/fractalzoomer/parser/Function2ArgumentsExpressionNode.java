@@ -374,13 +374,8 @@ public class Function2ArgumentsExpressionNode implements ExpressionNode {
      */
     @Override
     public Complex getValue() {
-        
-        try {
-            return function.evaluate(argument.getValue(), argument2.getValue());
-        }
-        catch(Exception ex) {
-            throw new EvaluationException("Invalid function id " + functionId + "!");
-        }
+ 
+        return function.evaluate(argument.getValue(), argument2.getValue());
         
     }
 

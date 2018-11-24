@@ -25,7 +25,7 @@ public class NNormPointNNormOrbitTrap extends OrbitTrap {
 
         super(pointRe, pointIm, trapLength, trapWidth);
         this.n_norm = n_norm;
-
+        
     }
 
     @Override
@@ -38,14 +38,21 @@ public class NNormPointNNormOrbitTrap extends OrbitTrap {
 
         if(dist < trapWidth && dist < distance) {
             distance = dist;
+            trapId = 0;
         }
         
         dist = norm;
 
         if(dist < trapLength && dist < distance) {
             distance = dist;
+            trapId = 1;
         }
 
+    }
+    
+    @Override
+    public double getMaxValue() {
+        return trapId == 1 ? trapLength : trapWidth;
     }
     
 }

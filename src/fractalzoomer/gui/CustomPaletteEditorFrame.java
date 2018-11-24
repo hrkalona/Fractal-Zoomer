@@ -141,6 +141,14 @@ public class CustomPaletteEditorFrame extends JFrame {
 
     private static int random_palette_algorithm;
     private static boolean equal_hues;
+    private static Random generator;
+    
+    private static ColorSpaceConverter con;
+    
+    static {
+        generator = new Random(System.currentTimeMillis());
+        con = new ColorSpaceConverter();
+    }
 
     public static final int[][][] editor_default_palettes = {{{12, 0, 10, 20}, {12, 50, 100, 240}, {12, 20, 3, 26}, {12, 230, 60, 20}, {12, 25, 10, 9}, {12, 230, 170, 0}, {12, 20, 40, 10}, {12, 0, 100, 0}, {12, 5, 10, 10}, {12, 210, 70, 30}, {12, 90, 0, 50}, {12, 180, 90, 120}, {12, 0, 20, 40}, {12, 30, 70, 200}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}},
     {{22, 0, 24, 255}, {21, 202, 0, 255}, {21, 255, 0, 82}, {22, 255, 133, 0}, {21, 151, 255, 0}, {21, 0, 255, 75}, {22, 0, 209, 255}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}},
@@ -168,7 +176,7 @@ public class CustomPaletteEditorFrame extends JFrame {
         equal_hues = false;
     }
 
-    public CustomPaletteEditorFrame(MainWindow ptra, final JRadioButtonMenuItem[] palette, boolean smoothing, final boolean greedy_algorithm, final boolean d3, final boolean julia_map, final int number, final int color_choice, int[][] custom_palette, int color_interpolation2, int color_space2, boolean reversed_palette2, int temp_color_cycling_location2, double scale_factor_palette_val2, int processing_alg2) {
+    public CustomPaletteEditorFrame(MainWindow ptra, final JRadioButtonMenuItem[] palette, boolean smoothing, final boolean greedy_algorithm, final boolean d3, final boolean julia_map, final int number, final int color_choice, int[][] custom_palette, int color_interpolation2, int color_space2, boolean reversed_palette2, int temp_color_cycling_location2, double scale_factor_palette_val2, int processing_alg2, final boolean outcoloring_mode) {
 
         super();
 
@@ -580,10 +588,10 @@ public class CustomPaletteEditorFrame extends JFrame {
                 equal_hues = same_hues.isSelected();
                 random_palette_algorithm = combo_box_random_palette_alg.getSelectedIndex();
 
-                ptra2.customPaletteChanged(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
+                ptra2.customPaletteChanged(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex(), outcoloring_mode);
 
                 ptra2.setEnabled(true);
-                ptra2.setPalette(number);
+                ptra2.setPalette(number, outcoloring_mode ? 0 : 1);
                 dispose();
 
             }
@@ -898,7 +906,7 @@ public class CustomPaletteEditorFrame extends JFrame {
         color_space_panel.setLayout(new FlowLayout());
         color_space_panel.setBackground(MainWindow.bg_color);
 
-        String[] color_space_str = {"RGB", "HSB", "Exp", "Square", "Sqrt", "RYB", "LAB", "XYZ", "LCH", "Bezier RGB"};
+        String[] color_space_str = {"RGB", "HSB", "Exp", "Square", "Sqrt", "RYB", "LAB", "XYZ", "LCH", "Bezier RGB", "HSL"};
 
         combo_box_color_space = new JComboBox(color_space_str);
         combo_box_color_space.setSelectedIndex(color_space);
@@ -2068,9 +2076,8 @@ public class CustomPaletteEditorFrame extends JFrame {
 
         if (color_cycling < 0) {
             return null;
-        }
-
-        Random generator = new Random(System.currentTimeMillis());
+        } 
+        
         Color[] c = null;
 
         double golden_ratio_conjugate = 0.6180339887498949;//(1 + Math.sqrt(5)) / 2.0 - 1;
@@ -2081,9 +2088,6 @@ public class CustomPaletteEditorFrame extends JFrame {
         if (random_palette_alg == 0) {
             //float hue = generator.nextFloat();
             double brightness = generator.nextFloat();
-
-            //int counter = 0;
-            ColorSpaceConverter con = new ColorSpaceConverter();
 
             //do {
             for (int m = 0; m < palette.length; m++) {
@@ -2098,7 +2102,10 @@ public class CustomPaletteEditorFrame extends JFrame {
                     res = con.LCHtoRGB(brightness * 100.0, generator.nextDouble() * 140.0, generator.nextDouble() * 360.0);
                 } else if (color_space == MainWindow.COLOR_SPACE_LAB) {
                     res = con.LABtoRGB(brightness * 100.0, (2 * generator.nextDouble() - 1) * 100, (2 * generator.nextDouble() - 1) * 100);
-                } else {
+                } else if (color_space == MainWindow.COLOR_SPACE_HSL){
+                    res = con.HSLtoRGB(generator.nextDouble(), generator.nextDouble(), brightness);
+                }
+                else {
                     res = con.HSBtoRGB(generator.nextDouble(), generator.nextDouble(), brightness);
                 }
 
@@ -2120,8 +2127,6 @@ public class CustomPaletteEditorFrame extends JFrame {
             double b_coeff = generator.nextInt(11) + generator.nextDouble() + 1;
             double c_coeff = generator.nextInt(11) + generator.nextDouble() + 1;
 
-            ColorSpaceConverter con = new ColorSpaceConverter();
-
             for (int m = 0; m < palette.length; m++) {
                 palette[m][0] = same_hues ? hues : generator.nextInt(12) + 7;
 
@@ -2129,7 +2134,11 @@ public class CustomPaletteEditorFrame extends JFrame {
 
                 if (color_space == MainWindow.COLOR_SPACE_HSB) {
                     res = con.HSBtoRGB((0.5 * (Math.sin(Math.PI / a_coeff * (m + 1) + random_a) + 1)), (0.5 * (Math.sin(Math.PI / b_coeff * (m + 1) + random_b) + 1)), (0.5 * (Math.sin(Math.PI / c_coeff * (m + 1) + random_c) + 1)));
-                } else if (color_space == MainWindow.COLOR_SPACE_RYB) {
+                } 
+                else if (color_space == MainWindow.COLOR_SPACE_HSL) {
+                    res = con.HSLtoRGB((0.5 * (Math.sin(Math.PI / a_coeff * (m + 1) + random_a) + 1)), (0.5 * (Math.sin(Math.PI / b_coeff * (m + 1) + random_b) + 1)), (0.5 * (Math.sin(Math.PI / c_coeff * (m + 1) + random_c) + 1)));
+                } 
+                else if (color_space == MainWindow.COLOR_SPACE_RYB) {
                     res = con.RYBtoRGB((0.5 * (Math.sin(Math.PI / a_coeff * (m + 1) + random_a) + 1)), (0.5 * (Math.sin(Math.PI / b_coeff * (m + 1) + random_b) + 1)), (0.5 * (Math.sin(Math.PI / c_coeff * (m + 1) + random_c) + 1)));
                 } else if (color_space == MainWindow.COLOR_SPACE_LAB) {
                     res = con.LABtoRGB((50 * (Math.sin(Math.PI / a_coeff * (m + 1) + random_a) + 1)), (100 * (Math.sin(Math.PI / b_coeff * (m + 1) + random_b))), (100 * (Math.sin(Math.PI / c_coeff * (m + 1) + random_c))));
@@ -2163,8 +2172,6 @@ public class CustomPaletteEditorFrame extends JFrame {
             c = CustomPalette.getPalette(palette, color_interpolation, color_space, reverse_palette, color_cycling, processing_val, processing_alg);
 
         } else if (random_palette_alg == 3) {
-
-            ColorSpaceConverter con = new ColorSpaceConverter();
 
             double hue, sat, bright;
 
@@ -2209,7 +2216,6 @@ public class CustomPaletteEditorFrame extends JFrame {
             c = CustomPalette.getPalette(palette, color_interpolation, color_space, reverse_palette, color_cycling, processing_val, processing_alg);
 
         } else if (random_palette_alg == 4) {
-            ColorSpaceConverter con = new ColorSpaceConverter();
 
             double hue, sat, bright;
 
