@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2018 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2019 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -174,7 +174,7 @@ public class SchroderFormula extends SchroderRootFindingMethod {
                 trap.check(complex[0]);
             }
 
-            if ((temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
+            if (iterations > 0 && (temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
                 escaped = true;
                 Object[] object = {iterations, complex[0], temp, zold, zold2, pixel, start};
                 iterationData = object;

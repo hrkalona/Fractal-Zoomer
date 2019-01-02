@@ -1,3 +1,19 @@
+Version 1.0.7.2
+    -Added Magnetic Pendulum simulation as a fractal function.
+    -Added the Lyapunov fractal function.
+    -Added the Durand/Kerner root finding method.
+    -Added the Bairstow root finding method.
+    -Added the generic formula z = c * (a*z^b + d*z^e).
+    -All the polynomial functions, except Bairstow polynomial, can have complex coefficients.
+    -Added the golden spiral orbit trap.
+    -Added different coloring per trap.
+    -A Direct palette, loaded from a file in RGB triplet format, can now be supported.
+    -All the color preview icons on the info-bar are now shortcuts to the actual dialogs/palette menus.
+    -Added a center/size translation to corners and vice versa.
+    -Added a new functionality that creates a save file called autoload.fzs, which will be always loaded
+     at start-up. This is way to change the application's initial settings.
+    -Refactored the code and fixed some bugs.
+
 Version 1.0.7.1
     -Added a secondary palette system, that can be used in in-coloring modes. The original palettes will be used in out-coloring modes.
     -Added a new functionality that maps the fractal's values into the gradient and then merges the output color with the palette color.

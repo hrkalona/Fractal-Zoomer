@@ -26,6 +26,7 @@ public class MaximumFilter extends WholeImageFilter {
 	public MaximumFilter() {
 	}
 
+        @Override
 	protected int[] filterPixels( int width, int height, int[] inPixels, Rectangle transformedSpace ) {
 		int index = 0;
 		int[] outPixels = new int[width * height];
@@ -52,6 +53,7 @@ public class MaximumFilter extends WholeImageFilter {
 		return outPixels;
 	}
 
+        @Override
 	public String toString() {
 		return "Blur/Maximum";
 	}

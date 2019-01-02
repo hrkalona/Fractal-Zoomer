@@ -1,5 +1,5 @@
 /*
- * Fractal Zoomer, Copyright (C) 2018 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2019 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -55,6 +55,25 @@ public class MathUtils {
         temp2 = temp2 == 0.0 ? 0.0 : temp2;
                         
         return new Point2D.Double(temp1, temp2);
+    }
+    
+    public static double[] convertFromCenterSizeToCorners(double xCenter, double yCenter, double size) {
+        
+        return new double[] {xCenter - size * 0.5, yCenter + size * 0.5, xCenter + size * 0.5, yCenter - size * 0.5};
+        
+    }
+    
+    public static double[] convertFromCornersToCenterSize(double[] corners) {
+        
+        double xLen = Math.abs(corners[0] - corners[2]);
+        double yLen = Math.abs(corners[1] - corners[3]);
+        double size = Math.max(xLen, yLen);
+        
+        double topX = Math.min(corners[0], corners[2]);
+        double topY = Math.max(corners[1], corners[3]);
+        
+        return new double[] {topX + xLen * 0.5, topY - yLen * 0.5, size};
+        
     }
     
     /// <summary>

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 hrkalona
+ * Copyright (C) 2019 hrkalona
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -2751,9 +2751,11 @@ public class FiltersOptionsFrame extends JFrame {
         buttons.setBackground(MainWindow.bg_color);
 
         JButton ok = new JButton("Ok");
+        getRootPane().setDefaultButton(ok);
         ok.setFocusable(false);
         ok.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 for(int k = 0; k < filters_options_vals.length; k++) {
@@ -2880,6 +2882,7 @@ public class FiltersOptionsFrame extends JFrame {
         cancel.setFocusable(false);
         cancel.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 tab_index = tabbedPane.getSelectedIndex();
@@ -2897,6 +2900,7 @@ public class FiltersOptionsFrame extends JFrame {
         reset.setFocusable(false);
         reset.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
                 
                 ptra2.filtersOptionsChanged(null, null, null, null, null, null);

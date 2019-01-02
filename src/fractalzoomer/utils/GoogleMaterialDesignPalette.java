@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2018 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2019 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -57,49 +57,49 @@ public class GoogleMaterialDesignPalette {
     private static final int[] BLACK = {-16777216, -14342875, -11382190, -9211021, -6908266, -4342339, -2500135, -986896, -1};
     
     public static Color[] generate(int max_colors) {
-        ArrayList<int[]> greens = new ArrayList<int[]>();
+        ArrayList<int[]> greens = new ArrayList<>();
         greens.add(TEAL);
         greens.add(GREEN);
         
-        ArrayList<int[]> light_greens = new ArrayList<int[]>();
+        ArrayList<int[]> light_greens = new ArrayList<>();
         light_greens.add(LIGHT_GREEN);
         light_greens.add(LIME);
         
-        ArrayList<int[]> blues = new ArrayList<int[]>();
+        ArrayList<int[]> blues = new ArrayList<>();
         blues.add(INDIGO);
         blues.add(BLUE);
         
-        ArrayList<int[]> light_blues = new ArrayList<int[]>();
+        ArrayList<int[]> light_blues = new ArrayList<>();
         light_blues.add(LIGHT_BLUE);
         light_blues.add(CYAN);
         
-        ArrayList<int[]> reds = new ArrayList<int[]>();
+        ArrayList<int[]> reds = new ArrayList<>();
         reds.add(RED);
         reds.add(PINK);
         
-        ArrayList<int[]> purples = new ArrayList<int[]>();
+        ArrayList<int[]> purples = new ArrayList<>();
         purples.add(PURPLE);
         purples.add(DEEP_PURPLE);
         
-        ArrayList<int[]> oranges = new ArrayList<int[]>();
+        ArrayList<int[]> oranges = new ArrayList<>();
         oranges.add(ORANGE);
         oranges.add(DEEP_ORANGE);
         
-        ArrayList<int[]> yellows = new ArrayList<int[]>();
+        ArrayList<int[]> yellows = new ArrayList<>();
         yellows.add(YELLOW);
         yellows.add(AMBER);
         
-        ArrayList<int[]> greys = new ArrayList<int[]>();
+        ArrayList<int[]> greys = new ArrayList<>();
         greys.add(GREY);
         greys.add(BLUE_GREY);
         
-        ArrayList<int[]> browns = new ArrayList<int[]>();
+        ArrayList<int[]> browns = new ArrayList<>();
         browns.add(BROWN);
         
-        ArrayList<int[]> blacks = new ArrayList<int[]>();
+        ArrayList<int[]> blacks = new ArrayList<>();
         blacks.add(BLACK);
         
-        ArrayList<ArrayList<int[]>> colors = new ArrayList<ArrayList<int[]>>();
+        ArrayList<ArrayList<int[]>> colors = new ArrayList<>();
         colors.add(greens);
         colors.add(light_greens);
         colors.add(blues);

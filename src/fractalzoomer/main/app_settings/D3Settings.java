@@ -1,5 +1,5 @@
 /*
- * Fractal Zoomer, Copyright (C) 2018 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2019 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,6 +28,7 @@ public class D3Settings {
     public int gaussian_kernel;
     public double fiX;
     public double fiY;
+    public int d3_color_type;
     public double color_3d_blending;
     public double d3_size_scale;
     public int max_range;
@@ -48,6 +49,8 @@ public class D3Settings {
         d3_height_scale = 1;
         height_algorithm = 0;
         d3_size_scale = 1;
+        
+        d3_color_type = 3;
 
         color_3d_blending = 0.84;
 

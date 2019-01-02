@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2018 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2019 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -57,6 +57,7 @@ public class RealConstantExpressionNode implements ExpressionNode
   /**
    * Returns the value of the constant
    */
+  @Override
   public Complex getValue()
   {
     return value;
@@ -65,6 +66,7 @@ public class RealConstantExpressionNode implements ExpressionNode
   /**
    * Returns the type of the node, in this case ExpressionNode.CONSTANT_NODE
    */
+  @Override
   public int getType()
   {
     return ExpressionNode.REAL_CONSTANT_NODE;
@@ -78,6 +80,7 @@ public class RealConstantExpressionNode implements ExpressionNode
    * @param visitor
    *          the visitor
    */
+  @Override
   public void accept(ExpressionNodeVisitor visitor)
   {
     visitor.visit(this);

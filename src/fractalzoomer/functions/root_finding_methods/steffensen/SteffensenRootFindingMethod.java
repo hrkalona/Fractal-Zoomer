@@ -1,5 +1,5 @@
 /*
- * Fractal Zoomer, Copyright (C) 2018 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2019 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,6 @@ package fractalzoomer.functions.root_finding_methods.steffensen;
 import fractalzoomer.core.Complex;
 import fractalzoomer.functions.root_finding_methods.RootFindingMethods;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
-import fractalzoomer.main.app_settings.StatisticsSettings;
 import java.util.ArrayList;
 
 /**
@@ -44,6 +43,14 @@ public abstract class SteffensenRootFindingMethod extends RootFindingMethods {
     public Complex steffensenMethod(Complex z, Complex fz, Complex ffz) {
         
         z.sub_mutable((fz.square()).divide_mutable(ffz.sub_mutable(fz)));
+        
+        return z;
+        
+    }
+    
+    public static Complex steffensenMethod(Complex z, Complex fz, Complex ffz, Complex relaxation) {
+        
+        z.sub_mutable(((fz.square()).divide_mutable(ffz.sub_mutable(fz))).times_mutable(relaxation));
         
         return z;
         

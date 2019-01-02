@@ -125,6 +125,7 @@ public class NoiseFilter extends PointFilter {
 		return x;
 	}
 	
+        @Override
 	public int filterRGB(int x, int y, int rgb) {
 		if ( randomNumbers.nextFloat() <= density ) {
 			int a = rgb & 0xff000000;
@@ -146,6 +147,7 @@ public class NoiseFilter extends PointFilter {
 		return rgb;
 	}
 
+        @Override
 	public String toString() {
 		return "Stylize/Add Noise...";
 	}

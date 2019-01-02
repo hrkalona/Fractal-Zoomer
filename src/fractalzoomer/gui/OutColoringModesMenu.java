@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2018 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2019 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -81,6 +81,7 @@ public class OutColoringModesMenu extends JMenu {
         out_coloring_modes[MainWindow.ESCAPE_TIME].setToolTipText("Sets the out-coloring method, using the iterations.");
         out_coloring_modes[MainWindow.ESCAPE_TIME].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setOutColoringMode(MainWindow.ESCAPE_TIME);
@@ -94,6 +95,7 @@ public class OutColoringModesMenu extends JMenu {
         out_coloring_modes[MainWindow.BINARY_DECOMPOSITION].setToolTipText("Sets the out-coloring method, using binary decomposition.");
         out_coloring_modes[MainWindow.BINARY_DECOMPOSITION].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setOutColoringMode(MainWindow.BINARY_DECOMPOSITION);
@@ -107,6 +109,7 @@ public class OutColoringModesMenu extends JMenu {
         out_coloring_modes[MainWindow.BINARY_DECOMPOSITION2].setToolTipText("Sets the out-coloring method, using binary decomposition 2.");
         out_coloring_modes[MainWindow.BINARY_DECOMPOSITION2].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setOutColoringMode(MainWindow.BINARY_DECOMPOSITION2);
@@ -120,6 +123,7 @@ public class OutColoringModesMenu extends JMenu {
         out_coloring_modes[MainWindow.ITERATIONS_PLUS_RE].setToolTipText("Sets the out-coloring method, using the iterations + Re(z).");
         out_coloring_modes[MainWindow.ITERATIONS_PLUS_RE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setOutColoringMode(MainWindow.ITERATIONS_PLUS_RE);
@@ -133,6 +137,7 @@ public class OutColoringModesMenu extends JMenu {
         out_coloring_modes[MainWindow.ITERATIONS_PLUS_IM].setToolTipText("Sets the out-coloring method, using the iterations + Im(z).");
         out_coloring_modes[MainWindow.ITERATIONS_PLUS_IM].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setOutColoringMode(MainWindow.ITERATIONS_PLUS_IM);
@@ -146,6 +151,7 @@ public class OutColoringModesMenu extends JMenu {
         out_coloring_modes[MainWindow.ITERATIONS_PLUS_RE_DIVIDE_IM].setToolTipText("Sets the out-coloring method, using the iterations + Re(z)/Im(z).");
         out_coloring_modes[MainWindow.ITERATIONS_PLUS_RE_DIVIDE_IM].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setOutColoringMode(MainWindow.ITERATIONS_PLUS_RE_DIVIDE_IM);
@@ -159,6 +165,7 @@ public class OutColoringModesMenu extends JMenu {
         out_coloring_modes[MainWindow.ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].setToolTipText("Sets the out-coloring method, using the iterations + Re(z) + Im(z) + Re(z)/Im(z).");
         out_coloring_modes[MainWindow.ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setOutColoringMode(MainWindow.ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM);
@@ -172,6 +179,7 @@ public class OutColoringModesMenu extends JMenu {
         out_coloring_modes[MainWindow.BIOMORPH].setToolTipText("Sets the out-coloring method, using biomorph.");
         out_coloring_modes[MainWindow.BIOMORPH].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setOutColoringMode(MainWindow.BIOMORPH);
@@ -185,6 +193,7 @@ public class OutColoringModesMenu extends JMenu {
         out_coloring_modes[MainWindow.COLOR_DECOMPOSITION].setToolTipText("Sets the out-coloring method, using color decomposition.");
         out_coloring_modes[MainWindow.COLOR_DECOMPOSITION].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setOutColoringMode(MainWindow.COLOR_DECOMPOSITION);
@@ -198,6 +207,7 @@ public class OutColoringModesMenu extends JMenu {
         out_coloring_modes[MainWindow.ESCAPE_TIME_COLOR_DECOMPOSITION].setToolTipText("Sets the out-coloring method, using iterations + color decomposition.");
         out_coloring_modes[MainWindow.ESCAPE_TIME_COLOR_DECOMPOSITION].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setOutColoringMode(MainWindow.ESCAPE_TIME_COLOR_DECOMPOSITION);
@@ -211,6 +221,7 @@ public class OutColoringModesMenu extends JMenu {
         out_coloring_modes[MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER].setToolTipText("Sets the out-coloring method, using Escape Time + Gaussian Integer.");
         out_coloring_modes[MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setOutColoringMode(MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER);
@@ -224,6 +235,7 @@ public class OutColoringModesMenu extends JMenu {
         out_coloring_modes[MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER2].setToolTipText("Sets the out-coloring method, using Escape Time + Gaussian Integer 2.");
         out_coloring_modes[MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER2].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setOutColoringMode(MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER2);
@@ -237,6 +249,7 @@ public class OutColoringModesMenu extends JMenu {
         out_coloring_modes[MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER3].setToolTipText("Sets the out-coloring method, using Escape Time + Gaussian Integer 3.");
         out_coloring_modes[MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER3].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setOutColoringMode(MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER3);
@@ -250,6 +263,7 @@ public class OutColoringModesMenu extends JMenu {
         out_coloring_modes[MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER4].setToolTipText("Sets the out-coloring method, using Escape Time + Gaussian Integer 4.");
         out_coloring_modes[MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER4].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setOutColoringMode(MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER4);
@@ -263,6 +277,7 @@ public class OutColoringModesMenu extends JMenu {
         out_coloring_modes[MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER5].setToolTipText("Sets the out-coloring method, using Escape Time + Gaussian Integer 5.");
         out_coloring_modes[MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER5].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setOutColoringMode(MainWindow.ESCAPE_TIME_GAUSSIAN_INTEGER5);
@@ -276,6 +291,7 @@ public class OutColoringModesMenu extends JMenu {
         out_coloring_modes[MainWindow.ESCAPE_TIME_ALGORITHM].setToolTipText("Sets the out-coloring method, using Escape Time + Algorithm.");
         out_coloring_modes[MainWindow.ESCAPE_TIME_ALGORITHM].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setOutColoringMode(MainWindow.ESCAPE_TIME_ALGORITHM);
@@ -289,6 +305,7 @@ public class OutColoringModesMenu extends JMenu {
         out_coloring_modes[MainWindow.ESCAPE_TIME_ALGORITHM2].setToolTipText("Sets the out-coloring method, using Escape Time + Algorithm 2.");
         out_coloring_modes[MainWindow.ESCAPE_TIME_ALGORITHM2].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setOutColoringMode(MainWindow.ESCAPE_TIME_ALGORITHM2);
@@ -302,6 +319,7 @@ public class OutColoringModesMenu extends JMenu {
         out_coloring_modes[MainWindow.DISTANCE_ESTIMATOR].setToolTipText("Sets the out-coloring method, using Distance Estimator.");
         out_coloring_modes[MainWindow.DISTANCE_ESTIMATOR].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setOutColoringMode(MainWindow.DISTANCE_ESTIMATOR);
@@ -315,6 +333,7 @@ public class OutColoringModesMenu extends JMenu {
         out_coloring_modes[MainWindow.ESCAPE_TIME_ESCAPE_RADIUS].setToolTipText("Sets the out-coloring method, using Escape Time + Escape Radius.");
         out_coloring_modes[MainWindow.ESCAPE_TIME_ESCAPE_RADIUS].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setOutColoringMode(MainWindow.ESCAPE_TIME_ESCAPE_RADIUS);
@@ -328,6 +347,7 @@ public class OutColoringModesMenu extends JMenu {
         out_coloring_modes[MainWindow.ESCAPE_TIME_GRID].setToolTipText("Sets the out-coloring method, using Escape Time + Grid.");
         out_coloring_modes[MainWindow.ESCAPE_TIME_GRID].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setOutColoringMode(MainWindow.ESCAPE_TIME_GRID);
@@ -353,6 +373,7 @@ public class OutColoringModesMenu extends JMenu {
         out_coloring_modes[MainWindow.BANDED].setToolTipText("Sets the out-coloring method, using an iteration based coloring.");
         out_coloring_modes[MainWindow.BANDED].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setOutColoringMode(MainWindow.BANDED);
@@ -367,6 +388,7 @@ public class OutColoringModesMenu extends JMenu {
         out_coloring_modes[MainWindow.ESCAPE_TIME_FIELD_LINES].setToolTipText("Sets the out-coloring method, using Escape Time + Field Lines.");
         out_coloring_modes[MainWindow.ESCAPE_TIME_FIELD_LINES].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setOutColoringMode(MainWindow.ESCAPE_TIME_FIELD_LINES);
@@ -381,6 +403,7 @@ public class OutColoringModesMenu extends JMenu {
         out_coloring_modes[MainWindow.ESCAPE_TIME_FIELD_LINES2].setToolTipText("Sets the out-coloring method, using Escape Time + Field Lines 2.");
         out_coloring_modes[MainWindow.ESCAPE_TIME_FIELD_LINES2].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setOutColoringMode(MainWindow.ESCAPE_TIME_FIELD_LINES2);
@@ -394,6 +417,7 @@ public class OutColoringModesMenu extends JMenu {
         out_coloring_modes[MainWindow.USER_OUTCOLORING_ALGORITHM].setToolTipText("A user defined out-coloring method.");
         out_coloring_modes[MainWindow.USER_OUTCOLORING_ALGORITHM].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setOutColoringMode(MainWindow.USER_OUTCOLORING_ALGORITHM);

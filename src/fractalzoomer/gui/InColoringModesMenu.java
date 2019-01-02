@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2018 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2019 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -68,6 +68,7 @@ public class InColoringModesMenu extends JMenu {
         in_coloring_modes[MainWindow.MAX_ITERATIONS].setToolTipText("Sets the in-coloring method, using the maximum iterations.");
         in_coloring_modes[MainWindow.MAX_ITERATIONS].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setInColoringMode(MainWindow.MAX_ITERATIONS);
@@ -81,6 +82,7 @@ public class InColoringModesMenu extends JMenu {
         in_coloring_modes[MainWindow.Z_MAG].setToolTipText("Sets the in-coloring method, using the norm of z.");
         in_coloring_modes[MainWindow.Z_MAG].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setInColoringMode(MainWindow.Z_MAG);
@@ -94,6 +96,7 @@ public class InColoringModesMenu extends JMenu {
         in_coloring_modes[MainWindow.DECOMPOSITION_LIKE].setToolTipText("Sets the in-coloring method, using decomposition.");
         in_coloring_modes[MainWindow.DECOMPOSITION_LIKE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setInColoringMode(MainWindow.DECOMPOSITION_LIKE);
@@ -107,6 +110,7 @@ public class InColoringModesMenu extends JMenu {
         in_coloring_modes[MainWindow.RE_DIVIDE_IM].setToolTipText("Sets the in-coloring method, using Re(z) / Im(z).");
         in_coloring_modes[MainWindow.RE_DIVIDE_IM].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setInColoringMode(MainWindow.RE_DIVIDE_IM);
@@ -120,6 +124,7 @@ public class InColoringModesMenu extends JMenu {
         in_coloring_modes[MainWindow.COS_MAG].setToolTipText("Sets the in-coloring method, using the cos of the norm(z).");
         in_coloring_modes[MainWindow.COS_MAG].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setInColoringMode(MainWindow.COS_MAG);
@@ -133,6 +138,7 @@ public class InColoringModesMenu extends JMenu {
         in_coloring_modes[MainWindow.MAG_TIMES_COS_RE_SQUARED].setToolTipText("Sets the in-coloring method, using norm(z) * cos(Re(z)^2).");
         in_coloring_modes[MainWindow.MAG_TIMES_COS_RE_SQUARED].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setInColoringMode(MainWindow.MAG_TIMES_COS_RE_SQUARED);
@@ -146,6 +152,7 @@ public class InColoringModesMenu extends JMenu {
         in_coloring_modes[MainWindow.SIN_RE_SQUARED_MINUS_IM_SQUARED].setToolTipText("Sets the in-coloring method, using sin(Re(z)^2 - Im(z)^2).");
         in_coloring_modes[MainWindow.SIN_RE_SQUARED_MINUS_IM_SQUARED].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setInColoringMode(MainWindow.SIN_RE_SQUARED_MINUS_IM_SQUARED);
@@ -159,6 +166,7 @@ public class InColoringModesMenu extends JMenu {
         in_coloring_modes[MainWindow.ATAN_RE_TIMES_IM_TIMES_ABS_RE_TIMES_ABS_IM].setToolTipText("Sets the in-coloring method, using atan(Re(z) * Im(z) * |Re(z)| * |Im(z)|).");
         in_coloring_modes[MainWindow.ATAN_RE_TIMES_IM_TIMES_ABS_RE_TIMES_ABS_IM].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setInColoringMode(MainWindow.ATAN_RE_TIMES_IM_TIMES_ABS_RE_TIMES_ABS_IM);
@@ -172,6 +180,7 @@ public class InColoringModesMenu extends JMenu {
         in_coloring_modes[MainWindow.SQUARES].setToolTipText("Sets the in-coloring method, using squares.");
         in_coloring_modes[MainWindow.SQUARES].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setInColoringMode(MainWindow.SQUARES);
@@ -185,6 +194,7 @@ public class InColoringModesMenu extends JMenu {
         in_coloring_modes[MainWindow.SQUARES2].setToolTipText("Sets the in-coloring method, using squares 2.");
         in_coloring_modes[MainWindow.SQUARES2].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setInColoringMode(MainWindow.SQUARES2);
@@ -198,6 +208,7 @@ public class InColoringModesMenu extends JMenu {
         in_coloring_modes[MainWindow.USER_INCOLORING_ALGORITHM].setToolTipText("A user defined in-coloring method.");
         in_coloring_modes[MainWindow.USER_INCOLORING_ALGORITHM].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setInColoringMode(MainWindow.USER_INCOLORING_ALGORITHM);

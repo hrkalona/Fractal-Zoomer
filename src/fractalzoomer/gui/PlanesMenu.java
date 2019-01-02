@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2018 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2019 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -183,6 +183,7 @@ public class PlanesMenu extends JMenu {
         planes[MainWindow.MU_PLANE].setToolTipText("The default plane.");
         planes[MainWindow.MU_PLANE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setPlane(MainWindow.MU_PLANE);
@@ -196,6 +197,7 @@ public class PlanesMenu extends JMenu {
         planes[MainWindow.MU_SQUARED_PLANE].setToolTipText("The mu squared plane.");
         planes[MainWindow.MU_SQUARED_PLANE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setPlane(MainWindow.MU_SQUARED_PLANE);
@@ -209,6 +211,7 @@ public class PlanesMenu extends JMenu {
         planes[MainWindow.MU_SQUARED_IMAGINARY_PLANE].setToolTipText("The mu squared imaginary plane.");
         planes[MainWindow.MU_SQUARED_IMAGINARY_PLANE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setPlane(MainWindow.MU_SQUARED_IMAGINARY_PLANE);
@@ -222,6 +225,7 @@ public class PlanesMenu extends JMenu {
         planes[MainWindow.INVERSED_MU_PLANE].setToolTipText("The inversed mu plane.");
         planes[MainWindow.INVERSED_MU_PLANE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setPlane(MainWindow.INVERSED_MU_PLANE);
@@ -235,6 +239,7 @@ public class PlanesMenu extends JMenu {
         planes[MainWindow.INVERSED_MU2_PLANE].setToolTipText("An inversed mu plane variation.");
         planes[MainWindow.INVERSED_MU2_PLANE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setPlane(MainWindow.INVERSED_MU2_PLANE);
@@ -248,6 +253,7 @@ public class PlanesMenu extends JMenu {
         planes[MainWindow.INVERSED_MU3_PLANE].setToolTipText("An inversed mu plane variation.");
         planes[MainWindow.INVERSED_MU3_PLANE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setPlane(MainWindow.INVERSED_MU3_PLANE);
@@ -261,6 +267,7 @@ public class PlanesMenu extends JMenu {
         planes[MainWindow.INVERSED_MU4_PLANE].setToolTipText("An inversed mu plane variation.");
         planes[MainWindow.INVERSED_MU4_PLANE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setPlane(MainWindow.INVERSED_MU4_PLANE);
@@ -274,6 +281,7 @@ public class PlanesMenu extends JMenu {
         planes[MainWindow.VARIATION_MU_PLANE].setToolTipText("An mu plane variation.");
         planes[MainWindow.VARIATION_MU_PLANE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setPlane(MainWindow.VARIATION_MU_PLANE);
@@ -287,6 +295,7 @@ public class PlanesMenu extends JMenu {
         planes[MainWindow.LAMBDA_PLANE].setToolTipText("The lambda plane.");
         planes[MainWindow.LAMBDA_PLANE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setPlane(MainWindow.LAMBDA_PLANE);
@@ -300,6 +309,7 @@ public class PlanesMenu extends JMenu {
         planes[MainWindow.INVERSED_LAMBDA_PLANE].setToolTipText("The inversed lambda plane.");
         planes[MainWindow.INVERSED_LAMBDA_PLANE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setPlane(MainWindow.INVERSED_LAMBDA_PLANE);
@@ -313,6 +323,7 @@ public class PlanesMenu extends JMenu {
         planes[MainWindow.INVERSED_LAMBDA2_PLANE].setToolTipText("An inversed lambda plane variation.");
         planes[MainWindow.INVERSED_LAMBDA2_PLANE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setPlane(MainWindow.INVERSED_LAMBDA2_PLANE);
@@ -326,6 +337,7 @@ public class PlanesMenu extends JMenu {
         planes[MainWindow.BIPOLAR_PLANE].setToolTipText("The bipolar plane.");
         planes[MainWindow.BIPOLAR_PLANE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setPlane(MainWindow.BIPOLAR_PLANE);
@@ -339,6 +351,7 @@ public class PlanesMenu extends JMenu {
         planes[MainWindow.INVERSED_BIPOLAR_PLANE].setToolTipText("The inversed bipolar plane.");
         planes[MainWindow.INVERSED_BIPOLAR_PLANE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setPlane(MainWindow.INVERSED_BIPOLAR_PLANE);
@@ -352,6 +365,7 @@ public class PlanesMenu extends JMenu {
         planes[MainWindow.CIRCLEINVERSION_PLANE].setToolTipText("The circle inversion plane.");
         planes[MainWindow.CIRCLEINVERSION_PLANE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setPlane(MainWindow.CIRCLEINVERSION_PLANE);
@@ -365,6 +379,7 @@ public class PlanesMenu extends JMenu {
         planes[MainWindow.INFLECTION_PLANE].setToolTipText("The inflection plane.");
         planes[MainWindow.INFLECTION_PLANE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setPlane(MainWindow.INFLECTION_PLANE);
@@ -378,6 +393,7 @@ public class PlanesMenu extends JMenu {
         planes[MainWindow.FOLDUP_PLANE].setToolTipText("The fold up plane.");
         planes[MainWindow.FOLDUP_PLANE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setPlane(MainWindow.FOLDUP_PLANE);
@@ -391,6 +407,7 @@ public class PlanesMenu extends JMenu {
         planes[MainWindow.FOLDDOWN_PLANE].setToolTipText("The fold down plane.");
         planes[MainWindow.FOLDDOWN_PLANE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setPlane(MainWindow.FOLDDOWN_PLANE);
@@ -404,6 +421,7 @@ public class PlanesMenu extends JMenu {
         planes[MainWindow.FOLDRIGHT_PLANE].setToolTipText("The fold right plane.");
         planes[MainWindow.FOLDRIGHT_PLANE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setPlane(MainWindow.FOLDRIGHT_PLANE);
@@ -417,6 +435,7 @@ public class PlanesMenu extends JMenu {
         planes[MainWindow.FOLDLEFT_PLANE].setToolTipText("The fold left plane.");
         planes[MainWindow.FOLDLEFT_PLANE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setPlane(MainWindow.FOLDLEFT_PLANE);
@@ -430,6 +449,7 @@ public class PlanesMenu extends JMenu {
         planes[MainWindow.FOLDIN_PLANE].setToolTipText("The fold in plane.");
         planes[MainWindow.FOLDIN_PLANE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setPlane(MainWindow.FOLDIN_PLANE);
@@ -443,6 +463,7 @@ public class PlanesMenu extends JMenu {
         planes[MainWindow.FOLDOUT_PLANE].setToolTipText("The fold out plane.");
         planes[MainWindow.FOLDOUT_PLANE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setPlane(MainWindow.FOLDOUT_PLANE);
@@ -456,6 +477,7 @@ public class PlanesMenu extends JMenu {
         planes[MainWindow.TWIRL_PLANE].setToolTipText("The twirl plane.");
         planes[MainWindow.TWIRL_PLANE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setPlane(MainWindow.TWIRL_PLANE);
@@ -469,6 +491,7 @@ public class PlanesMenu extends JMenu {
         planes[MainWindow.SHEAR_PLANE].setToolTipText("The shear plane.");
         planes[MainWindow.SHEAR_PLANE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setPlane(MainWindow.SHEAR_PLANE);
@@ -482,6 +505,7 @@ public class PlanesMenu extends JMenu {
         planes[MainWindow.KALEIDOSCOPE_PLANE].setToolTipText("The kaleidoscope plane.");
         planes[MainWindow.KALEIDOSCOPE_PLANE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setPlane(MainWindow.KALEIDOSCOPE_PLANE);
@@ -495,6 +519,7 @@ public class PlanesMenu extends JMenu {
         planes[MainWindow.PINCH_PLANE].setToolTipText("The pinch plane.");
         planes[MainWindow.PINCH_PLANE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setPlane(MainWindow.PINCH_PLANE);
@@ -508,6 +533,7 @@ public class PlanesMenu extends JMenu {
         planes[MainWindow.RIPPLES_PLANE].setToolTipText("The ripples plane.");
         planes[MainWindow.RIPPLES_PLANE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setPlane(MainWindow.RIPPLES_PLANE);
@@ -521,6 +547,7 @@ public class PlanesMenu extends JMenu {
         planes[MainWindow.NEWTON3_PLANE].setToolTipText("The Newton 3 plane.");
         planes[MainWindow.NEWTON3_PLANE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setPlane(MainWindow.NEWTON3_PLANE);
@@ -534,6 +561,7 @@ public class PlanesMenu extends JMenu {
         planes[MainWindow.NEWTON4_PLANE].setToolTipText("The Newton 4 plane.");
         planes[MainWindow.NEWTON4_PLANE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setPlane(MainWindow.NEWTON4_PLANE);
@@ -547,6 +575,7 @@ public class PlanesMenu extends JMenu {
         planes[MainWindow.NEWTONGENERALIZED3_PLANE].setToolTipText("The Newton Generalized 3 plane.");
         planes[MainWindow.NEWTONGENERALIZED3_PLANE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setPlane(MainWindow.NEWTONGENERALIZED3_PLANE);
@@ -560,6 +589,7 @@ public class PlanesMenu extends JMenu {
         planes[MainWindow.NEWTONGENERALIZED8_PLANE].setToolTipText("The Newton Generalized 8 plane.");
         planes[MainWindow.NEWTONGENERALIZED8_PLANE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setPlane(MainWindow.NEWTONGENERALIZED8_PLANE);
@@ -573,6 +603,7 @@ public class PlanesMenu extends JMenu {
         planes[MainWindow.EXP_PLANE].setToolTipText("The exponential plane.");
         planes[MainWindow.EXP_PLANE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setPlane(MainWindow.EXP_PLANE);
@@ -586,6 +617,7 @@ public class PlanesMenu extends JMenu {
         planes[MainWindow.LOG_PLANE].setToolTipText("The logarithmic plane.");
         planes[MainWindow.LOG_PLANE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setPlane(MainWindow.LOG_PLANE);
@@ -599,6 +631,7 @@ public class PlanesMenu extends JMenu {
         planes[MainWindow.SQRT_PLANE].setToolTipText("The square root plane.");
         planes[MainWindow.SQRT_PLANE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setPlane(MainWindow.SQRT_PLANE);
@@ -612,6 +645,7 @@ public class PlanesMenu extends JMenu {
         planes[MainWindow.ABS_PLANE].setToolTipText("The absolute value plane.");
         planes[MainWindow.ABS_PLANE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setPlane(MainWindow.ABS_PLANE);
@@ -625,6 +659,7 @@ public class PlanesMenu extends JMenu {
         planes[MainWindow.GAMMA_PLANE].setToolTipText("The gamma function plane.");
         planes[MainWindow.GAMMA_PLANE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setPlane(MainWindow.GAMMA_PLANE);
@@ -638,6 +673,7 @@ public class PlanesMenu extends JMenu {
         planes[MainWindow.FACT_PLANE].setToolTipText("The factorial plane.");
         planes[MainWindow.FACT_PLANE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setPlane(MainWindow.FACT_PLANE);
@@ -651,6 +687,7 @@ public class PlanesMenu extends JMenu {
         planes[MainWindow.ERF_PLANE].setToolTipText("The error function plane.");
         planes[MainWindow.ERF_PLANE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setPlane(MainWindow.ERF_PLANE);
@@ -664,6 +701,7 @@ public class PlanesMenu extends JMenu {
         planes[MainWindow.RZETA_PLANE].setToolTipText("The riemann zeta plane.");
         planes[MainWindow.RZETA_PLANE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setPlane(MainWindow.RZETA_PLANE);
@@ -677,6 +715,7 @@ public class PlanesMenu extends JMenu {
         planes[MainWindow.SIN_PLANE].setToolTipText("The sin plane.");
         planes[MainWindow.SIN_PLANE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setPlane(MainWindow.SIN_PLANE);
@@ -690,6 +729,7 @@ public class PlanesMenu extends JMenu {
         planes[MainWindow.COS_PLANE].setToolTipText("The cos plane.");
         planes[MainWindow.COS_PLANE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setPlane(MainWindow.COS_PLANE);
@@ -703,6 +743,7 @@ public class PlanesMenu extends JMenu {
         planes[MainWindow.TAN_PLANE].setToolTipText("The tan plane.");
         planes[MainWindow.TAN_PLANE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setPlane(MainWindow.TAN_PLANE);
@@ -716,6 +757,7 @@ public class PlanesMenu extends JMenu {
         planes[MainWindow.COT_PLANE].setToolTipText("The cot plane.");
         planes[MainWindow.COT_PLANE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setPlane(MainWindow.COT_PLANE);
@@ -729,6 +771,7 @@ public class PlanesMenu extends JMenu {
         planes[MainWindow.SINH_PLANE].setToolTipText("The hyperbolic sin plane.");
         planes[MainWindow.SINH_PLANE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setPlane(MainWindow.SINH_PLANE);
@@ -742,6 +785,7 @@ public class PlanesMenu extends JMenu {
         planes[MainWindow.COSH_PLANE].setToolTipText("The hyperbolic cos plane.");
         planes[MainWindow.COSH_PLANE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setPlane(MainWindow.COSH_PLANE);
@@ -755,6 +799,7 @@ public class PlanesMenu extends JMenu {
         planes[MainWindow.TANH_PLANE].setToolTipText("The hyperbolic tan plane.");
         planes[MainWindow.TANH_PLANE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setPlane(MainWindow.TANH_PLANE);
@@ -768,6 +813,7 @@ public class PlanesMenu extends JMenu {
         planes[MainWindow.COTH_PLANE].setToolTipText("The hyperbolic cot plane.");
         planes[MainWindow.COTH_PLANE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setPlane(MainWindow.COTH_PLANE);
@@ -781,6 +827,7 @@ public class PlanesMenu extends JMenu {
         planes[MainWindow.SEC_PLANE].setToolTipText("The sec plane.");
         planes[MainWindow.SEC_PLANE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setPlane(MainWindow.SEC_PLANE);
@@ -794,6 +841,7 @@ public class PlanesMenu extends JMenu {
         planes[MainWindow.CSC_PLANE].setToolTipText("The csc plane.");
         planes[MainWindow.CSC_PLANE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setPlane(MainWindow.CSC_PLANE);
@@ -807,6 +855,7 @@ public class PlanesMenu extends JMenu {
         planes[MainWindow.SECH_PLANE].setToolTipText("The hyperbolic sec plane.");
         planes[MainWindow.SECH_PLANE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setPlane(MainWindow.SECH_PLANE);
@@ -820,6 +869,7 @@ public class PlanesMenu extends JMenu {
         planes[MainWindow.CSCH_PLANE].setToolTipText("The hyperbolic csc plane.");
         planes[MainWindow.CSCH_PLANE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setPlane(MainWindow.CSCH_PLANE);
@@ -833,6 +883,7 @@ public class PlanesMenu extends JMenu {
         planes[MainWindow.ASIN_PLANE].setToolTipText("The inverse sin plane.");
         planes[MainWindow.ASIN_PLANE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setPlane(MainWindow.ASIN_PLANE);
@@ -846,6 +897,7 @@ public class PlanesMenu extends JMenu {
         planes[MainWindow.ACOS_PLANE].setToolTipText("The inverse cos plane.");
         planes[MainWindow.ACOS_PLANE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setPlane(MainWindow.ACOS_PLANE);
@@ -859,6 +911,7 @@ public class PlanesMenu extends JMenu {
         planes[MainWindow.ATAN_PLANE].setToolTipText("The inverse tan plane.");
         planes[MainWindow.ATAN_PLANE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setPlane(MainWindow.ATAN_PLANE);
@@ -872,6 +925,7 @@ public class PlanesMenu extends JMenu {
         planes[MainWindow.ACOT_PLANE].setToolTipText("The inverse cot plane.");
         planes[MainWindow.ACOT_PLANE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setPlane(MainWindow.ACOT_PLANE);
@@ -885,6 +939,7 @@ public class PlanesMenu extends JMenu {
         planes[MainWindow.ASINH_PLANE].setToolTipText("The inverse hyperbolic sin plane.");
         planes[MainWindow.ASINH_PLANE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setPlane(MainWindow.ASINH_PLANE);
@@ -898,6 +953,7 @@ public class PlanesMenu extends JMenu {
         planes[MainWindow.ACOSH_PLANE].setToolTipText("The inverse hyperbolic cos plane.");
         planes[MainWindow.ACOSH_PLANE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setPlane(MainWindow.ACOSH_PLANE);
@@ -911,6 +967,7 @@ public class PlanesMenu extends JMenu {
         planes[MainWindow.ATANH_PLANE].setToolTipText("The inverse hyperbolic tan plane.");
         planes[MainWindow.ATANH_PLANE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setPlane(MainWindow.ATANH_PLANE);
@@ -924,6 +981,7 @@ public class PlanesMenu extends JMenu {
         planes[MainWindow.ACOTH_PLANE].setToolTipText("The inverse hyperbolic cot plane.");
         planes[MainWindow.ACOTH_PLANE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setPlane(MainWindow.ACOTH_PLANE);
@@ -937,6 +995,7 @@ public class PlanesMenu extends JMenu {
         planes[MainWindow.ASEC_PLANE].setToolTipText("The inverse sec plane.");
         planes[MainWindow.ASEC_PLANE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setPlane(MainWindow.ASEC_PLANE);
@@ -950,6 +1009,7 @@ public class PlanesMenu extends JMenu {
         planes[MainWindow.ACSC_PLANE].setToolTipText("The inverse csc plane.");
         planes[MainWindow.ACSC_PLANE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setPlane(MainWindow.ACSC_PLANE);
@@ -963,6 +1023,7 @@ public class PlanesMenu extends JMenu {
         planes[MainWindow.ASECH_PLANE].setToolTipText("The inverse hyperbolic sec plane.");
         planes[MainWindow.ASECH_PLANE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setPlane(MainWindow.ASECH_PLANE);
@@ -976,6 +1037,7 @@ public class PlanesMenu extends JMenu {
         planes[MainWindow.ACSCH_PLANE].setToolTipText("The inverse hyperbolic csc plane.");
         planes[MainWindow.ACSCH_PLANE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setPlane(MainWindow.ACSCH_PLANE);
@@ -995,6 +1057,7 @@ public class PlanesMenu extends JMenu {
         planes[MainWindow.USER_PLANE].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, ActionEvent.CTRL_MASK));
         planes[MainWindow.USER_PLANE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setPlane(MainWindow.USER_PLANE);

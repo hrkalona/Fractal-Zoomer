@@ -1,5 +1,5 @@
 /*
- * Fractal Zoomer, Copyright (C) 2018 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2019 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,6 @@ package fractalzoomer.functions.root_finding_methods.secant;
 import fractalzoomer.core.Complex;
 import fractalzoomer.functions.root_finding_methods.RootFindingMethods;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
-import fractalzoomer.main.app_settings.StatisticsSettings;
 import java.util.ArrayList;
 
 /**
@@ -45,6 +44,16 @@ public abstract class SecantRootFindingMethod extends RootFindingMethods {
         
         Complex temp = new Complex(z);
         z.sub_mutable(fz.times((z.sub(z1)).divide_mutable(fz.sub(fz1))));
+        z1.assign(temp);
+        fz1.assign(fz);
+        return z;
+        
+    }
+    
+    public static Complex secantMethod(Complex z, Complex fz, Complex z1, Complex fz1, Complex relaxation) {
+        
+        Complex temp = new Complex(z);
+        z.sub_mutable((fz.times((z.sub(z1)).divide_mutable(fz.sub(fz1)))).times_mutable(relaxation));
         z1.assign(temp);
         fz1.assign(fz);
         return z;

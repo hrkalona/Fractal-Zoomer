@@ -1,5 +1,5 @@
 /*
- * Fractal Zoomer, Copyright (C) 2018 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2019 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,7 +33,7 @@ public class Toolbar extends JToolBar {
     private JButton starting_position_button;
     private JButton zoom_in_button;
     private JButton zoom_out_button;
-    private JButton repaint_button;
+    private JButton go_to_button;
     private JButton save_image_button;
     private JButton save_image_and_settings_button;
     private JButton custom_palette_button_out;
@@ -74,7 +74,24 @@ public class Toolbar extends JToolBar {
         });
 
         add(starting_position_button);
+        
+        go_to_button = new JButton();
+        go_to_button.setIcon(getIcon("/fractalzoomer/icons/go_to.png"));
+        go_to_button.setFocusable(false);
+        go_to_button.setToolTipText("Sets the center and size of the fractal, or the julia seed.");
 
+        go_to_button.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.goTo();
+
+            }
+        });
+
+        add(go_to_button);
+             
         zoom_in_button = new JButton();
         zoom_in_button.setIcon(getIcon("/fractalzoomer/icons/zoom_in.png"));
         zoom_in_button.setFocusable(false);
@@ -109,23 +126,6 @@ public class Toolbar extends JToolBar {
 
         add(zoom_out_button);
         
-        repaint_button = new JButton();
-        repaint_button.setIcon(getIcon("/fractalzoomer/icons/refresh_image.png"));
-        repaint_button.setFocusable(false);
-        repaint_button.setToolTipText("Repaints the image, using the current active settings.");
-
-        repaint_button.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.redraw();
-
-            }
-        });
-
-        add(repaint_button);
-
         addSeparator();
 
         save_image_button = new JButton();
@@ -525,9 +525,9 @@ public class Toolbar extends JToolBar {
         
     }
     
-    public JButton getRepaintButton() {
+    public JButton getGoTo() {
         
-        return repaint_button;
+        return go_to_button;
         
     }
 }

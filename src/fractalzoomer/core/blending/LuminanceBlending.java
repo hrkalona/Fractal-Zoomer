@@ -1,5 +1,5 @@
 /*
- * Fractal Zoomer, Copyright (C) 2018 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2019 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,12 +24,11 @@ import fractalzoomer.utils.ColorSpaceConverter;
  * @author kaloch
  */
 public class LuminanceBlending extends Blending {
-    private ColorSpaceConverter converter;
     
     public LuminanceBlending(int color_interpolation) {
 
         super(color_interpolation);
-        converter = new ColorSpaceConverter();
+        
     }
 
     @Override
@@ -43,8 +42,8 @@ public class LuminanceBlending extends Blending {
             blueB = 1;
         }
         
-        double[] resB = converter.RGBtoLAB(redB, greenB, blueB);
-        double[] resA = converter.RGBtoLAB(redA, greenA, blueA);
+        double[] resB = ColorSpaceConverter.RGBtoLAB(redB, greenB, blueB);
+        double[] resA = ColorSpaceConverter.RGBtoLAB(redA, greenA, blueA);
         
         resB[0] = resB[0] == 0 ? 1e-16 : resB[0];
         

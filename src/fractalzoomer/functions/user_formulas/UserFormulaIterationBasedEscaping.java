@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2018 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2019 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -613,173 +613,58 @@ public class UserFormulaIterationBasedEscaping extends Julia {
     }
 
     private void setVariables(Complex zold, Complex zold2) {
-
-        if (parser[0].foundP()) {
-            parser[0].setPvalue(zold);
+        
+        for(int i = 0; i < parser.length; i++) {
+            if (parser[i].foundP()) {
+                parser[i].setPvalue(zold);
+            }
+            
+            if (parser[i].foundPP()) {
+                parser[i].setPPvalue(zold2);
+            }
         }
-
-        if (parser[1].foundP()) {
-            parser[1].setPvalue(zold);
-        }
-
-        if (parser[2].foundP()) {
-            parser[2].setPvalue(zold);
-        }
-
-        if (parser[3].foundP()) {
-            parser[3].setPvalue(zold);
-        }
-
-        if (parser[0].foundPP()) {
-            parser[0].setPPvalue(zold2);
-        }
-
-        if (parser[1].foundPP()) {
-            parser[1].setPPvalue(zold2);
-        }
-
-        if (parser[2].foundPP()) {
-            parser[2].setPPvalue(zold2);
-        }
-
-        if (parser[3].foundPP()) {
-            parser[3].setPPvalue(zold2);
-        }
+        
     }
 
     private void setInitVariables(Complex start, Complex zold, Complex zold2) {
 
-        if (parser[0].foundS()) {
-            parser[0].setSvalue(start);
-        }
-
-        if (parser[1].foundS()) {
-            parser[1].setSvalue(start);
-        }
-
-        if (parser[2].foundS()) {
-            parser[2].setSvalue(start);
-        }
-
-        if (parser[3].foundS()) {
-            parser[3].setSvalue(start);
-        }
-
-        if (parser[0].foundMaxn()) {
-            parser[0].setMaxnvalue(new Complex(max_iterations, 0));
-        }
-
-        if (parser[1].foundMaxn()) {
-            parser[1].setMaxnvalue(new Complex(max_iterations, 0));
-        }
-
-        if (parser[2].foundMaxn()) {
-            parser[2].setMaxnvalue(new Complex(max_iterations, 0));
-        }
-
-        if (parser[3].foundMaxn()) {
-            parser[3].setMaxnvalue(new Complex(max_iterations, 0));
-        }
-
-        if (parser[0].foundP()) {
-            parser[0].setPvalue(zold);
-        }
-
-        if (parser[1].foundP()) {
-            parser[1].setPvalue(zold);
-        }
-
-        if (parser[2].foundP()) {
-            parser[2].setPvalue(zold);
-        }
-
-        if (parser[3].foundP()) {
-            parser[3].setPvalue(zold);
-        }
-
-        if (parser[0].foundPP()) {
-            parser[0].setPPvalue(zold2);
-        }
-
-        if (parser[1].foundPP()) {
-            parser[1].setPPvalue(zold2);
-        }
-
-        if (parser[2].foundPP()) {
-            parser[2].setPPvalue(zold2);
-        }
-
-        if (parser[3].foundPP()) {
-            parser[3].setPPvalue(zold2);
-        }
-
         Complex c_center = new Complex(xCenter, yCenter);
-
-        if (parser[0].foundCenter()) {
-            parser[0].setCentervalue(c_center);
-        }
-
-        if (parser[1].foundCenter()) {
-            parser[1].setCentervalue(c_center);
-        }
-
-        if (parser[2].foundCenter()) {
-            parser[2].setCentervalue(c_center);
-        }
-
-        if (parser[3].foundCenter()) {
-            parser[3].setCentervalue(c_center);
-        }
-
         Complex c_size = new Complex(size, 0);
-
-        if (parser[0].foundSize()) {
-            parser[0].setSizevalue(c_size);
-        }
-
-        if (parser[1].foundSize()) {
-            parser[1].setSizevalue(c_size);
-        }
-
-        if (parser[2].foundSize()) {
-            parser[2].setSizevalue(c_size);
-        }
-
-        if (parser[3].foundSize()) {
-            parser[3].setSizevalue(c_size);
-        }
-
         Complex c_isize = new Complex(ThreadDraw.IMAGE_SIZE, 0);
-        if (parser[0].foundISize()) {
-            parser[0].setISizevalue(c_isize);
-        }
+        
+        for(int i = 0; i < parser.length; i++) {
+            if (parser[i].foundS()) {
+                parser[i].setSvalue(start);
+            }
+            
+            if (parser[i].foundMaxn()) {
+                parser[i].setMaxnvalue(new Complex(max_iterations, 0));
+            }
+            
+            if (parser[i].foundP()) {
+                parser[i].setPvalue(zold);
+            }
+            
+            if (parser[i].foundPP()) {
+                parser[i].setPPvalue(zold2);
+            }
 
-        if (parser[1].foundISize()) {
-            parser[1].setISizevalue(c_isize);
+            if (parser[i].foundCenter()) {
+                parser[i].setCentervalue(c_center);
+            }
+            
+            if (parser[i].foundSize()) {
+                parser[i].setSizevalue(c_size);
+            }
+            
+            if (parser[i].foundISize()) {
+                parser[i].setISizevalue(c_isize);
+            }
+            
+            if (parser[i].foundPoint()) {
+                parser[i].setPointvalue(point);
+            }
         }
-
-        if (parser[2].foundISize()) {
-            parser[2].setISizevalue(c_isize);
-        }
-
-        if (parser[3].foundISize()) {
-            parser[3].setISizevalue(c_isize);
-        }
-
-        if (parser[0].foundPoint()) {
-            parser[0].setPointvalue(point);
-        }
-
-        if (parser[1].foundPoint()) {
-            parser[1].setPointvalue(point);
-        }
-
-        if (parser[2].foundPoint()) {
-            parser[2].setPointvalue(point);
-        }
-
-        if (parser[3].foundPoint()) {
-            parser[3].setPointvalue(point);
-        }
+        
     }
 }

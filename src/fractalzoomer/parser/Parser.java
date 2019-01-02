@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2018 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2019 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -181,25 +181,25 @@ public class Parser {
             found_vars[i] = false;
         }
 
-        z_var = new ArrayList<VariableExpressionNode>();
-        c_var = new ArrayList<VariableExpressionNode>();
-        n_var = new ArrayList<VariableExpressionNode>();
-        p_var = new ArrayList<VariableExpressionNode>();
-        s_var = new ArrayList<VariableExpressionNode>();
-        pp_var = new ArrayList<VariableExpressionNode>();
-        bail_var = new ArrayList<VariableExpressionNode>();
-        cbail_var = new ArrayList<VariableExpressionNode>();
-        maxn_var = new ArrayList<VariableExpressionNode>();
-        center_var = new ArrayList<VariableExpressionNode>();
-        size_var = new ArrayList<VariableExpressionNode>();
-        isize_var = new ArrayList<VariableExpressionNode>();
-        vars_var = new ArrayList<ArrayList<VariableExpressionNode>>();
+        z_var = new ArrayList<>();
+        c_var = new ArrayList<>();
+        n_var = new ArrayList<>();
+        p_var = new ArrayList<>();
+        s_var = new ArrayList<>();
+        pp_var = new ArrayList<>();
+        bail_var = new ArrayList<>();
+        cbail_var = new ArrayList<>();
+        maxn_var = new ArrayList<>();
+        center_var = new ArrayList<>();
+        size_var = new ArrayList<>();
+        isize_var = new ArrayList<>();
+        vars_var = new ArrayList<>();
 
         for(int i = 0; i < EXTRA_VARS; i++) {
-            vars_var.add(new ArrayList<VariableExpressionNode>());
+            vars_var.add(new ArrayList<>());
         }
 
-        point_var = new ArrayList<VariableExpressionNode>();
+        point_var = new ArrayList<>();
 
         Tokenizer tokenizer = Tokenizer.getExpressionTokenizer();
         tokenizer.tokenize(expression);

@@ -1,5 +1,5 @@
 /*
- * Fractal Zoomer, Copyright (C) 2018 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2019 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -67,6 +67,7 @@ public class FunctionUserMultiArgumentExpressionNode implements ExpressionNode {
      * Returns the type of the node, in this case
      * ExpressionNode.FUNCTION_USER_MULTI_ARG_NODE
      */
+    @Override
     public int getType() {
         return ExpressionNode.FUNCTION_USER_MULTI_ARG_NODE;
     }
@@ -117,6 +118,7 @@ public class FunctionUserMultiArgumentExpressionNode implements ExpressionNode {
      * The argument is evaluated and then the function is applied to the
      * resulting value.
      */
+    @Override
     public Complex getValue() {
 
         try {
@@ -135,6 +137,7 @@ public class FunctionUserMultiArgumentExpressionNode implements ExpressionNode {
      *
      * @param visitor the visitor
      */
+    @Override
     public void accept(ExpressionNodeVisitor visitor) {
         visitor.visit(this);
         for (int i = 0; i < arguments.length; i++) {

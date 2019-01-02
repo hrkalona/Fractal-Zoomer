@@ -1,5 +1,5 @@
 /*
- * Fractal Zoomer, Copyright (C) 2018 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2019 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,6 @@ package fractalzoomer.functions.root_finding_methods.laguerre;
 import fractalzoomer.core.Complex;
 import fractalzoomer.functions.root_finding_methods.RootFindingMethods;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
-import fractalzoomer.main.app_settings.StatisticsSettings;
 import java.util.ArrayList;
 
 /**
@@ -59,6 +58,25 @@ public abstract class LaguerreRootFindingMethod extends RootFindingMethods {
         }
         else {
             z.sub_mutable(degree.times(fz).divide_mutable(denom2));
+        }
+        
+        return z;
+        
+    }
+    
+    public static Complex laguerreMethod(Complex z, Complex fz, Complex dfz, Complex ddfz, Complex degree, Complex relaxation) {
+
+        Complex n1 = degree.sub(1);
+        Complex sqrt = (n1.times(dfz).square_mutable().sub_mutable(degree.times(n1).times_mutable(ddfz).times_mutable(fz))).sqrt_mutable();
+
+        Complex denom1 = dfz.plus(sqrt);
+        Complex denom2 = dfz.sub(sqrt);
+
+        if(denom1.norm_squared() > denom2.norm_squared()) {
+            z.sub_mutable((degree.times(fz).divide_mutable(denom1)).times_mutable(relaxation));
+        }
+        else {
+            z.sub_mutable((degree.times(fz).divide_mutable(denom2)).times_mutable(relaxation));
         }
         
         return z;

@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2018 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2019 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -1193,6 +1193,9 @@ public class Mandelbrot extends Julia {
     
     @Override
     protected void StatisticFactory(StatisticsSettings sts, double[] plane_transform_center) {
+        
+        statisticIncludeEscaped = sts.statisticIncludeEscaped;
+        statisticIncludeNotEscaped = sts.statisticIncludeNotEscaped;
         
         if(sts.statisticGroup == 1) {
             statistic = new UserStatisticColoring(sts.statistic_intensity, sts.user_statistic_formula, xCenter, yCenter, max_iterations, size, bailout, plane_transform_center, globalVars, sts.useAverage);

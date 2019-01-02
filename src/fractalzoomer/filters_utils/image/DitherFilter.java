@@ -248,6 +248,7 @@ public class DitherFilter extends PointFilter {
 		}
 	}
 
+        @Override
 	public int filterRGB(int x, int y, int rgb) {
 		if (!initialized) {
 			initialized = true;
@@ -271,6 +272,7 @@ public class DitherFilter extends PointFilter {
 		return a | (r << 16) | (g << 8) | b;
 	}
 
+        @Override
 	public String toString() {
 		return "Colors/Dither...";
 	}

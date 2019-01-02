@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2018 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2019 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,6 +47,8 @@ public class FractalFunctionsMenu extends JMenu {
     private JMenu muller_type_functions;
     private JMenu parhalley_type_functions;
     private JMenu laguerre_type_functions;
+    private JMenu durand_kerner_type_functions;
+    private JMenu bairstow_type_functions;
     private JMenu lambda_type_functions;
     private JMenu barnsley_type_functions;
     private JMenu szegedi_butterfly_type_functions;
@@ -230,6 +232,19 @@ public class FractalFunctionsMenu extends JMenu {
         functionNames[MainWindow.KLEINIAN] = "Kleinian";
         functionNames[MainWindow.LAMBDA2] = "Lambda 2";
         functionNames[MainWindow.LAMBDA3] = "Lambda 3";
+        functionNames[MainWindow.GENERIC_CaZbdZe] = "z = c * (alpha*z^beta + delta*z^epsilon)";
+        functionNames[MainWindow.DURAND_KERNER3] = "Durand/Kerner 3";
+        functionNames[MainWindow.DURAND_KERNER4] = "Durand/Kerner 4";
+        functionNames[MainWindow.DURAND_KERNERGENERALIZED3] = "Durand/Kerner Generalized 3";
+        functionNames[MainWindow.DURAND_KERNERGENERALIZED8] = "Durand/Kerner Generalized 8";
+        functionNames[MainWindow.DURAND_KERNERPOLY] = "Durand/Kerner Polynomial";
+        functionNames[MainWindow.MAGNETIC_PENDULUM] = "Magnetic Pendulum";
+        functionNames[MainWindow.LYAPUNOV] = "Lyapunov";
+        functionNames[MainWindow.BAIRSTOW3] = "Bairstow 3";
+        functionNames[MainWindow.BAIRSTOW4] = "Bairstow 4";
+        functionNames[MainWindow.BAIRSTOWGENERALIZED3] = "Bairstow Generalized 3";
+        functionNames[MainWindow.BAIRSTOWGENERALIZED8] = "Bairstow Generalized 8";
+        functionNames[MainWindow.BAIRSTOWPOLY] = "Bairstow Polynomial";     
  
     }
 
@@ -254,6 +269,8 @@ public class FractalFunctionsMenu extends JMenu {
         muller_type_functions = new JMenu("Muller Method");
         parhalley_type_functions = new JMenu("Parhalley Method");
         laguerre_type_functions = new JMenu("Laguerre Method");
+        durand_kerner_type_functions = new JMenu("Durand/Kerner Method");
+        bairstow_type_functions = new JMenu("Bairstow Method");
 
         barnsley_type_functions = new JMenu("Barnsley Type");
         
@@ -295,6 +312,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.MANDELBROT] = new JRadioButtonMenuItem(functionNames[MainWindow.MANDELBROT]);
         fractal_functions[MainWindow.MANDELBROT].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.MANDELBROT);
@@ -310,6 +328,7 @@ public class FractalFunctionsMenu extends JMenu {
 
                 int temp = i;
 
+                @Override
                 public void actionPerformed(ActionEvent e) {
 
                     ptr.setFunction(temp);
@@ -323,6 +342,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.MANDELBROTNTH] = new JRadioButtonMenuItem(functionNames[MainWindow.MANDELBROTNTH]);
         fractal_functions[MainWindow.MANDELBROTNTH].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.MANDELBROTNTH);
@@ -335,6 +355,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.MANDELBROTWTH] = new JRadioButtonMenuItem(functionNames[MainWindow.MANDELBROTWTH]);
         fractal_functions[MainWindow.MANDELBROTWTH].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.MANDELBROTWTH);
@@ -347,6 +368,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.MANDELPOLY] = new JRadioButtonMenuItem(functionNames[MainWindow.MANDELPOLY]);
         fractal_functions[MainWindow.MANDELPOLY].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.MANDELPOLY);
@@ -369,6 +391,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.FORMULA1] = new JRadioButtonMenuItem(functionNames[MainWindow.FORMULA1]);
         fractal_functions[MainWindow.FORMULA1].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.FORMULA1);
@@ -382,6 +405,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.FORMULA28] = new JRadioButtonMenuItem(functionNames[MainWindow.FORMULA28]);
         fractal_functions[MainWindow.FORMULA28].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.FORMULA28);
@@ -395,6 +419,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.FORMULA29] = new JRadioButtonMenuItem(functionNames[MainWindow.FORMULA29]);
         fractal_functions[MainWindow.FORMULA29].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.FORMULA29);
@@ -408,6 +433,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.FORMULA38] = new JRadioButtonMenuItem(functionNames[MainWindow.FORMULA38]);
         fractal_functions[MainWindow.FORMULA38].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.FORMULA38);
@@ -421,6 +447,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.FORMULA39] = new JRadioButtonMenuItem(functionNames[MainWindow.FORMULA39]);
         fractal_functions[MainWindow.FORMULA39].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.FORMULA39);
@@ -434,6 +461,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.FORMULA46] = new JRadioButtonMenuItem(functionNames[MainWindow.FORMULA46]);
         fractal_functions[MainWindow.FORMULA46].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.FORMULA46);
@@ -447,6 +475,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.FORMULA2] = new JRadioButtonMenuItem(functionNames[MainWindow.FORMULA2]);
         fractal_functions[MainWindow.FORMULA2].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.FORMULA2);
@@ -459,6 +488,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.FORMULA3] = new JRadioButtonMenuItem(functionNames[MainWindow.FORMULA3]);
         fractal_functions[MainWindow.FORMULA3].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.FORMULA3);
@@ -471,6 +501,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.FORMULA4] = new JRadioButtonMenuItem(functionNames[MainWindow.FORMULA4]);
         fractal_functions[MainWindow.FORMULA4].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.FORMULA4);
@@ -483,6 +514,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.FORMULA5] = new JRadioButtonMenuItem(functionNames[MainWindow.FORMULA5]);
         fractal_functions[MainWindow.FORMULA5].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.FORMULA5);
@@ -495,6 +527,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.FORMULA6] = new JRadioButtonMenuItem(functionNames[MainWindow.FORMULA6]);
         fractal_functions[MainWindow.FORMULA6].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.FORMULA6);
@@ -507,6 +540,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.FORMULA7] = new JRadioButtonMenuItem(functionNames[MainWindow.FORMULA7]);
         fractal_functions[MainWindow.FORMULA7].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.FORMULA7);
@@ -519,6 +553,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.FORMULA8] = new JRadioButtonMenuItem(functionNames[MainWindow.FORMULA8]);
         fractal_functions[MainWindow.FORMULA8].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.FORMULA8);
@@ -531,6 +566,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.FORMULA9] = new JRadioButtonMenuItem(functionNames[MainWindow.FORMULA9]);
         fractal_functions[MainWindow.FORMULA9].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.FORMULA9);
@@ -543,6 +579,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.FORMULA10] = new JRadioButtonMenuItem(functionNames[MainWindow.FORMULA10]);
         fractal_functions[MainWindow.FORMULA10].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.FORMULA10);
@@ -555,6 +592,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.FORMULA11] = new JRadioButtonMenuItem(functionNames[MainWindow.FORMULA11]);
         fractal_functions[MainWindow.FORMULA11].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.FORMULA11);
@@ -567,6 +605,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.FORMULA12] = new JRadioButtonMenuItem(functionNames[MainWindow.FORMULA12]);
         fractal_functions[MainWindow.FORMULA12].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.FORMULA12);
@@ -579,6 +618,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.FORMULA27] = new JRadioButtonMenuItem(functionNames[MainWindow.FORMULA27]);
         fractal_functions[MainWindow.FORMULA27].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.FORMULA27);
@@ -587,6 +627,19 @@ public class FractalFunctionsMenu extends JMenu {
         });
         c_azb_dze_type_functions.add(fractal_functions[MainWindow.FORMULA27]);
         functions_button_group.add(fractal_functions[MainWindow.FORMULA27]);
+        
+        fractal_functions[MainWindow.GENERIC_CaZbdZe] = new JRadioButtonMenuItem(functionNames[MainWindow.GENERIC_CaZbdZe]);
+        fractal_functions[MainWindow.GENERIC_CaZbdZe].addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFunction(MainWindow.GENERIC_CaZbdZe);
+
+            }
+        });
+        c_azb_dze_type_functions.add(fractal_functions[MainWindow.GENERIC_CaZbdZe]);
+        functions_button_group.add(fractal_functions[MainWindow.GENERIC_CaZbdZe]);
 
         m_like_generalizations_type_functions.add(c_azb_dze_type_functions);
 
@@ -595,6 +648,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.FORMULA13] = new JRadioButtonMenuItem(functionNames[MainWindow.FORMULA13]);
         fractal_functions[MainWindow.FORMULA13].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.FORMULA13);
@@ -607,6 +661,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.FORMULA14] = new JRadioButtonMenuItem(functionNames[MainWindow.FORMULA14]);
         fractal_functions[MainWindow.FORMULA14].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.FORMULA14);
@@ -619,6 +674,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.FORMULA15] = new JRadioButtonMenuItem(functionNames[MainWindow.FORMULA15]);
         fractal_functions[MainWindow.FORMULA15].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.FORMULA15);
@@ -631,6 +687,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.FORMULA16] = new JRadioButtonMenuItem(functionNames[MainWindow.FORMULA16]);
         fractal_functions[MainWindow.FORMULA16].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.FORMULA16);
@@ -643,6 +700,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.FORMULA17] = new JRadioButtonMenuItem(functionNames[MainWindow.FORMULA17]);
         fractal_functions[MainWindow.FORMULA17].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.FORMULA17);
@@ -655,6 +713,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.FORMULA18] = new JRadioButtonMenuItem(functionNames[MainWindow.FORMULA18]);
         fractal_functions[MainWindow.FORMULA18].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.FORMULA18);
@@ -669,6 +728,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.FORMULA40] = new JRadioButtonMenuItem(functionNames[MainWindow.FORMULA40]);
         fractal_functions[MainWindow.FORMULA40].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.FORMULA40);
@@ -681,6 +741,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.FORMULA41] = new JRadioButtonMenuItem(functionNames[MainWindow.FORMULA41]);
         fractal_functions[MainWindow.FORMULA41].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.FORMULA41);
@@ -696,6 +757,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.FORMULA19] = new JRadioButtonMenuItem(functionNames[MainWindow.FORMULA19]);
         fractal_functions[MainWindow.FORMULA19].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.FORMULA19);
@@ -708,6 +770,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.FORMULA20] = new JRadioButtonMenuItem(functionNames[MainWindow.FORMULA20]);
         fractal_functions[MainWindow.FORMULA20].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.FORMULA20);
@@ -720,6 +783,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.FORMULA21] = new JRadioButtonMenuItem(functionNames[MainWindow.FORMULA21]);
         fractal_functions[MainWindow.FORMULA21].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.FORMULA21);
@@ -732,6 +796,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.FORMULA22] = new JRadioButtonMenuItem(functionNames[MainWindow.FORMULA22]);
         fractal_functions[MainWindow.FORMULA22].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.FORMULA22);
@@ -744,6 +809,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.FORMULA23] = new JRadioButtonMenuItem(functionNames[MainWindow.FORMULA23]);
         fractal_functions[MainWindow.FORMULA23].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.FORMULA23);
@@ -756,6 +822,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.FORMULA24] = new JRadioButtonMenuItem(functionNames[MainWindow.FORMULA24]);
         fractal_functions[MainWindow.FORMULA24].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.FORMULA24);
@@ -768,6 +835,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.FORMULA25] = new JRadioButtonMenuItem(functionNames[MainWindow.FORMULA25]);
         fractal_functions[MainWindow.FORMULA25].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.FORMULA25);
@@ -780,6 +848,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.FORMULA26] = new JRadioButtonMenuItem(functionNames[MainWindow.FORMULA26]);
         fractal_functions[MainWindow.FORMULA26].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.FORMULA26);
@@ -792,6 +861,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.COUPLED_MANDELBROT] = new JRadioButtonMenuItem(functionNames[MainWindow.COUPLED_MANDELBROT]);
         fractal_functions[MainWindow.COUPLED_MANDELBROT].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.COUPLED_MANDELBROT);
@@ -804,6 +874,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.COUPLED_MANDELBROT_BURNING_SHIP] = new JRadioButtonMenuItem(functionNames[MainWindow.COUPLED_MANDELBROT_BURNING_SHIP]);
         fractal_functions[MainWindow.COUPLED_MANDELBROT_BURNING_SHIP].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.COUPLED_MANDELBROT_BURNING_SHIP);
@@ -833,6 +904,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.LAMBDA] = new JRadioButtonMenuItem(functionNames[MainWindow.LAMBDA]);
         fractal_functions[MainWindow.LAMBDA].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.LAMBDA);
@@ -845,6 +917,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.LAMBDA2] = new JRadioButtonMenuItem(functionNames[MainWindow.LAMBDA2]);
         fractal_functions[MainWindow.LAMBDA2].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.LAMBDA2);
@@ -857,6 +930,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.LAMBDA3] = new JRadioButtonMenuItem(functionNames[MainWindow.LAMBDA3]);
         fractal_functions[MainWindow.LAMBDA3].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.LAMBDA3);
@@ -872,6 +946,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.MAGNET1] = new JRadioButtonMenuItem(functionNames[MainWindow.MAGNET1]);
         fractal_functions[MainWindow.MAGNET1].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.MAGNET1);
@@ -884,6 +959,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.MAGNET2] = new JRadioButtonMenuItem(functionNames[MainWindow.MAGNET2]);
         fractal_functions[MainWindow.MAGNET2].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.MAGNET2);
@@ -898,6 +974,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.NEWTON3] = new JRadioButtonMenuItem(functionNames[MainWindow.NEWTON3]);
         fractal_functions[MainWindow.NEWTON3].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.NEWTON3);
@@ -910,6 +987,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.NEWTON4] = new JRadioButtonMenuItem(functionNames[MainWindow.NEWTON4]);
         fractal_functions[MainWindow.NEWTON4].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.NEWTON4);
@@ -922,6 +1000,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.NEWTONGENERALIZED3] = new JRadioButtonMenuItem(functionNames[MainWindow.NEWTONGENERALIZED3]);
         fractal_functions[MainWindow.NEWTONGENERALIZED3].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.NEWTONGENERALIZED3);
@@ -934,6 +1013,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.NEWTONGENERALIZED8] = new JRadioButtonMenuItem(functionNames[MainWindow.NEWTONGENERALIZED8]);
         fractal_functions[MainWindow.NEWTONGENERALIZED8].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.NEWTONGENERALIZED8);
@@ -946,6 +1026,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.NEWTONSIN] = new JRadioButtonMenuItem(functionNames[MainWindow.NEWTONSIN]);
         fractal_functions[MainWindow.NEWTONSIN].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.NEWTONSIN);
@@ -958,6 +1039,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.NEWTONCOS] = new JRadioButtonMenuItem(functionNames[MainWindow.NEWTONCOS]);
         fractal_functions[MainWindow.NEWTONCOS].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.NEWTONCOS);
@@ -970,6 +1052,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.NEWTONPOLY] = new JRadioButtonMenuItem(functionNames[MainWindow.NEWTONPOLY]);
         fractal_functions[MainWindow.NEWTONPOLY].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.NEWTONPOLY);
@@ -982,6 +1065,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.NEWTONFORMULA] = new JRadioButtonMenuItem(functionNames[MainWindow.NEWTONFORMULA]);
         fractal_functions[MainWindow.NEWTONFORMULA].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.NEWTONFORMULA);
@@ -1008,6 +1092,10 @@ public class FractalFunctionsMenu extends JMenu {
         root_finding_functions.add(parhalley_type_functions);
         root_finding_functions.addSeparator();
         root_finding_functions.add(laguerre_type_functions);
+        root_finding_functions.addSeparator();
+        root_finding_functions.add(durand_kerner_type_functions);
+        root_finding_functions.addSeparator();
+        root_finding_functions.add(bairstow_type_functions);    
 
         add(root_finding_functions);
         addSeparator();
@@ -1015,6 +1103,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.BARNSLEY1] = new JRadioButtonMenuItem(functionNames[MainWindow.BARNSLEY1]);
         fractal_functions[MainWindow.BARNSLEY1].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.BARNSLEY1);
@@ -1027,6 +1116,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.BARNSLEY2] = new JRadioButtonMenuItem(functionNames[MainWindow.BARNSLEY2]);
         fractal_functions[MainWindow.BARNSLEY2].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.BARNSLEY2);
@@ -1039,6 +1129,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.BARNSLEY3] = new JRadioButtonMenuItem(functionNames[MainWindow.BARNSLEY3]);
         fractal_functions[MainWindow.BARNSLEY3].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.BARNSLEY3);
@@ -1053,6 +1144,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.SZEGEDI_BUTTERFLY1] = new JRadioButtonMenuItem(functionNames[MainWindow.SZEGEDI_BUTTERFLY1]);
         fractal_functions[MainWindow.SZEGEDI_BUTTERFLY1].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.SZEGEDI_BUTTERFLY1);
@@ -1065,6 +1157,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.SZEGEDI_BUTTERFLY2] = new JRadioButtonMenuItem(functionNames[MainWindow.SZEGEDI_BUTTERFLY2]);
         fractal_functions[MainWindow.SZEGEDI_BUTTERFLY2].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.SZEGEDI_BUTTERFLY2);
@@ -1080,6 +1173,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.NOVA] = new JRadioButtonMenuItem(functionNames[MainWindow.NOVA]);
         fractal_functions[MainWindow.NOVA].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.NOVA);
@@ -1093,6 +1187,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.MANDELBAR] = new JRadioButtonMenuItem(functionNames[MainWindow.MANDELBAR]);
         fractal_functions[MainWindow.MANDELBAR].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.MANDELBAR);
@@ -1105,6 +1200,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.SPIDER] = new JRadioButtonMenuItem(functionNames[MainWindow.SPIDER]);
         fractal_functions[MainWindow.SPIDER].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.SPIDER);
@@ -1119,6 +1215,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.MANOWAR] = new JRadioButtonMenuItem(functionNames[MainWindow.MANOWAR]);
         fractal_functions[MainWindow.MANOWAR].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.MANOWAR);
@@ -1133,6 +1230,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.PHOENIX] = new JRadioButtonMenuItem(functionNames[MainWindow.PHOENIX]);
         fractal_functions[MainWindow.PHOENIX].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.PHOENIX);
@@ -1147,6 +1245,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.SIERPINSKI_GASKET] = new JRadioButtonMenuItem(functionNames[MainWindow.SIERPINSKI_GASKET]);
         fractal_functions[MainWindow.SIERPINSKI_GASKET].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.SIERPINSKI_GASKET);
@@ -1160,6 +1259,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.KLEINIAN] = new JRadioButtonMenuItem(functionNames[MainWindow.KLEINIAN]);
         fractal_functions[MainWindow.KLEINIAN].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.KLEINIAN);
@@ -1169,10 +1269,39 @@ public class FractalFunctionsMenu extends JMenu {
         add(fractal_functions[MainWindow.KLEINIAN]);
         functions_button_group.add(fractal_functions[MainWindow.KLEINIAN]);
         addSeparator();
+        
+        fractal_functions[MainWindow.MAGNETIC_PENDULUM] = new JRadioButtonMenuItem(functionNames[MainWindow.MAGNETIC_PENDULUM]);
+        fractal_functions[MainWindow.MAGNETIC_PENDULUM].addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFunction(MainWindow.MAGNETIC_PENDULUM);
+
+            }
+        });
+        add(fractal_functions[MainWindow.MAGNETIC_PENDULUM]);
+        functions_button_group.add(fractal_functions[MainWindow.MAGNETIC_PENDULUM]);
+        addSeparator();
+        
+        fractal_functions[MainWindow.LYAPUNOV] = new JRadioButtonMenuItem(functionNames[MainWindow.LYAPUNOV]);
+        fractal_functions[MainWindow.LYAPUNOV].addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFunction(MainWindow.LYAPUNOV);
+
+            }
+        });
+        add(fractal_functions[MainWindow.LYAPUNOV]);
+        functions_button_group.add(fractal_functions[MainWindow.LYAPUNOV]);
+        addSeparator();
 
         fractal_functions[MainWindow.FROTHY_BASIN] = new JRadioButtonMenuItem(functionNames[MainWindow.FROTHY_BASIN]);
         fractal_functions[MainWindow.FROTHY_BASIN].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.FROTHY_BASIN);
@@ -1186,6 +1315,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.EXP] = new JRadioButtonMenuItem(functionNames[MainWindow.EXP]);
         fractal_functions[MainWindow.EXP].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.EXP);
@@ -1198,6 +1328,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.LOG] = new JRadioButtonMenuItem(functionNames[MainWindow.LOG]);
         fractal_functions[MainWindow.LOG].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.LOG);
@@ -1210,6 +1341,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.SIN] = new JRadioButtonMenuItem(functionNames[MainWindow.SIN]);
         fractal_functions[MainWindow.SIN].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.SIN);
@@ -1222,6 +1354,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.COS] = new JRadioButtonMenuItem(functionNames[MainWindow.COS]);
         fractal_functions[MainWindow.COS].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.COS);
@@ -1234,6 +1367,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.TAN] = new JRadioButtonMenuItem(functionNames[MainWindow.TAN]);
         fractal_functions[MainWindow.TAN].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.TAN);
@@ -1246,6 +1380,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.COT] = new JRadioButtonMenuItem(functionNames[MainWindow.COT]);
         fractal_functions[MainWindow.COT].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.COT);
@@ -1258,6 +1393,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.SINH] = new JRadioButtonMenuItem(functionNames[MainWindow.SINH]);
         fractal_functions[MainWindow.SINH].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.SINH);
@@ -1270,6 +1406,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.COSH] = new JRadioButtonMenuItem(functionNames[MainWindow.COSH]);
         fractal_functions[MainWindow.COSH].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.COSH);
@@ -1282,6 +1419,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.TANH] = new JRadioButtonMenuItem(functionNames[MainWindow.TANH]);
         fractal_functions[MainWindow.TANH].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.TANH);
@@ -1294,6 +1432,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.COTH] = new JRadioButtonMenuItem(functionNames[MainWindow.COTH]);
         fractal_functions[MainWindow.COTH].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.COTH);
@@ -1306,6 +1445,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.FORMULA30] = new JRadioButtonMenuItem(functionNames[MainWindow.FORMULA30]);
         fractal_functions[MainWindow.FORMULA30].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.FORMULA30);
@@ -1318,6 +1458,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.FORMULA31] = new JRadioButtonMenuItem(functionNames[MainWindow.FORMULA31]);
         fractal_functions[MainWindow.FORMULA31].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.FORMULA31);
@@ -1330,6 +1471,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.FORMULA32] = new JRadioButtonMenuItem(functionNames[MainWindow.FORMULA32]);
         fractal_functions[MainWindow.FORMULA32].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.FORMULA32);
@@ -1342,6 +1484,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.FORMULA33] = new JRadioButtonMenuItem(functionNames[MainWindow.FORMULA33]);
         fractal_functions[MainWindow.FORMULA33].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.FORMULA33);
@@ -1354,6 +1497,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.FORMULA34] = new JRadioButtonMenuItem(functionNames[MainWindow.FORMULA34]);
         fractal_functions[MainWindow.FORMULA34].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.FORMULA34);
@@ -1366,6 +1510,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.FORMULA35] = new JRadioButtonMenuItem(functionNames[MainWindow.FORMULA35]);
         fractal_functions[MainWindow.FORMULA35].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.FORMULA35);
@@ -1378,6 +1523,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.FORMULA36] = new JRadioButtonMenuItem(functionNames[MainWindow.FORMULA36]);
         fractal_functions[MainWindow.FORMULA36].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.FORMULA36);
@@ -1390,6 +1536,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.FORMULA37] = new JRadioButtonMenuItem(functionNames[MainWindow.FORMULA37]);
         fractal_functions[MainWindow.FORMULA37].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.FORMULA37);
@@ -1402,6 +1549,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.FORMULA42] = new JRadioButtonMenuItem(functionNames[MainWindow.FORMULA42]);
         fractal_functions[MainWindow.FORMULA42].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.FORMULA42);
@@ -1414,6 +1562,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.FORMULA43] = new JRadioButtonMenuItem(functionNames[MainWindow.FORMULA43]);
         fractal_functions[MainWindow.FORMULA43].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.FORMULA43);
@@ -1426,6 +1575,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.FORMULA44] = new JRadioButtonMenuItem(functionNames[MainWindow.FORMULA44]);
         fractal_functions[MainWindow.FORMULA44].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.FORMULA44);
@@ -1438,6 +1588,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.FORMULA45] = new JRadioButtonMenuItem(functionNames[MainWindow.FORMULA45]);
         fractal_functions[MainWindow.FORMULA45].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.FORMULA45);
@@ -1453,6 +1604,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.USER_FORMULA] = new JRadioButtonMenuItem(functionNames[MainWindow.USER_FORMULA]);
         fractal_functions[MainWindow.USER_FORMULA].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.USER_FORMULA);
@@ -1468,6 +1620,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.USER_FORMULA_ITERATION_BASED] = new JRadioButtonMenuItem(functionNames[MainWindow.USER_FORMULA_ITERATION_BASED]);
         fractal_functions[MainWindow.USER_FORMULA_ITERATION_BASED].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.USER_FORMULA_ITERATION_BASED);
@@ -1482,6 +1635,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.USER_FORMULA_CONDITIONAL] = new JRadioButtonMenuItem(functionNames[MainWindow.USER_FORMULA_CONDITIONAL]);
         fractal_functions[MainWindow.USER_FORMULA_CONDITIONAL].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.USER_FORMULA_CONDITIONAL);
@@ -1496,6 +1650,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.USER_FORMULA_COUPLED] = new JRadioButtonMenuItem(functionNames[MainWindow.USER_FORMULA_COUPLED]);
         fractal_functions[MainWindow.USER_FORMULA_COUPLED].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.USER_FORMULA_COUPLED);
@@ -1510,6 +1665,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.HALLEY3] = new JRadioButtonMenuItem(functionNames[MainWindow.HALLEY3]);
         fractal_functions[MainWindow.HALLEY3].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.HALLEY3);
@@ -1522,6 +1678,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.HALLEY4] = new JRadioButtonMenuItem(functionNames[MainWindow.HALLEY4]);
         fractal_functions[MainWindow.HALLEY4].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.HALLEY4);
@@ -1534,6 +1691,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.HALLEYGENERALIZED3] = new JRadioButtonMenuItem(functionNames[MainWindow.HALLEYGENERALIZED3]);
         fractal_functions[MainWindow.HALLEYGENERALIZED3].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.HALLEYGENERALIZED3);
@@ -1546,6 +1704,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.HALLEYGENERALIZED8] = new JRadioButtonMenuItem(functionNames[MainWindow.HALLEYGENERALIZED8]);
         fractal_functions[MainWindow.HALLEYGENERALIZED8].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.HALLEYGENERALIZED8);
@@ -1558,6 +1717,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.HALLEYSIN] = new JRadioButtonMenuItem(functionNames[MainWindow.HALLEYSIN]);
         fractal_functions[MainWindow.HALLEYSIN].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.HALLEYSIN);
@@ -1570,6 +1730,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.HALLEYCOS] = new JRadioButtonMenuItem(functionNames[MainWindow.HALLEYCOS]);
         fractal_functions[MainWindow.HALLEYCOS].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.HALLEYCOS);
@@ -1582,6 +1743,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.HALLEYPOLY] = new JRadioButtonMenuItem(functionNames[MainWindow.HALLEYPOLY]);
         fractal_functions[MainWindow.HALLEYPOLY].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.HALLEYPOLY);
@@ -1594,6 +1756,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.HALLEYFORMULA] = new JRadioButtonMenuItem(functionNames[MainWindow.HALLEYFORMULA]);
         fractal_functions[MainWindow.HALLEYFORMULA].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.HALLEYFORMULA);
@@ -1606,6 +1769,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.SCHRODER3] = new JRadioButtonMenuItem(functionNames[MainWindow.SCHRODER3]);
         fractal_functions[MainWindow.SCHRODER3].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.SCHRODER3);
@@ -1618,6 +1782,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.SCHRODER4] = new JRadioButtonMenuItem(functionNames[MainWindow.SCHRODER4]);
         fractal_functions[MainWindow.SCHRODER4].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.SCHRODER4);
@@ -1630,6 +1795,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.SCHRODERGENERALIZED3] = new JRadioButtonMenuItem(functionNames[MainWindow.SCHRODERGENERALIZED3]);
         fractal_functions[MainWindow.SCHRODERGENERALIZED3].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.SCHRODERGENERALIZED3);
@@ -1642,6 +1808,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.SCHRODERGENERALIZED8] = new JRadioButtonMenuItem(functionNames[MainWindow.SCHRODERGENERALIZED8]);
         fractal_functions[MainWindow.SCHRODERGENERALIZED8].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.SCHRODERGENERALIZED8);
@@ -1654,6 +1821,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.SCHRODERSIN] = new JRadioButtonMenuItem(functionNames[MainWindow.SCHRODERSIN]);
         fractal_functions[MainWindow.SCHRODERSIN].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.SCHRODERSIN);
@@ -1666,6 +1834,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.SCHRODERCOS] = new JRadioButtonMenuItem(functionNames[MainWindow.SCHRODERCOS]);
         fractal_functions[MainWindow.SCHRODERCOS].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.SCHRODERCOS);
@@ -1678,6 +1847,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.SCHRODERPOLY] = new JRadioButtonMenuItem(functionNames[MainWindow.SCHRODERPOLY]);
         fractal_functions[MainWindow.SCHRODERPOLY].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.SCHRODERPOLY);
@@ -1690,6 +1860,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.SCHRODERFORMULA] = new JRadioButtonMenuItem(functionNames[MainWindow.SCHRODERFORMULA]);
         fractal_functions[MainWindow.SCHRODERFORMULA].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.SCHRODERFORMULA);
@@ -1702,6 +1873,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.HOUSEHOLDER3] = new JRadioButtonMenuItem(functionNames[MainWindow.HOUSEHOLDER3]);
         fractal_functions[MainWindow.HOUSEHOLDER3].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.HOUSEHOLDER3);
@@ -1714,6 +1886,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.HOUSEHOLDER4] = new JRadioButtonMenuItem(functionNames[MainWindow.HOUSEHOLDER4]);
         fractal_functions[MainWindow.HOUSEHOLDER4].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.HOUSEHOLDER4);
@@ -1726,6 +1899,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.HOUSEHOLDERGENERALIZED3] = new JRadioButtonMenuItem(functionNames[MainWindow.HOUSEHOLDERGENERALIZED3]);
         fractal_functions[MainWindow.HOUSEHOLDERGENERALIZED3].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.HOUSEHOLDERGENERALIZED3);
@@ -1738,6 +1912,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.HOUSEHOLDERGENERALIZED8] = new JRadioButtonMenuItem(functionNames[MainWindow.HOUSEHOLDERGENERALIZED8]);
         fractal_functions[MainWindow.HOUSEHOLDERGENERALIZED8].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.HOUSEHOLDERGENERALIZED8);
@@ -1750,6 +1925,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.HOUSEHOLDERSIN] = new JRadioButtonMenuItem(functionNames[MainWindow.HOUSEHOLDERSIN]);
         fractal_functions[MainWindow.HOUSEHOLDERSIN].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.HOUSEHOLDERSIN);
@@ -1762,6 +1938,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.HOUSEHOLDERCOS] = new JRadioButtonMenuItem(functionNames[MainWindow.HOUSEHOLDERCOS]);
         fractal_functions[MainWindow.HOUSEHOLDERCOS].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.HOUSEHOLDERCOS);
@@ -1774,6 +1951,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.HOUSEHOLDERPOLY] = new JRadioButtonMenuItem(functionNames[MainWindow.HOUSEHOLDERPOLY]);
         fractal_functions[MainWindow.HOUSEHOLDERPOLY].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.HOUSEHOLDERPOLY);
@@ -1786,6 +1964,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.HOUSEHOLDERFORMULA] = new JRadioButtonMenuItem(functionNames[MainWindow.HOUSEHOLDERFORMULA]);
         fractal_functions[MainWindow.HOUSEHOLDERFORMULA].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.HOUSEHOLDERFORMULA);
@@ -1798,6 +1977,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.SECANT3] = new JRadioButtonMenuItem(functionNames[MainWindow.SECANT3]);
         fractal_functions[MainWindow.SECANT3].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.SECANT3);
@@ -1810,6 +1990,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.SECANT4] = new JRadioButtonMenuItem(functionNames[MainWindow.SECANT4]);
         fractal_functions[MainWindow.SECANT4].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.SECANT4);
@@ -1822,6 +2003,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.SECANTGENERALIZED3] = new JRadioButtonMenuItem(functionNames[MainWindow.SECANTGENERALIZED3]);
         fractal_functions[MainWindow.SECANTGENERALIZED3].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.SECANTGENERALIZED3);
@@ -1834,6 +2016,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.SECANTGENERALIZED8] = new JRadioButtonMenuItem(functionNames[MainWindow.SECANTGENERALIZED8]);
         fractal_functions[MainWindow.SECANTGENERALIZED8].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.SECANTGENERALIZED8);
@@ -1846,6 +2029,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.SECANTCOS] = new JRadioButtonMenuItem(functionNames[MainWindow.SECANTCOS]);
         fractal_functions[MainWindow.SECANTCOS].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.SECANTCOS);
@@ -1858,6 +2042,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.SECANTPOLY] = new JRadioButtonMenuItem(functionNames[MainWindow.SECANTPOLY]);
         fractal_functions[MainWindow.SECANTPOLY].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.SECANTPOLY);
@@ -1870,6 +2055,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.SECANTFORMULA] = new JRadioButtonMenuItem(functionNames[MainWindow.SECANTFORMULA]);
         fractal_functions[MainWindow.SECANTFORMULA].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.SECANTFORMULA);
@@ -1882,6 +2068,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.STEFFENSEN3] = new JRadioButtonMenuItem(functionNames[MainWindow.STEFFENSEN3]);
         fractal_functions[MainWindow.STEFFENSEN3].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.STEFFENSEN3);
@@ -1894,6 +2081,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.STEFFENSEN4] = new JRadioButtonMenuItem(functionNames[MainWindow.STEFFENSEN4]);
         fractal_functions[MainWindow.STEFFENSEN4].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.STEFFENSEN4);
@@ -1906,6 +2094,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.STEFFENSENGENERALIZED3] = new JRadioButtonMenuItem(functionNames[MainWindow.STEFFENSENGENERALIZED3]);
         fractal_functions[MainWindow.STEFFENSENGENERALIZED3].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.STEFFENSENGENERALIZED3);
@@ -1918,6 +2107,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.STEFFENSENPOLY] = new JRadioButtonMenuItem(functionNames[MainWindow.STEFFENSENPOLY]);
         fractal_functions[MainWindow.STEFFENSENPOLY].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.STEFFENSENPOLY);
@@ -1930,6 +2120,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.STEFFENSENFORMULA] = new JRadioButtonMenuItem(functionNames[MainWindow.STEFFENSENFORMULA]);
         fractal_functions[MainWindow.STEFFENSENFORMULA].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.STEFFENSENFORMULA);
@@ -1942,6 +2133,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.MULLER3] = new JRadioButtonMenuItem(functionNames[MainWindow.MULLER3]);
         fractal_functions[MainWindow.MULLER3].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.MULLER3);
@@ -1954,6 +2146,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.MULLER4] = new JRadioButtonMenuItem(functionNames[MainWindow.MULLER4]);
         fractal_functions[MainWindow.MULLER4].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.MULLER4);
@@ -1966,6 +2159,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.MULLERGENERALIZED3] = new JRadioButtonMenuItem(functionNames[MainWindow.MULLERGENERALIZED3]);
         fractal_functions[MainWindow.MULLERGENERALIZED3].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.MULLERGENERALIZED3);
@@ -1978,6 +2172,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.MULLERGENERALIZED8] = new JRadioButtonMenuItem(functionNames[MainWindow.MULLERGENERALIZED8]);
         fractal_functions[MainWindow.MULLERGENERALIZED8].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.MULLERGENERALIZED8);
@@ -1990,6 +2185,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.MULLERSIN] = new JRadioButtonMenuItem(functionNames[MainWindow.MULLERSIN]);
         fractal_functions[MainWindow.MULLERSIN].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.MULLERSIN);
@@ -2002,6 +2198,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.MULLERCOS] = new JRadioButtonMenuItem(functionNames[MainWindow.MULLERCOS]);
         fractal_functions[MainWindow.MULLERCOS].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.MULLERCOS);
@@ -2014,6 +2211,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.MULLERPOLY] = new JRadioButtonMenuItem(functionNames[MainWindow.MULLERPOLY]);
         fractal_functions[MainWindow.MULLERPOLY].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.MULLERPOLY);
@@ -2026,6 +2224,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.MULLERFORMULA] = new JRadioButtonMenuItem(functionNames[MainWindow.MULLERFORMULA]);
         fractal_functions[MainWindow.MULLERFORMULA].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.MULLERFORMULA);
@@ -2038,6 +2237,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.PARHALLEY3] = new JRadioButtonMenuItem(functionNames[MainWindow.PARHALLEY3]);
         fractal_functions[MainWindow.PARHALLEY3].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.PARHALLEY3);
@@ -2050,6 +2250,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.PARHALLEY4] = new JRadioButtonMenuItem(functionNames[MainWindow.PARHALLEY4]);
         fractal_functions[MainWindow.PARHALLEY4].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.PARHALLEY4);
@@ -2062,6 +2263,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.PARHALLEYGENERALIZED3] = new JRadioButtonMenuItem(functionNames[MainWindow.PARHALLEYGENERALIZED3]);
         fractal_functions[MainWindow.PARHALLEYGENERALIZED3].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.PARHALLEYGENERALIZED3);
@@ -2074,6 +2276,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.PARHALLEYGENERALIZED8] = new JRadioButtonMenuItem(functionNames[MainWindow.PARHALLEYGENERALIZED8]);
         fractal_functions[MainWindow.PARHALLEYGENERALIZED8].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.PARHALLEYGENERALIZED8);
@@ -2086,6 +2289,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.PARHALLEYSIN] = new JRadioButtonMenuItem(functionNames[MainWindow.PARHALLEYSIN]);
         fractal_functions[MainWindow.PARHALLEYSIN].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.PARHALLEYSIN);
@@ -2098,6 +2302,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.PARHALLEYCOS] = new JRadioButtonMenuItem(functionNames[MainWindow.PARHALLEYCOS]);
         fractal_functions[MainWindow.PARHALLEYCOS].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.PARHALLEYCOS);
@@ -2110,6 +2315,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.PARHALLEYPOLY] = new JRadioButtonMenuItem(functionNames[MainWindow.PARHALLEYPOLY]);
         fractal_functions[MainWindow.PARHALLEYPOLY].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.PARHALLEYPOLY);
@@ -2122,6 +2328,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.PARHALLEYFORMULA] = new JRadioButtonMenuItem(functionNames[MainWindow.PARHALLEYFORMULA]);
         fractal_functions[MainWindow.PARHALLEYFORMULA].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.PARHALLEYFORMULA);
@@ -2134,6 +2341,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.LAGUERRE3] = new JRadioButtonMenuItem(functionNames[MainWindow.LAGUERRE3]);
         fractal_functions[MainWindow.LAGUERRE3].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.LAGUERRE3);
@@ -2146,6 +2354,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.LAGUERRE4] = new JRadioButtonMenuItem(functionNames[MainWindow.LAGUERRE4]);
         fractal_functions[MainWindow.LAGUERRE4].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.LAGUERRE4);
@@ -2158,6 +2367,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.LAGUERREGENERALIZED3] = new JRadioButtonMenuItem(functionNames[MainWindow.LAGUERREGENERALIZED3]);
         fractal_functions[MainWindow.LAGUERREGENERALIZED3].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.LAGUERREGENERALIZED3);
@@ -2170,6 +2380,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.LAGUERREGENERALIZED8] = new JRadioButtonMenuItem(functionNames[MainWindow.LAGUERREGENERALIZED8]);
         fractal_functions[MainWindow.LAGUERREGENERALIZED8].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.LAGUERREGENERALIZED8);
@@ -2182,6 +2393,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.LAGUERRESIN] = new JRadioButtonMenuItem(functionNames[MainWindow.LAGUERRESIN]);
         fractal_functions[MainWindow.LAGUERRESIN].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.LAGUERRESIN);
@@ -2194,6 +2406,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.LAGUERRECOS] = new JRadioButtonMenuItem(functionNames[MainWindow.LAGUERRECOS]);
         fractal_functions[MainWindow.LAGUERRECOS].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.LAGUERRECOS);
@@ -2206,6 +2419,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.LAGUERREPOLY] = new JRadioButtonMenuItem(functionNames[MainWindow.LAGUERREPOLY]);
         fractal_functions[MainWindow.LAGUERREPOLY].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.LAGUERREPOLY);
@@ -2218,6 +2432,7 @@ public class FractalFunctionsMenu extends JMenu {
         fractal_functions[MainWindow.LAGUERREFORMULA] = new JRadioButtonMenuItem(functionNames[MainWindow.LAGUERREFORMULA]);
         fractal_functions[MainWindow.LAGUERREFORMULA].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setFunction(MainWindow.LAGUERREFORMULA);
@@ -2226,6 +2441,139 @@ public class FractalFunctionsMenu extends JMenu {
         });
         laguerre_type_functions.add(fractal_functions[MainWindow.LAGUERREFORMULA]);
         functions_button_group.add(fractal_functions[MainWindow.LAGUERREFORMULA]);
+        
+        fractal_functions[MainWindow.DURAND_KERNER3] = new JRadioButtonMenuItem(functionNames[MainWindow.DURAND_KERNER3]);
+        fractal_functions[MainWindow.DURAND_KERNER3].addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFunction(MainWindow.DURAND_KERNER3);
+
+            }
+        });
+        durand_kerner_type_functions.add(fractal_functions[MainWindow.DURAND_KERNER3]);
+        functions_button_group.add(fractal_functions[MainWindow.DURAND_KERNER3]);
+        
+        
+        fractal_functions[MainWindow.DURAND_KERNER4] = new JRadioButtonMenuItem(functionNames[MainWindow.DURAND_KERNER4]);
+        fractal_functions[MainWindow.DURAND_KERNER4].addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFunction(MainWindow.DURAND_KERNER4);
+
+            }
+        });
+        durand_kerner_type_functions.add(fractal_functions[MainWindow.DURAND_KERNER4]);
+        functions_button_group.add(fractal_functions[MainWindow.DURAND_KERNER4]);
+        
+        fractal_functions[MainWindow.DURAND_KERNERGENERALIZED3] = new JRadioButtonMenuItem(functionNames[MainWindow.DURAND_KERNERGENERALIZED3]);
+        fractal_functions[MainWindow.DURAND_KERNERGENERALIZED3].addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFunction(MainWindow.DURAND_KERNERGENERALIZED3);
+
+            }
+        });
+        durand_kerner_type_functions.add(fractal_functions[MainWindow.DURAND_KERNERGENERALIZED3]);
+        functions_button_group.add(fractal_functions[MainWindow.DURAND_KERNERGENERALIZED3]);
+        
+        fractal_functions[MainWindow.DURAND_KERNERGENERALIZED8] = new JRadioButtonMenuItem(functionNames[MainWindow.DURAND_KERNERGENERALIZED8]);
+        fractal_functions[MainWindow.DURAND_KERNERGENERALIZED8].addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFunction(MainWindow.DURAND_KERNERGENERALIZED8);
+
+            }
+        });
+        durand_kerner_type_functions.add(fractal_functions[MainWindow.DURAND_KERNERGENERALIZED8]);
+        functions_button_group.add(fractal_functions[MainWindow.DURAND_KERNERGENERALIZED8]);
+        
+        fractal_functions[MainWindow.DURAND_KERNERPOLY] = new JRadioButtonMenuItem(functionNames[MainWindow.DURAND_KERNERPOLY]);
+        fractal_functions[MainWindow.DURAND_KERNERPOLY].addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFunction(MainWindow.DURAND_KERNERPOLY);
+
+            }
+        });
+        durand_kerner_type_functions.add(fractal_functions[MainWindow.DURAND_KERNERPOLY]);
+        functions_button_group.add(fractal_functions[MainWindow.DURAND_KERNERPOLY]);
+        
+        
+        fractal_functions[MainWindow.BAIRSTOW3] = new JRadioButtonMenuItem(functionNames[MainWindow.BAIRSTOW3]);
+        fractal_functions[MainWindow.BAIRSTOW3].addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFunction(MainWindow.BAIRSTOW3);
+
+            }
+        });
+        bairstow_type_functions.add(fractal_functions[MainWindow.BAIRSTOW3]);
+        functions_button_group.add(fractal_functions[MainWindow.BAIRSTOW3]);
+        
+        
+        fractal_functions[MainWindow.BAIRSTOW4] = new JRadioButtonMenuItem(functionNames[MainWindow.BAIRSTOW4]);
+        fractal_functions[MainWindow.BAIRSTOW4].addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFunction(MainWindow.BAIRSTOW4);
+
+            }
+        });
+        bairstow_type_functions.add(fractal_functions[MainWindow.BAIRSTOW4]);
+        functions_button_group.add(fractal_functions[MainWindow.BAIRSTOW4]);
+        
+        fractal_functions[MainWindow.BAIRSTOWGENERALIZED3] = new JRadioButtonMenuItem(functionNames[MainWindow.BAIRSTOWGENERALIZED3]);
+        fractal_functions[MainWindow.BAIRSTOWGENERALIZED3].addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFunction(MainWindow.BAIRSTOWGENERALIZED3);
+
+            }
+        });
+        bairstow_type_functions.add(fractal_functions[MainWindow.BAIRSTOWGENERALIZED3]);
+        functions_button_group.add(fractal_functions[MainWindow.BAIRSTOWGENERALIZED3]);
+        
+        fractal_functions[MainWindow.BAIRSTOWGENERALIZED8] = new JRadioButtonMenuItem(functionNames[MainWindow.BAIRSTOWGENERALIZED8]);
+        fractal_functions[MainWindow.BAIRSTOWGENERALIZED8].addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFunction(MainWindow.BAIRSTOWGENERALIZED8);
+
+            }
+        });
+        bairstow_type_functions.add(fractal_functions[MainWindow.BAIRSTOWGENERALIZED8]);
+        functions_button_group.add(fractal_functions[MainWindow.BAIRSTOWGENERALIZED8]);
+        
+        fractal_functions[MainWindow.BAIRSTOWPOLY] = new JRadioButtonMenuItem(functionNames[MainWindow.BAIRSTOWPOLY]);
+        fractal_functions[MainWindow.BAIRSTOWPOLY].addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFunction(MainWindow.BAIRSTOWPOLY);
+
+            }
+        });
+        bairstow_type_functions.add(fractal_functions[MainWindow.BAIRSTOWPOLY]);
+        functions_button_group.add(fractal_functions[MainWindow.BAIRSTOWPOLY]);
 
         burning_ship_opt.addActionListener(new ActionListener() {
 
@@ -2235,7 +2583,7 @@ public class FractalFunctionsMenu extends JMenu {
                 ptr.setBurningShip();
 
             }
-        });
+        });           
 
         mandel_grass_opt.addActionListener(new ActionListener() {
 

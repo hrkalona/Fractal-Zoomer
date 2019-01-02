@@ -1,5 +1,5 @@
 /*
- * Fractal Zoomer, Copyright (C) 2018 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2019 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,9 +39,9 @@ public class CustomDomainColoring extends DomainColoring {
     private double normType;
     private int[] order;
 
-    public CustomDomainColoring(DomainColoringSettings ds, PaletteColor palette, TransferFunction color_transfer, int color_cycling_location, Blending blending, int[] gradient) {
+    public CustomDomainColoring(DomainColoringSettings ds, PaletteColor palette, TransferFunction color_transfer, int color_cycling_location, Blending blending, int[] gradient, int interpolation) {
 
-        super(ds.domain_coloring_mode, palette, color_transfer, color_cycling_location, MainWindow.INTERPOLATION_LINEAR, blending);
+        super(ds.domain_coloring_mode, palette, color_transfer, color_cycling_location, interpolation, blending);
 
         circlesBlending = ds.circlesBlending;
         gridBlending = ds.gridBlending;

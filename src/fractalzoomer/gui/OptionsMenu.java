@@ -1,5 +1,5 @@
 /*
- * Fractal Zoomer, Copyright (C) 2018 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2019 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -60,7 +60,7 @@ public class OptionsMenu extends JMenu {
     private JCheckBoxMenuItem statusbar_opt;
     private JCheckBoxMenuItem infobar_opt;
 
-    public OptionsMenu(MainWindow ptr2, String name, PaletteSettings ps, PaletteSettings ps2, boolean smoothing, boolean show_orbit_converging_point, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, int out_coloring_algorithm, int in_coloring_algorithm, int function, int plane_type, int bailout_test_algorithm, int color_blending) {
+    public OptionsMenu(MainWindow ptr2, String name, PaletteSettings ps, PaletteSettings ps2, boolean smoothing, boolean show_orbit_converging_point, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, int out_coloring_algorithm, int in_coloring_algorithm, int function, int plane_type, int bailout_test_algorithm, int color_blending, int temp_color_cycling_location, int temp_color_cycling_location2) {
 
         super(name);
 
@@ -107,7 +107,7 @@ public class OptionsMenu extends JMenu {
         window_menu = new JMenu("Window");
         window_menu.setIcon(getIcon("/fractalzoomer/icons/window.png"));
 
-        colors_menu = new ColorsMenu(ptr, "Colors", ps, ps2, smoothing, out_coloring_algorithm, in_coloring_algorithm, color_blending);
+        colors_menu = new ColorsMenu(ptr, "Colors", ps, ps2, smoothing, out_coloring_algorithm, in_coloring_algorithm, color_blending, temp_color_cycling_location, temp_color_cycling_location2);
 
         overview_opt = new JMenuItem("Options Overview", getIcon("/fractalzoomer/icons/overview.png"));
 
@@ -162,6 +162,7 @@ public class OptionsMenu extends JMenu {
 
         iterations.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setIterations();
@@ -171,6 +172,7 @@ public class OptionsMenu extends JMenu {
 
         increase_iterations.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.increaseIterations();
@@ -180,6 +182,7 @@ public class OptionsMenu extends JMenu {
 
         decrease_iterations.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.decreaseIterations();
@@ -189,6 +192,7 @@ public class OptionsMenu extends JMenu {
 
         bailout_number.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setBailout();
@@ -198,6 +202,7 @@ public class OptionsMenu extends JMenu {
 
         set_rotation.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setRotation();
@@ -207,6 +212,7 @@ public class OptionsMenu extends JMenu {
 
         increase_rotation.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.increaseRotation();
@@ -216,6 +222,7 @@ public class OptionsMenu extends JMenu {
 
         decrease_rotation.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.decreaseRotation();
@@ -225,6 +232,7 @@ public class OptionsMenu extends JMenu {
 
         point_opt.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setPoint();

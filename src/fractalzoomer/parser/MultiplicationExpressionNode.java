@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2018 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2019 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -51,6 +51,7 @@ public class MultiplicationExpressionNode extends SequenceExpressionNode
   /**
    * Returns the type of the node, in this case ExpressionNode.MULTIPLICATION_NODE
    */
+    @Override
   public int getType()
   {
     return ExpressionNode.MULTIPLICATION_NODE;
@@ -61,6 +62,7 @@ public class MultiplicationExpressionNode extends SequenceExpressionNode
    * 
    * All the terms are evaluated and multiplied or divided to the product.
    */
+    @Override
   public Complex getValue()
   {
     Complex prod = new Complex(firstNode.getValue());
@@ -87,6 +89,7 @@ public class MultiplicationExpressionNode extends SequenceExpressionNode
    * @param visitor
    *          the visitor
    */
+    @Override
   public void accept(ExpressionNodeVisitor visitor)
   {
     visitor.visit(this);  

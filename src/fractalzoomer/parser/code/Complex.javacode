@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2018 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2019 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,7 +43,7 @@ public final class Complex {
         im = z.im;
 
     }
-    
+
     public final void reset() {
 
         re = 0;
@@ -79,6 +79,13 @@ public final class Complex {
 
         re = z.re;
         im = z.im;
+
+    }
+    
+    public final void assign(double re) {
+
+        this.re = re;
+        im = 0;
 
     }
 
@@ -1748,7 +1755,7 @@ public final class Complex {
      */
     public final Complex gaussian_integer() {
 
-        return new Complex((int)(re < 0 ? re - 0.5 : re + 0.5), (int)(im < 0 ? im - 0.5 : im + 0.5));
+        return new Complex((int) (re < 0 ? re - 0.5 : re + 0.5), (int) (im < 0 ? im - 0.5 : im + 0.5));
 
     }
 
@@ -1757,8 +1764,8 @@ public final class Complex {
      */
     public final Complex gaussian_integer_mutable() {
 
-        re = (int)(re < 0 ? re - 0.5 : re + 0.5);
-        im = (int)(im < 0 ? im - 0.5 : im + 0.5);
+        re = (int) (re < 0 ? re - 0.5 : re + 0.5);
+        im = (int) (im < 0 ? im - 0.5 : im + 0.5);
 
         return this;
 
@@ -1772,19 +1779,15 @@ public final class Complex {
      */
     public final int compare(Complex z2) {
 
-        if(re > z2.re) {
+        if (re > z2.re) {
             return -1;
-        }
-        else if(re < z2.re) {
+        } else if (re < z2.re) {
             return 1;
-        }
-        else if(im > z2.im) {
+        } else if (im > z2.im) {
             return -1;
-        }
-        else if(z2.im > im) {
+        } else if (z2.im > im) {
             return 1;
-        }
-        else if(re == z2.re && im == z2.im) {
+        } else if (re == z2.re && im == z2.im) {
             return 0;
         }
 
@@ -1799,7 +1802,7 @@ public final class Complex {
             771.32342877765313, -176.61502916214059, 12.507343278686905,
             -0.13857109526572012, 9.9843695780195716e-6, 1.5056327351493116e-7};
         int g = 7;
-        if(re < 0.5) {
+        if (re < 0.5) {
             Complex pi = new Complex(Math.PI, 0);
             return pi.divide((this.times(pi)).sin().times((this.r_sub(1.0)).gamma_la()));
         }
@@ -1807,7 +1810,7 @@ public final class Complex {
         Complex temp = this.sub(1.0);
         Complex a = new Complex(p[0], 0);
         Complex t = temp.plus(g + 0.5);
-        for(int i = 1; i < p.length; i++) {
+        for (int i = 1; i < p.length; i++) {
             a.plus_mutable(new Complex(p[i], 0).divide(temp.plus(i)));
         }
 
@@ -1879,7 +1882,7 @@ public final class Complex {
      */
     public final Complex trunc() {
 
-        return new Complex((int)re, (int)im);
+        return new Complex((int) re, (int) im);
 
     }
 
@@ -1888,8 +1891,8 @@ public final class Complex {
      */
     public final Complex trunc_mutable() {
 
-        re = (int)re;
-        im = (int)im;
+        re = (int) re;
+        im = (int) im;
 
         return this;
 
@@ -1955,7 +1958,7 @@ public final class Complex {
 
         Complex sum = new Complex();
 
-        for(int k = 0; k < 50; k++) {
+        for (int k = 0; k < 50; k++) {
             double temp = 2 * k + 1;
             sum.plus_mutable((this.pow(temp).times(Math.pow(-1, k))).divide(new Complex(k, 0).factorial().times(temp)));
         }
@@ -1966,25 +1969,24 @@ public final class Complex {
 
     /* Series approximation of the riemann zeta function  re > 0*/
     public final Complex riemann_zeta_positive() {
-        
+
         Complex temp = this.r_sub(1);
         Complex temp2 = this.negative();
         Complex sum2 = new Complex();
 
-        for(int k = 1; k < 101; k++) {
+        for (int k = 1; k < 101; k++) {
             sum2.plus_mutable((new Complex(-1, 0).pow(k - 1)).times(new Complex(k, 0).pow(temp2)));
         }
 
         return sum2.divide((new Complex(1, 0).sub(new Complex(2, 0).pow(temp))));
-        
+
     }
 
     public final Complex riemann_zeta() {
 
-        if(re > 0) {
+        if (re > 0) {
             return this.riemann_zeta_positive();
-        }
-        else {
+        } else {
             Complex temp = this.r_sub(1);
 
             Complex gamma = temp.gamma_la();
@@ -2019,10 +2021,9 @@ public final class Complex {
         real = real == 0.0 ? 0.0 : real;
         imaginary = imaginary == 0.0 ? 0.0 : imaginary;
 
-        if(imaginary >= 0) {
+        if (imaginary >= 0) {
             temp = real + "+" + imaginary + "i";
-        }
-        else {
+        } else {
             temp = real + "" + imaginary + "i";
         }
 
@@ -2034,13 +2035,11 @@ public final class Complex {
 
         String temp = "";
 
-        if(im > 0) {
+        if (im > 0) {
             temp = re + "+" + im + "i";
-        }
-        else if(im == 0) {
+        } else if (im == 0) {
             temp = re + "+" + (0.0) + "i";
-        }
-        else {
+        } else {
             temp = re + "" + im + "i";
         }
 
@@ -2096,10 +2095,9 @@ public final class Complex {
         double dy = im - center.im;
         double distance = dx * dx + dy * dy;
 
-        if(distance > radius2 || distance == 0) {
+        if (distance > radius2 || distance == 0) {
             return this;
-        }
-        else {
+        } else {
             double d = Math.sqrt(distance / radius2);
             double t = Math.pow(Math.sin(Math.PI * 0.5 * d), -amount);
 
@@ -2131,7 +2129,7 @@ public final class Complex {
         double r = Math.sqrt(dx * dx + dy * dy);
         double theta = Math.atan2(dy, dx) - angle - angle2;
         theta = triangle((theta / Math.PI * sides * .5));
-        if(radius != 0) {
+        if (radius != 0) {
             double c = Math.cos(theta);
             double radiusc = radius / c;
             r = radiusc * triangle(r / radiusc);
@@ -2150,10 +2148,9 @@ public final class Complex {
         double dx = re - center.re;
         double dy = im - center.im;
         double distance = dx * dx + dy * dy;
-        if(distance > radius2) {
+        if (distance > radius2) {
             return this;
-        }
-        else {
+        } else {
             distance = Math.sqrt(distance);
             double a = Math.atan2(dy, dx) + (angle * (radius - distance)) / radius;
             return new Complex(center.re + distance * Math.cos(a), center.im + distance * Math.sin(a));
@@ -2177,22 +2174,20 @@ public final class Complex {
         Complex out = new Complex(re, im);
         //Real modifier
         random = Math.random();
-        if(random < 0.5) {
+        if (random < 0.5) {
             random = Math.random() * distance.re;
             out.re -= random;
-        }
-        else {
+        } else {
             random = Math.random() * distance.re;
             out.re += random;
         }
 
         //Imaginary modifier
         random = Math.random();
-        if(random < 0.5) {
+        if (random < 0.5) {
             random = Math.random() * distance.im;
             out.im -= random;
-        }
-        else {
+        } else {
             random = Math.random() * distance.im;
             out.im += random;
         }
@@ -2220,22 +2215,20 @@ public final class Complex {
         double random;
         //Real modifier
         random = Math.random();
-        if(random < 0.5) {
+        if (random < 0.5) {
             random = Math.random() * distance.re;
             re -= random;
-        }
-        else {
+        } else {
             random = Math.random() * distance.re;
             re += random;
         }
 
         //Imaginary modifier
         random = Math.random();
-        if(random < 0.5) {
+        if (random < 0.5) {
             random = Math.random() * distance.im;
             im -= random;
-        }
-        else {
+        } else {
             random = Math.random() * distance.im;
             im += random;
         }
@@ -2263,25 +2256,25 @@ public final class Complex {
                 fy = triangle(ny);
                 break;
             case 3:
-                fx = Noise.noise1((float)nx);
-                fy = Noise.noise1((float)ny);
+                fx = Noise.noise1((float) nx);
+                fy = Noise.noise1((float) ny);
                 break;
         }
 
         return new Complex(re + amplitude.re * fx, im + amplitude.im * fy);
 
     }
-    
+
     /* more efficient z^2 + c */
     public final Complex square_mutable_plus_c_mutable(Complex c) {
-        
+
         double temp = re * im;
 
         re = (re + im) * (re - im) + c.re;
         im = temp + temp + c.im;
-        
+
         return this;
-        
+
     }
 
     private double triangle(double x) {
@@ -2290,10 +2283,10 @@ public final class Complex {
     }
 
     private double mod(double a, double b) {
-        int n = (int)(a / b);
+        int n = (int) (a / b);
 
         a -= n * b;
-        if(a < 0) {
+        if (a < 0) {
             return a + b;
         }
         return a;

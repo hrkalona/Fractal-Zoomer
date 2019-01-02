@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2018 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2019 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 
 package fractalzoomer.palettes;
 
+import fractalzoomer.main.MainWindow;
 import java.awt.Color;
 
 /**
@@ -43,13 +44,13 @@ public class PresetPalette extends Palette {
     private static final int[] fire_palette = {-16777216, -15073280, -13303808, -11534336, -9764864, -8060928, -6291456, -4521984, -2752512, -2423552, -2094336, -1765376, -1436160, -1106944, -777984, -448768, -54016, -52480, -50688, -48896, -47104, -45312, -43520, -41728, -39936, -38400, -36608, -34816, -33024, -31232, -29440, -27648, -25856, -24320, -22528, -20736, -18944, -17152, -15360, -13568, -11776, -10491, -8950, -7665, -6124, -4583, -3298, -1757, -215, -2105565, -4210914, -6316263, -8421612, -10526961, -12632310, -14737659};
     private static final int[] jet_palette = {-16777027, -16777022, -16777016, -16777011, -16777005, -16777000, -16776994, -16776989, -16776983, -16776978, -16776972, -16776967, -16776961, -16775681, -16774145, -16772865, -16771329, -16770049, -16768769, -16767233, -16765697, -16764417, -16762881, -16761601, -16760065, -16758785, -16757249, -16755969, -16754433, -16753153, -16751617, -16750337, -16748801, -16747521, -16745985, -16744705, -16743169, -16742145, -16740865, -16739585, -16738305, -16737281, -16736001, -16734721, -16733441, -16732417, -16731137, -16729857, -16728577, -16727297, -16725761, -16724481, -16722945, -16721665, -16720129, -16718849, -16717313, -16716033, -16714497, -16713217, -16711681, -16384007, -15990796, -15663122, -15269911, -14942237, -14614562, -14221352, -13828141, -13500467, -13107256, -12779582, -12386371, -12058696, -11665485, -11337810, -10944598, -10616923, -10223712, -9896037, -9502825, -9175150, -8781939, -8454264, -8061052, -7798914, -7471239, -7143565, -6815890, -6553752, -6226077, -5898403, -5570728, -5308590, -4980915, -4653241, -4325566, -3997892, -3604681, -3277007, -2883796, -2556122, -2162911, -1835237, -1442026, -1114352, -721141, -393467, -256, -1792, -3072, -4608, -5888, -7424, -8704, -10240, -11520, -13056, -14336, -15872, -17152, -18432, -19712, -20992, -22016, -23296, -24576, -25856, -26880, -28160, -29440, -30720, -31744, -33280, -34560, -36096, -37376, -38912, -40192, -41728, -43008, -44544, -45824, -47360, -48640, -50176, -51456, -52992, -54272, -55808, -57088, -58624, -59904, -61440, -62720, -64256, -65536, -458752, -786432, -1179648, -1507328, -1900544, -2228224, -2621440, -2949120, -3342336, -3670016, -4063232, -4390912, -4718592, -5046272, -5373952, -5636096, -5963776, -6291456, -6619136, -6881280, -7208960, -7536640, -7864320, -8126464, -8847345, -9568225, -10289105, -11009985, -11730866, -12451746, -13172626, -13893506, -14614387, -15335267, -16121683,};
 
-    public PresetPalette(int color_choice, boolean smoothing, Color special_color, int color_smoothing_method, boolean special_use_palette_color) {
+    public PresetPalette(int color_choice, int[] direct_palette, boolean smoothing, Color special_color, int color_smoothing_method, boolean special_use_palette_color) {
         
-         createPalette(color_choice, smoothing, special_color, color_smoothing_method, special_use_palette_color);
+         createPalette(color_choice, direct_palette, smoothing, special_color, color_smoothing_method, special_use_palette_color);
          
     }
      
-    private void createPalette(int color_choice, boolean smoothing, Color special_color, int color_smoothing_method, boolean special_use_palette_color) {
+    private void createPalette(int color_choice, int[] direct_palette, boolean smoothing, Color special_color, int color_smoothing_method, boolean special_use_palette_color) {
         
         switch (color_choice) {
 
@@ -197,7 +198,26 @@ public class PresetPalette extends Palette {
                     palette_color = new PaletteColorSmooth(jet_palette, special_color, color_smoothing_method, special_use_palette_color);
                 }
                 break;
+            case MainWindow.DIRECT_PALETTE_ID:
+                if(!smoothing) {
+                    palette_color = new PaletteColorNormal(direct_palette, special_color, special_use_palette_color);
+                }
+                else {
+                    palette_color = new PaletteColorSmooth(direct_palette, special_color, color_smoothing_method, special_use_palette_color);
+                }
+                break;
 
         }       
+    }
+    
+    public static Color[] getPalette(int[] palette, int color_cycling_location) {
+        Color[] colors = new Color[palette.length];
+        
+        for(int i = 0; i < colors.length; i++) {
+            colors[i] = new Color(palette[(i + color_cycling_location) % colors.length]);
+        }
+        
+        return colors;
+        
     }
 }

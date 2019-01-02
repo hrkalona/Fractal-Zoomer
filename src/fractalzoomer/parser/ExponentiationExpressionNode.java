@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2018 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2019 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,6 +45,7 @@ public class ExponentiationExpressionNode implements ExpressionNode
   /**
    * Returns the type of the node, in this case ExpressionNode.EXPONENTIATION_NODE
    */
+  @Override
   public int getType()
   {
     return ExpressionNode.EXPONENTIATION_NODE;
@@ -55,6 +56,7 @@ public class ExponentiationExpressionNode implements ExpressionNode
    * 
    * Calculates base^exponent
    */
+  @Override
   public Complex getValue()
   {
       Complex zexponent = exponent.getValue();
@@ -106,6 +108,7 @@ public class ExponentiationExpressionNode implements ExpressionNode
    * @param visitor
    *          the visitor
    */
+  @Override
   public void accept(ExpressionNodeVisitor visitor)
   {
     visitor.visit(this);

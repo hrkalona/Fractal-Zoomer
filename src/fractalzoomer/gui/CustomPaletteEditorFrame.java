@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 hrkalona
+ * Copyright (C) 2019 hrkalona
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -130,6 +130,7 @@ public class CustomPaletteEditorFrame extends JFrame {
     private int[][] temp_custom_palette;
     private int mouse_color_label_x;
     private JMenuItem[] preset_palettes;
+    private int[] palette_indexing;
     private boolean blockUpdate;
 
     private int color_interpolation;
@@ -143,11 +144,8 @@ public class CustomPaletteEditorFrame extends JFrame {
     private static boolean equal_hues;
     private static Random generator;
     
-    private static ColorSpaceConverter con;
-    
     static {
         generator = new Random(System.currentTimeMillis());
-        con = new ColorSpaceConverter();
     }
 
     public static final int[][][] editor_default_palettes = {{{12, 0, 10, 20}, {12, 50, 100, 240}, {12, 20, 3, 26}, {12, 230, 60, 20}, {12, 25, 10, 9}, {12, 230, 170, 0}, {12, 20, 40, 10}, {12, 0, 100, 0}, {12, 5, 10, 10}, {12, 210, 70, 30}, {12, 90, 0, 50}, {12, 180, 90, 120}, {12, 0, 20, 40}, {12, 30, 70, 200}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}},
@@ -176,7 +174,7 @@ public class CustomPaletteEditorFrame extends JFrame {
         equal_hues = false;
     }
 
-    public CustomPaletteEditorFrame(MainWindow ptra, final JRadioButtonMenuItem[] palette, boolean smoothing, final boolean greedy_algorithm, final boolean d3, final boolean julia_map, final int number, final int color_choice, int[][] custom_palette, int color_interpolation2, int color_space2, boolean reversed_palette2, int temp_color_cycling_location2, double scale_factor_palette_val2, int processing_alg2, final boolean outcoloring_mode) {
+    public CustomPaletteEditorFrame(MainWindow ptra, final JRadioButtonMenuItem[] palette, boolean smoothing, final int palette_id, final int color_choice, int[][] custom_palette, int color_interpolation2, int color_space2, boolean reversed_palette2, int temp_color_cycling_location2, double scale_factor_palette_val2, int processing_alg2, final boolean outcoloring_mode) {
 
         super();
 
@@ -214,10 +212,10 @@ public class CustomPaletteEditorFrame extends JFrame {
             public void windowClosing(WindowEvent e) {
 
                 ptra2.setEnabled(true);
-                if (color_choice != number) {
-                    palette[number].setSelected(false);
+                if (color_choice != palette_id) {
+                    palette[palette_id].setSelected(false);
                 } else {
-                    palette[number].setSelected(true);
+                    palette[palette_id].setSelected(true);
                 }
                 dispose();
 
@@ -501,9 +499,11 @@ public class CustomPaletteEditorFrame extends JFrame {
         }
 
         JButton palette_ok = new JButton("Ok");
+        getRootPane().setDefaultButton(palette_ok);
         palette_ok.setFocusable(false);
         palette_ok.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
                 int temp2 = 0;
 
@@ -566,24 +566,7 @@ public class CustomPaletteEditorFrame extends JFrame {
                     graph.repaint();
 
                     return;
-                }
-
-                boolean same_colors = false;
-
-                int m;
-                for (m = 0; m < c.length; m++) {
-                    if (c[m].getRGB() == c[(m + 1) % c.length].getRGB()) {
-                        same_colors = true;
-                        break;
-                    }
-                }
-
-                if (same_colors && greedy_algorithm && !d3 && !julia_map) {
-                    int reply = JOptionPane.showConfirmDialog(this_frame, "The palette contains same adjacent colors.\nThis might cause glitches in the created images if you are using \nGreedy Drawing Algorithm along with color cycling,\nor if you want to apply a new palette later.", "Warning!", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
-                    if (reply == JOptionPane.CANCEL_OPTION) {
-                        return;
-                    }
-                }
+                }                      
 
                 equal_hues = same_hues.isSelected();
                 random_palette_algorithm = combo_box_random_palette_alg.getSelectedIndex();
@@ -591,7 +574,7 @@ public class CustomPaletteEditorFrame extends JFrame {
                 ptra2.customPaletteChanged(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex(), outcoloring_mode);
 
                 ptra2.setEnabled(true);
-                ptra2.setPalette(number, outcoloring_mode ? 0 : 1);
+                ptra2.setPalette(palette_id, null, outcoloring_mode ? 0 : 1);
                 dispose();
 
             }
@@ -603,13 +586,14 @@ public class CustomPaletteEditorFrame extends JFrame {
         palette_cancel.setFocusable(false);
         palette_cancel.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptra2.setEnabled(true);
-                if (color_choice != number) {
-                    palette[number].setSelected(false);
+                if (color_choice != palette_id) {
+                    palette[palette_id].setSelected(false);
                 } else {
-                    palette[number].setSelected(true);
+                    palette[palette_id].setSelected(true);
                 }
                 dispose();
 
@@ -1620,23 +1604,36 @@ public class CustomPaletteEditorFrame extends JFrame {
         tools.add(color_picker);
 
         JMenu presets_menu = new JMenu("Presets");
+        
+        int count = 0;
+        for(l = 0; l < palette.length; l++) {
+            if(l != MainWindow.CUSTOM_PALETTE_ID && l != MainWindow.DIRECT_PALETTE_ID) {
+                count++;
+            }
+        }
 
-        String[] preset_palettes_str = new String[palette.length];
+        String[] preset_palettes_str = new String[count + 1];
+        
+        palette_indexing = new int[preset_palettes_str.length];
 
-        for (l = 1; l < preset_palettes_str.length; l++) {
-            preset_palettes_str[l] = palette[l - 1].getText();
+        for (l = 0; l < preset_palettes_str.length; l++) {
+            if(l != MainWindow.CUSTOM_PALETTE_ID && l != MainWindow.DIRECT_PALETTE_ID) {
+                preset_palettes_str[l + 1] = palette[l].getText();
+                palette_indexing[l + 1] = l;
+            }
         }
 
         preset_palettes_str[0] = "Editor Default";
+        palette_indexing[0] = -1;
 
-        preset_palettes = new JMenuItem[palette.length];
+        preset_palettes = new JMenuItem[preset_palettes_str.length];
 
-        for (l = 0; l < preset_palettes_str.length; l++) {
+        for (l = 0; l < palette_indexing.length; l++) {
 
-            if (l == 0) {
+            if (palette_indexing[l] == -1) {
                 c = CustomPalette.getPalette(default_editor_palette, color_interpolation, color_space, reversed_palette, temp_color_cycling_location, scale_factor_palette_val, processing_alg);
             } else {
-                c = CustomPalette.getPalette(editor_default_palettes[l - 1], color_interpolation, color_space, reversed_palette, temp_color_cycling_location, scale_factor_palette_val, processing_alg);
+                c = CustomPalette.getPalette(editor_default_palettes[palette_indexing[l]], color_interpolation, color_space, reversed_palette, temp_color_cycling_location, scale_factor_palette_val, processing_alg);
             }
 
             BufferedImage palette_preview = new BufferedImage(250, 24, BufferedImage.TYPE_INT_ARGB);
@@ -1658,6 +1655,7 @@ public class CustomPaletteEditorFrame extends JFrame {
 
                 int temp = l;
 
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     if (temp == 0) {
                         blockUpdate = true;
@@ -2099,14 +2097,14 @@ public class CustomPaletteEditorFrame extends JFrame {
                 int[] res = null;
 
                 if (color_space == MainWindow.COLOR_SPACE_LCH) {
-                    res = con.LCHtoRGB(brightness * 100.0, generator.nextDouble() * 140.0, generator.nextDouble() * 360.0);
+                    res = ColorSpaceConverter.LCHtoRGB(brightness * 100.0, generator.nextDouble() * 140.0, generator.nextDouble() * 360.0);
                 } else if (color_space == MainWindow.COLOR_SPACE_LAB) {
-                    res = con.LABtoRGB(brightness * 100.0, (2 * generator.nextDouble() - 1) * 100, (2 * generator.nextDouble() - 1) * 100);
+                    res = ColorSpaceConverter.LABtoRGB(brightness * 100.0, (2 * generator.nextDouble() - 1) * 100, (2 * generator.nextDouble() - 1) * 100);
                 } else if (color_space == MainWindow.COLOR_SPACE_HSL){
-                    res = con.HSLtoRGB(generator.nextDouble(), generator.nextDouble(), brightness);
+                    res = ColorSpaceConverter.HSLtoRGB(generator.nextDouble(), generator.nextDouble(), brightness);
                 }
                 else {
-                    res = con.HSBtoRGB(generator.nextDouble(), generator.nextDouble(), brightness);
+                    res = ColorSpaceConverter.HSBtoRGB(generator.nextDouble(), generator.nextDouble(), brightness);
                 }
 
                 palette[m][0] = same_hues ? hues : generator.nextInt(12) + 7;
@@ -2133,19 +2131,19 @@ public class CustomPaletteEditorFrame extends JFrame {
                 int[] res = null;
 
                 if (color_space == MainWindow.COLOR_SPACE_HSB) {
-                    res = con.HSBtoRGB((0.5 * (Math.sin(Math.PI / a_coeff * (m + 1) + random_a) + 1)), (0.5 * (Math.sin(Math.PI / b_coeff * (m + 1) + random_b) + 1)), (0.5 * (Math.sin(Math.PI / c_coeff * (m + 1) + random_c) + 1)));
+                    res = ColorSpaceConverter.HSBtoRGB((0.5 * (Math.sin(Math.PI / a_coeff * (m + 1) + random_a) + 1)), (0.5 * (Math.sin(Math.PI / b_coeff * (m + 1) + random_b) + 1)), (0.5 * (Math.sin(Math.PI / c_coeff * (m + 1) + random_c) + 1)));
                 } 
                 else if (color_space == MainWindow.COLOR_SPACE_HSL) {
-                    res = con.HSLtoRGB((0.5 * (Math.sin(Math.PI / a_coeff * (m + 1) + random_a) + 1)), (0.5 * (Math.sin(Math.PI / b_coeff * (m + 1) + random_b) + 1)), (0.5 * (Math.sin(Math.PI / c_coeff * (m + 1) + random_c) + 1)));
+                    res = ColorSpaceConverter.HSLtoRGB((0.5 * (Math.sin(Math.PI / a_coeff * (m + 1) + random_a) + 1)), (0.5 * (Math.sin(Math.PI / b_coeff * (m + 1) + random_b) + 1)), (0.5 * (Math.sin(Math.PI / c_coeff * (m + 1) + random_c) + 1)));
                 } 
                 else if (color_space == MainWindow.COLOR_SPACE_RYB) {
-                    res = con.RYBtoRGB((0.5 * (Math.sin(Math.PI / a_coeff * (m + 1) + random_a) + 1)), (0.5 * (Math.sin(Math.PI / b_coeff * (m + 1) + random_b) + 1)), (0.5 * (Math.sin(Math.PI / c_coeff * (m + 1) + random_c) + 1)));
+                    res = ColorSpaceConverter.RYBtoRGB((0.5 * (Math.sin(Math.PI / a_coeff * (m + 1) + random_a) + 1)), (0.5 * (Math.sin(Math.PI / b_coeff * (m + 1) + random_b) + 1)), (0.5 * (Math.sin(Math.PI / c_coeff * (m + 1) + random_c) + 1)));
                 } else if (color_space == MainWindow.COLOR_SPACE_LAB) {
-                    res = con.LABtoRGB((50 * (Math.sin(Math.PI / a_coeff * (m + 1) + random_a) + 1)), (100 * (Math.sin(Math.PI / b_coeff * (m + 1) + random_b))), (100 * (Math.sin(Math.PI / c_coeff * (m + 1) + random_c))));
+                    res = ColorSpaceConverter.LABtoRGB((50 * (Math.sin(Math.PI / a_coeff * (m + 1) + random_a) + 1)), (100 * (Math.sin(Math.PI / b_coeff * (m + 1) + random_b))), (100 * (Math.sin(Math.PI / c_coeff * (m + 1) + random_c))));
                 } else if (color_space == MainWindow.COLOR_SPACE_XYZ) {
-                    res = con.XYZtoRGB((50 * (Math.sin(Math.PI / a_coeff * (m + 1) + random_a) + 1)), (50 * (Math.sin(Math.PI / b_coeff * (m + 1) + random_b) + 1)), (50 * (Math.sin(Math.PI / c_coeff * (m + 1) + random_c) + 1)));
+                    res = ColorSpaceConverter.XYZtoRGB((50 * (Math.sin(Math.PI / a_coeff * (m + 1) + random_a) + 1)), (50 * (Math.sin(Math.PI / b_coeff * (m + 1) + random_b) + 1)), (50 * (Math.sin(Math.PI / c_coeff * (m + 1) + random_c) + 1)));
                 } else if (color_space == MainWindow.COLOR_SPACE_LCH) {
-                    res = con.LCHtoRGB((50 * (Math.sin(Math.PI / a_coeff * (m + 1) + random_a) + 1)), (70 * (Math.sin(Math.PI / b_coeff * (m + 1) + random_b) + 1)), (180 * (Math.sin(Math.PI / c_coeff * (m + 1) + random_c) + 1)));
+                    res = ColorSpaceConverter.LCHtoRGB((50 * (Math.sin(Math.PI / a_coeff * (m + 1) + random_a) + 1)), (70 * (Math.sin(Math.PI / b_coeff * (m + 1) + random_b) + 1)), (180 * (Math.sin(Math.PI / c_coeff * (m + 1) + random_c) + 1)));
                 } else {
                     res = new int[3];
                     res[0] = (int) (127.5 * (Math.sin(Math.PI / a_coeff * (m + 1) + random_a) + 1) + 0.5);
@@ -2187,7 +2185,7 @@ public class CustomPaletteEditorFrame extends JFrame {
 
             for (int l = 0; l < 11; cnt++, l++) {
 
-                res = con.HSBtoRGB(hue, (sat + 1.0 / 11 * l) % 1.0, (bright + 1.0 / 11 * l) % 1.0);
+                res = ColorSpaceConverter.HSBtoRGB(hue, (sat + 1.0 / 11 * l) % 1.0, (bright + 1.0 / 11 * l) % 1.0);
                 palette[cnt][0] = same_hues ? hues : generator.nextInt(12) + 7;
                 palette[cnt][1] = res[0];
                 palette[cnt][2] = res[1];
@@ -2196,7 +2194,7 @@ public class CustomPaletteEditorFrame extends JFrame {
 
             for (int l = 0; l < 10; cnt++, l++) {
 
-                res = con.HSBtoRGB((hue + hue_distance) % 1.0, (sat + 1.0 / 10 * l) % 1.0, (bright + 1.0 / 10 * l) % 1.0);
+                res = ColorSpaceConverter.HSBtoRGB((hue + hue_distance) % 1.0, (sat + 1.0 / 10 * l) % 1.0, (bright + 1.0 / 10 * l) % 1.0);
                 palette[cnt][0] = same_hues ? hues : generator.nextInt(12) + 7;
                 palette[cnt][1] = res[0];
                 palette[cnt][2] = res[1];
@@ -2206,7 +2204,7 @@ public class CustomPaletteEditorFrame extends JFrame {
             for (int l = 0; l < 11; cnt++, l++) {
 
                 double temp = hue - hue_distance < 0 ? 1 - (hue - hue_distance) : hue - hue_distance;
-                res = con.HSBtoRGB((temp) % 1.0, (sat + 1.0 / 11 * l) % 1.0, (bright + 1.0 / 11 * l) % 1.0);
+                res = ColorSpaceConverter.HSBtoRGB((temp) % 1.0, (sat + 1.0 / 11 * l) % 1.0, (bright + 1.0 / 11 * l) % 1.0);
                 palette[cnt][0] = same_hues ? hues : generator.nextInt(12) + 7;
                 palette[cnt][1] = res[0];
                 palette[cnt][2] = res[1];
@@ -2231,7 +2229,7 @@ public class CustomPaletteEditorFrame extends JFrame {
 
             for (int l = 0; l < 8; cnt++, l++) {
 
-                res = con.HSBtoRGB(hue, (sat + 1.0 / 8 * l) % 1.0, (bright + 1.0 / 8 * l) % 1.0);
+                res = ColorSpaceConverter.HSBtoRGB(hue, (sat + 1.0 / 8 * l) % 1.0, (bright + 1.0 / 8 * l) % 1.0);
                 palette[cnt][0] = same_hues ? hues : generator.nextInt(12) + 7;
                 palette[cnt][1] = res[0];
                 palette[cnt][2] = res[1];
@@ -2240,7 +2238,7 @@ public class CustomPaletteEditorFrame extends JFrame {
 
             for (int l = 0; l < 8; cnt++, l++) {
 
-                res = con.HSBtoRGB((hue + 0.5) % 1.0, (sat + 1.0 / 8 * l) % 1.0, (bright + 1.0 / 8 * l) % 1.0);
+                res = ColorSpaceConverter.HSBtoRGB((hue + 0.5) % 1.0, (sat + 1.0 / 8 * l) % 1.0, (bright + 1.0 / 8 * l) % 1.0);
                 palette[cnt][0] = same_hues ? hues : generator.nextInt(12) + 7;
                 palette[cnt][1] = res[0];
                 palette[cnt][2] = res[1];
@@ -2249,7 +2247,7 @@ public class CustomPaletteEditorFrame extends JFrame {
 
             for (int l = 0; l < 8; cnt++, l++) {
 
-                res = con.HSBtoRGB((hue + 0.5 + hue_distance) % 1.0, (sat + 1.0 / 8 * l) % 1.0, (bright + 1.0 / 8 * l) % 1.0);
+                res = ColorSpaceConverter.HSBtoRGB((hue + 0.5 + hue_distance) % 1.0, (sat + 1.0 / 8 * l) % 1.0, (bright + 1.0 / 8 * l) % 1.0);
                 palette[cnt][0] = same_hues ? hues : generator.nextInt(12) + 7;
                 palette[cnt][1] = res[0];
                 palette[cnt][2] = res[1];
@@ -2258,7 +2256,7 @@ public class CustomPaletteEditorFrame extends JFrame {
 
             for (int l = 0; l < 8; cnt++, l++) {
 
-                res = con.HSBtoRGB((hue + hue_distance) % 1.0, (sat + 1.0 / 8 * l) % 1.0, (bright + 1.0 / 8 * l) % 1.0);
+                res = ColorSpaceConverter.HSBtoRGB((hue + hue_distance) % 1.0, (sat + 1.0 / 8 * l) % 1.0, (bright + 1.0 / 8 * l) % 1.0);
                 palette[cnt][0] = same_hues ? hues : generator.nextInt(12) + 7;
                 palette[cnt][1] = res[0];
                 palette[cnt][2] = res[1];

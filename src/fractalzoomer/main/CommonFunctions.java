@@ -1,5 +1,5 @@
 /*
- * Fractal Zoomer, Copyright (C) 2018 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2019 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@ import fractalzoomer.main.app_settings.Settings;
 import fractalzoomer.app_updater.AppUpdater;
 import fractalzoomer.core.Complex;
 import fractalzoomer.core.ThreadDraw;
+import fractalzoomer.functions.root_finding_methods.durand_kerner.DurandKernerRootFindingMethod;
 import fractalzoomer.gui.BailoutConditionsMenu;
 import fractalzoomer.gui.ColorBlendingMenu;
 import fractalzoomer.gui.ColorTransferMenu;
@@ -33,6 +34,7 @@ import fractalzoomer.gui.PaletteMenu;
 import fractalzoomer.gui.PlanesMenu;
 import fractalzoomer.main.app_settings.GradientSettings;
 import fractalzoomer.palettes.CustomPalette;
+import fractalzoomer.palettes.PresetPalette;
 import fractalzoomer.parser.Parser;
 import fractalzoomer.parser.ParserException;
 import fractalzoomer.utils.ColorSpaceConverter;
@@ -63,12 +65,9 @@ public class CommonFunctions implements Constants {
 
     private Component parent;
     private boolean runsOnWindows;
-    
-    private static ColorSpaceConverter converter;
-    
-    static {
-        converter = new ColorSpaceConverter();
-    }
+    private static int gradientLength;
+    private static int paletteOutLength;
+    private static int paletteInLength;
 
     public CommonFunctions(Component parent, boolean runsOnWindows) {
 
@@ -135,13 +134,13 @@ public class CommonFunctions implements Constants {
                         src.close();
                         out.close();
                     } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(parent, "Unable to copy tools.jar to " + path + ".\nMake sure you have administrative rights.", "Warning!", JOptionPane.WARNING_MESSAGE);
+                        JOptionPane.showMessageDialog(parent, "Unable to copy tools.jar to " + path + ".\nMake sure you have administrative rights.\nThe application will not be able to compile and use User Code.", "Warning!", JOptionPane.WARNING_MESSAGE);
                         return false;
                     }
                 }
             }
         } else {
-            JOptionPane.showMessageDialog(parent, "Unable to copy tools.jar to the JRE lib folder.\nThe JRE installation path was not found.", "Warning!", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(parent, "Unable to copy tools.jar to the JRE lib folder.\nThe JRE installation path was not found.\nThe application will not be able to compile and use User Code.", "Warning!", JOptionPane.WARNING_MESSAGE);
             return false;
         }
 
@@ -235,15 +234,20 @@ public class CommonFunctions implements Constants {
 
         overview += "<b><font color='red'>Function:</font></b> " + FractalFunctionsMenu.functionNames[s.fns.function] + "<br>";
 
-        if (s.fns.function == MANDELPOLY || s.fns.function == NEWTONPOLY || s.fns.function == HALLEYPOLY || s.fns.function == SCHRODERPOLY || s.fns.function == HOUSEHOLDERPOLY || s.fns.function == SECANTPOLY || s.fns.function == STEFFENSENPOLY || s.fns.function == MULLERPOLY || s.fns.function == PARHALLEYPOLY || s.fns.function == LAGUERREPOLY) {
-            overview += tab + s.poly + "<br>";
-        } else if (s.fns.function == NEWTON3 || s.fns.function == HALLEY3 || s.fns.function == HOUSEHOLDER3 || s.fns.function == SCHRODER3 || s.fns.function == SECANT3 || s.fns.function == STEFFENSEN3 || s.fns.function == MULLER3 || s.fns.function == PARHALLEY3 || s.fns.function == LAGUERRE3) {
+        if (s.fns.function == MANDELPOLY || s.fns.function == NEWTONPOLY || s.fns.function == HALLEYPOLY || s.fns.function == SCHRODERPOLY || s.fns.function == HOUSEHOLDERPOLY || s.fns.function == SECANTPOLY || s.fns.function == STEFFENSENPOLY || s.fns.function == MULLERPOLY || s.fns.function == PARHALLEYPOLY || s.fns.function == LAGUERREPOLY || s.fns.function == DURAND_KERNERPOLY || s.fns.function == BAIRSTOWPOLY) {
+            if(s.fns.function == MANDELPOLY) {
+                overview += tab + s.poly + " + c<br>";
+            }
+            else {
+                overview += tab + s.poly + "<br>";
+            }
+        } else if (s.fns.function == NEWTON3 || s.fns.function == HALLEY3 || s.fns.function == HOUSEHOLDER3 || s.fns.function == SCHRODER3 || s.fns.function == SECANT3 || s.fns.function == STEFFENSEN3 || s.fns.function == MULLER3 || s.fns.function == PARHALLEY3 || s.fns.function == LAGUERRE3 || s.fns.function == DURAND_KERNER3 || s.fns.function == BAIRSTOW3) {
             overview += tab + "p(z) = z^3 - 1" + "<br>";
-        } else if (s.fns.function == NEWTON4 || s.fns.function == HALLEY4 || s.fns.function == HOUSEHOLDER4 || s.fns.function == SCHRODER4 || s.fns.function == SECANT4 || s.fns.function == STEFFENSEN4 || s.fns.function == MULLER4 || s.fns.function == PARHALLEY4 || s.fns.function == LAGUERRE4) {
+        } else if (s.fns.function == NEWTON4 || s.fns.function == HALLEY4 || s.fns.function == HOUSEHOLDER4 || s.fns.function == SCHRODER4 || s.fns.function == SECANT4 || s.fns.function == STEFFENSEN4 || s.fns.function == MULLER4 || s.fns.function == PARHALLEY4 || s.fns.function == LAGUERRE4 || s.fns.function == DURAND_KERNER4 | s.fns.function == BAIRSTOW4) {
             overview += tab + "p(z) = z^4 - 1" + "<br>";
-        } else if (s.fns.function == NEWTONGENERALIZED3 || s.fns.function == HALLEYGENERALIZED3 || s.fns.function == HOUSEHOLDERGENERALIZED3 || s.fns.function == SCHRODERGENERALIZED3 || s.fns.function == SECANTGENERALIZED3 || s.fns.function == STEFFENSENGENERALIZED3 || s.fns.function == MULLERGENERALIZED3 || s.fns.function == PARHALLEYGENERALIZED3 || s.fns.function == LAGUERREGENERALIZED3) {
+        } else if (s.fns.function == NEWTONGENERALIZED3 || s.fns.function == HALLEYGENERALIZED3 || s.fns.function == HOUSEHOLDERGENERALIZED3 || s.fns.function == SCHRODERGENERALIZED3 || s.fns.function == SECANTGENERALIZED3 || s.fns.function == STEFFENSENGENERALIZED3 || s.fns.function == MULLERGENERALIZED3 || s.fns.function == PARHALLEYGENERALIZED3 || s.fns.function == LAGUERREGENERALIZED3 || s.fns.function == DURAND_KERNERGENERALIZED3 || s.fns.function == BAIRSTOWGENERALIZED3) {
             overview += tab + "p(z) = z^3 - 2z + 2" + "<br>";
-        } else if (s.fns.function == NEWTONGENERALIZED8 || s.fns.function == HALLEYGENERALIZED8 || s.fns.function == HOUSEHOLDERGENERALIZED8 || s.fns.function == SCHRODERGENERALIZED8 || s.fns.function == SECANTGENERALIZED8 || s.fns.function == MULLERGENERALIZED8 || s.fns.function == PARHALLEYGENERALIZED8 || s.fns.function == LAGUERREGENERALIZED8) {
+        } else if (s.fns.function == NEWTONGENERALIZED8 || s.fns.function == HALLEYGENERALIZED8 || s.fns.function == HOUSEHOLDERGENERALIZED8 || s.fns.function == SCHRODERGENERALIZED8 || s.fns.function == SECANTGENERALIZED8 || s.fns.function == MULLERGENERALIZED8 || s.fns.function == PARHALLEYGENERALIZED8 || s.fns.function == LAGUERREGENERALIZED8 || s.fns.function == DURAND_KERNERGENERALIZED8 || s.fns.function == BAIRSTOWGENERALIZED8) {
             overview += tab + "p(z) = z^8 + 15z^4 - 16" + "<br>";
         } else if (s.fns.function == NEWTONCOS || s.fns.function == HALLEYCOS || s.fns.function == HOUSEHOLDERCOS || s.fns.function == SCHRODERCOS || s.fns.function == SECANTCOS || s.fns.function == MULLERCOS || s.fns.function == PARHALLEYCOS || s.fns.function == LAGUERRECOS) {
             overview += tab + "f(z) = cos(z)" + "<br>";
@@ -442,6 +446,43 @@ public class CommonFunctions implements Constants {
             overview += tab + "K = " + s.fns.kleinianK + "<br>";
             overview += tab + "M = " + s.fns.kleinianM + "<br>";
         }
+        else if(s.fns.function == GENERIC_CaZbdZe) {
+            overview += tab + "alpha = " + s.fns.gcs.alpha + "<br>";
+            overview += tab + "beta = " + s.fns.gcs.beta + "<br>";
+            overview += tab + "delta = " + s.fns.gcs.delta + "<br>";
+            overview += tab + "epsilon = " + s.fns.gcs.epsilon + "<br>";
+        }
+        else if(s.fns.function == MAGNETIC_PENDULUM) {
+            for(int k = 0; k < s.fns.mps.magnetLocation.length; k++) {
+                if(s.fns.mps.magnetStrength[k][0] != 0 || s.fns.mps.magnetStrength[k][1] != 0) {
+                    overview += tab + "Magnet = " + Complex.toString2(s.fns.mps.magnetLocation[k][0], s.fns.mps.magnetLocation[k][1]) + "<br>";
+                    overview += tab2 + "Strength = " + Complex.toString2(s.fns.mps.magnetStrength[k][0], s.fns.mps.magnetStrength[k][1]) + "<br>";
+                }
+            }
+            overview += tab + "Pendulum = " + Complex.toString2(s.fns.mps.pendulum[0], s.fns.mps.pendulum[1]) + "<br>";
+            overview += tab + "Gravity = " + Complex.toString2(s.fns.mps.gravity[0], s.fns.mps.gravity[1]) + "<br>";
+            overview += tab + "Friction = " + Complex.toString2(s.fns.mps.friction[0], s.fns.mps.friction[1]) + "<br>";
+            overview += tab + "Height = " + s.fns.mps.height + "<br>";
+            overview += tab + "Stepsize = " + s.fns.mps.stepsize + "<br>";
+        }
+        else if(s.fns.function == LYAPUNOV) {
+            overview += tab + "A = " + s.fns.lpns.lyapunovA + "<br>";
+            overview += tab + "B = " + s.fns.lpns.lyapunovB + "<br>";
+            overview += tab + "C = " + s.fns.lpns.lyapunovC + "<br>";
+            overview += tab + "D = " + s.fns.lpns.lyapunovD + "<br>";
+            overview += tab + "Original Expression = " + s.fns.lpns.lyapunovExpression + "<br>";
+            overview += tab + "Final Expression = " + String.join("; ", s.fns.lpns.lyapunovFinalExpression) + "<br>";
+            if(s.fns.lpns.useLyapunovExponent) {
+                overview += tab + "Uses the Lyapunov Exponent for the bounded values.<br>";
+            }         
+        }
+        
+        if(s.fns.function == DURAND_KERNER3 || s.fns.function == DURAND_KERNER4 || s.fns.function == DURAND_KERNERGENERALIZED3 || s.fns.function == DURAND_KERNERGENERALIZED8) {
+            overview += tab + "a = " + DurandKernerRootFindingMethod.A + "<br>";
+        }
+        else if(s.fns.function == DURAND_KERNERPOLY) {
+            overview += tab + "a = " + Complex.toString2(s.fns.durand_kerner_init_val[0], s.fns.durand_kerner_init_val[1]) + "<br>";
+        }
 
         if ((s.fns.function <= 9 || s.fns.function == MANDELPOLY || s.fns.function == MANDELBROTWTH) && s.fns.burning_ship) {
             overview += tab + "Burning Ship<br>";
@@ -628,7 +669,7 @@ public class CommonFunctions implements Constants {
                 overview += "<b><font color='red'>Convergent Bailout:</font></b> " + ThreadDraw.getConvergentBailout() + "<br><br>";
             }
 
-        } else if (!s.ds.domain_coloring && s.fns.function != KLEINIAN) {
+        } else if (!s.ds.domain_coloring && s.fns.function != KLEINIAN && s.fns.function != MAGNETIC_PENDULUM) {
             overview += "<b><font color='red'>Bailout Condition:</font></b> Escaping when two consecutive complex values are almost the same (convergence).<br>";
             overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[norm(z - p) &#60;= convergent bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
             overview += tab + "<font color='" + keyword_color + "'>else then</font> Not Escaped<br><br>";
@@ -639,6 +680,9 @@ public class CommonFunctions implements Constants {
             overview += "<b><font color='red'>Bailout Condition:</font></b> Escaping when a value reaches out of bounds.<br>";
             overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[Im(z) &#60; 0 or Im(z) > " + s.fns.kleinianLine[0] + "]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";           
             overview += tab + "<font color='" + keyword_color + "'>else then</font> Not Escaped<br><br>";                      
+        }
+        else if (!s.ds.domain_coloring && s.fns.function == MAGNETIC_PENDULUM) {
+            overview += "<b><font color='red'>Bailout Condition:</font></b> Escaping when the maximum iterations value is reached.<br><br>";     
         }
         
         overview += "<b><font color='red'>Rotation:</font></b> " + s.fns.rotation + " <font color='" + keyword_color + "'>degrees about</font> " + Complex.toString2(s.fns.rotation_center[0], s.fns.rotation_center[1]) + "<br><br>";
@@ -696,6 +740,12 @@ public class CommonFunctions implements Constants {
                     if(s.isMagnetType()) {
                         overview += tab2 + (s.sts.statistic_escape_type == ESCAPING ? "Escaping" : "Converging") + "<br>";                    
                     }
+                }
+                if(s.sts.statisticIncludeEscaped) {
+                    overview += tab + "Includes escaped points.<br>";
+                }
+                if(s.sts.statisticIncludeNotEscaped) {
+                    overview += tab + "Includes not escaped points.<br>";
                 }
                 overview += tab + "Intensity = " + s.sts.statistic_intensity + "<br><br>";
             }
@@ -762,17 +812,20 @@ public class CommonFunctions implements Constants {
                 overview += "<b><font color='red'>Orbit Traps:</font></b><br>";
                 overview += tab + "Shape = " + Constants.orbitTrapsNames[s.ots.trapType] + "<br>";
                 overview += tab + "Center = " + Complex.toString2(s.ots.trapPoint[0], s.ots.trapPoint[1]) + "<br>";
-                overview += tab + "Length = " + s.ots.trapLength + "<br>";
+                
+                if(s.ots.trapType != Constants.GOLDEN_RATIO_SPIRAL_TRAP) {
+                    overview += tab + "Length = " + s.ots.trapLength + "<br>";
+                }
 
                 if (!(s.ots.trapType == Constants.POINT_RHOMBUS_TRAP || s.ots.trapType == Constants.POINT_SQUARE_TRAP || s.ots.trapType == Constants.POINT_TRAP || s.ots.trapType == Constants.POINT_N_NORM_TRAP)) {
                     overview += tab + "Width = " + s.ots.trapWidth + "<br>";
                 }
 
-                if (s.ots.trapType == Constants.POINT_N_NORM_TRAP || s.ots.trapType == Constants.N_NORM_TRAP || s.ots.trapType == Constants.N_NORM_CROSS_TRAP || s.ots.trapType == Constants.N_NORM_POINT_TRAP || s.ots.trapType == Constants.N_NORM_POINT_N_NORM_TRAP) {
+                if (s.ots.trapType == Constants.POINT_N_NORM_TRAP || s.ots.trapType == Constants.N_NORM_TRAP || s.ots.trapType == Constants.N_NORM_CROSS_TRAP || s.ots.trapType == Constants.N_NORM_POINT_TRAP || s.ots.trapType == Constants.N_NORM_POINT_N_NORM_TRAP || s.ots.trapType == Constants.GOLDEN_RATIO_SPIRAL_POINT_N_NORM_TRAP || s.ots.trapType == Constants.GOLDEN_RATIO_SPIRAL_N_NORM_TRAP) {
                     overview += tab + "Norm = " + s.ots.trapNorm + "<br>";
                 }
 
-                if (s.ots.trapType == Constants.CROSS_TRAP || s.ots.trapType == Constants.RE_TRAP || s.ots.trapType == Constants.IM_TRAP || s.ots.trapType == Constants.CIRCLE_CROSS_TRAP || s.ots.trapType == Constants.SQUARE_CROSS_TRAP || s.ots.trapType == Constants.RHOMBUS_CROSS_TRAP || s.ots.trapType == Constants.N_NORM_CROSS_TRAP) {
+                if (s.ots.trapType == Constants.CROSS_TRAP || s.ots.trapType == Constants.RE_TRAP || s.ots.trapType == Constants.IM_TRAP || s.ots.trapType == Constants.CIRCLE_CROSS_TRAP || s.ots.trapType == Constants.SQUARE_CROSS_TRAP || s.ots.trapType == Constants.RHOMBUS_CROSS_TRAP || s.ots.trapType == Constants.N_NORM_CROSS_TRAP || s.ots.trapType == Constants.GOLDEN_RATIO_SPIRAL_CROSS_TRAP) {
                     overview += tab + "Line Function = " + Constants.orbitTrapLineTypes[s.ots.lineType] + "<br>";
                 }
                 overview += tab + "Trap Color Method = " + Constants.colorMethod[s.ots.trapColorMethod] + "<br>";
@@ -780,7 +833,18 @@ public class CommonFunctions implements Constants {
                 if(s.ots.trapColorMethod == 3) {
                     overview += tab2 + "Trap Blending = " + s.ots.trapBlending + "<br>";
                 }
-
+                
+                if(s.ots.trapMaxDistance != 0) {
+                    overview += tab + "Max Distance = " + s.ots.trapMaxDistance + "<br>";
+                }
+                overview += tab + "Interpolation percent = " + s.ots.trapColorInterpolation + "<br>";
+                if(s.ots.trapIncludeEscaped) {
+                    overview += tab + "Includes escaped points.<br>";
+                }
+                if(s.ots.trapIncludeNotEscaped) {
+                    overview += tab + "Includes not escaped points.<br>";
+                }
+                
                 overview += tab + "Intesity = " + s.ots.trapIntensity + "<br><br>";
             }
         }
@@ -893,13 +957,15 @@ public class CommonFunctions implements Constants {
         }
 
         if (!s.useDirectColor) {
-            overview += "<b><font color='red'>Color Blending:</font></b> " + ColorBlendingMenu.colorBlendingNames[s.color_blending] + "<br><br>";
+            overview += "<b><font color='red'>Color Blending:</font></b> " + ColorBlendingMenu.colorBlendingNames[s.color_blending] + "<br>";
+            overview += tab + "Interpolation = " + color_interp_str[s.color_smoothing_method] + "<br><br>";
         }
 
         if (s.ds.domain_coloring && !s.useDirectColor) {
             if (!s.ds.customDomainColoring) {
                 overview += "<b><font color='red'>Domain Coloring:</font></b><br>";
                 overview += tab + "Algorithm = " + Constants.domainAlgNames[s.ds.domain_coloring_alg] + "<br>";
+                overview += tab + "Interpolation = " + color_interp_str[s.color_smoothing_method] + "<br>";
                 overview += tab + "Processing Transfer Function = " + Constants.domainProcessingTransferNames[s.ds.domainProcessingTransfer] + "<br>";
                 overview += tab + "Processing Factor = " + s.ds.domainProcessingHeightFactor + "<br><br>";
             } else {
@@ -947,6 +1013,7 @@ public class CommonFunctions implements Constants {
                     }
                 }
 
+                overview += tab + "Interpolation = " + color_interp_str[s.color_smoothing_method] + "<br>";
                 overview += tab + "Circle Log Base = " + s.ds.logBase + "<br>";
                 overview += tab + "Grid Spacing = " + s.ds.gridFactor + "<br>";
                 overview += tab + "Norm Type = " + s.ds.normType + "<br>";              
@@ -989,19 +1056,19 @@ public class CommonFunctions implements Constants {
                 palette_label.setIcon(new ImageIcon(getOutColoringPalettePreview(s, s.ps.color_cycling_location, 800, 36)));
                 palette_label.setToolTipText("Displays the active out-coloring palette.");
 
-                JLabel palette_text_label = new JLabel("Palette(Out):");
+                JLabel palette_text_label = new JLabel("Palette(Out): (Length = " + paletteOutLength + ")");
 
                 JLabel palette_in_label = new JLabel();
                 palette_in_label.setIcon(new ImageIcon(getInColoringPalettePreview(s, s.ps2.color_cycling_location, 800, 36)));
                 palette_in_label.setToolTipText("Displays the active in-coloring palette.");
 
-                JLabel palette_in_text_label = new JLabel("Palette(In):");
+                JLabel palette_in_text_label = new JLabel("Palette(In): (Length = " + paletteInLength + ")");
 
                 JLabel gradient_label = new JLabel();
                 gradient_label.setIcon(new ImageIcon(getGradientPreview(s.gs, 800, 36)));
                 gradient_label.setToolTipText("Displays the active gradient.");
 
-                JLabel gradient_text_label = new JLabel("Gradient:");
+                JLabel gradient_text_label = new JLabel("Gradient: (Length = " + gradientLength + ")");
 
                 Object[] message = {
                     scroll_pane_2,
@@ -1022,13 +1089,13 @@ public class CommonFunctions implements Constants {
                 palette_label.setIcon(new ImageIcon(getOutColoringPalettePreview(s, s.ps.color_cycling_location, 800, 36)));
                 palette_label.setToolTipText("Displays the active out-coloring palette.");
 
-                JLabel palette_text_label = new JLabel("Palette(Out):");
+                JLabel palette_text_label = new JLabel("Palette(Out): (Length = " + paletteOutLength + ")");
 
                 JLabel gradient_label = new JLabel();
                 gradient_label.setIcon(new ImageIcon(getGradientPreview(s.gs, 800, 36)));
                 gradient_label.setToolTipText("Displays the active gradient.");
 
-                JLabel gradient_text_label = new JLabel("Gradient:");
+                JLabel gradient_text_label = new JLabel("Gradient: (Length = " + gradientLength + ")");
 
                 Object[] message = {
                     scroll_pane_2,
@@ -1058,6 +1125,8 @@ public class CommonFunctions implements Constants {
 
         Color[] c = CustomPalette.getGradient(gs.colorA.getRGB(), gs.colorB.getRGB(), GRADIENT_LENGTH, gs.gradient_interpolation, gs.gradient_color_space, gs.gradient_reversed);
 
+        gradientLength = c.length;
+        
         BufferedImage palette_preview = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = palette_preview.createGraphics();
 
@@ -1092,15 +1161,20 @@ public class CommonFunctions implements Constants {
             c = new Color[width];
 
             for (int i = 0; i < c.length; i++) {
-                int [] res = converter.LCHtoRGB(50, 100, (((double) i) / (c.length - 1)) * 360);         
+                int [] res = ColorSpaceConverter.LCHtoRGB(50, 100, (((double) i) / (c.length - 1)) * 360);         
                 c[i] = new Color(0xFF000000 | res[0] << 16 | res[1] << 8 | res[2]);
             }
+        }
+        else if (s.ps.color_choice == DIRECT_PALETTE_ID) {
+            c = PresetPalette.getPalette(s.ps.direct_palette, color_cycling_location);
         }
         else if (s.ps.color_choice != CUSTOM_PALETTE_ID) {
             c = CustomPalette.getPalette(CustomPaletteEditorFrame.editor_default_palettes[s.ps.color_choice], INTERPOLATION_LINEAR, COLOR_SPACE_RGB, false, color_cycling_location, 0, PROCESSING_NONE);
         } else {
             c = CustomPalette.getPalette(s.ps.custom_palette, s.ps.color_interpolation, s.ps.color_space, s.ps.reversed_palette, color_cycling_location, s.ps.scale_factor_palette_val, s.ps.processing_alg);
         }
+        
+        paletteOutLength = c.length;
 
         BufferedImage palette_preview = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = palette_preview.createGraphics();
@@ -1121,11 +1195,16 @@ public class CommonFunctions implements Constants {
     public static BufferedImage getInColoringPalettePreview(Settings s, int color_cycling_location, int width, int height) {
 
         Color[] c = null;
-        if (s.ps2.color_choice != CUSTOM_PALETTE_ID) {
+        if (s.ps2.color_choice == DIRECT_PALETTE_ID) {
+            c = PresetPalette.getPalette(s.ps2.direct_palette, color_cycling_location);
+        }
+        else if (s.ps2.color_choice != CUSTOM_PALETTE_ID) {
             c = CustomPalette.getPalette(CustomPaletteEditorFrame.editor_default_palettes[s.ps2.color_choice], INTERPOLATION_LINEAR, COLOR_SPACE_RGB, false, color_cycling_location, 0, PROCESSING_NONE);
         } else {
             c = CustomPalette.getPalette(s.ps2.custom_palette, s.ps2.color_interpolation, s.ps2.color_space, s.ps2.reversed_palette, color_cycling_location, s.ps2.scale_factor_palette_val, s.ps2.processing_alg);
         }
+        
+        paletteInLength = c.length;
 
         BufferedImage palette_preview = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = palette_preview.createGraphics();

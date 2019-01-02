@@ -1,5 +1,5 @@
 /*
- * Fractal Zoomer, Copyright (C) 2018 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2019 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,7 +49,7 @@ public class ColorsMenu extends JMenu {
     private OutColoringPaletteMenu outcolor_palette_menu;
     private InColoringPaletteMenu incolor_palette_menu;
     
-    public ColorsMenu(MainWindow ptr2, String name, PaletteSettings ps, PaletteSettings ps2, boolean smoothing, int out_coloring_algorithm, int in_coloring_algorithm, int color_blending) {
+    public ColorsMenu(MainWindow ptr2, String name, PaletteSettings ps, PaletteSettings ps2, boolean smoothing, int out_coloring_algorithm, int in_coloring_algorithm, int color_blending, int temp_color_cycling_location, int temp_color_cycling_location2) {
 
         super(name);
 
@@ -59,8 +59,8 @@ public class ColorsMenu extends JMenu {
         
         fract_color = new JMenuItem("Fractal Colors", getIcon("/fractalzoomer/icons/color.png"));
         
-        outcolor_palette_menu = new OutColoringPaletteMenu(ptr, "Out Coloring Palette", ps, smoothing);
-        incolor_palette_menu = new InColoringPaletteMenu(ptr, "In Coloring Palette", ps2, smoothing);
+        outcolor_palette_menu = new OutColoringPaletteMenu(ptr, "Out Coloring Palette", ps, smoothing, temp_color_cycling_location);
+        incolor_palette_menu = new InColoringPaletteMenu(ptr, "In Coloring Palette", ps2, smoothing, temp_color_cycling_location2);
         
         
 

@@ -23,6 +23,7 @@ public class ExposureFilter extends TransferFilter {
 
 	private float exposure = 1.0f;
 
+        @Override
 	protected float transferFunction( float f ) {
 		return 1 - (float)Math.exp(-f * exposure);
 	}
@@ -48,6 +49,7 @@ public class ExposureFilter extends TransferFilter {
 		return exposure;
 	}
 
+        @Override
 	public String toString() {
 		return "Colors/Exposure...";
 	}

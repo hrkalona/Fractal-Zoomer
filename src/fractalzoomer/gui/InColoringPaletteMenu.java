@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2018 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2019 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,14 +44,14 @@ public class InColoringPaletteMenu extends JMenu {
     private ColorTransferMenu color_transfer_menu;
     private JCheckBoxMenuItem usePaletteForInColoring_opt;
     
-    public InColoringPaletteMenu(MainWindow ptr2, String name, PaletteSettings ps, boolean smoothing) {
+    public InColoringPaletteMenu(MainWindow ptr2, String name, PaletteSettings ps, boolean smoothing, int temp_color_cycling_location) {
         super(name);
 
         this.ptr = ptr2;
         
         setIcon(getIcon("/fractalzoomer/icons/palette_incoloring.png"));
         
-        palette_menu = new PaletteMenu(ptr, "Palette", ps.color_choice, smoothing, ps.custom_palette, ps.color_interpolation, ps.color_space, ps.reversed_palette, ps.color_cycling_location, ps.scale_factor_palette_val, ps.processing_alg, false);
+        palette_menu = new PaletteMenu(ptr, "Palette", ps.color_choice, smoothing, ps.custom_palette, ps.color_interpolation, ps.color_space, ps.reversed_palette, ps.color_cycling_location, ps.scale_factor_palette_val, ps.processing_alg, false, temp_color_cycling_location);
         
         roll_palette_menu = new JMenu("Palette Shifting");
         roll_palette_menu.setIcon(getIcon("/fractalzoomer/icons/shift_palette.png"));

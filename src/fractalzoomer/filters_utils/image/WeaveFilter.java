@@ -117,6 +117,7 @@ public class WeaveFilter extends PointFilter {
             
         }
 
+        @Override
 	public int filterRGB(int x, int y, int rgb) {
 		x += xWidth+xGap/2;
 		y += yWidth+yGap/2;
@@ -186,6 +187,7 @@ public class WeaveFilter extends PointFilter {
 		return v;
 	}
 
+        @Override
 	public String toString() {
 		return "Texture/Weave...";
 	}

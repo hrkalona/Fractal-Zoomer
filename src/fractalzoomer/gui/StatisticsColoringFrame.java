@@ -1,5 +1,5 @@
 /*
- * Fractal Zoomer, Copyright (C) 2018 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2019 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -97,6 +97,7 @@ public class StatisticsColoringFrame extends JFrame {
 
         addWindowListener(new WindowAdapter() {
 
+            @Override
             public void windowClosing(WindowEvent e) {
 
                 ptra2.setEnabled(true);
@@ -124,6 +125,21 @@ public class StatisticsColoringFrame extends JFrame {
         panel2.add(statistics);
         panel2.add(new JLabel(" Intensity: "));
         panel2.add(intensity);
+        
+        final JCheckBox include_escaped_opt = new JCheckBox("Include Escaped");
+        include_escaped_opt.setFocusable(false);
+        include_escaped_opt.setToolTipText("Includes the escaped points into the statistic application.");
+        include_escaped_opt.setBackground(MainWindow.bg_color);
+        include_escaped_opt.setSelected(sts.statisticIncludeEscaped);
+        
+        final JCheckBox include_notescaped_opt = new JCheckBox("Include Not Escaped");
+        include_notescaped_opt.setFocusable(false);
+        include_notescaped_opt.setToolTipText("Includes the not escaped points into the statistic application.");
+        include_notescaped_opt.setBackground(MainWindow.bg_color);
+        include_notescaped_opt.setSelected(sts.statisticIncludeNotEscaped);
+        
+        panel2.add(include_escaped_opt);
+        panel2.add(include_notescaped_opt);
 
         JTabbedPane tabbedPane = new JTabbedPane();
         tabbedPane.setPreferredSize(new Dimension(MainWindow.runsOnWindows ? 560 : 640, 470));
@@ -356,9 +372,11 @@ public class StatisticsColoringFrame extends JFrame {
         buttons.setBackground(MainWindow.bg_color);
 
         JButton ok = new JButton("Ok");
+        getRootPane().setDefaultButton(ok);
         ok.setFocusable(false);
         ok.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 double temp, temp2, temp3, temp4, temp5;
@@ -374,8 +392,8 @@ public class StatisticsColoringFrame extends JFrame {
                     return;
                 }
 
-                if(temp <= 0) {
-                    JOptionPane.showMessageDialog(this_frame, "Intensity must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
+                if(temp < 0) {
+                    JOptionPane.showMessageDialog(this_frame, "Intensity must be greater than -1.", "Error!", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
 
@@ -405,6 +423,8 @@ public class StatisticsColoringFrame extends JFrame {
                 sts.cosArgStripeDensity = temp3;
                 sts.cosArgInvStripeDensity = temp4;
                 sts.StripeDenominatorFactor = temp5;
+                sts.statisticIncludeNotEscaped = include_notescaped_opt.isSelected();
+                sts.statisticIncludeEscaped = include_escaped_opt.isSelected();
 
                 if(stripe_average.isSelected()) {
                     sts.statistic_type = MainWindow.STRIPE_AVERAGE;
@@ -445,6 +465,7 @@ public class StatisticsColoringFrame extends JFrame {
         cancel.setFocusable(false);
         cancel.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptra2.setEnabled(true);

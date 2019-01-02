@@ -1,5 +1,5 @@
 /*
- * Fractal Zoomer, Copyright (C) 2018 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2019 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,6 @@ package fractalzoomer.core.domain_coloring;
 
 import fractalzoomer.core.Complex;
 import fractalzoomer.core.blending.Blending;
-import fractalzoomer.main.MainWindow;
 import fractalzoomer.palettes.PaletteColor;
 import fractalzoomer.palettes.transfer_functions.TransferFunction;
 
@@ -28,9 +27,9 @@ import fractalzoomer.palettes.transfer_functions.TransferFunction;
  */
 public class NormWhiteGridDomainColoring extends DomainColoring {
 
-    public NormWhiteGridDomainColoring(int domain_coloring_mode, PaletteColor palette, TransferFunction color_transfer, int color_cycling_location, Blending blending) {
+    public NormWhiteGridDomainColoring(int domain_coloring_mode, PaletteColor palette, TransferFunction color_transfer, int color_cycling_location, Blending blending, int interpolation) {
 
-        super(domain_coloring_mode, palette, color_transfer, color_cycling_location, MainWindow.INTERPOLATION_LINEAR, blending);
+        super(domain_coloring_mode, palette, color_transfer, color_cycling_location, interpolation, blending);
 
         gridColorRed = 255;
         gridColorGreen = 255;

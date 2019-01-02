@@ -1,5 +1,5 @@
 /*
- * Fractal Zoomer, Copyright (C) 2018 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2019 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -433,7 +433,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
             File file = file_chooser.getSelectedFile();
 
             try {
-                s.readSettings(file.toString(), ptr);
+                s.readSettings(file.toString(), ptr, false);
                 String fname = file.getName();
 
                 if(fname.length() > 45) {

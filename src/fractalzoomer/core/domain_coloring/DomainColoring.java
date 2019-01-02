@@ -1,5 +1,5 @@
 /*
- * Fractal Zoomer, Copyright (C) 2018 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2019 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -83,12 +83,6 @@ public abstract class DomainColoring {
     protected int gridFadeFunction;
     
     protected int contourMethod;
-    
-    private static ColorSpaceConverter converter;
-    
-    static {
-        converter = new ColorSpaceConverter();
-    }
 
     public DomainColoring(int coloring_mode, PaletteColor palette, TransferFunction color_transfer, int color_cycling_location, int color_interpolation, Blending blending) {
 
@@ -153,7 +147,7 @@ public abstract class DomainColoring {
             return Color.HSBtoRGB((float) h, 1, 1);    
         }
         else {
-            int [] res = converter.LCHtoRGB(50, 100, h * 360);
+            int [] res = ColorSpaceConverter.LCHtoRGB(50, 100, h * 360);
             return 0xFF000000 | res[0] << 16 | res[1] << 8 | res[2];
         }
         
@@ -577,24 +571,24 @@ public abstract class DomainColoring {
      private int applyContour(int red, int green, int blue, double coef) {
          
          if(contourMethod == 0) { //Lab
-             double[] res = converter.RGBtoLAB(red, green, blue);
+             double[] res = ColorSpaceConverter.RGBtoLAB(red, green, blue);
              double val = 2 * coef * res[0];
              val = val > 100 ? 100 : val;
-             int[] rgb = converter.LABtoRGB(val, res[1], res[2]);   
+             int[] rgb = ColorSpaceConverter.LABtoRGB(val, res[1], res[2]);   
              return 0xff000000 | (rgb[0] << 16) | (rgb[1] << 8) | rgb[2];
          }
          else if(contourMethod == 1) { //HSB
-             double[] res = converter.RGBtoHSB(red, green, blue);
+             double[] res = ColorSpaceConverter.RGBtoHSB(red, green, blue);
              double val = 2 * coef * res[2];
              val = val > 1 ? 1 : val;
-             int[] rgb = converter.HSBtoRGB(res[0], res[1], val);
+             int[] rgb = ColorSpaceConverter.HSBtoRGB(res[0], res[1], val);
              return 0xff000000 | (rgb[0] << 16) | (rgb[1] << 8) | rgb[2];
          }
          else if(contourMethod == 2) { //HSL
-             double[] res = converter.RGBtoHSL(red, green, blue);
+             double[] res = ColorSpaceConverter.RGBtoHSL(red, green, blue);
              double val = 2 * coef * res[2];
              val = val > 1 ? 1 : val;
-             int[] rgb = converter.HSLtoRGB(res[0], res[1], val);
+             int[] rgb = ColorSpaceConverter.HSLtoRGB(res[0], res[1], val);
              return 0xff000000 | (rgb[0] << 16) | (rgb[1] << 8) | rgb[2];
          }
          else if(contourMethod == 3) {// blend

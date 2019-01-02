@@ -1,5 +1,5 @@
 /*
- * Fractal Zoomer, Copyright (C) 2018 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2019 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 package fractalzoomer.main.app_settings;
 
 import fractalzoomer.main.Constants;
+import java.awt.Color;
 
 /**
  *
@@ -33,6 +34,13 @@ public class OrbitTrapSettings {
     public int lineType;
     public int trapColorMethod;
     public double trapIntensity;
+    public double trapMaxDistance;
+    public Color trapColor1;
+    public Color trapColor2;
+    public Color trapColor3;
+    public double trapColorInterpolation;
+    public boolean trapIncludeNotEscaped;
+    public boolean trapIncludeEscaped;
     
     public OrbitTrapSettings() {
         
@@ -47,7 +55,15 @@ public class OrbitTrapSettings {
         trapNorm = 2;
         lineType = 0;
         trapColorMethod = 3;
-        trapIntensity = 1;
+        trapIntensity = 0;
+        trapMaxDistance = 0;
+
+        trapColor1 = Color.RED;
+        trapColor2 = Color.GREEN;
+        trapColor3 = Color.BLUE;
+        trapColorInterpolation = 0;
+        trapIncludeNotEscaped = true;
+        trapIncludeEscaped = true;
         
     }
     

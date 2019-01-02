@@ -1,5 +1,5 @@
 /*
- * Fractal Zoomer, Copyright (C) 2018 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2019 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,6 +34,8 @@ public class StatisticsSettings implements Constants {
     public String user_statistic_formula;
     public boolean useAverage;
     public int statistic_escape_type;
+    public boolean statisticIncludeEscaped;
+    public boolean statisticIncludeNotEscaped;
     
     public StatisticsSettings(StatisticsSettings copy) {
         statistic = copy.statistic;
@@ -47,6 +49,8 @@ public class StatisticsSettings implements Constants {
         user_statistic_formula = copy.user_statistic_formula;
         useAverage = copy.useAverage;
         statistic_escape_type = copy.statistic_escape_type;
+        statisticIncludeNotEscaped = copy.statisticIncludeNotEscaped;  
+        statisticIncludeEscaped = copy.statisticIncludeEscaped;
     }
     
     public StatisticsSettings() {
@@ -61,5 +65,7 @@ public class StatisticsSettings implements Constants {
         user_statistic_formula = "(0.5 * cos(12 * arg(z)) + 0.5) / norm(z)";
         useAverage = true;
         statistic_escape_type = ESCAPING;
+        statisticIncludeNotEscaped = false;  
+        statisticIncludeEscaped = true;
     }
 }

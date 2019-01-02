@@ -1,5 +1,5 @@
 /*
- * Fractal Zoomer, Copyright (C) 2018 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2019 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -232,10 +232,12 @@ public class GreedyAlgorithmsFrame extends JFrame {
         });
 
         JButton ok = new JButton("Ok");
+        getRootPane().setDefaultButton(ok);
         ok.setFocusable(false);
 
         ok.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ThreadDraw.SKIPPED_PIXELS_COLOR = filter_color_label.getBackground().getRGB();
@@ -280,6 +282,7 @@ public class GreedyAlgorithmsFrame extends JFrame {
         close.setFocusable(false);
         close.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptra2.setEnabled(true);

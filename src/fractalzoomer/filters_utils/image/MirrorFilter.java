@@ -103,6 +103,7 @@ public class MirrorFilter extends AbstractBufferedImageOp {
         return centreY;
     }
 
+    @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst) {
         if(dst == null) {
             dst = createCompatibleDestImage(src, null);
@@ -144,6 +145,7 @@ public class MirrorFilter extends AbstractBufferedImageOp {
         return dst;
     }
 
+    @Override
     public String toString() {
         return "Effects/Mirror...";
     }

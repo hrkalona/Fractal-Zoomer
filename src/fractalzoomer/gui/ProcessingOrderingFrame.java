@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 kaloch
+ * Copyright (C) 2019 kaloch
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -82,6 +82,7 @@ public class ProcessingOrderingFrame extends JFrame {
 
         addWindowListener(new WindowAdapter() {
 
+            @Override
             public void windowClosing(WindowEvent e) {
 
                 ptra2.setEnabled(true);
@@ -264,9 +265,11 @@ public class ProcessingOrderingFrame extends JFrame {
         buttons.setBackground(MainWindow.bg_color);
 
         JButton ok = new JButton("Ok");
+        getRootPane().setDefaultButton(ok);
         ok.setFocusable(false);
         ok.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptra2.setProcessingOrder(getProcessingOrder());
@@ -283,6 +286,7 @@ public class ProcessingOrderingFrame extends JFrame {
         cancel.setFocusable(false);
         cancel.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptra2.setEnabled(true);

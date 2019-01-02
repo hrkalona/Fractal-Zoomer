@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2018 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2019 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -98,7 +98,7 @@ public abstract class RootFindingMethods extends Fractal {
                 trap.check(complex[0]);
             }
 
-            if ((temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
+            if (iterations > 0 && (temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
                 escaped = true;
                 Object[] object = {iterations, complex[0], temp, zold, zold2, pixel, start};
                 iterationData = object;
@@ -322,6 +322,9 @@ public abstract class RootFindingMethods extends Fractal {
     
     @Override
     protected void StatisticFactory(StatisticsSettings sts, double[] plane_transform_center) {
+        
+        statisticIncludeEscaped = sts.statisticIncludeEscaped;
+        statisticIncludeNotEscaped = sts.statisticIncludeNotEscaped;
         
         if(sts.statisticGroup == 1) {
             statistic = new UserStatisticColoringRootFindingMethod(sts.statistic_intensity, sts.user_statistic_formula, xCenter, yCenter, max_iterations, size, convergent_bailout, plane_transform_center, globalVars, sts.useAverage);

@@ -1,5 +1,5 @@
 /*
- * Fractal Zoomer, Copyright (C) 2018 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2019 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,14 +23,14 @@ import java.awt.Color;
  * @author hrkalona2
  */
 public interface Constants {
-    public static final int VERSION = 1071;
+    public static final int VERSION = 1072;
     public static final int FAST_JULIA_IMAGE_SIZE = 252;
-    public static final int TOTAL_PALETTES = 19;
+    public static final int TOTAL_PALETTES = 20;
     public static final int TOTAL_INCOLORING_ALGORITHMS = 11;
     public static final int TOTAL_OUTCOLORING_ALGORITHMS = 25;
     public static final int TOTAL_BAILOUT_CONDITIONS = 8;
     public static final int TOTAL_PLANES = 63;
-    public static final int TOTAL_FUNCTIONS = 160;
+    public static final int TOTAL_FUNCTIONS = 173;
     public static final int TOTAL_FILTERS = 35;
     public static final int TOTAL_COLOR_TRANSFER_FILTERS = 7;
     public static final int TOTAL_COLOR_BLENDING = 30;
@@ -48,7 +48,7 @@ public interface Constants {
     public static final String[] domainColors = {"Argument", "Norm", "Re", "Im"};
     public static final String[] domainContours = {"Norm", "Iso-Argument", "Norm, Iso-Argument", "Grid", "Grid, Norm", "Grid, Iso-Argument", "Grid, Norm, Iso-Argument", "Grid Lines", "Circles Lines", "Iso-Arg Lines", "Grid Lines, Circles Lines", "Circles Lines, Iso-Arg Lines"};
     public static final String[] argumentLinesDistance = {"2 * pi", "pi", "pi / 2", "pi / 4", "pi / 6", "pi / 8", "pi / 10", "pi / 12", "pi / 14", "pi / 16"};
-    public static final String[] orbitTrapsNames = {"Point", "Point Square", "Point Rhombus", "Point N-Norm", "Cross", "Re", "Im", "Circle", "Square", "Rhombus", "N-Norm", "Circle/Cross", "Square/Cross", "Rhombus/Cross", "N-Norm/Cross", "Circle/Point", "Square/Point", "Rhombus/Point", "N-Norm/Point", "N-Norm/Point N-Norm"};
+    public static final String[] orbitTrapsNames = {"Point", "Point Square", "Point Rhombus", "Point N-Norm", "Cross", "Re", "Im", "Circle", "Square", "Rhombus", "N-Norm", "Circle/Cross", "Square/Cross", "Rhombus/Cross", "N-Norm/Cross", "Circle/Point", "Square/Point", "Rhombus/Point", "N-Norm/Point", "N-Norm/Point N-Norm", "Golden Ratio Spiral", "Golden Ratio Spiral/Point", "Golden Ratio Spiral/Point N-Norm", "Golden Ratio Spiral/Cross", "Golden Ratio Spiral/Circle", "Golden Ratio Spiral/Square", "Golden Ratio Spiral/Rhombus", "Golden Ratio Spiral/N-Norm"};
     public static final String[] orbitTrapLineTypes = {"Line", "Sin", "Cos", "Tan", "Sinh", "Cosh", "Tanh", "Asin", "Acos", "Atan", "Square", "Cube", "Sqrt", "Cbrt", "Exp", "Log", "Abs" };
     public static final String[] contourColorAlgorithmNames = {"Non-smooth Transitions", "Smooth Transitions"};
     public static final String[] circleAndGridFadeNames = {"Square Root", "Cube Root", "Fourth Root"};
@@ -220,6 +220,19 @@ public interface Constants {
     public static final int KLEINIAN = 157;
     public static final int LAMBDA2 = 158;
     public static final int LAMBDA3 = 159;
+    public static final int GENERIC_CaZbdZe = 160;
+    public static final int DURAND_KERNER3 = 161;
+    public static final int DURAND_KERNER4 = 162;
+    public static final int DURAND_KERNERGENERALIZED3 = 163;
+    public static final int DURAND_KERNERGENERALIZED8 = 164;
+    public static final int DURAND_KERNERPOLY = 165;
+    public static final int MAGNETIC_PENDULUM = 166;
+    public static final int LYAPUNOV = 167;
+    public static final int BAIRSTOW3 = 168;
+    public static final int BAIRSTOW4 = 169;
+    public static final int BAIRSTOWGENERALIZED3 = 170;
+    public static final int BAIRSTOWGENERALIZED8 = 171;
+    public static final int BAIRSTOWPOLY = 172;
     /**
      * ***************
      */
@@ -621,6 +634,14 @@ public interface Constants {
     public static final int RHOMBUS_POINT_TRAP = 17;
     public static final int N_NORM_POINT_TRAP = 18;
     public static final int N_NORM_POINT_N_NORM_TRAP = 19;
+    public static final int GOLDEN_RATIO_SPIRAL_TRAP = 20;
+    public static final int GOLDEN_RATIO_SPIRAL_POINT_TRAP = 21;
+    public static final int GOLDEN_RATIO_SPIRAL_POINT_N_NORM_TRAP = 22;   
+    public static final int GOLDEN_RATIO_SPIRAL_CROSS_TRAP = 23;
+    public static final int GOLDEN_RATIO_SPIRAL_CIRCLE_TRAP = 24;
+    public static final int GOLDEN_RATIO_SPIRAL_SQUARE_TRAP = 25;
+    public static final int GOLDEN_RATIO_SPIRAL_RHOMBUS_TRAP = 26;
+    public static final int GOLDEN_RATIO_SPIRAL_N_NORM_TRAP = 27;
      /**
      * **************************************
      */
@@ -643,6 +664,7 @@ public interface Constants {
      */
 
     public static final int CUSTOM_PALETTE_ID = 18;
+    public static final int DIRECT_PALETTE_ID = 19;
     
     public static final int GRADIENT_LENGTH = 512;
     

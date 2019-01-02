@@ -1,5 +1,5 @@
 /*
- * Fractal Zoomer, Copyright (C) 2018 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2019 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -622,8 +622,10 @@ public class CustomDomainColoringFrame extends JFrame {
 
         JButton ok = new JButton("Ok");
         ok.setFocusable(false);
+        getRootPane().setDefaultButton(ok);
         ok.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 double temp, temp2, temp3, temp4;
@@ -700,6 +702,7 @@ public class CustomDomainColoringFrame extends JFrame {
         cancel.setFocusable(false);
         cancel.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptra2.setEnabled(true);

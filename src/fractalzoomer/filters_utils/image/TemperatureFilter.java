@@ -30,6 +30,7 @@ public class TemperatureFilter extends PointFilter
         return temperature;
     }
 
+    @Override
     public BufferedImage filter(BufferedImage src, BufferedImage dst)
     {
         temperature = Math.max(1000F, Math.min(40000F, temperature));
@@ -70,6 +71,7 @@ public class TemperatureFilter extends PointFilter
         setTemperature((float)m * 100F + 1000F);
     }
 
+    @Override
     public int filterRGB(int x, int y, int rgb)
     {
         int a = rgb & 0xff000000;
@@ -93,6 +95,7 @@ public class TemperatureFilter extends PointFilter
         return lut;
     }
 
+    @Override
     public String toString()
     {
         return "Colors/Temperature...";

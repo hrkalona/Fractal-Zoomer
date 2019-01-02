@@ -24,6 +24,7 @@ public class GainFilter extends TransferFilter {
 	private float gain = 0.5f;
 	private float bias = 0.5f;
 	
+        @Override
 	protected float transferFunction( float f ) {
 		f = ImageMath.gain(f, gain);
 		f = ImageMath.bias(f, bias);
@@ -72,6 +73,7 @@ public class GainFilter extends TransferFilter {
 		return bias;
 	}
 
+        @Override
 	public String toString() {
 		return "Colors/Gain...";
 	}

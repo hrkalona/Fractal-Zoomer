@@ -1,5 +1,5 @@
 /*
- * Fractal Zoomer, Copyright (C) 2018 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2019 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,6 @@ package fractalzoomer.functions.root_finding_methods.householder;
 import fractalzoomer.core.Complex;
 import fractalzoomer.functions.root_finding_methods.RootFindingMethods;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
-import fractalzoomer.main.app_settings.StatisticsSettings;
 import java.util.ArrayList;
 
 /**
@@ -44,6 +43,14 @@ public abstract class HouseholderRootFindingMethod extends RootFindingMethods {
     public Complex householderMethod(Complex z, Complex fz, Complex dfz, Complex ddfz) {
         
         z.sub_mutable((fz.times_mutable(dfz.square().times_mutable(2).plus_mutable(fz.times(ddfz)))).divide_mutable(dfz.cube_mutable().times_mutable(2)));//householder
+        
+        return z;
+        
+    }
+    
+    public static Complex householderMethod(Complex z, Complex fz, Complex dfz, Complex ddfz, Complex relaxation) {
+        
+        z.sub_mutable(((fz.times_mutable(dfz.square().times_mutable(2).plus_mutable(fz.times(ddfz)))).divide_mutable(dfz.cube_mutable().times_mutable(2))).times_mutable(relaxation));//householder
         
         return z;
         

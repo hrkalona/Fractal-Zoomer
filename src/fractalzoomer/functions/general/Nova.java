@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2018 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2019 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +26,15 @@ import fractalzoomer.fractal_options.perturbation.VariableConditionalPerturbatio
 import fractalzoomer.fractal_options.initial_value.VariableInitialValue;
 import fractalzoomer.fractal_options.perturbation.VariablePerturbation;
 import fractalzoomer.functions.ExtendedConvergentType;
+import fractalzoomer.functions.root_finding_methods.halley.HalleyRootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.householder.HouseholderRootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.laguerre.LaguerreRootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.muller.MullerRootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.newton.NewtonRootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.parhalley.ParhalleyRootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.schroder.SchroderRootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.secant.SecantRootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.steffensen.SteffensenRootFindingMethod;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
 import fractalzoomer.main.app_settings.StatisticsSettings;
@@ -335,84 +344,31 @@ public class Nova extends ExtendedConvergentType {
         switch (nova_method) {
 
             case MainWindow.NOVA_NEWTON:
-                complex[0].sub_mutable(((fz).divide_mutable(dfz)).times_mutable(relaxation)).plus_mutable(complex[1]); //newton
+                NewtonRootFindingMethod.newtonMethod(complex[0], fz, dfz, relaxation).plus_mutable(complex[1]);
                 break;
             case MainWindow.NOVA_HALLEY:
-                complex[0].sub_mutable(((fz.times(dfz).times_mutable(2)).divide_mutable((dfz.square_mutable().times_mutable(2)).sub_mutable(fz.times_mutable(ddfz)))).times_mutable(relaxation)).plus_mutable(complex[1]); //halley
+                HalleyRootFindingMethod.halleyMethod(complex[0], fz, dfz, ddfz, relaxation).plus_mutable(complex[1]);
                 break;
             case MainWindow.NOVA_SCHRODER:
-                complex[0].sub_mutable(((fz.times(dfz)).divide_mutable((dfz.square_mutable()).sub_mutable(fz.times_mutable(ddfz)))).times_mutable(relaxation)).plus_mutable(complex[1]);//schroeder
+                SchroderRootFindingMethod.schroderMethod(complex[0], fz, dfz, ddfz, relaxation).plus_mutable(complex[1]);             
                 break;
             case MainWindow.NOVA_HOUSEHOLDER:
-                complex[0].sub_mutable(((fz.times_mutable(dfz.square().times_mutable(2).plus_mutable(fz.times(ddfz)))).divide_mutable(dfz.cube_mutable().times_mutable(2))).times_mutable(relaxation)).plus_mutable(complex[1]);//householder
+                HouseholderRootFindingMethod.householderMethod(complex[0], fz, dfz, ddfz, relaxation).plus_mutable(complex[1]);              
                 break;
-            case MainWindow.NOVA_SECANT:
-                Complex temp = new Complex(complex[0]);
-                complex[0].sub_mutable((fz.times((complex[0].sub(complex[2])).divide_mutable(fz.sub(complex[3])))).times_mutable(relaxation)).plus_mutable(complex[1]); //secant
-                complex[2].assign(temp);
-                complex[3].assign(fz);
+            case MainWindow.NOVA_SECANT:                
+                SecantRootFindingMethod.secantMethod(complex[0], fz, complex[2], complex[3], relaxation).plus_mutable(complex[1]);
                 break;
             case MainWindow.NOVA_STEFFENSEN:
-                complex[0].sub_mutable(((fz.square()).divide_mutable(ffz.sub_mutable(fz))).times_mutable(relaxation)).plus_mutable(complex[1]); //steffensen
+                SteffensenRootFindingMethod.steffensenMethod(complex[0], fz, ffz, relaxation).plus_mutable(complex[1]);              
                 break;
-            case MainWindow.NOVA_MULLER:
-                Complex fz1 = complex[5];
-                Complex fz2 = complex[3];
-
-                Complex hk = complex[0].sub(complex[4]);
-                Complex hk1 = complex[4].sub(complex[2]);
-                Complex rk = hk.divide(hk1);
-
-                Complex rkp1 = rk.plus(1);
-                Complex rksqr = rk.square();
-                Complex ck = fz.times(rkp1);
-                Complex bk = fz.times(rk.times(2).plus_mutable(1)).sub(fz1.times(rkp1.square())).plus(fz2.times(rksqr));
-                Complex ak = fz.times(rk).sub(fz1.times(rkp1.times(rk))).plus(fz2.times(rksqr));
-
-                Complex ck2 = ck.times(2);
-                Complex temp2 = (bk.square().sub(ak.times(ck).times_mutable(4))).sqrt();
-
-                Complex denom1 = bk.plus(temp2);
-                Complex denom2 = bk.sub(temp2);
-
-                Complex qk;
-                if (denom1.norm_squared() > denom2.norm_squared()) {
-                    qk = ck2.divide(denom1);
-                } else {
-                    qk = ck2.divide(denom2);
-                }
-
-                complex[2].assign(complex[4]);
-                complex[4].assign(complex[0]);
-                complex[0].sub_mutable(hk.times_mutable(qk).times_mutable(relaxation)).plus_mutable(complex[1]);
-                complex[3].assign(complex[5]);
-                complex[5].assign(fz);
+            case MainWindow.NOVA_MULLER:             
+                MullerRootFindingMethod.mullerMethod(complex[0], complex[4], complex[2], fz, complex[5], complex[3], relaxation).plus_mutable(complex[1]);
                 break;
             case MainWindow.NOVA_PARHALLEY:
-                Complex sqrt = (dfz.square().sub_mutable(fz.times(ddfz).times_mutable(2))).sqrt_mutable();
-
-                Complex denom11 = dfz.plus(sqrt);
-                Complex denom21 = dfz.sub(sqrt);
-
-                if (denom11.norm_squared() > denom21.norm_squared()) {
-                    complex[0].sub_mutable(fz.times(2).divide_mutable(denom11).times_mutable(relaxation)).plus_mutable(complex[1]);
-                } else {
-                    complex[0].sub_mutable(fz.times(2).divide_mutable(denom21).times_mutable(relaxation)).plus_mutable(complex[1]);
-                }
+                ParhalleyRootFindingMethod.parhalleyMethod(complex[0], fz, dfz, ddfz, relaxation).plus_mutable(complex[1]);
                 break;
             case MainWindow.NOVA_LAGUERRE:
-                Complex degree = z_exponent;
-                Complex n1 = degree.sub(1);
-                Complex sqrt2 = (n1.times(dfz).square_mutable().sub_mutable(degree.times(n1).times_mutable(ddfz).times_mutable(fz))).sqrt_mutable();
-
-                Complex denom31 = dfz.plus(sqrt2);
-                Complex denom32 = dfz.sub(sqrt2);
-
-                if (denom31.norm_squared() > denom32.norm_squared()) {
-                    complex[0].sub_mutable(degree.times(fz).divide_mutable(denom31).times_mutable(relaxation)).plus_mutable(complex[1]);
-                } else {
-                    complex[0].sub_mutable(degree.times(fz).divide_mutable(denom32).times_mutable(relaxation)).plus_mutable(complex[1]);
-                }
+                LaguerreRootFindingMethod.laguerreMethod(complex[0], fz, dfz, ddfz, z_exponent, relaxation).plus_mutable(complex[1]);
                 break;
 
         }
@@ -448,7 +404,7 @@ public class Nova extends ExtendedConvergentType {
                 trap.check(complex[0]);
             }
 
-            if ((temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
+            if (iterations > 0 && (temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
                 escaped = true;
                 Object[] object = {iterations, complex[0], temp, zold, zold2, complex[1], start};
                 double out = out_color_algorithm.getResult(object);
@@ -503,7 +459,7 @@ public class Nova extends ExtendedConvergentType {
                 trap.check(complex[0]);
             }
 
-            if ((temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
+            if (iterations > 0 && (temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
                 escaped = true;
                 Object[] object = {iterations, complex[0], temp, zold, zold2, complex[1], start};
                 iterationData = object;

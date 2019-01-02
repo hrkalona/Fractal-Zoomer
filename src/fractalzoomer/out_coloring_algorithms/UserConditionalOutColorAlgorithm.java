@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2018 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2019 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -297,6 +297,10 @@ public class UserConditionalOutColorAlgorithm extends OutColorAlgorithm {
             }
             
             double result2 = expr2[0].getValue().getRe();
+            
+            if(ThreadDraw.USE_DIRECT_COLOR) {
+                return result2;
+            }
         
             if(Math.abs(result2) == max_iterations) {
                 return result2 < 0 ? -ColorAlgorithm.MAXIMUM_ITERATIONS : ColorAlgorithm.MAXIMUM_ITERATIONS;
@@ -336,6 +340,10 @@ public class UserConditionalOutColorAlgorithm extends OutColorAlgorithm {
             }
 
             double result2 = expr2[1].getValue().getRe();
+            
+            if(ThreadDraw.USE_DIRECT_COLOR) {
+                return result2;
+            }
         
             if(Math.abs(result2) == max_iterations) {
                 return result2 < 0 ? -ColorAlgorithm.MAXIMUM_ITERATIONS : ColorAlgorithm.MAXIMUM_ITERATIONS;
@@ -375,6 +383,10 @@ public class UserConditionalOutColorAlgorithm extends OutColorAlgorithm {
             }
 
             double result2 = expr2[2].getValue().getRe();
+            
+            if(ThreadDraw.USE_DIRECT_COLOR) {
+                return result2;
+            }
         
             if(Math.abs(result2) == max_iterations) {
                 return result2 < 0 ? -ColorAlgorithm.MAXIMUM_ITERATIONS : ColorAlgorithm.MAXIMUM_ITERATIONS;

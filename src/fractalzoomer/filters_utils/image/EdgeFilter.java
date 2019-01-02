@@ -124,6 +124,7 @@ public class EdgeFilter extends WholeImageFilter {
             }
         }
 
+        @Override
 	protected int[] filterPixels( int width, int height, int[] inPixels, Rectangle transformedSpace ) {
 		int index = 0;
 		int[] outPixels = new int[width * height];
@@ -175,6 +176,7 @@ public class EdgeFilter extends WholeImageFilter {
 		return outPixels;
 	}
 
+        @Override
 	public String toString() {
 		return "Edges/Detect Edges";
 	}

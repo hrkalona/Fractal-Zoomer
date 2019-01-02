@@ -13,12 +13,9 @@ import fractalzoomer.utils.ColorSpaceConverter;
  */
 public class LCHChromaBlending extends Blending {
 
-    private ColorSpaceConverter converter;
-
     public LCHChromaBlending(int color_interpolation) {
 
         super(color_interpolation);
-        converter = new ColorSpaceConverter();
 
     }
 
@@ -33,8 +30,8 @@ public class LCHChromaBlending extends Blending {
             blueB = 1;
         }
 
-        double[] resB = converter.RGBtoLAB(redB, greenB, blueB);
-        double[] resA = converter.RGBtoLAB(redA, greenA, blueA);
+        double[] resB = ColorSpaceConverter.RGBtoLAB(redB, greenB, blueB);
+        double[] resA = ColorSpaceConverter.RGBtoLAB(redA, greenA, blueA);
 
         double A1 = resB[1];
         double B1 = resB[2];
@@ -49,7 +46,7 @@ public class LCHChromaBlending extends Blending {
         double A = c2 * A1 / c1;
         double B = c2 * B1 / c1;
 
-        int[] rgb = converter.LABtoRGB(resB[0], A, B);
+        int[] rgb = ColorSpaceConverter.LABtoRGB(resB[0], A, B);
 
         temp_red = rgb[0];
         temp_green = rgb[1];

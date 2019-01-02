@@ -956,13 +956,17 @@ public class UserDefinedFunctions {
 		
 	}
 	
-	/*Example for image loading as a texture, by using Direct Color. In order to use this function set the user out coloring formula to m13(z, bail, p) and the user in coloring formula to 0. Dont forget to enable Direct Color.*/
-	public static Complex m13(Complex z, Complex bail, Complex p, Complex z4, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10) {
+	/*Example for image loading as a texture, by using Direct Color. In order to use this function set the user out coloring formula to m13(z, bail, p, s) and the user in coloring formula to 0. Dont forget to enable Direct Color.*/
+	public static Complex m13(Complex z, Complex bail, Complex p, Complex s, Complex z5, Complex z6, Complex z7, Complex z8, Complex z9, Complex z10) {
 	
 		if(img == null)
 			loadImage("image.png"); //set the path to your texture image
-			
+		            
 		double re = (((z.arg() + Math.PI) / (2 * Math.PI))) % 1.0;
+
+                double factor = 10;
+                //double re = (factor * ((s.arg() + Math.PI) / (2 * Math.PI))) % 1.0; //alternative mapping
+
 		//double im = 1 - Math.log(z.norm()) / Math.log(bail.getRe())); //the original example used this line to map the im coordinate, it should be used only in mandelbrot set
 		
 		double temp = p.norm_squared();

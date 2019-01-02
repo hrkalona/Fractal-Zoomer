@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2018 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2019 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -66,6 +66,7 @@ public class BailoutConditionsMenu extends JMenu {
         bailout_conditions[MainWindow.BAILOUT_CONDITION_CIRCLE].setToolTipText("The default bailout condition.");
         bailout_conditions[MainWindow.BAILOUT_CONDITION_CIRCLE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setBailoutTest(MainWindow.BAILOUT_CONDITION_CIRCLE);
@@ -79,6 +80,7 @@ public class BailoutConditionsMenu extends JMenu {
         bailout_conditions[MainWindow.BAILOUT_CONDITION_SQUARE].setToolTipText("The square bailout condition.");
         bailout_conditions[MainWindow.BAILOUT_CONDITION_SQUARE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setBailoutTest(MainWindow.BAILOUT_CONDITION_SQUARE);
@@ -92,6 +94,7 @@ public class BailoutConditionsMenu extends JMenu {
         bailout_conditions[MainWindow.BAILOUT_CONDITION_RHOMBUS].setToolTipText("The rhombus bailout condition.");
         bailout_conditions[MainWindow.BAILOUT_CONDITION_RHOMBUS].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setBailoutTest(MainWindow.BAILOUT_CONDITION_RHOMBUS);
@@ -105,6 +108,7 @@ public class BailoutConditionsMenu extends JMenu {
         bailout_conditions[MainWindow.BAILOUT_CONDITION_NNORM].setToolTipText("The Nth norm condition.");
         bailout_conditions[MainWindow.BAILOUT_CONDITION_NNORM].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setBailoutTest(MainWindow.BAILOUT_CONDITION_NNORM);
@@ -118,6 +122,7 @@ public class BailoutConditionsMenu extends JMenu {
         bailout_conditions[MainWindow.BAILOUT_CONDITION_STRIP].setToolTipText("The strip bailout condition.");
         bailout_conditions[MainWindow.BAILOUT_CONDITION_STRIP].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setBailoutTest(MainWindow.BAILOUT_CONDITION_STRIP);
@@ -131,6 +136,7 @@ public class BailoutConditionsMenu extends JMenu {
         bailout_conditions[MainWindow.BAILOUT_CONDITION_HALFPLANE].setToolTipText("The halfplane bailout condition.");
         bailout_conditions[MainWindow.BAILOUT_CONDITION_HALFPLANE].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setBailoutTest(MainWindow.BAILOUT_CONDITION_HALFPLANE);
@@ -145,6 +151,7 @@ public class BailoutConditionsMenu extends JMenu {
         bailout_conditions[MainWindow.BAILOUT_CONDITION_FIELD_LINES].setToolTipText("The field lines bailout condition.");
         bailout_conditions[MainWindow.BAILOUT_CONDITION_FIELD_LINES].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setBailoutTest(MainWindow.BAILOUT_CONDITION_FIELD_LINES);
@@ -158,6 +165,7 @@ public class BailoutConditionsMenu extends JMenu {
         bailout_conditions[MainWindow.BAILOUT_CONDITION_USER].setToolTipText("A bailout condition defined by the user.");
         bailout_conditions[MainWindow.BAILOUT_CONDITION_USER].addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setBailoutTest(MainWindow.BAILOUT_CONDITION_USER);

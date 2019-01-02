@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2018 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2019 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -55,6 +55,7 @@ public class VariableExpressionNode implements ExpressionNode
   /**
    * Returns the type of the node, in this case ExpressionNode.VARIABLE_NODE
    */
+  @Override
   public int getType()
   {
     return ExpressionNode.VARIABLE_NODE;
@@ -76,6 +77,7 @@ public class VariableExpressionNode implements ExpressionNode
    * Returns the value of the variable but throws an exception if the value has
    * not been set
    */
+  @Override
   public Complex getValue()
   {
     //if (valueSet) //We might crash but we improve performance
@@ -92,6 +94,7 @@ public class VariableExpressionNode implements ExpressionNode
    * @param visitor
    *          the visitor
    */
+  @Override
   public void accept(ExpressionNodeVisitor visitor)
   {
     visitor.visit(this);

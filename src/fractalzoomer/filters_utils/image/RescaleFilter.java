@@ -31,6 +31,7 @@ public class RescaleFilter extends TransferFilter {
 		this.scale = scale;
     }
     
+        @Override
     protected float transferFunction( float v ) {
 		return v * scale;
 	}
@@ -56,6 +57,7 @@ public class RescaleFilter extends TransferFilter {
 		return scale;
 	}
 
+        @Override
 	public String toString() {
 		return "Colors/Rescale...";
 	}

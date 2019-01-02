@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2018 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2019 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,7 +14,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package fractalzoomer.out_coloring_algorithms;
 
 import fractalzoomer.core.Complex;
@@ -28,6 +27,7 @@ import fractalzoomer.utils.ColorAlgorithm;
  * @author hrkalona2
  */
 public class UserOutColorAlgorithm extends OutColorAlgorithm {
+
     protected ExpressionNode expr;
     protected Parser parser;
     protected int max_iterations;
@@ -36,82 +36,86 @@ public class UserOutColorAlgorithm extends OutColorAlgorithm {
     public UserOutColorAlgorithm(String outcoloring_formula, double bailout, int max_iterations, double xCenter, double yCenter, double size, double[] point, Complex[] globalVars) {
 
         super();
-        
+
         this.globalVars = globalVars;
-        
+
         this.max_iterations = max_iterations;
-        
+
         parser = new Parser();
-        expr = parser.parse(outcoloring_formula);  
-                
-        if(parser.foundBail()) {
+        expr = parser.parse(outcoloring_formula);
+
+        if (parser.foundBail()) {
             parser.setBailvalue(new Complex(bailout, 0));
         }
 
-        if(parser.foundMaxn()) {
+        if (parser.foundMaxn()) {
             parser.setMaxnvalue(new Complex(max_iterations, 0));
         }
-        
-        if(parser.foundCenter()) {
+
+        if (parser.foundCenter()) {
             parser.setCentervalue(new Complex(xCenter, yCenter));
         }
-        
-        if(parser.foundSize()) {
+
+        if (parser.foundSize()) {
             parser.setSizevalue(new Complex(size, 0));
         }
-        
+
         if (parser.foundISize()) {
             parser.setISizevalue(new Complex(ThreadDraw.IMAGE_SIZE, 0));
         }
 
-        if(parser.foundPoint()) {
+        if (parser.foundPoint()) {
             parser.setPointvalue(new Complex(point[0], point[1]));
         }
-        
+
         OutNotUsingIncrement = true;
     }
 
     @Override
     public double getResult(Object[] object) {
 
-        if(parser.foundN()) {
-            parser.setNvalue(new Complex((Integer)object[0], 0));
-        }
-        
-        if(parser.foundZ()) {
-            parser.setZvalue(((Complex)object[1]));
-        }
-        
-        if(parser.foundC()) {
-            parser.setCvalue(((Complex)object[4]));
-        }
-        
-        if(parser.foundS()) {
-            parser.setSvalue(((Complex)object[5]));
-        }
-        
-        if(parser.foundP()) {
-            parser.setPvalue(((Complex)object[2]));
-        }
-        
-        if(parser.foundPP()) {
-            parser.setPPvalue(((Complex)object[3]));
+        if (parser.foundN()) {
+            parser.setNvalue(new Complex((Integer) object[0], 0));
         }
 
-        for(int i = 0; i < Parser.EXTRA_VARS; i++) {
-            if(parser.foundVar(i)) {
+        if (parser.foundZ()) {
+            parser.setZvalue(((Complex) object[1]));
+        }
+
+        if (parser.foundC()) {
+            parser.setCvalue(((Complex) object[4]));
+        }
+
+        if (parser.foundS()) {
+            parser.setSvalue(((Complex) object[5]));
+        }
+
+        if (parser.foundP()) {
+            parser.setPvalue(((Complex) object[2]));
+        }
+
+        if (parser.foundPP()) {
+            parser.setPPvalue(((Complex) object[3]));
+        }
+
+        for (int i = 0; i < Parser.EXTRA_VARS; i++) {
+            if (parser.foundVar(i)) {
                 parser.setVarsvalue(i, globalVars[i]);
             }
         }
 
         double result = expr.getValue().getRe();
-        
-        if(Math.abs(result) == max_iterations) {
+
+        if (ThreadDraw.USE_DIRECT_COLOR) {
+            return result;
+        }
+
+        if (Math.abs(result) == max_iterations) {
             return result < 0 ? -ColorAlgorithm.MAXIMUM_ITERATIONS : ColorAlgorithm.MAXIMUM_ITERATIONS;
         }
-        
-        return result; 
-        
+
+        return result;
+
     }
 
 }

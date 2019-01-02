@@ -1,5 +1,5 @@
 /*
- * Fractal Zoomer, Copyright (C) 2018 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2019 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -56,37 +56,37 @@ public class ColorBrewerPalette {
     private static final int[] MIXED9 = {-16750537, -15034288, -10044061, -5842582, -2494581, -65, -73589, -151967, -758461, -2674649, -5963738};
 
     public static Color[] generate2(int max_colors) {
-        ArrayList<int[]> greens = new ArrayList<int[]>();
+        ArrayList<int[]> greens = new ArrayList<>();
         greens.add(GREEN1);
         greens.add(GREEN2);
         greens.add(GREEN3);
 
-        ArrayList<int[]> blues = new ArrayList<int[]>();
+        ArrayList<int[]> blues = new ArrayList<>();
         blues.add(BLUE1);
         blues.add(BLUE2);
         blues.add(BLUE3);
         blues.add(BLUE4);
         blues.add(BLUE5);
 
-        ArrayList<int[]> reds = new ArrayList<int[]>();
+        ArrayList<int[]> reds = new ArrayList<>();
         reds.add(RED1);
         reds.add(RED2);
         reds.add(RED3);
 
-        ArrayList<int[]> purples = new ArrayList<int[]>();
+        ArrayList<int[]> purples = new ArrayList<>();
         purples.add(PURPLE1);
         purples.add(PURPLE2);
         purples.add(PURPLE3);
         purples.add(PURPLE4);
 
-        ArrayList<int[]> oranges = new ArrayList<int[]>();
+        ArrayList<int[]> oranges = new ArrayList<>();
         oranges.add(ORANGE1);
         oranges.add(ORANGE2);
 
-        ArrayList<int[]> blacks = new ArrayList<int[]>();
+        ArrayList<int[]> blacks = new ArrayList<>();
         blacks.add(BLACK);
 
-        ArrayList<ArrayList<int[]>> colors = new ArrayList<ArrayList<int[]>>();
+        ArrayList<ArrayList<int[]>> colors = new ArrayList<>();
         colors.add(greens);
         colors.add(blues);
         colors.add(purples);
@@ -140,7 +140,7 @@ public class ColorBrewerPalette {
     }
 
     public static Color[] generate(int max_colors) {
-        ArrayList<int[]> mixed = new ArrayList<int[]>();
+        ArrayList<int[]> mixed = new ArrayList<>();
 
         mixed.add(MIXED1);
         mixed.add(MIXED2);

@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2018 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2019 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -57,6 +57,14 @@ import fractalzoomer.fractal_options.iteration_statistics.StripeAverage;
 import fractalzoomer.fractal_options.iteration_statistics.UserStatisticColoring;
 import fractalzoomer.fractal_options.orbit_traps.CircleCrossOrbitTrap;
 import fractalzoomer.fractal_options.orbit_traps.CirclePointOrbitTrap;
+import fractalzoomer.fractal_options.orbit_traps.GoldenRatioSpiralCircleOrbitTrap;
+import fractalzoomer.fractal_options.orbit_traps.GoldenRatioSpiralCrossOrbitTrap;
+import fractalzoomer.fractal_options.orbit_traps.GoldenRatioSpiralNNormOrbitTrap;
+import fractalzoomer.fractal_options.orbit_traps.GoldenRatioSpiralOrbitTrap;
+import fractalzoomer.fractal_options.orbit_traps.GoldenRatioSpiralPointNNormOrbitTrap;
+import fractalzoomer.fractal_options.orbit_traps.GoldenRatioSpiralPointOrbitTrap;
+import fractalzoomer.fractal_options.orbit_traps.GoldenRatioSpiralRhombusOrbitTrap;
+import fractalzoomer.fractal_options.orbit_traps.GoldenRatioSpiralSquareOrbitTrap;
 import fractalzoomer.fractal_options.orbit_traps.ImOrbitTrap;
 import fractalzoomer.fractal_options.orbit_traps.NNormCrossOrbitTrap;
 import fractalzoomer.fractal_options.orbit_traps.NNormOrbitTrap;
@@ -204,6 +212,10 @@ public abstract class Fractal {
     protected GenericStatistic statistic;
     protected double log_bailout_squared;
     private double trapIntesity;
+    private boolean trapIncludeNotEscaped;
+    private boolean trapIncludeEscaped;
+    protected boolean statisticIncludeEscaped;
+    protected boolean statisticIncludeNotEscaped;
 
     public Fractal(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, OrbitTrapSettings ots) {
 
@@ -221,6 +233,8 @@ public abstract class Fractal {
         if(ots.useTraps) {
             TrapFactory(ots);
             trapIntesity = ots.trapIntensity;
+            trapIncludeEscaped = ots.trapIncludeEscaped;
+            trapIncludeNotEscaped = ots.trapIncludeNotEscaped;
         }
 
         rotation = new Rotation(rotation_vals[0], rotation_vals[1], rotation_center[0], rotation_center[1]);
@@ -523,35 +537,6 @@ public abstract class Fractal {
 
     }
 
-    /*public ArrayList<Complex> calculateFractalOrbit2(Complex pixel) {
-     int iterations = 0;
-
-     pertur_val.setGlobalVars(vars);
-     init_val.setGlobalVars(vars);
-    
-     Complex[] complex = new Complex[2];
-     complex[0] = new Complex(pertur_val.getValue(init_val.getValue(pixel)));//z
-     complex[1] = new Complex(pixel);//c
-        
-     ArrayList<Complex> complex_orbit = new ArrayList<Complex>();
-     complex_orbit.add(pixel);
-
-     Complex temp = null;
-
-     for(; iterations < max_iterations; iterations++) {
-     function(complex);
-     temp = rotation.rotateInverse(complex[0]);
-
-     if(Double.isNaN(temp.getRe()) || Double.isNaN(temp.getIm()) || Double.isInfinite(temp.getRe()) || Double.isInfinite(temp.getIm())) {
-     break;
-     }
-
-     complex_orbit.add(temp);
-     }
-        
-     return complex_orbit;
-
-     }*/
     public Complex calculateFractalDomain(Complex pixel) {
 
         resetGlobalVars();
@@ -1032,7 +1017,10 @@ public abstract class Fractal {
     }
 
     protected void StatisticFactory(StatisticsSettings sts, double[] plane_transform_center) {
-
+        
+        statisticIncludeEscaped = sts.statisticIncludeEscaped;
+        statisticIncludeNotEscaped = sts.statisticIncludeNotEscaped;
+    
         if(sts.statisticGroup == 1) {
             statistic = new UserStatisticColoring(sts.statistic_intensity, sts.user_statistic_formula, xCenter, yCenter, max_iterations, size, bailout, plane_transform_center, globalVars, sts.useAverage);
             return;
@@ -1075,7 +1063,7 @@ public abstract class Fractal {
         }
         
         double maxVal = trap.getMaxValue();
-        distance = (distance - maxVal) * -1;
+        distance = maxVal - distance;
         distance =  distance * (1 / maxVal);
         distance = (-Math.cos(Math.PI * distance) * 0.5 + 0.5) * trapIntesity; 
 
@@ -1085,11 +1073,11 @@ public abstract class Fractal {
     
     protected double getFinalValueOut(double result) {
         
-        if(trap != null) {
+        if(trap != null && trapIncludeEscaped) {
             result = getTrap(result);
         }
         
-        if(statistic != null) {
+        if(statistic != null && statisticIncludeEscaped) {
             result = getStatistic(result);
         }
         
@@ -1099,8 +1087,12 @@ public abstract class Fractal {
     
     protected double getFinalValueIn(double result) {
         
-        if(trap != null) {
+        if(trap != null && trapIncludeNotEscaped) {
             result = getTrap(result);
+        }
+        
+        if(statistic != null && statisticIncludeNotEscaped) {
+            result = getStatistic(result);
         }
         
         return result;
@@ -1170,6 +1162,33 @@ public abstract class Fractal {
             case MainWindow.N_NORM_POINT_N_NORM_TRAP:
                 trap = new NNormPointNNormOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.trapNorm);
                 break;
+            case MainWindow.GOLDEN_RATIO_SPIRAL_TRAP:
+                trap = new GoldenRatioSpiralOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapWidth);
+                break;
+            case MainWindow.GOLDEN_RATIO_SPIRAL_POINT_TRAP:
+                trap = new GoldenRatioSpiralPointOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth);
+                break;
+            case MainWindow.GOLDEN_RATIO_SPIRAL_POINT_N_NORM_TRAP:
+                trap = new GoldenRatioSpiralPointNNormOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.trapNorm);
+                break;
+            case MainWindow.GOLDEN_RATIO_SPIRAL_CROSS_TRAP:
+                trap = new GoldenRatioSpiralCrossOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.lineType);
+                break;
+            case MainWindow.GOLDEN_RATIO_SPIRAL_CIRCLE_TRAP:
+                trap = new GoldenRatioSpiralCircleOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth);
+                break;
+            case MainWindow.GOLDEN_RATIO_SPIRAL_SQUARE_TRAP:
+                trap = new GoldenRatioSpiralSquareOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth);
+                break;
+            case MainWindow.GOLDEN_RATIO_SPIRAL_RHOMBUS_TRAP:
+                trap = new GoldenRatioSpiralRhombusOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth);
+                break;
+            case MainWindow.GOLDEN_RATIO_SPIRAL_N_NORM_TRAP:
+                trap = new GoldenRatioSpiralNNormOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.trapNorm);
+                break;
+                   
+                
+            
         }
 
     }

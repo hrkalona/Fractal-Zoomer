@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 hrkalona
+ * Copyright (C) 2019 hrkalona
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -235,9 +235,11 @@ public class DomainColoringFrame extends JFrame {
         buttons.setBackground(MainWindow.bg_color);
 
         JButton ok = new JButton("Ok");
+        getRootPane().setDefaultButton(ok);
         ok.setFocusable(false);
         ok.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
                 
                 int tempIterations;
@@ -294,6 +296,7 @@ public class DomainColoringFrame extends JFrame {
         cancel.setFocusable(false);
         cancel.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 if(!options) {                  

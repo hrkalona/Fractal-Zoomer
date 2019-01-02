@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 hrkalona
+ * Copyright (C) 2019 hrkalona
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,6 +24,7 @@ import fractalzoomer.main.Constants;
  * @author hrkalona
  */
 public class FunctionSettings implements Constants {
+    public GenericCaZbdZeSettings gcs;
     public double[] kleinianLine;
     public double kleinianK;
     public double kleinianM;
@@ -31,6 +32,7 @@ public class FunctionSettings implements Constants {
     public boolean burning_ship;
     public boolean mandel_grass;
     public double[] coefficients;
+    public double[] coefficients_im;
     public double[] perturbation_vals;
     public double[] initial_vals;
     public boolean variable_perturbation;
@@ -106,6 +108,9 @@ public class FunctionSettings implements Constants {
     public int escaping_smooth_algorithm;
     public int converging_smooth_algorithm;
     public boolean smoothing;
+    public double[] durand_kerner_init_val;
+    public MagneticPendulumSettings mps;
+    public LyapunovSettings lpns;
     
     public FunctionSettings() {
         n_norm = 2;
@@ -273,6 +278,8 @@ public class FunctionSettings implements Constants {
         coefficients[7] = 1;
         coefficients[10] = -1;
         
+        coefficients_im = new double[11];
+        
         kleinianLine = new double[2];
         kleinianLine[0] = 1.93;
         kleinianLine[1] = 0.04;            
@@ -306,6 +313,16 @@ public class FunctionSettings implements Constants {
         user_incoloring_condition_formula[0] = "norm(sin(z)) * 100";
         user_incoloring_condition_formula[1] = "-(norm(sin(z)) * 100 + 50)";
         user_incoloring_condition_formula[2] = "norm(sin(z)) * 100";
+        
+        gcs = new GenericCaZbdZeSettings();
+        
+        durand_kerner_init_val = new double[2];
+        durand_kerner_init_val[0] = 0.4;
+        durand_kerner_init_val[1] = 0.9;
+        
+        mps = new MagneticPendulumSettings();
+        lpns = new LyapunovSettings();
+        
     }
     
 }

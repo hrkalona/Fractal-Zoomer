@@ -1,5 +1,5 @@
 /*
- * Fractal Zoomer, Copyright (C) 2018 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2019 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,12 +23,10 @@ import fractalzoomer.utils.ColorSpaceConverter;
  * @author kaloch
  */
 public class LCHLightnessBlending extends Blending {
-    private ColorSpaceConverter converter;
     
     public LCHLightnessBlending(int color_interpolation) {
 
         super(color_interpolation);
-        converter = new ColorSpaceConverter();
 
     }
 
@@ -37,10 +35,10 @@ public class LCHLightnessBlending extends Blending {
       
         int temp_red = 0, temp_green = 0, temp_blue = 0;
         
-        double[] resB = converter.RGBtoLAB(redB, greenB, blueB);
-        double[] resA = converter.RGBtoLAB(redA, greenA, blueA);
+        double[] resB = ColorSpaceConverter.RGBtoLAB(redB, greenB, blueB);
+        double[] resA = ColorSpaceConverter.RGBtoLAB(redA, greenA, blueA);
         
-        int[] rgb = converter.LABtoRGB(resA[0], resB[1], resB[2]);
+        int[] rgb = ColorSpaceConverter.LABtoRGB(resA[0], resB[1], resB[2]);
         
         temp_red = rgb[0];
         temp_green = rgb[1];

@@ -1,5 +1,5 @@
 /*
- * Fractal Zoomer, Copyright (C) 2018 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2019 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,6 @@ package fractalzoomer.functions.root_finding_methods.parhalley;
 import fractalzoomer.core.Complex;
 import fractalzoomer.functions.root_finding_methods.RootFindingMethods;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
-import fractalzoomer.main.app_settings.StatisticsSettings;
 import java.util.ArrayList;
 
 /**
@@ -53,6 +52,23 @@ public abstract class ParhalleyRootFindingMethod extends RootFindingMethods {
         }
         else {
             z.sub_mutable(fz.times(2).divide_mutable(denom2));
+        }
+        
+        return z;
+    }
+    
+    public static Complex parhalleyMethod(Complex z, Complex fz, Complex dfz, Complex ddfz, Complex relaxation) {
+
+        Complex sqrt = (dfz.square().sub_mutable(fz.times(ddfz).times_mutable(2))).sqrt_mutable();
+
+        Complex denom1 = dfz.plus(sqrt);
+        Complex denom2 = dfz.sub(sqrt);
+
+        if(denom1.norm_squared() > denom2.norm_squared()) {
+            z.sub_mutable((fz.times(2).divide_mutable(denom1)).times_mutable(relaxation));
+        }
+        else {
+            z.sub_mutable((fz.times(2).divide_mutable(denom2)).times_mutable(relaxation));
         }
         
         return z;

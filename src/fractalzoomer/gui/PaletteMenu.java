@@ -1,5 +1,5 @@
 /*
- * Fractal Zoomer, Copyright (C) 2018 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2019 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,6 +19,7 @@ package fractalzoomer.gui;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.palettes.CustomPalette;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.GradientPaint;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
@@ -26,19 +27,32 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.StringTokenizer;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
+import javax.swing.JCheckBox;
+import javax.swing.JFileChooser;
 import javax.swing.JMenu;
+import javax.swing.JOptionPane;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.KeyStroke;
+import javax.swing.plaf.basic.BasicFileChooserUI;
 
 /**
  *
  * @author hrkalona2
  */
 public class PaletteMenu extends JMenu {
-	private static final long serialVersionUID = 3271849856447452259L;
-	private MainWindow ptr;
+
+    private static final long serialVersionUID = 3271849856447452259L;
+    private MainWindow ptr;
     private JRadioButtonMenuItem[] palette;
     private int i;
     public static String[] paletteNames;
@@ -64,9 +78,10 @@ public class PaletteMenu extends JMenu {
         paletteNames[16] = "Fire";
         paletteNames[17] = "Jet";
         paletteNames[MainWindow.CUSTOM_PALETTE_ID] = "Custom Palette";
+        paletteNames[MainWindow.DIRECT_PALETTE_ID] = "Direct Palette";
     }
 
-    public PaletteMenu(MainWindow ptr2, String name, int color_choice, boolean smoothing, int[][] custom_palette, int color_interpolation, int color_space, boolean reversed_palette, int color_cycling_location, double scale_factor_palette_val, int processing_alg, final boolean outcoloring_mode) {
+    public PaletteMenu(MainWindow ptr2, String name, int color_choice, boolean smoothing, int[][] custom_palette, int color_interpolation, int color_space, boolean reversed_palette, int color_cycling_location, double scale_factor_palette_val, int processing_alg, final boolean outcoloring_mode, int temp_color_cycling_location) {
 
         super(name);
 
@@ -80,38 +95,73 @@ public class PaletteMenu extends JMenu {
 
         for (i = 0; i < palette.length; i++) {
 
-            Color[] c = null;
-            if (i != MainWindow.CUSTOM_PALETTE_ID) {
-                c = CustomPalette.getPalette(CustomPaletteEditorFrame.editor_default_palettes[i], MainWindow.INTERPOLATION_LINEAR, MainWindow.COLOR_SPACE_RGB, false, color_cycling_location, 0, MainWindow.PROCESSING_NONE);
-            } else {
-                c = CustomPalette.getPalette(custom_palette, color_interpolation, color_space, reversed_palette, color_cycling_location, scale_factor_palette_val, processing_alg);
-            }
-            
-            BufferedImage palette_preview = new BufferedImage(250, 24, BufferedImage.TYPE_INT_ARGB);
-            Graphics2D g = palette_preview.createGraphics();
-            
-            for (int j = 0; j < c.length; j++) {
-                if (smoothing) {
-                    GradientPaint gp = new GradientPaint(j * palette_preview.getWidth() / c.length, 0, c[j], (j + 1) * palette_preview.getWidth() / c.length, 0, c[(j + 1) % c.length]);
-                    g.setPaint(gp);
-                    g.fill(new Rectangle2D.Double(j * palette_preview.getWidth() / c.length, 0, (j + 1) * palette_preview.getWidth() / c.length - j * palette_preview.getWidth() / c.length, palette_preview.getHeight()));
-                } else {
-                    g.setColor(c[j]);
-                    g.fillRect(j * palette_preview.getWidth() / c.length, 0, (j + 1) * palette_preview.getWidth() / c.length - j * palette_preview.getWidth() / c.length, palette_preview.getHeight());
+            if (i != MainWindow.DIRECT_PALETTE_ID) {
+                Color[] c = null;
+                if (i == color_choice) { // the current activated palette
+                    if (i != MainWindow.CUSTOM_PALETTE_ID) {
+                        c = CustomPalette.getPalette(CustomPaletteEditorFrame.editor_default_palettes[i], MainWindow.INTERPOLATION_LINEAR, MainWindow.COLOR_SPACE_RGB, false, color_cycling_location, 0, MainWindow.PROCESSING_NONE);
+                    } else {
+                        c = CustomPalette.getPalette(custom_palette, color_interpolation, color_space, reversed_palette, color_cycling_location, scale_factor_palette_val, processing_alg);
+                    }
+                } else {// the remaining palettes
+                    if (i != MainWindow.CUSTOM_PALETTE_ID) {
+                        c = CustomPalette.getPalette(CustomPaletteEditorFrame.editor_default_palettes[i], MainWindow.INTERPOLATION_LINEAR, MainWindow.COLOR_SPACE_RGB, false, 0, 0, MainWindow.PROCESSING_NONE); // 0 color cycling loc
+                    } else {
+                        c = CustomPalette.getPalette(custom_palette, color_interpolation, color_space, reversed_palette, temp_color_cycling_location, scale_factor_palette_val, processing_alg); // temp color cycling loc
+                    }
                 }
+
+                BufferedImage palette_preview = new BufferedImage(250, 24, BufferedImage.TYPE_INT_ARGB);
+                Graphics2D g = palette_preview.createGraphics();
+
+                for (int j = 0; j < c.length; j++) {
+                    if (smoothing) {
+                        GradientPaint gp = new GradientPaint(j * palette_preview.getWidth() / c.length, 0, c[j], (j + 1) * palette_preview.getWidth() / c.length, 0, c[(j + 1) % c.length]);
+                        g.setPaint(gp);
+                        g.fill(new Rectangle2D.Double(j * palette_preview.getWidth() / c.length, 0, (j + 1) * palette_preview.getWidth() / c.length - j * palette_preview.getWidth() / c.length, palette_preview.getHeight()));
+                    } else {
+                        g.setColor(c[j]);
+                        g.fillRect(j * palette_preview.getWidth() / c.length, 0, (j + 1) * palette_preview.getWidth() / c.length - j * palette_preview.getWidth() / c.length, palette_preview.getHeight());
+                    }
+                }
+
+                palette[i] = new JRadioButtonMenuItem(paletteNames[i], new ImageIcon(palette_preview));
+            } else {
+                palette[i] = new JRadioButtonMenuItem(paletteNames[i], getIcon("/fractalzoomer/icons/palette_load.png"));
             }
 
-            palette[i] = new JRadioButtonMenuItem(paletteNames[i], new ImageIcon(palette_preview));
-
-            if (i != MainWindow.CUSTOM_PALETTE_ID) {
+            if (i == MainWindow.DIRECT_PALETTE_ID) {
                 palette[i].addActionListener(new ActionListener() {
 
                     int temp = i;
 
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        
+                        ptr.chooseDirectPalette(temp, outcoloring_mode);
+
+                    }
+                });
+                
+                if (outcoloring_mode) {
+                    palette[i].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_INSERT, 0));
+                } else {
+                    palette[i].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_INSERT, ActionEvent.CTRL_MASK));
+                }
+                
+                addSeparator();
+                
+            }
+            else if (i != MainWindow.CUSTOM_PALETTE_ID) {
+                palette[i].addActionListener(new ActionListener() {
+
+                    int temp = i;
+
+                    @Override
                     public void actionPerformed(ActionEvent e) {
 
-                        ptr.setPalette(temp, outcoloring_mode ? 0 : 1);
-                        
+                        ptr.setPalette(temp, null, outcoloring_mode ? 0 : 1);
+
                     }
                 });
             } else {
@@ -119,20 +169,20 @@ public class PaletteMenu extends JMenu {
 
                     int temp = i;
 
+                    @Override
                     public void actionPerformed(ActionEvent e) {
 
                         ptr.openCustomPaletteEditor(temp, outcoloring_mode);
- 
+
                     }
                 });
-                
-                if(outcoloring_mode) {
+
+                if (outcoloring_mode) {
                     palette[i].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, 0));
-                }
-                else {
+                } else {
                     palette[i].setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, 0));
                 }
-                
+
                 addSeparator();
             }
 
@@ -161,6 +211,7 @@ public class PaletteMenu extends JMenu {
         palette[16].setToolTipText("A palette based on colors of fire.");
         palette[17].setToolTipText("A palette based on matlab's colormap.");
         palette[MainWindow.CUSTOM_PALETTE_ID].setToolTipText("A palette custom made by the user.");
+        palette[MainWindow.DIRECT_PALETTE_ID].setToolTipText("A palette loaded directly from a file (RGB: 0-255 0-255 0-255 format).");
     }
 
     private ImageIcon getIcon(String path) {
@@ -173,6 +224,103 @@ public class PaletteMenu extends JMenu {
 
         return palette;
 
+    }
+
+    public static int[] loadDirectPalette(String fileName, Component parent) {
+        int[] palette = null;
+
+        ArrayList<Integer> rgbs = new ArrayList<>();
+        try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
+
+            String sCurrentLine;
+
+            while ((sCurrentLine = br.readLine()) != null) {
+                StringTokenizer st = new StringTokenizer(sCurrentLine);
+                
+                sCurrentLine = sCurrentLine.trim();
+                
+                if(st.countTokens() == 0) continue;
+                
+                if(sCurrentLine.startsWith("#") || sCurrentLine.startsWith("//")) continue;
+     
+                if(st.countTokens() < 3) {
+                    return null;
+                }
+                
+                int r = Integer.parseInt(st.nextToken());
+                int g = Integer.parseInt(st.nextToken());
+                int b = Integer.parseInt(st.nextToken());
+                
+                r = r < 0 ? 0 : r;
+                g = g < 0 ? 0 : g;
+                b = b < 0 ? 0 : b;
+                
+                r = r > 255 ? 255 : r;
+                g = g > 255 ? 255 : g;
+                b = b > 255 ? 255 : b;
+                
+                rgbs.add(0xFF000000 | r << 16 | g << 8 | b);
+            }
+        } catch (Exception ex) {
+            return null;
+        }
+        
+        if(!rgbs.isEmpty()) {
+            rgbs = importDialog(rgbs, parent);
+            palette = rgbs.stream().mapToInt(Integer::valueOf).toArray();
+        }
+
+        return palette;
+    }
+    
+    public static ArrayList<Integer> importDialog(ArrayList<Integer> colors, Component parent) {
+        final JCheckBox invert = new JCheckBox("Reverse Palette");
+        invert.setSelected(false);
+        invert.setFocusable(false);
+        invert.setToolTipText("Imports the palette in reversed order.");
+
+        Object[] message = {
+            "Successfully imported a palette that contains " + colors.size() + " colors.",
+            invert};
+
+        JOptionPane.showMessageDialog(parent, message, "Direct Palette", JOptionPane.INFORMATION_MESSAGE);
+
+        if(invert.isSelected()) {
+            Collections.reverse(colors);
+        }
+        
+        return colors;
+  
+    }
+    public static int[] choosePaletteFiler(Component parent) {
+
+        JFileChooser file_chooser = new JFileChooser(".");
+
+        file_chooser.setAcceptAllFileFilterUsed(false);
+        file_chooser.setDialogType(JFileChooser.OPEN_DIALOG);
+
+        file_chooser.addPropertyChangeListener(JFileChooser.FILE_FILTER_CHANGED_PROPERTY, new PropertyChangeListener() {
+
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                String file_name = ((BasicFileChooserUI) file_chooser.getUI()).getFileName();
+                file_chooser.setSelectedFile(new File(file_name));
+            }
+        });
+
+        int returnVal = file_chooser.showDialog(parent, "Load Direct Palette");
+
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            int [] res = loadDirectPalette(file_chooser.getSelectedFile().getPath(), parent);
+            
+            if(res == null) {
+                JOptionPane.showMessageDialog(parent, "Failed to directly load the palette.", "Error!", JOptionPane.ERROR_MESSAGE);
+            }
+            
+            return res;
+        }
+        
+        return null;
     }
 
 }

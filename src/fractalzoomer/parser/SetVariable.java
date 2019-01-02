@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2018 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2019 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -47,6 +47,7 @@ public class SetVariable implements ExpressionNodeVisitor
    * Checks the nodes name against the name to set and sets the value if the two
    * strings match
    */
+  @Override
   public void visit(VariableExpressionNode node)
   {
     if (node.getName().equals(name))
@@ -54,45 +55,56 @@ public class SetVariable implements ExpressionNodeVisitor
   }
 
   /** Do nothing */
+  @Override
   public void visit(RealConstantExpressionNode node)
   {}
   
   /** Do nothing */
+  @Override
   public void visit(ImaginaryConstantExpressionNode node)
   {}
 
   /** Do nothing */
+  @Override
   public void visit(AdditionExpressionNode node)
   {}
 
   /** Do nothing */
+  @Override
   public void visit(MultiplicationExpressionNode node)
   {}
 
   /** Do nothing */
+  @Override
   public void visit(ExponentiationExpressionNode node)
   {}
 
   /** Do nothing */
+  @Override
   public void visit(FunctionExpressionNode node)
   {}
   
   /** Do nothing */
+  @Override
   public void visit(Function2ArgumentsExpressionNode node)
   {}
   
   /** Do nothing */
+  @Override
   public void visit(FunctionUserMultiArgumentExpressionNode node)
   {}
   
+  @Override
   public void visit(FunctionUserMultiArgument2ExpressionNode node)
   {}
   
   /** Do nothing */
+  @Override
   public void visit(FunctionUser1ArgumentExpressionNode node)
   {}
   
   /** Do nothing */
+  @Override
   public void visit(FunctionUser2ArgumentExpressionNode node)
   {}
 

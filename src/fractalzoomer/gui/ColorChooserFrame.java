@@ -1,5 +1,5 @@
 /*
- * Fractal Zoomer, Copyright (C) 2018 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2019 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -81,9 +81,12 @@ public class ColorChooserFrame extends JFrame {
 
         JButton ok = new JButton("Ok");
         ok.setFocusable(false);
+        
+        getRootPane().setDefaultButton(ok);
 
         ok.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 if(obj2 instanceof JLabel) {
@@ -112,6 +115,7 @@ public class ColorChooserFrame extends JFrame {
         close.setFocusable(false);
         close.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr2.setEnabled(true);

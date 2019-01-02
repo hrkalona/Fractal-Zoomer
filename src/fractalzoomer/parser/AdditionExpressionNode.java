@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2018 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2019 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -52,6 +52,7 @@ public class AdditionExpressionNode extends SequenceExpressionNode
   /**
    * Returns the type of the node, in this case ExpressionNode.ADDITION_NODE
    */
+    @Override
   public int getType()
   {
     return ExpressionNode.ADDITION_NODE;
@@ -62,6 +63,7 @@ public class AdditionExpressionNode extends SequenceExpressionNode
    * 
    * All the terms are evaluated and added or subtracted from the total sum.
    */
+    @Override
   public Complex getValue()
   {
     Complex sum = new Complex(firstNode.getValue());  
@@ -89,6 +91,7 @@ public class AdditionExpressionNode extends SequenceExpressionNode
    * @param visitor
    *          the visitor
    */
+    @Override
   public void accept(ExpressionNodeVisitor visitor)
   {
     visitor.visit(this);

@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2018 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2019 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -690,7 +690,7 @@ public class FiltersMenu extends JMenu {
 
     private void createDetailFilterNames() {
 
-        detail_list = new ArrayList<String>();
+        detail_list = new ArrayList<>();
 
         for(int i = 0; i < detail_filters_menu.getMenuComponentCount(); i++) {
             if(detail_filters_menu.getMenuComponent(i) instanceof JCheckBoxMenuItem) {
@@ -701,7 +701,7 @@ public class FiltersMenu extends JMenu {
 
     private void createColorFilterNames() {
 
-        color_list = new ArrayList<String>();
+        color_list = new ArrayList<>();
 
         for(int i = 0; i < color_filters_menu.getMenuComponentCount(); i++) {
             if(color_filters_menu.getMenuComponent(i) instanceof JCheckBoxMenuItem) {
@@ -712,7 +712,7 @@ public class FiltersMenu extends JMenu {
 
     private void createTextureFilterNames() {
 
-        texture_list = new ArrayList<String>();
+        texture_list = new ArrayList<>();
 
         for(int i = 0; i < texture_filters_menu.getMenuComponentCount(); i++) {
             if(texture_filters_menu.getMenuComponent(i) instanceof JCheckBoxMenuItem) {
@@ -723,7 +723,7 @@ public class FiltersMenu extends JMenu {
 
     private void createLightingFilterNames() {
 
-        lighting_list = new ArrayList<String>();
+        lighting_list = new ArrayList<>();
 
         for(int i = 0; i < light_filters_menu.getMenuComponentCount(); i++) {
             if(light_filters_menu.getMenuComponent(i) instanceof JCheckBoxMenuItem) {

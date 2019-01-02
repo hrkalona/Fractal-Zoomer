@@ -63,6 +63,7 @@ public class RGBAdjustFilter extends PointFilter {
 		return lut;
 	}
 	
+        @Override
 	public int filterRGB(int x, int y, int rgb) {
 		int a = rgb & 0xff000000;
 		int r = (rgb >> 16) & 0xff;
@@ -74,6 +75,7 @@ public class RGBAdjustFilter extends PointFilter {
 		return a | (r << 16) | (g << 8) | b;
 	}
 
+        @Override
 	public String toString() {
 		return "Colors/Adjust RGB...";
 	}

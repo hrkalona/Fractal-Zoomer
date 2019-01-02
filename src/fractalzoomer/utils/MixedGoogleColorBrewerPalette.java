@@ -1,5 +1,5 @@
 /*
- * Fractal Zoomer, Copyright (C) 2018 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2019 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@ public class MixedGoogleColorBrewerPalette {
     
     
     public static Color[] generate(int max_colors) {
-        ArrayList<int[]> greens = new ArrayList<int[]>();
+        ArrayList<int[]> greens = new ArrayList<>();
         greens.add(ColorBrewerPalette.GREEN1);
         greens.add(ColorBrewerPalette.GREEN2);
         greens.add(ColorBrewerPalette.GREEN3);      
@@ -37,7 +37,7 @@ public class MixedGoogleColorBrewerPalette {
         greens.add(GoogleMaterialDesignPalette.LIGHT_GREEN);
         greens.add(GoogleMaterialDesignPalette.LIME);
 
-        ArrayList<int[]> blues = new ArrayList<int[]>();
+        ArrayList<int[]> blues = new ArrayList<>();
         blues.add(ColorBrewerPalette.BLUE1);
         blues.add(ColorBrewerPalette.BLUE2);
         blues.add(ColorBrewerPalette.BLUE3);
@@ -48,14 +48,14 @@ public class MixedGoogleColorBrewerPalette {
         blues.add(GoogleMaterialDesignPalette.LIGHT_BLUE);
         blues.add(GoogleMaterialDesignPalette.CYAN);
 
-        ArrayList<int[]> reds = new ArrayList<int[]>();
+        ArrayList<int[]> reds = new ArrayList<>();
         reds.add(ColorBrewerPalette.RED1);
         reds.add(ColorBrewerPalette.RED2);
         reds.add(ColorBrewerPalette.RED3);
         reds.add(GoogleMaterialDesignPalette.RED);
         reds.add(GoogleMaterialDesignPalette.PINK);
 
-        ArrayList<int[]> purples = new ArrayList<int[]>();
+        ArrayList<int[]> purples = new ArrayList<>();
         purples.add(ColorBrewerPalette.PURPLE1);
         purples.add(ColorBrewerPalette.PURPLE2);
         purples.add(ColorBrewerPalette.PURPLE3);
@@ -63,27 +63,27 @@ public class MixedGoogleColorBrewerPalette {
         purples.add(GoogleMaterialDesignPalette.PURPLE);
         purples.add(GoogleMaterialDesignPalette.DEEP_PURPLE);
 
-        ArrayList<int[]> oranges = new ArrayList<int[]>();
+        ArrayList<int[]> oranges = new ArrayList<>();
         oranges.add(ColorBrewerPalette.ORANGE1);
         oranges.add(ColorBrewerPalette.ORANGE2);
         oranges.add(GoogleMaterialDesignPalette.ORANGE);
         oranges.add(GoogleMaterialDesignPalette.DEEP_ORANGE);
         
-        ArrayList<int[]> yellows = new ArrayList<int[]>();
+        ArrayList<int[]> yellows = new ArrayList<>();
         yellows.add(GoogleMaterialDesignPalette.YELLOW);
         yellows.add(GoogleMaterialDesignPalette.AMBER);
         
-        ArrayList<int[]> greys = new ArrayList<int[]>();
+        ArrayList<int[]> greys = new ArrayList<>();
         greys.add(GoogleMaterialDesignPalette.GREY);
         greys.add(GoogleMaterialDesignPalette.BLUE_GREY);
         
-        ArrayList<int[]> browns = new ArrayList<int[]>();
+        ArrayList<int[]> browns = new ArrayList<>();
         browns.add(GoogleMaterialDesignPalette.BROWN);
 
-        ArrayList<int[]> blacks = new ArrayList<int[]>();
+        ArrayList<int[]> blacks = new ArrayList<>();
         blacks.add(ColorBrewerPalette.BLACK);
 
-        ArrayList<ArrayList<int[]>> colors = new ArrayList<ArrayList<int[]>>();
+        ArrayList<ArrayList<int[]>> colors = new ArrayList<>();
         colors.add(greens);
         colors.add(blues);
         colors.add(purples);

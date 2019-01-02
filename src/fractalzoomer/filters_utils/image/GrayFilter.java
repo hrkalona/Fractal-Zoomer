@@ -25,6 +25,7 @@ public class GrayFilter extends PointFilter {
 		canFilterIndexColorModel = true;
 	}
 
+        @Override
 	public int filterRGB(int x, int y, int rgb) {
 		int a = rgb & 0xff000000;
 		int r = (rgb >> 16) & 0xff;
@@ -36,6 +37,7 @@ public class GrayFilter extends PointFilter {
 		return a | (r << 16) | (g << 8) | b;
 	}
 
+        @Override
 	public String toString() {
 		return "Colors/Gray Out";
 	}

@@ -1,5 +1,5 @@
 /*
- * Fractal Zoomer, Copyright (C) 2018 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2019 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,6 @@ package fractalzoomer.functions.root_finding_methods.muller;
 import fractalzoomer.core.Complex;
 import fractalzoomer.functions.root_finding_methods.RootFindingMethods;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
-import fractalzoomer.main.app_settings.StatisticsSettings;
 import java.util.ArrayList;
 
 /**
@@ -70,6 +69,42 @@ public abstract class MullerRootFindingMethod extends RootFindingMethods {
         z2.assign(z1);
         z1.assign(z);
         z.sub_mutable(hk.times_mutable(qk));
+        fz2.assign(fz1);
+        fz1.assign(fz);
+        
+        return z;
+        
+    }
+    
+    public static Complex mullerMethod(Complex z, Complex z1, Complex z2, Complex fz, Complex fz1, Complex fz2, Complex relaxation) {
+        
+        Complex hk = z.sub(z1);
+        Complex hk1 = z1.sub(z2);
+        Complex rk = hk.divide(hk1);
+        
+        Complex rkp1 = rk.plus(1);
+        Complex rksqr = rk.square();
+        Complex ck = fz.times(rkp1);
+        Complex bk = fz.times(rk.times(2).plus_mutable(1)).sub(fz1.times(rkp1.square())).plus(fz2.times(rksqr));
+        Complex ak = fz.times(rk).sub(fz1.times(rkp1.times(rk))).plus(fz2.times(rksqr));       
+        
+        Complex ck2 = ck.times(2);
+        Complex temp = (bk.square().sub(ak.times(ck).times_mutable(4))).sqrt();
+        
+        Complex denom1 = bk.plus(temp);
+        Complex denom2 = bk.sub(temp);
+        
+        Complex qk;
+        if(denom1.norm_squared() > denom2.norm_squared()) {
+            qk = ck2.divide(denom1);
+        }
+        else {
+            qk = ck2.divide(denom2);
+        }
+        
+        z2.assign(z1);
+        z1.assign(z);
+        z.sub_mutable((hk.times_mutable(qk)).times_mutable(relaxation));
         fz2.assign(fz1);
         fz1.assign(fz);
         

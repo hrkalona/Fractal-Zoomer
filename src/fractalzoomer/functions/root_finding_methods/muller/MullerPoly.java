@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2018 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2019 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,12 +29,30 @@ import java.util.ArrayList;
 public class MullerPoly extends MullerRootFindingMethod {
 
     private double[] coefficients;
+    private Complex[] complex_coefficients;
+    private boolean usesComplexCoefficients;
 
-    public MullerPoly(double xCenter, double yCenter, double size, int max_iterations, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, double[] coefficients, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int converging_smooth_algorithm, OrbitTrapSettings ots, StatisticsSettings sts) {
+    public MullerPoly(double xCenter, double yCenter, double size, int max_iterations, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, double[] coefficients, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int converging_smooth_algorithm, OrbitTrapSettings ots, StatisticsSettings sts, double[] coefficients_im) {
 
         super(xCenter, yCenter, size, max_iterations, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, ots);
 
-        this.coefficients = coefficients;
+        usesComplexCoefficients = false;
+        for(int i = 0; i < coefficients_im.length; i++) {
+            if(coefficients_im[i] != 0) {
+                usesComplexCoefficients = true;
+                break;
+            }
+        }
+        
+        if(usesComplexCoefficients) {
+            complex_coefficients = new Complex[coefficients.length];
+            for(int i = 0; i < complex_coefficients.length; i++) {
+                complex_coefficients[i] = new Complex(coefficients[i], coefficients_im[i]);
+            }
+        }
+        else {
+            this.coefficients = coefficients;
+        }
 
         switch (out_coloring_algorithm) {
 
@@ -60,11 +78,27 @@ public class MullerPoly extends MullerRootFindingMethod {
     }
 
     //orbit
-    public MullerPoly(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, double[] coefficients, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount) {
+    public MullerPoly(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, double[] coefficients, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, double[] coefficients_im) {
 
         super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
 
-        this.coefficients = coefficients;
+        usesComplexCoefficients = false;
+        for(int i = 0; i < coefficients_im.length; i++) {
+            if(coefficients_im[i] != 0) {
+                usesComplexCoefficients = true;
+                break;
+            }
+        }
+        
+        if(usesComplexCoefficients) {
+            complex_coefficients = new Complex[coefficients.length];
+            for(int i = 0; i < complex_coefficients.length; i++) {
+                complex_coefficients[i] = new Complex(coefficients[i], coefficients_im[i]);
+            }
+        }
+        else {
+            this.coefficients = coefficients;
+        }
 
     }
 
@@ -81,8 +115,15 @@ public class MullerPoly extends MullerRootFindingMethod {
         complex[0] = new Complex(pixel);//z
         complex[1] = new Complex(1e-10, 0);//z-1
         complex[2] = new Complex();//z-2
-        complex[3] = complex[1].tenth().times_mutable(coefficients[0]).plus_mutable(complex[1].ninth().times_mutable(coefficients[1])).plus_mutable(complex[1].eighth().times_mutable(coefficients[2])).plus_mutable(complex[1].seventh().times_mutable(coefficients[3])).plus_mutable(complex[1].sixth().times_mutable(coefficients[4])).plus_mutable(complex[1].fifth().times_mutable(coefficients[5])).plus_mutable(complex[1].fourth().times_mutable(coefficients[6])).plus_mutable(complex[1].cube().times_mutable(coefficients[7])).plus_mutable(complex[1].square().times_mutable(coefficients[8])).plus_mutable(complex[1].times(coefficients[9])).plus_mutable(coefficients[10]);
-        complex[4] = new Complex(coefficients[10], 0); //fz-2
+        
+        if(usesComplexCoefficients) {
+            complex[3] = complex[1].tenth().times_mutable(complex_coefficients[0]).plus_mutable(complex[1].ninth().times_mutable(complex_coefficients[1])).plus_mutable(complex[1].eighth().times_mutable(complex_coefficients[2])).plus_mutable(complex[1].seventh().times_mutable(complex_coefficients[3])).plus_mutable(complex[1].sixth().times_mutable(complex_coefficients[4])).plus_mutable(complex[1].fifth().times_mutable(complex_coefficients[5])).plus_mutable(complex[1].fourth().times_mutable(complex_coefficients[6])).plus_mutable(complex[1].cube().times_mutable(complex_coefficients[7])).plus_mutable(complex[1].square().times_mutable(complex_coefficients[8])).plus_mutable(complex[1].times(complex_coefficients[9])).plus_mutable(complex_coefficients[10]);
+            complex[4] = new Complex(complex_coefficients[10]); //fz-2
+        }
+        else {
+            complex[3] = complex[1].tenth().times_mutable(coefficients[0]).plus_mutable(complex[1].ninth().times_mutable(coefficients[1])).plus_mutable(complex[1].eighth().times_mutable(coefficients[2])).plus_mutable(complex[1].seventh().times_mutable(coefficients[3])).plus_mutable(complex[1].sixth().times_mutable(coefficients[4])).plus_mutable(complex[1].fifth().times_mutable(coefficients[5])).plus_mutable(complex[1].fourth().times_mutable(coefficients[6])).plus_mutable(complex[1].cube().times_mutable(coefficients[7])).plus_mutable(complex[1].square().times_mutable(coefficients[8])).plus_mutable(complex[1].times(coefficients[9])).plus_mutable(coefficients[10]);
+            complex[4] = new Complex(coefficients[10], 0); //fz-2
+        }
 
         Complex zold = new Complex();
         Complex zold2 = new Complex();
@@ -95,7 +136,7 @@ public class MullerPoly extends MullerRootFindingMethod {
                 trap.check(complex[0]);
             }
 
-            if ((temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
+            if (iterations > 0 && (temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
                 escaped = true;
                 Object[] object = {iterations, complex[0], temp, zold, zold2, pixel, start};
                 iterationData = object;
@@ -133,8 +174,15 @@ public class MullerPoly extends MullerRootFindingMethod {
         complex[0] = new Complex(pixel_orbit);//z
         complex[1] = new Complex(1e-10, 0);//z-1
         complex[2] = new Complex();//z-2
-        complex[3] = complex[1].tenth().times_mutable(coefficients[0]).plus_mutable(complex[1].ninth().times_mutable(coefficients[1])).plus_mutable(complex[1].eighth().times_mutable(coefficients[2])).plus_mutable(complex[1].seventh().times_mutable(coefficients[3])).plus_mutable(complex[1].sixth().times_mutable(coefficients[4])).plus_mutable(complex[1].fifth().times_mutable(coefficients[5])).plus_mutable(complex[1].fourth().times_mutable(coefficients[6])).plus_mutable(complex[1].cube().times_mutable(coefficients[7])).plus_mutable(complex[1].square().times_mutable(coefficients[8])).plus_mutable(complex[1].times(coefficients[9])).plus_mutable(coefficients[10]);
-        complex[4] = new Complex(coefficients[10], 0); //fz-2
+        
+        if(usesComplexCoefficients) {
+            complex[3] = complex[1].tenth().times_mutable(complex_coefficients[0]).plus_mutable(complex[1].ninth().times_mutable(complex_coefficients[1])).plus_mutable(complex[1].eighth().times_mutable(complex_coefficients[2])).plus_mutable(complex[1].seventh().times_mutable(complex_coefficients[3])).plus_mutable(complex[1].sixth().times_mutable(complex_coefficients[4])).plus_mutable(complex[1].fifth().times_mutable(complex_coefficients[5])).plus_mutable(complex[1].fourth().times_mutable(complex_coefficients[6])).plus_mutable(complex[1].cube().times_mutable(complex_coefficients[7])).plus_mutable(complex[1].square().times_mutable(complex_coefficients[8])).plus_mutable(complex[1].times(complex_coefficients[9])).plus_mutable(complex_coefficients[10]);
+            complex[4] = new Complex(complex_coefficients[10]); //fz-2
+        }
+        else {
+            complex[3] = complex[1].tenth().times_mutable(coefficients[0]).plus_mutable(complex[1].ninth().times_mutable(coefficients[1])).plus_mutable(complex[1].eighth().times_mutable(coefficients[2])).plus_mutable(complex[1].seventh().times_mutable(coefficients[3])).plus_mutable(complex[1].sixth().times_mutable(coefficients[4])).plus_mutable(complex[1].fifth().times_mutable(coefficients[5])).plus_mutable(complex[1].fourth().times_mutable(coefficients[6])).plus_mutable(complex[1].cube().times_mutable(coefficients[7])).plus_mutable(complex[1].square().times_mutable(coefficients[8])).plus_mutable(complex[1].times(coefficients[9])).plus_mutable(coefficients[10]);
+            complex[4] = new Complex(coefficients[10], 0); //fz-2
+        }
 
         Complex temp = null;
 
@@ -159,9 +207,16 @@ public class MullerPoly extends MullerRootFindingMethod {
         complex[0] = new Complex(pixel);//z
         complex[1] = new Complex(1e-10, 0);//z-1
         complex[2] = new Complex();//z-2
-        complex[3] = complex[1].tenth().times_mutable(coefficients[0]).plus_mutable(complex[1].ninth().times_mutable(coefficients[1])).plus_mutable(complex[1].eighth().times_mutable(coefficients[2])).plus_mutable(complex[1].seventh().times_mutable(coefficients[3])).plus_mutable(complex[1].sixth().times_mutable(coefficients[4])).plus_mutable(complex[1].fifth().times_mutable(coefficients[5])).plus_mutable(complex[1].fourth().times_mutable(coefficients[6])).plus_mutable(complex[1].cube().times_mutable(coefficients[7])).plus_mutable(complex[1].square().times_mutable(coefficients[8])).plus_mutable(complex[1].times(coefficients[9])).plus_mutable(coefficients[10]);
-        complex[4] = new Complex(coefficients[10], 0); //fz-2
-
+        
+        if(usesComplexCoefficients) {
+            complex[3] = complex[1].tenth().times_mutable(complex_coefficients[0]).plus_mutable(complex[1].ninth().times_mutable(complex_coefficients[1])).plus_mutable(complex[1].eighth().times_mutable(complex_coefficients[2])).plus_mutable(complex[1].seventh().times_mutable(complex_coefficients[3])).plus_mutable(complex[1].sixth().times_mutable(complex_coefficients[4])).plus_mutable(complex[1].fifth().times_mutable(complex_coefficients[5])).plus_mutable(complex[1].fourth().times_mutable(complex_coefficients[6])).plus_mutable(complex[1].cube().times_mutable(complex_coefficients[7])).plus_mutable(complex[1].square().times_mutable(complex_coefficients[8])).plus_mutable(complex[1].times(complex_coefficients[9])).plus_mutable(complex_coefficients[10]);
+            complex[4] = new Complex(complex_coefficients[10]); //fz-2
+        }
+        else {
+            complex[3] = complex[1].tenth().times_mutable(coefficients[0]).plus_mutable(complex[1].ninth().times_mutable(coefficients[1])).plus_mutable(complex[1].eighth().times_mutable(coefficients[2])).plus_mutable(complex[1].seventh().times_mutable(coefficients[3])).plus_mutable(complex[1].sixth().times_mutable(coefficients[4])).plus_mutable(complex[1].fifth().times_mutable(coefficients[5])).plus_mutable(complex[1].fourth().times_mutable(coefficients[6])).plus_mutable(complex[1].cube().times_mutable(coefficients[7])).plus_mutable(complex[1].square().times_mutable(coefficients[8])).plus_mutable(complex[1].times(coefficients[9])).plus_mutable(coefficients[10]);
+            complex[4] = new Complex(coefficients[10], 0); //fz-2
+        }       
+        
         for (; iterations < max_iterations; iterations++) {
 
             function(complex);
@@ -175,7 +230,14 @@ public class MullerPoly extends MullerRootFindingMethod {
     @Override
     protected void function(Complex[] complex) {
 
-        Complex fz = complex[0].tenth().times_mutable(coefficients[0]).plus_mutable(complex[0].ninth().times_mutable(coefficients[1])).plus_mutable(complex[0].eighth().times_mutable(coefficients[2])).plus_mutable(complex[0].seventh().times_mutable(coefficients[3])).plus_mutable(complex[0].sixth().times_mutable(coefficients[4])).plus_mutable(complex[0].fifth().times_mutable(coefficients[5])).plus_mutable(complex[0].fourth().times_mutable(coefficients[6])).plus_mutable(complex[0].cube().times_mutable(coefficients[7])).plus_mutable(complex[0].square().times_mutable(coefficients[8])).plus_mutable(complex[0].times(coefficients[9])).plus_mutable(coefficients[10]);
+        Complex fz;
+        
+        if(usesComplexCoefficients) {
+            fz = complex[0].tenth().times_mutable(complex_coefficients[0]).plus_mutable(complex[0].ninth().times_mutable(complex_coefficients[1])).plus_mutable(complex[0].eighth().times_mutable(complex_coefficients[2])).plus_mutable(complex[0].seventh().times_mutable(complex_coefficients[3])).plus_mutable(complex[0].sixth().times_mutable(complex_coefficients[4])).plus_mutable(complex[0].fifth().times_mutable(complex_coefficients[5])).plus_mutable(complex[0].fourth().times_mutable(complex_coefficients[6])).plus_mutable(complex[0].cube().times_mutable(complex_coefficients[7])).plus_mutable(complex[0].square().times_mutable(complex_coefficients[8])).plus_mutable(complex[0].times(complex_coefficients[9])).plus_mutable(complex_coefficients[10]);           
+        }
+        else {
+            fz = complex[0].tenth().times_mutable(coefficients[0]).plus_mutable(complex[0].ninth().times_mutable(coefficients[1])).plus_mutable(complex[0].eighth().times_mutable(coefficients[2])).plus_mutable(complex[0].seventh().times_mutable(coefficients[3])).plus_mutable(complex[0].sixth().times_mutable(coefficients[4])).plus_mutable(complex[0].fifth().times_mutable(coefficients[5])).plus_mutable(complex[0].fourth().times_mutable(coefficients[6])).plus_mutable(complex[0].cube().times_mutable(coefficients[7])).plus_mutable(complex[0].square().times_mutable(coefficients[8])).plus_mutable(complex[0].times(coefficients[9])).plus_mutable(coefficients[10]);            
+        }       
 
         mullerMethod(complex[0], complex[1], complex[2], fz, complex[3], complex[4]);
 

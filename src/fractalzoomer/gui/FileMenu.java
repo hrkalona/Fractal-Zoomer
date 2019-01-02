@@ -1,5 +1,5 @@
 /*
- * Fractal Zoomer, Copyright (C) 2018 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2019 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,6 +49,7 @@ public class FileMenu extends JMenu {
     private JMenuItem left;
     private JMenuItem right;
     private JMenuItem default_opt;
+    private JMenuItem save_initial_settings_opt;
     
     public FileMenu(MainWindow ptr2, String name) {
 
@@ -76,6 +77,8 @@ public class FileMenu extends JMenu {
         save_settings = new JMenuItem("Save Settings As...", getIcon("/fractalzoomer/icons/save.png"));
 
         load_settings = new JMenuItem("Load Settings", getIcon("/fractalzoomer/icons/load.png"));
+        
+        save_initial_settings_opt = new JMenuItem("Set Initial Settings", getIcon("/fractalzoomer/icons/init_settings.png"));
 
         save_image = new JMenuItem("Save Image As...", getIcon("/fractalzoomer/icons/save_image.png"));
         
@@ -103,6 +106,7 @@ public class FileMenu extends JMenu {
         exit.setToolTipText("Exits the application.");
         default_opt.setToolTipText("Resets all fractal settings to the default values.");
         repaint_opt.setToolTipText("Repaints the image, using the current active settings.");
+        save_initial_settings_opt.setToolTipText("Creates a save file, called autoload.fzs, that will be always loaded at start-up.");
         
         starting_position.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F2, ActionEvent.CTRL_MASK));
         go_to.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F3, ActionEvent.CTRL_MASK));
@@ -121,12 +125,24 @@ public class FileMenu extends JMenu {
         exit.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F4, ActionEvent.ALT_MASK));
         default_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_1, ActionEvent.SHIFT_MASK));
         repaint_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F6, ActionEvent.CTRL_MASK));
+        save_initial_settings_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F7, 0));
         
         default_opt.addActionListener(new ActionListener() {
 
+            @Override
             public void actionPerformed(ActionEvent e) {
 
                 ptr.defaultSettings();
+
+            }
+        });
+        
+        save_initial_settings_opt.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setInitialSettings();
 
             }
         });
@@ -306,6 +322,7 @@ public class FileMenu extends JMenu {
         add(save_settings);
         add(load_settings);
         add(default_opt);
+        add(save_initial_settings_opt);
         addSeparator();
         add(save_image);
         add(save_settings_image);
@@ -416,6 +433,12 @@ public class FileMenu extends JMenu {
     public JMenuItem getRepaint() {
         
         return repaint_opt;
+        
+    }
+    
+    public JMenuItem getSetInitialSettings() {
+        
+        return save_initial_settings_opt;
         
     }
     
