@@ -18,6 +18,7 @@ package fractalzoomer.gui;
 
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.palettes.CustomPalette;
+import fractalzoomer.palettes.PresetPalette;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.GradientPaint;
@@ -56,6 +57,7 @@ public class PaletteMenu extends JMenu {
     private JRadioButtonMenuItem[] palette;
     private int i;
     public static String[] paletteNames;
+    private JMenu paletteLegacyFractintMenu;
 
     static {
         paletteNames = new String[MainWindow.TOTAL_PALETTES];
@@ -79,6 +81,24 @@ public class PaletteMenu extends JMenu {
         paletteNames[17] = "Jet";
         paletteNames[MainWindow.CUSTOM_PALETTE_ID] = "Custom Palette";
         paletteNames[MainWindow.DIRECT_PALETTE_ID] = "Direct Palette";
+        
+        //Legacy FractInt
+        paletteNames[20] = "Default";
+        paletteNames[21] = "Arriw";
+        paletteNames[22] = "Atomic";
+        paletteNames[23] = "Blue";
+        paletteNames[24] = "Blues";
+        paletteNames[25] = "Chroma";
+        paletteNames[26] = "JFestival";
+        paletteNames[27] = "Neon";
+        paletteNames[28] = "Rich8z3";
+        paletteNames[29] = "Skydye11";
+        paletteNames[30] = "Skydye12";
+        paletteNames[31] = "Spiral";
+        paletteNames[32] = "Volcano";
+        paletteNames[33] = "Wizzl014";
+        paletteNames[34] = "Wizzl017";
+        paletteNames[35] = "Wizzl018";
     }
 
     public PaletteMenu(MainWindow ptr2, String name, int color_choice, boolean smoothing, int[][] custom_palette, int color_interpolation, int color_space, boolean reversed_palette, int color_cycling_location, double scale_factor_palette_val, int processing_alg, final boolean outcoloring_mode, int temp_color_cycling_location) {
@@ -88,7 +108,10 @@ public class PaletteMenu extends JMenu {
         this.ptr = ptr2;
 
         setIcon(getIcon("/fractalzoomer/icons/palette.png"));
-
+        
+        paletteLegacyFractintMenu = new JMenu("Legacy FractInt Maps");
+        paletteLegacyFractintMenu.setIcon(getIcon("/fractalzoomer/icons/palette.png"));
+        
         palette = new JRadioButtonMenuItem[paletteNames.length];
 
         ButtonGroup palettes_group = new ButtonGroup();
@@ -98,16 +121,22 @@ public class PaletteMenu extends JMenu {
             if (i != MainWindow.DIRECT_PALETTE_ID) {
                 Color[] c = null;
                 if (i == color_choice) { // the current activated palette
-                    if (i != MainWindow.CUSTOM_PALETTE_ID) {
-                        c = CustomPalette.getPalette(CustomPaletteEditorFrame.editor_default_palettes[i], MainWindow.INTERPOLATION_LINEAR, MainWindow.COLOR_SPACE_RGB, false, color_cycling_location, 0, MainWindow.PROCESSING_NONE);
-                    } else {
+                    if (i < MainWindow.CUSTOM_PALETTE_ID) {                      
+                        c = PresetPalette.getPalette(i, color_cycling_location);
+                    } else if(i == MainWindow.CUSTOM_PALETTE_ID) {
                         c = CustomPalette.getPalette(custom_palette, color_interpolation, color_space, reversed_palette, color_cycling_location, scale_factor_palette_val, processing_alg);
                     }
+                    else {
+                        c = PresetPalette.getPalette(i, color_cycling_location);
+                    }
                 } else {// the remaining palettes
-                    if (i != MainWindow.CUSTOM_PALETTE_ID) {
-                        c = CustomPalette.getPalette(CustomPaletteEditorFrame.editor_default_palettes[i], MainWindow.INTERPOLATION_LINEAR, MainWindow.COLOR_SPACE_RGB, false, 0, 0, MainWindow.PROCESSING_NONE); // 0 color cycling loc
-                    } else {
+                    if (i < MainWindow.CUSTOM_PALETTE_ID) {                        
+                        c = PresetPalette.getPalette(i, 0);
+                    } else if(i == MainWindow.CUSTOM_PALETTE_ID) {
                         c = CustomPalette.getPalette(custom_palette, color_interpolation, color_space, reversed_palette, temp_color_cycling_location, scale_factor_palette_val, processing_alg); // temp color cycling loc
+                    }
+                    else {
+                        c = PresetPalette.getPalette(i, 0);
                     }
                 }
 
@@ -151,8 +180,10 @@ public class PaletteMenu extends JMenu {
                 
                 addSeparator();
                 
+                add(palette[i]);               
+                
             }
-            else if (i != MainWindow.CUSTOM_PALETTE_ID) {
+            else if (i < MainWindow.CUSTOM_PALETTE_ID) {
                 palette[i].addActionListener(new ActionListener() {
 
                     int temp = i;
@@ -164,7 +195,14 @@ public class PaletteMenu extends JMenu {
 
                     }
                 });
-            } else {
+                
+                add(palette[i]);
+            } else if (i == MainWindow.CUSTOM_PALETTE_ID){
+                
+                addSeparator();
+                
+                add(paletteLegacyFractintMenu);
+                
                 palette[i].addActionListener(new ActionListener() {
 
                     int temp = i;
@@ -184,9 +222,26 @@ public class PaletteMenu extends JMenu {
                 }
 
                 addSeparator();
+                
+                add(palette[i]);
+            }
+            else {
+                palette[i].addActionListener(new ActionListener() {
+
+                    int temp = i;
+
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+
+                        ptr.setPalette(temp, null, outcoloring_mode ? 0 : 1);
+
+                    }
+                });
+                
+                paletteLegacyFractintMenu.add(palette[i]);
             }
 
-            add(palette[i]);
+            
             palettes_group.add(palette[i]);
         }
 
@@ -212,6 +267,19 @@ public class PaletteMenu extends JMenu {
         palette[17].setToolTipText("A palette based on matlab's colormap.");
         palette[MainWindow.CUSTOM_PALETTE_ID].setToolTipText("A palette custom made by the user.");
         palette[MainWindow.DIRECT_PALETTE_ID].setToolTipText("A palette loaded directly from a file (RGB: 0-255 0-255 0-255 format).");
+        
+        palette[20].setToolTipText("A legacy FractInt palette.");
+        palette[21].setToolTipText("A legacy FractInt palette.");
+        palette[22].setToolTipText("A legacy FractInt palette.");
+        palette[23].setToolTipText("A legacy FractInt palette.");
+        palette[24].setToolTipText("A legacy FractInt palette.");
+        palette[25].setToolTipText("A legacy FractInt palette.");
+        palette[26].setToolTipText("A legacy FractInt palette.");
+        palette[27].setToolTipText("A legacy FractInt palette.");
+        palette[28].setToolTipText("A legacy FractInt palette.");
+        palette[29].setToolTipText("A legacy FractInt palette.");
+        palette[30].setToolTipText("A legacy FractInt palette.");
+        palette[31].setToolTipText("A legacy FractInt palette.");
     }
 
     private ImageIcon getIcon(String path) {
@@ -267,6 +335,7 @@ public class PaletteMenu extends JMenu {
         
         if(!rgbs.isEmpty()) {
             rgbs = importDialog(rgbs, parent);
+            System.out.println(rgbs);
             palette = rgbs.stream().mapToInt(Integer::valueOf).toArray();
         }
 

@@ -18,6 +18,8 @@ package fractalzoomer.fractal_options.iteration_statistics;
 
 import fractalzoomer.core.Complex;
 import fractalzoomer.core.ThreadDraw;
+import fractalzoomer.fractal_options.PlanePointOption;
+import fractalzoomer.fractal_options.initial_value.VariableInitialValue;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.out_coloring_algorithms.OutColorAlgorithm;
 import fractalzoomer.parser.ExpressionNode;
@@ -36,8 +38,9 @@ public class UserStatisticColoringMagnetConverging extends GenericStatistic {
     private double log_convergent_bailout;
     private boolean useAverage;
     private Complex root;
+    private PlanePointOption init_val;
     
-    public UserStatisticColoringMagnetConverging(double statistic_intensity, String user_statistic_formula, double xCenter, double yCenter, int max_iterations, double size, double convergent_bailout, double bailout, double[] point, Complex[] globalVars, boolean useAverage) {
+    public UserStatisticColoringMagnetConverging(double statistic_intensity, String user_statistic_formula, double xCenter, double yCenter, int max_iterations, double size, double convergent_bailout, double bailout, double[] point, Complex[] globalVars, boolean useAverage, String user_statistic_init_value) {
         super(statistic_intensity);
         sum = new Complex();
         sum2 = new Complex();
@@ -76,6 +79,8 @@ public class UserStatisticColoringMagnetConverging extends GenericStatistic {
         if(parser.foundPoint()) {
             parser.setPointvalue(new Complex(point[0], point[1]));
         }
+        
+        init_val = new VariableInitialValue(user_statistic_init_value, xCenter, yCenter, size, max_iterations, point, globalVars);
     }
 
     @Override
@@ -120,9 +125,9 @@ public class UserStatisticColoringMagnetConverging extends GenericStatistic {
     }
 
     @Override
-    public void initialize() {
-        sum.reset();
-        sum2.reset();
+    public void initialize(Complex pixel) {
+        sum = new Complex(init_val.getValue(pixel));
+        sum2 = new Complex(sum);
         samples = 0;
     }
 

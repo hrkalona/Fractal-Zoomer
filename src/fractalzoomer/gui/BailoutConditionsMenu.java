@@ -24,6 +24,7 @@ import java.awt.event.KeyEvent;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JMenu;
+import javax.swing.JMenuItem;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.KeyStroke;
 
@@ -40,14 +41,17 @@ public class BailoutConditionsMenu extends JMenu {
     
     static {
         bailoutConditionNames = new String[MainWindow.TOTAL_BAILOUT_CONDITIONS];
-        bailoutConditionNames[MainWindow.BAILOUT_CONDITION_CIRCLE] = "Circle (Euclidean norm)";
-        bailoutConditionNames[MainWindow.BAILOUT_CONDITION_SQUARE] = "Square (Infinity norm)";
-        bailoutConditionNames[MainWindow.BAILOUT_CONDITION_RHOMBUS] = "Rhombus (One norm)";
+        bailoutConditionNames[MainWindow.BAILOUT_CONDITION_CIRCLE] = "Circle (Euclidean norm) (mod)";
+        bailoutConditionNames[MainWindow.BAILOUT_CONDITION_SQUARE] = "Square (Infinity norm) (or)";
+        bailoutConditionNames[MainWindow.BAILOUT_CONDITION_RHOMBUS] = "Rhombus (One norm) (manh)";
         bailoutConditionNames[MainWindow.BAILOUT_CONDITION_NNORM] = "N-Norm";
-        bailoutConditionNames[MainWindow.BAILOUT_CONDITION_STRIP] = "Strip";
+        bailoutConditionNames[MainWindow.BAILOUT_CONDITION_REAL_STRIP] = "Real Strip (real)";
         bailoutConditionNames[MainWindow.BAILOUT_CONDITION_HALFPLANE] = "Halfplane";
         bailoutConditionNames[MainWindow.BAILOUT_CONDITION_USER] = "User Bailout Condition";
         bailoutConditionNames[MainWindow.BAILOUT_CONDITION_FIELD_LINES] = "Field Lines";
+        bailoutConditionNames[MainWindow.BAILOUT_CONDITION_CROSS] = "Cross (and)";
+        bailoutConditionNames[MainWindow.BAILOUT_CONDITION_IM_STRIP] = "Imaginary Strip (imag)";
+        bailoutConditionNames[MainWindow.BAILOUT_CONDITION_RE_IM_SQUARED] = "(Real + Imaginary)^2 (manr)";
     }
     
     public BailoutConditionsMenu(MainWindow ptr2, String name, int bailout_test_algorithm) {
@@ -103,6 +107,63 @@ public class BailoutConditionsMenu extends JMenu {
         });
         add(bailout_conditions[MainWindow.BAILOUT_CONDITION_RHOMBUS]);
         bailout_tests_group.add(bailout_conditions[MainWindow.BAILOUT_CONDITION_RHOMBUS]);
+        
+        bailout_conditions[MainWindow.BAILOUT_CONDITION_CROSS] = new JRadioButtonMenuItem(bailoutConditionNames[MainWindow.BAILOUT_CONDITION_CROSS]);
+        bailout_conditions[MainWindow.BAILOUT_CONDITION_CROSS].setToolTipText("The cross bailout condition.");
+        bailout_conditions[MainWindow.BAILOUT_CONDITION_CROSS].addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setBailoutTest(MainWindow.BAILOUT_CONDITION_CROSS);
+
+            }
+        });
+        add(bailout_conditions[MainWindow.BAILOUT_CONDITION_CROSS]);
+        bailout_tests_group.add(bailout_conditions[MainWindow.BAILOUT_CONDITION_CROSS]);
+        
+        bailout_conditions[MainWindow.BAILOUT_CONDITION_REAL_STRIP] = new JRadioButtonMenuItem(bailoutConditionNames[MainWindow.BAILOUT_CONDITION_REAL_STRIP]);
+        bailout_conditions[MainWindow.BAILOUT_CONDITION_REAL_STRIP].setToolTipText("The real strip bailout condition.");
+        bailout_conditions[MainWindow.BAILOUT_CONDITION_REAL_STRIP].addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setBailoutTest(MainWindow.BAILOUT_CONDITION_REAL_STRIP);
+
+            }
+        });
+        add(bailout_conditions[MainWindow.BAILOUT_CONDITION_REAL_STRIP]);
+        bailout_tests_group.add(bailout_conditions[MainWindow.BAILOUT_CONDITION_REAL_STRIP]);
+        
+        bailout_conditions[MainWindow.BAILOUT_CONDITION_IM_STRIP] = new JRadioButtonMenuItem(bailoutConditionNames[MainWindow.BAILOUT_CONDITION_IM_STRIP]);
+        bailout_conditions[MainWindow.BAILOUT_CONDITION_IM_STRIP].setToolTipText("The imaginary strip condition.");
+        bailout_conditions[MainWindow.BAILOUT_CONDITION_IM_STRIP].addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setBailoutTest(MainWindow.BAILOUT_CONDITION_IM_STRIP);
+
+            }
+        });
+        add(bailout_conditions[MainWindow.BAILOUT_CONDITION_IM_STRIP]);
+        bailout_tests_group.add(bailout_conditions[MainWindow.BAILOUT_CONDITION_IM_STRIP]);
+        
+        
+        bailout_conditions[MainWindow.BAILOUT_CONDITION_RE_IM_SQUARED] = new JRadioButtonMenuItem(bailoutConditionNames[MainWindow.BAILOUT_CONDITION_RE_IM_SQUARED]);
+        bailout_conditions[MainWindow.BAILOUT_CONDITION_RE_IM_SQUARED].setToolTipText("The (real + imaginary)^2 condition.");
+        bailout_conditions[MainWindow.BAILOUT_CONDITION_RE_IM_SQUARED].addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setBailoutTest(MainWindow.BAILOUT_CONDITION_RE_IM_SQUARED);
+
+            }
+        });
+        add(bailout_conditions[MainWindow.BAILOUT_CONDITION_RE_IM_SQUARED]);
+        bailout_tests_group.add(bailout_conditions[MainWindow.BAILOUT_CONDITION_RE_IM_SQUARED]);
 
         bailout_conditions[MainWindow.BAILOUT_CONDITION_NNORM] = new JRadioButtonMenuItem(bailoutConditionNames[MainWindow.BAILOUT_CONDITION_NNORM]);
         bailout_conditions[MainWindow.BAILOUT_CONDITION_NNORM].setToolTipText("The Nth norm condition.");
@@ -116,21 +177,7 @@ public class BailoutConditionsMenu extends JMenu {
             }
         });
         add(bailout_conditions[MainWindow.BAILOUT_CONDITION_NNORM]);
-        bailout_tests_group.add(bailout_conditions[MainWindow.BAILOUT_CONDITION_NNORM]);
-
-        bailout_conditions[MainWindow.BAILOUT_CONDITION_STRIP] = new JRadioButtonMenuItem(bailoutConditionNames[MainWindow.BAILOUT_CONDITION_STRIP]);
-        bailout_conditions[MainWindow.BAILOUT_CONDITION_STRIP].setToolTipText("The strip bailout condition.");
-        bailout_conditions[MainWindow.BAILOUT_CONDITION_STRIP].addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                ptr.setBailoutTest(MainWindow.BAILOUT_CONDITION_STRIP);
-
-            }
-        });
-        add(bailout_conditions[MainWindow.BAILOUT_CONDITION_STRIP]);
-        bailout_tests_group.add(bailout_conditions[MainWindow.BAILOUT_CONDITION_STRIP]);
+        bailout_tests_group.add(bailout_conditions[MainWindow.BAILOUT_CONDITION_NNORM]);       
 
         bailout_conditions[MainWindow.BAILOUT_CONDITION_HALFPLANE] = new JRadioButtonMenuItem(bailoutConditionNames[MainWindow.BAILOUT_CONDITION_HALFPLANE]);
         bailout_conditions[MainWindow.BAILOUT_CONDITION_HALFPLANE].setToolTipText("The halfplane bailout condition.");
@@ -177,7 +224,25 @@ public class BailoutConditionsMenu extends JMenu {
         bailout_tests_group.add(bailout_conditions[MainWindow.BAILOUT_CONDITION_USER]);
         
         bailout_conditions[bailout_test_algorithm].setSelected(true);
+        
+        JMenuItem skip_bailout_iterations_opt = new JMenuItem("Skip Bailout Condition Iterations", getIcon("/fractalzoomer/icons/skip_bailout.png"));
 
+        skip_bailout_iterations_opt.setToolTipText("Skips the bailout condition for the first N iterations.");
+                
+        skip_bailout_iterations_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_8, ActionEvent.CTRL_MASK));
+        
+        skip_bailout_iterations_opt.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setSkipBailoutIterations();
+
+            }
+        });
+        
+        addSeparator();
+        add(skip_bailout_iterations_opt);
     }
     
     public JRadioButtonMenuItem[] getBailoutConditions() {

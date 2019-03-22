@@ -113,6 +113,7 @@ public class Parser {
     boolean found_size;
     boolean found_point;
     boolean found_isize;
+    boolean found_r;
 
     boolean found_vars[];
 
@@ -130,6 +131,7 @@ public class Parser {
     ArrayList<VariableExpressionNode> isize_var;
     ArrayList<ArrayList<VariableExpressionNode>> vars_var;
     ArrayList<VariableExpressionNode> point_var;
+    ArrayList<VariableExpressionNode> r_var;
 
     VariableExpressionNode[] z_var_arr;
     VariableExpressionNode[] c_var_arr;
@@ -145,6 +147,7 @@ public class Parser {
     VariableExpressionNode[] isize_var_arr;
     VariableExpressionNode[][] vars_var_arr;
     VariableExpressionNode[] point_var_arr;
+    VariableExpressionNode[] r_var_arr;
 
     /**
      * ************************************
@@ -174,6 +177,7 @@ public class Parser {
         found_size = false;
         found_isize = false;
         found_point = false;
+        found_r = false;
 
         found_vars = new boolean[EXTRA_VARS];
 
@@ -194,6 +198,7 @@ public class Parser {
         size_var = new ArrayList<>();
         isize_var = new ArrayList<>();
         vars_var = new ArrayList<>();
+        r_var = new ArrayList<>();
 
         for(int i = 0; i < EXTRA_VARS; i++) {
             vars_var.add(new ArrayList<>());
@@ -246,6 +251,7 @@ public class Parser {
         size_var_arr = new VariableExpressionNode[size_var.size()];
         isize_var_arr = new VariableExpressionNode[isize_var.size()];
         point_var_arr = new VariableExpressionNode[point_var.size()];
+        r_var_arr = new VariableExpressionNode[r_var.size()];
 
         z_var_arr = z_var.toArray(z_var_arr);
         c_var_arr = c_var.toArray(c_var_arr);
@@ -260,6 +266,7 @@ public class Parser {
         size_var_arr = size_var.toArray(size_var_arr);
         isize_var_arr = isize_var.toArray(isize_var_arr);
         point_var_arr = point_var.toArray(point_var_arr);
+        r_var_arr = r_var.toArray(r_var_arr);
 
         vars_var_arr = new VariableExpressionNode[EXTRA_VARS][];
 
@@ -554,7 +561,7 @@ public class Parser {
 
             for(int i = 0; i < exprs.length; i++) {
                 if(exprs[i] == null) {
-                    exprs[i] = new RealConstantExpressionNode(0.0);
+                    exprs[i] = new NoArgumentExpressionNode();
                 }
             }
 
@@ -623,7 +630,8 @@ public class Parser {
             if(!temp.equalsIgnoreCase("z") && !temp.equalsIgnoreCase("c") && !temp.equalsIgnoreCase("n") && !temp.equalsIgnoreCase("p") && !temp.equalsIgnoreCase("s") && !temp.equalsIgnoreCase("pp") && !temp.equalsIgnoreCase("bail") && !temp.equalsIgnoreCase("cbail") && !temp.equalsIgnoreCase("maxn") && !temp.equalsIgnoreCase("pi") && !temp.equalsIgnoreCase("e") && !temp.equalsIgnoreCase("c10")
                     && !temp.equalsIgnoreCase("phi") && !temp.equalsIgnoreCase("alpha") && !temp.equalsIgnoreCase("delta") && !temp.equalsIgnoreCase("center") && !temp.equalsIgnoreCase("size")
                     && !vars_exist
-                    && !temp.equalsIgnoreCase("point") && !temp.equalsIgnoreCase("sizei")) {
+                    && !temp.equalsIgnoreCase("point") && !temp.equalsIgnoreCase("sizei")
+                    && !temp.equalsIgnoreCase("r")) {
                 throw new ParserException("Unrecognized variable %s found.", lookahead);
             }
 
@@ -731,6 +739,11 @@ public class Parser {
             if(temp.equalsIgnoreCase("point")) {
                 found_point = true;
                 point_var.add((VariableExpressionNode)expr);
+            }
+            
+            if(temp.equalsIgnoreCase("r")) {
+                found_r = true;
+                r_var.add((VariableExpressionNode)expr);
             }
 
             nextToken();
@@ -857,6 +870,10 @@ public class Parser {
 
     public boolean foundPoint() {
         return found_point;
+    }
+    
+    public boolean foundR() {
+        return found_r;
     }
 
     public boolean foundVar(int i) {
@@ -985,6 +1002,14 @@ public class Parser {
 
         for(int i = 0; i < point_var_arr.length; i++) {
             point_var_arr[i].setValue(new Complex(value));
+        }
+
+    }
+    
+    public void setRvalue(Complex value) {
+
+        for(int i = 0; i < r_var_arr.length; i++) {
+            r_var_arr[i].setValue(new Complex(value));
         }
 
     }

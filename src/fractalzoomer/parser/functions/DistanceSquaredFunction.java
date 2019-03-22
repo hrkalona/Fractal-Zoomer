@@ -1,5 +1,5 @@
-/* 
- * Fractal Zoomer, Copyright (C) 2019 hrkalona2
+/*
+ * Copyright (C) 2019 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,29 +14,27 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-package fractalzoomer.bailout_conditions;
+package fractalzoomer.parser.functions;
 
 import fractalzoomer.core.Complex;
-
 
 /**
  *
  * @author hrkalona2
  */
-public class StripBailoutCondition extends BailoutCondition {
- 
-    public StripBailoutCondition(double bound) {
+public class DistanceSquaredFunction extends AbstractTwoArgumentFunction {
+    
+    public DistanceSquaredFunction() {
         
-        super(bound);
+        super();
         
     }
     
-     @Override
-     public boolean escaped(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start) {
-
-        return z.getAbsRe() >= bound;
-         
-     }
+    @Override
+    public Complex evaluate(Complex argument, Complex argument2) {
+        
+        return new Complex(argument.distance_squared(argument2), 0);
+        
+    }
     
 }

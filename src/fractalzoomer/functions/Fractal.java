@@ -19,6 +19,7 @@ package fractalzoomer.functions;
 import fractalzoomer.planes.math.AbsPlane;
 import fractalzoomer.bailout_conditions.BailoutCondition;
 import fractalzoomer.bailout_conditions.CircleBailoutCondition;
+import fractalzoomer.bailout_conditions.CrossBailoutCondition;
 import fractalzoomer.bailout_conditions.FieldLinesBailoutCondition;
 import fractalzoomer.core.Complex;
 import fractalzoomer.planes.math.trigonometric.CosPlane;
@@ -27,7 +28,9 @@ import fractalzoomer.planes.math.trigonometric.CotPlane;
 import fractalzoomer.planes.math.trigonometric.CothPlane;
 import fractalzoomer.planes.math.ExpPlane;
 import fractalzoomer.bailout_conditions.HalfplaneBailoutCondition;
+import fractalzoomer.bailout_conditions.ImaginaryStripBailoutCondition;
 import fractalzoomer.bailout_conditions.NNormBailoutCondition;
+import fractalzoomer.bailout_conditions.RealPlusImaginarySquaredBailoutCondition;
 import fractalzoomer.bailout_conditions.RhombusBailoutCondition;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.fractal_options.Rotation;
@@ -43,7 +46,8 @@ import fractalzoomer.planes.general.LambdaPlane;
 import fractalzoomer.planes.general.MuSquaredPlane;
 import fractalzoomer.planes.Plane;
 import fractalzoomer.planes.general.MuPlane;
-import fractalzoomer.bailout_conditions.StripBailoutCondition;
+import fractalzoomer.bailout_conditions.RealStripBailoutCondition;
+import fractalzoomer.bailout_conditions.SkipBailoutCondition;
 import fractalzoomer.bailout_conditions.SquareBailoutCondition;
 import fractalzoomer.bailout_conditions.UserBailoutCondition;
 import fractalzoomer.fractal_options.orbit_traps.CircleOrbitTrap;
@@ -168,6 +172,7 @@ import fractalzoomer.planes.newton.Newton4Plane;
 import fractalzoomer.planes.newton.NewtonGeneralized3Plane;
 import fractalzoomer.planes.newton.NewtonGeneralized8Plane;
 import fractalzoomer.planes.distort.ShearPlane;
+import fractalzoomer.planes.distort.SkewPlane;
 import fractalzoomer.planes.distort.TwirlPlane;
 import fractalzoomer.planes.fold.FoldDownPlane;
 import fractalzoomer.planes.fold.FoldLeftPlane;
@@ -303,14 +308,15 @@ public abstract class Fractal {
     public double calculateFractal(Complex pixel) {
 
         escaped = false;
-
+        
+        resetGlobalVars();
+        Complex transformed = plane.transform(rotation.rotate(pixel));
+        
         if(statistic != null) {
-            statistic.initialize();
+            statistic.initialize(transformed);
         }
 
-        resetGlobalVars();
-
-        return periodicity_checking ? calculateFractalWithPeriodicity(plane.transform(rotation.rotate(pixel))) : calculateFractalWithoutPeriodicity(plane.transform(rotation.rotate(pixel)));
+        return periodicity_checking ? calculateFractalWithPeriodicity(transformed) : calculateFractalWithoutPeriodicity(transformed);
 
     }
 
@@ -632,8 +638,8 @@ public abstract class Fractal {
             case MainWindow.BAILOUT_CONDITION_RHOMBUS:
                 bailout_algorithm = new RhombusBailoutCondition(bailout);
                 break;
-            case MainWindow.BAILOUT_CONDITION_STRIP:
-                bailout_algorithm = new StripBailoutCondition(bailout);
+            case MainWindow.BAILOUT_CONDITION_REAL_STRIP:
+                bailout_algorithm = new RealStripBailoutCondition(bailout);
                 break;
             case MainWindow.BAILOUT_CONDITION_HALFPLANE:
                 bailout_algorithm = new HalfplaneBailoutCondition(bailout);
@@ -647,7 +653,20 @@ public abstract class Fractal {
             case MainWindow.BAILOUT_CONDITION_FIELD_LINES:
                 bailout_algorithm = new FieldLinesBailoutCondition(bailout);
                 break;
+            case MainWindow.BAILOUT_CONDITION_CROSS:
+                bailout_algorithm = new CrossBailoutCondition(bailout);
+                break;
+            case MainWindow.BAILOUT_CONDITION_IM_STRIP:
+                bailout_algorithm = new ImaginaryStripBailoutCondition(bailout);
+                break;
+            case MainWindow.BAILOUT_CONDITION_RE_IM_SQUARED:
+                bailout_algorithm = new RealPlusImaginarySquaredBailoutCondition(bailout);
+                break;
 
+        }
+        
+        if(SkipBailoutCondition.SKIPPED_ITERATION_COUNT > 0) {
+            bailout_algorithm = new SkipBailoutCondition(bailout_algorithm);
         }
 
     }
@@ -849,6 +868,9 @@ public abstract class Fractal {
             case MainWindow.RIPPLES_PLANE:
                 plane = new RipplesPlane(plane_transform_scales, plane_transform_wavelength, waveType);
                 break;
+            case MainWindow.SKEW_PLANE:
+                plane = new SkewPlane(plane_transform_angle, plane_transform_angle2);
+                break;
         }
 
     }
@@ -1022,7 +1044,7 @@ public abstract class Fractal {
         statisticIncludeNotEscaped = sts.statisticIncludeNotEscaped;
     
         if(sts.statisticGroup == 1) {
-            statistic = new UserStatisticColoring(sts.statistic_intensity, sts.user_statistic_formula, xCenter, yCenter, max_iterations, size, bailout, plane_transform_center, globalVars, sts.useAverage);
+            statistic = new UserStatisticColoring(sts.statistic_intensity, sts.user_statistic_formula, xCenter, yCenter, max_iterations, size, bailout, plane_transform_center, globalVars, sts.useAverage, sts.user_statistic_init_value);
             return;
         }
 

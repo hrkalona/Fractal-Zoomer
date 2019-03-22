@@ -24,6 +24,7 @@ import fractalzoomer.planes.distort.KaleidoscopePlane;
 import fractalzoomer.planes.distort.PinchPlane;
 import fractalzoomer.planes.distort.RipplesPlane;
 import fractalzoomer.planes.distort.ShearPlane;
+import fractalzoomer.planes.distort.SkewPlane;
 import fractalzoomer.planes.distort.TwirlPlane;
 import fractalzoomer.planes.fold.FoldDownPlane;
 import fractalzoomer.planes.fold.FoldInPlane;
@@ -312,6 +313,9 @@ public class PlaneVisualizer {
                 break;
             case MainWindow.RIPPLES_PLANE:
                 plane = new RipplesPlane(s.fns.plane_transform_scales, s.fns.plane_transform_wavelength, s.fns.waveType);
+                break;
+            case MainWindow.SKEW_PLANE:
+                plane = new SkewPlane(s.fns.plane_transform_angle, s.fns.plane_transform_angle2);
                 break;
         }
 

@@ -36,6 +36,7 @@
 package fractalzoomer.main;
 
 //import com.alee.laf.WebLookAndFeel;
+import fractalzoomer.bailout_conditions.SkipBailoutCondition;
 import fractalzoomer.main.app_settings.Settings;
 import fractalzoomer.core.drawing_algorithms.BoundaryTracingDraw;
 import fractalzoomer.core.drawing_algorithms.BruteForceDraw;
@@ -48,7 +49,6 @@ import fractalzoomer.parser.ParserException;
 import fractalzoomer.gui.*;
 import fractalzoomer.main.app_settings.BumpMapSettings;
 import fractalzoomer.main.app_settings.LightSettings;
-import fractalzoomer.main.app_settings.LyapunovSettings;
 import fractalzoomer.main.app_settings.StatisticsSettings;
 import fractalzoomer.palettes.PresetPalette;
 import fractalzoomer.parser.Parser;
@@ -65,7 +65,6 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GradientPaint;
 import java.awt.Graphics2D;
-import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.Toolkit;
@@ -99,7 +98,6 @@ import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import java.util.Hashtable;
 import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.Timer;
@@ -107,9 +105,7 @@ import javax.imageio.ImageIO;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -119,17 +115,9 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
-import javax.swing.JSlider;
-import javax.swing.JTabbedPane;
-import javax.swing.JTextField;
-import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.plaf.basic.BasicFileChooserUI;
 
@@ -153,6 +141,7 @@ public class MainWindow extends JFrame implements Constants {
     private int color_cycling_speed;
     private boolean cycle_colors;
     private boolean cycle_lights;
+    private boolean cycle_gradient;
     public static boolean runsOnWindows;
     private boolean grid;
     private boolean old_grid;
@@ -215,7 +204,7 @@ public class MainWindow extends JFrame implements Constants {
     private ToolsMenu tools_menu;
     private HelpMenu help_menu;
     private JCheckBoxMenuItem[] filters_opt;
-    private JRadioButtonMenuItem fractal_functions[];
+    private JRadioButtonMenuItem[] fractal_functions;
     private JRadioButtonMenuItem[] planes;
     private JRadioButtonMenuItem[] out_coloring_modes;
     private JRadioButtonMenuItem[] in_coloring_modes;
@@ -225,6 +214,7 @@ public class MainWindow extends JFrame implements Constants {
     private Cursor rotate_cursor;
     private CommonFunctions common;
     private int i;
+    private Object[] compilationStatus;
 
     /**
      * *****************************
@@ -248,7 +238,7 @@ public class MainWindow extends JFrame implements Constants {
         old_height_ratio = s.height_ratio;
 
         n = 2;
-        julia_grid_first_dimension = 0;
+        julia_grid_first_dimension = 2;
 
         grid_tiles = 6;
         boundaries_num = 6;
@@ -268,6 +258,7 @@ public class MainWindow extends JFrame implements Constants {
         color_cycling_speed = 140;
         cycle_colors = true;
         cycle_lights = false;
+        cycle_gradient = false;
 
         old_rotation_vals = new double[2];
 
@@ -544,7 +535,7 @@ public class MainWindow extends JFrame implements Constants {
                     selectPointOrbit(e);
                 }
 
-                if (julia_map || s.fns.julia && first_seed) {
+                if (julia_map || (s.fns.julia && first_seed)) {
                     scroll_pane.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
                     return;
                 }
@@ -659,7 +650,7 @@ public class MainWindow extends JFrame implements Constants {
                     old_boundaries = false;
 
                     if (!s.d3s.d3) {
-                        ThreadDraw.setArrays(image_size);
+                        ThreadDraw.setArrays(image_size, s.ds.domain_coloring);
                     }
 
                     main_panel.setPreferredSize(new Dimension(image_size, image_size));
@@ -702,6 +693,7 @@ public class MainWindow extends JFrame implements Constants {
                             rootFindingMethodsSetEnabled(true);
                         }
                         fractal_functions[SIERPINSKI_GASKET].setEnabled(true);
+                        fractal_functions[INERTIA_GRAVITY].setEnabled(true);
                         fractal_functions[KLEINIAN].setEnabled(true);
                     }
 
@@ -743,7 +735,7 @@ public class MainWindow extends JFrame implements Constants {
                     selectPointForPlane(e);
                 }
 
-                if (julia_map || s.fns.julia && first_seed) {
+                if ((julia_map || (s.fns.julia && first_seed)) && scroll_pane.getCursor().getType() != Cursor.CROSSHAIR_CURSOR) {
                     scroll_pane.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
                     return;
                 }
@@ -754,9 +746,9 @@ public class MainWindow extends JFrame implements Constants {
                     scroll_pane.setCursor(grab_cursor);
                 } else if (shiftKeyPressed) {
                     scroll_pane.setCursor(rotate_cursor);
-                } else if (altKeyPressed) {
+                } else if (altKeyPressed && scroll_pane.getCursor().getType() != Cursor.HAND_CURSOR) {
                     scroll_pane.setCursor(new Cursor(Cursor.HAND_CURSOR));
-                } else {
+                } else if (scroll_pane.getCursor().getType() != Cursor.CROSSHAIR_CURSOR){
                     scroll_pane.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
                 }
 
@@ -842,7 +834,7 @@ public class MainWindow extends JFrame implements Constants {
                         statusbar.getImaginary().setText("" + p.y);
                     }
 
-                    if (!ctrlKeyPressed && !shiftKeyPressed && !altKeyPressed) {
+                    if (!ctrlKeyPressed && !shiftKeyPressed && !altKeyPressed && scroll_pane.getCursor().getType() != Cursor.CROSSHAIR_CURSOR) {
                         scroll_pane.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
                     }
 
@@ -864,13 +856,20 @@ public class MainWindow extends JFrame implements Constants {
 
         common = new CommonFunctions(scroll_pane, runsOnWindows);
 
-        loadPreferences();
+        compilationStatus = common.copyLibNoUI();
 
-        ThreadDraw.setArrays(image_size);
+        common.exportCodeFilesNoUi();
+
+        if (((Integer) compilationStatus[0]) == 0) {
+            compilationStatus = common.compileCodeNoUi();
+        }
+
+        loadPreferences();
+        loadAutoSave();
+
+        ThreadDraw.setArrays(image_size, s.ds.domain_coloring);
 
         threads = new ThreadDraw[n][n];
-
-        loadAutoSave();
 
         main_panel.setPreferredSize(new Dimension(image_size, image_size));
 
@@ -894,6 +893,18 @@ public class MainWindow extends JFrame implements Constants {
         calculation_time = System.currentTimeMillis();
 
         startThreads(n);
+
+    }
+
+    public void checkCompilationStatus() {
+
+        if (((Integer) compilationStatus[0]) == 0) {
+            return;
+        } else if (((Integer) compilationStatus[0]) == 1) {
+            JOptionPane.showMessageDialog(ptr, ((String) compilationStatus[1]), "Warning!", JOptionPane.WARNING_MESSAGE);
+        } else if (((Integer) compilationStatus[0]) == 2) {
+            JOptionPane.showMessageDialog(ptr, ((String) compilationStatus[1]), "Error!", JOptionPane.ERROR_MESSAGE);
+        }
 
     }
 
@@ -985,6 +996,9 @@ public class MainWindow extends JFrame implements Constants {
                 break;
             case LAMBDA3:
                 temp += "   Lambda 3";
+                break;
+            case LAMBDA_FN_FN:
+                temp += "   Lambda(Fn || Fn)";
                 break;
             case MAGNET1:
                 temp += "   Magnet 1";
@@ -1283,6 +1297,9 @@ public class MainWindow extends JFrame implements Constants {
             case SIERPINSKI_GASKET:
                 temp += "   Sierpinski Gasket";
                 break;
+            case INERTIA_GRAVITY:
+                temp += "   Modified Inertia/Gravity";
+                break;
             case KLEINIAN:
                 temp += "   Kleinian";
                 break;
@@ -1294,6 +1311,9 @@ public class MainWindow extends JFrame implements Constants {
                 break;
             case GENERIC_CaZbdZe:
                 temp += "   z = c*(alpha*z^beta + delta*z^epsilon)";
+                break;
+            case GENERIC_CpAZpBC:
+                temp += "   z = (c^alpha) * (z^beta) + c";
                 break;
             case EXP:
                 temp += "   z = exp(z) + c";
@@ -1478,6 +1498,9 @@ public class MainWindow extends JFrame implements Constants {
             case USER_FORMULA_COUPLED:
                 temp += "   User Formula Coupled";
                 break;
+            case USER_FORMULA_NOVA:
+                temp += "   User Formula Nova";
+                break;
             case SZEGEDI_BUTTERFLY1:
                 temp += "   Szegedi Butterfly 1";
                 break;
@@ -1583,21 +1606,21 @@ public class MainWindow extends JFrame implements Constants {
                     if (s.fns.julia) {
                         if (greedy_algorithm) {
                             if (greedy_algorithm_selection == BOUNDARY_TRACING) {
-                                threads[i][j] = new BoundaryTracingDraw(FROMx, TOx, FROMy, TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, quickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.xJuliaCenter, s.yJuliaCenter);
+                                threads[i][j] = new BoundaryTracingDraw(FROMx, TOx, FROMy, TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, quickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.xJuliaCenter, s.yJuliaCenter);
                             } else if (greedy_algorithm_selection == DIVIDE_AND_CONQUER) {
-                                threads[i][j] = new DivideAndConquerDraw(FROMx, TOx, FROMy, TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, quickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.xJuliaCenter, s.yJuliaCenter);
+                                threads[i][j] = new DivideAndConquerDraw(FROMx, TOx, FROMy, TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, quickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.xJuliaCenter, s.yJuliaCenter);
                             }
                         } else {
-                            threads[i][j] = new BruteForceDraw(FROMx, TOx, FROMy, TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, quickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.xJuliaCenter, s.yJuliaCenter);
+                            threads[i][j] = new BruteForceDraw(FROMx, TOx, FROMy, TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, quickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, s.xJuliaCenter, s.yJuliaCenter);
                         }
                     } else if (greedy_algorithm) {
                         if (greedy_algorithm_selection == BOUNDARY_TRACING) {
-                            threads[i][j] = new BoundaryTracingDraw(FROMx, TOx, FROMy, TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, quickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts);
+                            threads[i][j] = new BoundaryTracingDraw(FROMx, TOx, FROMy, TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, quickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset);
                         } else if (greedy_algorithm_selection == DIVIDE_AND_CONQUER) {
-                            threads[i][j] = new DivideAndConquerDraw(FROMx, TOx, FROMy, TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, quickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts);
+                            threads[i][j] = new DivideAndConquerDraw(FROMx, TOx, FROMy, TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, quickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset);
                         }
                     } else {
-                        threads[i][j] = new BruteForceDraw(FROMx, TOx, FROMy, TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, quickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts);
+                        threads[i][j] = new BruteForceDraw(FROMx, TOx, FROMy, TOy, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, s.d3s, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.ds, s.inverse_dem, quickDraw, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset);
                     }
                     threads[i][j].setThreadId(i * n + j);
                 }
@@ -1687,6 +1710,7 @@ public class MainWindow extends JFrame implements Constants {
             options_menu.getInitialValue().setEnabled(false);
             rootFindingMethodsSetEnabled(false);
             fractal_functions[SIERPINSKI_GASKET].setEnabled(false);
+            fractal_functions[INERTIA_GRAVITY].setEnabled(false);
             fractal_functions[KLEINIAN].setEnabled(false);
         } else {
             first_seed = true;
@@ -1696,6 +1720,7 @@ public class MainWindow extends JFrame implements Constants {
             if (!s.fns.perturbation && !s.fns.init_val) {
                 rootFindingMethodsSetEnabled(true);
                 fractal_functions[SIERPINSKI_GASKET].setEnabled(true);
+                fractal_functions[INERTIA_GRAVITY].setEnabled(true);
                 fractal_functions[KLEINIAN].setEnabled(true);
             } else {
                 tools_menu.getJulia().setEnabled(false);
@@ -1704,6 +1729,7 @@ public class MainWindow extends JFrame implements Constants {
                 toolbar.getJuliaMapButton().setEnabled(false);
                 rootFindingMethodsSetEnabled(false);
                 fractal_functions[SIERPINSKI_GASKET].setEnabled(false);
+                fractal_functions[INERTIA_GRAVITY].setEnabled(false);
                 fractal_functions[KLEINIAN].setEnabled(false);
             }
         }
@@ -1734,25 +1760,7 @@ public class MainWindow extends JFrame implements Constants {
             options_menu.getInColoringMenu().setEnabledAllButMaxIterations(true);
         }
 
-        for (int k = 0; k < fractal_functions.length; k++) {
-            if (k != PARHALLEY3 && k != PARHALLEY4 && k != PARHALLEYGENERALIZED3 && k != PARHALLEYGENERALIZED8 && k != PARHALLEYSIN && k != PARHALLEYCOS && k != PARHALLEYPOLY && k != PARHALLEYFORMULA
-                    && k != DURAND_KERNER3 && k != DURAND_KERNER4 && k != DURAND_KERNERGENERALIZED3 && k != DURAND_KERNERGENERALIZED8 && k != DURAND_KERNERPOLY
-                    && k != BAIRSTOW3 && k != BAIRSTOW4 && k != BAIRSTOWGENERALIZED3 && k != BAIRSTOWGENERALIZED8 && k != BAIRSTOWPOLY
-                    && k != LAGUERRE3 && k != LAGUERRE4 && k != LAGUERREGENERALIZED3 && k != LAGUERREGENERALIZED8 && k != LAGUERRESIN && k != LAGUERRECOS && k != LAGUERREPOLY && k != LAGUERREFORMULA
-                    && k != MULLER3 && k != MULLER4 && k != MULLERGENERALIZED3 && k != MULLERGENERALIZED8 && k != MULLERSIN && k != MULLERCOS && k != MULLERPOLY && k != MULLERFORMULA
-                    && k != KLEINIAN && k != SIERPINSKI_GASKET && k != NEWTON3 && k != STEFFENSENPOLY && k != NEWTON4 && k != NEWTONGENERALIZED3 && k != NEWTONGENERALIZED8 && k != NEWTONSIN && k != NEWTONCOS && k != NEWTONPOLY
-                    && k != HALLEY3 && k != HALLEY4 && k != HALLEYGENERALIZED3 && k != HALLEYGENERALIZED8 && k != HALLEYSIN && k != HALLEYCOS && k != HALLEYPOLY
-                    && k != SCHRODER3 && k != SCHRODER4 && k != SCHRODERGENERALIZED3 && k != SCHRODERGENERALIZED8 && k != SCHRODERSIN && k != SCHRODERCOS && k != SCHRODERPOLY
-                    && k != HOUSEHOLDER3 && k != HOUSEHOLDER4 && k != HOUSEHOLDERGENERALIZED3 && k != HOUSEHOLDERGENERALIZED8 && k != HOUSEHOLDERSIN && k != HOUSEHOLDERCOS && k != HOUSEHOLDERPOLY
-                    && k != SECANT3 && k != SECANT4 && k != SECANTGENERALIZED3 && k != SECANTGENERALIZED8 && k != SECANTCOS && k != SECANTPOLY
-                    && k != STEFFENSEN3 && k != STEFFENSEN4 && k != STEFFENSENGENERALIZED3 && k != NEWTONFORMULA && k != HALLEYFORMULA && k != SCHRODERFORMULA && k != HOUSEHOLDERFORMULA && k != SECANTFORMULA && k != STEFFENSENFORMULA) {
-                fractal_functions[k].setEnabled(true);
-            }
-
-            if ((k == KLEINIAN || k == SIERPINSKI_GASKET || k == MAGNETIC_PENDULUM) && !s.fns.julia && !s.fns.perturbation && !s.fns.init_val) {
-                fractal_functions[k].setEnabled(true);
-            }
-        }
+        resetFunctions();
 
         options_menu.getBurningShipOpt().setEnabled(true);
         options_menu.getMandelGrassOpt().setEnabled(true);
@@ -1886,8 +1894,6 @@ public class MainWindow extends JFrame implements Constants {
             toolbar.getJuliaMapButton().setEnabled(false);
             tools_menu.getJulia().setEnabled(false);
             toolbar.getJuliaButton().setEnabled(false);
-            tools_menu.getColorCycling().setEnabled(false);
-            toolbar.getColorCyclingButton().setEnabled(false);
 
             options_menu.getDirectColor().setEnabled(false);
             options_menu.getDirectColor().setSelected(false);
@@ -2082,6 +2088,7 @@ public class MainWindow extends JFrame implements Constants {
                 options_menu.getBailoutConditionMenu().setEnabled(false);
                 break;
             case SIERPINSKI_GASKET:
+            case INERTIA_GRAVITY:
                 optionsEnableShortcut();
                 tools_menu.getJulia().setEnabled(false);
                 toolbar.getJuliaButton().setEnabled(false);
@@ -2152,6 +2159,7 @@ public class MainWindow extends JFrame implements Constants {
             case USER_FORMULA_ITERATION_BASED:
             case USER_FORMULA_CONDITIONAL:
             case USER_FORMULA_COUPLED:
+            case USER_FORMULA_NOVA:
 
                 if (!s.userFormulaHasC) {
                     tools_menu.getJulia().setEnabled(false);
@@ -2162,7 +2170,7 @@ public class MainWindow extends JFrame implements Constants {
                     options_menu.getInitialValue().setEnabled(false);
                 }
 
-                if (s.fns.bail_technique == 1) {
+                if (s.fns.bail_technique == 1 || s.fns.function == USER_FORMULA_NOVA) {
                     options_menu.getBailout().setEnabled(false);
                     options_menu.getBailoutConditionMenu().setEnabled(false);
                     options_menu.getPeriodicityChecking().setEnabled(false);
@@ -2179,7 +2187,7 @@ public class MainWindow extends JFrame implements Constants {
         options_menu.getInColoringPalette()[s.ps2.color_choice].setSelected(true);
         updateColorPalettesMenu();
         updateMaxIterColorPreview();
-        updateGradientPreview();
+        updateGradientPreview(s.gs.gradient_offset);
 
         options_menu.getBurningShipOpt().setSelected(s.fns.burning_ship);
         options_menu.getMandelGrassOpt().setSelected(s.fns.mandel_grass);
@@ -2226,6 +2234,8 @@ public class MainWindow extends JFrame implements Constants {
             try {
                 s.readSettings(filename, scroll_pane, false);
 
+                ThreadDraw.setDomainImageData(image_size, s.ds.domain_coloring);
+
                 prepareUI();
 
                 setOptions(false);
@@ -2252,12 +2262,14 @@ public class MainWindow extends JFrame implements Constants {
                 startThreads(n);
             } catch (IOException ex) {
                 JOptionPane.showMessageDialog(scroll_pane, "Error while loading the " + filename + " file.", "Error!", JOptionPane.ERROR_MESSAGE);
-                main_panel.repaint();
             } catch (ClassNotFoundException ex) {
-                JOptionPane.showMessageDialog(scroll_pane, "Error while loading the " + filename + " file.", "Error!", JOptionPane.ERROR_MESSAGE);
-                main_panel.repaint();
+                JOptionPane.showMessageDialog(scroll_pane, "Error while loading the " + filename + " file.", "Error!", JOptionPane.ERROR_MESSAGE);;
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(scroll_pane, "Error while loading the " + filename + " file.\nThe application will terminate.", "Error!", JOptionPane.ERROR_MESSAGE);
+                savePreferences();
+                System.exit(-1);
+            } catch (OutOfMemoryError e) {
+                JOptionPane.showMessageDialog(scroll_pane, "Maximum Heap size was reached.\nThe application will terminate.", "Error!", JOptionPane.ERROR_MESSAGE);
                 savePreferences();
                 System.exit(-1);
             }
@@ -2266,7 +2278,6 @@ public class MainWindow extends JFrame implements Constants {
     }
 
     public void saveSettingsAndImage() {
-        main_panel.repaint();
 
         file_chooser = new JFileChooser(".");
         file_chooser.setAcceptAllFileFilterUsed(false);
@@ -2359,8 +2370,6 @@ public class MainWindow extends JFrame implements Constants {
 
     public void saveImage() {
 
-        main_panel.repaint();
-
         file_chooser = new JFileChooser(".");
         file_chooser.setAcceptAllFileFilterUsed(false);
         file_chooser.setDialogType(JFileChooser.SAVE_DIALOG);
@@ -2441,7 +2450,7 @@ public class MainWindow extends JFrame implements Constants {
 
     }
 
-    private void defaultFractalSettings() {
+    public void defaultFractalSettings() {
 
         resetOrbit();
         setOptions(false);
@@ -2485,251 +2494,80 @@ public class MainWindow extends JFrame implements Constants {
 
     }
 
+    public void setCenterSizePost() {
+        if (s.size < 0.05) {
+            tools_menu.getBoundaries().setEnabled(false);
+            boundaries = false;
+            tools_menu.getBoundaries().setSelected(false);
+        }
+
+        setOptions(false);
+
+        progress.setValue(0);
+
+        scroll_pane.getHorizontalScrollBar().setValue((int) (scroll_pane.getHorizontalScrollBar().getMaximum() / 2 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2));
+        scroll_pane.getVerticalScrollBar().setValue((int) (scroll_pane.getVerticalScrollBar().getMaximum() / 2 - scroll_pane.getVerticalScrollBar().getSize().getHeight() / 2));
+
+        resetImage();
+
+        if (s.d3s.d3) {
+            Arrays.fill(((DataBufferInt) image.getRaster().getDataBuffer()).getData(), Color.BLACK.getRGB());
+        }
+
+        whole_image_done = false;
+
+        if (julia_map) {
+            createThreadsJuliaMap();
+        } else {
+            createThreads(false);
+        }
+
+        calculation_time = System.currentTimeMillis();
+
+        if (julia_map) {
+            startThreads(julia_grid_first_dimension);
+        } else {
+            startThreads(n);
+        }
+    }
+
     public void goToFractal() {
 
         resetOrbit();
 
         if (!orbit) {
-
-            JTextField field_real = new JTextField();
-
-            Point2D.Double p = MathUtils.rotatePointRelativeToPoint(s.xCenter, s.yCenter, s.fns.rotation_vals, s.fns.rotation_center);
-
-            if (p.x == 0) {
-                field_real.setText("" + 0.0);
-            } else {
-                field_real.setText("" + p.x);
-            }
-
-            field_real.addAncestorListener(new RequestFocusListener());
-
-            JTextField field_imaginary = new JTextField();
-
-            if (p.y == 0) {
-                field_imaginary.setText("" + 0.0);
-            } else {
-                field_imaginary.setText("" + p.y);
-            }
-
-            JTextField field_size = new JTextField();
-            field_size.setText("" + s.size);
-
-            JButton corners = new JButton("Set Corners");
-            corners.setToolTipText("An alternative center/size selection option.");
-            corners.setFocusable(false);
-            corners.setIcon(getIcon("/fractalzoomer/icons/corners.png"));
-
-            corners.addActionListener(new ActionListener() {
-
-                @Override
-                public void actionPerformed(ActionEvent e) {
-
-                    setCorners(field_real, field_imaginary, field_size);
-
-                }
-
-            });
-
-            Object[] message = {
-                " ",
-                "Set the real and imaginary part of the new center",
-                "and the new size.",
-                "Real:", field_real,
-                "Imaginary:", field_imaginary,
-                "Size:", field_size,
-                " ",
-                corners,
-                " "};
-
-            int res = JOptionPane.showConfirmDialog(scroll_pane, message, "Center and Size", JOptionPane.OK_CANCEL_OPTION);
-
-            double tempReal, tempImaginary, tempSize;
-
-            if (res == JOptionPane.OK_OPTION) {
-                try {
-                    tempReal = Double.parseDouble(field_real.getText()) - s.fns.rotation_center[0];
-                    tempImaginary = Double.parseDouble(field_imaginary.getText()) - s.fns.rotation_center[1];
-                    tempSize = Double.parseDouble(field_size.getText());
-                } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-                    main_panel.repaint();
-                    return;
-                }
-            } else {
-                main_panel.repaint();
-                return;
-            }
-
-            if (tempSize <= 0) {
-                main_panel.repaint();
-                JOptionPane.showMessageDialog(scroll_pane, "Size number must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            s.size = tempSize;
-            /* Inverse rotation */
-            s.xCenter = tempReal * s.fns.rotation_vals[0] + tempImaginary * s.fns.rotation_vals[1] + s.fns.rotation_center[0];
-            s.yCenter = -tempReal * s.fns.rotation_vals[1] + tempImaginary * s.fns.rotation_vals[0] + s.fns.rotation_center[1];
-
-            if (s.size < 0.05) {
-                tools_menu.getBoundaries().setEnabled(false);
-                boundaries = false;
-                tools_menu.getBoundaries().setSelected(false);
-            }
-
-            setOptions(false);
-
-            progress.setValue(0);
-
-            scroll_pane.getHorizontalScrollBar().setValue((int) (scroll_pane.getHorizontalScrollBar().getMaximum() / 2 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2));
-            scroll_pane.getVerticalScrollBar().setValue((int) (scroll_pane.getVerticalScrollBar().getMaximum() / 2 - scroll_pane.getVerticalScrollBar().getSize().getHeight() / 2));
-
-            resetImage();
-
-            if (s.d3s.d3) {
-                Arrays.fill(((DataBufferInt) image.getRaster().getDataBuffer()).getData(), Color.BLACK.getRGB());
-            }
-
-            whole_image_done = false;
-
-            if (julia_map) {
-                createThreadsJuliaMap();
-            } else {
-                createThreads(false);
-            }
-
-            calculation_time = System.currentTimeMillis();
-
-            if (julia_map) {
-                startThreads(julia_grid_first_dimension);
-            } else {
-                startThreads(n);
-            }
+            new CenterSizeDialog(ptr, s);
         } else {
-            final JTextField field_real = new JTextField();
-            field_real.addAncestorListener(new RequestFocusListener());
-
-            if (orbit_vals[0] == 0) {
-                field_real.setText("" + 0.0);
-            } else {
-                field_real.setText("" + orbit_vals[0]);
-            }
-
-            final JTextField field_imaginary = new JTextField();
-
-            if (orbit_vals[1] == 0) {
-                field_imaginary.setText("" + 0.0);
-            } else {
-                field_imaginary.setText("" + orbit_vals[1]);
-            }
-
-            final JCheckBox current_center = new JCheckBox("Current Center");
-            current_center.setSelected(false);
-            current_center.setFocusable(false);
-
-            current_center.addActionListener(new ActionListener() {
-
-                @Override
-                public void actionPerformed(ActionEvent e) {
-
-                    if (!current_center.isSelected()) {
-                        if (orbit_vals[0] == 0) {
-                            field_real.setText("" + 0.0);
-                        } else {
-                            field_real.setText("" + orbit_vals[0]);
-                        }
-
-                        field_real.setEditable(true);
-
-                        if (orbit_vals[1] == 0) {
-                            field_imaginary.setText("" + 0.0);
-                        } else {
-                            field_imaginary.setText("" + orbit_vals[1]);
-                        }
-                        field_imaginary.setEditable(true);
-                    } else {
-
-                        Point2D.Double p = MathUtils.rotatePointRelativeToPoint(s.xCenter, s.yCenter, s.fns.rotation_vals, s.fns.rotation_center);
-
-                        field_real.setText("" + p.x);
-                        field_real.setEditable(false);
-                        field_imaginary.setText("" + p.y);
-                        field_imaginary.setEditable(false);
-                    }
-                }
-            });
-
-            JTextField sequence_points = new JTextField();
-            sequence_points.setText("" + (s.max_iterations > 400 ? 400 : s.max_iterations));
-
-            Object[] message = {
-                " ",
-                "Set the real and imaginary part of the new orbit.",
-                "Real:", field_real,
-                "Imaginary:", field_imaginary,
-                current_center,
-                " ",
-                "Set the number of sequence points.",
-                "Sequence Points:", sequence_points,
-                " ",};
-
-            int res = JOptionPane.showConfirmDialog(scroll_pane, message, "Orbit", JOptionPane.OK_CANCEL_OPTION);
-
-            double tempReal, tempImaginary;
-            int seq_points;
-
-            if (res == JOptionPane.OK_OPTION) {
-                try {
-                    tempReal = Double.parseDouble(field_real.getText());
-                    tempImaginary = Double.parseDouble(field_imaginary.getText());
-                    seq_points = Integer.parseInt(sequence_points.getText());
-                } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-                    main_panel.repaint();
-                    return;
-                }
-            } else {
-                main_panel.repaint();
-                return;
-            }
-
-            if (seq_points <= 0) {
-                main_panel.repaint();
-                JOptionPane.showMessageDialog(scroll_pane, "Sequence points number must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            orbit_vals[0] = tempReal;
-            orbit_vals[1] = tempImaginary;
-
-            tempReal -= s.fns.rotation_center[0];
-            tempImaginary -= s.fns.rotation_center[1];
-
-            /* Inversed Rotation */
-            double x_real = tempReal * s.fns.rotation_vals[0] + tempImaginary * s.fns.rotation_vals[1] + s.fns.rotation_center[0];
-            double y_imag = -tempReal * s.fns.rotation_vals[1] + tempImaginary * s.fns.rotation_vals[0] + s.fns.rotation_center[1];
-
-            if (pixels_orbit != null) {
-                try {
-                    pixels_orbit.join();
-
-                } catch (InterruptedException ex) {
-
-                }
-            }
-
-            try {
-                pixels_orbit = new DrawOrbit(s, x_real, y_imag, seq_points, image_size, ptr, orbit_color, orbit_style, show_orbit_converging_point);
-                pixels_orbit.start();
-            } catch (ParserException e) {
-                JOptionPane.showMessageDialog(scroll_pane, e.getMessage() + "\nThe application will terminate.", "Error!", JOptionPane.ERROR_MESSAGE);
-                savePreferences();
-                System.exit(-1);
-            } catch (Exception ex) {
-            }
-
+            new OrbitDialog(ptr, s, orbit_vals);
         }
 
+    }
+
+    public void setOrbitPointPost(double x_real, double y_imag, int seq_points) {
+
+        if (pixels_orbit != null) {
+            try {
+                pixels_orbit.join();
+
+            } catch (InterruptedException ex) {
+
+            }
+        }
+
+        try {
+            pixels_orbit = new DrawOrbit(s, x_real, y_imag, seq_points, image_size, ptr, orbit_color, orbit_style, show_orbit_converging_point);
+            pixels_orbit.start();
+        } catch (ParserException e) {
+            JOptionPane.showMessageDialog(scroll_pane, e.getMessage() + "\nThe application will terminate.", "Error!", JOptionPane.ERROR_MESSAGE);
+            savePreferences();
+            System.exit(-1);
+        } catch (Exception ex) {
+        }
+    }
+
+    public void setJuliaSeedPost() {
+        first_seed = false;
+        defaultFractalSettings();
     }
 
     public void goToJulia() {
@@ -2738,298 +2576,12 @@ public class MainWindow extends JFrame implements Constants {
 
         if (!orbit) {
             if (first_seed) {
-                JTextField field_real = new JTextField();
-
-                Point2D.Double p = MathUtils.rotatePointRelativeToPoint(s.xCenter, s.yCenter, s.fns.rotation_vals, s.fns.rotation_center);
-
-                if (p.x == 0) {
-                    field_real.setText("" + 0.0);
-                } else {
-                    field_real.setText("" + p.x);
-                }
-
-                field_real.addAncestorListener(new RequestFocusListener());
-
-                JTextField field_imaginary = new JTextField();
-
-                if (p.y == 0) {
-                    field_imaginary.setText("" + 0.0);
-                } else {
-                    field_imaginary.setText("" + p.y);
-                }
-
-                Object[] message = {
-                    " ",
-                    "Set the real and imaginary part of the Julia seed.",
-                    "Real:", field_real,
-                    "Imaginary:", field_imaginary,
-                    " ",};
-
-                int res = JOptionPane.showConfirmDialog(scroll_pane, message, "Julia Seed", JOptionPane.OK_CANCEL_OPTION);
-
-                if (res == JOptionPane.OK_OPTION) {
-                    try {
-                        s.xJuliaCenter = Double.parseDouble(field_real.getText());
-                        s.yJuliaCenter = Double.parseDouble(field_imaginary.getText());
-                    } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-                        main_panel.repaint();
-                        return;
-                    }
-                } else {
-                    main_panel.repaint();
-                    return;
-                }
-
-                first_seed = false;
-                defaultFractalSettings();
+                new JuliaSeedDialog(ptr, s);
             } else {
-                JTextField field_real = new JTextField();
-
-                Point2D.Double p = MathUtils.rotatePointRelativeToPoint(s.xCenter, s.yCenter, s.fns.rotation_vals, s.fns.rotation_center);
-
-                if (p.x == 0) {
-                    field_real.setText("" + 0.0);
-                } else {
-                    field_real.setText("" + p.x);
-                }
-
-                field_real.addAncestorListener(new RequestFocusListener());
-
-                JTextField field_imaginary = new JTextField();
-
-                if (p.y == 0) {
-                    field_imaginary.setText("" + 0.0);
-                } else {
-                    field_imaginary.setText("" + p.y);
-                }
-
-                JTextField field_size = new JTextField();
-                field_size.setText("" + s.size);
-
-                s.xJuliaCenter = s.xJuliaCenter == 0.0 ? 0.0 : s.xJuliaCenter;
-                s.yJuliaCenter = s.yJuliaCenter == 0.0 ? 0.0 : s.yJuliaCenter;
-
-                JTextField real_seed = new JTextField();
-                JTextField imag_seed = new JTextField();
-
-                real_seed.setText("" + s.xJuliaCenter);
-                imag_seed.setText("" + s.yJuliaCenter);
-
-                JButton corners = new JButton("Set Corners");
-                corners.setToolTipText("An alternative center/size selection option.");
-                corners.setFocusable(false);
-                corners.setIcon(getIcon("/fractalzoomer/icons/corners.png"));
-
-                corners.addActionListener(new ActionListener() {
-
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-
-                        setCorners(field_real, field_imaginary, field_size);
-
-                    }
-
-                });
-
-                Object[] message = {
-                    " ",
-                    "Set the real and imaginary part of the new center",
-                    "and the new size.",
-                    "Real:", field_real,
-                    "Imaginary:", field_imaginary,
-                    "Size:", field_size,
-                    " ",
-                    corners,
-                    " ",
-                    "Set the real and imaginary part of the Julia seed.",
-                    "Real:", real_seed,
-                    "Imaginary:", imag_seed,
-                    " ",};
-
-                int res = JOptionPane.showConfirmDialog(scroll_pane, message, "Center, Size, and Julia Seed", JOptionPane.OK_CANCEL_OPTION);
-
-                double tempReal, tempImaginary, tempSize, tempJuliaReal, tempJuliaImaginary;
-
-                if (res == JOptionPane.OK_OPTION) {
-                    try {
-                        tempReal = Double.parseDouble(field_real.getText()) - s.fns.rotation_center[0];
-                        tempImaginary = Double.parseDouble(field_imaginary.getText()) - s.fns.rotation_center[1];
-                        tempSize = Double.parseDouble(field_size.getText());
-                        tempJuliaReal = Double.parseDouble(real_seed.getText());
-                        tempJuliaImaginary = Double.parseDouble(imag_seed.getText());
-                    } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-                        main_panel.repaint();
-                        return;
-                    }
-                } else {
-                    main_panel.repaint();
-                    return;
-                }
-
-                if (tempSize <= 0) {
-                    main_panel.repaint();
-                    JOptionPane.showMessageDialog(scroll_pane, "Size number must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-
-                s.size = tempSize;
-                /* Inverse rotation */
-                s.xCenter = tempReal * s.fns.rotation_vals[0] + tempImaginary * s.fns.rotation_vals[1] + s.fns.rotation_center[0];
-                s.yCenter = -tempReal * s.fns.rotation_vals[1] + tempImaginary * s.fns.rotation_vals[0] + s.fns.rotation_center[1];
-
-                s.xJuliaCenter = tempJuliaReal;
-                s.yJuliaCenter = tempJuliaImaginary;
-
-                if (s.size < 0.05) {
-                    tools_menu.getBoundaries().setEnabled(false);
-                    boundaries = false;
-                    tools_menu.getBoundaries().setSelected(false);
-                }
-
-                setOptions(false);
-
-                progress.setValue(0);
-
-                scroll_pane.getHorizontalScrollBar().setValue((int) (scroll_pane.getHorizontalScrollBar().getMaximum() / 2 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2));
-                scroll_pane.getVerticalScrollBar().setValue((int) (scroll_pane.getVerticalScrollBar().getMaximum() / 2 - scroll_pane.getVerticalScrollBar().getSize().getHeight() / 2));
-
-                resetImage();
-
-                if (s.d3s.d3) {
-                    Arrays.fill(((DataBufferInt) image.getRaster().getDataBuffer()).getData(), Color.BLACK.getRGB());
-                }
-
-                whole_image_done = false;
-
-                createThreads(false);
-
-                calculation_time = System.currentTimeMillis();
-
-                startThreads(n);
+                new CenterSizeJuliaDialog(ptr, s);
             }
         } else {
-            final JTextField field_real = new JTextField();
-            field_real.addAncestorListener(new RequestFocusListener());
-
-            if (orbit_vals[0] == 0) {
-                field_real.setText("" + 0.0);
-            } else {
-                field_real.setText("" + orbit_vals[0]);
-            }
-
-            final JTextField field_imaginary = new JTextField();
-
-            if (orbit_vals[1] == 0) {
-                field_imaginary.setText("" + 0.0);
-            } else {
-                field_imaginary.setText("" + orbit_vals[1]);
-            }
-
-            final JCheckBox current_center = new JCheckBox("Current Center");
-            current_center.setSelected(false);
-            current_center.setFocusable(false);
-
-            current_center.addActionListener(new ActionListener() {
-
-                @Override
-                public void actionPerformed(ActionEvent e) {
-
-                    if (!current_center.isSelected()) {
-                        if (orbit_vals[0] == 0) {
-                            field_real.setText("" + 0.0);
-                        } else {
-                            field_real.setText("" + orbit_vals[0]);
-                        }
-
-                        field_real.setEditable(true);
-
-                        if (orbit_vals[1] == 0) {
-                            field_imaginary.setText("" + 0.0);
-                        } else {
-                            field_imaginary.setText("" + orbit_vals[1]);
-                        }
-                        field_imaginary.setEditable(true);
-                    } else {
-
-                        Point2D.Double p = MathUtils.rotatePointRelativeToPoint(s.xCenter, s.yCenter, s.fns.rotation_vals, s.fns.rotation_center);
-
-                        field_real.setText("" + p.x);
-                        field_real.setEditable(false);
-                        field_imaginary.setText("" + p.y);
-                        field_imaginary.setEditable(false);
-                    }
-                }
-            });
-
-            JTextField sequence_points = new JTextField();
-            sequence_points.setText("" + (s.max_iterations > 400 ? 400 : s.max_iterations));
-
-            Object[] message = {
-                " ",
-                "Set the real and imaginary part of the new orbit.",
-                "Real:", field_real,
-                "Imaginary:", field_imaginary,
-                current_center,
-                " ",
-                "Set the number of sequence points.",
-                "Sequence Points:", sequence_points,
-                " ",};
-
-            int res = JOptionPane.showConfirmDialog(scroll_pane, message, "Orbit", JOptionPane.OK_CANCEL_OPTION);
-
-            double tempReal, tempImaginary;
-            int seq_points;
-
-            if (res == JOptionPane.OK_OPTION) {
-                try {
-                    tempReal = Double.parseDouble(field_real.getText());
-                    tempImaginary = Double.parseDouble(field_imaginary.getText());
-                    seq_points = Integer.parseInt(sequence_points.getText());
-                } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-                    main_panel.repaint();
-                    return;
-                }
-            } else {
-                main_panel.repaint();
-                return;
-            }
-
-            if (seq_points <= 0) {
-                main_panel.repaint();
-                JOptionPane.showMessageDialog(scroll_pane, "Sequence points number must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            orbit_vals[0] = tempReal;
-            orbit_vals[1] = tempImaginary;
-
-            tempReal -= s.fns.rotation_center[0];
-            tempImaginary -= s.fns.rotation_center[1];
-
-            double x_real = tempReal * s.fns.rotation_vals[0] + tempImaginary * s.fns.rotation_vals[1] + s.fns.rotation_center[0];
-            double y_imag = -tempReal * s.fns.rotation_vals[1] + tempImaginary * s.fns.rotation_vals[0] + s.fns.rotation_center[1];
-
-            if (pixels_orbit != null) {
-                try {
-                    pixels_orbit.join();
-
-                } catch (InterruptedException ex) {
-
-                }
-            }
-
-            try {
-                pixels_orbit = new DrawOrbit(s, x_real, y_imag, seq_points, image_size, ptr, orbit_color, orbit_style, show_orbit_converging_point);
-                pixels_orbit.start();
-            } catch (ParserException e) {
-                JOptionPane.showMessageDialog(scroll_pane, e.getMessage() + "\nThe application will terminate.", "Error!", JOptionPane.ERROR_MESSAGE);
-                savePreferences();
-                System.exit(-1);
-            } catch (Exception ex) {
-            }
+            new OrbitDialog(ptr, s, orbit_vals);
         }
 
     }
@@ -3072,175 +2624,137 @@ public class MainWindow extends JFrame implements Constants {
         updateColors();
     }
 
+    public void setIterationsPost() {
+
+        setOptions(false);
+
+        progress.setValue(0);
+
+        resetImage();
+
+        whole_image_done = false;
+
+        if (s.d3s.d3) {
+            Arrays.fill(((DataBufferInt) image.getRaster().getDataBuffer()).getData(), Color.BLACK.getRGB());
+        }
+
+        if (julia_map) {
+            createThreadsJuliaMap();
+        } else {
+            createThreads(false);
+        }
+
+        calculation_time = System.currentTimeMillis();
+
+        if (julia_map) {
+            startThreads(julia_grid_first_dimension);
+        } else {
+            startThreads(n);
+        }
+
+    }
+    
+    public void setSkipBailoutIterations() {
+        
+        resetOrbit();
+        new SkipBailoutDialog(ptr, s);
+        
+    }
+    
+    public void setSkipBailoutIterationsPost() {
+        
+        SkipBailoutCondition.SKIPPED_ITERATION_COUNT = s.fns.skip_bailout_iterations;
+
+        setOptions(false);
+
+        progress.setValue(0);
+
+        resetImage();
+
+        whole_image_done = false;
+
+        if (s.d3s.d3) {
+            Arrays.fill(((DataBufferInt) image.getRaster().getDataBuffer()).getData(), Color.BLACK.getRGB());
+        }
+
+        if (julia_map) {
+            createThreadsJuliaMap();
+        } else {
+            createThreads(false);
+        }
+
+        calculation_time = System.currentTimeMillis();
+
+        if (julia_map) {
+            startThreads(julia_grid_first_dimension);
+        } else {
+            startThreads(n);
+        }
+
+    }
+
     public void setIterations() {
 
         resetOrbit();
-        String ans = JOptionPane.showInputDialog(scroll_pane, "You are using maximum " + s.max_iterations + " iterations.\nEnter the new maximum iterations number.", "Maximum Iterations Number", JOptionPane.QUESTION_MESSAGE);
+        new IterationDialog(ptr, s);
 
-        try {
-            int temp = Integer.parseInt(ans);
+    }
 
-            if (temp < 1) {
-                main_panel.repaint();
-                JOptionPane.showMessageDialog(scroll_pane, "Maximum iterations number must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
-                return;
-            } else if (temp > 100000) {
-                main_panel.repaint();
-                JOptionPane.showMessageDialog(scroll_pane, "Maximum iterations number must be less than 100001.", "Error!", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
+    public void setHeightRatioPost() {
+        setOptions(false);
 
-            s.max_iterations = temp;
+        progress.setValue(0);
 
-            setOptions(false);
+        resetImage();
 
-            progress.setValue(0);
+        whole_image_done = false;
 
-            resetImage();
-
-            whole_image_done = false;
-
-            if (s.d3s.d3) {
-                Arrays.fill(((DataBufferInt) image.getRaster().getDataBuffer()).getData(), Color.BLACK.getRGB());
-            }
-
-            if (julia_map) {
-                createThreadsJuliaMap();
-            } else {
-                createThreads(false);
-            }
-
-            calculation_time = System.currentTimeMillis();
-
-            if (julia_map) {
-                startThreads(julia_grid_first_dimension);
-            } else {
-                startThreads(n);
-            }
-
-        } catch (Exception ex) {
-            if (ans == null) {
-                main_panel.repaint();
-            } else {
-                JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-                main_panel.repaint();
-            }
+        if (s.d3s.d3) {
+            Arrays.fill(((DataBufferInt) image.getRaster().getDataBuffer()).getData(), Color.BLACK.getRGB());
         }
 
+        if (julia_map) {
+            createThreadsJuliaMap();
+        } else {
+            createThreads(false);
+        }
+
+        calculation_time = System.currentTimeMillis();
+
+        if (julia_map) {
+            startThreads(julia_grid_first_dimension);
+        } else {
+            startThreads(n);
+        }
     }
 
     public void setHeightRatio() {
 
         resetOrbit();
-        String ans = JOptionPane.showInputDialog(scroll_pane, "You are using " + s.height_ratio + " as stretch factor.\nEnter the new stretch.", "Stretch Factor", JOptionPane.QUESTION_MESSAGE);
+        new HeightRatioDialog(ptr, s);
 
-        try {
-            double temp = Double.parseDouble(ans);
+    }
 
-            if (temp <= 0) {
-                main_panel.repaint();
-                JOptionPane.showMessageDialog(scroll_pane, "Stretch factor number must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            s.height_ratio = temp;
-
-            setOptions(false);
-
-            progress.setValue(0);
-
-            resetImage();
-
-            whole_image_done = false;
-
-            if (s.d3s.d3) {
-                Arrays.fill(((DataBufferInt) image.getRaster().getDataBuffer()).getData(), Color.BLACK.getRGB());
-            }
-
-            if (julia_map) {
-                createThreadsJuliaMap();
-            } else {
-                createThreads(false);
-            }
-
-            calculation_time = System.currentTimeMillis();
-
-            if (julia_map) {
-                startThreads(julia_grid_first_dimension);
-            } else {
-                startThreads(n);
-            }
-
-        } catch (Exception ex) {
-            if (ans == null) {
-                main_panel.repaint();
-            } else {
-                JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-                main_panel.repaint();
-            }
-        }
-
+    public void setZoomingFactorPost(double zoom_factor) {
+        this.zoom_factor = zoom_factor;
     }
 
     public void setZoomingFactor() {
 
         resetOrbit();
-        String ans = JOptionPane.showInputDialog(scroll_pane, "You are using " + zoom_factor + " for zooming factor.\nEnter the new zooming factor.", "Zooming Factor", JOptionPane.QUESTION_MESSAGE);
+        new ZoomingFactorDialog(ptr, zoom_factor);
 
-        try {
-            Double temp = Double.parseDouble(ans);
+    }
 
-            if (temp <= 1.05) {
-                main_panel.repaint();
-                JOptionPane.showMessageDialog(scroll_pane, "Zooming factor must be greater than 1.05.", "Error!", JOptionPane.ERROR_MESSAGE);
-                return;
-            } else if (temp > 32) {
-                main_panel.repaint();
-                JOptionPane.showMessageDialog(scroll_pane, "Zooming factor must be less than 33.", "Error!", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            zoom_factor = temp;
-
-        } catch (Exception ex) {
-            if (ans == null) {
-                main_panel.repaint();
-            } else {
-                JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-                main_panel.repaint();
-            }
-        }
-
+    public void setThreadsNumberPost(int n) {
+        this.n = n;
+        threads = new ThreadDraw[n][n];
     }
 
     public void setThreadsNumber() {
 
         resetOrbit();
-        String ans = JOptionPane.showInputDialog(scroll_pane, "Processor cores: " + Runtime.getRuntime().availableProcessors() + "\nYou are using " + n * n + " threads in a " + n + "x" + n + " 2D grid.\nEnter the first dimension, n, of the nxn 2D grid.", "Threads Number", JOptionPane.QUESTION_MESSAGE);
-
-        try {
-            int temp = Integer.parseInt(ans);
-
-            if (temp < 1) {
-                main_panel.repaint();
-                JOptionPane.showMessageDialog(scroll_pane, "The first dimension number of the 2D threads\ngrid must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
-                return;
-            } else if (temp > 100) {
-                main_panel.repaint();
-                JOptionPane.showMessageDialog(scroll_pane, "The first dimension number of the 2D threads\ngrid must be lower than 101.", "Error!", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            n = temp;
-            threads = new ThreadDraw[n][n];
-        } catch (Exception ex) {
-            if (ans == null) {
-                main_panel.repaint();
-            } else {
-                JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-                main_panel.repaint();
-            }
-        }
+        new ThreadsDialog(ptr, n);
 
     }
 
@@ -4168,6 +3682,7 @@ public class MainWindow extends JFrame implements Constants {
             if (s.fns.out_coloring_algorithm != DISTANCE_ESTIMATOR && !s.exterior_de) {
                 fractal_functions[SIERPINSKI_GASKET].setEnabled(true);
                 fractal_functions[KLEINIAN].setEnabled(true);
+                fractal_functions[INERTIA_GRAVITY].setEnabled(true);
             }
             if (!first_seed) {
                 defaultFractalSettings();
@@ -4189,6 +3704,7 @@ public class MainWindow extends JFrame implements Constants {
             rootFindingMethodsSetEnabled(false);
             fractal_functions[SIERPINSKI_GASKET].setEnabled(false);
             fractal_functions[KLEINIAN].setEnabled(false);
+            fractal_functions[INERTIA_GRAVITY].setEnabled(false);
             setOptions(false);
         }
 
@@ -4610,6 +4126,7 @@ public class MainWindow extends JFrame implements Constants {
             toolbar.getOutCustomPaletteButton().setEnabled(option);
             toolbar.getRandomPaletteButton().setEnabled(option);
         }
+
         toolbar.getIterationsButton().setEnabled(option);
         toolbar.getRotationButton().setEnabled(option);
         toolbar.getSaveImageButton().setEnabled(option);
@@ -4628,7 +4145,7 @@ public class MainWindow extends JFrame implements Constants {
             options_menu.getDirectColor().setEnabled(option);
         }
 
-        if (!s.ds.domain_coloring && !s.isConvergingType() && s.fns.function != KLEINIAN && s.fns.function != SIERPINSKI_GASKET && !s.ots.useTraps) {
+        if (!s.ds.domain_coloring && !s.isConvergingType() && s.fns.function != KLEINIAN && s.fns.function != SIERPINSKI_GASKET && s.fns.function != INERTIA_GRAVITY && !s.ots.useTraps) {
             options_menu.getPeriodicityChecking().setEnabled(option);
         }
 
@@ -4641,12 +4158,12 @@ public class MainWindow extends JFrame implements Constants {
             toolbar.getJuliaButton().setEnabled(option);
         }
 
-        if (!zoom_window && !orbit && !color_cycling && !s.d3s.d3 && !s.ds.domain_coloring && !s.ots.useTraps && !s.useDirectColor) {
+        if (!zoom_window && !orbit && !color_cycling && !s.d3s.d3 && !s.ots.useTraps && !s.useDirectColor) {
             tools_menu.getColorCycling().setEnabled(option);
             toolbar.getColorCyclingButton().setEnabled(option);
         }
 
-        if (!color_cycling && !julia_map && !s.useDirectColor) {
+        if (!julia_map && !s.useDirectColor) {
             tools_menu.getDomainColoring().setEnabled(option);
             toolbar.getDomainColoringButton().setEnabled(option);
         }
@@ -4874,391 +4391,20 @@ public class MainWindow extends JFrame implements Constants {
         resetOrbit();
         int oldSelected = s.fns.function;
         s.fns.function = temp;
-        int l;
 
         switch (s.fns.function) {
             case LYAPUNOV:
-                JTextField field_formula_a = new JTextField(50);
-                field_formula_a.setText(s.fns.lpns.lyapunovA);
-                field_formula_a.addAncestorListener(new RequestFocusListener());
-
-                JTextField field_formula_b = new JTextField(50);
-                field_formula_b.setText(s.fns.lpns.lyapunovB);
-
-                JTextField field_formula_c = new JTextField(50);
-                field_formula_c.setText(s.fns.lpns.lyapunovC);
-
-                JTextField field_formula_d = new JTextField(50);
-                field_formula_d.setText(s.fns.lpns.lyapunovD);
-
-                JTextField field_expression = new JTextField(50);
-                field_expression.setText(s.fns.lpns.lyapunovExpression);
-
-                JPanel formula_panel_lyapunov = new JPanel();
-
-                formula_panel_lyapunov.add(new JLabel("A ="));
-                formula_panel_lyapunov.add(field_formula_a);
-
-                JPanel formula_panel_lyapunov2 = new JPanel();
-
-                formula_panel_lyapunov2.add(new JLabel("B ="));
-                formula_panel_lyapunov2.add(field_formula_b);
-
-                JPanel formula_panel_lyapunov3 = new JPanel();
-
-                formula_panel_lyapunov3.add(new JLabel("C ="));
-                formula_panel_lyapunov3.add(field_formula_c);
-
-                JPanel formula_panel_lyapunov4 = new JPanel();
-
-                formula_panel_lyapunov4.add(new JLabel("D ="));
-                formula_panel_lyapunov4.add(field_formula_d);
-
-                JPanel formula_panel_lyapunov5 = new JPanel();
-
-                formula_panel_lyapunov5.add(new JLabel("Expression ="));
-                formula_panel_lyapunov5.add(field_expression);
-
-                Object[] labels_lyap = createUserFormulaLabels("z, c, s, p, pp, n, maxn, center, size, sizei, v1 - v30, point");
-
-                final JCheckBox useLyapExponentCheck = new JCheckBox("Use Lyapunov Exponent");
-                useLyapExponentCheck.setSelected(s.fns.lpns.useLyapunovExponent);
-                useLyapExponentCheck.setFocusable(false);
-
-                Object[] message_lyap = {
-                    labels_lyap,
-                    " ",
-                    "Insert the lyapunov formula parameters.",
-                    useLyapExponentCheck,
-                    formula_panel_lyapunov,
-                    formula_panel_lyapunov2,
-                    formula_panel_lyapunov3,
-                    formula_panel_lyapunov4,
-                    formula_panel_lyapunov5};
-
-                int lyap_res = JOptionPane.showConfirmDialog(scroll_pane, message_lyap, "Lyapunov", JOptionPane.OK_CANCEL_OPTION);
-
-                if (lyap_res == JOptionPane.OK_OPTION) {
-
-                    boolean temp_bool = false;
-
-                    try {
-                        s.parser.parse(field_formula_a.getText());
-
-                        if (s.parser.foundBail() || s.parser.foundCbail()) {
-                            JOptionPane.showMessageDialog(scroll_pane, "The variables: bail, cbail cannot be used in the A formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            main_panel.repaint();
-                            fractal_functions[oldSelected].setSelected(true);
-                            s.fns.function = oldSelected;
-                            return;
-                        }
-
-                        s.parser.parse(field_formula_b.getText());
-
-                        if (s.parser.foundBail() || s.parser.foundCbail()) {
-                            JOptionPane.showMessageDialog(scroll_pane, "The variables: bail, cbail cannot be used in the B formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            main_panel.repaint();
-                            fractal_functions[oldSelected].setSelected(true);
-                            s.fns.function = oldSelected;
-                            return;
-                        }
-
-                        s.parser.parse(field_formula_c.getText());
-
-                        if (s.parser.foundBail() || s.parser.foundCbail()) {
-                            JOptionPane.showMessageDialog(scroll_pane, "The variables: bail, cbail cannot be used in the C formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            main_panel.repaint();
-                            fractal_functions[oldSelected].setSelected(true);
-                            s.fns.function = oldSelected;
-                            return;
-                        }
-
-                        s.parser.parse(field_formula_d.getText());
-
-                        if (s.parser.foundBail() || s.parser.foundCbail()) {
-                            JOptionPane.showMessageDialog(scroll_pane, "The variables: bail, cbail cannot be used in the D formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            main_panel.repaint();
-                            fractal_functions[oldSelected].setSelected(true);
-                            s.fns.function = oldSelected;
-                            return;
-                        }
-
-                        String expression = field_expression.getText();
-
-                        String[] subExpressions = LyapunovSettings.getTokens(expression);
-
-                        if (subExpressions == null) {
-                            JOptionPane.showMessageDialog(scroll_pane, "The expression does not contain any sub-expressions.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            main_panel.repaint();
-                            fractal_functions[oldSelected].setSelected(true);
-                            s.fns.function = oldSelected;
-                            return;
-                        }
-
-                        subExpressions = LyapunovSettings.flatten(subExpressions, "$A", field_formula_a.getText());
-                        subExpressions = LyapunovSettings.flatten(subExpressions, "$B", field_formula_b.getText());
-                        subExpressions = LyapunovSettings.flatten(subExpressions, "$C", field_formula_c.getText());
-                        subExpressions = LyapunovSettings.flatten(subExpressions, "$D", field_formula_d.getText());
-
-                        for (String subExpression : subExpressions) {
-                            s.parser.parse(subExpression);
-
-                            if (s.parser.foundBail() || s.parser.foundCbail()) {
-                                JOptionPane.showMessageDialog(scroll_pane, "The variables: bail, cbail cannot be used in the Expression formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                main_panel.repaint();
-                                fractal_functions[oldSelected].setSelected(true);
-                                s.fns.function = oldSelected;
-                                return;
-                            }
-
-                            temp_bool = temp_bool | s.parser.foundC();
-                        }
-
-                        s.fns.lpns.lyapunovA = field_formula_a.getText();
-                        s.fns.lpns.lyapunovB = field_formula_b.getText();
-                        s.fns.lpns.lyapunovC = field_formula_c.getText();
-                        s.fns.lpns.lyapunovD = field_formula_d.getText();
-                        s.fns.lpns.lyapunovExpression = field_expression.getText();
-                        s.fns.lpns.lyapunovFinalExpression = subExpressions;
-                        s.fns.lpns.useLyapunovExponent = useLyapExponentCheck.isSelected();
-
-                        s.userFormulaHasC = temp_bool;
-
-                        setUserFormulaOptions(false);
-                    } catch (ParserException e) {
-                        JOptionPane.showMessageDialog(scroll_pane, e.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
-                        main_panel.repaint();
-                        fractal_functions[oldSelected].setSelected(true);
-                        s.fns.function = oldSelected;
-                        return;
-                    }
-                } else {
-                    main_panel.repaint();
-                    fractal_functions[oldSelected].setSelected(true);
-                    s.fns.function = oldSelected;
-                    return;
-                }
-
-                optionsEnableShortcut();
-                break;
+                new LyapunovDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
+                return;
             case MAGNETIC_PENDULUM:
-
-                JPanel magnet_p1 = new JPanel();
-                magnet_p1.setLayout(new FlowLayout());
-
-                magnet_p1.add(new JLabel("Gravity Re: "));
-                JTextField gravity_re = new JTextField(10);
-                gravity_re.setText("" + s.fns.mps.gravity[0]);
-                magnet_p1.add(gravity_re);
-
-                magnet_p1.add(new JLabel(" Im: "));
-                JTextField gravity_im = new JTextField(10);
-                gravity_im.setText("" + s.fns.mps.gravity[1]);
-                magnet_p1.add(gravity_im);
-
-                magnet_p1.add(new JLabel(" Friction Re: "));
-                JTextField friction_re = new JTextField(10);
-                friction_re.setText("" + s.fns.mps.friction[0]);
-                magnet_p1.add(friction_re);
-
-                magnet_p1.add(new JLabel(" Im: "));
-                JTextField friction_im = new JTextField(10);
-                friction_im.setText("" + s.fns.mps.friction[1]);
-                magnet_p1.add(friction_im);
-
-                JPanel magnet_p2 = new JPanel();
-                magnet_p2.setLayout(new FlowLayout());
-
-                magnet_p2.add(new JLabel("Pendulum Re: "));
-                JTextField pendulum_re = new JTextField(10);
-                pendulum_re.setText("" + s.fns.mps.pendulum[0]);
-                magnet_p2.add(pendulum_re);
-
-                magnet_p2.add(new JLabel(" Im: "));
-                JTextField pendulum_im = new JTextField(10);
-                pendulum_im.setText("" + s.fns.mps.pendulum[1]);
-                magnet_p2.add(pendulum_im);
-
-                magnet_p2.add(new JLabel(" Height: "));
-                JTextField pendulum_height = new JTextField(10);
-                pendulum_height.setText("" + s.fns.mps.height);
-                magnet_p2.add(pendulum_height);
-
-                magnet_p2.add(new JLabel(" Stepsize: "));
-                JTextField pendulum_stepsize = new JTextField(10);
-                pendulum_stepsize.setText("" + s.fns.mps.stepsize);
-                magnet_p2.add(pendulum_stepsize);
-
-                JPanel[] magnet_panels = new JPanel[s.fns.mps.magnetLocation.length];
-                JTextField[] magnet_re = new JTextField[magnet_panels.length];
-                JTextField[] magnet_im = new JTextField[magnet_panels.length];
-                JTextField[] magnet_strength_re = new JTextField[magnet_panels.length];
-                JTextField[] magnet_strength_im = new JTextField[magnet_panels.length];
-
-                for (int k = 0; k < magnet_panels.length; k++) {
-                    magnet_panels[k] = new JPanel();
-                    magnet_panels[k].setLayout(new FlowLayout());
-
-                    magnet_panels[k].add(new JLabel("[Magnet " + String.format("%02d", (k + 1)) + "] "));
-                    magnet_panels[k].add(new JLabel("Strength Re: "));
-                    magnet_strength_re[k] = new JTextField(10);
-                    magnet_strength_re[k].setText("" + s.fns.mps.magnetStrength[k][0]);
-                    magnet_panels[k].add(magnet_strength_re[k]);
-
-                    magnet_panels[k].add(new JLabel(" Im: "));
-                    magnet_strength_im[k] = new JTextField(10);
-                    magnet_strength_im[k].setText("" + s.fns.mps.magnetStrength[k][1]);
-                    magnet_panels[k].add(magnet_strength_im[k]);
-
-                    magnet_panels[k].add(new JLabel(" Location Re: "));
-                    magnet_re[k] = new JTextField(10);
-                    magnet_re[k].setText("" + s.fns.mps.magnetLocation[k][0]);
-                    magnet_panels[k].add(magnet_re[k]);
-
-                    magnet_panels[k].add(new JLabel(" Im: "));
-                    magnet_im[k] = new JTextField(10);
-                    magnet_im[k].setText("" + s.fns.mps.magnetLocation[k][1]);
-                    magnet_panels[k].add(magnet_im[k]);
-                }
-
-                Object[] magnets = {
-                    " ",
-                    "Enter the magnetic pendulum simulation parameters",
-                    magnet_p1,
-                    magnet_p2,
-                    magnet_panels[0],
-                    magnet_panels[1],
-                    magnet_panels[2],
-                    magnet_panels[3],
-                    magnet_panels[4],
-                    magnet_panels[5],
-                    magnet_panels[6],
-                    magnet_panels[7],
-                    magnet_panels[8],
-                    magnet_panels[9],
-                    " "};
-
-                int magnet_res = JOptionPane.showConfirmDialog(scroll_pane, magnets, "Magnetic Pendulum", JOptionPane.OK_CANCEL_OPTION);
-
-                double[][] temp_magnet = new double[magnet_panels.length][2];
-                double[][] temp_magnet_strength = new double[magnet_panels.length][2];
-                double[] temp_gravity = new double[2];
-                double[] temp_friction = new double[2];
-                double[] temp_pendulum = new double[2];
-                double temp_height,
-                 temp_stepsize;
-
-                if (magnet_res == JOptionPane.OK_OPTION) {
-                    try {
-                        for (int k = 0; k < magnet_panels.length; k++) {
-                            temp_magnet[k][0] = Double.parseDouble(magnet_re[k].getText());
-                            temp_magnet[k][1] = Double.parseDouble(magnet_im[k].getText());
-                            temp_magnet_strength[k][0] = Double.parseDouble(magnet_strength_re[k].getText());
-                            temp_magnet_strength[k][1] = Double.parseDouble(magnet_strength_im[k].getText());
-                        }
-
-                        temp_gravity[0] = Double.parseDouble(gravity_re.getText());
-                        temp_gravity[1] = Double.parseDouble(gravity_im.getText());
-
-                        temp_friction[0] = Double.parseDouble(friction_re.getText());
-                        temp_friction[1] = Double.parseDouble(friction_im.getText());
-
-                        temp_pendulum[0] = Double.parseDouble(pendulum_re.getText());
-                        temp_pendulum[1] = Double.parseDouble(pendulum_im.getText());
-                        temp_height = Double.parseDouble(pendulum_height.getText());
-                        temp_stepsize = Double.parseDouble(pendulum_stepsize.getText());
-                    } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-                        main_panel.repaint();
-                        fractal_functions[oldSelected].setSelected(true);
-                        s.fns.function = oldSelected;
-                        return;
-                    }
-                } else {
-                    main_panel.repaint();
-                    fractal_functions[oldSelected].setSelected(true);
-                    s.fns.function = oldSelected;
-                    return;
-                }
-
-                s.fns.mps.magnetLocation = temp_magnet;
-                s.fns.mps.magnetStrength = temp_magnet_strength;
-                s.fns.mps.gravity = temp_gravity;
-                s.fns.mps.friction = temp_friction;
-                s.fns.mps.pendulum = temp_pendulum;
-                s.fns.mps.height = temp_height;
-                s.fns.mps.stepsize = temp_stepsize;
-                optionsEnableShortcut2();
-                break;
+                new MagneticPendulumDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
+                return;
             case MANDELBROTNTH:
-                main_panel.repaint();
-
-                String ans = (String) JOptionPane.showInputDialog(scroll_pane, "Enter the exponent of z.\nThe exponent can be a real number.", "Exponent", JOptionPane.QUESTION_MESSAGE, null, null, s.fns.z_exponent);
-
-                try {
-                    s.fns.z_exponent = Double.parseDouble(ans);
-                    s.fns.z_exponent = s.fns.z_exponent == 0.0 ? 0.0 : s.fns.z_exponent;
-                } catch (Exception ex) {
-                    if (ans == null) {
-                        main_panel.repaint();
-                    } else {
-                        JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-                        main_panel.repaint();
-                    }
-                    fractal_functions[oldSelected].setSelected(true);
-                    s.fns.function = oldSelected;
-                    return;
-                }
-                optionsEnableShortcut();
-                break;
+                new MandelbrotNthDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
+                return;
             case MANDELBROTWTH:
-
-                JLabel zw = new JLabel();
-                zw.setIcon(getIcon("/fractalzoomer/icons/zw.png"));
-
-                JTextField field_real = new JTextField();
-                field_real.setText("" + s.fns.z_exponent_complex[0]);
-                field_real.addAncestorListener(new RequestFocusListener());
-
-                JTextField field_imaginary = new JTextField();
-                field_imaginary.setText("" + s.fns.z_exponent_complex[1]);
-
-                Object[] message = {
-                    " ",
-                    zw,
-                    "Set the real and imaginary part of the exponent of z.",
-                    " ",
-                    "Real:", field_real,
-                    "Imaginary:", field_imaginary,
-                    " ",};
-
-                int res = JOptionPane.showConfirmDialog(scroll_pane, message, "Exponent", JOptionPane.OK_CANCEL_OPTION);
-
-                double temp3,
-                 temp4;
-                if (res == JOptionPane.OK_OPTION) {
-                    try {
-                        temp3 = Double.parseDouble(field_real.getText());
-                        temp4 = Double.parseDouble(field_imaginary.getText());
-                    } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-                        main_panel.repaint();
-                        fractal_functions[oldSelected].setSelected(true);
-                        s.fns.function = oldSelected;
-                        return;
-                    }
-                } else {
-                    main_panel.repaint();
-                    fractal_functions[oldSelected].setSelected(true);
-                    s.fns.function = oldSelected;
-                    return;
-                }
-
-                s.fns.z_exponent_complex[0] = temp3 == 0.0 ? 0.0 : temp3;
-                s.fns.z_exponent_complex[1] = temp4 == 0.0 ? 0.0 : temp4;
-
-                optionsEnableShortcut();
-                break;
+                new MandelbrotWthDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
+                return;
             case NEWTON3:
             case NEWTON4:
             case NEWTONGENERALIZED3:
@@ -5331,1205 +4477,54 @@ public class MainWindow extends JFrame implements Constants {
             case LAGUERREPOLY:
             case DURAND_KERNERPOLY:
             case BAIRSTOWPOLY:
-                JLabel polynomial = new JLabel();
-                polynomial.setIcon(getIcon("/fractalzoomer/icons/polynomial.png"));
-
-                JPanel[] poly_panels = new JPanel[s.fns.coefficients.length];
-                JTextField[] poly_re = new JTextField[poly_panels.length];
-                JTextField[] poly_im = new JTextField[poly_panels.length];
-
-                for (int k = 0; k < poly_panels.length; k++) {
-                    poly_panels[k] = new JPanel();
-                    poly_panels[k].setLayout(new FlowLayout());
-
-                    JLabel poly_label_k = new JLabel();
-                    poly_label_k.setIcon(getIcon("/fractalzoomer/icons/a" + (poly_panels.length - 1 - k) + ".png"));
-                    poly_re[k] = new JTextField(30);
-                    poly_re[k].setText("" + s.fns.coefficients[k]);
-
-                    poly_im[k] = new JTextField(30);
-                    poly_im[k].setText("" + s.fns.coefficients_im[k]);
-
-                    poly_panels[k].add(poly_label_k);
-                    poly_panels[k].add(new JLabel(" Re: "));
-                    poly_panels[k].add(poly_re[k]);
-
-                    if (s.fns.function != BAIRSTOWPOLY) {
-                        poly_panels[k].add(new JLabel(" Im: "));
-                        poly_panels[k].add(poly_im[k]);
-                    }
-                }
-
-                JPanel init_val_panel = new JPanel();
-                JTextField init_val_real = new JTextField(30);
-                init_val_real.setText("" + s.fns.durand_kerner_init_val[0]);
-                JTextField init_val_imag = new JTextField(30);
-                init_val_imag.setText("" + s.fns.durand_kerner_init_val[1]);
-                init_val_panel.setLayout(new FlowLayout());
-                init_val_panel.add(new JLabel("Durand/Kerner Initial Value,  Re: "));
-                init_val_panel.add(init_val_real);
-                init_val_panel.add(new JLabel(" Im: "));
-                init_val_panel.add(init_val_imag);
-
-                Object[] poly_poly = {
-                    " ",
-                    "Enter the coefficients of the polynomial,",
-                    polynomial,
-                    " ",
-                    poly_panels[0],
-                    poly_panels[1],
-                    poly_panels[2],
-                    poly_panels[3],
-                    poly_panels[4],
-                    poly_panels[5],
-                    poly_panels[6],
-                    poly_panels[7],
-                    poly_panels[8],
-                    poly_panels[9],
-                    poly_panels[10],
-                    " ", s.fns.function == DURAND_KERNERPOLY ? init_val_panel : ""};
-
-                int poly_res = JOptionPane.showConfirmDialog(scroll_pane, poly_poly, "Polynomial coefficients", JOptionPane.OK_CANCEL_OPTION);
-
-                double[] temp_coef = new double[11];
-                double[] temp_coef_im = new double[11];
-                double temp_re,
-                 temp_im;
-
-                if (poly_res == JOptionPane.OK_OPTION) {
-                    try {
-                        for (int k = 0; k < poly_re.length; k++) {
-                            temp_coef[k] = Double.parseDouble(poly_re[k].getText());
-                            temp_coef_im[k] = Double.parseDouble(poly_im[k].getText());
-                        }
-
-                        temp_re = Double.parseDouble(init_val_real.getText());
-                        temp_im = Double.parseDouble(init_val_imag.getText());
-                    } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-                        main_panel.repaint();
-                        fractal_functions[oldSelected].setSelected(true);
-                        s.fns.function = oldSelected;
-                        return;
-                    }
-                } else {
-                    main_panel.repaint();
-                    fractal_functions[oldSelected].setSelected(true);
-                    s.fns.function = oldSelected;
-                    return;
-                }
-
-                boolean non_zero = false;
-                for (l = 0; l < s.fns.coefficients.length; l++) {
-                    if (temp_coef[l] != 0 || temp_coef_im[l] != 0) {
-                        non_zero = true;
-                        break;
-                    }
-                }
-
-                if (!non_zero) {
-                    JOptionPane.showMessageDialog(scroll_pane, "At least one coefficient must be non zero!", "Error!", JOptionPane.ERROR_MESSAGE);
-                    main_panel.repaint();
-                    fractal_functions[oldSelected].setSelected(true);
-                    s.fns.function = oldSelected;
-                    return;
-                }
-
-                for (l = 0; l < s.fns.coefficients.length; l++) {
-                    s.fns.coefficients[l] = temp_coef[l] == 0.0 ? 0.0 : temp_coef[l];
-                }
-
-                for (l = 0; l < s.fns.coefficients_im.length; l++) {
-                    s.fns.coefficients_im[l] = temp_coef_im[l] == 0.0 ? 0.0 : temp_coef_im[l];
-                }
-
-                s.createPoly();
-
-                if (s.fns.function == DURAND_KERNERPOLY) {
-                    s.fns.durand_kerner_init_val[0] = temp_re;
-                    s.fns.durand_kerner_init_val[1] = temp_im;
-                }
-
-                if (s.fns.function == MANDELPOLY) {
-                    optionsEnableShortcut();
-                } else {
-                    optionsEnableShortcut2();
-                }
-                break;
+                new PolynomialDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
+                return;
             case GENERIC_CaZbdZe:
-                JLabel func = new JLabel();
-                func.setIcon(getIcon("/fractalzoomer/icons/cazbdze.png"));
-
-                JPanel alpha_panel = new JPanel();
-                JLabel alpha_label = new JLabel();
-                alpha_label.setIcon(getIcon("/fractalzoomer/icons/alpha.png"));
-                JTextField alpha_filed = new JTextField(30);
-                alpha_filed.addAncestorListener(new RequestFocusListener());
-                alpha_filed.setText("" + s.fns.gcs.alpha);
-                alpha_panel.setLayout(new FlowLayout());
-                alpha_panel.add(alpha_label);
-                alpha_panel.add(new JLabel(""));
-                alpha_panel.add(alpha_filed);
-
-                JPanel beta_panel = new JPanel();
-                JLabel beta_label = new JLabel();
-                beta_label.setIcon(getIcon("/fractalzoomer/icons/beta.png"));
-                JTextField beta_filed = new JTextField(30);
-                beta_filed.setText("" + s.fns.gcs.beta);
-                beta_panel.setLayout(new FlowLayout());
-                beta_panel.add(beta_label);
-                beta_panel.add(new JLabel(""));
-                beta_panel.add(beta_filed);
-
-                JPanel delta_panel = new JPanel();
-                JLabel delta_label = new JLabel();
-                delta_label.setIcon(getIcon("/fractalzoomer/icons/delta.png"));
-                JTextField delta_filed = new JTextField(30);
-                delta_filed.setText("" + s.fns.gcs.delta);
-                delta_panel.setLayout(new FlowLayout());
-                delta_panel.add(delta_label);
-                delta_panel.add(new JLabel(""));
-                delta_panel.add(delta_filed);
-
-                JPanel epsilon_panel = new JPanel();
-                JLabel epsilon_label = new JLabel();
-                epsilon_label.setIcon(getIcon("/fractalzoomer/icons/epsilon.png"));
-                JTextField epsilon_filed = new JTextField(30);
-                epsilon_filed.setText("" + s.fns.gcs.epsilon);
-                epsilon_panel.setLayout(new FlowLayout());
-                epsilon_panel.add(epsilon_label);
-                epsilon_panel.add(new JLabel(""));
-                epsilon_panel.add(epsilon_filed);
-
-                Object[] obj = {
-                    " ",
-                    "Enter the function parameters,",
-                    func,
-                    " ",
-                    alpha_panel,
-                    beta_panel,
-                    delta_panel,
-                    epsilon_panel,};
-
-                int func_res = JOptionPane.showConfirmDialog(scroll_pane, obj, "z = c * (alpha * z^beta + delta * z^epsilon)", JOptionPane.OK_CANCEL_OPTION);
-
-                double temp_alpha,
-                 temp_beta,
-                 temp_delta,
-                 temp_epsilon;
-                if (func_res == JOptionPane.OK_OPTION) {
-                    try {
-
-                        temp_alpha = Double.parseDouble(alpha_filed.getText());
-                        temp_beta = Double.parseDouble(beta_filed.getText());
-                        temp_delta = Double.parseDouble(delta_filed.getText());
-                        temp_epsilon = Double.parseDouble(epsilon_filed.getText());
-                    } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-                        main_panel.repaint();
-                        fractal_functions[oldSelected].setSelected(true);
-                        s.fns.function = oldSelected;
-                        return;
-                    }
-                } else {
-                    main_panel.repaint();
-                    fractal_functions[oldSelected].setSelected(true);
-                    s.fns.function = oldSelected;
-                    return;
-                }
-
-                s.fns.gcs.alpha = temp_alpha;
-                s.fns.gcs.beta = temp_beta;
-                s.fns.gcs.delta = temp_delta;
-                s.fns.gcs.epsilon = temp_epsilon;
-
-                break;
+                new GenericCaZbdZeDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
+                return;
+            case GENERIC_CpAZpBC:
+                new GenericCpAZpBCDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
+                return;
             case NEWTONFORMULA:
-
-                if (s.fns.function != oldSelected) {
-                    s.fns.user_fz_formula = "z^3 - 1";
-                    s.fns.user_dfz_formula = "3*z^2";
-                }
-
-                JTextField field_fz_formula = new JTextField(50);
-                field_fz_formula.setText(s.fns.user_fz_formula);
-                field_fz_formula.addAncestorListener(new RequestFocusListener());
-
-                JTextField field_dfz_formula = new JTextField(50);
-                field_dfz_formula.setText(s.fns.user_dfz_formula);
-
-                JPanel formula_fz_panel = new JPanel();
-
-                formula_fz_panel.add(new JLabel("f(z) ="));
-                formula_fz_panel.add(field_fz_formula);
-
-                JPanel formula_dfz_panel = new JPanel();
-
-                formula_dfz_panel.add(new JLabel("f '(z) ="));
-                formula_dfz_panel.add(field_dfz_formula);
-
-                JLabel imagelabel4 = new JLabel();
-                imagelabel4.setIcon(getIcon("/fractalzoomer/icons/newton.png"));
-                JPanel imagepanel4 = new JPanel();
-                imagepanel4.add(imagelabel4);
-
-                Object[] labels4 = createUserFormulaLabels("z, s, p, pp, n, maxn, center, size, sizei, v1 - v30, point");
-
-                Object[] message4 = {
-                    labels4,
-                    " ",
-                    imagepanel4,
-                    " ",
-                    "Insert the function and its derivative.",
-                    formula_fz_panel,
-                    formula_dfz_panel,};
-
-                res = JOptionPane.showConfirmDialog(scroll_pane, message4, "Newton Formula", JOptionPane.OK_CANCEL_OPTION);
-
-                if (res == JOptionPane.OK_OPTION) {
-                    try {
-                        s.parser.parse(field_fz_formula.getText());
-                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundC()) {
-                            JOptionPane.showMessageDialog(scroll_pane, "The variables: c, bail, cbail cannot be used in the f(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            main_panel.repaint();
-                            fractal_functions[oldSelected].setSelected(true);
-                            s.fns.function = oldSelected;
-                            return;
-                        }
-
-                        s.parser.parse(field_dfz_formula.getText());
-
-                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundC()) {
-                            JOptionPane.showMessageDialog(scroll_pane, "The variables: c, bail, cbail cannot be used in the f '(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            main_panel.repaint();
-                            fractal_functions[oldSelected].setSelected(true);
-                            s.fns.function = oldSelected;
-                            return;
-                        }
-
-                        s.fns.user_fz_formula = field_fz_formula.getText();
-                        s.fns.user_dfz_formula = field_dfz_formula.getText();
-                    } catch (ParserException e) {
-                        JOptionPane.showMessageDialog(scroll_pane, e.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
-                        main_panel.repaint();
-                        fractal_functions[oldSelected].setSelected(true);
-                        s.fns.function = oldSelected;
-                        return;
-                    }
-                } else {
-                    main_panel.repaint();
-                    fractal_functions[oldSelected].setSelected(true);
-                    s.fns.function = oldSelected;
-                    return;
-                }
-
-                optionsEnableShortcut2();
-                break;
+                new RootFindingTwoFunctionsDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
+                return;
             case HALLEYFORMULA:
             case SCHRODERFORMULA:
             case HOUSEHOLDERFORMULA:
             case PARHALLEYFORMULA:
-
-                if (s.fns.function != oldSelected) {
-                    s.fns.user_fz_formula = "z^3 - 1";
-                    s.fns.user_dfz_formula = "3*z^2";
-                    s.fns.user_ddfz_formula = "6*z";
-                }
-
-                JTextField field_fz_formula2 = new JTextField(50);
-                field_fz_formula2.setText(s.fns.user_fz_formula);
-                field_fz_formula2.addAncestorListener(new RequestFocusListener());
-
-                JTextField field_dfz_formula2 = new JTextField(50);
-                field_dfz_formula2.setText(s.fns.user_dfz_formula);
-
-                JTextField field_ddfz_formula2 = new JTextField(50);
-                field_ddfz_formula2.setText(s.fns.user_ddfz_formula);
-
-                JPanel formula_fz_panel2 = new JPanel();
-
-                formula_fz_panel2.add(new JLabel("f(z) ="));
-                formula_fz_panel2.add(field_fz_formula2);
-
-                JPanel formula_dfz_panel2 = new JPanel();
-
-                formula_dfz_panel2.add(new JLabel("f '(z) ="));
-                formula_dfz_panel2.add(field_dfz_formula2);
-
-                JPanel formula_ddfz_panel2 = new JPanel();
-
-                formula_ddfz_panel2.add(new JLabel("f ''(z) ="));
-                formula_ddfz_panel2.add(field_ddfz_formula2);
-
-                JLabel imagelabel41 = new JLabel();
-
-                if (s.fns.function == HALLEYFORMULA) {
-                    imagelabel41.setIcon(getIcon("/fractalzoomer/icons/halley.png"));
-                } else if (s.fns.function == SCHRODERFORMULA) {
-                    imagelabel41.setIcon(getIcon("/fractalzoomer/icons/schroder.png"));
-                } else if (s.fns.function == HOUSEHOLDERFORMULA) {
-                    imagelabel41.setIcon(getIcon("/fractalzoomer/icons/householder.png"));
-                } else if (s.fns.function == PARHALLEYFORMULA) {
-                    imagelabel41.setIcon(getIcon("/fractalzoomer/icons/parhalley.png"));
-                }
-
-                JPanel imagepanel41 = new JPanel();
-                imagepanel41.add(imagelabel41);
-
-                Object[] labels41 = createUserFormulaLabels("z, s, p, pp, n, maxn, center, size, sizei, v1 - v30, point");
-
-                Object[] message41 = {
-                    labels41,
-                    " ",
-                    imagepanel41,
-                    " ",
-                    "Insert the function and its derivatives.",
-                    formula_fz_panel2,
-                    formula_dfz_panel2,
-                    formula_ddfz_panel2,};
-
-                String title = "";
-
-                if (s.fns.function == HALLEYFORMULA) {
-                    title = "Halley Formula";
-                } else if (s.fns.function == SCHRODERFORMULA) {
-                    title = "Schroder Formula";
-                } else if (s.fns.function == HOUSEHOLDERFORMULA) {
-                    title = "Householder Formula";
-                } else if (s.fns.function == PARHALLEYFORMULA) {
-                    title = "Parhalley Formula";
-                }
-
-                res = JOptionPane.showConfirmDialog(scroll_pane, message41, title, JOptionPane.OK_CANCEL_OPTION);
-
-                if (res == JOptionPane.OK_OPTION) {
-                    try {
-                        s.parser.parse(field_fz_formula2.getText());
-                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundC()) {
-                            JOptionPane.showMessageDialog(scroll_pane, "The variables: c, bail, cbail cannot be used in the f(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            main_panel.repaint();
-                            fractal_functions[oldSelected].setSelected(true);
-                            s.fns.function = oldSelected;
-                            return;
-                        }
-
-                        s.parser.parse(field_dfz_formula2.getText());
-
-                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundC()) {
-                            JOptionPane.showMessageDialog(scroll_pane, "The variables: c, bail, cbail cannot be used in the f '(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            main_panel.repaint();
-                            fractal_functions[oldSelected].setSelected(true);
-                            s.fns.function = oldSelected;
-                            return;
-                        }
-
-                        s.parser.parse(field_ddfz_formula2.getText());
-
-                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundC()) {
-                            JOptionPane.showMessageDialog(scroll_pane, "The variables: c, bail, cbail cannot be used in the f ''(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            main_panel.repaint();
-                            fractal_functions[oldSelected].setSelected(true);
-                            s.fns.function = oldSelected;
-                            return;
-                        }
-
-                        s.fns.user_fz_formula = field_fz_formula2.getText();
-                        s.fns.user_dfz_formula = field_dfz_formula2.getText();
-                        s.fns.user_ddfz_formula = field_ddfz_formula2.getText();
-                    } catch (ParserException e) {
-                        JOptionPane.showMessageDialog(scroll_pane, e.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
-                        main_panel.repaint();
-                        fractal_functions[oldSelected].setSelected(true);
-                        s.fns.function = oldSelected;
-                        return;
-                    }
-                } else {
-                    main_panel.repaint();
-                    fractal_functions[oldSelected].setSelected(true);
-                    s.fns.function = oldSelected;
-                    return;
-                }
-
-                optionsEnableShortcut2();
-                break;
+                new RootFindingThreeFunctionsDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
+                return;
             case SECANTFORMULA:
-                if (s.fns.function != oldSelected) {
-                    s.fns.user_fz_formula = "z^3 - 1";
-                }
-
-                JTextField field_fz_formula5 = new JTextField(50);
-                field_fz_formula5.setText(s.fns.user_fz_formula);
-                field_fz_formula5.addAncestorListener(new RequestFocusListener());
-
-                JPanel formula_fz_panel5 = new JPanel();
-
-                formula_fz_panel5.add(new JLabel("f(z) ="));
-                formula_fz_panel5.add(field_fz_formula5);
-
-                JLabel imagelabel44 = new JLabel();
-                imagelabel44.setIcon(getIcon("/fractalzoomer/icons/secant.png"));
-                JPanel imagepanel44 = new JPanel();
-                imagepanel44.add(imagelabel44);
-
-                Object[] labels44 = createUserFormulaLabels("z, s, p, pp, n, maxn, center, size, sizei, v1 - v30, point");
-
-                Object[] message44 = {
-                    labels44,
-                    " ",
-                    imagepanel44,
-                    " ",
-                    "Insert the function.",
-                    formula_fz_panel5,};
-
-                res = JOptionPane.showConfirmDialog(scroll_pane, message44, "Secant Formula", JOptionPane.OK_CANCEL_OPTION);
-
-                if (res == JOptionPane.OK_OPTION) {
-                    try {
-                        s.parser.parse(field_fz_formula5.getText());
-                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundC()) {
-                            JOptionPane.showMessageDialog(scroll_pane, "The variables: c, bail, cbail cannot be used in the f(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            main_panel.repaint();
-                            fractal_functions[oldSelected].setSelected(true);
-                            s.fns.function = oldSelected;
-                            return;
-                        }
-
-                        s.fns.user_fz_formula = field_fz_formula5.getText();
-                    } catch (ParserException e) {
-                        JOptionPane.showMessageDialog(scroll_pane, e.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
-                        main_panel.repaint();
-                        fractal_functions[oldSelected].setSelected(true);
-                        s.fns.function = oldSelected;
-                        return;
-                    }
-                } else {
-                    main_panel.repaint();
-                    fractal_functions[oldSelected].setSelected(true);
-                    s.fns.function = oldSelected;
-                    return;
-                }
-
-                optionsEnableShortcut2();
-                break;
             case STEFFENSENFORMULA:
-                if (s.fns.function != oldSelected) {
-                    s.fns.user_fz_formula = "z^3 - 1";
-                }
-
-                JTextField field_fz_formula6 = new JTextField(50);
-                field_fz_formula6.setText(s.fns.user_fz_formula);
-                field_fz_formula6.addAncestorListener(new RequestFocusListener());
-
-                JPanel formula_fz_panel6 = new JPanel();
-
-                formula_fz_panel6.add(new JLabel("f(z) ="));
-                formula_fz_panel6.add(field_fz_formula6);
-
-                JLabel imagelabel45 = new JLabel();
-                imagelabel45.setIcon(getIcon("/fractalzoomer/icons/steffensen.png"));
-                JPanel imagepanel45 = new JPanel();
-                imagepanel45.add(imagelabel45);
-
-                Object[] labels45 = createUserFormulaLabels("z, s, p, pp, n, maxn, center, size, sizei, v1 - v30, point");
-
-                Object[] message45 = {
-                    labels45,
-                    " ",
-                    imagepanel45,
-                    " ",
-                    "Insert the function.",
-                    formula_fz_panel6,};
-
-                res = JOptionPane.showConfirmDialog(scroll_pane, message45, "Steffensen Formula", JOptionPane.OK_CANCEL_OPTION);
-
-                if (res == JOptionPane.OK_OPTION) {
-                    try {
-                        s.parser.parse(field_fz_formula6.getText());
-                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundC()) {
-                            JOptionPane.showMessageDialog(scroll_pane, "The variables: c, bail, cbail cannot be used in the f(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            main_panel.repaint();
-                            fractal_functions[oldSelected].setSelected(true);
-                            s.fns.function = oldSelected;
-                            return;
-                        }
-
-                        s.fns.user_fz_formula = field_fz_formula6.getText();
-                    } catch (ParserException e) {
-                        JOptionPane.showMessageDialog(scroll_pane, e.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
-                        main_panel.repaint();
-                        fractal_functions[oldSelected].setSelected(true);
-                        s.fns.function = oldSelected;
-                        return;
-                    }
-                } else {
-                    main_panel.repaint();
-                    fractal_functions[oldSelected].setSelected(true);
-                    s.fns.function = oldSelected;
-                    return;
-                }
-                optionsEnableShortcut2();
-                break;
+                new RootFindingOneFunctionDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
+                return;
             case MULLERFORMULA:
-                if (s.fns.function != oldSelected) {
-                    s.fns.user_fz_formula = "z^3 - 1";
-                }
-
-                JTextField field_fz_formula7 = new JTextField(50);
-                field_fz_formula7.setText(s.fns.user_fz_formula);
-                field_fz_formula7.addAncestorListener(new RequestFocusListener());
-
-                JPanel formula_fz_panel7 = new JPanel();
-
-                formula_fz_panel7.add(new JLabel("f(z) ="));
-                formula_fz_panel7.add(field_fz_formula7);
-
-                JPanel images_panel = new JPanel();
-                images_panel.setLayout(new GridLayout(5, 1));
-
-                JLabel imagelabel46 = new JLabel();
-                imagelabel46.setIcon(getIcon("/fractalzoomer/icons/muller1.png"));
-                JPanel imagepanel46 = new JPanel();
-                imagepanel46.add(imagelabel46);
-
-                JLabel imagelabel56 = new JLabel();
-                imagelabel56.setIcon(getIcon("/fractalzoomer/icons/muller2.png"));
-                JPanel imagepanel56 = new JPanel();
-                imagepanel56.add(imagelabel56);
-
-                JLabel imagelabel66 = new JLabel();
-                imagelabel66.setIcon(getIcon("/fractalzoomer/icons/muller3.png"));
-                JPanel imagepanel66 = new JPanel();
-                imagepanel66.add(imagelabel66);
-
-                JLabel imagelabel76 = new JLabel();
-                imagelabel76.setIcon(getIcon("/fractalzoomer/icons/muller4.png"));
-                JPanel imagepanel76 = new JPanel();
-                imagepanel76.add(imagelabel76);
-
-                JLabel imagelabel86 = new JLabel();
-                imagelabel86.setIcon(getIcon("/fractalzoomer/icons/muller5.png"));
-                JPanel imagepanel86 = new JPanel();
-                imagepanel86.add(imagelabel86);
-
-                images_panel.add(imagelabel46);
-                images_panel.add(imagelabel56);
-                images_panel.add(imagelabel66);
-                images_panel.add(imagelabel76);
-                images_panel.add(imagelabel86);
-
-                JScrollPane scroll_pane2 = new JScrollPane(images_panel);
-                scroll_pane2.setPreferredSize(new Dimension(500, 120));
-                scroll_pane2.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-
-                Object[] labels46 = createUserFormulaLabels("z, s, p, pp, n, maxn, center, size, sizei, v1 - v30, point");
-
-                Object[] message46 = {
-                    labels46,
-                    " ",
-                    scroll_pane2,
-                    "Insert the function.",
-                    formula_fz_panel7,};
-
-                res = JOptionPane.showConfirmDialog(scroll_pane, message46, "Muller Formula", JOptionPane.OK_CANCEL_OPTION);
-
-                if (res == JOptionPane.OK_OPTION) {
-                    try {
-                        s.parser.parse(field_fz_formula7.getText());
-                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundC()) {
-                            JOptionPane.showMessageDialog(scroll_pane, "The variables: c, bail, cbail cannot be used in the f(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            main_panel.repaint();
-                            fractal_functions[oldSelected].setSelected(true);
-                            s.fns.function = oldSelected;
-                            return;
-                        }
-
-                        s.fns.user_fz_formula = field_fz_formula7.getText();
-                    } catch (ParserException e) {
-                        JOptionPane.showMessageDialog(scroll_pane, e.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
-                        main_panel.repaint();
-                        fractal_functions[oldSelected].setSelected(true);
-                        s.fns.function = oldSelected;
-                        return;
-                    }
-                } else {
-                    main_panel.repaint();
-                    fractal_functions[oldSelected].setSelected(true);
-                    s.fns.function = oldSelected;
-                    return;
-                }
-
-                optionsEnableShortcut2();
-                break;
+                new MullerFormulaDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
+                return;
             case LAGUERREFORMULA:
-
-                if (s.fns.function != oldSelected) {
-                    s.fns.user_fz_formula = "z^3 - 1";
-                    s.fns.user_dfz_formula = "3*z^2";
-                    s.fns.user_ddfz_formula = "6*z";
-                }
-
-                JTextField field_fz_formula9 = new JTextField(50);
-                field_fz_formula9.setText(s.fns.user_fz_formula);
-                field_fz_formula9.addAncestorListener(new RequestFocusListener());
-
-                JTextField field_dfz_formula9 = new JTextField(50);
-                field_dfz_formula9.setText(s.fns.user_dfz_formula);
-
-                JTextField field_ddfz_formula9 = new JTextField(50);
-                field_ddfz_formula9.setText(s.fns.user_ddfz_formula);
-
-                JPanel formula_fz_panel9 = new JPanel();
-
-                formula_fz_panel9.add(new JLabel("f(z) ="));
-                formula_fz_panel9.add(field_fz_formula9);
-
-                JPanel formula_dfz_panel9 = new JPanel();
-
-                formula_dfz_panel9.add(new JLabel("f '(z) ="));
-                formula_dfz_panel9.add(field_dfz_formula9);
-
-                JPanel formula_ddfz_panel9 = new JPanel();
-
-                formula_ddfz_panel9.add(new JLabel("f ''(z) ="));
-                formula_ddfz_panel9.add(field_ddfz_formula9);
-
-                JLabel imagelabel91 = new JLabel();
-                imagelabel91.setIcon(getIcon("/fractalzoomer/icons/laguerre.png"));
-                JPanel imagepanel91 = new JPanel();
-                imagepanel91.add(imagelabel91);
-
-                JPanel degree_panel = new JPanel();
-
-                JTextField field_real8 = new JTextField(20);
-                field_real8.setText("" + s.fns.laguerre_deg[0]);
-
-                JTextField field_imaginary8 = new JTextField(20);
-                field_imaginary8.setText("" + s.fns.laguerre_deg[1]);
-
-                degree_panel.add(new JLabel("Degree = "));
-                degree_panel.add(new JLabel("Real:"));
-                degree_panel.add(field_real8);
-                degree_panel.add(new JLabel(" Imaginary:"));
-                degree_panel.add(field_imaginary8);
-
-                Object[] labels91 = createUserFormulaLabels("z, s, p, pp, n, maxn, center, size, sizei, v1 - v30, point");
-
-                Object[] message91 = {
-                    labels91,
-                    " ",
-                    imagepanel91,
-                    " ",
-                    "Insert the function, its derivatives and the degree.",
-                    formula_fz_panel9,
-                    formula_dfz_panel9,
-                    formula_ddfz_panel9,
-                    degree_panel,};
-
-                res = JOptionPane.showConfirmDialog(scroll_pane, message91, "Laguerre Formula", JOptionPane.OK_CANCEL_OPTION);
-
-                if (res == JOptionPane.OK_OPTION) {
-
-                    double temp5 = 0, temp6 = 0;
-                    try {
-                        temp5 = Double.parseDouble(field_real8.getText());
-                        temp6 = Double.parseDouble(field_imaginary8.getText());
-
-                        s.parser.parse(field_fz_formula9.getText());
-                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundC()) {
-                            JOptionPane.showMessageDialog(scroll_pane, "The variables: c, bail, cbail cannot be used in the f(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            main_panel.repaint();
-                            fractal_functions[oldSelected].setSelected(true);
-                            s.fns.function = oldSelected;
-                            return;
-                        }
-
-                        s.parser.parse(field_dfz_formula9.getText());
-
-                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundC()) {
-                            JOptionPane.showMessageDialog(scroll_pane, "The variables: c, bail, cbail cannot be used in the f '(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            main_panel.repaint();
-                            fractal_functions[oldSelected].setSelected(true);
-                            s.fns.function = oldSelected;
-                            return;
-                        }
-
-                        s.parser.parse(field_ddfz_formula9.getText());
-
-                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundC()) {
-                            JOptionPane.showMessageDialog(scroll_pane, "The variables: c, bail, cbail cannot be used in the f ''(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            main_panel.repaint();
-                            fractal_functions[oldSelected].setSelected(true);
-                            s.fns.function = oldSelected;
-                            return;
-                        }
-
-                        s.fns.user_fz_formula = field_fz_formula9.getText();
-                        s.fns.user_dfz_formula = field_dfz_formula9.getText();
-                        s.fns.user_ddfz_formula = field_ddfz_formula9.getText();
-                        s.fns.laguerre_deg[0] = temp5;
-                        s.fns.laguerre_deg[1] = temp6;
-                    } catch (ParserException e) {
-                        JOptionPane.showMessageDialog(scroll_pane, e.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
-                        main_panel.repaint();
-                        fractal_functions[oldSelected].setSelected(true);
-                        s.fns.function = oldSelected;
-                        return;
-                    } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-                        main_panel.repaint();
-                        fractal_functions[oldSelected].setSelected(true);
-                        s.fns.function = oldSelected;
-                        return;
-                    }
-                } else {
-                    main_panel.repaint();
-                    fractal_functions[oldSelected].setSelected(true);
-                    s.fns.function = oldSelected;
-                    return;
-                }
-
-                optionsEnableShortcut2();
-                break;
+                new LaguerreFormulaDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
+                return;
             case NOVA:
-                JLabel novazw = new JLabel();
-                novazw.setIcon(getIcon("/fractalzoomer/icons/novazw.png"));
-
-                field_real = new JTextField();
-                field_real.setText("" + s.fns.z_exponent_nova[0]);
-                field_real.addAncestorListener(new RequestFocusListener());
-
-                field_imaginary = new JTextField();
-                field_imaginary.setText("" + s.fns.z_exponent_nova[1]);
-
-                JTextField field_real2 = new JTextField();
-                field_real2.setText("" + s.fns.relaxation[0]);
-
-                JTextField field_imaginary2 = new JTextField();
-                field_imaginary2.setText("" + s.fns.relaxation[1]);
-
-                String[] method = {"Newton", "Halley", "Schroder", "Householder", "Secant", "Steffensen", "Muller", "Parhalley", "Laguerre"};
-
-                JComboBox method_choice = new JComboBox(method);
-                method_choice.setSelectedIndex(s.fns.nova_method);
-                method_choice.setToolTipText("Selects the root finding method for the Nova function.");
-                method_choice.setFocusable(false);
-
-                Object[] message2 = {
-                    " ",
-                    "Root Finding Method",
-                    method_choice,
-                    " ",
-                    novazw,
-                    "Set the real and imaginary part of the exponent.",
-                    "Real:", field_real,
-                    "Imaginary:", field_imaginary,
-                    " ",
-                    "Set the real and imaginary part of the relaxation.",
-                    "Real:", field_real2,
-                    "Imaginary:", field_imaginary2,
-                    " ",};
-
-                res = JOptionPane.showConfirmDialog(scroll_pane, message2, "Method, Exponent, Relaxation", JOptionPane.OK_CANCEL_OPTION);
-
-                double temp5,
-                 temp6;
-                int temp7;
-                if (res == JOptionPane.OK_OPTION) {
-                    try {
-                        temp7 = method_choice.getSelectedIndex();
-                        temp3 = Double.parseDouble(field_real.getText());
-                        temp4 = Double.parseDouble(field_imaginary.getText());
-                        temp5 = Double.parseDouble(field_real2.getText());
-                        temp6 = Double.parseDouble(field_imaginary2.getText());
-                    } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-                        main_panel.repaint();
-                        fractal_functions[oldSelected].setSelected(true);
-                        s.fns.function = oldSelected;
-                        return;
-                    }
-                } else {
-                    main_panel.repaint();
-                    fractal_functions[oldSelected].setSelected(true);
-                    s.fns.function = oldSelected;
-                    return;
-                }
-
-                s.fns.z_exponent_nova[0] = temp3 == 0.0 ? 0.0 : temp3;
-                s.fns.z_exponent_nova[1] = temp4 == 0.0 ? 0.0 : temp4;
-
-                s.fns.relaxation[0] = temp5 == 0.0 ? 0.0 : temp5;
-                s.fns.relaxation[1] = temp6 == 0.0 ? 0.0 : temp6;
-
-                s.fns.nova_method = temp7;
-
-                optionsEnableShortcut();
-
-                options_menu.getPeriodicityChecking().setEnabled(false);
-                options_menu.getBailout().setEnabled(false);
-                options_menu.getBailoutConditionMenu().setEnabled(false);
-                break;
+                new NovaDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
+                return;
             case KLEINIAN:
-
-                field_real = new JTextField();
-                field_real.setText("" + s.fns.kleinianLine[0]);
-                field_real.addAncestorListener(new RequestFocusListener());
-
-                field_imaginary = new JTextField();
-                field_imaginary.setText("" + s.fns.kleinianLine[1]);
-
-                JTextField field_K = new JTextField();
-                field_K.setText("" + s.fns.kleinianK);
-
-                JTextField field_M = new JTextField();
-                field_M.setText("" + s.fns.kleinianM);
-
-                Object[] message6 = {
-                    " ",
-                    "Set the real and imaginary part of the Moebius Transformation.",
-                    "Real:", field_real,
-                    "Imaginary:", field_imaginary,
-                    " ",
-                    "Set the constants of the exponential function.",
-                    "scale factor K:", field_K,
-                    "exponent M:", field_M,
-                    " "};
-
-                res = JOptionPane.showConfirmDialog(scroll_pane, message6, "Kleinian Maskit Parametrisation", JOptionPane.OK_CANCEL_OPTION);
-
-                if (res == JOptionPane.OK_OPTION) {
-                    try {
-                        temp3 = Double.parseDouble(field_real.getText());
-                        temp4 = Double.parseDouble(field_imaginary.getText());
-                        temp5 = Double.parseDouble(field_K.getText());
-                        temp6 = Double.parseDouble(field_M.getText());
-                    } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-                        main_panel.repaint();
-                        fractal_functions[oldSelected].setSelected(true);
-                        s.fns.function = oldSelected;
-                        return;
-                    }
-                } else {
-                    main_panel.repaint();
-                    fractal_functions[oldSelected].setSelected(true);
-                    s.fns.function = oldSelected;
-                    return;
-                }
-
-                s.fns.kleinianLine[0] = temp3;
-                s.fns.kleinianLine[1] = temp4;
-                s.fns.kleinianK = temp5;
-                s.fns.kleinianM = temp6;
-
-                optionsEnableShortcut();
-                tools_menu.getJulia().setEnabled(false);
-                toolbar.getJuliaButton().setEnabled(false);
-                tools_menu.getJuliaMap().setEnabled(false);
-                toolbar.getJuliaMapButton().setEnabled(false);
-                options_menu.getPeriodicityChecking().setEnabled(false);
-                options_menu.getPerturbation().setEnabled(false);
-                options_menu.getInitialValue().setEnabled(false);
-                options_menu.getBailout().setEnabled(false);
-                options_menu.getBailoutConditionMenu().setEnabled(false);
-                break;
+                new KleinianDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
+                return;
+            case INERTIA_GRAVITY:
+                new InertiaGravityDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
+                return;
             case SIERPINSKI_GASKET:
-                optionsEnableShortcut();
-                tools_menu.getJulia().setEnabled(false);
-                toolbar.getJuliaButton().setEnabled(false);
-                tools_menu.getJuliaMap().setEnabled(false);
-                toolbar.getJuliaMapButton().setEnabled(false);
-                options_menu.getPeriodicityChecking().setEnabled(false);
-                options_menu.getPerturbation().setEnabled(false);
-                options_menu.getInitialValue().setEnabled(false);
+                setInertiaGravitySierpinskiPost();
                 break;
             case USER_FORMULA_ITERATION_BASED:
-
-                JTextField field_formula_it_based1 = new JTextField(50);
-                field_formula_it_based1.setText(s.fns.user_formula_iteration_based[0]);
-                field_formula_it_based1.addAncestorListener(new RequestFocusListener());
-
-                JTextField field_formula_it_based2 = new JTextField(50);
-                field_formula_it_based2.setText(s.fns.user_formula_iteration_based[1]);
-
-                JTextField field_formula_it_based3 = new JTextField(50);
-                field_formula_it_based3.setText(s.fns.user_formula_iteration_based[2]);
-
-                JTextField field_formula_it_based4 = new JTextField(50);
-                field_formula_it_based4.setText(s.fns.user_formula_iteration_based[3]);
-
-                JPanel formula_panel_it1 = new JPanel();
-
-                formula_panel_it1.add(new JLabel("Every 1st iteration, z ="));
-                formula_panel_it1.add(field_formula_it_based1);
-
-                JPanel formula_panel_it2 = new JPanel();
-
-                formula_panel_it2.add(new JLabel("Every 2nd iteration, z ="));
-                formula_panel_it2.add(field_formula_it_based2);
-
-                JPanel formula_panel_it3 = new JPanel();
-
-                formula_panel_it3.add(new JLabel("Every 3rd iteration, z ="));
-                formula_panel_it3.add(field_formula_it_based3);
-
-                JPanel formula_panel_it4 = new JPanel();
-
-                formula_panel_it4.add(new JLabel("Every 4th iteration, z ="));
-                formula_panel_it4.add(field_formula_it_based4);
-
-                JLabel bail2 = new JLabel("Bailout Technique:");
-                bail2.setFont(new Font("Arial", Font.BOLD, 11));
-
-                String[] method42 = {"Escaping Algorithm", "Converging Algorithm"};
-
-                JComboBox method42_choice = new JComboBox(method42);
-                method42_choice.setSelectedIndex(s.fns.bail_technique);
-                method42_choice.setToolTipText("Selects the bailout technique.");
-                method42_choice.setFocusable(false);
-
-                Object[] labels32 = createUserFormulaLabels("z, c, s, p, pp, n, maxn, center, size, sizei, v1 - v30, point");
-
-                Object[] message32 = {
-                    labels32,
-                    bail2,
-                    method42_choice,
-                    " ",
-                    "Insert your formulas. Different formula will be evaluated in every iteration.",
-                    formula_panel_it1,
-                    formula_panel_it2,
-                    formula_panel_it3,
-                    formula_panel_it4,};
-
-                res = JOptionPane.showConfirmDialog(scroll_pane, message32, "User Formula Iteration Based", JOptionPane.OK_CANCEL_OPTION);
-
-                if (res == JOptionPane.OK_OPTION) {
-
-                    boolean temp_bool = false;
-
-                    try {
-                        s.parser.parse(field_formula_it_based1.getText());
-
-                        if (s.parser.foundBail() || s.parser.foundCbail()) {
-                            JOptionPane.showMessageDialog(scroll_pane, "The variables: bail, cbail cannot be used in the 1st iteration formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            main_panel.repaint();
-                            fractal_functions[oldSelected].setSelected(true);
-                            s.fns.function = oldSelected;
-                            return;
-                        }
-
-                        temp_bool = temp_bool | s.parser.foundC();
-
-                        s.parser.parse(field_formula_it_based2.getText());
-
-                        if (s.parser.foundBail() || s.parser.foundCbail()) {
-                            JOptionPane.showMessageDialog(scroll_pane, "The variables: bail, cbail cannot be used in the 2nd iteration formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            main_panel.repaint();
-                            fractal_functions[oldSelected].setSelected(true);
-                            s.fns.function = oldSelected;
-                            return;
-                        }
-
-                        temp_bool = temp_bool | s.parser.foundC();
-
-                        s.parser.parse(field_formula_it_based3.getText());
-
-                        if (s.parser.foundBail() || s.parser.foundCbail()) {
-                            JOptionPane.showMessageDialog(scroll_pane, "The variables: bail, cbail cannot be used in the 3rd iteration formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            main_panel.repaint();
-                            fractal_functions[oldSelected].setSelected(true);
-                            s.fns.function = oldSelected;
-                            return;
-                        }
-
-                        temp_bool = temp_bool | s.parser.foundC();
-
-                        s.parser.parse(field_formula_it_based4.getText());
-
-                        if (s.parser.foundBail() || s.parser.foundCbail()) {
-                            JOptionPane.showMessageDialog(scroll_pane, "The variables: bail, cbail cannot be used in the 4th iteration formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            main_panel.repaint();
-                            fractal_functions[oldSelected].setSelected(true);
-                            s.fns.function = oldSelected;
-                            return;
-                        }
-
-                        temp_bool = temp_bool | s.parser.foundC();
-
-                        s.fns.user_formula_iteration_based[0] = field_formula_it_based1.getText();
-                        s.fns.user_formula_iteration_based[1] = field_formula_it_based2.getText();
-                        s.fns.user_formula_iteration_based[2] = field_formula_it_based3.getText();
-                        s.fns.user_formula_iteration_based[3] = field_formula_it_based4.getText();
-                        s.userFormulaHasC = temp_bool;
-                        s.fns.bail_technique = method42_choice.getSelectedIndex();
-
-                        setUserFormulaOptions(true);
-                    } catch (ParserException e) {
-                        JOptionPane.showMessageDialog(scroll_pane, e.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
-                        main_panel.repaint();
-                        fractal_functions[oldSelected].setSelected(true);
-                        s.fns.function = oldSelected;
-                        return;
-                    }
-                } else {
-                    main_panel.repaint();
-                    fractal_functions[oldSelected].setSelected(true);
-                    s.fns.function = oldSelected;
-                    return;
-                }
-
-                optionsEnableShortcut();
-                break;
+                new UserFormulaIterationBasedDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
+                return;
             case USER_FORMULA_CONDITIONAL:
-
-                JPanel formula_panel_cond1 = new JPanel();
-                formula_panel_cond1.setLayout(new GridLayout(2, 2));
-
-                JTextField field_condition = new JTextField(24);
-                field_condition.setText(s.fns.user_formula_conditions[0]);
-                field_condition.addAncestorListener(new RequestFocusListener());
-
-                JTextField field_condition2 = new JTextField(24);
-                field_condition2.setText(s.fns.user_formula_conditions[1]);
-
-                formula_panel_cond1.add(new JLabel("Left operand:", SwingConstants.HORIZONTAL));
-                formula_panel_cond1.add(new JLabel("Right operand:", SwingConstants.HORIZONTAL));
-                formula_panel_cond1.add(field_condition);
-                formula_panel_cond1.add(field_condition2);
-
-                JTextField field_formula_cond1 = new JTextField(50);
-                field_formula_cond1.setText(s.fns.user_formula_condition_formula[0]);
-
-                JTextField field_formula_cond2 = new JTextField(50);
-                field_formula_cond2.setText(s.fns.user_formula_condition_formula[1]);
-
-                JTextField field_formula_cond3 = new JTextField(50);
-                field_formula_cond3.setText(s.fns.user_formula_condition_formula[2]);
-
-                JPanel formula_panel_cond11 = new JPanel();
-
-                formula_panel_cond11.add(new JLabel("left > right, z ="));
-                formula_panel_cond11.add(field_formula_cond1);
-
-                JPanel formula_panel_cond12 = new JPanel();
-
-                formula_panel_cond12.add(new JLabel("left < right, z ="));
-                formula_panel_cond12.add(field_formula_cond2);
-
-                JPanel formula_panel_cond13 = new JPanel();
-
-                formula_panel_cond13.add(new JLabel("left = right, z ="));
-                formula_panel_cond13.add(field_formula_cond3);
-
-                JLabel bail3 = new JLabel("Bailout Technique:");
-                bail3.setFont(new Font("Arial", Font.BOLD, 11));
-
-                String[] method43 = {"Escaping Algorithm", "Converging Algorithm"};
-
-                JComboBox method43_choice = new JComboBox(method43);
-                method43_choice.setSelectedIndex(s.fns.bail_technique);
-                method43_choice.setToolTipText("Selects the bailout technique.");
-                method43_choice.setFocusable(false);
-
-                Object[] labels33 = createUserFormulaLabels("z, c, s, p, pp, n, maxn, center, size, sizei, v1 - v30, point");
-
-                Object[] message33 = {
-                    labels33,
-                    bail3,
-                    method43_choice,
-                    " ",
-                    "Insert your formulas, that will be evaluated under a specific condition.",
-                    formula_panel_cond1,
-                    formula_panel_cond11,
-                    formula_panel_cond12,
-                    formula_panel_cond13,};
-
-                res = JOptionPane.showConfirmDialog(scroll_pane, message33, "User Formula Conditional", JOptionPane.OK_CANCEL_OPTION);
-
-                if (res == JOptionPane.OK_OPTION) {
-
-                    boolean temp_bool = false;
-
-                    try {
-                        s.parser.parse(field_condition.getText());
-
-                        if (s.parser.foundBail() || s.parser.foundCbail()) {
-                            JOptionPane.showMessageDialog(scroll_pane, "The variables: bail, cbail cannot be used in the left condition formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            main_panel.repaint();
-                            fractal_functions[oldSelected].setSelected(true);
-                            s.fns.function = oldSelected;
-                            return;
-                        }
-
-                        s.parser.parse(field_condition2.getText());
-
-                        if (s.parser.foundBail() || s.parser.foundCbail()) {
-                            JOptionPane.showMessageDialog(scroll_pane, "The variables: bail, cbail cannot be used in the right condition formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            main_panel.repaint();
-                            fractal_functions[oldSelected].setSelected(true);
-                            s.fns.function = oldSelected;
-                            return;
-                        }
-
-                        s.parser.parse(field_formula_cond1.getText());
-
-                        if (s.parser.foundBail() || s.parser.foundCbail()) {
-                            JOptionPane.showMessageDialog(scroll_pane, "The variables: bail, cbail cannot be used in the left > right z formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            main_panel.repaint();
-                            fractal_functions[oldSelected].setSelected(true);
-                            s.fns.function = oldSelected;
-                            return;
-                        }
-
-                        temp_bool = temp_bool | s.parser.foundC();
-
-                        s.parser.parse(field_formula_cond2.getText());
-                        if (s.parser.foundBail() || s.parser.foundCbail()) {
-                            JOptionPane.showMessageDialog(scroll_pane, "The variables: bail, cbail cannot be used in the left < right z formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            main_panel.repaint();
-                            fractal_functions[oldSelected].setSelected(true);
-                            s.fns.function = oldSelected;
-                            return;
-                        }
-
-                        temp_bool = temp_bool | s.parser.foundC();
-
-                        s.parser.parse(field_formula_cond3.getText());
-                        if (s.parser.foundBail() || s.parser.foundCbail()) {
-                            JOptionPane.showMessageDialog(scroll_pane, "The variables: bail, cbail cannot be used in the left = right z formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            main_panel.repaint();
-                            fractal_functions[oldSelected].setSelected(true);
-                            s.fns.function = oldSelected;
-                            return;
-                        }
-
-                        temp_bool = temp_bool | s.parser.foundC();
-
-                        s.fns.user_formula_condition_formula[0] = field_formula_cond1.getText();
-                        s.fns.user_formula_condition_formula[1] = field_formula_cond2.getText();
-                        s.fns.user_formula_condition_formula[2] = field_formula_cond3.getText();
-                        s.fns.user_formula_conditions[0] = field_condition.getText();
-                        s.fns.user_formula_conditions[1] = field_condition2.getText();
-                        s.userFormulaHasC = temp_bool;
-                        s.fns.bail_technique = method43_choice.getSelectedIndex();
-
-                        setUserFormulaOptions(true);
-                    } catch (ParserException e) {
-                        JOptionPane.showMessageDialog(scroll_pane, e.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
-                        main_panel.repaint();
-                        fractal_functions[oldSelected].setSelected(true);
-                        s.fns.function = oldSelected;
-                        return;
-                    }
-                } else {
-                    main_panel.repaint();
-                    fractal_functions[oldSelected].setSelected(true);
-                    s.fns.function = oldSelected;
-                    return;
-                }
-
-                optionsEnableShortcut();
-                break;
+                new UserFormulaConditionalDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
+                return;
+             case LAMBDA_FN_FN:
+                new LambdaFnFnDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
+                return;
             case MANDELBROT:
                 if (!s.ds.domain_coloring) {
                     options_menu.getDistanceEstimation().setEnabled(true);
@@ -6587,334 +4582,35 @@ public class MainWindow extends JFrame implements Constants {
                 }
                 break;
             case USER_FORMULA:
-
-                JTextField field_formula = new JTextField(50);
-                field_formula.setText(s.fns.user_formula);
-                field_formula.addAncestorListener(new RequestFocusListener());
-
-                JTextField field_formula2 = new JTextField(50);
-                field_formula2.setText(s.fns.user_formula2);
-
-                JPanel formula_panel = new JPanel();
-
-                formula_panel.add(new JLabel("z ="));
-                formula_panel.add(field_formula);
-
-                JPanel formula_panel2 = new JPanel();
-
-                formula_panel2.add(new JLabel("c ="));
-                formula_panel2.add(field_formula2);
-
-                JLabel bail = new JLabel("Bailout Technique:");
-                bail.setFont(new Font("Arial", Font.BOLD, 11));
-
-                String[] method4 = {"Escaping Algorithm", "Converging Algorithm"};
-
-                JComboBox method4_choice = new JComboBox(method4);
-                method4_choice.setSelectedIndex(s.fns.bail_technique);
-                method4_choice.setToolTipText("Selects the bailout technique.");
-                method4_choice.setFocusable(false);
-
-                Object[] labels3 = createUserFormulaLabels("z, c, s, p, pp, n, maxn, center, size, sizei, v1 - v30, point");
-
-                Object[] message3 = {
-                    labels3,
-                    bail,
-                    method4_choice,
-                    " ",
-                    "Insert your formula, that will be evaluated in every iteration.",
-                    formula_panel,
-                    formula_panel2,};
-
-                res = JOptionPane.showConfirmDialog(scroll_pane, message3, "User Formula", JOptionPane.OK_CANCEL_OPTION);
-
-                if (res == JOptionPane.OK_OPTION) {
-                    try {
-                        s.parser.parse(field_formula.getText());
-                        if (s.parser.foundBail() || s.parser.foundCbail()) {
-                            JOptionPane.showMessageDialog(scroll_pane, "The variables: bail, cbail cannot be used in the z formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            main_panel.repaint();
-                            fractal_functions[oldSelected].setSelected(true);
-                            s.fns.function = oldSelected;
-                            return;
-                        }
-
-                        boolean temp_bool = s.parser.foundC();
-
-                        s.parser.parse(field_formula2.getText());
-
-                        if (s.parser.foundBail() || s.parser.foundCbail()) {
-                            JOptionPane.showMessageDialog(scroll_pane, "The variables: bail, cbail cannot be used in the c formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            main_panel.repaint();
-                            fractal_functions[oldSelected].setSelected(true);
-                            s.fns.function = oldSelected;
-                            return;
-                        }
-
-                        s.fns.user_formula = field_formula.getText();
-                        s.fns.user_formula2 = field_formula2.getText();
-                        s.userFormulaHasC = temp_bool;
-                        s.fns.bail_technique = method4_choice.getSelectedIndex();
-
-                        setUserFormulaOptions(true);
-                    } catch (ParserException e) {
-                        JOptionPane.showMessageDialog(scroll_pane, e.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
-                        main_panel.repaint();
-                        fractal_functions[oldSelected].setSelected(true);
-                        s.fns.function = oldSelected;
-                        return;
-                    }
-                } else {
-                    main_panel.repaint();
-                    fractal_functions[oldSelected].setSelected(true);
-                    s.fns.function = oldSelected;
-                    return;
-                }
-
-                optionsEnableShortcut();
-                break;
+                new UserFormulaDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
+                return;
             case USER_FORMULA_COUPLED:
-                JTextField field_formula_coupled = new JTextField(50);
-                field_formula_coupled.setText(s.fns.user_formula_coupled[0]);
-                field_formula_coupled.addAncestorListener(new RequestFocusListener());
-
-                JTextField field_formula_coupled2 = new JTextField(50);
-                field_formula_coupled2.setText(s.fns.user_formula_coupled[1]);
-
-                JTextField field_formula_coupled3 = new JTextField(50);
-                field_formula_coupled3.setText(s.fns.user_formula_coupled[2]);
-
-                JPanel formula_panel_coupled = new JPanel();
-
-                formula_panel_coupled.add(new JLabel("z ="));
-                formula_panel_coupled.add(field_formula_coupled);
-
-                JPanel formula_panel_coupled2 = new JPanel();
-
-                formula_panel_coupled2.add(new JLabel("z2 ="));
-                formula_panel_coupled2.add(field_formula_coupled2);
-
-                JPanel formula_panel_coupled3 = new JPanel();
-
-                formula_panel_coupled3.add(new JLabel("z2(0) ="));
-                formula_panel_coupled3.add(field_formula_coupled3);
-
-                JLabel bail5 = new JLabel("Bailout Technique:");
-                bail5.setFont(new Font("Arial", Font.BOLD, 11));
-
-                String[] method5 = {"Escaping Algorithm", "Converging Algorithm"};
-
-                JComboBox method5_choice = new JComboBox(method5);
-                method5_choice.setSelectedIndex(s.fns.bail_technique);
-                method5_choice.setToolTipText("Selects the bailout technique.");
-                method5_choice.setFocusable(false);
-
-                JTabbedPane tabbedPane = new JTabbedPane();
-                tabbedPane.setPreferredSize(new Dimension(410, 185));
-                tabbedPane.setFocusable(false);
-
-                JPanel formula_panel3 = new JPanel();
-                JPanel coupling_options_panel = new JPanel();
-
-                tabbedPane.addTab("Formula", formula_panel3);
-                tabbedPane.addTab("Coupling", coupling_options_panel);
-
-                JSlider coupling_slid = new JSlider(JSlider.HORIZONTAL, 0, 100, (int) (s.fns.coupling * 100));
-                coupling_slid.setPreferredSize(new Dimension(360, 45));
-                coupling_slid.setFocusable(false);
-                coupling_slid.setToolTipText("Sets the percentange of coupling.");
-                coupling_slid.setPaintLabels(true);
-
-                Hashtable<Integer, JLabel> table3 = new Hashtable<Integer, JLabel>();
-                table3.put(0, new JLabel("0.0"));
-                table3.put(25, new JLabel("0.25"));
-                table3.put(50, new JLabel("0.5"));
-                table3.put(75, new JLabel("0.75"));
-                table3.put(100, new JLabel("1.0"));
-                coupling_slid.setLabelTable(table3);
-
-                JPanel coupling_panel = new JPanel();
-                coupling_panel.add(new JLabel("Coupling: "));
-                coupling_panel.add(coupling_slid);
-
-                final JTextField field_amplitude = new JTextField(8);
-                field_amplitude.setText("" + s.fns.coupling_amplitude);
-
-                final JTextField field_frequency = new JTextField(8);
-                field_frequency.setText("" + s.fns.coupling_frequency);
-
-                final JTextField field_seed = new JTextField(8);
-                field_seed.setText("" + s.fns.coupling_seed);
-
-                String[] coupling_method_str = {"Simple", "Cosine", "Random"};
-
-                final JComboBox coupling_method_choice = new JComboBox(coupling_method_str);
-                coupling_method_choice.setSelectedIndex(s.fns.coupling_method);
-                coupling_method_choice.setToolTipText("Selects the coupling method.");
-                coupling_method_choice.setFocusable(false);
-
-                JPanel coupling_panel2 = new JPanel();
-
-                coupling_panel2.setPreferredSize(new Dimension(400, 40));
-                coupling_panel2.setLayout(new GridLayout(2, 4));
-                coupling_panel2.add(new JLabel("Method:", SwingConstants.HORIZONTAL));
-                coupling_panel2.add(new JLabel("Amplitude:", SwingConstants.HORIZONTAL));
-                coupling_panel2.add(new JLabel("Frequency:", SwingConstants.HORIZONTAL));
-                coupling_panel2.add(new JLabel("Seed:", SwingConstants.HORIZONTAL));
-                coupling_panel2.add(coupling_method_choice);
-                coupling_panel2.add(field_amplitude);
-                coupling_panel2.add(field_frequency);
-                coupling_panel2.add(field_seed);
-
-                JPanel p1 = new JPanel();
-                p1.setLayout(new FlowLayout(FlowLayout.LEFT));
-                p1.setPreferredSize(new Dimension(400, 18));
-                p1.add(new JLabel("Insert your formulas, that will be evaluated in every iteration."));
-
-                JPanel p2 = new JPanel();
-                p2.setLayout(new FlowLayout(FlowLayout.LEFT));
-                p2.setPreferredSize(new Dimension(400, 18));
-                p2.add(new JLabel("Insert the initial value for the second formula."));
-
-                formula_panel3.add(p1);
-                formula_panel3.add(formula_panel_coupled);
-                formula_panel3.add(formula_panel_coupled2);
-                formula_panel3.add(p2);
-                formula_panel3.add(formula_panel_coupled3);
-
-                JPanel p3 = new JPanel();
-                p3.setLayout(new FlowLayout(FlowLayout.LEFT));
-                p3.setPreferredSize(new Dimension(400, 18));
-                p3.add(new JLabel("Select the coupling options between the formulas."));
-
-                coupling_options_panel.add(p3);
-                coupling_options_panel.add(coupling_panel2);
-                coupling_options_panel.add(coupling_panel);
-
-                if (s.fns.coupling_method == 0) {
-                    field_seed.setEnabled(false);
-                    field_frequency.setEnabled(false);
-                    field_amplitude.setEnabled(false);
-                } else if (s.fns.coupling_method == 1) {
-                    field_seed.setEnabled(false);
-                    field_frequency.setEnabled(true);
-                    field_amplitude.setEnabled(true);
-                } else {
-                    field_seed.setEnabled(true);
-                    field_frequency.setEnabled(false);
-                    field_amplitude.setEnabled(true);
-                }
-
-                coupling_method_choice.addActionListener(new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        if (coupling_method_choice.getSelectedIndex() == 0) {
-                            field_seed.setEnabled(false);
-                            field_frequency.setEnabled(false);
-                            field_amplitude.setEnabled(false);
-                        } else if (coupling_method_choice.getSelectedIndex() == 1) {
-                            field_seed.setEnabled(false);
-                            field_frequency.setEnabled(true);
-                            field_amplitude.setEnabled(true);
-                        } else {
-                            field_seed.setEnabled(true);
-                            field_frequency.setEnabled(false);
-                            field_amplitude.setEnabled(true);
-                        }
-                    }
-                });
-
-                Object[] labels5 = createUserFormulaLabels("z, c, s, p, pp, n, maxn, center, size, sizei, v1 - v30, point");
-
-                Object[] message5 = {
-                    labels5,
-                    bail5,
-                    method5_choice,
-                    " ",
-                    tabbedPane,};
-
-                res = JOptionPane.showConfirmDialog(scroll_pane, message5, "User Formula Coupled", JOptionPane.OK_CANCEL_OPTION);
-
-                if (res == JOptionPane.OK_OPTION) {
-                    try {
-                        s.parser.parse(field_formula_coupled.getText());
-                        if (s.parser.foundBail() || s.parser.foundCbail()) {
-                            JOptionPane.showMessageDialog(scroll_pane, "The variables: bail, cbail cannot be used in the z formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            main_panel.repaint();
-                            fractal_functions[oldSelected].setSelected(true);
-                            s.fns.function = oldSelected;
-                            return;
-                        }
-
-                        boolean temp_bool = s.parser.foundC();
-
-                        s.parser.parse(field_formula_coupled2.getText());
-
-                        if (s.parser.foundBail() || s.parser.foundCbail()) {
-                            JOptionPane.showMessageDialog(scroll_pane, "The variables: bail, cbail cannot be used in the z2 formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            main_panel.repaint();
-                            fractal_functions[oldSelected].setSelected(true);
-                            s.fns.function = oldSelected;
-                            return;
-                        }
-
-                        temp_bool = temp_bool | s.parser.foundC();
-
-                        s.parser.parse(field_formula_coupled3.getText());
-
-                        if (s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail()) {
-                            JOptionPane.showMessageDialog(scroll_pane, "The variables: z, n, s, p, pp, bail, cbail cannot be used in the z2(0) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            main_panel.repaint();
-                            fractal_functions[oldSelected].setSelected(true);
-                            s.fns.function = oldSelected;
-                            return;
-                        }
-
-                        double temp_amp, temp_freq;
-                        int temp_seed;
-                        try {
-                            temp_amp = Double.parseDouble(field_amplitude.getText());
-                            temp_freq = Double.parseDouble(field_frequency.getText());
-                            temp_seed = Integer.parseInt(field_seed.getText());
-                        } catch (Exception ex) {
-                            JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-                            main_panel.repaint();
-                            fractal_functions[oldSelected].setSelected(true);
-                            s.fns.function = oldSelected;
-                            return;
-                        }
-
-                        s.fns.user_formula_coupled[0] = field_formula_coupled.getText();
-                        s.fns.user_formula_coupled[1] = field_formula_coupled2.getText();
-                        s.fns.user_formula_coupled[2] = field_formula_coupled3.getText();
-                        s.userFormulaHasC = temp_bool;
-                        s.fns.bail_technique = method5_choice.getSelectedIndex();
-                        s.fns.coupling = coupling_slid.getValue() / 100.0;
-                        s.fns.coupling_amplitude = temp_amp;
-                        s.fns.coupling_seed = temp_seed;
-                        s.fns.coupling_frequency = temp_freq;
-                        s.fns.coupling_method = coupling_method_choice.getSelectedIndex();
-
-                        setUserFormulaOptions(true);
-                    } catch (ParserException e) {
-                        JOptionPane.showMessageDialog(scroll_pane, e.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
-                        main_panel.repaint();
-                        fractal_functions[oldSelected].setSelected(true);
-                        s.fns.function = oldSelected;
-                        return;
-                    }
-                } else {
-                    main_panel.repaint();
-                    fractal_functions[oldSelected].setSelected(true);
-                    s.fns.function = oldSelected;
-                    return;
-                }
-                optionsEnableShortcut();
-                break;
+                new UserFormulaCoupledDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
+                return;
+            case USER_FORMULA_NOVA:
+                new UserFormulaNovaDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
+                return;
             default:
                 optionsEnableShortcut();
                 break;
         }
+
+        setFunctionPost(wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
+
+    }
+
+    public void setInertiaGravitySierpinskiPost() {
+        optionsEnableShortcut();
+        tools_menu.getJulia().setEnabled(false);
+        toolbar.getJuliaButton().setEnabled(false);
+        tools_menu.getJuliaMap().setEnabled(false);
+        toolbar.getJuliaMapButton().setEnabled(false);
+        options_menu.getPeriodicityChecking().setEnabled(false);
+        options_menu.getPerturbation().setEnabled(false);
+        options_menu.getInitialValue().setEnabled(false);
+    }
+
+    public void setFunctionPost(boolean wasMagnetType, boolean wasConvergingType, boolean wasSimpleType, boolean wasMagneticPendulumType) {
 
         boolean isConvergingType = s.isConvergingType();
         boolean isMagnetType = s.isMagnetType();
@@ -6940,230 +4636,49 @@ public class MainWindow extends JFrame implements Constants {
 
     }
 
+    public void setBailoutPost() {
+        setOptions(false);
+
+        progress.setValue(0);
+
+        resetImage();
+
+        whole_image_done = false;
+
+        if (s.d3s.d3) {
+            Arrays.fill(((DataBufferInt) image.getRaster().getDataBuffer()).getData(), Color.BLACK.getRGB());
+        }
+
+        if (julia_map) {
+            createThreadsJuliaMap();
+        } else {
+            createThreads(false);
+        }
+
+        calculation_time = System.currentTimeMillis();
+
+        if (julia_map) {
+            startThreads(julia_grid_first_dimension);
+        } else {
+            startThreads(n);
+        }
+    }
+
     public void setBailout() {
 
         resetOrbit();
-        String ans = JOptionPane.showInputDialog(scroll_pane, "You are using " + s.fns.bailout + " for bailout number.\nEnter the new bailout number.", "Bailout Number", JOptionPane.QUESTION_MESSAGE);
-
-        try {
-            double temp = Double.parseDouble(ans);
-
-            if (temp <= 0) {
-                main_panel.repaint();
-                JOptionPane.showMessageDialog(scroll_pane, "Bailout value must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
-                return;
-            } else if (temp > 1e70) {
-                main_panel.repaint();
-                JOptionPane.showMessageDialog(scroll_pane, "Bailout value must be less than 1e70.", "Error!", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-            s.fns.bailout = temp;
-
-            setOptions(false);
-
-            progress.setValue(0);
-
-            resetImage();
-
-            whole_image_done = false;
-
-            if (s.d3s.d3) {
-                Arrays.fill(((DataBufferInt) image.getRaster().getDataBuffer()).getData(), Color.BLACK.getRGB());
-            }
-
-            if (julia_map) {
-                createThreadsJuliaMap();
-            } else {
-                createThreads(false);
-            }
-
-            calculation_time = System.currentTimeMillis();
-
-            if (julia_map) {
-                startThreads(julia_grid_first_dimension);
-            } else {
-                startThreads(n);
-            }
-
-        } catch (Exception ex) {
-            if (ans == null) {
-                main_panel.repaint();
-            } else {
-                JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-                main_panel.repaint();
-            }
-        }
+        new BailoutDialog(ptr, s);
 
     }
 
     public void setRotation() {
 
         resetOrbit();
-        final JSlider rotation_slid = new JSlider(JSlider.HORIZONTAL, -360, 360, ((int) (s.fns.rotation)));
-        rotation_slid.setPreferredSize(new Dimension(300, 35));
-        rotation_slid.setMajorTickSpacing(90);
-        rotation_slid.setMinorTickSpacing(1);
-        rotation_slid.setToolTipText("Sets the rotation.");
-        //color_blend.setPaintTicks(true);
-        rotation_slid.setPaintLabels(true);
-        //rotation_slid.setSnapToTicks(true);
-        rotation_slid.setFocusable(false);
+        new RotationDialog(ptr, s);
 
-        final JTextField field_rotation = new JTextField();
-        field_rotation.setText("" + s.fns.rotation);
+    }
 
-        field_rotation.addAncestorListener(new RequestFocusListener());
-
-        rotation_slid.addChangeListener(new ChangeListener() {
-
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                field_rotation.setText("" + ((double) rotation_slid.getValue()));
-            }
-
-        });
-
-        field_rotation.getDocument().addDocumentListener(new DocumentListener() {
-
-            @Override
-            public void insertUpdate(DocumentEvent e) {
-                try {
-                    double temp = Double.parseDouble(field_rotation.getText());
-
-                    rotation_slid.setValue(((int) (temp + 0.5)));
-                } catch (Exception ex) {
-
-                }
-            }
-
-            @Override
-            public void removeUpdate(DocumentEvent e) {
-                try {
-                    double temp = Double.parseDouble(field_rotation.getText());
-
-                    rotation_slid.setValue(((int) (temp + 0.5)));
-                } catch (Exception ex) {
-
-                }
-            }
-
-            @Override
-            public void changedUpdate(DocumentEvent e) {
-                try {
-                    double temp = Double.parseDouble(field_rotation.getText());
-
-                    rotation_slid.setValue(((int) (temp + 0.5)));
-                } catch (Exception ex) {
-
-                }
-            }
-
-        });
-
-        final JTextField field_real = new JTextField();
-
-        if (s.fns.rotation_center[0] == 0) {
-            field_real.setText("" + 0.0);
-        } else {
-            field_real.setText("" + s.fns.rotation_center[0]);
-        }
-
-        final JTextField field_imaginary = new JTextField();
-
-        if (s.fns.rotation_center[1] == 0) {
-            field_imaginary.setText("" + 0.0);
-        } else {
-            field_imaginary.setText("" + s.fns.rotation_center[1]);
-        }
-
-        final JCheckBox current_center = new JCheckBox("Current Center");
-        current_center.setSelected(false);
-        current_center.setFocusable(false);
-
-        current_center.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                if (!current_center.isSelected()) {
-                    if (s.fns.rotation_center[0] == 0) {
-                        field_real.setText("" + 0.0);
-                    } else {
-                        field_real.setText("" + s.fns.rotation_center[0]);
-                    }
-
-                    field_real.setEditable(true);
-
-                    if (s.fns.rotation_center[1] == 0) {
-                        field_imaginary.setText("" + 0.0);
-                    } else {
-                        field_imaginary.setText("" + s.fns.rotation_center[1]);
-                    }
-                    field_imaginary.setEditable(true);
-                } else {
-                    Point2D.Double p = MathUtils.rotatePointRelativeToPoint(s.xCenter, s.yCenter, s.fns.rotation_vals, s.fns.rotation_center);
-
-                    field_real.setText("" + p.x);
-                    field_real.setEditable(false);
-                    field_imaginary.setText("" + p.y);
-                    field_imaginary.setEditable(false);
-                }
-            }
-        });
-
-        Object[] message = {
-            " ",
-            "Set the rotation angle in degrees.",
-            "Rotation:", rotation_slid, field_rotation,
-            " ",
-            "Set the rotation center.",
-            "Real:", field_real,
-            "Imaginary:", field_imaginary,
-            current_center, " "};
-
-        int res = JOptionPane.showConfirmDialog(scroll_pane, message, "Rotation", JOptionPane.OK_CANCEL_OPTION);
-
-        double tempReal, tempImaginary, temp;
-
-        if (res == JOptionPane.OK_OPTION) {
-            try {
-                temp = Double.parseDouble(field_rotation.getText());
-                tempReal = Double.parseDouble(field_real.getText());
-                tempImaginary = Double.parseDouble(field_imaginary.getText());
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-                main_panel.repaint();
-                return;
-            }
-        } else {
-            main_panel.repaint();
-            return;
-        }
-
-        if (temp < -360) {
-            main_panel.repaint();
-            JOptionPane.showMessageDialog(scroll_pane, "Rotation angle must be greater than -361.", "Error!", JOptionPane.ERROR_MESSAGE);
-            return;
-        } else if (temp > 360) {
-            main_panel.repaint();
-            JOptionPane.showMessageDialog(scroll_pane, "Rotation angle must be less than 361.", "Error!", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        s.fns.rotation = temp;
-
-        s.fns.rotation_vals[0] = Math.cos(Math.toRadians(s.fns.rotation));
-        s.fns.rotation_vals[1] = Math.sin(Math.toRadians(s.fns.rotation));
-
-        s.fns.rotation_center[0] = tempReal;
-        s.fns.rotation_center[1] = tempImaginary;
-
-        s.fns.rotation_center[0] = s.fns.rotation_center[0] == 0 ? 0 : s.fns.rotation_center[0];
-        s.fns.rotation_center[1] = s.fns.rotation_center[1] == 0 ? 0 : s.fns.rotation_center[1];
-
-        s.xCenter = s.fns.rotation_center[0];
-        s.yCenter = s.fns.rotation_center[1];
-
+    public void setRotationPost() {
         setOptions(false);
 
         progress.setValue(0);
@@ -7199,7 +4714,6 @@ public class MainWindow extends JFrame implements Constants {
         } else {
             startThreads(n);
         }
-
     }
 
     public void increaseRotation() {
@@ -7320,49 +4834,12 @@ public class MainWindow extends JFrame implements Constants {
         resetOrbit();
         if (!options_menu.getMandelGrassOpt().isSelected()) {
             s.fns.mandel_grass = false;
-        } else {
 
-            JTextField field_real = new JTextField();
-            field_real.setText("" + s.fns.mandel_grass_vals[0]);
-            field_real.addAncestorListener(new RequestFocusListener());
-
-            JTextField field_imaginary = new JTextField();
-            field_imaginary.setText("" + s.fns.mandel_grass_vals[1]);
-
-            Object[] message = {
-                " ",
-                "Set the real and imaginary part of the mandel grass.",
-                "Real:", field_real,
-                "Imaginary:", field_imaginary,
-                " ",};
-
-            int res = JOptionPane.showConfirmDialog(scroll_pane, message, "Mandel Grass", JOptionPane.OK_CANCEL_OPTION);
-
-            double temp, temp2;
-            if (res == JOptionPane.OK_OPTION) {
-                try {
-                    temp = Double.parseDouble(field_real.getText());
-                    temp2 = Double.parseDouble(field_imaginary.getText());
-                } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-                    options_menu.getMandelGrassOpt().setSelected(false);
-                    main_panel.repaint();
-                    return;
-                }
-            } else {
-                main_panel.repaint();
-                options_menu.getMandelGrassOpt().setSelected(false);
-                return;
+            if (s.fns.function <= 9 || s.fns.function == MANDELPOLY || s.fns.function == MANDELBROTWTH) {
+                defaultFractalSettings();
             }
-
-            s.fns.mandel_grass_vals[0] = temp;
-            s.fns.mandel_grass_vals[1] = temp2;
-
-            s.fns.mandel_grass = true;
-        }
-
-        if (s.fns.function <= 9 || s.fns.function == MANDELPOLY || s.fns.function == MANDELBROTWTH) {
-            defaultFractalSettings();
+        } else {
+            new MandelgrassDialog(ptr, s, options_menu.getMandelGrassOpt());
         }
 
     }
@@ -7415,99 +4892,74 @@ public class MainWindow extends JFrame implements Constants {
 
     }
 
+    public void setSizeOfImagePost(int image_size) {
+        whole_image_done = false;
+
+        old_grid = false;
+
+        old_boundaries = false;
+
+        this.image_size = image_size;
+
+        if (!s.d3s.d3) {
+            ThreadDraw.setArrays(image_size, s.ds.domain_coloring);
+        }
+
+        main_panel.setPreferredSize(new Dimension(image_size, image_size));
+
+        setOptions(false);
+
+        if (!s.d3s.d3) {
+            progress.setMaximum((image_size * image_size) + ((image_size * image_size) / 100));
+        }
+
+        progress.setValue(0);
+
+        SwingUtilities.updateComponentTreeUI(this);
+
+        scroll_pane.getHorizontalScrollBar().setValue((int) (scroll_pane.getHorizontalScrollBar().getMaximum() / 2 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2));
+        scroll_pane.getVerticalScrollBar().setValue((int) (scroll_pane.getVerticalScrollBar().getMaximum() / 2 - scroll_pane.getVerticalScrollBar().getSize().getHeight() / 2));
+
+        //last_used = null;
+        //last_used = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
+        //Graphics2D graphics = last_used.createGraphics();
+        //graphics.drawImage(image, 0, 0, image_size, image_size, null);
+        last_used = null;
+
+        image = null;
+
+        clearThreads();
+
+        System.gc();
+
+        last_used = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
+
+        image = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
+
+        if (s.d3s.d3) {
+            Arrays.fill(((DataBufferInt) image.getRaster().getDataBuffer()).getData(), Color.BLACK.getRGB());
+        }
+
+        if (julia_map) {
+            createThreadsJuliaMap();
+        } else {
+            createThreads(false);
+        }
+
+        calculation_time = System.currentTimeMillis();
+
+        if (julia_map) {
+            startThreads(julia_grid_first_dimension);
+        } else {
+            startThreads(n);
+        }
+
+    }
+
     public void setSizeOfImage() {
 
         resetOrbit();
-        String ans = JOptionPane.showInputDialog(scroll_pane, "Your image size is " + image_size + "x" + image_size + " .\nEnter the new image size.\nOnly one dimension is required.", "Image Size", JOptionPane.QUESTION_MESSAGE);
-
-        try {
-            int temp = Integer.parseInt(ans);
-
-            if (temp < 209) {
-                main_panel.repaint();
-                JOptionPane.showMessageDialog(scroll_pane, "Image size must be greater than 209.", "Error!", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            if (temp > 6000) {
-                main_panel.repaint();
-                JOptionPane.showMessageDialog(scroll_pane, "Image size must be less than than 6001.", "Error!", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            whole_image_done = false;
-
-            old_grid = false;
-
-            old_boundaries = false;
-
-            image_size = temp;
-
-            if (!s.d3s.d3) {
-                ThreadDraw.setArrays(image_size);
-            }
-
-            main_panel.setPreferredSize(new Dimension(image_size, image_size));
-
-            setOptions(false);
-
-            if (!s.d3s.d3) {
-                progress.setMaximum((image_size * image_size) + ((image_size * image_size) / 100));
-            }
-
-            progress.setValue(0);
-
-            SwingUtilities.updateComponentTreeUI(this);
-
-            scroll_pane.getHorizontalScrollBar().setValue((int) (scroll_pane.getHorizontalScrollBar().getMaximum() / 2 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2));
-            scroll_pane.getVerticalScrollBar().setValue((int) (scroll_pane.getVerticalScrollBar().getMaximum() / 2 - scroll_pane.getVerticalScrollBar().getSize().getHeight() / 2));
-
-            //last_used = null;
-            //last_used = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
-            //Graphics2D graphics = last_used.createGraphics();
-            //graphics.drawImage(image, 0, 0, image_size, image_size, null);
-            last_used = null;
-
-            image = null;
-
-            clearThreads();
-
-            System.gc();
-
-            last_used = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
-
-            image = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_ARGB);
-
-            if (s.d3s.d3) {
-                Arrays.fill(((DataBufferInt) image.getRaster().getDataBuffer()).getData(), Color.BLACK.getRGB());
-            }
-
-            if (julia_map) {
-                createThreadsJuliaMap();
-            } else {
-                createThreads(false);
-            }
-
-            calculation_time = System.currentTimeMillis();
-
-            if (julia_map) {
-                startThreads(julia_grid_first_dimension);
-            } else {
-                startThreads(n);
-            }
-
-        } catch (Exception ex) {
-            if (ans == null) {
-                main_panel.repaint();
-            } else {
-                JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-                main_panel.repaint();
-            }
-        } catch (OutOfMemoryError e) {
-            JOptionPane.showMessageDialog(scroll_pane, "Maximum Heap size was reached.\nThe application will terminate.", "Error!", JOptionPane.ERROR_MESSAGE);
-            savePreferences();
-            System.exit(-1);
-        }
+        new ImageSizeDialog(ptr, image_size);
 
     }
 
@@ -7697,12 +5149,12 @@ public class MainWindow extends JFrame implements Constants {
                 for (int j = 0; j < n; j++) {
                     if (greedy_algorithm) {
                         if (greedy_algorithm_selection == BOUNDARY_TRACING) {
-                            threads[i][j] = new BoundaryTracingDraw(j * FAST_JULIA_IMAGE_SIZE / n, (j + 1) * FAST_JULIA_IMAGE_SIZE / n, i * FAST_JULIA_IMAGE_SIZE / n, (i + 1) * FAST_JULIA_IMAGE_SIZE / n, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, fast_julia_filters, fast_julia_image, periodicity_checking, s.fs, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, temp_xJuliaCenter, temp_yJuliaCenter);
+                            threads[i][j] = new BoundaryTracingDraw(j * FAST_JULIA_IMAGE_SIZE / n, (j + 1) * FAST_JULIA_IMAGE_SIZE / n, i * FAST_JULIA_IMAGE_SIZE / n, (i + 1) * FAST_JULIA_IMAGE_SIZE / n, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, fast_julia_filters, fast_julia_image, periodicity_checking, s.fs, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, temp_xJuliaCenter, temp_yJuliaCenter);
                         } else if (greedy_algorithm_selection == DIVIDE_AND_CONQUER) {
-                            threads[i][j] = new DivideAndConquerDraw(j * FAST_JULIA_IMAGE_SIZE / n, (j + 1) * FAST_JULIA_IMAGE_SIZE / n, i * FAST_JULIA_IMAGE_SIZE / n, (i + 1) * FAST_JULIA_IMAGE_SIZE / n, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, fast_julia_filters, fast_julia_image, periodicity_checking, s.fs, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, temp_xJuliaCenter, temp_yJuliaCenter);
+                            threads[i][j] = new DivideAndConquerDraw(j * FAST_JULIA_IMAGE_SIZE / n, (j + 1) * FAST_JULIA_IMAGE_SIZE / n, i * FAST_JULIA_IMAGE_SIZE / n, (i + 1) * FAST_JULIA_IMAGE_SIZE / n, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, fast_julia_filters, fast_julia_image, periodicity_checking, s.fs, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, temp_xJuliaCenter, temp_yJuliaCenter);
                         }
                     } else {
-                        threads[i][j] = new BruteForceDraw(j * FAST_JULIA_IMAGE_SIZE / n, (j + 1) * FAST_JULIA_IMAGE_SIZE / n, i * FAST_JULIA_IMAGE_SIZE / n, (i + 1) * FAST_JULIA_IMAGE_SIZE / n, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, fast_julia_filters, fast_julia_image, periodicity_checking, s.fs, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, temp_xJuliaCenter, temp_yJuliaCenter);
+                        threads[i][j] = new BruteForceDraw(j * FAST_JULIA_IMAGE_SIZE / n, (j + 1) * FAST_JULIA_IMAGE_SIZE / n, i * FAST_JULIA_IMAGE_SIZE / n, (i + 1) * FAST_JULIA_IMAGE_SIZE / n, temp_xCenter, temp_yCenter, temp_size, temp_max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, fast_julia_filters, fast_julia_image, periodicity_checking, s.fs, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset, temp_xJuliaCenter, temp_yJuliaCenter);
                     }
                     threads[i][j].setThreadId(i * n + j);
                 }
@@ -7744,6 +5196,7 @@ public class MainWindow extends JFrame implements Constants {
             s.ps2.color_cycling_location = threads[0][0].getColorCyclingLocationInColoring();
             s.bms = new BumpMapSettings(threads[0][0].getBumpMapSettings());
             s.ls = new LightSettings(threads[0][0].getLightSettings());
+            s.gs.gradient_offset = threads[0][0].getGradientOffset();
 
             if (s.ps.color_choice == CUSTOM_PALETTE_ID) {
                 s.temp_color_cycling_location = s.ps.color_cycling_location;
@@ -7785,9 +5238,6 @@ public class MainWindow extends JFrame implements Constants {
             color_cycling = true;
             toolbar.getColorCyclingButton().setSelected(true);
 
-            tools_menu.getDomainColoring().setEnabled(false);
-            toolbar.getDomainColoringButton().setEnabled(false);
-
             setOptions(false);
 
             whole_image_done = false;
@@ -7805,7 +5255,7 @@ public class MainWindow extends JFrame implements Constants {
 
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
-                threads[i][j] = new BruteForceDraw(j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.fs, s.bms, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.fdes, s.rps, s.ens, s.ofs, s.gss, s.color_blending, s.cns, s.post_processing_order, s.ls, s.pbs, s.ots);
+                threads[i][j] = new BruteForceDraw(j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, s.max_iterations, ptr, image, s.fractal_color, s.dem_color, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.fs, s.bms, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.fdes, s.rps, s.ens, s.ofs, s.gss, s.color_blending, s.cns, s.post_processing_order, s.ls, s.pbs, s.ots, s.ds, s.gs.gradient_offset);
                 threads[i][j].setThreadId(i * n + j);
             }
         }
@@ -7817,7 +5267,7 @@ public class MainWindow extends JFrame implements Constants {
 
         for (int i = 0; i < n; i++) {
             for (int j = 0; j < n; j++) {
-                threads[i][j] = new BruteForceDraw(j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, s.max_iterations, ptr, s.fractal_color, s.dem_color, image, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.bms, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.fdes, s.rps, color_cycling_speed, s.fs, s.ens, s.ofs, s.gss, s.color_blending, s.cns, s.post_processing_order, s.ls, s.pbs, s.ots, cycle_colors, cycle_lights);
+                threads[i][j] = new BruteForceDraw(j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, s.max_iterations, ptr, s.fractal_color, s.dem_color, image, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.bms, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.fdes, s.rps, color_cycling_speed, s.fs, s.ens, s.ofs, s.gss, s.color_blending, s.cns, s.post_processing_order, s.ls, s.pbs, s.ots, cycle_colors, cycle_lights, cycle_gradient, s.ds, s.gs.gradient_offset);
                 threads[i][j].setThreadId(i * n + j);
             }
         }
@@ -7849,46 +5299,15 @@ public class MainWindow extends JFrame implements Constants {
 
     }
 
+    public void shiftPalettePost() {
+        updateColorPalettesMenu();
+        updateColors();
+    }
+
     public void shiftPalette(boolean outcoloring) {
 
         resetOrbit();
-        String ans = (String) JOptionPane.showInputDialog(scroll_pane, "The palette is shifted by " + (outcoloring ? s.ps.color_cycling_location : s.ps2.color_cycling_location) + ".\nEnter a number to shift the palette.", "Shift Palette", JOptionPane.QUESTION_MESSAGE);
-
-        try {
-            int temp = Integer.parseInt(ans);
-
-            if (temp < 0) {
-                main_panel.repaint();
-                JOptionPane.showMessageDialog(scroll_pane, "Palette shift value must be greater than -1.", "Error!", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            if (outcoloring) {
-                s.ps.color_cycling_location = temp;
-
-                if (s.ps.color_choice == CUSTOM_PALETTE_ID) {
-                    s.temp_color_cycling_location = s.ps.color_cycling_location;
-                }
-            } else {
-                s.ps2.color_cycling_location = temp;
-
-                if (s.ps2.color_choice == CUSTOM_PALETTE_ID) {
-                    s.temp_color_cycling_location_second_palette = s.ps2.color_cycling_location;
-                }
-            }
-
-            updateColorPalettesMenu();
-
-            updateColors();
-
-        } catch (Exception ex) {
-            if (ans == null) {
-                main_panel.repaint();
-            } else {
-                JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-                main_panel.repaint();
-            }
-        }
+        new ShiftPaletteDialog(ptr, s, outcoloring);
 
     }
 
@@ -7899,890 +5318,36 @@ public class MainWindow extends JFrame implements Constants {
         s.fns.plane_type = temp;
 
         if (s.fns.plane_type == USER_PLANE) {
-
-            JTabbedPane tabbedPane = new JTabbedPane();
-            tabbedPane.setPreferredSize(new Dimension(430, 190));
-            tabbedPane.setFocusable(false);
-
-            JTextField field_formula = new JTextField(runsOnWindows ? 45 : 40);
-            field_formula.setText(s.fns.user_plane);
-            field_formula.addAncestorListener(new RequestFocusListener());
-
-            JPanel formula_panel = new JPanel();
-
-            formula_panel.add(new JLabel("z ="));
-            formula_panel.add(field_formula);
-
-            tabbedPane.addTab("Normal", formula_panel);
-
-            JPanel formula_panel_cond1 = new JPanel();
-            formula_panel_cond1.setLayout(new GridLayout(2, 2));
-
-            JTextField field_condition = new JTextField(24);
-            field_condition.setText(s.fns.user_plane_conditions[0]);
-            field_condition.addAncestorListener(new RequestFocusListener());
-
-            JTextField field_condition2 = new JTextField(24);
-            field_condition2.setText(s.fns.user_plane_conditions[1]);
-
-            formula_panel_cond1.add(new JLabel("Left operand:", SwingConstants.HORIZONTAL));
-            formula_panel_cond1.add(new JLabel("Right operand:", SwingConstants.HORIZONTAL));
-            formula_panel_cond1.add(field_condition);
-            formula_panel_cond1.add(field_condition2);
-            JTextField field_formula_cond1 = new JTextField(runsOnWindows ? 45 : 40);
-            field_formula_cond1.setText(s.fns.user_plane_condition_formula[0]);
-
-            JTextField field_formula_cond2 = new JTextField(runsOnWindows ? 45 : 40);
-            field_formula_cond2.setText(s.fns.user_plane_condition_formula[1]);
-
-            JTextField field_formula_cond3 = new JTextField(runsOnWindows ? 45 : 40);
-            field_formula_cond3.setText(s.fns.user_plane_condition_formula[2]);
-
-            JPanel formula_panel_cond11 = new JPanel();
-
-            formula_panel_cond11.add(new JLabel("left > right, z ="));
-            formula_panel_cond11.add(field_formula_cond1);
-
-            JPanel formula_panel_cond12 = new JPanel();
-
-            formula_panel_cond12.add(new JLabel("left < right, z ="));
-            formula_panel_cond12.add(field_formula_cond2);
-
-            JPanel formula_panel_cond13 = new JPanel();
-
-            formula_panel_cond13.add(new JLabel("left = right, z ="));
-            formula_panel_cond13.add(field_formula_cond3);
-
-            JPanel panel_cond = new JPanel();
-
-            panel_cond.setLayout(new FlowLayout());
-
-            panel_cond.add(formula_panel_cond1);
-            panel_cond.add(formula_panel_cond11);
-            panel_cond.add(formula_panel_cond12);
-            panel_cond.add(formula_panel_cond13);
-
-            tabbedPane.addTab("Conditional", panel_cond);
-
-            Object[] labels3 = createUserFormulaLabels("z, maxn, center, size, sizei, v1 - v30, point");
-
-            tabbedPane.setSelectedIndex(s.fns.user_plane_algorithm);
-
-            Object[] message3 = {
-                labels3,
-                " ",
-                "Insert your plane transformation.",
-                tabbedPane,};
-
-            int res = JOptionPane.showConfirmDialog(scroll_pane, message3, "User Plane", JOptionPane.OK_CANCEL_OPTION);
-
-            if (res == JOptionPane.OK_OPTION) {
-                try {
-
-                    if (tabbedPane.getSelectedIndex() == 0) {
-                        s.parser.parse(field_formula.getText());
-
-                        if (s.parser.foundC() || s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail()) {
-                            JOptionPane.showMessageDialog(scroll_pane, "The variables: c, n, s, p, pp, bail, cbail cannot be used in the z formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            main_panel.repaint();
-                            planes[oldSelected].setSelected(true);
-                            s.fns.plane_type = oldSelected;
-                            return;
-                        }
-                    } else {
-                        s.parser.parse(field_condition.getText());
-
-                        if (s.parser.foundC() || s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail()) {
-                            JOptionPane.showMessageDialog(scroll_pane, "The variables: c, n, s, p, pp, bail, cbail cannot be used in the left condition formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            main_panel.repaint();
-                            planes[oldSelected].setSelected(true);
-                            s.fns.plane_type = oldSelected;
-                            return;
-                        }
-
-                        s.parser.parse(field_condition2.getText());
-
-                        if (s.parser.foundC() || s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail()) {
-                            JOptionPane.showMessageDialog(scroll_pane, "The variables: c, n, s, p, pp, bail, cbail cannot be used in the right condition formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            main_panel.repaint();
-                            planes[oldSelected].setSelected(true);
-                            s.fns.plane_type = oldSelected;
-                            return;
-                        }
-
-                        s.parser.parse(field_formula_cond1.getText());
-
-                        if (s.parser.foundC() || s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail()) {
-                            JOptionPane.showMessageDialog(scroll_pane, "The variables: c, n, s, p, pp, bail, cbail cannot be used in the left > right z formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            main_panel.repaint();
-                            planes[oldSelected].setSelected(true);
-                            s.fns.plane_type = oldSelected;
-                            return;
-                        }
-
-                        s.parser.parse(field_formula_cond2.getText());
-
-                        if (s.parser.foundC() || s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail()) {
-                            JOptionPane.showMessageDialog(scroll_pane, "The variables: c, n, s, p, pp, bail, cbail cannot be used in the left < right z formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            main_panel.repaint();
-                            planes[oldSelected].setSelected(true);
-                            s.fns.plane_type = oldSelected;
-                            return;
-                        }
-
-                        s.parser.parse(field_formula_cond3.getText());
-
-                        if (s.parser.foundC() || s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail()) {
-                            JOptionPane.showMessageDialog(scroll_pane, "The variables: c, n, s, p, pp, bail, cbail cannot be used in the left = right z formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            main_panel.repaint();
-                            planes[oldSelected].setSelected(true);
-                            s.fns.plane_type = oldSelected;
-                            return;
-                        }
-                    }
-
-                    s.fns.user_plane_algorithm = tabbedPane.getSelectedIndex();
-
-                    if (s.fns.user_plane_algorithm == 0) {
-                        s.fns.user_plane = field_formula.getText();
-                    } else {
-                        s.fns.user_plane_conditions[0] = field_condition.getText();
-                        s.fns.user_plane_conditions[1] = field_condition2.getText();
-                        s.fns.user_plane_condition_formula[0] = field_formula_cond1.getText();
-                        s.fns.user_plane_condition_formula[1] = field_formula_cond2.getText();
-                        s.fns.user_plane_condition_formula[2] = field_formula_cond3.getText();
-                    }
-
-                    defaultFractalSettings();
-
-                } catch (ParserException e) {
-                    JOptionPane.showMessageDialog(scroll_pane, e.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
-                    main_panel.repaint();
-                    planes[oldSelected].setSelected(true);
-                    s.fns.plane_type = oldSelected;
-                    return;
-                }
-            } else {
-                planes[oldSelected].setSelected(true);
-                s.fns.plane_type = oldSelected;
-                return;
-            }
+            new PlaneFormulaDialog(ptr, s, oldSelected, planes);
+            return;
         } else if (s.fns.plane_type == TWIRL_PLANE) {
-            JTextField field_rotation = new JTextField();
-            field_rotation.setText("" + s.fns.plane_transform_angle);
-
-            field_rotation.addAncestorListener(new RequestFocusListener());
-
-            final JTextField field_real = new JTextField();
-
-            if (s.fns.plane_transform_center[0] == 0) {
-                field_real.setText("" + 0.0);
-            } else {
-                field_real.setText("" + s.fns.plane_transform_center[0]);
-            }
-
-            final JTextField field_imaginary = new JTextField();
-
-            if (s.fns.plane_transform_center[1] == 0) {
-                field_imaginary.setText("" + 0.0);
-            } else {
-                field_imaginary.setText("" + s.fns.plane_transform_center[1]);
-            }
-
-            JTextField field_radius = new JTextField();
-            field_radius.setText("" + s.fns.plane_transform_radius);
-
-            final JCheckBox current_center = new JCheckBox("Current Center");
-            current_center.setSelected(false);
-            current_center.setFocusable(false);
-
-            current_center.addActionListener(new ActionListener() {
-
-                @Override
-                public void actionPerformed(ActionEvent e) {
-
-                    if (!current_center.isSelected()) {
-                        if (s.fns.plane_transform_center[0] == 0) {
-                            field_real.setText("" + 0.0);
-                        } else {
-                            field_real.setText("" + s.fns.plane_transform_center[0]);
-                        }
-
-                        field_real.setEditable(true);
-
-                        if (s.fns.plane_transform_center[1] == 0) {
-                            field_imaginary.setText("" + 0.0);
-                        } else {
-                            field_imaginary.setText("" + s.fns.plane_transform_center[1]);
-                        }
-                        field_imaginary.setEditable(true);
-                    } else {
-                        Point2D.Double p = MathUtils.rotatePointRelativeToPoint(s.xCenter, s.yCenter, s.fns.rotation_vals, s.fns.rotation_center);
-
-                        field_real.setText("" + p.x);
-                        field_real.setEditable(false);
-                        field_imaginary.setText("" + p.y);
-                        field_imaginary.setEditable(false);
-                    }
-                }
-            });
-
-            Object[] message = {
-                " ",
-                "Set the twirl angle in degrees.",
-                "Angle:", field_rotation,
-                " ",
-                "Set the twirl radius.",
-                "Radius:", field_radius,
-                " ",
-                "Set the twirl center (User Point).",
-                "Real:", field_real,
-                "Imaginary:", field_imaginary,
-                current_center, " "};
-
-            int res = JOptionPane.showConfirmDialog(scroll_pane, message, "Twirl", JOptionPane.OK_CANCEL_OPTION);
-
-            double tempReal, tempImaginary, temp3, temp4;
-
-            if (res == JOptionPane.OK_OPTION) {
-                try {
-                    temp3 = Double.parseDouble(field_rotation.getText());
-                    temp4 = Double.parseDouble(field_radius.getText());
-                    tempReal = Double.parseDouble(field_real.getText());
-                    tempImaginary = Double.parseDouble(field_imaginary.getText());
-                } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-                    main_panel.repaint();
-                    planes[oldSelected].setSelected(true);
-                    s.fns.plane_type = oldSelected;
-                    return;
-                }
-            } else {
-                main_panel.repaint();
-                planes[oldSelected].setSelected(true);
-                s.fns.plane_type = oldSelected;
-                return;
-            }
-
-            if (temp4 <= 0) {
-                main_panel.repaint();
-                planes[oldSelected].setSelected(true);
-                s.fns.plane_type = oldSelected;
-                JOptionPane.showMessageDialog(scroll_pane, "Twirl radius must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            s.fns.plane_transform_center[0] = tempReal;
-            s.fns.plane_transform_center[1] = tempImaginary;
-            s.fns.plane_transform_angle = temp3;
-            s.fns.plane_transform_radius = temp4;
-
-            defaultFractalSettings();
+            new TwirlPlaneDialog(ptr, s, oldSelected, planes);
+            return;
         } else if (s.fns.plane_type == SHEAR_PLANE) {
-            JTextField field_scale_real = new JTextField();
-            field_scale_real.setText("" + s.fns.plane_transform_scales[0]);
-
-            field_scale_real.addAncestorListener(new RequestFocusListener());
-
-            JTextField field_scale_imaginary = new JTextField();
-            field_scale_imaginary.setText("" + s.fns.plane_transform_scales[1]);
-
-            Object[] message = {
-                " ",
-                "Set the shear scaling.",
-                "Scale Real:", field_scale_real,
-                "Scale Imaginary:", field_scale_imaginary,
-                " "};
-
-            int res = JOptionPane.showConfirmDialog(scroll_pane, message, "Shear", JOptionPane.OK_CANCEL_OPTION);
-
-            double temp3, temp4;
-
-            if (res == JOptionPane.OK_OPTION) {
-                try {
-                    temp3 = Double.parseDouble(field_scale_real.getText());
-                    temp4 = Double.parseDouble(field_scale_imaginary.getText());
-                } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-                    main_panel.repaint();
-                    planes[oldSelected].setSelected(true);
-                    s.fns.plane_type = oldSelected;
-                    return;
-                }
-            } else {
-                main_panel.repaint();
-                planes[oldSelected].setSelected(true);
-                s.fns.plane_type = oldSelected;
-                return;
-            }
-
-            s.fns.plane_transform_scales[0] = temp3 == 0.0 ? 0.0 : temp3;
-            s.fns.plane_transform_scales[1] = temp4 == 0.0 ? 0.0 : temp4;
-
-            defaultFractalSettings();
+            new ShearPlaneDialog(ptr, s, oldSelected, planes);
+            return;
         } else if (s.fns.plane_type == RIPPLES_PLANE) {
-            JTextField field_scale_real = new JTextField();
-            field_scale_real.setText("" + s.fns.plane_transform_scales[0]);
-
-            field_scale_real.addAncestorListener(new RequestFocusListener());
-
-            JTextField field_scale_imaginary = new JTextField();
-            field_scale_imaginary.setText("" + s.fns.plane_transform_scales[1]);
-
-            JTextField field_wavelength_real = new JTextField();
-            field_wavelength_real.setText("" + s.fns.plane_transform_wavelength[0]);
-
-            JTextField field_wavelength_imaginary = new JTextField();
-            field_wavelength_imaginary.setText("" + s.fns.plane_transform_wavelength[1]);
-
-            final JComboBox wavetype_combobox = new JComboBox(waveTypes);
-            wavetype_combobox.setFocusable(false);
-            wavetype_combobox.setToolTipText("Sets type of wave.");
-            wavetype_combobox.setSelectedIndex(s.fns.waveType);
-
-            Object[] message = {
-                " ",
-                "Set the ripple's amplitude.",
-                "Amplitude Real:", field_scale_real,
-                "Amplitude Imaginary:", field_scale_imaginary,
-                " ",
-                "Set the ripple's wavelength.",
-                "Wavelength Real:", field_wavelength_real,
-                "Wavelength Imaginary:", field_wavelength_imaginary,
-                " ",
-                "Set the ripple's wave type.",
-                "Wave Type:",
-                wavetype_combobox,
-                " "};
-
-            int res = JOptionPane.showConfirmDialog(scroll_pane, message, "Ripples", JOptionPane.OK_CANCEL_OPTION);
-
-            double temp3, temp4, temp7, temp8;
-
-            if (res == JOptionPane.OK_OPTION) {
-                try {
-                    temp3 = Double.parseDouble(field_scale_real.getText());
-                    temp4 = Double.parseDouble(field_scale_imaginary.getText());
-                    temp7 = Double.parseDouble(field_wavelength_real.getText());
-                    temp8 = Double.parseDouble(field_wavelength_imaginary.getText());
-                } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-                    main_panel.repaint();
-                    planes[oldSelected].setSelected(true);
-                    s.fns.plane_type = oldSelected;
-                    return;
-                }
-            } else {
-                main_panel.repaint();
-                planes[oldSelected].setSelected(true);
-                s.fns.plane_type = oldSelected;
-                return;
-            }
-
-            s.fns.plane_transform_scales[0] = temp3 == 0.0 ? 0.0 : temp3;
-            s.fns.plane_transform_scales[1] = temp4 == 0.0 ? 0.0 : temp4;
-            s.fns.plane_transform_wavelength[0] = temp7 == 0.0 ? 0.0 : temp7;
-            s.fns.plane_transform_wavelength[1] = temp8 == 0.0 ? 0.0 : temp8;
-            s.fns.waveType = wavetype_combobox.getSelectedIndex();
-
-            defaultFractalSettings();
+            new RipplesPlaneDialog(ptr, s, oldSelected, planes);
+            return;
         } else if (s.fns.plane_type == KALEIDOSCOPE_PLANE) {
-            JTextField field_rotation = new JTextField();
-            field_rotation.setText("" + s.fns.plane_transform_angle);
-
-            field_rotation.addAncestorListener(new RequestFocusListener());
-
-            JTextField field_rotation2 = new JTextField();
-            field_rotation2.setText("" + s.fns.plane_transform_angle2);
-
-            final JTextField field_real = new JTextField();
-
-            if (s.fns.plane_transform_center[0] == 0) {
-                field_real.setText("" + 0.0);
-            } else {
-                field_real.setText("" + s.fns.plane_transform_center[0]);
-            }
-
-            final JTextField field_imaginary = new JTextField();
-
-            if (s.fns.plane_transform_center[1] == 0) {
-                field_imaginary.setText("" + 0.0);
-            } else {
-                field_imaginary.setText("" + s.fns.plane_transform_center[1]);
-            }
-
-            JTextField field_radius = new JTextField();
-            field_radius.setText("" + s.fns.plane_transform_radius);
-
-            JTextField field_sides = new JTextField();
-            field_sides.setText("" + s.fns.plane_transform_sides);
-
-            final JCheckBox current_center = new JCheckBox("Current Center");
-            current_center.setSelected(false);
-            current_center.setFocusable(false);
-
-            current_center.addActionListener(new ActionListener() {
-
-                @Override
-                public void actionPerformed(ActionEvent e) {
-
-                    if (!current_center.isSelected()) {
-                        if (s.fns.plane_transform_center[0] == 0) {
-                            field_real.setText("" + 0.0);
-                        } else {
-                            field_real.setText("" + s.fns.plane_transform_center[0]);
-                        }
-
-                        field_real.setEditable(true);
-
-                        if (s.fns.plane_transform_center[1] == 0) {
-                            field_imaginary.setText("" + 0.0);
-                        } else {
-                            field_imaginary.setText("" + s.fns.plane_transform_center[1]);
-                        }
-                        field_imaginary.setEditable(true);
-                    } else {
-                        Point2D.Double p = MathUtils.rotatePointRelativeToPoint(s.xCenter, s.yCenter, s.fns.rotation_vals, s.fns.rotation_center);
-
-                        field_real.setText("" + p.x);
-                        field_real.setEditable(false);
-                        field_imaginary.setText("" + p.y);
-                        field_imaginary.setEditable(false);
-                    }
-                }
-            });
-
-            Object[] message = {
-                " ",
-                "Set the kaleidoscope angles in degrees.",
-                "Angle:", field_rotation,
-                "Angle 2:", field_rotation2,
-                " ",
-                "Set the kaleidoscope radius.",
-                "Radius:", field_radius,
-                " ",
-                "Set the kaleidoscope center (User Point).",
-                "Real:", field_real,
-                "Imaginary:", field_imaginary,
-                current_center, " ",
-                "Set the kaleidoscope sides.",
-                "Sides:", field_sides,
-                " "};
-
-            int res = JOptionPane.showConfirmDialog(scroll_pane, message, "Kaleidoscope", JOptionPane.OK_CANCEL_OPTION);
-
-            double tempReal, tempImaginary, temp3, temp4, temp5;
-            int temp6;
-
-            if (res == JOptionPane.OK_OPTION) {
-                try {
-                    temp3 = Double.parseDouble(field_rotation.getText());
-                    temp5 = Double.parseDouble(field_rotation2.getText());
-                    temp4 = Double.parseDouble(field_radius.getText());
-                    tempReal = Double.parseDouble(field_real.getText());
-                    tempImaginary = Double.parseDouble(field_imaginary.getText());
-                    temp6 = Integer.parseInt(field_sides.getText());
-                } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-                    main_panel.repaint();
-                    planes[oldSelected].setSelected(true);
-                    s.fns.plane_type = oldSelected;
-                    return;
-                }
-            } else {
-                main_panel.repaint();
-                planes[oldSelected].setSelected(true);
-                s.fns.plane_type = oldSelected;
-                return;
-            }
-
-            if (temp4 <= 0) {
-                main_panel.repaint();
-                planes[oldSelected].setSelected(true);
-                s.fns.plane_type = oldSelected;
-                JOptionPane.showMessageDialog(scroll_pane, "Kaleidoscope radius must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            if (temp6 <= 0) {
-                main_panel.repaint();
-                planes[oldSelected].setSelected(true);
-                s.fns.plane_type = oldSelected;
-                JOptionPane.showMessageDialog(scroll_pane, "Kaleidoscope sides must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            s.fns.plane_transform_center[0] = tempReal;
-            s.fns.plane_transform_center[1] = tempImaginary;
-            s.fns.plane_transform_angle = temp3;
-            s.fns.plane_transform_radius = temp4;
-            s.fns.plane_transform_angle2 = temp5;
-            s.fns.plane_transform_sides = temp6;
-
-            defaultFractalSettings();
+            new KaleidoscopePlaneDialog(ptr, s, oldSelected, planes);
+            return;
         } else if (s.fns.plane_type == PINCH_PLANE) {
-            JTextField field_rotation = new JTextField();
-            field_rotation.setText("" + s.fns.plane_transform_angle);
-
-            field_rotation.addAncestorListener(new RequestFocusListener());
-
-            final JTextField field_real = new JTextField();
-
-            if (s.fns.plane_transform_center[0] == 0) {
-                field_real.setText("" + 0.0);
-            } else {
-                field_real.setText("" + s.fns.plane_transform_center[0]);
-            }
-
-            final JTextField field_imaginary = new JTextField();
-
-            if (s.fns.plane_transform_center[1] == 0) {
-                field_imaginary.setText("" + 0.0);
-            } else {
-                field_imaginary.setText("" + s.fns.plane_transform_center[1]);
-            }
-
-            JTextField field_radius = new JTextField();
-            field_radius.setText("" + s.fns.plane_transform_radius);
-
-            JTextField field_amount = new JTextField();
-            field_amount.setText("" + s.fns.plane_transform_amount);
-
-            final JCheckBox current_center = new JCheckBox("Current Center");
-            current_center.setSelected(false);
-            current_center.setFocusable(false);
-
-            current_center.addActionListener(new ActionListener() {
-
-                @Override
-                public void actionPerformed(ActionEvent e) {
-
-                    if (!current_center.isSelected()) {
-                        if (s.fns.plane_transform_center[0] == 0) {
-                            field_real.setText("" + 0.0);
-                        } else {
-                            field_real.setText("" + s.fns.plane_transform_center[0]);
-                        }
-
-                        field_real.setEditable(true);
-
-                        if (s.fns.plane_transform_center[1] == 0) {
-                            field_imaginary.setText("" + 0.0);
-                        } else {
-                            field_imaginary.setText("" + s.fns.plane_transform_center[1]);
-                        }
-                        field_imaginary.setEditable(true);
-                    } else {
-                        Point2D.Double p = MathUtils.rotatePointRelativeToPoint(s.xCenter, s.yCenter, s.fns.rotation_vals, s.fns.rotation_center);
-
-                        field_real.setText("" + p.x);
-                        field_real.setEditable(false);
-                        field_imaginary.setText("" + p.y);
-                        field_imaginary.setEditable(false);
-                    }
-                }
-            });
-
-            Object[] message = {
-                " ",
-                "Set the pinch angle in degrees.",
-                "Angle:", field_rotation,
-                " ",
-                "Set the pinch radius.",
-                "Radius:", field_radius,
-                " ",
-                "Set the pinch amount.",
-                "Amount:", field_amount,
-                " ",
-                "Set the pinch center (User Point).",
-                "Real:", field_real,
-                "Imaginary:", field_imaginary,
-                current_center, " "};
-
-            int res = JOptionPane.showConfirmDialog(scroll_pane, message, "Pinch", JOptionPane.OK_CANCEL_OPTION);
-
-            double tempReal, tempImaginary, temp3, temp4, temp5;
-
-            if (res == JOptionPane.OK_OPTION) {
-                try {
-                    temp3 = Double.parseDouble(field_rotation.getText());
-                    temp4 = Double.parseDouble(field_radius.getText());
-                    temp5 = Double.parseDouble(field_amount.getText());
-                    tempReal = Double.parseDouble(field_real.getText());
-                    tempImaginary = Double.parseDouble(field_imaginary.getText());
-                } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-                    main_panel.repaint();
-                    planes[oldSelected].setSelected(true);
-                    s.fns.plane_type = oldSelected;
-                    return;
-                }
-            } else {
-                main_panel.repaint();
-                planes[oldSelected].setSelected(true);
-                s.fns.plane_type = oldSelected;
-                return;
-            }
-
-            if (temp4 <= 0) {
-                main_panel.repaint();
-                planes[oldSelected].setSelected(true);
-                s.fns.plane_type = oldSelected;
-                JOptionPane.showMessageDialog(scroll_pane, "Pinch radius must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            s.fns.plane_transform_center[0] = tempReal;
-            s.fns.plane_transform_center[1] = tempImaginary;
-            s.fns.plane_transform_angle = temp3;
-            s.fns.plane_transform_radius = temp4;
-            s.fns.plane_transform_amount = temp5 == 0.0 ? 0.0 : temp5;
-
-            defaultFractalSettings();
+            new PinchPlaneDialog(ptr, s, oldSelected, planes);
+            return;
         } else if (s.fns.plane_type == FOLDUP_PLANE || s.fns.plane_type == FOLDDOWN_PLANE || s.fns.plane_type == FOLDRIGHT_PLANE || s.fns.plane_type == FOLDLEFT_PLANE || s.fns.plane_type == INFLECTION_PLANE || s.fns.plane_type == BIPOLAR_PLANE || s.fns.plane_type == INVERSED_BIPOLAR_PLANE) {
-
-            final JTextField field_real = new JTextField();
-            field_real.addAncestorListener(new RequestFocusListener());
-
-            if (s.fns.plane_transform_center[0] == 0) {
-                field_real.setText("" + 0.0);
-            } else {
-                field_real.setText("" + s.fns.plane_transform_center[0]);
-            }
-
-            final JTextField field_imaginary = new JTextField();
-
-            if (s.fns.plane_transform_center[1] == 0) {
-                field_imaginary.setText("" + 0.0);
-            } else {
-                field_imaginary.setText("" + s.fns.plane_transform_center[1]);
-            }
-
-            final JCheckBox current_center = new JCheckBox("Current Center");
-            current_center.setSelected(false);
-            current_center.setFocusable(false);
-
-            current_center.addActionListener(new ActionListener() {
-
-                @Override
-                public void actionPerformed(ActionEvent e) {
-
-                    if (!current_center.isSelected()) {
-                        if (s.fns.plane_transform_center[0] == 0) {
-                            field_real.setText("" + 0.0);
-                        } else {
-                            field_real.setText("" + s.fns.plane_transform_center[0]);
-                        }
-
-                        field_real.setEditable(true);
-
-                        if (s.fns.plane_transform_center[1] == 0) {
-                            field_imaginary.setText("" + 0.0);
-                        } else {
-                            field_imaginary.setText("" + s.fns.plane_transform_center[1]);
-                        }
-                        field_imaginary.setEditable(true);
-                    } else {
-                        Point2D.Double p = MathUtils.rotatePointRelativeToPoint(s.xCenter, s.yCenter, s.fns.rotation_vals, s.fns.rotation_center);
-
-                        field_real.setText("" + p.x);
-                        field_real.setEditable(false);
-                        field_imaginary.setText("" + p.y);
-                        field_imaginary.setEditable(false);
-                    }
-                }
-            });
-
-            String str = "Set the point about the fold (User Point).";
-            String title = "Fold";
-            if (s.fns.plane_type == INFLECTION_PLANE) {
-                str = "Set the point about the inflection (User Point).";
-                title = "Inflection";
-            } else if (s.fns.plane_type == BIPOLAR_PLANE || s.fns.plane_type == INVERSED_BIPOLAR_PLANE) {
-                str = "Set the focal point (User Point).";
-                title = "Bipolar/Inversed Bipolar";
-            }
-
-            Object[] message = {
-                " ",
-                str,
-                "Real:", field_real,
-                "Imaginary:", field_imaginary,
-                current_center, " "};
-
-            int res = JOptionPane.showConfirmDialog(scroll_pane, message, title, JOptionPane.OK_CANCEL_OPTION);
-
-            double tempReal, tempImaginary;
-
-            if (res == JOptionPane.OK_OPTION) {
-                try {
-                    tempReal = Double.parseDouble(field_real.getText());
-                    tempImaginary = Double.parseDouble(field_imaginary.getText());
-                } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-                    main_panel.repaint();
-                    planes[oldSelected].setSelected(true);
-                    s.fns.plane_type = oldSelected;
-                    return;
-                }
-            } else {
-                main_panel.repaint();
-                planes[oldSelected].setSelected(true);
-                s.fns.plane_type = oldSelected;
-                return;
-            }
-
-            s.fns.plane_transform_center[0] = tempReal;
-            s.fns.plane_transform_center[1] = tempImaginary;
-
-            defaultFractalSettings();
+            new GenericPlaneDialog(ptr, s, oldSelected, planes);
+            return;
         } else if (s.fns.plane_type == FOLDIN_PLANE || s.fns.plane_type == FOLDOUT_PLANE) {
-
-            JTextField field_radius = new JTextField();
-            field_radius.setText("" + s.fns.plane_transform_radius);
-            field_radius.addAncestorListener(new RequestFocusListener());
-
-            Object[] message = {
-                " ",
-                "Set the radius of the fold.",
-                "Radius:", field_radius,
-                " "};
-
-            int res = JOptionPane.showConfirmDialog(scroll_pane, message, "Fold", JOptionPane.OK_CANCEL_OPTION);
-
-            double temp3;
-
-            if (res == JOptionPane.OK_OPTION) {
-                try {
-                    temp3 = Double.parseDouble(field_radius.getText());
-                } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-                    main_panel.repaint();
-                    planes[oldSelected].setSelected(true);
-                    s.fns.plane_type = oldSelected;
-                    return;
-                }
-            } else {
-                main_panel.repaint();
-                planes[oldSelected].setSelected(true);
-                s.fns.plane_type = oldSelected;
-                return;
-            }
-
-            if (temp3 <= 0) {
-                main_panel.repaint();
-                planes[oldSelected].setSelected(true);
-                s.fns.plane_type = oldSelected;
-                JOptionPane.showMessageDialog(scroll_pane, "Fold radius must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            s.fns.plane_transform_radius = temp3;
-
-            defaultFractalSettings();
+            new FoldInOutPlaneDialog(ptr, s, oldSelected, planes);
+            return;
         } else if (s.fns.plane_type == CIRCLEINVERSION_PLANE) {
+            new CircleInversionPlaneDialog(ptr, s, oldSelected, planes);
+            return;
 
-            final JTextField field_real = new JTextField();
-            field_real.addAncestorListener(new RequestFocusListener());
-
-            if (s.fns.plane_transform_center[0] == 0) {
-                field_real.setText("" + 0.0);
-            } else {
-                field_real.setText("" + s.fns.plane_transform_center[0]);
-            }
-
-            final JTextField field_imaginary = new JTextField();
-
-            if (s.fns.plane_transform_center[1] == 0) {
-                field_imaginary.setText("" + 0.0);
-            } else {
-                field_imaginary.setText("" + s.fns.plane_transform_center[1]);
-            }
-
-            JTextField field_radius = new JTextField();
-            field_radius.setText("" + s.fns.plane_transform_radius);
-
-            final JCheckBox current_center = new JCheckBox("Current Center");
-            current_center.setSelected(false);
-            current_center.setFocusable(false);
-
-            current_center.addActionListener(new ActionListener() {
-
-                @Override
-                public void actionPerformed(ActionEvent e) {
-
-                    if (!current_center.isSelected()) {
-                        if (s.fns.plane_transform_center[0] == 0) {
-                            field_real.setText("" + 0.0);
-                        } else {
-                            field_real.setText("" + s.fns.plane_transform_center[0]);
-                        }
-
-                        field_real.setEditable(true);
-
-                        if (s.fns.plane_transform_center[1] == 0) {
-                            field_imaginary.setText("" + 0.0);
-                        } else {
-                            field_imaginary.setText("" + s.fns.plane_transform_center[1]);
-                        }
-                        field_imaginary.setEditable(true);
-                    } else {
-                        Point2D.Double p = MathUtils.rotatePointRelativeToPoint(s.xCenter, s.yCenter, s.fns.rotation_vals, s.fns.rotation_center);
-
-                        field_real.setText("" + p.x);
-                        field_real.setEditable(false);
-                        field_imaginary.setText("" + p.y);
-                        field_imaginary.setEditable(false);
-                    }
-                }
-            });
-
-            Object[] message = {
-                " ",
-                "Set the circle inversion radius.",
-                "Radius:", field_radius,
-                " ",
-                "Set the circle inversion center (User Point).",
-                "Real:", field_real,
-                "Imaginary:", field_imaginary,
-                current_center, " "};
-
-            int res = JOptionPane.showConfirmDialog(scroll_pane, message, "Circle Inversion", JOptionPane.OK_CANCEL_OPTION);
-
-            double tempReal, tempImaginary, temp4;
-
-            if (res == JOptionPane.OK_OPTION) {
-                try {
-                    temp4 = Double.parseDouble(field_radius.getText());
-                    tempReal = Double.parseDouble(field_real.getText());
-                    tempImaginary = Double.parseDouble(field_imaginary.getText());
-                } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-                    main_panel.repaint();
-                    planes[oldSelected].setSelected(true);
-                    s.fns.plane_type = oldSelected;
-                    return;
-                }
-            } else {
-                main_panel.repaint();
-                planes[oldSelected].setSelected(true);
-                s.fns.plane_type = oldSelected;
-                return;
-            }
-
-            if (temp4 <= 0) {
-                main_panel.repaint();
-                planes[oldSelected].setSelected(true);
-                s.fns.plane_type = oldSelected;
-                JOptionPane.showMessageDialog(scroll_pane, "Circle inversion radius must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            s.fns.plane_transform_center[0] = tempReal;
-            s.fns.plane_transform_center[1] = tempImaginary;
-            s.fns.plane_transform_radius = temp4;
-
-            defaultFractalSettings();
+        } else if (s.fns.plane_type == SKEW_PLANE) {
+            new SkewPlaneDialog(ptr, s, oldSelected, planes);
+            return;
         } else {
             defaultFractalSettings();
         }
@@ -8795,175 +5360,18 @@ public class MainWindow extends JFrame implements Constants {
         s.fns.bailout_test_algorithm = temp;
 
         if (s.fns.bailout_test_algorithm == BAILOUT_CONDITION_NNORM) {
-
-            String ans = JOptionPane.showInputDialog(scroll_pane, "You are using " + s.fns.n_norm + " as the N-Norm.\nEnter the new N-Norm number.", "N-Norm", JOptionPane.QUESTION_MESSAGE);
-
-            try {
-                double temp3 = Double.parseDouble(ans);
-
-                s.fns.n_norm = temp3;
-
-            } catch (Exception ex) {
-                if (ans == null) {
-                    main_panel.repaint();
-                    bailout_tests[oldSelection].setSelected(true);
-                    s.fns.bailout_test_algorithm = oldSelection;
-                } else {
-                    JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-                    main_panel.repaint();
-                    bailout_tests[oldSelection].setSelected(true);
-                    s.fns.bailout_test_algorithm = oldSelection;
-                }
-                return;
-            }
+            new BailoutNNormDialog(ptr, s, oldSelection, bailout_tests);
+            return;
         } else if (s.fns.bailout_test_algorithm == BAILOUT_CONDITION_USER) {
-            JPanel formula_panel_cond1 = new JPanel();
-            formula_panel_cond1.setLayout(new GridLayout(2, 2));
-
-            JTextField field_condition = new JTextField(24);
-            field_condition.setText(s.fns.bailout_test_user_formula);
-            field_condition.addAncestorListener(new RequestFocusListener());
-
-            JTextField field_condition2 = new JTextField(24);
-            field_condition2.setText(s.fns.bailout_test_user_formula2);
-
-            formula_panel_cond1.add(new JLabel("Left operand:", SwingConstants.HORIZONTAL));
-            formula_panel_cond1.add(new JLabel("Right operand:", SwingConstants.HORIZONTAL));
-            formula_panel_cond1.add(field_condition);
-            formula_panel_cond1.add(field_condition2);
-
-            String[] test_options = {"Escaped", "Not Escaped"};
-
-            final JComboBox combo_box_greater = new JComboBox(test_options);
-            final JComboBox combo_box_less = new JComboBox(test_options);
-
-            combo_box_greater.setFocusable(false);
-            combo_box_greater.setToolTipText("Sets the test option for the greater than case.");
-
-            final JComboBox combo_box_equal = new JComboBox(test_options);
-            combo_box_equal.setFocusable(false);
-            combo_box_equal.setToolTipText("Sets the test option for the equal case.");
-
-            combo_box_less.setFocusable(false);
-            combo_box_less.setToolTipText("Sets the test option for the less than case.");
-
-            if (s.fns.bailout_test_comparison == GREATER) { // >
-                combo_box_greater.setSelectedIndex(0);
-                combo_box_equal.setSelectedIndex(1);
-                combo_box_less.setSelectedIndex(1);
-            } else if (s.fns.bailout_test_comparison == GREATER_EQUAL) { // >=
-                combo_box_greater.setSelectedIndex(0);
-                combo_box_equal.setSelectedIndex(0);
-                combo_box_less.setSelectedIndex(1);
-            } else if (s.fns.bailout_test_comparison == LOWER) { // <
-                combo_box_greater.setSelectedIndex(1);
-                combo_box_equal.setSelectedIndex(1);
-                combo_box_less.setSelectedIndex(0);
-            } else if (s.fns.bailout_test_comparison == LOWER_EQUAL) { // <=
-                combo_box_greater.setSelectedIndex(1);
-                combo_box_equal.setSelectedIndex(0);
-                combo_box_less.setSelectedIndex(0);
-            } else if (s.fns.bailout_test_comparison == EQUAL) { // ==
-                combo_box_greater.setSelectedIndex(1);
-                combo_box_equal.setSelectedIndex(0);
-                combo_box_less.setSelectedIndex(1);
-            } else if (s.fns.bailout_test_comparison == NOT_EQUAL) { // !=
-                combo_box_greater.setSelectedIndex(0);
-                combo_box_equal.setSelectedIndex(1);
-                combo_box_less.setSelectedIndex(0);
-            }
-
-            JPanel formula_panel_cond11 = new JPanel();
-
-            formula_panel_cond11.add(new JLabel("left > right"));
-            formula_panel_cond11.add(combo_box_greater);
-
-            JPanel formula_panel_cond12 = new JPanel();
-
-            formula_panel_cond12.add(new JLabel("left < right"));
-            formula_panel_cond12.add(combo_box_less);
-
-            JPanel formula_panel_cond13 = new JPanel();
-
-            formula_panel_cond13.add(new JLabel("left = right"));
-            formula_panel_cond13.add(combo_box_equal);
-
-            Object[] labels33 = createUserFormulaLabels("z, c, s, p, pp, n, maxn, bail, center, size, sizei, v1 - v30, point");
-
-            Object[] message33 = {
-                labels33,
-                " ",
-                "Set the bailout condition.",
-                formula_panel_cond1,
-                formula_panel_cond11,
-                formula_panel_cond12,
-                formula_panel_cond13,};
-
-            int res = JOptionPane.showConfirmDialog(scroll_pane, message33, "User Bailout Condition", JOptionPane.OK_CANCEL_OPTION);
-
-            if (res == JOptionPane.OK_OPTION) {
-                try {
-                    s.parser.parse(field_condition.getText());
-
-                    if (s.parser.foundCbail()) {
-                        JOptionPane.showMessageDialog(scroll_pane, "The variable: cbail cannot be used in left condition formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                        main_panel.repaint();
-                        bailout_tests[oldSelection].setSelected(true);
-                        s.fns.bailout_test_algorithm = oldSelection;
-                        return;
-                    }
-
-                    s.parser.parse(field_condition2.getText());
-
-                    if (s.parser.foundCbail()) {
-                        JOptionPane.showMessageDialog(scroll_pane, "The variable: cbail cannot be used in the right condition formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                        main_panel.repaint();
-                        bailout_tests[oldSelection].setSelected(true);
-                        s.fns.bailout_test_algorithm = oldSelection;
-                        return;
-                    }
-
-                } catch (ParserException e) {
-                    JOptionPane.showMessageDialog(scroll_pane, e.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
-                    main_panel.repaint();
-                    bailout_tests[oldSelection].setSelected(true);
-                    s.fns.bailout_test_algorithm = oldSelection;
-                    return;
-                }
-            } else {
-                main_panel.repaint();
-                bailout_tests[oldSelection].setSelected(true);
-                s.fns.bailout_test_algorithm = oldSelection;
-                return;
-            }
-
-            if ((combo_box_greater.getSelectedIndex() == 0 && combo_box_equal.getSelectedIndex() == 0 && combo_box_less.getSelectedIndex() == 0)
-                    || (combo_box_greater.getSelectedIndex() == 1 && combo_box_equal.getSelectedIndex() == 1 && combo_box_less.getSelectedIndex() == 1)) {
-
-                JOptionPane.showMessageDialog(scroll_pane, "You cannot set all the outcomes to Escaped or Not Escaped.", "Error!", JOptionPane.ERROR_MESSAGE);
-                main_panel.repaint();
-                bailout_tests[oldSelection].setSelected(true);
-                s.fns.bailout_test_algorithm = oldSelection;
-                return;
-            }
-
-            s.fns.bailout_test_user_formula = field_condition.getText();
-            s.fns.bailout_test_user_formula2 = field_condition2.getText();
-
-            if (combo_box_greater.getSelectedIndex() == 0 && combo_box_equal.getSelectedIndex() == 1 && combo_box_less.getSelectedIndex() == 1) { // >
-                s.fns.bailout_test_comparison = GREATER;
-            } else if (combo_box_greater.getSelectedIndex() == 0 && combo_box_equal.getSelectedIndex() == 0 && combo_box_less.getSelectedIndex() == 1) { // >=
-                s.fns.bailout_test_comparison = GREATER_EQUAL;
-            } else if (combo_box_greater.getSelectedIndex() == 1 && combo_box_equal.getSelectedIndex() == 1 && combo_box_less.getSelectedIndex() == 0) { // <
-                s.fns.bailout_test_comparison = LOWER;
-            } else if (combo_box_greater.getSelectedIndex() == 1 && combo_box_equal.getSelectedIndex() == 0 && combo_box_less.getSelectedIndex() == 0) { // <=
-                s.fns.bailout_test_comparison = LOWER_EQUAL;
-            } else if (combo_box_greater.getSelectedIndex() == 1 && combo_box_equal.getSelectedIndex() == 0 && combo_box_less.getSelectedIndex() == 1) { // ==
-                s.fns.bailout_test_comparison = EQUAL;
-            } else if (combo_box_greater.getSelectedIndex() == 0 && combo_box_equal.getSelectedIndex() == 1 && combo_box_less.getSelectedIndex() == 0) { // !=
-                s.fns.bailout_test_comparison = NOT_EQUAL;
-            }
+            new BailoutConditionDialog(ptr, s, oldSelection, bailout_tests);
+            return;
         }
+
+        setBailoutTestPost();
+
+    }
+
+    public void setBailoutTestPost() {
 
         setOptions(false);
 
@@ -8989,6 +5397,30 @@ public class MainWindow extends JFrame implements Constants {
             startThreads(julia_grid_first_dimension);
         } else {
             startThreads(n);
+        }
+
+    }
+
+    public void resetFunctions() {
+
+        for (int k = 0; k < fractal_functions.length; k++) {
+            if (k != PARHALLEY3 && k != PARHALLEY4 && k != PARHALLEYGENERALIZED3 && k != PARHALLEYGENERALIZED8 && k != PARHALLEYSIN && k != PARHALLEYCOS && k != PARHALLEYPOLY && k != PARHALLEYFORMULA
+                    && k != BAIRSTOW3 && k != BAIRSTOW4 && k != BAIRSTOWGENERALIZED3 && k != BAIRSTOWGENERALIZED8 && k != BAIRSTOWPOLY
+                    && k != DURAND_KERNER3 && k != DURAND_KERNER4 && k != DURAND_KERNERGENERALIZED3 && k != DURAND_KERNERGENERALIZED8 && k != DURAND_KERNERPOLY
+                    && k != LAGUERRE3 && k != LAGUERRE4 && k != LAGUERREGENERALIZED3 && k != LAGUERREGENERALIZED8 && k != LAGUERRESIN && k != LAGUERRECOS && k != LAGUERREPOLY && k != LAGUERREFORMULA
+                    && k != MULLER3 && k != MULLER4 && k != MULLERGENERALIZED3 && k != MULLERGENERALIZED8 && k != MULLERSIN && k != MULLERCOS && k != MULLERPOLY && k != MULLERFORMULA
+                    && k != KLEINIAN && k != MAGNETIC_PENDULUM && k != INERTIA_GRAVITY && k != SIERPINSKI_GASKET && k != NEWTON3 && k != STEFFENSENPOLY && k != NEWTON4 && k != NEWTONGENERALIZED3 && k != NEWTONGENERALIZED8 && k != NEWTONSIN && k != NEWTONCOS && k != NEWTONPOLY
+                    && k != HALLEY3 && k != HALLEY4 && k != HALLEYGENERALIZED3 && k != HALLEYGENERALIZED8 && k != HALLEYSIN && k != HALLEYCOS && k != HALLEYPOLY
+                    && k != SCHRODER3 && k != SCHRODER4 && k != SCHRODERGENERALIZED3 && k != SCHRODERGENERALIZED8 && k != SCHRODERSIN && k != SCHRODERCOS && k != SCHRODERPOLY
+                    && k != HOUSEHOLDER3 && k != HOUSEHOLDER4 && k != HOUSEHOLDERGENERALIZED3 && k != HOUSEHOLDERGENERALIZED8 && k != HOUSEHOLDERSIN && k != HOUSEHOLDERCOS && k != HOUSEHOLDERPOLY
+                    && k != SECANT3 && k != SECANT4 && k != SECANTGENERALIZED3 && k != SECANTGENERALIZED8 && k != SECANTCOS && k != SECANTPOLY
+                    && k != STEFFENSEN3 && k != STEFFENSEN4 && k != STEFFENSENGENERALIZED3 && k != NEWTONFORMULA && k != HALLEYFORMULA && k != SCHRODERFORMULA && k != HOUSEHOLDERFORMULA && k != SECANTFORMULA && k != STEFFENSENFORMULA) {
+                fractal_functions[k].setEnabled(true);
+            }
+
+            if ((k == KLEINIAN || k == INERTIA_GRAVITY || k == SIERPINSKI_GASKET || k == MAGNETIC_PENDULUM) && !s.fns.julia && !julia_map && !s.fns.perturbation && !s.fns.init_val) {
+                fractal_functions[k].setEnabled(true);
+            }
         }
 
     }
@@ -9000,24 +5432,8 @@ public class MainWindow extends JFrame implements Constants {
 
         s.fns.out_coloring_algorithm = temp;
 
-        for (int k = 0; k < fractal_functions.length; k++) {
-            if (k != PARHALLEY3 && k != PARHALLEY4 && k != PARHALLEYGENERALIZED3 && k != PARHALLEYGENERALIZED8 && k != PARHALLEYSIN && k != PARHALLEYCOS && k != PARHALLEYPOLY && k != PARHALLEYFORMULA
-                    && k != BAIRSTOW3 && k != BAIRSTOW4 && k != BAIRSTOWGENERALIZED3 && k != BAIRSTOWGENERALIZED8 && k != BAIRSTOWPOLY
-                    && k != DURAND_KERNER3 && k != DURAND_KERNER4 && k != DURAND_KERNERGENERALIZED3 && k != DURAND_KERNERGENERALIZED8 && k != DURAND_KERNERPOLY
-                    && k != LAGUERRE3 && k != LAGUERRE4 && k != LAGUERREGENERALIZED3 && k != LAGUERREGENERALIZED8 && k != LAGUERRESIN && k != LAGUERRECOS && k != LAGUERREPOLY && k != LAGUERREFORMULA
-                    && k != MULLER3 && k != MULLER4 && k != MULLERGENERALIZED3 && k != MULLERGENERALIZED8 && k != MULLERSIN && k != MULLERCOS && k != MULLERPOLY && k != MULLERFORMULA
-                    && k != KLEINIAN && k != MAGNETIC_PENDULUM && k != SIERPINSKI_GASKET && k != NEWTON3 && k != STEFFENSENPOLY && k != NEWTON4 && k != NEWTONGENERALIZED3 && k != NEWTONGENERALIZED8 && k != NEWTONSIN && k != NEWTONCOS && k != NEWTONPOLY
-                    && k != HALLEY3 && k != HALLEY4 && k != HALLEYGENERALIZED3 && k != HALLEYGENERALIZED8 && k != HALLEYSIN && k != HALLEYCOS && k != HALLEYPOLY
-                    && k != SCHRODER3 && k != SCHRODER4 && k != SCHRODERGENERALIZED3 && k != SCHRODERGENERALIZED8 && k != SCHRODERSIN && k != SCHRODERCOS && k != SCHRODERPOLY
-                    && k != HOUSEHOLDER3 && k != HOUSEHOLDER4 && k != HOUSEHOLDERGENERALIZED3 && k != HOUSEHOLDERGENERALIZED8 && k != HOUSEHOLDERSIN && k != HOUSEHOLDERCOS && k != HOUSEHOLDERPOLY
-                    && k != SECANT3 && k != SECANT4 && k != SECANTGENERALIZED3 && k != SECANTGENERALIZED8 && k != SECANTCOS && k != SECANTPOLY
-                    && k != STEFFENSEN3 && k != STEFFENSEN4 && k != STEFFENSENGENERALIZED3 && k != NEWTONFORMULA && k != HALLEYFORMULA && k != SCHRODERFORMULA && k != HOUSEHOLDERFORMULA && k != SECANTFORMULA && k != STEFFENSENFORMULA) {
-                fractal_functions[k].setEnabled(true);
-            }
-
-            if ((k == KLEINIAN || k == SIERPINSKI_GASKET || k == MAGNETIC_PENDULUM) && !s.fns.julia && !julia_map && !s.fns.perturbation && !s.fns.init_val) {
-                fractal_functions[k].setEnabled(true);
-            }
+        if (s.fns.out_coloring_algorithm != USER_OUTCOLORING_ALGORITHM) {
+            resetFunctions();
         }
 
         if (s.fns.out_coloring_algorithm == DISTANCE_ESTIMATOR || s.exterior_de) {
@@ -9027,229 +5443,27 @@ public class MainWindow extends JFrame implements Constants {
         } else if (s.fns.out_coloring_algorithm == ESCAPE_TIME_FIELD_LINES2 || s.fns.out_coloring_algorithm == ESCAPE_TIME_FIELD_LINES || s.fns.out_coloring_algorithm == ESCAPE_TIME_ESCAPE_RADIUS || s.fns.out_coloring_algorithm == ESCAPE_TIME_GRID || s.fns.out_coloring_algorithm == BIOMORPH || s.fns.out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER || s.fns.out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER2 || s.fns.out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER3 || s.fns.out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER4 || s.fns.out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER5 || s.fns.out_coloring_algorithm == ITERATIONS_PLUS_RE || s.fns.out_coloring_algorithm == ITERATIONS_PLUS_IM || s.fns.out_coloring_algorithm == ITERATIONS_PLUS_RE_DIVIDE_IM || s.fns.out_coloring_algorithm == ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM || s.fns.out_coloring_algorithm == ESCAPE_TIME_ALGORITHM2 || s.fns.out_coloring_algorithm == BANDED) {
             rootFindingMethodsSetEnabled(false);
         } else if (s.fns.out_coloring_algorithm == USER_OUTCOLORING_ALGORITHM) {
-
-            JTabbedPane tabbedPane = new JTabbedPane();
-            tabbedPane.setPreferredSize(new Dimension(495, 190));
-            //tabbedPane.setPreferredSize(new Dimension(550, 210));
-            tabbedPane.setFocusable(false);
-
-            JTextField field_formula = new JTextField(runsOnWindows ? 50 : 45);//48
-            field_formula.setText(s.fns.outcoloring_formula);
-            field_formula.addAncestorListener(new RequestFocusListener());
-
-            JPanel formula_panel = new JPanel();
-            formula_panel.setLayout(new FlowLayout());
-
-            formula_panel.add(new JLabel("out ="));
-            formula_panel.add(field_formula);
-
-            tabbedPane.addTab("Normal", formula_panel);
-
-            JPanel formula_panel_cond1 = new JPanel();
-            formula_panel_cond1.setLayout(new GridLayout(2, 2));
-
-            JTextField field_condition = new JTextField(24);
-            field_condition.setText(s.fns.user_outcoloring_conditions[0]);
-            field_condition.addAncestorListener(new RequestFocusListener());
-
-            JTextField field_condition2 = new JTextField(24);
-            field_condition2.setText(s.fns.user_outcoloring_conditions[1]);
-
-            formula_panel_cond1.add(new JLabel("Left operand:", SwingConstants.HORIZONTAL));
-            formula_panel_cond1.add(new JLabel("Right operand:", SwingConstants.HORIZONTAL));
-            formula_panel_cond1.add(field_condition);
-            formula_panel_cond1.add(field_condition2);
-
-            JTextField field_formula_cond1 = new JTextField(runsOnWindows ? 45 : 40);//35
-            field_formula_cond1.setText(s.fns.user_outcoloring_condition_formula[0]);
-
-            JTextField field_formula_cond2 = new JTextField(runsOnWindows ? 45 : 40);//35
-            field_formula_cond2.setText(s.fns.user_outcoloring_condition_formula[1]);
-
-            JTextField field_formula_cond3 = new JTextField(runsOnWindows ? 45 : 40);//35
-            field_formula_cond3.setText(s.fns.user_outcoloring_condition_formula[2]);
-
-            JPanel formula_panel_cond11 = new JPanel();
-
-            formula_panel_cond11.add(new JLabel("left > right, out ="));
-            formula_panel_cond11.add(field_formula_cond1);
-
-            JPanel formula_panel_cond12 = new JPanel();
-
-            formula_panel_cond12.add(new JLabel("left < right, out ="));
-            formula_panel_cond12.add(field_formula_cond2);
-
-            JPanel formula_panel_cond13 = new JPanel();
-
-            formula_panel_cond13.add(new JLabel("left = right, out ="));
-            formula_panel_cond13.add(field_formula_cond3);
-
-            JPanel panel_cond = new JPanel();
-            panel_cond.setLayout(new FlowLayout());
-
-            panel_cond.add(formula_panel_cond1);
-            panel_cond.add(formula_panel_cond11);
-            panel_cond.add(formula_panel_cond12);
-            panel_cond.add(formula_panel_cond13);
-
-            tabbedPane.addTab("Conditional", panel_cond);
-
-            Object[] labels33 = createUserFormulaLabels("z, c, s, p, pp, n, maxn, bail, cbail, center, size, sizei, v1 - v30, point");
-
-            tabbedPane.setSelectedIndex(s.fns.user_out_coloring_algorithm);
-
-            Object[] message3 = {
-                labels33,
-                " ",
-                "Set the out coloring formula. Only the real component of the complex number will be used.",
-                tabbedPane,};
-
-            int res = JOptionPane.showConfirmDialog(scroll_pane, message3, "User Out Coloring Method", JOptionPane.OK_CANCEL_OPTION);
-
-            if (res == JOptionPane.OK_OPTION) {
-                try {
-                    if (tabbedPane.getSelectedIndex() == 0) {
-                        s.parser.parse(field_formula.getText());
-
-                        if (s.isConvergingType()) {
-                            if (s.parser.foundBail()) {
-                                JOptionPane.showMessageDialog(scroll_pane, "The variable: bail can only be used in escaping type fractals.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                main_panel.repaint();
-                                out_coloring_modes[oldSelected].setSelected(true);
-                                s.fns.out_coloring_algorithm = oldSelected;
-                                return;
-                            }
-                        } else if (s.parser.foundCbail()) {
-                            JOptionPane.showMessageDialog(scroll_pane, "The variable: cbail can only be used in converging type fractals\n(Root finding methods, Nova, User converging formulas).", "Error!", JOptionPane.ERROR_MESSAGE);
-                            main_panel.repaint();
-                            out_coloring_modes[oldSelected].setSelected(true);
-                            s.fns.out_coloring_algorithm = oldSelected;
-                            return;
-                        }
-                    } else {
-                        s.parser.parse(field_condition.getText());
-
-                        if (s.isConvergingType()) {
-                            if (s.parser.foundBail()) {
-                                JOptionPane.showMessageDialog(scroll_pane, "The variable: bail can only be used in escaping type fractals.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                main_panel.repaint();
-                                out_coloring_modes[oldSelected].setSelected(true);
-                                s.fns.out_coloring_algorithm = oldSelected;
-                                return;
-                            }
-                        } else if (s.parser.foundCbail()) {
-                            JOptionPane.showMessageDialog(scroll_pane, "The variable: cbail can only be used in converging type fractals\n(Root finding methods, Nova, User converging formulas).", "Error!", JOptionPane.ERROR_MESSAGE);
-                            main_panel.repaint();
-                            out_coloring_modes[oldSelected].setSelected(true);
-                            s.fns.out_coloring_algorithm = oldSelected;
-                            return;
-                        }
-
-                        s.parser.parse(field_condition2.getText());
-
-                        if (s.isConvergingType()) {
-                            if (s.parser.foundBail()) {
-                                JOptionPane.showMessageDialog(scroll_pane, "The variable: bail can only be used in escaping type fractals.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                main_panel.repaint();
-                                out_coloring_modes[oldSelected].setSelected(true);
-                                s.fns.out_coloring_algorithm = oldSelected;
-                                return;
-                            }
-                        } else if (s.parser.foundCbail()) {
-                            JOptionPane.showMessageDialog(scroll_pane, "The variable: cbail can only be used in converging type fractals\n(Root finding methods, Nova, User converging formulas).", "Error!", JOptionPane.ERROR_MESSAGE);
-                            main_panel.repaint();
-                            out_coloring_modes[oldSelected].setSelected(true);
-                            s.fns.out_coloring_algorithm = oldSelected;
-                            return;
-                        }
-
-                        s.parser.parse(field_formula_cond1.getText());
-
-                        if (s.isConvergingType()) {
-                            if (s.parser.foundBail()) {
-                                JOptionPane.showMessageDialog(scroll_pane, "The variable: bail can only be used in escaping type fractals.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                main_panel.repaint();
-                                out_coloring_modes[oldSelected].setSelected(true);
-                                s.fns.out_coloring_algorithm = oldSelected;
-                                return;
-                            }
-                        } else if (s.parser.foundCbail()) {
-                            JOptionPane.showMessageDialog(scroll_pane, "The variable: cbail can only be used in converging type fractals\n(Root finding methods, Nova, User converging formulas).", "Error!", JOptionPane.ERROR_MESSAGE);
-                            main_panel.repaint();
-                            out_coloring_modes[oldSelected].setSelected(true);
-                            s.fns.out_coloring_algorithm = oldSelected;
-                            return;
-                        }
-
-                        s.parser.parse(field_formula_cond2.getText());
-
-                        if (s.isConvergingType()) {
-                            if (s.parser.foundBail()) {
-                                JOptionPane.showMessageDialog(scroll_pane, "The variable: bail can only be used in escaping type fractals.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                main_panel.repaint();
-                                out_coloring_modes[oldSelected].setSelected(true);
-                                s.fns.out_coloring_algorithm = oldSelected;
-                                return;
-                            }
-                        } else if (s.parser.foundCbail()) {
-                            JOptionPane.showMessageDialog(scroll_pane, "The variable: cbail can only be used in converging type fractals\n(Root finding methods, Nova, User converging formulas).", "Error!", JOptionPane.ERROR_MESSAGE);
-                            main_panel.repaint();
-                            out_coloring_modes[oldSelected].setSelected(true);
-                            s.fns.out_coloring_algorithm = oldSelected;
-                            return;
-                        }
-
-                        s.parser.parse(field_formula_cond3.getText());
-
-                        if (s.isConvergingType()) {
-                            if (s.parser.foundBail()) {
-                                JOptionPane.showMessageDialog(scroll_pane, "The variable: bail can only be used in escaping type fractals.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                main_panel.repaint();
-                                out_coloring_modes[oldSelected].setSelected(true);
-                                s.fns.out_coloring_algorithm = oldSelected;
-                                return;
-                            }
-                        } else if (s.parser.foundCbail()) {
-                            JOptionPane.showMessageDialog(scroll_pane, "The variable: cbail can only be used in converging type fractals\n(Root finding methods, Nova, User converging formulas).", "Error!", JOptionPane.ERROR_MESSAGE);
-                            main_panel.repaint();
-                            out_coloring_modes[oldSelected].setSelected(true);
-                            s.fns.out_coloring_algorithm = oldSelected;
-                            return;
-                        }
-                    }
-
-                } catch (ParserException e) {
-                    JOptionPane.showMessageDialog(scroll_pane, e.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
-                    main_panel.repaint();
-                    out_coloring_modes[oldSelected].setSelected(true);
-                    s.fns.out_coloring_algorithm = oldSelected;
-                    return;
-                }
-            } else {
-                main_panel.repaint();
-                out_coloring_modes[oldSelected].setSelected(true);
-                s.fns.out_coloring_algorithm = oldSelected;
-                return;
-            }
-
-            s.fns.user_out_coloring_algorithm = tabbedPane.getSelectedIndex();
-
-            if (s.fns.user_out_coloring_algorithm == 0) {
-                s.fns.outcoloring_formula = field_formula.getText();
-            } else {
-                s.fns.user_outcoloring_conditions[0] = field_condition.getText();
-                s.fns.user_outcoloring_conditions[1] = field_condition2.getText();
-                s.fns.user_outcoloring_condition_formula[0] = field_formula_cond1.getText();
-                s.fns.user_outcoloring_condition_formula[1] = field_formula_cond2.getText();
-                s.fns.user_outcoloring_condition_formula[2] = field_formula_cond3.getText();
-            }
-
-            if (!julia_map && !s.fns.julia && !s.fns.perturbation && !s.fns.init_val && !s.isRootFindingMethod()) {
-                rootFindingMethodsSetEnabled(true);
-            }
+            new OutColoringFormulaDialog(ptr, s, oldSelected, out_coloring_modes);
+            return;
         } else if (!julia_map && !s.fns.julia && !s.fns.perturbation && !s.fns.init_val && !s.isRootFindingMethod()) {
             rootFindingMethodsSetEnabled(true);
         }
+
+        setOutColoringModePost();
+
+    }
+
+    public void setUserOutColoringModePost() {
+        if (!julia_map && !s.fns.julia && !s.fns.perturbation && !s.fns.init_val && !s.isRootFindingMethod()) {
+            rootFindingMethodsSetEnabled(true);
+        }
+    }
+
+    public void setUserInColoringModePost() {
+        options_menu.getPeriodicityChecking().setEnabled(false);
+    }
+
+    public void setOutColoringModePost() {
 
         if (s.fns.out_coloring_algorithm != USER_OUTCOLORING_ALGORITHM && s.fns.in_coloring_algorithm != USER_INCOLORING_ALGORITHM) {
             options_menu.getDirectColor().setEnabled(false);
@@ -9300,7 +5514,6 @@ public class MainWindow extends JFrame implements Constants {
         } else {
             startThreads(n);
         }
-
     }
 
     public void setInColoringMode(int temp) {
@@ -9311,230 +5524,20 @@ public class MainWindow extends JFrame implements Constants {
         s.fns.in_coloring_algorithm = temp;
 
         if (s.fns.in_coloring_algorithm == MAX_ITERATIONS) {
-            if (!s.ds.domain_coloring && !s.isConvergingType() && s.fns.function != KLEINIAN && s.fns.function != SIERPINSKI_GASKET && !s.ots.useTraps) {
+            if (!s.ds.domain_coloring && !s.isConvergingType() && s.fns.function != KLEINIAN && s.fns.function != SIERPINSKI_GASKET && s.fns.function != INERTIA_GRAVITY && !s.ots.useTraps) {
                 options_menu.getPeriodicityChecking().setEnabled(true);
             }
+        } else if (s.fns.in_coloring_algorithm == USER_INCOLORING_ALGORITHM) {
+            new InColoringFormulaDialog(ptr, s, oldSelected, in_coloring_modes);
+            return;
         } else {
-            if (s.fns.in_coloring_algorithm == USER_INCOLORING_ALGORITHM) {
-                JTabbedPane tabbedPane = new JTabbedPane();
-                //tabbedPane.setPreferredSize(new Dimension(550, 210));
-                tabbedPane.setPreferredSize(new Dimension(495, 190));
-                tabbedPane.setFocusable(false);
-
-                JTextField field_formula = new JTextField(runsOnWindows ? 50 : 45);//48
-                field_formula.setText(s.fns.incoloring_formula);
-                field_formula.addAncestorListener(new RequestFocusListener());
-
-                JPanel formula_panel = new JPanel();
-                formula_panel.setLayout(new FlowLayout());
-
-                formula_panel.add(new JLabel("in ="));
-                formula_panel.add(field_formula);
-
-                tabbedPane.addTab("Normal", formula_panel);
-
-                JPanel formula_panel_cond1 = new JPanel();
-                formula_panel_cond1.setLayout(new GridLayout(2, 2));
-
-                JTextField field_condition = new JTextField(24);
-                field_condition.setText(s.fns.user_incoloring_conditions[0]);
-                field_condition.addAncestorListener(new RequestFocusListener());
-
-                JTextField field_condition2 = new JTextField(24);
-                field_condition2.setText(s.fns.user_incoloring_conditions[1]);
-
-                formula_panel_cond1.add(new JLabel("Left operand:", SwingConstants.HORIZONTAL));
-                formula_panel_cond1.add(new JLabel("Right operand:", SwingConstants.HORIZONTAL));
-                formula_panel_cond1.add(field_condition);
-                formula_panel_cond1.add(field_condition2);
-
-                JTextField field_formula_cond1 = new JTextField(runsOnWindows ? 45 : 40);//35
-                field_formula_cond1.setText(s.fns.user_incoloring_condition_formula[0]);
-
-                JTextField field_formula_cond2 = new JTextField(runsOnWindows ? 45 : 40);//35
-                field_formula_cond2.setText(s.fns.user_incoloring_condition_formula[1]);
-
-                JTextField field_formula_cond3 = new JTextField(runsOnWindows ? 45 : 40);//35
-                field_formula_cond3.setText(s.fns.user_incoloring_condition_formula[2]);
-
-                JPanel formula_panel_cond11 = new JPanel();
-
-                formula_panel_cond11.add(new JLabel("left > right, in ="));
-                formula_panel_cond11.add(field_formula_cond1);
-
-                JPanel formula_panel_cond12 = new JPanel();
-
-                formula_panel_cond12.add(new JLabel("left < right, in ="));
-                formula_panel_cond12.add(field_formula_cond2);
-
-                JPanel formula_panel_cond13 = new JPanel();
-
-                formula_panel_cond13.add(new JLabel("left = right, in ="));
-                formula_panel_cond13.add(field_formula_cond3);
-
-                JPanel panel_cond = new JPanel();
-
-                panel_cond.setLayout(new FlowLayout());
-
-                panel_cond.add(formula_panel_cond1);
-                panel_cond.add(formula_panel_cond11);
-                panel_cond.add(formula_panel_cond12);
-                panel_cond.add(formula_panel_cond13);
-
-                tabbedPane.addTab("Conditional", panel_cond);
-
-                Object[] labels3 = createUserFormulaLabels("z, c, s, p, pp, n, maxn, bail, cbail, center, size, sizei, v1 - v30, point");
-
-                tabbedPane.setSelectedIndex(s.fns.user_in_coloring_algorithm);
-
-                Object[] message3 = {
-                    labels3,
-                    " ",
-                    "Set the in coloring formula. Only the real component of the complex number will be used.",
-                    tabbedPane,};
-
-                int res = JOptionPane.showConfirmDialog(scroll_pane, message3, "User In Coloring Method", JOptionPane.OK_CANCEL_OPTION);
-
-                if (res == JOptionPane.OK_OPTION) {
-                    try {
-                        if (tabbedPane.getSelectedIndex() == 0) {
-                            s.parser.parse(field_formula.getText());
-
-                            if (s.isConvergingType()) {
-                                if (s.parser.foundBail()) {
-                                    JOptionPane.showMessageDialog(scroll_pane, "The variable: bail can only be used in escaping type fractals.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                    main_panel.repaint();
-                                    in_coloring_modes[oldSelected].setSelected(true);
-                                    s.fns.in_coloring_algorithm = oldSelected;
-                                    return;
-                                }
-                            } else if (s.parser.foundCbail()) {
-                                JOptionPane.showMessageDialog(scroll_pane, "The variable: cbail can only be used in converging type fractals\n(Root finding methods, Nova, User converging formulas).", "Error!", JOptionPane.ERROR_MESSAGE);
-                                main_panel.repaint();
-                                in_coloring_modes[oldSelected].setSelected(true);
-                                s.fns.in_coloring_algorithm = oldSelected;
-                                return;
-                            }
-                        } else {
-                            s.parser.parse(field_condition.getText());
-
-                            if (s.isConvergingType()) {
-                                if (s.parser.foundBail()) {
-                                    JOptionPane.showMessageDialog(scroll_pane, "The variable: bail can only be used in escaping type fractals.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                    main_panel.repaint();
-                                    in_coloring_modes[oldSelected].setSelected(true);
-                                    s.fns.in_coloring_algorithm = oldSelected;
-                                    return;
-                                }
-                            } else if (s.parser.foundCbail()) {
-                                JOptionPane.showMessageDialog(scroll_pane, "The variable: cbail can only be used in converging type fractals\n(Root finding methods, Nova, User converging formulas).", "Error!", JOptionPane.ERROR_MESSAGE);
-                                main_panel.repaint();
-                                in_coloring_modes[oldSelected].setSelected(true);
-                                s.fns.in_coloring_algorithm = oldSelected;
-                                return;
-                            }
-
-                            s.parser.parse(field_condition2.getText());
-
-                            if (s.isConvergingType()) {
-                                if (s.parser.foundBail()) {
-                                    JOptionPane.showMessageDialog(scroll_pane, "The variable: bail can only be used in escaping type fractals.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                    main_panel.repaint();
-                                    in_coloring_modes[oldSelected].setSelected(true);
-                                    s.fns.in_coloring_algorithm = oldSelected;
-                                    return;
-                                }
-                            } else if (s.parser.foundCbail()) {
-                                JOptionPane.showMessageDialog(scroll_pane, "The variable: cbail can only be used in converging type fractals\n(Root finding methods, Nova, User converging formulas).", "Error!", JOptionPane.ERROR_MESSAGE);
-                                main_panel.repaint();
-                                in_coloring_modes[oldSelected].setSelected(true);
-                                s.fns.in_coloring_algorithm = oldSelected;
-                                return;
-                            }
-
-                            s.parser.parse(field_formula_cond1.getText());
-
-                            if (s.isConvergingType()) {
-                                if (s.parser.foundBail()) {
-                                    JOptionPane.showMessageDialog(scroll_pane, "The variable: bail can only be used in escaping type fractals.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                    main_panel.repaint();
-                                    in_coloring_modes[oldSelected].setSelected(true);
-                                    s.fns.in_coloring_algorithm = oldSelected;
-                                    return;
-                                }
-                            } else if (s.parser.foundCbail()) {
-                                JOptionPane.showMessageDialog(scroll_pane, "The variable: cbail can only be used in converging type fractals\n(Root finding methods, Nova, User converging formulas).", "Error!", JOptionPane.ERROR_MESSAGE);
-                                main_panel.repaint();
-                                in_coloring_modes[oldSelected].setSelected(true);
-                                s.fns.in_coloring_algorithm = oldSelected;
-                                return;
-                            }
-
-                            s.parser.parse(field_formula_cond2.getText());
-
-                            if (s.isConvergingType()) {
-                                if (s.parser.foundBail()) {
-                                    JOptionPane.showMessageDialog(scroll_pane, "The variable: bail can only be used in escaping type fractals.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                    main_panel.repaint();
-                                    in_coloring_modes[oldSelected].setSelected(true);
-                                    s.fns.in_coloring_algorithm = oldSelected;
-                                    return;
-                                }
-                            } else if (s.parser.foundCbail()) {
-                                JOptionPane.showMessageDialog(scroll_pane, "The variable: cbail can only be used in converging type fractals\n(Root finding methods, Nova, User converging formulas).", "Error!", JOptionPane.ERROR_MESSAGE);
-                                main_panel.repaint();
-                                in_coloring_modes[oldSelected].setSelected(true);
-                                s.fns.in_coloring_algorithm = oldSelected;
-                                return;
-                            }
-
-                            s.parser.parse(field_formula_cond3.getText());
-
-                            if (s.isConvergingType()) {
-                                if (s.parser.foundBail()) {
-                                    JOptionPane.showMessageDialog(scroll_pane, "The variable: bail can only be used in escaping type fractals.", "Error!", JOptionPane.ERROR_MESSAGE);
-                                    main_panel.repaint();
-                                    in_coloring_modes[oldSelected].setSelected(true);
-                                    s.fns.in_coloring_algorithm = oldSelected;
-                                    return;
-                                }
-                            } else if (s.parser.foundCbail()) {
-                                JOptionPane.showMessageDialog(scroll_pane, "The variable: cbail can only be used in converging type fractals\n(Root finding methods, Nova, User converging formulas).", "Error!", JOptionPane.ERROR_MESSAGE);
-                                main_panel.repaint();
-                                in_coloring_modes[oldSelected].setSelected(true);
-                                s.fns.in_coloring_algorithm = oldSelected;
-                                return;
-                            }
-                        }
-
-                    } catch (ParserException e) {
-                        JOptionPane.showMessageDialog(scroll_pane, e.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
-                        main_panel.repaint();
-                        in_coloring_modes[oldSelected].setSelected(true);
-                        s.fns.in_coloring_algorithm = oldSelected;
-                        return;
-                    }
-                } else {
-                    main_panel.repaint();
-                    in_coloring_modes[oldSelected].setSelected(true);
-                    s.fns.in_coloring_algorithm = oldSelected;
-                    return;
-                }
-
-                s.fns.user_in_coloring_algorithm = tabbedPane.getSelectedIndex();
-
-                if (s.fns.user_in_coloring_algorithm == 0) {
-                    s.fns.incoloring_formula = field_formula.getText();
-                } else {
-                    s.fns.user_incoloring_conditions[0] = field_condition.getText();
-                    s.fns.user_incoloring_conditions[1] = field_condition2.getText();
-                    s.fns.user_incoloring_condition_formula[0] = field_formula_cond1.getText();
-                    s.fns.user_incoloring_condition_formula[1] = field_formula_cond2.getText();
-                    s.fns.user_incoloring_condition_formula[2] = field_formula_cond3.getText();
-                }
-            }
             options_menu.getPeriodicityChecking().setEnabled(false);
         }
+
+        setInColoringModePost();
+    }
+
+    public void setInColoringModePost() {
 
         if (s.fns.out_coloring_algorithm != USER_OUTCOLORING_ALGORITHM && s.fns.in_coloring_algorithm != USER_INCOLORING_ALGORITHM) {
             options_menu.getDirectColor().setEnabled(false);
@@ -9585,69 +5588,9 @@ public class MainWindow extends JFrame implements Constants {
         } else {
             startThreads(n);
         }
-
     }
 
-    public void setSmoothing() {
-
-        resetOrbit();
-        final JCheckBox enable_smoothing = new JCheckBox("Smoothing");
-        enable_smoothing.setSelected(s.fns.smoothing);
-        enable_smoothing.setFocusable(false);
-
-        String[] escaping_algorithm_str = {"Algorithm 1", "Algorithm 2"};
-
-        JComboBox escaping_alg_combo = new JComboBox(escaping_algorithm_str);
-        escaping_alg_combo.setSelectedIndex(s.fns.escaping_smooth_algorithm);
-        escaping_alg_combo.setFocusable(false);
-        escaping_alg_combo.setToolTipText("Sets the smooting algorithm for escaping functions.");
-
-        String[] converging_algorithm_str = {"Algorithm 1", "Algorithm 2"};
-
-        JComboBox converging_alg_combo = new JComboBox(converging_algorithm_str);
-        converging_alg_combo.setSelectedIndex(s.fns.converging_smooth_algorithm);
-        converging_alg_combo.setFocusable(false);
-        converging_alg_combo.setToolTipText("Sets the smooting algorithm for converging functions.");
-
-        final JComboBox combo_box_color_interp = new JComboBox(color_interp_str);
-        combo_box_color_interp.setSelectedIndex(s.color_smoothing_method);
-        combo_box_color_interp.setFocusable(false);
-        combo_box_color_interp.setToolTipText("Sets the color interpolation method.");
-
-        if (s.ds.domain_coloring) {
-            escaping_alg_combo.setEnabled(false);
-            converging_alg_combo.setEnabled(false);
-        }
-
-        if (s.ds.domain_coloring && s.ds.domain_coloring_mode != 1) {
-            enable_smoothing.setEnabled(false);
-        }
-
-        Object[] message = {
-            " ",
-            enable_smoothing,
-            " ",
-            "Set the smoothing algorithm for escaping and converging functions.",
-            "Escaping:", escaping_alg_combo,
-            "Converging:", converging_alg_combo,
-            " ",
-            "Set the color interpolation method.",
-            combo_box_color_interp,
-            " ",};
-
-        int res = JOptionPane.showConfirmDialog(scroll_pane, message, "Smoothing", JOptionPane.OK_CANCEL_OPTION);
-
-        if (res == JOptionPane.OK_OPTION) {
-
-            s.fns.smoothing = enable_smoothing.isSelected();
-            s.fns.escaping_smooth_algorithm = escaping_alg_combo.getSelectedIndex();
-            s.fns.converging_smooth_algorithm = converging_alg_combo.getSelectedIndex();
-            s.color_smoothing_method = combo_box_color_interp.getSelectedIndex();
-        } else {
-            main_panel.repaint();
-            return;
-        }
-
+    public void setSmoothingPost() {
         if (s.ps.color_choice == CUSTOM_PALETTE_ID) {
             ThreadDraw.palette_outcoloring = new CustomPalette(s.ps.custom_palette, s.ps.color_interpolation, s.ps.color_space, s.ps.reversed_palette, s.ps.scale_factor_palette_val, s.ps.processing_alg, s.fns.smoothing, s.special_color, s.color_smoothing_method, s.special_use_palette_color).getRawPalette();
         } else {
@@ -9690,702 +5633,72 @@ public class MainWindow extends JFrame implements Constants {
         } else {
             startThreads(n);
         }
+    }
+
+    public void setSmoothing() {
+
+        resetOrbit();
+        new SmoothingDialog(ptr, s);
 
     }
 
     public void setBumpMap() {
 
         resetOrbit();
-        final JCheckBox enable_bump_map = new JCheckBox("Bump Mapping");
-        enable_bump_map.setSelected(s.bms.bump_map);
-        enable_bump_map.setFocusable(false);
-
-        JSlider direction_of_light = new JSlider(JSlider.HORIZONTAL, -360, 360, ((int) (s.bms.lightDirectionDegrees)));
-        direction_of_light.setPreferredSize(new Dimension(300, 40));
-        direction_of_light.setMajorTickSpacing(90);
-        direction_of_light.setMinorTickSpacing(1);
-        direction_of_light.setToolTipText("Sets the direction of light.");
-        //color_blend.setPaintTicks(true);
-        direction_of_light.setPaintLabels(true);
-        //direction_of_light.setSnapToTicks(true);
-        direction_of_light.setFocusable(false);
-
-        JSlider depth = new JSlider(JSlider.HORIZONTAL, 0, 100, ((int) (s.bms.bumpMappingDepth)));
-        depth.setPreferredSize(new Dimension(300, 40));
-        depth.setMajorTickSpacing(25);
-        depth.setMinorTickSpacing(1);
-        depth.setToolTipText("Sets the depth of the effect.");
-        //color_blend.setPaintTicks(true);
-        depth.setPaintLabels(true);
-        //depth.setSnapToTicks(true);
-        depth.setFocusable(false);
-
-        JSlider strength = new JSlider(JSlider.HORIZONTAL, 0, 100, ((int) (s.bms.bumpMappingStrength)));
-        strength.setPreferredSize(new Dimension(300, 40));
-        strength.setMajorTickSpacing(25);
-        strength.setMinorTickSpacing(1);
-        strength.setToolTipText("Sets the strength of the effect.");
-        //color_blend.setPaintTicks(true);
-        strength.setPaintLabels(true);
-        //strength.setSnapToTicks(true);
-        strength.setFocusable(false);
-
-        JTextField noise_factor_field = new JTextField();
-        noise_factor_field.setText("" + s.bms.bm_noise_reducing_factor);
-
-        final JComboBox bump_transfer_functions_opt = new JComboBox(bumpTransferNames);
-        bump_transfer_functions_opt.setSelectedIndex(s.bms.bump_transfer_function);
-        bump_transfer_functions_opt.setFocusable(false);
-        bump_transfer_functions_opt.setToolTipText("Sets the transfer function.");
-
-        JTextField bump_transfer_factor_field = new JTextField(20);
-        bump_transfer_factor_field.setText("" + s.bms.bump_transfer_factor);
-
-        bump_transfer_factor_field.addAncestorListener(new RequestFocusListener());
-
-        JPanel panel = new JPanel();
-        panel.add(bump_transfer_functions_opt);
-        panel.add(bump_transfer_factor_field);
-
-        final JComboBox bump_processing_method_opt = new JComboBox(bumpProcessingMethod);
-        bump_processing_method_opt.setSelectedIndex(s.bms.bumpProcessing);
-        bump_processing_method_opt.setFocusable(false);
-        bump_processing_method_opt.setToolTipText("Sets the image processing method.");
-        bump_processing_method_opt.setPreferredSize(new Dimension(150, 20));
-
-        final JSlider color_blend_opt = new JSlider(JSlider.HORIZONTAL, 0, 100, (int) (s.bms.bump_blending * 100));
-        color_blend_opt.setMajorTickSpacing(25);
-        color_blend_opt.setMinorTickSpacing(1);
-        color_blend_opt.setToolTipText("Sets the color blending percentage.");
-        color_blend_opt.setFocusable(false);
-        color_blend_opt.setPaintLabels(true);
-
-        color_blend_opt.setEnabled(s.bms.bumpProcessing == 1 || s.bms.bumpProcessing == 2);
-
-        bump_processing_method_opt.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                color_blend_opt.setEnabled(bump_processing_method_opt.getSelectedIndex() == 1 || bump_processing_method_opt.getSelectedIndex() == 2);
-            }
-
-        });
-
-        JPanel p2 = new JPanel();
-        p2.add(bump_processing_method_opt);
-
-        JPanel p1 = new JPanel();
-        p1.setLayout(new GridLayout(2, 2));
-        p1.add(new JLabel("Image Processing Method:", SwingConstants.HORIZONTAL));
-        p1.add(new JLabel("Color Blending:", SwingConstants.HORIZONTAL));
-        p1.add(p2);
-        p1.add(color_blend_opt);
-
-        Object[] message = {
-            " ",
-            enable_bump_map,
-            " ",
-            "Set the direction of light in degrees, depth, and strength.",
-            "Direction of light:", direction_of_light,
-            " ",
-            "Depth:", depth,
-            " ",
-            "Strength:", strength,
-            " ",
-            "Set the tranfer function and the factor.",
-            "Transfer Function and Factor:",
-            panel,
-            " ",
-            "Set the image processing method.",
-            p1,
-            " ",
-            "Set the image noise reduction factor.",
-            "Noise Reduction Factor:",
-            noise_factor_field,
-            " "};
-
-        int res = JOptionPane.showConfirmDialog(scroll_pane, message, "Bump Mapping", JOptionPane.OK_CANCEL_OPTION);
-
-        if (res == JOptionPane.OK_OPTION) {
-            double temp = 0, temp2 = 0;
-            try {
-                temp = Double.parseDouble(noise_factor_field.getText());
-                temp2 = Double.parseDouble(bump_transfer_factor_field.getText());
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-                main_panel.repaint();
-                return;
-            }
-
-            if (temp <= 0) {
-                main_panel.repaint();
-                JOptionPane.showMessageDialog(scroll_pane, "The noise reduction factor must be greater that 0.", "Error!", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            if (temp2 <= 0) {
-                main_panel.repaint();
-                JOptionPane.showMessageDialog(scroll_pane, "The transfer factor must be greater that 0.", "Error!", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            if (greedy_algorithm && enable_bump_map.isSelected() && !julia_map && !s.d3s.d3 && !s.ds.domain_coloring) {
-                JOptionPane.showMessageDialog(scroll_pane, "Greedy Drawing Algorithm is enabled, which creates glitches in the image.\nYou should disable it for a better result.", "Warning!", JOptionPane.WARNING_MESSAGE);
-            }
-
-            s.bms.bump_map = enable_bump_map.isSelected();
-            s.bms.lightDirectionDegrees = direction_of_light.getValue();
-            s.bms.bumpMappingDepth = depth.getValue();
-            s.bms.bumpMappingStrength = strength.getValue();
-            s.bms.bm_noise_reducing_factor = temp;
-            s.bms.bump_transfer_function = bump_transfer_functions_opt.getSelectedIndex();
-            s.bms.bump_transfer_factor = temp2;
-            s.bms.bumpProcessing = bump_processing_method_opt.getSelectedIndex();
-            s.bms.bump_blending = color_blend_opt.getValue() / 100.0;
-
-            if (!s.fns.smoothing && s.bms.bump_map && !s.ds.domain_coloring) {
-                JOptionPane.showMessageDialog(scroll_pane, "Smoothing is disabled.\nYou should enable smoothing for a better result.", "Warning!", JOptionPane.WARNING_MESSAGE);
-            }
-
-            options_menu.getProcessing().updateIcons(s);
-
-            updateColors();
-        } else {
-            main_panel.repaint();
-            return;
-        }
+        new BumpMappingDialog(ptr, s, greedy_algorithm, julia_map);
 
     }
 
     public void setRainbowPalette() {
 
         resetOrbit();
-        JTextField rainbow_palette_factor_field = new JTextField();
-        rainbow_palette_factor_field.setText("" + s.rps.rainbow_palette_factor);
-
-        rainbow_palette_factor_field.addAncestorListener(new RequestFocusListener());
-
-        final JCheckBox enable_rainbow_palette = new JCheckBox("Rainbow Palette");
-        enable_rainbow_palette.setSelected(s.rps.rainbow_palette);
-        enable_rainbow_palette.setFocusable(false);
-
-        JTextField rainbow_offset_field = new JTextField();
-        rainbow_offset_field.setText("" + s.rps.rainbow_offset);
-
-        JSlider color_blend_opt = new JSlider(JSlider.HORIZONTAL, 0, 100, (int) (s.rps.rp_blending * 100));
-        color_blend_opt.setMajorTickSpacing(25);
-        color_blend_opt.setMinorTickSpacing(1);
-        color_blend_opt.setToolTipText("Sets the color blending percentage.");
-        color_blend_opt.setFocusable(false);
-        color_blend_opt.setPaintLabels(true);
-
-        JTextField noise_factor_field = new JTextField();
-        noise_factor_field.setText("" + s.rps.rp_noise_reducing_factor);
-
-        final JComboBox rainbow_coloring_method_opt = new JComboBox(rainbowMethod);
-        rainbow_coloring_method_opt.setSelectedIndex(s.rps.rainbow_algorithm);
-        rainbow_coloring_method_opt.setFocusable(false);
-        rainbow_coloring_method_opt.setToolTipText("Sets the color transfer method.");
-
-        if (s.rps.rainbow_algorithm != 0) {
-            rainbow_offset_field.setEnabled(false);
-        }
-
-        rainbow_coloring_method_opt.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (rainbow_coloring_method_opt.getSelectedIndex() != 0) {
-                    rainbow_offset_field.setEnabled(false);
-                } else {
-                    rainbow_offset_field.setEnabled(true);
-                }
-            }
-
-        });
-
-        Object[] message = {
-            " ",
-            enable_rainbow_palette,
-            " ",
-            "Set the rainbow palette factor.",
-            "Rainbow Palette factor:", rainbow_palette_factor_field,
-            " ",
-            "Set the coloring offset.",
-            "Coloring Offset:", rainbow_offset_field,
-            " ",
-            "Set the color transfer method.",
-            "Color Transfer Method:", rainbow_coloring_method_opt,
-            " ",
-            "Set the color blending percentage.",
-            "Color Blending:", color_blend_opt,
-            " ",
-            "Set the image noise reduction factor.",
-            "Noise Reduction Factor:",
-            noise_factor_field,
-            " "};
-
-        int res = JOptionPane.showConfirmDialog(scroll_pane, message, "Rainbow Palette", JOptionPane.OK_CANCEL_OPTION);
-
-        double temp;
-        double temp2;
-        int temp3;
-        if (res == JOptionPane.OK_OPTION) {
-            try {
-                temp = Double.parseDouble(rainbow_palette_factor_field.getText());
-                temp2 = Double.parseDouble(noise_factor_field.getText());
-                temp3 = Integer.parseInt(rainbow_offset_field.getText());
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-                main_panel.repaint();
-                return;
-            }
-
-        } else {
-            main_panel.repaint();
-            return;
-        }
-
-        if (temp < 0) {
-            main_panel.repaint();
-            JOptionPane.showMessageDialog(scroll_pane, "The rainbow palette factor must be greater than -1.", "Error!", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        if (temp2 <= 0) {
-            main_panel.repaint();
-            JOptionPane.showMessageDialog(scroll_pane, "The noise reduction factor must be greater that 0.", "Error!", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        if (temp3 < 0) {
-            main_panel.repaint();
-            JOptionPane.showMessageDialog(scroll_pane, "The coloring offset must be greater than -1.", "Error!", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        if (greedy_algorithm && enable_rainbow_palette.isSelected() && !julia_map && !s.d3s.d3) {
-            JOptionPane.showMessageDialog(scroll_pane, "Greedy Drawing Algorithm is enabled, which creates glitches in the image.\nYou should disable it for a better result.", "Warning!", JOptionPane.WARNING_MESSAGE);
-        }
-
-        s.rps.rainbow_palette = enable_rainbow_palette.isSelected();
-        s.rps.rainbow_palette_factor = temp;
-        s.rps.rp_noise_reducing_factor = temp2;
-        s.rps.rainbow_offset = temp3;
-        s.rps.rp_blending = color_blend_opt.getValue() / 100.0;
-        s.rps.rainbow_algorithm = rainbow_coloring_method_opt.getSelectedIndex();
-
-        if (!s.fns.smoothing && s.rps.rainbow_palette) {
-            JOptionPane.showMessageDialog(scroll_pane, "Smoothing is disabled.\nYou should enable smoothing for a better result.", "Warning!", JOptionPane.WARNING_MESSAGE);
-        }
-
-        options_menu.getProcessing().updateIcons(s);
-
-        updateColors();
+        new RainbowPaletteDialog(ptr, s, greedy_algorithm, julia_map);
 
     }
 
     public void setFakeDistanceEstimation() {
 
         resetOrbit();
-        JTextField fake_de_factor_field = new JTextField();
-        fake_de_factor_field.setText("" + s.fdes.fake_de_factor);
+        new FakeDistanceEstimationDialog(ptr, s, greedy_algorithm, julia_map);
 
-        fake_de_factor_field.addAncestorListener(new RequestFocusListener());
-
-        final JCheckBox enable_fake_de = new JCheckBox("Fake Distance Estimation");
-        enable_fake_de.setSelected(s.fdes.fake_de);
-        enable_fake_de.setFocusable(false);
-
-        final JCheckBox invert_fake_de = new JCheckBox("Invert Coloring");
-        invert_fake_de.setSelected(s.fdes.inverse_fake_dem);
-        invert_fake_de.setFocusable(false);
-
-        Object[] message = {
-            " ",
-            enable_fake_de,
-            " ",
-            "Set the fake distance estimation factor.",
-            "Fake Distance Estimation factor:", fake_de_factor_field,
-            " ",
-            invert_fake_de,
-            " ",};
-
-        int res = JOptionPane.showConfirmDialog(scroll_pane, message, "Fake Distance Estimation", JOptionPane.OK_CANCEL_OPTION);
-
-        double temp;
-        if (res == JOptionPane.OK_OPTION) {
-            try {
-                temp = Double.parseDouble(fake_de_factor_field.getText());
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-                main_panel.repaint();
-                return;
-            }
-        } else {
-            main_panel.repaint();
-            return;
-        }
-
-        if (temp < 0) {
-            main_panel.repaint();
-            JOptionPane.showMessageDialog(scroll_pane, "The fake distance estimation factor must be greater than -1.", "Error!", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        if (greedy_algorithm && enable_fake_de.isSelected() && !julia_map && !s.d3s.d3) {
-            JOptionPane.showMessageDialog(scroll_pane, "Greedy Drawing Algorithm is enabled, which creates glitches in the image.\nYou should disable it for a better result.", "Warning!", JOptionPane.WARNING_MESSAGE);
-        }
-
-        s.fdes.fake_de = enable_fake_de.isSelected();
-        s.fdes.fake_de_factor = temp;
-        s.fdes.inverse_fake_dem = invert_fake_de.isSelected();
-
-        if (!s.fns.smoothing && s.fdes.fake_de) {
-            JOptionPane.showMessageDialog(scroll_pane, "Smoothing is disabled.\nYou should enable smoothing for a better result.", "Warning!", JOptionPane.WARNING_MESSAGE);
-        }
-
-        options_menu.getProcessing().updateIcons(s);
-
-        updateColors();
     }
 
     public void setGreyScaleColoring() {
 
         resetOrbit();
-        final JCheckBox enable_greyscale_coloring = new JCheckBox("Greyscale Coloring");
-        enable_greyscale_coloring.setSelected(s.gss.greyscale_coloring);
-        enable_greyscale_coloring.setFocusable(false);
+        new GreyscaleColoringDialog(ptr, s, greedy_algorithm, julia_map);
 
-        JTextField noise_factor_field = new JTextField();
-        noise_factor_field.setText("" + s.gss.gs_noise_reducing_factor);
-
-        Object[] message = {
-            " ",
-            enable_greyscale_coloring,
-            " ",
-            "Set the image noise reduction factor.",
-            "Noise Reduction Factor:",
-            noise_factor_field,
-            " "};
-
-        int res = JOptionPane.showConfirmDialog(scroll_pane, message, "Greyscale Coloring", JOptionPane.OK_CANCEL_OPTION);
-
-        double temp2;
-        if (res == JOptionPane.OK_OPTION) {
-            try {
-                temp2 = Double.parseDouble(noise_factor_field.getText());
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-                main_panel.repaint();
-                return;
-            }
-        } else {
-            main_panel.repaint();
-            return;
-        }
-
-        if (temp2 <= 0) {
-            main_panel.repaint();
-            JOptionPane.showMessageDialog(scroll_pane, "The noise reduction factor must be greater that 0.", "Error!", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        if (greedy_algorithm && enable_greyscale_coloring.isSelected() && !julia_map && !s.d3s.d3) {
-            JOptionPane.showMessageDialog(scroll_pane, "Greedy Drawing Algorithm is enabled, which creates glitches in the image.\nYou should disable it for a better result.", "Warning!", JOptionPane.WARNING_MESSAGE);
-        }
-
-        s.gss.greyscale_coloring = enable_greyscale_coloring.isSelected();
-        s.gss.gs_noise_reducing_factor = temp2;
-
-        options_menu.getProcessing().updateIcons(s);
-
-        updateColors();
     }
 
     public void setEntropyColoring() {
 
         resetOrbit();
-        JTextField entropy_factor_field = new JTextField();
-        entropy_factor_field.setText("" + s.ens.entropy_palette_factor);
+        new EntropyColoringDialog(ptr, s, greedy_algorithm, julia_map);
 
-        entropy_factor_field.addAncestorListener(new RequestFocusListener());
-
-        final JCheckBox enable_entropy_coloring = new JCheckBox("Entropy Coloring");
-        enable_entropy_coloring.setSelected(s.ens.entropy_coloring);
-        enable_entropy_coloring.setFocusable(false);
-
-        JTextField entropy_offset_field = new JTextField();
-        entropy_offset_field.setText("" + s.ens.entropy_offset);
-
-        JSlider color_blend_opt = new JSlider(JSlider.HORIZONTAL, 0, 100, (int) (s.ens.en_blending * 100));
-        color_blend_opt.setMajorTickSpacing(25);
-        color_blend_opt.setMinorTickSpacing(1);
-        color_blend_opt.setToolTipText("Sets the color blending percentage.");
-        color_blend_opt.setFocusable(false);
-        color_blend_opt.setPaintLabels(true);
-
-        JTextField noise_factor_field = new JTextField();
-        noise_factor_field.setText("" + s.ens.en_noise_reducing_factor);
-
-        final JComboBox entropy_coloring_method_opt = new JComboBox(entropyMethod);
-        entropy_coloring_method_opt.setSelectedIndex(s.ens.entropy_algorithm);
-        entropy_coloring_method_opt.setFocusable(false);
-        entropy_coloring_method_opt.setToolTipText("Sets the color transfer method.");
-
-        if (s.ens.entropy_algorithm != 0) {
-            entropy_offset_field.setEnabled(false);
-        }
-
-        entropy_coloring_method_opt.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (entropy_coloring_method_opt.getSelectedIndex() != 0) {
-                    entropy_offset_field.setEnabled(false);
-                } else {
-                    entropy_offset_field.setEnabled(true);
-                }
-            }
-
-        });
-
-        Object[] message = {
-            " ",
-            enable_entropy_coloring,
-            " ",
-            "Set the entropy coloring factor.",
-            "Entropy Coloring factor:", entropy_factor_field,
-            " ",
-            "Set the coloring offset.",
-            "Coloring Offset:", entropy_offset_field,
-            " ",
-            "Set the color transfer method.",
-            "Color Transfer Method:", entropy_coloring_method_opt,
-            " ",
-            "Set the color blending percentage.",
-            "Color Blending:", color_blend_opt,
-            " ",
-            "Set the image noise reduction factor.",
-            "Noise Reduction Factor:",
-            noise_factor_field,
-            " "};
-
-        int res = JOptionPane.showConfirmDialog(scroll_pane, message, "Entropy Coloring", JOptionPane.OK_CANCEL_OPTION);
-
-        double temp, temp2;
-        int temp3;
-        if (res == JOptionPane.OK_OPTION) {
-            try {
-                temp = Double.parseDouble(entropy_factor_field.getText());
-                temp2 = Double.parseDouble(noise_factor_field.getText());
-                temp3 = Integer.parseInt(entropy_offset_field.getText());
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-                main_panel.repaint();
-                return;
-            }
-        } else {
-            main_panel.repaint();
-            return;
-        }
-
-        if (temp < 0) {
-            main_panel.repaint();
-            JOptionPane.showMessageDialog(scroll_pane, "The entropy coloring factor must be greater than -1.", "Error!", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        if (temp2 <= 0) {
-            main_panel.repaint();
-            JOptionPane.showMessageDialog(scroll_pane, "The noise reduction factor must be greater that 0.", "Error!", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        if (temp3 < 0) {
-            main_panel.repaint();
-            JOptionPane.showMessageDialog(scroll_pane, "The coloring offset must be greater than -1.", "Error!", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        if (greedy_algorithm && enable_entropy_coloring.isSelected() && !julia_map && !s.d3s.d3) {
-            JOptionPane.showMessageDialog(scroll_pane, "Greedy Drawing Algorithm is enabled, which creates glitches in the image.\nYou should disable it for a better result.", "Warning!", JOptionPane.WARNING_MESSAGE);
-        }
-
-        s.ens.entropy_coloring = enable_entropy_coloring.isSelected();
-        s.ens.entropy_palette_factor = temp;
-        s.ens.en_noise_reducing_factor = temp2;
-        s.ens.entropy_offset = temp3;
-        s.ens.en_blending = color_blend_opt.getValue() / 100.0;
-        s.ens.entropy_algorithm = entropy_coloring_method_opt.getSelectedIndex();
-
-        if (!s.fns.smoothing && s.ens.entropy_coloring) {
-            JOptionPane.showMessageDialog(scroll_pane, "Smoothing is disabled.\nYou should enable smoothing for a better result.", "Warning!", JOptionPane.WARNING_MESSAGE);
-        }
-
-        options_menu.getProcessing().updateIcons(s);
-
-        updateColors();
     }
 
     public void setOffsetColoring() {
 
         resetOrbit();
-        JTextField offset_field = new JTextField();
-        offset_field.setText("" + s.ofs.post_process_offset);
+        new OffsetColoringDialog(ptr, s, greedy_algorithm, julia_map);
 
-        offset_field.addAncestorListener(new RequestFocusListener());
-
-        final JCheckBox enable_offset_coloring = new JCheckBox("Offset Coloring");
-        enable_offset_coloring.setSelected(s.ofs.offset_coloring);
-        enable_offset_coloring.setFocusable(false);
-
-        JSlider color_blend_opt = new JSlider(JSlider.HORIZONTAL, 0, 100, (int) (s.ofs.of_blending * 100));
-        color_blend_opt.setMajorTickSpacing(25);
-        color_blend_opt.setMinorTickSpacing(1);
-        color_blend_opt.setToolTipText("Sets the color blending percentage.");
-        color_blend_opt.setFocusable(false);
-        color_blend_opt.setPaintLabels(true);
-
-        JTextField noise_factor_field = new JTextField();
-        noise_factor_field.setText("" + s.ofs.of_noise_reducing_factor);
-
-        Object[] message = {
-            " ",
-            enable_offset_coloring,
-            " ",
-            "Set the coloring offset.",
-            "Coloring Offset:", offset_field,
-            " ",
-            "Set the color blending percentage.",
-            "Color Blending:", color_blend_opt,
-            " ",
-            "Set the image noise reduction factor.",
-            "Noise Reduction Factor:",
-            noise_factor_field,
-            " "};
-
-        int res = JOptionPane.showConfirmDialog(scroll_pane, message, "Offset Coloring", JOptionPane.OK_CANCEL_OPTION);
-
-        int temp;
-        double temp2;
-        if (res == JOptionPane.OK_OPTION) {
-            try {
-                temp = Integer.parseInt(offset_field.getText());
-                temp2 = Double.parseDouble(noise_factor_field.getText());
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-                main_panel.repaint();
-                return;
-            }
-        } else {
-            main_panel.repaint();
-            return;
-        }
-
-        if (temp < 0) {
-            main_panel.repaint();
-            JOptionPane.showMessageDialog(scroll_pane, "The coloring offset must be greater than -1.", "Error!", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        if (temp2 <= 0) {
-            main_panel.repaint();
-            JOptionPane.showMessageDialog(scroll_pane, "The noise reduction factor must be greater that 0.", "Error!", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        if (greedy_algorithm && enable_offset_coloring.isSelected() && !julia_map && !s.d3s.d3) {
-            JOptionPane.showMessageDialog(scroll_pane, "Greedy Drawing Algorithm is enabled, which creates glitches in the image.\nYou should disable it for a better result.", "Warning!", JOptionPane.WARNING_MESSAGE);
-        }
-
-        s.ofs.offset_coloring = enable_offset_coloring.isSelected();
-        s.ofs.post_process_offset = temp;
-        s.ofs.of_noise_reducing_factor = temp2;
-        s.ofs.of_blending = color_blend_opt.getValue() / 100.0;
-
-        if (!s.fns.smoothing && s.ofs.offset_coloring) {
-            JOptionPane.showMessageDialog(scroll_pane, "Smoothing is disabled.\nYou should enable smoothing for a better result.", "Warning!", JOptionPane.WARNING_MESSAGE);
-        }
-
-        options_menu.getProcessing().updateIcons(s);
-
-        updateColors();
     }
 
     public void setExteriorDistanceEstimation() {
 
         resetOrbit();
-        JTextField dem_factor = new JTextField();
-        dem_factor.setText("" + s.exterior_de_factor);
+        new ExteriorDistanceEstimationDialog(ptr, s, greedy_algorithm, julia_map);
 
-        dem_factor.addAncestorListener(new RequestFocusListener());
+    }
 
-        final JCheckBox enable_dem = new JCheckBox("Distance Estimation");
-        enable_dem.setSelected(s.exterior_de);
-        enable_dem.setFocusable(false);
-
-        final JCheckBox invert_de = new JCheckBox("Invert Coloring");
-        invert_de.setSelected(s.inverse_dem);
-        invert_de.setFocusable(false);
-
-        Object[] message = {
-            " ",
-            enable_dem,
-            " ",
-            "Set the distance estimation factor.",
-            "Distance Estimation factor:", dem_factor,
-            " ",
-            invert_de,
-            " ",};
-
-        int res = JOptionPane.showConfirmDialog(scroll_pane, message, "Distance Estimation", JOptionPane.OK_CANCEL_OPTION);
-
-        double temp;
-        if (res == JOptionPane.OK_OPTION) {
-            try {
-                temp = Double.parseDouble(dem_factor.getText());
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-                main_panel.repaint();
-                return;
-            }
-        } else {
-            main_panel.repaint();
-            return;
-        }
-
-        if (temp <= 0) {
-            main_panel.repaint();
-            JOptionPane.showMessageDialog(scroll_pane, "The distance estimation factor must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        s.exterior_de = enable_dem.isSelected();
-        s.exterior_de_factor = temp;
-        s.inverse_dem = invert_de.isSelected();
+    public void setExteriorDistanceEstimationPost() {
 
         if (s.exterior_de) {
             for (int k = 1; k < fractal_functions.length; k++) {
                 fractal_functions[k].setEnabled(false);
             }
         } else {
-            for (int k = 0; k < fractal_functions.length; k++) {
-                if (k != PARHALLEY3 && k != PARHALLEY4 && k != PARHALLEYGENERALIZED3 && k != PARHALLEYGENERALIZED8 && k != PARHALLEYSIN && k != PARHALLEYCOS && k != PARHALLEYPOLY && k != PARHALLEYFORMULA
-                        && k != DURAND_KERNER3 && k != DURAND_KERNER4 && k != DURAND_KERNERGENERALIZED3 && k != DURAND_KERNERGENERALIZED8 && k != DURAND_KERNERPOLY
-                        && k != BAIRSTOW3 && k != BAIRSTOW4 && k != BAIRSTOWGENERALIZED3 && k != BAIRSTOWGENERALIZED8 && k != BAIRSTOWPOLY
-                        && k != LAGUERRE3 && k != LAGUERRE4 && k != LAGUERREGENERALIZED3 && k != LAGUERREGENERALIZED8 && k != LAGUERRESIN && k != LAGUERRECOS && k != LAGUERREPOLY && k != LAGUERREFORMULA
-                        && k != MULLER3 && k != MULLER4 && k != MULLERGENERALIZED3 && k != MULLERGENERALIZED8 && k != MULLERSIN && k != MULLERCOS && k != MULLERPOLY && k != MULLERFORMULA
-                        && k != KLEINIAN && k != MAGNETIC_PENDULUM && k != SIERPINSKI_GASKET && k != NEWTON3 && k != STEFFENSENPOLY && k != NEWTON4 && k != NEWTONGENERALIZED3 && k != NEWTONGENERALIZED8 && k != NEWTONSIN && k != NEWTONCOS && k != NEWTONPOLY
-                        && k != HALLEY3 && k != HALLEY4 && k != HALLEYGENERALIZED3 && k != HALLEYGENERALIZED8 && k != HALLEYSIN && k != HALLEYCOS && k != HALLEYPOLY
-                        && k != SCHRODER3 && k != SCHRODER4 && k != SCHRODERGENERALIZED3 && k != SCHRODERGENERALIZED8 && k != SCHRODERSIN && k != SCHRODERCOS && k != SCHRODERPOLY
-                        && k != HOUSEHOLDER3 && k != HOUSEHOLDER4 && k != HOUSEHOLDERGENERALIZED3 && k != HOUSEHOLDERGENERALIZED8 && k != HOUSEHOLDERSIN && k != HOUSEHOLDERCOS && k != HOUSEHOLDERPOLY
-                        && k != SECANT3 && k != SECANT4 && k != SECANTGENERALIZED3 && k != SECANTGENERALIZED8 && k != SECANTCOS && k != SECANTPOLY
-                        && k != STEFFENSEN3 && k != STEFFENSEN4 && k != STEFFENSENGENERALIZED3 && k != NEWTONFORMULA && k != HALLEYFORMULA && k != SCHRODERFORMULA && k != HOUSEHOLDERFORMULA && k != SECANTFORMULA && k != STEFFENSENFORMULA) {
-                    fractal_functions[k].setEnabled(true);
-                }
-
-                if ((k == KLEINIAN || k == SIERPINSKI_GASKET || k == MAGNETIC_PENDULUM) && !s.fns.julia && !julia_map && !s.fns.perturbation && !s.fns.init_val) {
-                    fractal_functions[k].setEnabled(true);
-                }
-            }
+            resetFunctions();
 
             if (s.fns.out_coloring_algorithm != ESCAPE_TIME_FIELD_LINES2 && s.fns.out_coloring_algorithm != ESCAPE_TIME_FIELD_LINES && s.fns.out_coloring_algorithm != ESCAPE_TIME_ESCAPE_RADIUS && s.fns.out_coloring_algorithm != ESCAPE_TIME_GRID && s.fns.out_coloring_algorithm != DISTANCE_ESTIMATOR && !s.exterior_de && s.fns.out_coloring_algorithm != BIOMORPH && s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER && s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER2 && s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER3 && s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER4 && s.fns.out_coloring_algorithm != ESCAPE_TIME_GAUSSIAN_INTEGER5 && s.fns.out_coloring_algorithm != ITERATIONS_PLUS_RE && s.fns.out_coloring_algorithm != ITERATIONS_PLUS_IM && s.fns.out_coloring_algorithm != ITERATIONS_PLUS_RE_DIVIDE_IM && s.fns.out_coloring_algorithm != ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM && s.fns.out_coloring_algorithm != ESCAPE_TIME_ALGORITHM2 && s.fns.out_coloring_algorithm != BANDED && !s.fns.julia && !julia_map && !s.fns.perturbation && !s.fns.init_val) {
                 rootFindingMethodsSetEnabled(true);
@@ -10419,7 +5732,44 @@ public class MainWindow extends JFrame implements Constants {
         } else {
             startThreads(n);
         }
+    }
 
+    public void setJuliaMapPost(int julia_grid_first_dimension) {
+        this.julia_grid_first_dimension = julia_grid_first_dimension;
+        threads = new ThreadDraw[julia_grid_first_dimension][julia_grid_first_dimension];
+
+        toolbar.getJuliaMapButton().setSelected(true);
+
+        options_menu.getJuliaMapOptions().setEnabled(true);
+
+        setOptions(false);
+
+        julia_map = true;
+
+        rootFindingMethodsSetEnabled(false);
+        fractal_functions[SIERPINSKI_GASKET].setEnabled(false);
+        fractal_functions[KLEINIAN].setEnabled(false);
+        fractal_functions[INERTIA_GRAVITY].setEnabled(false);
+
+        options_menu.getPerturbation().setEnabled(false);
+        options_menu.getInitialValue().setEnabled(false);
+
+        options_menu.getGreedyAlgorithm().setEnabled(false);
+
+        progress.setValue(0);
+
+        scroll_pane.getHorizontalScrollBar().setValue((int) (scroll_pane.getHorizontalScrollBar().getMaximum() / 2 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2));
+        scroll_pane.getVerticalScrollBar().setValue((int) (scroll_pane.getVerticalScrollBar().getMaximum() / 2 - scroll_pane.getVerticalScrollBar().getSize().getHeight() / 2));
+
+        resetImage();
+
+        whole_image_done = false;
+
+        createThreadsJuliaMap();
+
+        calculation_time = System.currentTimeMillis();
+
+        startThreads(julia_grid_first_dimension);
     }
 
     public void setJuliaMap() {
@@ -10440,6 +5790,7 @@ public class MainWindow extends JFrame implements Constants {
             if (s.fns.out_coloring_algorithm != DISTANCE_ESTIMATOR && !s.exterior_de) {
                 fractal_functions[SIERPINSKI_GASKET].setEnabled(true);
                 fractal_functions[KLEINIAN].setEnabled(true);
+                fractal_functions[INERTIA_GRAVITY].setEnabled(true);
             }
 
             threads = new ThreadDraw[n][n];
@@ -10460,121 +5811,37 @@ public class MainWindow extends JFrame implements Constants {
             startThreads(n);
 
         } else {
-
-            String ans = JOptionPane.showInputDialog(scroll_pane, "Enter the first dimension, n,\nof the nxn 2D grid.", "Julia Map (2D Grid)", JOptionPane.QUESTION_MESSAGE);
-            try {
-                int temp = Integer.parseInt(ans);
-
-                if (temp < 2) {
-                    main_panel.repaint();
-                    JOptionPane.showMessageDialog(scroll_pane, "The grid's first dimension number must be greater than 1.", "Error!", JOptionPane.ERROR_MESSAGE);
-                    tools_menu.getJuliaMap().setSelected(false);
-                    toolbar.getJuliaMapButton().setSelected(false);
-                    return;
-                } else if (temp > 200) {
-                    main_panel.repaint();
-                    JOptionPane.showMessageDialog(scroll_pane, "The grid's first dimension number must be less than 201.", "Error!", JOptionPane.ERROR_MESSAGE);
-                    tools_menu.getJuliaMap().setSelected(false);
-                    toolbar.getJuliaMapButton().setSelected(false);
-                    return;
-                }
-
-                julia_grid_first_dimension = temp;
-                threads = new ThreadDraw[julia_grid_first_dimension][julia_grid_first_dimension];
-
-                toolbar.getJuliaMapButton().setSelected(true);
-
-                options_menu.getJuliaMapOptions().setEnabled(true);
-
-                setOptions(false);
-
-                julia_map = true;
-
-                rootFindingMethodsSetEnabled(false);
-                fractal_functions[SIERPINSKI_GASKET].setEnabled(false);
-                fractal_functions[KLEINIAN].setEnabled(false);
-
-                options_menu.getPerturbation().setEnabled(false);
-                options_menu.getInitialValue().setEnabled(false);
-
-                options_menu.getGreedyAlgorithm().setEnabled(false);
-
-                progress.setValue(0);
-
-                scroll_pane.getHorizontalScrollBar().setValue((int) (scroll_pane.getHorizontalScrollBar().getMaximum() / 2 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2));
-                scroll_pane.getVerticalScrollBar().setValue((int) (scroll_pane.getVerticalScrollBar().getMaximum() / 2 - scroll_pane.getVerticalScrollBar().getSize().getHeight() / 2));
-
-                resetImage();
-
-                whole_image_done = false;
-
-                createThreadsJuliaMap();
-
-                calculation_time = System.currentTimeMillis();
-
-                startThreads(julia_grid_first_dimension);
-            } catch (Exception ex) {
-                if (ans == null) {
-                    tools_menu.getJuliaMap().setSelected(false);
-                    toolbar.getJuliaMapButton().setSelected(false);
-                    main_panel.repaint();
-                } else {
-                    JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-                    tools_menu.getJuliaMap().setSelected(false);
-                    toolbar.getJuliaMapButton().setSelected(false);
-                    main_panel.repaint();
-                }
-            }
-
+            new JuliaMapDialog(ptr, julia_grid_first_dimension, toolbar.getJuliaMapButton(), tools_menu.getJuliaMap(), true);
         }
 
+    }
+
+    public void setJuliaMapOptionsPost(int julia_grid_first_dimension) {
+        this.julia_grid_first_dimension = julia_grid_first_dimension;
+        threads = new ThreadDraw[julia_grid_first_dimension][julia_grid_first_dimension];
+
+        setOptions(false);
+
+        progress.setValue(0);
+
+        scroll_pane.getHorizontalScrollBar().setValue((int) (scroll_pane.getHorizontalScrollBar().getMaximum() / 2 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2));
+        scroll_pane.getVerticalScrollBar().setValue((int) (scroll_pane.getVerticalScrollBar().getMaximum() / 2 - scroll_pane.getVerticalScrollBar().getSize().getHeight() / 2));
+
+        resetImage();
+
+        whole_image_done = false;
+
+        createThreadsJuliaMap();
+
+        calculation_time = System.currentTimeMillis();
+
+        startThreads(julia_grid_first_dimension);
     }
 
     public void setJuliaMapOptions() {
 
         resetOrbit();
-
-        String ans = JOptionPane.showInputDialog(scroll_pane, "You are using a " + julia_grid_first_dimension + "x" + julia_grid_first_dimension + " grid.\nEnter the first dimension, n,\nof the nxn 2D grid.", "Julia Map (2D Grid)", JOptionPane.QUESTION_MESSAGE);
-        try {
-            int temp = Integer.parseInt(ans);
-
-            if (temp < 2) {
-                main_panel.repaint();
-                JOptionPane.showMessageDialog(scroll_pane, "The grid's first dimension number must be greater than 1.", "Error!", JOptionPane.ERROR_MESSAGE);
-                return;
-            } else if (temp > 200) {
-                main_panel.repaint();
-                JOptionPane.showMessageDialog(scroll_pane, "The grid's first dimension number must be less than 201.", "Error!", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            julia_grid_first_dimension = temp;
-            threads = new ThreadDraw[julia_grid_first_dimension][julia_grid_first_dimension];
-
-            setOptions(false);
-
-            progress.setValue(0);
-
-            scroll_pane.getHorizontalScrollBar().setValue((int) (scroll_pane.getHorizontalScrollBar().getMaximum() / 2 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2));
-            scroll_pane.getVerticalScrollBar().setValue((int) (scroll_pane.getVerticalScrollBar().getMaximum() / 2 - scroll_pane.getVerticalScrollBar().getSize().getHeight() / 2));
-
-            resetImage();
-
-            whole_image_done = false;
-
-            createThreadsJuliaMap();
-
-            calculation_time = System.currentTimeMillis();
-
-            startThreads(julia_grid_first_dimension);
-        } catch (Exception ex) {
-            if (ans == null) {
-                main_panel.repaint();
-            } else {
-                JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-                main_panel.repaint();
-            }
-        }
+        new JuliaMapDialog(ptr, julia_grid_first_dimension, toolbar.getJuliaMapButton(), tools_menu.getJuliaMap(), false);
 
     }
 
@@ -10987,9 +6254,6 @@ public class MainWindow extends JFrame implements Constants {
 
     public void exit() {
 
-        if (!color_cycling) {
-            main_panel.repaint();
-        }
         int ans = JOptionPane.showConfirmDialog(scroll_pane, "Save before exiting?", "Save", JOptionPane.YES_NO_CANCEL_OPTION);
         if (ans == JOptionPane.YES_OPTION) {
             ptr.saveSettings();
@@ -11011,7 +6275,7 @@ public class MainWindow extends JFrame implements Constants {
         try {
             for (int i = 0; i < n; i++) {
                 for (int j = 0; j < n; j++) {
-                    threads[i][j] = new BruteForceDraw(j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts);
+                    threads[i][j] = new BruteForceDraw(j * image_size / n, (j + 1) * image_size / n, i * image_size / n, (i + 1) * image_size / n, s.xCenter, s.yCenter, s.size, s.max_iterations, s.fns, ptr, s.fractal_color, s.dem_color, image, s.fs, periodicity_checking, s.ps.color_cycling_location, s.ps2.color_cycling_location, s.exterior_de, s.exterior_de_factor, s.height_ratio, s.bms, s.polar_projection, s.circle_period, s.fdes, s.rps, s.inverse_dem, s.ps.color_intensity, s.ps.transfer_function, s.ps2.color_intensity, s.ps2.transfer_function, s.usePaletteForInColoring, s.ens, s.ofs, s.gss, s.color_blending, s.ots, s.cns, s.post_processing_order, s.ls, s.pbs, s.sts, s.gs.gradient_offset);
                     threads[i][j].setThreadId(i * n + j);
                 }
             }
@@ -11187,298 +6451,27 @@ public class MainWindow extends JFrame implements Constants {
             if (!s.fns.init_val && s.fns.out_coloring_algorithm != DISTANCE_ESTIMATOR && !s.exterior_de) {
                 fractal_functions[SIERPINSKI_GASKET].setEnabled(true);
                 fractal_functions[KLEINIAN].setEnabled(true);
+                fractal_functions[INERTIA_GRAVITY].setEnabled(true);
             }
         } else {
-            JPanel panel1 = new JPanel();
-            JPanel panel2 = new JPanel();
-
-            panel1.setLayout(new FlowLayout());
-            panel2.setLayout(new FlowLayout());
-
-            JTextField field_real = new JTextField(45);
-            field_real.setText("" + s.fns.perturbation_vals[0]);
-            field_real.addAncestorListener(new RequestFocusListener());
-
-            JTextField field_imaginary = new JTextField(45);
-            field_imaginary.setText("" + s.fns.perturbation_vals[1]);
-
-            JTabbedPane tabbedPane = new JTabbedPane();
-            tabbedPane.setPreferredSize(new Dimension(runsOnWindows ? 550 : 630, 595));
-            tabbedPane.setFocusable(false);
-
-            JPanel panel11 = new JPanel();
-
-            panel11.setLayout(new GridLayout(8, 1));
-
-            panel11.add(new JLabel(""));
-            panel11.add(new JLabel("Set the real and imaginary part of the perturbation."));
-            panel11.add(new JLabel(""));
-            panel11.add(new JLabel("Real:"));
-            panel11.add(field_real);
-            panel11.add(new JLabel(""));
-            panel11.add(new JLabel("Imaginary:"));
-            panel11.add(field_imaginary);
-
-            panel1.add(panel11);
-
-            JPanel panel21 = new JPanel();
-            panel21.setLayout(new FlowLayout());
-            JPanel panel22 = new JPanel();
-            panel22.setLayout(new FlowLayout());
-
-            JLabel html_label = CommonFunctions.createUserFormulaHtmlLabels("c, maxn, center, size, sizei, v1 - v30, point", "variable perturbation", "");
-            panel21.add(html_label);
-
-            JTextField field_formula = new JTextField(45);
-            field_formula.setText("" + s.fns.perturbation_user_formula);
-
-            JTabbedPane tabbedPane2 = new JTabbedPane();
-            tabbedPane2.setPreferredSize(new Dimension(runsOnWindows ? 500 : 580, 190));
-            tabbedPane2.setFocusable(false);
-
-            panel22.add(new JLabel("z(0) = z(0) +"));
-            panel22.add(field_formula);
-
-            tabbedPane2.addTab("Normal", panel22);
-
-            JPanel formula_panel_cond1 = new JPanel();
-            formula_panel_cond1.setLayout(new GridLayout(2, 2));
-
-            JTextField field_condition = new JTextField(24);
-            field_condition.setText(s.fns.user_perturbation_conditions[0]);
-            field_condition.addAncestorListener(new RequestFocusListener());
-
-            JTextField field_condition2 = new JTextField(24);
-            field_condition2.setText(s.fns.user_perturbation_conditions[1]);
-
-            formula_panel_cond1.add(new JLabel("Left operand:", SwingConstants.HORIZONTAL));
-            formula_panel_cond1.add(new JLabel("Right operand:", SwingConstants.HORIZONTAL));
-            formula_panel_cond1.add(field_condition);
-            formula_panel_cond1.add(field_condition2);
-
-            JTextField field_formula_cond1 = new JTextField(37);
-            field_formula_cond1.setText(s.fns.user_perturbation_condition_formula[0]);
-
-            JTextField field_formula_cond2 = new JTextField(37);
-            field_formula_cond2.setText(s.fns.user_perturbation_condition_formula[1]);
-
-            JTextField field_formula_cond3 = new JTextField(37);
-            field_formula_cond3.setText(s.fns.user_perturbation_condition_formula[2]);
-
-            JPanel formula_panel_cond11 = new JPanel();
-
-            formula_panel_cond11.add(new JLabel("left > right, z(0) = z(0) +"));
-            formula_panel_cond11.add(field_formula_cond1);
-
-            JPanel formula_panel_cond12 = new JPanel();
-
-            formula_panel_cond12.add(new JLabel("left < right, z(0) = z(0) +"));
-            formula_panel_cond12.add(field_formula_cond2);
-
-            JPanel formula_panel_cond13 = new JPanel();
-
-            formula_panel_cond13.add(new JLabel("left = right, z(0) = z(0) +"));
-            formula_panel_cond13.add(field_formula_cond3);
-
-            JPanel panel_cond = new JPanel();
-
-            panel_cond.setLayout(new FlowLayout());
-
-            panel_cond.add(formula_panel_cond1);
-            panel_cond.add(formula_panel_cond11);
-            panel_cond.add(formula_panel_cond12);
-            panel_cond.add(formula_panel_cond13);
-
-            tabbedPane2.addTab("Conditional", panel_cond);
-
-            JButton info_user = new JButton("Help");
-            info_user.setToolTipText("Shows the details of the user formulas.");
-            info_user.setFocusable(false);
-            info_user.setIcon(getIcon("/fractalzoomer/icons/help2.png"));
-            info_user.setPreferredSize(new Dimension(105, 23));
-
-            info_user.addActionListener(new ActionListener() {
-
-                @Override
-                public void actionPerformed(ActionEvent e) {
-
-                    showUserFormulaHelp();
-
-                }
-
-            });
-
-            JButton code_editor = new JButton("Edit User Code");
-            code_editor.setToolTipText("<html>Opens the java code, containing the user defined functions,<br>with a text editor.</html>");
-            code_editor.setFocusable(false);
-            code_editor.setIcon(getIcon("/fractalzoomer/icons/code_editor2.png"));
-            code_editor.setPreferredSize(new Dimension(160, 23));
-
-            code_editor.addActionListener(new ActionListener() {
-
-                @Override
-                public void actionPerformed(ActionEvent e) {
-
-                    codeEditor();
-
-                }
-
-            });
-
-            JButton compile_code = new JButton("Compile User Code");
-            compile_code.setToolTipText("Compiles the java code, containing the user defined functions.");
-            compile_code.setFocusable(false);
-            compile_code.setIcon(getIcon("/fractalzoomer/icons/compile2.png"));
-            compile_code.setPreferredSize(new Dimension(180, 23));
-
-            compile_code.addActionListener(new ActionListener() {
-
-                @Override
-                public void actionPerformed(ActionEvent e) {
-
-                    compileCode(true);
-
-                }
-
-            });
-
-            JPanel info_panel = new JPanel();
-            info_panel.setLayout(new FlowLayout());
-            info_panel.add(info_user);
-            info_panel.add(code_editor);
-            info_panel.add(compile_code);
-            info_panel.setPreferredSize(new Dimension(500, 28));
-
-            panel2.add(info_panel);
-            panel2.add(panel21);
-            panel2.add(tabbedPane2);
-
-            tabbedPane.addTab("Static value", panel1);
-            tabbedPane.addTab("Variable value", panel2);
-
-            if (s.fns.variable_perturbation) {
-                tabbedPane.setSelectedIndex(1);
-                tabbedPane2.setSelectedIndex(s.fns.user_perturbation_algorithm);
-            } else {
-                tabbedPane.setSelectedIndex(0);
-            }
-
-            Object[] message = {
-                tabbedPane
-            };
-
-            int res = JOptionPane.showConfirmDialog(scroll_pane, message, "Perturbation", JOptionPane.OK_CANCEL_OPTION);
-
-            double temp = 0, temp2 = 0;
-
-            if (res == JOptionPane.OK_OPTION) {
-                try {
-                    if (tabbedPane.getSelectedIndex() == 0) {
-                        temp = Double.parseDouble(field_real.getText());
-                        temp2 = Double.parseDouble(field_imaginary.getText());
-                    } else if (tabbedPane2.getSelectedIndex() == 0) {
-                        s.parser.parse(field_formula.getText());
-                        if (s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail()) {
-                            JOptionPane.showMessageDialog(scroll_pane, "The variables: z, n, s, p, pp, bail, cbail cannot be used in the z(0) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            options_menu.getPerturbation().setSelected(false);
-                            main_panel.repaint();
-                            return;
-                        }
-                    } else {
-                        s.parser.parse(field_condition.getText());
-
-                        if (s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail()) {
-                            JOptionPane.showMessageDialog(scroll_pane, "The variables: z, n, s, p, pp, bail, cbail cannot be used in the left condition formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            options_menu.getPerturbation().setSelected(false);
-                            main_panel.repaint();
-                            return;
-                        }
-
-                        s.parser.parse(field_condition2.getText());
-
-                        if (s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail()) {
-                            JOptionPane.showMessageDialog(scroll_pane, "The variables: z, n, s, p, pp, bail, cbail cannot be used in the right condition formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            options_menu.getPerturbation().setSelected(false);
-                            main_panel.repaint();
-                            return;
-                        }
-
-                        s.parser.parse(field_formula_cond1.getText());
-
-                        if (s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail()) {
-                            JOptionPane.showMessageDialog(scroll_pane, "The variables: z, n, s, p, pp, bail, cbail cannot be used in the left > right z(0) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            options_menu.getPerturbation().setSelected(false);
-                            main_panel.repaint();
-                            return;
-                        }
-
-                        s.parser.parse(field_formula_cond2.getText());
-
-                        if (s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail()) {
-                            JOptionPane.showMessageDialog(scroll_pane, "The variables: z, n, s, p, pp, bail, cbail cannot be used in the left < right z(0) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            options_menu.getPerturbation().setSelected(false);
-                            main_panel.repaint();
-                            return;
-                        }
-
-                        s.parser.parse(field_formula_cond3.getText());
-
-                        if (s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail()) {
-                            JOptionPane.showMessageDialog(scroll_pane, "The variables: z, n, s, p, pp, bail, cbail cannot be used in the left = right z(0) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            options_menu.getPerturbation().setSelected(false);
-                            main_panel.repaint();
-                            return;
-                        }
-                    }
-                } catch (ParserException e) {
-                    JOptionPane.showMessageDialog(scroll_pane, e.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
-                    options_menu.getPerturbation().setSelected(false);
-                    main_panel.repaint();
-                    return;
-                } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-                    options_menu.getPerturbation().setSelected(false);
-                    main_panel.repaint();
-                    return;
-                }
-            } else {
-                main_panel.repaint();
-                options_menu.getPerturbation().setSelected(false);
-                return;
-            }
-
-            if (tabbedPane.getSelectedIndex() == 0) {
-                s.fns.perturbation_vals[0] = temp == 0.0 ? 0.0 : temp;
-                s.fns.perturbation_vals[1] = temp2 == 0.0 ? 0.0 : temp2;
-                s.fns.variable_perturbation = false;
-            } else {
-                s.fns.variable_perturbation = true;
-
-                s.fns.user_perturbation_algorithm = tabbedPane2.getSelectedIndex();
-
-                if (s.fns.user_perturbation_algorithm == 0) {
-                    s.fns.perturbation_user_formula = field_formula.getText();
-                } else {
-                    s.fns.user_perturbation_conditions[0] = field_condition.getText();
-                    s.fns.user_perturbation_conditions[1] = field_condition2.getText();
-                    s.fns.user_perturbation_condition_formula[0] = field_formula_cond1.getText();
-                    s.fns.user_perturbation_condition_formula[1] = field_formula_cond2.getText();
-                    s.fns.user_perturbation_condition_formula[2] = field_formula_cond3.getText();
-                }
-            }
-
-            s.fns.perturbation = true;
-            tools_menu.getJulia().setEnabled(false);
-            toolbar.getJuliaButton().setEnabled(false);
-            tools_menu.getJuliaMap().setEnabled(false);
-            toolbar.getJuliaMapButton().setEnabled(false);
-            rootFindingMethodsSetEnabled(false);
-            fractal_functions[SIERPINSKI_GASKET].setEnabled(false);
-            fractal_functions[KLEINIAN].setEnabled(false);
+            new PerturbationDialog(ptr, s, options_menu.getPerturbation());
+            return;
         }
 
         defaultFractalSettings();
 
+    }
+
+    public void setPerturbationPost() {
+        s.fns.perturbation = true;
+        tools_menu.getJulia().setEnabled(false);
+        toolbar.getJuliaButton().setEnabled(false);
+        tools_menu.getJuliaMap().setEnabled(false);
+        toolbar.getJuliaMapButton().setEnabled(false);
+        rootFindingMethodsSetEnabled(false);
+        fractal_functions[SIERPINSKI_GASKET].setEnabled(false);
+        fractal_functions[KLEINIAN].setEnabled(false);
+        fractal_functions[INERTIA_GRAVITY].setEnabled(false);
     }
 
     public void setInitialValue() {
@@ -11494,298 +6487,27 @@ public class MainWindow extends JFrame implements Constants {
             if (!s.fns.perturbation && s.fns.out_coloring_algorithm != DISTANCE_ESTIMATOR && !s.exterior_de) {
                 fractal_functions[SIERPINSKI_GASKET].setEnabled(true);
                 fractal_functions[KLEINIAN].setEnabled(true);
+                fractal_functions[INERTIA_GRAVITY].setEnabled(true);
             }
         } else {
-
-            JPanel panel1 = new JPanel();
-            JPanel panel2 = new JPanel();
-
-            panel1.setLayout(new FlowLayout());
-            panel2.setLayout(new FlowLayout());
-
-            JTextField field_real = new JTextField(45);
-            field_real.setText("" + s.fns.initial_vals[0]);
-            field_real.addAncestorListener(new RequestFocusListener());
-
-            JTextField field_imaginary = new JTextField(45);
-            field_imaginary.setText("" + s.fns.initial_vals[1]);
-
-            JTabbedPane tabbedPane = new JTabbedPane();
-            tabbedPane.setPreferredSize(new Dimension(runsOnWindows ? 550 : 630, 595));
-            tabbedPane.setFocusable(false);
-
-            JPanel panel11 = new JPanel();
-
-            panel11.setLayout(new GridLayout(8, 1));
-
-            panel11.add(new JLabel(""));
-            panel11.add(new JLabel("Set the real and imaginary part of the initial value."));
-            panel11.add(new JLabel(""));
-            panel11.add(new JLabel("Real:"));
-            panel11.add(field_real);
-            panel11.add(new JLabel(""));
-            panel11.add(new JLabel("Imaginary:"));
-            panel11.add(field_imaginary);
-
-            panel1.add(panel11);
-
-            JPanel panel21 = new JPanel();
-            panel21.setLayout(new FlowLayout());
-            JPanel panel22 = new JPanel();
-            panel22.setLayout(new FlowLayout());
-
-            JLabel html_label = CommonFunctions.createUserFormulaHtmlLabels("c, maxn, center, size, sizei, v1 - v30, point", "variable initial value", "");
-            panel21.add(html_label);
-
-            JTextField field_formula = new JTextField(45);
-            field_formula.setText("" + s.fns.initial_value_user_formula);
-
-            JTabbedPane tabbedPane2 = new JTabbedPane();
-            tabbedPane2.setPreferredSize(new Dimension(runsOnWindows ? 500 : 580, 190));
-            tabbedPane2.setFocusable(false);
-
-            panel22.add(new JLabel("z(0) ="));
-            panel22.add(field_formula);
-
-            tabbedPane2.addTab("Normal", panel22);
-
-            JPanel formula_panel_cond1 = new JPanel();
-            formula_panel_cond1.setLayout(new GridLayout(2, 2));
-
-            JTextField field_condition = new JTextField(24);
-            field_condition.setText(s.fns.user_initial_value_conditions[0]);
-            field_condition.addAncestorListener(new RequestFocusListener());
-
-            JTextField field_condition2 = new JTextField(24);
-            field_condition2.setText(s.fns.user_initial_value_conditions[1]);
-
-            formula_panel_cond1.add(new JLabel("Left operand:", SwingConstants.HORIZONTAL));
-            formula_panel_cond1.add(new JLabel("Right operand:", SwingConstants.HORIZONTAL));
-            formula_panel_cond1.add(field_condition);
-            formula_panel_cond1.add(field_condition2);
-
-            JTextField field_formula_cond1 = new JTextField(37);
-            field_formula_cond1.setText(s.fns.user_initial_value_condition_formula[0]);
-
-            JTextField field_formula_cond2 = new JTextField(37);
-            field_formula_cond2.setText(s.fns.user_initial_value_condition_formula[1]);
-
-            JTextField field_formula_cond3 = new JTextField(37);
-            field_formula_cond3.setText(s.fns.user_initial_value_condition_formula[2]);
-
-            JPanel formula_panel_cond11 = new JPanel();
-
-            formula_panel_cond11.add(new JLabel("left > right, z(0) ="));
-            formula_panel_cond11.add(field_formula_cond1);
-
-            JPanel formula_panel_cond12 = new JPanel();
-
-            formula_panel_cond12.add(new JLabel("left < right, z(0) ="));
-            formula_panel_cond12.add(field_formula_cond2);
-
-            JPanel formula_panel_cond13 = new JPanel();
-
-            formula_panel_cond13.add(new JLabel("left = right, z(0) ="));
-            formula_panel_cond13.add(field_formula_cond3);
-
-            JPanel panel_cond = new JPanel();
-
-            panel_cond.setLayout(new FlowLayout());
-
-            panel_cond.add(formula_panel_cond1);
-            panel_cond.add(formula_panel_cond11);
-            panel_cond.add(formula_panel_cond12);
-            panel_cond.add(formula_panel_cond13);
-
-            tabbedPane2.addTab("Conditional", panel_cond);
-
-            JButton info_user = new JButton("Help");
-            info_user.setToolTipText("Shows the details of the user formulas.");
-            info_user.setFocusable(false);
-            info_user.setIcon(getIcon("/fractalzoomer/icons/help2.png"));
-            info_user.setPreferredSize(new Dimension(105, 23));
-
-            info_user.addActionListener(new ActionListener() {
-
-                @Override
-                public void actionPerformed(ActionEvent e) {
-
-                    showUserFormulaHelp();
-
-                }
-
-            });
-
-            JButton code_editor = new JButton("Edit User Code");
-            code_editor.setToolTipText("<html>Opens the java code, containing the user defined functions,<br>with a text editor.</html>");
-            code_editor.setFocusable(false);
-            code_editor.setIcon(getIcon("/fractalzoomer/icons/code_editor2.png"));
-            code_editor.setPreferredSize(new Dimension(160, 23));
-
-            code_editor.addActionListener(new ActionListener() {
-
-                @Override
-                public void actionPerformed(ActionEvent e) {
-
-                    codeEditor();
-
-                }
-
-            });
-
-            JButton compile_code = new JButton("Compile User Code");
-            compile_code.setToolTipText("Compiles the java code, containing the user defined functions.");
-            compile_code.setFocusable(false);
-            compile_code.setIcon(getIcon("/fractalzoomer/icons/compile2.png"));
-            compile_code.setPreferredSize(new Dimension(180, 23));
-
-            compile_code.addActionListener(new ActionListener() {
-
-                @Override
-                public void actionPerformed(ActionEvent e) {
-
-                    compileCode(true);
-
-                }
-
-            });
-
-            JPanel info_panel = new JPanel();
-            info_panel.setLayout(new FlowLayout());
-            info_panel.add(info_user);
-            info_panel.add(code_editor);
-            info_panel.add(compile_code);
-            info_panel.setPreferredSize(new Dimension(500, 28));
-
-            panel2.add(info_panel);
-            panel2.add(panel21);
-            panel2.add(tabbedPane2);
-
-            tabbedPane.addTab("Static value", panel1);
-            tabbedPane.addTab("Variable value", panel2);
-
-            if (s.fns.variable_init_value) {
-                tabbedPane.setSelectedIndex(1);
-                tabbedPane2.setSelectedIndex(s.fns.user_initial_value_algorithm);
-            } else {
-                tabbedPane.setSelectedIndex(0);
-            }
-
-            Object[] message = {
-                tabbedPane
-            };
-
-            int res = JOptionPane.showConfirmDialog(scroll_pane, message, "Initial Value", JOptionPane.OK_CANCEL_OPTION);
-
-            double temp = 0, temp2 = 0;
-
-            if (res == JOptionPane.OK_OPTION) {
-                try {
-                    if (tabbedPane.getSelectedIndex() == 0) {
-                        temp = Double.parseDouble(field_real.getText());
-                        temp2 = Double.parseDouble(field_imaginary.getText());
-                    } else if (tabbedPane2.getSelectedIndex() == 0) {
-                        s.parser.parse(field_formula.getText());
-                        if (s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail()) {
-                            JOptionPane.showMessageDialog(scroll_pane, "The variables: z, n, s, p, pp, bail, cbail cannot be used in the z(0) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            options_menu.getInitialValue().setSelected(false);
-                            main_panel.repaint();
-                            return;
-                        }
-                    } else {
-                        s.parser.parse(field_condition.getText());
-
-                        if (s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail()) {
-                            JOptionPane.showMessageDialog(scroll_pane, "The variables: z, n, s, p, pp, bail, cbail cannot be used in the left condition formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            options_menu.getInitialValue().setSelected(false);
-                            main_panel.repaint();
-                            return;
-                        }
-
-                        s.parser.parse(field_condition2.getText());
-
-                        if (s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail()) {
-                            JOptionPane.showMessageDialog(scroll_pane, "The variables: z, n, s, p, pp, bail, cbail cannot be used in the right condition formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            options_menu.getInitialValue().setSelected(false);
-                            main_panel.repaint();
-                            return;
-                        }
-
-                        s.parser.parse(field_formula_cond1.getText());
-
-                        if (s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail()) {
-                            JOptionPane.showMessageDialog(scroll_pane, "The variables: z, n, s, p, pp, bail, cbail cannot be used in the left > right z(0) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            options_menu.getInitialValue().setSelected(false);
-                            main_panel.repaint();
-                            return;
-                        }
-
-                        s.parser.parse(field_formula_cond2.getText());
-
-                        if (s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail()) {
-                            JOptionPane.showMessageDialog(scroll_pane, "The variables: z, n, s, p, pp, bail, cbail cannot be used in the left < right z(0) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            options_menu.getInitialValue().setSelected(false);
-                            main_panel.repaint();
-                            return;
-                        }
-
-                        s.parser.parse(field_formula_cond3.getText());
-
-                        if (s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail()) {
-                            JOptionPane.showMessageDialog(scroll_pane, "The variables: z, n, s, p, pp, bail, cbail cannot be used in the left = right z(0) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
-                            options_menu.getInitialValue().setSelected(false);
-                            main_panel.repaint();
-                            return;
-                        }
-                    }
-                } catch (ParserException e) {
-                    JOptionPane.showMessageDialog(scroll_pane, e.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
-                    options_menu.getInitialValue().setSelected(false);
-                    main_panel.repaint();
-                    return;
-                } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-                    options_menu.getInitialValue().setSelected(false);
-                    main_panel.repaint();
-                    return;
-                }
-            } else {
-                main_panel.repaint();
-                options_menu.getInitialValue().setSelected(false);
-                return;
-            }
-
-            if (tabbedPane.getSelectedIndex() == 0) {
-                s.fns.initial_vals[0] = temp == 0.0 ? 0.0 : temp;
-                s.fns.initial_vals[1] = temp2 == 0.0 ? 0.0 : temp2;
-                s.fns.variable_init_value = false;
-            } else {
-                s.fns.variable_init_value = true;
-                s.fns.user_initial_value_algorithm = tabbedPane2.getSelectedIndex();
-
-                if (s.fns.user_initial_value_algorithm == 0) {
-                    s.fns.initial_value_user_formula = field_formula.getText();
-                } else {
-                    s.fns.user_initial_value_conditions[0] = field_condition.getText();
-                    s.fns.user_initial_value_conditions[1] = field_condition2.getText();
-                    s.fns.user_initial_value_condition_formula[0] = field_formula_cond1.getText();
-                    s.fns.user_initial_value_condition_formula[1] = field_formula_cond2.getText();
-                    s.fns.user_initial_value_condition_formula[2] = field_formula_cond3.getText();
-                }
-            }
-
-            s.fns.init_val = true;
-            tools_menu.getJulia().setEnabled(false);
-            toolbar.getJuliaButton().setEnabled(false);
-            tools_menu.getJuliaMap().setEnabled(false);
-            toolbar.getJuliaMapButton().setEnabled(false);
-            rootFindingMethodsSetEnabled(false);
-            fractal_functions[SIERPINSKI_GASKET].setEnabled(false);
-            fractal_functions[KLEINIAN].setEnabled(false);
+            new InitialValueDialog(ptr, s, options_menu.getInitialValue());
+            return;
         }
 
         defaultFractalSettings();
 
+    }
+
+    public void setInitialValuePost() {
+        s.fns.init_val = true;
+        tools_menu.getJulia().setEnabled(false);
+        toolbar.getJuliaButton().setEnabled(false);
+        tools_menu.getJuliaMap().setEnabled(false);
+        toolbar.getJuliaMapButton().setEnabled(false);
+        rootFindingMethodsSetEnabled(false);
+        fractal_functions[SIERPINSKI_GASKET].setEnabled(false);
+        fractal_functions[KLEINIAN].setEnabled(false);
+        fractal_functions[INERTIA_GRAVITY].setEnabled(false);
     }
 
     public void setColorCyclingButton() {
@@ -11965,6 +6687,30 @@ public class MainWindow extends JFrame implements Constants {
 
     }
 
+    public void setFullScreen() {
+
+        resetOrbit();
+        if (!options_menu.getFullscreen().isSelected()) {
+            if (isVisible()) {
+                dispose();
+                setExtendedState(JFrame.NORMAL);
+                setUndecorated(false);
+                setVisible(true);
+            }
+        } else {
+            if (isVisible()) {
+                dispose();
+                setExtendedState(JFrame.MAXIMIZED_BOTH);
+                setUndecorated(true);
+                setVisible(true);
+            } else {
+                setExtendedState(JFrame.MAXIMIZED_BOTH);
+                setUndecorated(true);
+            }
+        }
+
+    }
+
     public int getNumberOfThreads() {
 
         return n * n;
@@ -11982,6 +6728,47 @@ public class MainWindow extends JFrame implements Constants {
         resetOrbit();
         new FiltersOptionsFrame(ptr, s.fs.filters_options_vals, s.fs.filters_options_extra_vals, s.fs.filters_colors, s.fs.filters_extra_colors, filters_opt, s.fs.filters_order, s.fs.filters);
 
+    }
+
+    public void setPolarProjectionPost() {
+        s.polar_projection = true;
+        toolbar.getPolarProjectionButton().setSelected(true);
+
+        tools_menu.getGrid().setEnabled(false);
+        tools_menu.getZoomWindow().setEnabled(false);
+
+        options_menu.getPolarProjectionOptions().setEnabled(true);
+
+        setOptions(false);
+
+        progress.setValue(0);
+
+        scroll_pane.getHorizontalScrollBar().setValue((int) (scroll_pane.getHorizontalScrollBar().getMaximum() / 2 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2));
+        scroll_pane.getVerticalScrollBar().setValue((int) (scroll_pane.getVerticalScrollBar().getMaximum() / 2 - scroll_pane.getVerticalScrollBar().getSize().getHeight() / 2));
+
+        resetImage();
+
+        if (s.d3s.d3) {
+            s.d3s.fiX = 0.64;
+            s.d3s.fiY = 0.82;
+            Arrays.fill(((DataBufferInt) image.getRaster().getDataBuffer()).getData(), Color.BLACK.getRGB());
+        }
+
+        whole_image_done = false;
+
+        if (julia_map) {
+            createThreadsJuliaMap();
+        } else {
+            createThreads(false);
+        }
+
+        calculation_time = System.currentTimeMillis();
+
+        if (julia_map) {
+            startThreads(julia_grid_first_dimension);
+        } else {
+            startThreads(n);
+        }
     }
 
     public void setPolarProjection() {
@@ -12024,337 +6811,11 @@ public class MainWindow extends JFrame implements Constants {
                 startThreads(n);
             }
         } else {
-            JTextField field_real = new JTextField();
-
-            Point2D.Double p = MathUtils.rotatePointRelativeToPoint(s.xCenter, s.yCenter, s.fns.rotation_vals, s.fns.rotation_center);
-
-            if (p.x == 0) {
-                field_real.setText("" + 0.0);
-            } else {
-                field_real.setText("" + p.x);
-            }
-
-            field_real.addAncestorListener(new RequestFocusListener());
-
-            JTextField field_imaginary = new JTextField();
-
-            if (p.y == 0) {
-                field_imaginary.setText("" + 0.0);
-            } else {
-                field_imaginary.setText("" + p.y);
-            }
-
-            JTextField field_size = new JTextField();
-            field_size.setText("" + s.size);
-
-            JTextField field_circle_period = new JTextField();
-            field_circle_period.setText("" + s.circle_period);
-
-            JButton corners = new JButton("Set Corners");
-            corners.setToolTipText("An alternative center/size selection option.");
-            corners.setFocusable(false);
-            corners.setIcon(getIcon("/fractalzoomer/icons/corners.png"));
-
-            corners.addActionListener(new ActionListener() {
-
-                @Override
-                public void actionPerformed(ActionEvent e) {
-
-                    setCorners(field_real, field_imaginary, field_size);
-
-                }
-
-            });
-
-            Object[] message3 = {
-                " ",
-                "Set the real and imaginary part of the polar projection center",
-                "and the size.",
-                "Real:", field_real,
-                "Imaginary:", field_imaginary,
-                "Size:", field_size,
-                " ",
-                corners,
-                " ",
-                "Set the circle periods number.",
-                "Circle Periods:",
-                field_circle_period,
-                ""};
-
-            int res = JOptionPane.showConfirmDialog(scroll_pane, message3, "Polar Projection", JOptionPane.OK_CANCEL_OPTION);
-
-            double tempReal, tempImaginary, tempSize, temp_circle_period;
-
-            if (res == JOptionPane.OK_OPTION) {
-                try {
-                    tempReal = Double.parseDouble(field_real.getText()) - s.fns.rotation_center[0];
-                    tempImaginary = Double.parseDouble(field_imaginary.getText()) - s.fns.rotation_center[1];
-                    tempSize = Double.parseDouble(field_size.getText());
-                    temp_circle_period = Double.parseDouble(field_circle_period.getText());
-
-                    if (tempSize <= 0) {
-                        main_panel.repaint();
-                        JOptionPane.showMessageDialog(scroll_pane, "Size number must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
-                        tools_menu.getPolarProjection().setSelected(false);
-                        toolbar.getPolarProjectionButton().setSelected(false);
-                        return;
-                    }
-
-                    if (temp_circle_period <= 0) {
-                        main_panel.repaint();
-                        JOptionPane.showMessageDialog(scroll_pane, "The circle periods must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
-                        tools_menu.getPolarProjection().setSelected(false);
-                        toolbar.getPolarProjectionButton().setSelected(false);
-                        return;
-                    }
-
-                    s.size = tempSize;
-                    s.xCenter = tempReal * s.fns.rotation_vals[0] + tempImaginary * s.fns.rotation_vals[1] + s.fns.rotation_center[0];
-                    s.yCenter = -tempReal * s.fns.rotation_vals[1] + tempImaginary * s.fns.rotation_vals[0] + s.fns.rotation_center[1];
-                    s.circle_period = temp_circle_period;
-
-                    s.polar_projection = true;
-                    toolbar.getPolarProjectionButton().setSelected(true);
-
-                    tools_menu.getGrid().setEnabled(false);
-                    tools_menu.getZoomWindow().setEnabled(false);
-
-                    options_menu.getPolarProjectionOptions().setEnabled(true);
-
-                    setOptions(false);
-
-                    progress.setValue(0);
-
-                    scroll_pane.getHorizontalScrollBar().setValue((int) (scroll_pane.getHorizontalScrollBar().getMaximum() / 2 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2));
-                    scroll_pane.getVerticalScrollBar().setValue((int) (scroll_pane.getVerticalScrollBar().getMaximum() / 2 - scroll_pane.getVerticalScrollBar().getSize().getHeight() / 2));
-
-                    resetImage();
-
-                    if (s.d3s.d3) {
-                        s.d3s.fiX = 0.64;
-                        s.d3s.fiY = 0.82;
-                        Arrays.fill(((DataBufferInt) image.getRaster().getDataBuffer()).getData(), Color.BLACK.getRGB());
-                    }
-
-                    whole_image_done = false;
-
-                    if (julia_map) {
-                        createThreadsJuliaMap();
-                    } else {
-                        createThreads(false);
-                    }
-
-                    calculation_time = System.currentTimeMillis();
-
-                    if (julia_map) {
-                        startThreads(julia_grid_first_dimension);
-                    } else {
-                        startThreads(n);
-                    }
-                } catch (Exception e) {
-                    JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-                    tools_menu.getPolarProjection().setSelected(false);
-                    toolbar.getPolarProjectionButton().setSelected(false);
-                    main_panel.repaint();
-                    return;
-                }
-            } else {
-                tools_menu.getPolarProjection().setSelected(false);
-                toolbar.getPolarProjectionButton().setSelected(false);
-                main_panel.repaint();
-                return;
-            }
+            new PolarProjectionDialog(ptr, s, toolbar.getPolarProjectionButton(), tools_menu.getPolarProjection(), true);
         }
     }
 
-    public void setPolarProjectionOptions() {
-        resetOrbit();
-        JTextField field_real = new JTextField();
-
-        Point2D.Double p = MathUtils.rotatePointRelativeToPoint(s.xCenter, s.yCenter, s.fns.rotation_vals, s.fns.rotation_center);
-
-        if (p.x == 0) {
-            field_real.setText("" + 0.0);
-        } else {
-            field_real.setText("" + p.x);
-        }
-
-        field_real.addAncestorListener(new RequestFocusListener());
-
-        JTextField field_imaginary = new JTextField();
-
-        if (p.y == 0) {
-            field_imaginary.setText("" + 0.0);
-        } else {
-            field_imaginary.setText("" + p.y);
-        }
-
-        JTextField field_size = new JTextField();
-        field_size.setText("" + s.size);
-
-        JTextField field_circle_period = new JTextField();
-        field_circle_period.setText("" + s.circle_period);
-
-        JButton corners = new JButton("Set Corners");
-        corners.setToolTipText("An alternative center/size selection option.");
-        corners.setFocusable(false);
-        corners.setIcon(getIcon("/fractalzoomer/icons/corners.png"));
-
-        corners.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                setCorners(field_real, field_imaginary, field_size);
-
-            }
-
-        });
-
-        Object[] message3 = {
-            " ",
-            "Set the real and imaginary part of the polar projection center",
-            "and the size.",
-            "Real:", field_real,
-            "Imaginary:", field_imaginary,
-            "Size:", field_size,
-            " ",
-            corners,
-            " ",
-            "Set the circle periods number.",
-            "Circle Periods:",
-            field_circle_period,
-            ""};
-
-        int res = JOptionPane.showConfirmDialog(scroll_pane, message3, "Polar Projection", JOptionPane.OK_CANCEL_OPTION);
-
-        double tempReal, tempImaginary, tempSize, temp_circle_period;
-
-        if (res == JOptionPane.OK_OPTION) {
-            try {
-                tempReal = Double.parseDouble(field_real.getText()) - s.fns.rotation_center[0];
-                tempImaginary = Double.parseDouble(field_imaginary.getText()) - s.fns.rotation_center[1];
-                tempSize = Double.parseDouble(field_size.getText());
-                temp_circle_period = Double.parseDouble(field_circle_period.getText());
-
-                if (tempSize <= 0) {
-                    main_panel.repaint();
-                    JOptionPane.showMessageDialog(scroll_pane, "Size number must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-
-                if (temp_circle_period <= 0) {
-                    main_panel.repaint();
-                    JOptionPane.showMessageDialog(scroll_pane, "The circle periods must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-
-                s.size = tempSize;
-                s.xCenter = tempReal * s.fns.rotation_vals[0] + tempImaginary * s.fns.rotation_vals[1] + s.fns.rotation_center[0];
-                s.yCenter = -tempReal * s.fns.rotation_vals[1] + tempImaginary * s.fns.rotation_vals[0] + s.fns.rotation_center[1];
-                s.circle_period = temp_circle_period;
-
-                setOptions(false);
-
-                progress.setValue(0);
-
-                scroll_pane.getHorizontalScrollBar().setValue((int) (scroll_pane.getHorizontalScrollBar().getMaximum() / 2 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2));
-                scroll_pane.getVerticalScrollBar().setValue((int) (scroll_pane.getVerticalScrollBar().getMaximum() / 2 - scroll_pane.getVerticalScrollBar().getSize().getHeight() / 2));
-
-                resetImage();
-
-                if (s.d3s.d3) {
-                    Arrays.fill(((DataBufferInt) image.getRaster().getDataBuffer()).getData(), Color.BLACK.getRGB());
-                }
-
-                whole_image_done = false;
-
-                if (julia_map) {
-                    createThreadsJuliaMap();
-                } else {
-                    createThreads(false);
-                }
-
-                calculation_time = System.currentTimeMillis();
-
-                if (julia_map) {
-                    startThreads(julia_grid_first_dimension);
-                } else {
-                    startThreads(n);
-                }
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-                main_panel.repaint();
-                return;
-            }
-        } else {
-            main_panel.repaint();
-            return;
-        }
-    }
-
-    public void setDomainColoringSettings() {
-        toolbar.getDomainColoringButton().setSelected(true);
-
-        options_menu.getDomainColoringOptions().setEnabled(true);
-
-        tools_menu.getJuliaMap().setEnabled(false);
-        toolbar.getJuliaMapButton().setEnabled(false);
-        tools_menu.getJulia().setEnabled(false);
-        toolbar.getJuliaButton().setEnabled(false);
-        tools_menu.getColorCycling().setEnabled(false);
-        toolbar.getColorCyclingButton().setEnabled(false);
-
-        if (s.ds.domain_coloring_mode != 1) {
-            toolbar.getOutCustomPaletteButton().setEnabled(false);
-            toolbar.getRandomPaletteButton().setEnabled(false);
-            options_menu.getRandomPalette().setEnabled(false);
-            options_menu.getOutColoringPaletteMenu().setEnabled(false);
-        }
-
-        options_menu.getDistanceEstimation().setEnabled(false);
-
-        options_menu.getFakeDistanceEstimation().setEnabled(false);
-        options_menu.getContourColoring().setEnabled(false);
-
-        options_menu.getEntropyColoring().setEnabled(false);
-        options_menu.getOffsetColoring().setEnabled(false);
-        options_menu.getGreyScaleColoring().setEnabled(false);
-
-        options_menu.getRainbowPalette().setEnabled(false);
-
-        options_menu.getOrbitTraps().setEnabled(false);
-
-        options_menu.getPaletteGradientMerging().setEnabled(false);
-        options_menu.getInColoringPaletteMenu().setEnabled(false);
-        options_menu.getDirectColor().setEnabled(false);
-        options_menu.getDirectColor().setSelected(false);
-        ThreadDraw.USE_DIRECT_COLOR = s.useDirectColor = false;
-
-        toolbar.getInCustomPaletteButton().setEnabled(false);
-
-        infobar.getGradientPreviewLabel().setVisible(true);
-        infobar.getGradientPreview().setVisible(true);
-        infobar.getOutColoringPalettePreview().setVisible(true);
-        infobar.getOutColoringPalettePreviewLabel().setVisible(true);
-        infobar.getInColoringPalettePreview().setVisible(false);
-        infobar.getInColoringPalettePreviewLabel().setVisible(false);
-
-        options_menu.getOutColoringMenu().setEnabled(false);
-        options_menu.getInColoringMenu().setEnabled(false);
-        options_menu.getFractalColor().setEnabled(false);
-        options_menu.getStatisticsColoring().setEnabled(false);
-
-        options_menu.getGreedyAlgorithm().setEnabled(false);
-        options_menu.getPeriodicityChecking().setEnabled(false);
-        options_menu.getBailout().setEnabled(false);
-        options_menu.getBailoutConditionMenu().setEnabled(false);
-
-        infobar.getMaxIterationsColorPreview().setVisible(false);
-        infobar.getMaxIterationsColorPreviewLabel().setVisible(false);
-
-        updatePalettePreview(s.ps.color_cycling_location, s.ps2.color_cycling_location);
-
+    public void setPolarProjectionOptionsPost() {
         setOptions(false);
 
         progress.setValue(0);
@@ -12370,11 +6831,114 @@ public class MainWindow extends JFrame implements Constants {
 
         whole_image_done = false;
 
-        createThreads(false);
+        if (julia_map) {
+            createThreadsJuliaMap();
+        } else {
+            createThreads(false);
+        }
 
         calculation_time = System.currentTimeMillis();
 
-        startThreads(n);
+        if (julia_map) {
+            startThreads(julia_grid_first_dimension);
+        } else {
+            startThreads(n);
+        }
+    }
+
+    public void setPolarProjectionOptions() {
+        resetOrbit();
+        new PolarProjectionDialog(ptr, s, toolbar.getPolarProjectionButton(), tools_menu.getPolarProjection(), false);
+    }
+
+    public void setDomainColoringSettings() {
+        try {
+            toolbar.getDomainColoringButton().setSelected(true);
+
+            options_menu.getDomainColoringOptions().setEnabled(true);
+
+            tools_menu.getJuliaMap().setEnabled(false);
+            toolbar.getJuliaMapButton().setEnabled(false);
+            tools_menu.getJulia().setEnabled(false);
+            toolbar.getJuliaButton().setEnabled(false);
+
+            if (s.ds.domain_coloring_mode != 1) {
+                toolbar.getOutCustomPaletteButton().setEnabled(false);
+                toolbar.getRandomPaletteButton().setEnabled(false);
+                options_menu.getRandomPalette().setEnabled(false);
+                options_menu.getOutColoringPaletteMenu().setEnabled(false);
+            }
+
+            options_menu.getDistanceEstimation().setEnabled(false);
+
+            options_menu.getFakeDistanceEstimation().setEnabled(false);
+            options_menu.getContourColoring().setEnabled(false);
+
+            options_menu.getEntropyColoring().setEnabled(false);
+            options_menu.getOffsetColoring().setEnabled(false);
+            options_menu.getGreyScaleColoring().setEnabled(false);
+
+            options_menu.getRainbowPalette().setEnabled(false);
+
+            options_menu.getOrbitTraps().setEnabled(false);
+
+            options_menu.getPaletteGradientMerging().setEnabled(false);
+            options_menu.getInColoringPaletteMenu().setEnabled(false);
+            options_menu.getDirectColor().setEnabled(false);
+            options_menu.getDirectColor().setSelected(false);
+            ThreadDraw.USE_DIRECT_COLOR = s.useDirectColor = false;
+
+            toolbar.getInCustomPaletteButton().setEnabled(false);
+
+            infobar.getGradientPreviewLabel().setVisible(true);
+            infobar.getGradientPreview().setVisible(true);
+            infobar.getOutColoringPalettePreview().setVisible(true);
+            infobar.getOutColoringPalettePreviewLabel().setVisible(true);
+            infobar.getInColoringPalettePreview().setVisible(false);
+            infobar.getInColoringPalettePreviewLabel().setVisible(false);
+
+            options_menu.getOutColoringMenu().setEnabled(false);
+            options_menu.getInColoringMenu().setEnabled(false);
+            options_menu.getFractalColor().setEnabled(false);
+            options_menu.getStatisticsColoring().setEnabled(false);
+
+            options_menu.getGreedyAlgorithm().setEnabled(false);
+            options_menu.getPeriodicityChecking().setEnabled(false);
+            options_menu.getBailout().setEnabled(false);
+            options_menu.getBailoutConditionMenu().setEnabled(false);
+
+            infobar.getMaxIterationsColorPreview().setVisible(false);
+            infobar.getMaxIterationsColorPreviewLabel().setVisible(false);
+
+            updatePalettePreview(s.ps.color_cycling_location, s.ps2.color_cycling_location);
+
+            ThreadDraw.setDomainImageData(image_size, true);
+
+            setOptions(false);
+
+            progress.setValue(0);
+
+            scroll_pane.getHorizontalScrollBar().setValue((int) (scroll_pane.getHorizontalScrollBar().getMaximum() / 2 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2));
+            scroll_pane.getVerticalScrollBar().setValue((int) (scroll_pane.getVerticalScrollBar().getMaximum() / 2 - scroll_pane.getVerticalScrollBar().getSize().getHeight() / 2));
+
+            resetImage();
+
+            if (s.d3s.d3) {
+                Arrays.fill(((DataBufferInt) image.getRaster().getDataBuffer()).getData(), Color.BLACK.getRGB());
+            }
+
+            whole_image_done = false;
+
+            createThreads(false);
+
+            calculation_time = System.currentTimeMillis();
+
+            startThreads(n);
+        } catch (OutOfMemoryError e) {
+            JOptionPane.showMessageDialog(scroll_pane, "Maximum Heap size was reached.\nThe application will terminate.", "Error!", JOptionPane.ERROR_MESSAGE);
+            savePreferences();
+            System.exit(-1);
+        }
     }
 
     public void cancelDomainColoring() {
@@ -12389,6 +6953,8 @@ public class MainWindow extends JFrame implements Constants {
         resetOrbit();
         if (!tools_menu.getDomainColoring().isSelected()) {
             s.ds.domain_coloring = false;
+
+            ThreadDraw.setDomainImageData(image_size, false);
 
             toolbar.getDomainColoringButton().setSelected(false);
             options_menu.getDomainColoringOptions().setEnabled(false);
@@ -12456,7 +7022,7 @@ public class MainWindow extends JFrame implements Constants {
 
                 options_menu.get3DOptions().setEnabled(false);
 
-                ThreadDraw.setArrays(image_size);
+                ThreadDraw.setArrays(image_size, s.ds.domain_coloring);
 
                 progress.setMaximum((image_size * image_size) + ((image_size * image_size) / 100));
 
@@ -12481,786 +7047,135 @@ public class MainWindow extends JFrame implements Constants {
             }
 
         } else {
-            JTextField field = new JTextField();
-            field.addAncestorListener(new RequestFocusListener());
-            field.setText("" + s.d3s.detail);
-
-            JTextField size_opt = new JTextField();
-            size_opt.setText("" + s.d3s.d3_size_scale);
-
-            JTextField field2 = new JTextField();
-            field2.setText("" + s.d3s.d3_height_scale);
-
-            RangeSlider scale_range = new RangeSlider(0, 100);
-            scale_range.setValue(s.d3s.min_range);
-            scale_range.setUpperValue(s.d3s.max_range);
-            scale_range.setPreferredSize(new Dimension(150, 35));
-            scale_range.setMajorTickSpacing(25);
-            scale_range.setMinorTickSpacing(1);
-            scale_range.setToolTipText("Sets the scaling range.");
-            scale_range.setFocusable(false);
-            scale_range.setPaintLabels(true);
-
-            JSlider scale_max_val_opt = new JSlider(JSlider.HORIZONTAL, 0, 200, s.d3s.max_scaling);
-            scale_max_val_opt.setPreferredSize(new Dimension(150, 35));
-            scale_max_val_opt.setMajorTickSpacing(50);
-            scale_max_val_opt.setMinorTickSpacing(1);
-            scale_max_val_opt.setToolTipText("Sets the scaling value.");
-            scale_max_val_opt.setPaintLabels(true);
-            scale_max_val_opt.setFocusable(false);
-
-            JPanel temp_p3 = new JPanel();
-            temp_p3.setLayout(new GridLayout(2, 2));
-            temp_p3.add(new JLabel("Scaling Value:", SwingConstants.HORIZONTAL));
-            temp_p3.add(new JLabel("Scaling Range:", SwingConstants.HORIZONTAL));
-            temp_p3.add(scale_max_val_opt);
-            temp_p3.add(scale_range);
-
-            String[] height_options = {"log(x + 1)", "log(log(x + 1) + 1)", "1 / (x + 1)", "e^(-x + 5)", "150 - e^(-x + 5)", "150 / (1 + e^(-3*x+3))"};
-
-            JComboBox height_algorithm_opt = new JComboBox(height_options);
-            height_algorithm_opt.setSelectedIndex(s.d3s.height_algorithm);
-            height_algorithm_opt.setFocusable(false);
-            height_algorithm_opt.setToolTipText("Sets the height algorithm.");
-
-            final JCheckBox gaussian_scaling_opt = new JCheckBox("Gaussian Normalization");
-            gaussian_scaling_opt.setSelected(s.d3s.gaussian_scaling);
-            gaussian_scaling_opt.setFocusable(false);
-            gaussian_scaling_opt.setToolTipText("Enables the gaussian normalization.");
-
-            final JTextField field3 = new JTextField();
-            field3.setText("" + s.d3s.gaussian_weight);
-            field3.setEnabled(s.d3s.gaussian_scaling);
-
-            String[] kernels = {"3", "5", "7", "9", "11"};
-            final JComboBox kernels_size_opt = new JComboBox(kernels);
-            kernels_size_opt.setSelectedIndex(s.d3s.gaussian_kernel);
-            kernels_size_opt.setFocusable(false);
-            kernels_size_opt.setEnabled(s.d3s.gaussian_scaling);
-            kernels_size_opt.setToolTipText("Sets the radius of the gaussian normalization.");
-
-            gaussian_scaling_opt.addActionListener(new ActionListener() {
-
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    if (gaussian_scaling_opt.isSelected()) {
-                        field3.setEnabled(true);
-                        kernels_size_opt.setEnabled(true);
-                    } else {
-                        field3.setEnabled(false);
-                        kernels_size_opt.setEnabled(false);
-                    }
-                }
-
-            });
-
-            JSlider color_blend = new JSlider(JSlider.HORIZONTAL, 0, 100, ((int) (s.d3s.color_3d_blending * 100)));
-            color_blend.setPreferredSize(new Dimension(270, 35));
-            color_blend.setMajorTickSpacing(25);
-            color_blend.setMinorTickSpacing(1);
-            color_blend.setToolTipText("Sets the color blending percentage.");
-            color_blend.setPaintLabels(true);
-            color_blend.setFocusable(false);
-
-            JComboBox d3_color_method_combo = new JComboBox(Constants.colorMethod);
-            d3_color_method_combo.setSelectedIndex(s.d3s.d3_color_type);
-            d3_color_method_combo.setFocusable(false);
-            d3_color_method_combo.setToolTipText("Sets the 3d color method.");
-
-            d3_color_method_combo.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    color_blend.setEnabled(d3_color_method_combo.getSelectedIndex() == 3);
-                }
-            });
-
-            color_blend.setEnabled(s.d3s.d3_color_type == 3);
-
-            JPanel cblend_panel = new JPanel();
-            cblend_panel.setLayout(new GridLayout(4, 1));
-            cblend_panel.add(new JLabel("Set the coloring option."));
-            JPanel color_method_panel = new JPanel();
-            color_method_panel.add(d3_color_method_combo);
-            cblend_panel.add(color_method_panel);
-            cblend_panel.add(new JLabel("Color Blending:"));
-            cblend_panel.add(color_blend);
-
-            final JCheckBox height_shading_opt = new JCheckBox("Height Shading");
-            height_shading_opt.setSelected(s.d3s.shade_height);
-            height_shading_opt.setFocusable(false);
-            height_shading_opt.setToolTipText("Enables the height shading.");
-
-            JPanel height_color_panel = new JPanel();
-            height_color_panel.setLayout(new GridLayout(3, 1));
-            height_color_panel.add(new JLabel("Set the height shading."));
-
-            String[] shades = {"White & Black", "White", "Black"};
-
-            final JComboBox shade_choice_box = new JComboBox(shades);
-            shade_choice_box.setSelectedIndex(s.d3s.shade_choice);
-            shade_choice_box.setToolTipText("Selects the shade colors.");
-            shade_choice_box.setFocusable(false);
-
-            String[] shade_algorithms = {"Linear Interpolation", "Cosine Interpolation", "<10% and >90% Lin. Int.", "<20% and >80% Lin. Int.", "<30% and >70% Lin. Int.", "<40% and >60% Lin. Int."};
-
-            final JComboBox shade_algorithm_box = new JComboBox(shade_algorithms);
-            shade_algorithm_box.setSelectedIndex(s.d3s.shade_algorithm);
-            shade_algorithm_box.setToolTipText("Selects the shade algorithm.");
-            shade_algorithm_box.setFocusable(false);
-
-            final JCheckBox shade_invert_opt = new JCheckBox("Invert Shading");
-            shade_invert_opt.setSelected(s.d3s.shade_invert);
-            shade_invert_opt.setFocusable(false);
-            shade_invert_opt.setToolTipText("Inverts the height shading.");
-
-            if (!height_shading_opt.isSelected()) {
-                shade_choice_box.setEnabled(false);
-                shade_algorithm_box.setEnabled(false);
-                shade_invert_opt.setEnabled(false);
-            } else {
-                shade_choice_box.setEnabled(true);
-                shade_algorithm_box.setEnabled(true);
-                shade_invert_opt.setEnabled(true);
-            }
-
-            height_shading_opt.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    if (!height_shading_opt.isSelected()) {
-                        shade_choice_box.setEnabled(false);
-                        shade_algorithm_box.setEnabled(false);
-                        shade_invert_opt.setEnabled(false);
-                    } else {
-                        shade_choice_box.setEnabled(true);
-                        shade_algorithm_box.setEnabled(true);
-                        shade_invert_opt.setEnabled(true);
-                    }
-                }
-
-            });
-
-            JPanel temp_height_color_panel = new JPanel();
-
-            temp_height_color_panel.add(shade_choice_box);
-            temp_height_color_panel.add(shade_algorithm_box);
-            temp_height_color_panel.add(shade_invert_opt);
-
-            height_color_panel.add(height_shading_opt);
-
-            height_color_panel.add(temp_height_color_panel);
-
-            JTabbedPane tabbedPane = new JTabbedPane();
-            tabbedPane.setFocusable(false);
-
-            tabbedPane.addTab("Color", cblend_panel);
-            tabbedPane.addTab("Height Shading", height_color_panel);
-
-            JPanel temp_p2 = new JPanel();
-            temp_p2.setLayout(new GridLayout(2, 2));
-            temp_p2.add(new JLabel("3D Detail:", SwingConstants.HORIZONTAL));
-            temp_p2.add(new JLabel("Size:", SwingConstants.HORIZONTAL));
-            temp_p2.add(field);
-            temp_p2.add(size_opt);
-
-            JPanel temp_p = new JPanel();
-            temp_p.setLayout(new GridLayout(2, 2));
-            temp_p.add(new JLabel("Weight:", SwingConstants.HORIZONTAL));
-            temp_p.add(new JLabel("Radius:", SwingConstants.HORIZONTAL));
-            temp_p.add(field3);
-            temp_p.add(kernels_size_opt);
-
-            Object[] message3 = {
-                "Set the 3D detail level and size.",
-                temp_p2,
-                " ",
-                "Set the scale of the height.",
-                "Scale:",
-                field2,
-                temp_p3,
-                " ",
-                "Set the height algorithm.",
-                "Height Algorithm:",
-                height_algorithm_opt,
-                " ",
-                "Select the gaussian normalization weight and radius.",
-                gaussian_scaling_opt,
-                temp_p,
-                " ",
-                tabbedPane,};
-
-            int res = JOptionPane.showConfirmDialog(scroll_pane, message3, "3D", JOptionPane.OK_CANCEL_OPTION);
-
-            if (res == JOptionPane.OK_OPTION) {
-                try {
-                    int temp = Integer.parseInt(field.getText());
-                    double temp2 = Double.parseDouble(field2.getText());
-                    double temp3 = Double.parseDouble(field3.getText());
-                    double temp4 = Double.parseDouble(size_opt.getText());
-
-                    if (temp < 10) {
-                        main_panel.repaint();
-                        JOptionPane.showMessageDialog(scroll_pane, "The 3D detail level must be greater than 9.", "Error!", JOptionPane.ERROR_MESSAGE);
-                        tools_menu.get3D().setSelected(false);
-                        toolbar.get3DButton().setSelected(false);
-                        return;
-                    } else if (temp > 2000) {
-                        main_panel.repaint();
-                        JOptionPane.showMessageDialog(scroll_pane, "The 3D detail level must be less than 2001.", "Error!", JOptionPane.ERROR_MESSAGE);
-                        tools_menu.get3D().setSelected(false);
-                        toolbar.get3DButton().setSelected(false);
-                        return;
-                    }
-
-                    if (temp2 <= 0) {
-                        main_panel.repaint();
-                        JOptionPane.showMessageDialog(scroll_pane, "The height scale must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
-                        tools_menu.get3D().setSelected(false);
-                        toolbar.get3DButton().setSelected(false);
-                        return;
-                    }
-
-                    if (temp3 <= 0) {
-                        main_panel.repaint();
-                        JOptionPane.showMessageDialog(scroll_pane, "The gaussian normalization weight must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
-                        tools_menu.get3D().setSelected(false);
-                        toolbar.get3DButton().setSelected(false);
-                        return;
-                    }
-
-                    if (temp4 <= 0) {
-                        main_panel.repaint();
-                        JOptionPane.showMessageDialog(scroll_pane, "The size must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
-                        tools_menu.get3D().setSelected(false);
-                        toolbar.get3DButton().setSelected(false);
-                        return;
-                    }
-
-                    s.d3s.detail = temp;
-                    s.d3s.d3_height_scale = temp2;
-                    s.d3s.d3_size_scale = temp4;
-                    s.d3s.height_algorithm = height_algorithm_opt.getSelectedIndex();
-                    s.d3s.gaussian_scaling = gaussian_scaling_opt.isSelected();
-                    s.d3s.gaussian_weight = temp3;
-                    s.d3s.gaussian_kernel = kernels_size_opt.getSelectedIndex();
-                    s.d3s.max_range = scale_range.getUpperValue();
-                    s.d3s.min_range = scale_range.getValue();
-                    s.d3s.max_scaling = scale_max_val_opt.getValue();
-                    s.d3s.d3_color_type = d3_color_method_combo.getSelectedIndex();
-
-                    s.d3s.shade_height = height_shading_opt.isSelected();
-                    s.d3s.shade_choice = shade_choice_box.getSelectedIndex();
-                    s.d3s.shade_algorithm = shade_algorithm_box.getSelectedIndex();
-                    s.d3s.shade_invert = shade_invert_opt.isSelected();
-
-                    //d3_draw_method = draw_choice.getSelectedIndex();
-                    s.d3s.color_3d_blending = color_blend.getValue() / 100.0;
-
-                    s.d3s.fiX = 0.64;
-                    s.d3s.fiY = 0.82;
-
-                    options_menu.getDirectColor().setEnabled(false);
-                    options_menu.getDirectColor().setSelected(false);
-                    ThreadDraw.USE_DIRECT_COLOR = s.useDirectColor = false;
-
-                    if (!s.ds.domain_coloring) {
-                        if (s.usePaletteForInColoring) {
-                            infobar.getInColoringPalettePreview().setVisible(true);
-                            infobar.getInColoringPalettePreviewLabel().setVisible(true);
-                            infobar.getMaxIterationsColorPreview().setVisible(false);
-                            infobar.getMaxIterationsColorPreviewLabel().setVisible(false);
-                        } else {
-                            infobar.getMaxIterationsColorPreview().setVisible(true);
-                            infobar.getMaxIterationsColorPreviewLabel().setVisible(true);
-                            infobar.getInColoringPalettePreview().setVisible(false);
-                            infobar.getInColoringPalettePreviewLabel().setVisible(false);
-                        }
-                    }
-                    infobar.getGradientPreviewLabel().setVisible(true);
-                    infobar.getGradientPreview().setVisible(true);
-                    infobar.getOutColoringPalettePreview().setVisible(true);
-                    infobar.getOutColoringPalettePreviewLabel().setVisible(true);
-
-                    setOptions(false);
-
-                    ThreadDraw.set3DArrays(s.d3s.detail);
-
-                    progress.setMaximum((s.d3s.detail * s.d3s.detail) + (s.d3s.detail * s.d3s.detail / 100));
-
-                    options_menu.getGreedyAlgorithm().setEnabled(false);
-
-                    options_menu.get3DOptions().setEnabled(true);
-
-                    s.d3s.d3 = true;
-
-                    toolbar.get3DButton().setSelected(true);
-
-                    progress.setValue(0);
-
-                    scroll_pane.getHorizontalScrollBar().setValue((int) (scroll_pane.getHorizontalScrollBar().getMaximum() / 2 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2));
-                    scroll_pane.getVerticalScrollBar().setValue((int) (scroll_pane.getVerticalScrollBar().getMaximum() / 2 - scroll_pane.getVerticalScrollBar().getSize().getHeight() / 2));
-
-                    resetImage();
-
-                    Arrays.fill(((DataBufferInt) image.getRaster().getDataBuffer()).getData(), Color.BLACK.getRGB());
-
-                    whole_image_done = false;
-
-                    createThreads(false);
-
-                    calculation_time = System.currentTimeMillis();
-
-                    startThreads(n);
-                } catch (Exception e) {
-                    JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-                    tools_menu.get3D().setSelected(false);
-                    toolbar.get3DButton().setSelected(false);
-                    main_panel.repaint();
-                    return;
-                } catch (OutOfMemoryError e) {
-                    JOptionPane.showMessageDialog(scroll_pane, "Maximum Heap size was reached.\nThe application will terminate.", "Error!", JOptionPane.ERROR_MESSAGE);
-                    savePreferences();
-                    System.exit(-1);
-                }
-            } else {
-                tools_menu.get3D().setSelected(false);
-                toolbar.get3DButton().setSelected(false);
-                main_panel.repaint();
-                return;
-            }
+            new D3Dialog(ptr, s, toolbar.get3DButton(), tools_menu.get3D(), true);
         }
 
+    }
+
+    public void set3DOptionPost() {
+        try {
+            options_menu.getDirectColor().setEnabled(false);
+            options_menu.getDirectColor().setSelected(false);
+            ThreadDraw.USE_DIRECT_COLOR = s.useDirectColor = false;
+
+            if (!s.ds.domain_coloring) {
+                if (s.usePaletteForInColoring) {
+                    infobar.getInColoringPalettePreview().setVisible(true);
+                    infobar.getInColoringPalettePreviewLabel().setVisible(true);
+                    infobar.getMaxIterationsColorPreview().setVisible(false);
+                    infobar.getMaxIterationsColorPreviewLabel().setVisible(false);
+                } else {
+                    infobar.getMaxIterationsColorPreview().setVisible(true);
+                    infobar.getMaxIterationsColorPreviewLabel().setVisible(true);
+                    infobar.getInColoringPalettePreview().setVisible(false);
+                    infobar.getInColoringPalettePreviewLabel().setVisible(false);
+                }
+            }
+            infobar.getGradientPreviewLabel().setVisible(true);
+            infobar.getGradientPreview().setVisible(true);
+            infobar.getOutColoringPalettePreview().setVisible(true);
+            infobar.getOutColoringPalettePreviewLabel().setVisible(true);
+
+            setOptions(false);
+
+            ThreadDraw.set3DArrays(s.d3s.detail);
+
+            progress.setMaximum((s.d3s.detail * s.d3s.detail) + (s.d3s.detail * s.d3s.detail / 100));
+
+            options_menu.getGreedyAlgorithm().setEnabled(false);
+
+            options_menu.get3DOptions().setEnabled(true);
+
+            s.d3s.d3 = true;
+
+            toolbar.get3DButton().setSelected(true);
+
+            progress.setValue(0);
+
+            scroll_pane.getHorizontalScrollBar().setValue((int) (scroll_pane.getHorizontalScrollBar().getMaximum() / 2 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2));
+            scroll_pane.getVerticalScrollBar().setValue((int) (scroll_pane.getVerticalScrollBar().getMaximum() / 2 - scroll_pane.getVerticalScrollBar().getSize().getHeight() / 2));
+
+            resetImage();
+
+            Arrays.fill(((DataBufferInt) image.getRaster().getDataBuffer()).getData(), Color.BLACK.getRGB());
+
+            whole_image_done = false;
+
+            createThreads(false);
+
+            calculation_time = System.currentTimeMillis();
+
+            startThreads(n);
+        } catch (OutOfMemoryError e) {
+            JOptionPane.showMessageDialog(scroll_pane, "Maximum Heap size was reached.\nThe application will terminate.", "Error!", JOptionPane.ERROR_MESSAGE);
+            savePreferences();
+            System.exit(-1);
+        }
+    }
+
+    public void set3DDetailsPost() {
+        try {
+            ThreadDraw.set3DArrays(s.d3s.detail);
+
+            progress.setMaximum((s.d3s.detail * s.d3s.detail) + (s.d3s.detail * s.d3s.detail / 100));
+
+            setOptions(false);
+
+            progress.setValue(0);
+
+            resetImage();
+
+            Arrays.fill(((DataBufferInt) image.getRaster().getDataBuffer()).getData(), Color.BLACK.getRGB());
+
+            whole_image_done = false;
+
+            createThreads(false);
+
+            calculation_time = System.currentTimeMillis();
+
+            startThreads(n);
+        } catch (OutOfMemoryError e) {
+            JOptionPane.showMessageDialog(scroll_pane, "Maximum Heap size was reached.\nThe application will terminate.", "Error!", JOptionPane.ERROR_MESSAGE);
+            savePreferences();
+            System.exit(-1);
+        }
     }
 
     public void set3DDetails() {
 
         resetOrbit();
-        JTextField field = new JTextField();
-        field.addAncestorListener(new RequestFocusListener());
-        field.setText("" + s.d3s.detail);
+        new D3Dialog(ptr, s, toolbar.get3DButton(), tools_menu.get3D(), false);
 
-        JTextField size_opt = new JTextField();
-        size_opt.setText("" + s.d3s.d3_size_scale);
+    }
 
-        JTextField field2 = new JTextField();
-        field2.setText("" + s.d3s.d3_height_scale);
-
-        RangeSlider scale_range = new RangeSlider(0, 100);
-        scale_range.setValue(s.d3s.min_range);
-        scale_range.setUpperValue(s.d3s.max_range);
-        scale_range.setPreferredSize(new Dimension(150, 35));
-        scale_range.setMajorTickSpacing(25);
-        scale_range.setMinorTickSpacing(1);
-        scale_range.setToolTipText("Sets the scaling range.");
-        scale_range.setFocusable(false);
-        scale_range.setPaintLabels(true);
-
-        JSlider scale_max_val_opt = new JSlider(JSlider.HORIZONTAL, 0, 200, s.d3s.max_scaling);
-        scale_max_val_opt.setPreferredSize(new Dimension(150, 35));
-        scale_max_val_opt.setMajorTickSpacing(50);
-        scale_max_val_opt.setMinorTickSpacing(1);
-        scale_max_val_opt.setToolTipText("Sets the scaling value.");
-        scale_max_val_opt.setPaintLabels(true);
-        scale_max_val_opt.setFocusable(false);
-
-        JPanel temp_p3 = new JPanel();
-        temp_p3.setLayout(new GridLayout(2, 2));
-        temp_p3.add(new JLabel("Scaling Value:", SwingConstants.HORIZONTAL));
-        temp_p3.add(new JLabel("Scaling Range:", SwingConstants.HORIZONTAL));
-        temp_p3.add(scale_max_val_opt);
-        temp_p3.add(scale_range);
-
-        String[] height_options = {"log(x + 1)", "log(log(x + 1) + 1)", "1 / (x + 1)", "e^(-x + 5)", "150 - e^(-x + 5)", "150 / (1 + e^(-3*x+3))"};
-
-        JComboBox height_algorithm_opt = new JComboBox(height_options);
-        height_algorithm_opt.setSelectedIndex(s.d3s.height_algorithm);
-        height_algorithm_opt.setFocusable(false);
-        height_algorithm_opt.setToolTipText("Sets the height algorithm.");
-
-        final JCheckBox gaussian_scaling_opt = new JCheckBox("Gaussian Normalization");
-        gaussian_scaling_opt.setSelected(s.d3s.gaussian_scaling);
-        gaussian_scaling_opt.setFocusable(false);
-        gaussian_scaling_opt.setToolTipText("Enables the gaussian normalization.");
-
-        final JTextField field3 = new JTextField();
-        field3.setText("" + s.d3s.gaussian_weight);
-        field3.setEnabled(s.d3s.gaussian_scaling);
-
-        String[] kernels = {"3", "5", "7", "9", "11"};
-        final JComboBox kernels_size_opt = new JComboBox(kernels);
-        kernels_size_opt.setSelectedIndex(s.d3s.gaussian_kernel);
-        kernels_size_opt.setFocusable(false);
-        kernels_size_opt.setEnabled(s.d3s.gaussian_scaling);
-        kernels_size_opt.setToolTipText("Sets the radius of the gaussian normalization.");
-
-        gaussian_scaling_opt.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (gaussian_scaling_opt.isSelected()) {
-                    field3.setEnabled(true);
-                    kernels_size_opt.setEnabled(true);
-                } else {
-                    field3.setEnabled(false);
-                    kernels_size_opt.setEnabled(false);
-                }
-            }
-
-        });
-
-        JSlider color_blend = new JSlider(JSlider.HORIZONTAL, 0, 100, ((int) (s.d3s.color_3d_blending * 100)));
-        color_blend.setPreferredSize(new Dimension(270, 35));
-        color_blend.setMajorTickSpacing(25);
-        color_blend.setMinorTickSpacing(1);
-        color_blend.setToolTipText("Sets the color blending percentage.");
-        color_blend.setPaintLabels(true);
-        color_blend.setFocusable(false);
-
-        JComboBox d3_color_method_combo = new JComboBox(Constants.colorMethod);
-        d3_color_method_combo.setSelectedIndex(s.d3s.d3_color_type);
-        d3_color_method_combo.setFocusable(false);
-        d3_color_method_combo.setToolTipText("Sets the 3d color method.");
-
-        d3_color_method_combo.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                color_blend.setEnabled(d3_color_method_combo.getSelectedIndex() == 3);
-            }
-        });
-
-        color_blend.setEnabled(s.d3s.d3_color_type == 3);
-
-        JPanel cblend_panel = new JPanel();
-        cblend_panel.setLayout(new GridLayout(4, 1));
-        cblend_panel.add(new JLabel("Set the coloring option."));
-        JPanel color_method_panel = new JPanel();
-        color_method_panel.add(d3_color_method_combo);
-        cblend_panel.add(color_method_panel);
-        cblend_panel.add(new JLabel("Color Blending:"));
-        cblend_panel.add(color_blend);
-
-        final JCheckBox height_shading_opt = new JCheckBox("Height Shading");
-        height_shading_opt.setSelected(s.d3s.shade_height);
-        height_shading_opt.setFocusable(false);
-        height_shading_opt.setToolTipText("Enables the height shading.");
-
-        JPanel height_color_panel = new JPanel();
-        height_color_panel.setLayout(new GridLayout(3, 1));
-        height_color_panel.add(new JLabel("Set the height shading."));
-
-        String[] shades = {"White & Black", "White", "Black"};
-
-        final JComboBox shade_choice_box = new JComboBox(shades);
-        shade_choice_box.setSelectedIndex(s.d3s.shade_choice);
-        shade_choice_box.setToolTipText("Selects the shade colors.");
-        shade_choice_box.setFocusable(false);
-
-        String[] shade_algorithms = {"Linear Interpolation", "Cosine Interpolation", "<10% and >90% Lin. Int.", "<20% and >80% Lin. Int.", "<30% and >70% Lin. Int.", "<40% and >60% Lin. Int."};
-
-        final JComboBox shade_algorithm_box = new JComboBox(shade_algorithms);
-        shade_algorithm_box.setSelectedIndex(s.d3s.shade_algorithm);
-        shade_algorithm_box.setToolTipText("Selects the shade algorithm.");
-        shade_algorithm_box.setFocusable(false);
-
-        final JCheckBox shade_invert_opt = new JCheckBox("Invert Shading");
-        shade_invert_opt.setSelected(s.d3s.shade_invert);
-        shade_invert_opt.setFocusable(false);
-        shade_invert_opt.setToolTipText("Inverts the height shading.");
-
-        if (!height_shading_opt.isSelected()) {
-            shade_choice_box.setEnabled(false);
-            shade_algorithm_box.setEnabled(false);
-            shade_invert_opt.setEnabled(false);
-        } else {
-            shade_choice_box.setEnabled(true);
-            shade_algorithm_box.setEnabled(true);
-            shade_invert_opt.setEnabled(true);
-        }
-
-        height_shading_opt.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (!height_shading_opt.isSelected()) {
-                    shade_choice_box.setEnabled(false);
-                    shade_algorithm_box.setEnabled(false);
-                    shade_invert_opt.setEnabled(false);
-                } else {
-                    shade_choice_box.setEnabled(true);
-                    shade_algorithm_box.setEnabled(true);
-                    shade_invert_opt.setEnabled(true);
-                }
-            }
-
-        });
-
-        JPanel temp_height_color_panel = new JPanel();
-
-        temp_height_color_panel.add(shade_choice_box);
-        temp_height_color_panel.add(shade_algorithm_box);
-        temp_height_color_panel.add(shade_invert_opt);
-
-        height_color_panel.add(height_shading_opt);
-
-        height_color_panel.add(temp_height_color_panel);
-
-        JTabbedPane tabbedPane = new JTabbedPane();
-        tabbedPane.setFocusable(false);
-
-        tabbedPane.addTab("Color", cblend_panel);
-        tabbedPane.addTab("Height Shading", height_color_panel);
-
-        JPanel temp_p2 = new JPanel();
-        temp_p2.setLayout(new GridLayout(2, 2));
-        temp_p2.add(new JLabel("3D Detail:", SwingConstants.HORIZONTAL));
-        temp_p2.add(new JLabel("Size:", SwingConstants.HORIZONTAL));
-        temp_p2.add(field);
-        temp_p2.add(size_opt);
-
-        JPanel temp_p = new JPanel();
-        temp_p.setLayout(new GridLayout(2, 2));
-        temp_p.add(new JLabel("Weight:", SwingConstants.HORIZONTAL));
-        temp_p.add(new JLabel("Radius:", SwingConstants.HORIZONTAL));
-        temp_p.add(field3);
-        temp_p.add(kernels_size_opt);
-
-        Object[] message3 = {
-            "Set the 3D detail level and size.",
-            temp_p2,
-            " ",
-            "Set the scale of the height.",
-            "Scale:",
-            field2,
-            temp_p3,
-            " ",
-            "Set the height algorithm.",
-            "Height Algorithm:",
-            height_algorithm_opt,
-            " ",
-            "Select the gaussian normalization weight and radius.",
-            gaussian_scaling_opt,
-            temp_p,
-            " ",
-            tabbedPane,};
-
-        int res = JOptionPane.showConfirmDialog(scroll_pane, message3, "3D", JOptionPane.OK_CANCEL_OPTION);
-
-        if (res == JOptionPane.OK_OPTION) {
-            try {
-                int temp = Integer.parseInt(field.getText());
-                double temp2 = Double.parseDouble(field2.getText());
-                double temp3 = Double.parseDouble(field3.getText());
-                double temp4 = Double.parseDouble(size_opt.getText());
-
-                if (temp < 10) {
-                    main_panel.repaint();
-                    JOptionPane.showMessageDialog(scroll_pane, "The 3D detail level must be greater than 9.", "Error!", JOptionPane.ERROR_MESSAGE);
-                    return;
-                } else if (temp > 2000) {
-                    main_panel.repaint();
-                    JOptionPane.showMessageDialog(scroll_pane, "The 3D detail level must be less than 2001.", "Error!", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-
-                if (temp2 <= 0) {
-                    main_panel.repaint();
-                    JOptionPane.showMessageDialog(scroll_pane, "The height scale must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-
-                if (temp3 <= 0) {
-                    main_panel.repaint();
-                    JOptionPane.showMessageDialog(scroll_pane, "The gaussian normalization weight must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-
-                if (temp4 <= 0) {
-                    main_panel.repaint();
-                    JOptionPane.showMessageDialog(scroll_pane, "The size must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-
-                s.d3s.detail = temp;
-                s.d3s.d3_height_scale = temp2;
-                s.d3s.d3_size_scale = temp4;
-                s.d3s.height_algorithm = height_algorithm_opt.getSelectedIndex();
-                s.d3s.gaussian_scaling = gaussian_scaling_opt.isSelected();
-                s.d3s.gaussian_weight = temp3;
-                s.d3s.gaussian_kernel = kernels_size_opt.getSelectedIndex();
-                s.d3s.max_range = scale_range.getUpperValue();
-                s.d3s.min_range = scale_range.getValue();
-                s.d3s.max_scaling = scale_max_val_opt.getValue();
-                s.d3s.d3_color_type = d3_color_method_combo.getSelectedIndex();
-
-                s.d3s.shade_height = height_shading_opt.isSelected();
-                s.d3s.shade_choice = shade_choice_box.getSelectedIndex();
-                s.d3s.shade_algorithm = shade_algorithm_box.getSelectedIndex();
-                s.d3s.shade_invert = shade_invert_opt.isSelected();
-
-                //d3_draw_method = draw_choice.getSelectedIndex();
-                s.d3s.color_3d_blending = color_blend.getValue() / 100.0;
-
-                ThreadDraw.set3DArrays(s.d3s.detail);
-
-                progress.setMaximum((s.d3s.detail * s.d3s.detail) + (s.d3s.detail * s.d3s.detail / 100));
-
-                setOptions(false);
-
-                progress.setValue(0);
-
-                resetImage();
-
-                Arrays.fill(((DataBufferInt) image.getRaster().getDataBuffer()).getData(), Color.BLACK.getRGB());
-
-                whole_image_done = false;
-
-                createThreads(false);
-
-                calculation_time = System.currentTimeMillis();
-
-                startThreads(n);
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-                main_panel.repaint();
-                return;
-            } catch (OutOfMemoryError e) {
-                JOptionPane.showMessageDialog(scroll_pane, "Maximum Heap size was reached.\nThe application will terminate.", "Error!", JOptionPane.ERROR_MESSAGE);
-                savePreferences();
-                System.exit(-1);
-            }
-        } else {
-            main_panel.repaint();
-            return;
-        }
-
+    public void setBoundariesNumberPost(int boundaries_num, int boundaries_spacing_method, int boundaries_type) {
+        this.boundaries_num = boundaries_num;
+        this.boundaries_spacing_method = boundaries_spacing_method;
+        this.boundaries_type = boundaries_type;
     }
 
     public void setBoundariesNumber() {
 
         resetOrbit();
-        JTextField field = new JTextField();
-        field.addAncestorListener(new RequestFocusListener());
-        field.setText("" + boundaries_num);
-
-        String[] method = {"Power of two", "Increment of one"};
-
-        JComboBox draw_choice = new JComboBox(method);
-        draw_choice.setSelectedIndex(boundaries_spacing_method);
-        draw_choice.setToolTipText("Selects the spacing method.");
-        draw_choice.setFocusable(false);
-
-        String[] method2 = {"Circle", "Square", "Rhombus"};
-
-        JComboBox draw_choice2 = new JComboBox(method2);
-        draw_choice2.setSelectedIndex(boundaries_type);
-        draw_choice2.setToolTipText("Selects the type of boundary.");
-        draw_choice2.setFocusable(false);
-
-        Object[] message3 = {
-            " ",
-            "You are using " + boundaries_num + " as the number of boundaries.\nEnter the new boundaries number.",
-            field,
-            " ",
-            "Select the spacing method.",
-            draw_choice,
-            " ",
-            "Select the boundary type.",
-            draw_choice2,
-            " ",};
-
-        int res = JOptionPane.showConfirmDialog(scroll_pane, message3, "Boundaries Options", JOptionPane.OK_CANCEL_OPTION);
-
-        if (res == JOptionPane.OK_OPTION) {
-            try {
-                int temp = Integer.parseInt(field.getText());
-
-                if (temp < 1) {
-                    main_panel.repaint();
-                    JOptionPane.showMessageDialog(scroll_pane, "Boundaries number must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
-                    return;
-                } else if (temp > 64) {
-                    main_panel.repaint();
-                    JOptionPane.showMessageDialog(scroll_pane, "Boundaries number must be less than 65.", "Error!", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-
-                boundaries_num = temp;
-
-                boundaries_spacing_method = draw_choice.getSelectedIndex();
-
-                boundaries_type = draw_choice2.getSelectedIndex();
-
-            } catch (Exception e) {
-                JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-                main_panel.repaint();
-                return;
-            }
-        } else {
-            main_panel.repaint();
-            return;
-        }
+        new BoundariesDialog(ptr, boundaries_num, boundaries_spacing_method, boundaries_type);
 
     }
 
     public void setGridTiles() {
 
         resetOrbit();
-        String ans = JOptionPane.showInputDialog(scroll_pane, "You are using " + grid_tiles + " grid tiles\nin each dimension.\nEnter the new grid tiles number.", "Grid Tiles", JOptionPane.QUESTION_MESSAGE);
+        new GridTilesDialog(ptr, grid_tiles);
 
-        try {
-            int temp = Integer.parseInt(ans);
+    }
 
-            if (temp < 2) {
-                main_panel.repaint();
-                JOptionPane.showMessageDialog(scroll_pane, "Grid tiles number must be greater than 1.", "Error!", JOptionPane.ERROR_MESSAGE);
-                return;
-            } else if (temp > 64) {
-                main_panel.repaint();
-                JOptionPane.showMessageDialog(scroll_pane, "Grid tiles number must be less than 65.", "Error!", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            grid_tiles = temp;
-
-            main_panel.repaint();
-        } catch (Exception ex) {
-            if (ans == null) {
-                main_panel.repaint();
-            } else {
-                JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-                main_panel.repaint();
-            }
-        }
-
+    public void setGridTilesPost(int grid_tiles) {
+        this.grid_tiles = grid_tiles;
     }
 
     public void setColorIntensity(boolean outcoloring) {
 
         resetOrbit();
-        String ans = JOptionPane.showInputDialog(scroll_pane, "You are using " + (outcoloring ? s.ps.color_intensity : s.ps2.color_intensity) + " for color intensity.\nEnter the new color intensity number.", "Color Intensity", JOptionPane.QUESTION_MESSAGE);
-
-        try {
-            double temp = Double.parseDouble(ans);
-
-            if (temp <= 0) {
-                main_panel.repaint();
-                JOptionPane.showMessageDialog(scroll_pane, "Color intensity value must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            if (outcoloring) {
-                s.ps.color_intensity = temp;
-            } else {
-                s.ps2.color_intensity = temp;
-            }
-
-            updateColors();
-        } catch (Exception ex) {
-            if (ans == null) {
-                main_panel.repaint();
-            } else {
-                JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-                main_panel.repaint();
-            }
-        }
+        new ColorIntensityDialog(ptr, s, outcoloring);
 
     }
 
@@ -13347,7 +7262,7 @@ public class MainWindow extends JFrame implements Constants {
         fractal_functions[BAIRSTOWPOLY].setEnabled(option);
     }
 
-    private void optionsEnableShortcut() {
+    public void optionsEnableShortcut() {
         out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
         options_menu.getDistanceEstimation().setEnabled(false);
         if (s.fns.out_coloring_algorithm != BIOMORPH) {
@@ -13401,7 +7316,7 @@ public class MainWindow extends JFrame implements Constants {
 
     }
 
-    private void optionsEnableShortcut2() {
+    public void optionsEnableShortcut2() {
         out_coloring_modes[DISTANCE_ESTIMATOR].setEnabled(false);
         options_menu.getDistanceEstimation().setEnabled(false);
         tools_menu.getJulia().setEnabled(false);
@@ -13458,57 +7373,18 @@ public class MainWindow extends JFrame implements Constants {
 
     }
 
+    public void setColorCyclingOptionsPost(boolean cycle_colors, boolean cycle_gradient, boolean cycle_lights, int color_cycling_speed) {
+        this.cycle_colors = cycle_colors;
+        this.cycle_gradient = cycle_gradient;
+        this.cycle_lights = cycle_lights;
+        this.color_cycling_speed = color_cycling_speed;
+    }
+
     public void setColorCyclingOptions() {
 
         resetOrbit();
+        new ColorCyclingDialog(ptr, cycle_colors, cycle_gradient, cycle_lights, color_cycling_speed);
 
-        JCheckBox cycleColors = new JCheckBox("Cycle Colors");
-        cycleColors.setFocusable(false);
-        cycleColors.setSelected(cycle_colors);
-        cycleColors.setToolTipText("Cycles through the palette.");
-
-        JCheckBox cycleLights = new JCheckBox("Cycle Lights");
-        cycleLights.setFocusable(false);
-        cycleLights.setSelected(cycle_lights);
-        cycleColors.setToolTipText("Rotates the light (Light/Bump Mapping).");
-
-        final JSlider speed_slid = new JSlider(JSlider.HORIZONTAL, 0, 1000, 1000 - color_cycling_speed);
-
-        speed_slid.setPreferredSize(new Dimension(200, 35));
-
-        speed_slid.setToolTipText("Sets the color cycling speed.");
-
-        speed_slid.setPaintLabels(true);
-        speed_slid.setFocusable(false);
-
-        Hashtable labelTable = new Hashtable();
-
-        labelTable.put(speed_slid.getMinimum(), new JLabel("Slow"));
-        labelTable.put(speed_slid.getMaximum(), new JLabel("Fast"));
-        speed_slid.setLabelTable(labelTable);
-
-        Object[] message3 = {
-            " ",
-            "Set the cycling modes.",
-            cycleColors,
-            cycleLights,
-            " ",
-            "Set the color cycling speed.",
-            speed_slid,
-            " ",};
-
-        int res = JOptionPane.showConfirmDialog(scroll_pane, message3, "Color Cycling Options", JOptionPane.OK_CANCEL_OPTION);
-
-        if (res == JOptionPane.OK_OPTION) {
-            color_cycling_speed = speed_slid.getMaximum() - speed_slid.getValue();
-            cycle_colors = cycleColors.isSelected();
-            cycle_lights = cycleLights.isSelected();
-        } else {
-            if (!color_cycling) {
-                main_panel.repaint();
-            }
-            return;
-        }
     }
 
     public void setApplyPlaneOnWholeJulia() {
@@ -13601,16 +7477,20 @@ public class MainWindow extends JFrame implements Constants {
             Color[] c = null;
 
             if (i == s.ps.color_choice) { // the current activated palette
-                if (i != CUSTOM_PALETTE_ID) {
+                if (i < CUSTOM_PALETTE_ID) {
                     c = CustomPalette.getPalette(CustomPaletteEditorFrame.editor_default_palettes[i], INTERPOLATION_LINEAR, COLOR_SPACE_RGB, false, s.ps.color_cycling_location, 0, PROCESSING_NONE);
-                } else {
+                } else if (i == CUSTOM_PALETTE_ID) {
                     c = CustomPalette.getPalette(s.ps.custom_palette, s.ps.color_interpolation, s.ps.color_space, s.ps.reversed_palette, s.ps.color_cycling_location, s.ps.scale_factor_palette_val, s.ps.processing_alg);
+                } else {
+                    c = PresetPalette.getPalette(i, s.ps.color_cycling_location);
                 }
             } else {// the remaining palettes
-                if (i != CUSTOM_PALETTE_ID) {
+                if (i < CUSTOM_PALETTE_ID) {
                     c = CustomPalette.getPalette(CustomPaletteEditorFrame.editor_default_palettes[i], INTERPOLATION_LINEAR, COLOR_SPACE_RGB, false, 0, 0, PROCESSING_NONE); // 0 color cycling loc
-                } else {
+                } else if (i == CUSTOM_PALETTE_ID) {
                     c = CustomPalette.getPalette(s.ps.custom_palette, s.ps.color_interpolation, s.ps.color_space, s.ps.reversed_palette, s.temp_color_cycling_location, s.ps.scale_factor_palette_val, s.ps.processing_alg); // temp color cycling loc
+                } else {
+                    c = PresetPalette.getPalette(i, 0);
                 }
             }
 
@@ -13640,16 +7520,21 @@ public class MainWindow extends JFrame implements Constants {
             Color[] c = null;
 
             if (i == s.ps2.color_choice) { // the current activated palette
-                if (i != CUSTOM_PALETTE_ID) {
+                if (i < CUSTOM_PALETTE_ID) {
                     c = CustomPalette.getPalette(CustomPaletteEditorFrame.editor_default_palettes[i], INTERPOLATION_LINEAR, COLOR_SPACE_RGB, false, s.ps2.color_cycling_location, 0, PROCESSING_NONE);
-                } else {
+                } else if (i == CUSTOM_PALETTE_ID) {
                     c = CustomPalette.getPalette(s.ps2.custom_palette, s.ps2.color_interpolation, s.ps2.color_space, s.ps2.reversed_palette, s.ps2.color_cycling_location, s.ps2.scale_factor_palette_val, s.ps2.processing_alg);
+                } else {
+                    c = PresetPalette.getPalette(i, s.ps2.color_cycling_location);
                 }
-            } else // the remaining palettes
-            if (i != CUSTOM_PALETTE_ID) {
-                c = CustomPalette.getPalette(CustomPaletteEditorFrame.editor_default_palettes[i], INTERPOLATION_LINEAR, COLOR_SPACE_RGB, false, 0, 0, PROCESSING_NONE); // 0 color cycling loc
-            } else {
-                c = CustomPalette.getPalette(s.ps2.custom_palette, s.ps2.color_interpolation, s.ps2.color_space, s.ps2.reversed_palette, s.temp_color_cycling_location_second_palette, s.ps2.scale_factor_palette_val, s.ps2.processing_alg); // temp color cycling loc
+            } else {// the remaining palettes 
+                if (i < CUSTOM_PALETTE_ID) {
+                    c = CustomPalette.getPalette(CustomPaletteEditorFrame.editor_default_palettes[i], INTERPOLATION_LINEAR, COLOR_SPACE_RGB, false, 0, 0, PROCESSING_NONE); // 0 color cycling loc
+                } else if (i == CUSTOM_PALETTE_ID) {
+                    c = CustomPalette.getPalette(s.ps2.custom_palette, s.ps2.color_interpolation, s.ps2.color_space, s.ps2.reversed_palette, s.temp_color_cycling_location_second_palette, s.ps2.scale_factor_palette_val, s.ps2.processing_alg); // temp color cycling loc
+                } else {
+                    c = PresetPalette.getPalette(i, 0);
+                }
             }
 
             BufferedImage palette_preview = new BufferedImage(250, 24, BufferedImage.TYPE_INT_ARGB);
@@ -13672,9 +7557,9 @@ public class MainWindow extends JFrame implements Constants {
 
     }
 
-    private void updateGradientPreview() {
+    public void updateGradientPreview(int offset) {
 
-        infobar.getGradientPreview().setIcon(new ImageIcon(CommonFunctions.getGradientPreview(s.gs, Infobar.GRADIENT_PREVIEW_WIDTH, Infobar.GRADIENT_PREVIEW_HEIGHT)));
+        infobar.getGradientPreview().setIcon(new ImageIcon(CommonFunctions.getGradientPreview(s.gs, offset, Infobar.GRADIENT_PREVIEW_WIDTH, Infobar.GRADIENT_PREVIEW_HEIGHT)));
 
     }
 
@@ -13730,6 +7615,7 @@ public class MainWindow extends JFrame implements Constants {
             writer.println("window_toolbar " + options_menu.getToolbar().isSelected());
             writer.println("window_infobar " + options_menu.getInfobar().isSelected());
             writer.println("window_statusbar " + options_menu.getStatusbar().isSelected());
+            writer.println("window_fullscreen " + options_menu.getFullscreen().isSelected());
 
             writer.println();
             writer.println("[Orbit]");
@@ -13763,6 +7649,7 @@ public class MainWindow extends JFrame implements Constants {
             writer.println("color_cycling_speed " + color_cycling_speed);
             writer.println("cycle_colors " + cycle_colors);
             writer.println("cycle_lights " + cycle_lights);
+            writer.println("cycle_gradient " + cycle_gradient);
 
             writer.println();
             writer.println("[Zoom]");
@@ -13874,6 +7761,15 @@ public class MainWindow extends JFrame implements Constants {
                             setExtendedState(JFrame.MAXIMIZED_BOTH);
                         } else if (token.equals("false")) {
                             setExtendedState(JFrame.NORMAL);
+                        }
+                    } else if (token.equals("window_fullscreen") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if (token.equals("false") && options_menu.getFullscreen().isSelected()) {
+                            options_menu.getFullscreen().doClick();
+                        } else if (token.equals("true") && !options_menu.getFullscreen().isSelected()) {
+                            options_menu.getFullscreen().doClick();
                         }
                     } else if (token.equals("window_size") && tokenizer.countTokens() == 2) {
                         try {
@@ -14091,6 +7987,15 @@ public class MainWindow extends JFrame implements Constants {
                         } else if (token.equals("true")) {
                             cycle_lights = true;
                         }
+                    } else if (token.equals("cycle_gradient") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if (token.equals("false")) {
+                            cycle_gradient = false;
+                        } else if (token.equals("true")) {
+                            cycle_gradient = true;
+                        }
                     } else if (token.equals("tiles") && tokenizer.countTokens() == 1) {
                         try {
                             int temp = Integer.parseInt(tokenizer.nextToken());
@@ -14210,7 +8115,7 @@ public class MainWindow extends JFrame implements Constants {
 
     }
 
-    private void setUserFormulaOptions(boolean mode) {
+    public void setUserFormulaOptions(boolean mode) {
         if (s.fns.julia) {
             s.fns.julia = false;
             toolbar.getJuliaButton().setSelected(false);
@@ -14222,6 +8127,7 @@ public class MainWindow extends JFrame implements Constants {
             if (s.fns.out_coloring_algorithm != DISTANCE_ESTIMATOR && !s.exterior_de) {
                 fractal_functions[SIERPINSKI_GASKET].setEnabled(true);
                 fractal_functions[KLEINIAN].setEnabled(true);
+                fractal_functions[INERTIA_GRAVITY].setEnabled(true);
             }
         }
 
@@ -14236,6 +8142,7 @@ public class MainWindow extends JFrame implements Constants {
             if (!s.fns.perturbation && s.fns.out_coloring_algorithm != DISTANCE_ESTIMATOR && !s.exterior_de) {
                 fractal_functions[SIERPINSKI_GASKET].setEnabled(true);
                 fractal_functions[KLEINIAN].setEnabled(true);
+                fractal_functions[INERTIA_GRAVITY].setEnabled(true);
             }
         }
 
@@ -14250,6 +8157,7 @@ public class MainWindow extends JFrame implements Constants {
             if (!s.fns.init_val && s.fns.out_coloring_algorithm != DISTANCE_ESTIMATOR && !s.exterior_de) {
                 fractal_functions[SIERPINSKI_GASKET].setEnabled(true);
                 fractal_functions[KLEINIAN].setEnabled(true);
+                fractal_functions[INERTIA_GRAVITY].setEnabled(true);
             }
         }
 
@@ -14267,6 +8175,7 @@ public class MainWindow extends JFrame implements Constants {
             if (s.fns.out_coloring_algorithm != DISTANCE_ESTIMATOR && !s.exterior_de) {
                 fractal_functions[SIERPINSKI_GASKET].setEnabled(true);
                 fractal_functions[KLEINIAN].setEnabled(true);
+                fractal_functions[INERTIA_GRAVITY].setEnabled(true);
             }
 
         }
@@ -14280,14 +8189,14 @@ public class MainWindow extends JFrame implements Constants {
             options_menu.getInitialValue().setEnabled(false);
         }
 
-        if (mode && s.fns.bail_technique == 1) {
+        if (mode && (s.fns.bail_technique == 1 || s.fns.function == USER_FORMULA_NOVA)) {
             options_menu.getBailout().setEnabled(false);
             options_menu.getBailoutConditionMenu().setEnabled(false);
             options_menu.getPeriodicityChecking().setEnabled(false);
         }
     }
 
-    private Object[] createUserFormulaLabels(String supported_vars) {
+    public Object[] createUserFormulaLabels(String supported_vars) {
 
         JLabel variables = new JLabel("Variables:");
         variables.setFont(new Font("Arial", Font.BOLD, 11));
@@ -14384,10 +8293,10 @@ public class MainWindow extends JFrame implements Constants {
             "acsc, asinh, acosh, atanh, acoth, asech, acsch, vsin, vcos, cvsin, cvcos, hvsin, hvcos, hcvsin,",
             "hcvcos, exsec, excsc, avsin, avcos, acvsin, acvcos, ahvsin, ahvcos, ahcvsin, ahcvcos, aexsec, aexcsc",
             other,
-            "exp, log, log10, log2, sqrt, abs, absre, absim, conj, re, im, norm, arg, gamma, fact, erf, rzeta, gi, rec,",
-            "flip, round, ceil, floor, trunc, deta, f1, ... f60",
+            "exp, log, log10, log2, sqrt, abs, absre, absim, conj, re, im, norm, arg, gamma, fact, erf, rzeta, gi, rec, flip, round,",
+            "ceil, floor, trunc, deta, snorm, f1, ... f60",
             two_arg,
-            "logn, bipol, ibipol, inflect, foldu, foldd, foldl, foldr, foldi, foldo, shear, cmp, fuzz, normn, rot, g1, ... g60",
+            "logn, bipol, ibipol, inflect, foldu, foldd, foldl, foldr, foldi, foldo, shear, cmp, fuzz, normn, rot, dist, sdist, g1, ... g60",
             multi_arg,
             "m1, ... m60, k1, ... k60"
         };
@@ -14465,33 +8374,8 @@ public class MainWindow extends JFrame implements Constants {
     public void setQuickDrawTiles() {
 
         resetOrbit();
-        final JSlider tiles_slid = new JSlider(JSlider.HORIZONTAL, 2, 20, ThreadDraw.TILE_SIZE);
+        new QuickDrawTilesDialog(ptr);
 
-        tiles_slid.setPreferredSize(new Dimension(350, 55));
-
-        tiles_slid.setToolTipText("Sets the size of the tiles.");
-
-        tiles_slid.setPaintLabels(true);
-        tiles_slid.setFocusable(false);
-        tiles_slid.setPaintTicks(true);
-        tiles_slid.setMajorTickSpacing(1);
-
-        Object[] message3 = {
-            " ",
-            "Set the quick draw tile size.",
-            tiles_slid,
-            " ",};
-
-        int res = JOptionPane.showConfirmDialog(scroll_pane, message3, "Quick Draw Tile Size", JOptionPane.OK_CANCEL_OPTION);
-
-        if (res == JOptionPane.OK_OPTION) {
-            ThreadDraw.TILE_SIZE = tiles_slid.getValue();
-        } else {
-            if (!color_cycling) {
-                main_panel.repaint();
-            }
-            return;
-        }
     }
 
     public void boundaryTracingOptionsChanged(boolean greedy_algorithm, int algorithm) {
@@ -14515,88 +8399,7 @@ public class MainWindow extends JFrame implements Constants {
 
     }
 
-    public void setPoint() {
-
-        resetOrbit();
-        final JTextField field_real = new JTextField();
-        field_real.addAncestorListener(new RequestFocusListener());
-
-        if (s.fns.plane_transform_center[0] == 0) {
-            field_real.setText("" + 0.0);
-        } else {
-            field_real.setText("" + s.fns.plane_transform_center[0]);
-        }
-
-        final JTextField field_imaginary = new JTextField();
-
-        if (s.fns.plane_transform_center[1] == 0) {
-            field_imaginary.setText("" + 0.0);
-        } else {
-            field_imaginary.setText("" + s.fns.plane_transform_center[1]);
-        }
-
-        final JCheckBox current_center = new JCheckBox("Current Center");
-        current_center.setSelected(false);
-        current_center.setFocusable(false);
-
-        current_center.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                if (!current_center.isSelected()) {
-                    if (s.fns.plane_transform_center[0] == 0) {
-                        field_real.setText("" + 0.0);
-                    } else {
-                        field_real.setText("" + s.fns.plane_transform_center[0]);
-                    }
-
-                    field_real.setEditable(true);
-
-                    if (s.fns.plane_transform_center[1] == 0) {
-                        field_imaginary.setText("" + 0.0);
-                    } else {
-                        field_imaginary.setText("" + s.fns.plane_transform_center[1]);
-                    }
-                    field_imaginary.setEditable(true);
-                } else {
-                    Point2D.Double p = MathUtils.rotatePointRelativeToPoint(s.xCenter, s.yCenter, s.fns.rotation_vals, s.fns.rotation_center);
-
-                    field_real.setText("" + p.x);
-                    field_real.setEditable(false);
-                    field_imaginary.setText("" + p.y);
-                    field_imaginary.setEditable(false);
-                }
-            }
-        });
-
-        Object[] message = {
-            " ",
-            "Set the user point.",
-            "Real:", field_real,
-            "Imaginary:", field_imaginary,
-            current_center, " "};
-
-        int res = JOptionPane.showConfirmDialog(scroll_pane, message, "User Point", JOptionPane.OK_CANCEL_OPTION);
-
-        double tempReal, tempImaginary;
-
-        if (res == JOptionPane.OK_OPTION) {
-            try {
-                tempReal = Double.parseDouble(field_real.getText());
-                tempImaginary = Double.parseDouble(field_imaginary.getText());
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-                main_panel.repaint();
-                return;
-            }
-        } else {
-            main_panel.repaint();
-            return;
-        }
-
-        s.fns.plane_transform_center[0] = tempReal;
-        s.fns.plane_transform_center[1] = tempImaginary;
+    public void setPointPost() {
 
         setOptions(false);
 
@@ -14623,6 +8426,13 @@ public class MainWindow extends JFrame implements Constants {
         } else {
             startThreads(n);
         }
+
+    }
+
+    public void setPoint() {
+
+        resetOrbit();
+        new UserPointDialog(ptr, s);
 
     }
 
@@ -14760,7 +8570,7 @@ public class MainWindow extends JFrame implements Constants {
 
     }
 
-    public void gradientChanged(Color colorA, Color colorB, int interpolation, int color_space, boolean reverse) {
+    public void gradientChanged(Color colorA, Color colorB, int interpolation, int color_space, boolean reverse, int gradient_offset) {
 
         resetOrbit();
 
@@ -14769,10 +8579,11 @@ public class MainWindow extends JFrame implements Constants {
         s.gs.gradient_interpolation = interpolation;
         s.gs.gradient_color_space = color_space;
         s.gs.gradient_reversed = reverse;
+        s.gs.gradient_offset = gradient_offset;
 
-        ThreadDraw.gradient = CustomPalette.createGradient(colorA.getRGB(), colorB.getRGB(), 256, interpolation, color_space, reverse);
+        ThreadDraw.gradient = CustomPalette.createGradient(colorA.getRGB(), colorB.getRGB(), Constants.GRADIENT_LENGTH, interpolation, color_space, reverse, 0);
 
-        updateGradientPreview();
+        updateGradientPreview(s.gs.gradient_offset);
 
         updateColors();
     }
@@ -14909,153 +8720,66 @@ public class MainWindow extends JFrame implements Constants {
     }
 
     public void setContourColoring() {
+
         resetOrbit();
+        new ContourColoringDialog(ptr, s, greedy_algorithm, julia_map);
 
-        final JCheckBox enable_contour_coloring = new JCheckBox("Contour Coloring");
-        enable_contour_coloring.setSelected(s.cns.contour_coloring);
-        enable_contour_coloring.setFocusable(false);
-
-        final JComboBox contour_coloring_algorithm_opt = new JComboBox(Constants.contourColorAlgorithmNames);
-        contour_coloring_algorithm_opt.setSelectedIndex(s.cns.contour_algorithm);
-        contour_coloring_algorithm_opt.setFocusable(false);
-        contour_coloring_algorithm_opt.setToolTipText("Sets the contour coloring algorithm.");
-        contour_coloring_algorithm_opt.setPreferredSize(new Dimension(150, 20));
-
-        JSlider color_blend_opt = new JSlider(JSlider.HORIZONTAL, 0, 100, (int) (s.cns.cn_blending * 100));
-        color_blend_opt.setMajorTickSpacing(25);
-        color_blend_opt.setMinorTickSpacing(1);
-        color_blend_opt.setToolTipText("Sets the color blending percentage.");
-        color_blend_opt.setFocusable(false);
-        color_blend_opt.setPaintLabels(true);
-
-        JComboBox color_method_combo = new JComboBox(Constants.colorMethod);
-        color_method_combo.setSelectedIndex(s.cns.contourColorMethod);
-        color_method_combo.setFocusable(false);
-        color_method_combo.setToolTipText("Sets the color method.");
-
-        color_method_combo.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                color_blend_opt.setEnabled(color_method_combo.getSelectedIndex() == 3);
-            }
-        });
-
-        color_blend_opt.setEnabled(s.cns.contourColorMethod == 3);
-
-        JTextField noise_factor_field = new JTextField();
-        noise_factor_field.setText("" + s.cns.cn_noise_reducing_factor);
-
-        JPanel p1 = new JPanel();
-        p1.setLayout(new GridLayout(2, 2));
-
-        JPanel p2 = new JPanel();
-        p2.add(color_method_combo);
-
-        p1.add(new JLabel("Color Method:", SwingConstants.HORIZONTAL));
-        p1.add(new JLabel("Color Blending:", SwingConstants.HORIZONTAL));
-        p1.add(p2);
-        p1.add(color_blend_opt);
-
-        Object[] message = {
-            " ",
-            enable_contour_coloring,
-            " ",
-            "Set the contour coloring algorthm",
-            "Contour Coloring Algorithm:", contour_coloring_algorithm_opt,
-            " ",
-            "Set the color method and blending percentage.",
-            p1,
-            " ",
-            "Set the image noise reduction factor.",
-            "Noise Reduction Factor:",
-            noise_factor_field,
-            " "};
-
-        int res = JOptionPane.showConfirmDialog(scroll_pane, message, "Contour Coloring", JOptionPane.OK_CANCEL_OPTION);
-
-        double temp2;
-        if (res == JOptionPane.OK_OPTION) {
-            try {
-                temp2 = Double.parseDouble(noise_factor_field.getText());
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-                main_panel.repaint();
-                return;
-            }
-        } else {
-            main_panel.repaint();
-            return;
-        }
-
-        if (temp2 <= 0) {
-            main_panel.repaint();
-            JOptionPane.showMessageDialog(scroll_pane, "The noise reduction factor must be greater that 0.", "Error!", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        if (greedy_algorithm && enable_contour_coloring.isSelected() && !julia_map && !s.d3s.d3) {
-            JOptionPane.showMessageDialog(scroll_pane, "Greedy Drawing Algorithm is enabled, which creates glitches in the image.\nYou should disable it for a better result.", "Warning!", JOptionPane.WARNING_MESSAGE);
-        }
-
-        s.cns.contour_coloring = enable_contour_coloring.isSelected();
-        s.cns.cn_noise_reducing_factor = temp2;
-        s.cns.cn_blending = color_blend_opt.getValue() / 100.0;
-        s.cns.contour_algorithm = contour_coloring_algorithm_opt.getSelectedIndex();
-        s.cns.contourColorMethod = color_method_combo.getSelectedIndex();
-
-        if (!s.fns.smoothing && s.cns.contour_coloring) {
-            JOptionPane.showMessageDialog(scroll_pane, "Smoothing is disabled.\nYou should enable smoothing for a better result.", "Warning!", JOptionPane.WARNING_MESSAGE);
-        }
-
-        options_menu.getProcessing().updateIcons(s);
-
-        updateColors();
     }
 
     public void defaultSettings() {
-        resetOrbit();
+        try {
+            resetOrbit();
 
-        s.defaultValues();
-        s.applyStaticSettings();
+            s.defaultValues();
+            s.applyStaticSettings();
 
-        if (!s.d3s.d3) {
-            ThreadDraw.setArrays(image_size);
-            progress.setMaximum((image_size * image_size) + ((image_size * image_size) / 100));
-            toolbar.get3DButton().setSelected(false);
-            tools_menu.get3D().setSelected(false);
-        }
+            if (!s.d3s.d3) {
+                ThreadDraw.setArrays(image_size, s.ds.domain_coloring);
+                progress.setMaximum((image_size * image_size) + ((image_size * image_size) / 100));
+                toolbar.get3DButton().setSelected(false);
+                tools_menu.get3D().setSelected(false);
+            }
 
-        prepareUI();
+            if (!loadAutoSave()) {
+                prepareUI();
+            }
 
-        setOptions(false);
+            ThreadDraw.setDomainImageData(image_size, s.ds.domain_coloring);
 
-        progress.setValue(0);
+            setOptions(false);
 
-        resetImage();
+            progress.setValue(0);
 
-        scroll_pane.getHorizontalScrollBar().setValue((int) (scroll_pane.getHorizontalScrollBar().getMaximum() / 2 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2));
-        scroll_pane.getVerticalScrollBar().setValue((int) (scroll_pane.getVerticalScrollBar().getMaximum() / 2 - scroll_pane.getVerticalScrollBar().getSize().getHeight() / 2));
+            resetImage();
 
-        if (s.d3s.d3) {
-            s.d3s.fiX = 0.64;
-            s.d3s.fiY = 0.82;
-            Arrays.fill(((DataBufferInt) image.getRaster().getDataBuffer()).getData(), Color.BLACK.getRGB());
-        }
+            scroll_pane.getHorizontalScrollBar().setValue((int) (scroll_pane.getHorizontalScrollBar().getMaximum() / 2 - scroll_pane.getHorizontalScrollBar().getSize().getWidth() / 2));
+            scroll_pane.getVerticalScrollBar().setValue((int) (scroll_pane.getVerticalScrollBar().getMaximum() / 2 - scroll_pane.getVerticalScrollBar().getSize().getHeight() / 2));
 
-        whole_image_done = false;
+            if (s.d3s.d3) {
+                s.d3s.fiX = 0.64;
+                s.d3s.fiY = 0.82;
+                Arrays.fill(((DataBufferInt) image.getRaster().getDataBuffer()).getData(), Color.BLACK.getRGB());
+            }
 
-        if (julia_map) {
-            createThreadsJuliaMap();
-        } else {
-            createThreads(false);
-        }
+            whole_image_done = false;
 
-        calculation_time = System.currentTimeMillis();
+            if (julia_map) {
+                createThreadsJuliaMap();
+            } else {
+                createThreads(false);
+            }
 
-        if (julia_map) {
-            startThreads(julia_grid_first_dimension);
-        } else {
-            startThreads(n);
+            calculation_time = System.currentTimeMillis();
+
+            if (julia_map) {
+                startThreads(julia_grid_first_dimension);
+            } else {
+                startThreads(n);
+            }
+        } catch (OutOfMemoryError e) {
+            JOptionPane.showMessageDialog(scroll_pane, "Maximum Heap size was reached.\nThe application will terminate.", "Error!", JOptionPane.ERROR_MESSAGE);
+            savePreferences();
+            System.exit(-1);
         }
     }
 
@@ -15106,302 +8830,28 @@ public class MainWindow extends JFrame implements Constants {
 
         resetOrbit();
 
-        final JCheckBox enable_light = new JCheckBox("Light");
-        enable_light.setSelected(s.ls.lighting);
-        enable_light.setFocusable(false);
+        new LightDialog(ptr, s, greedy_algorithm, julia_map);
 
-        JPanel p1 = new JPanel();
-        p1.setLayout(new GridLayout(2, 3));
+    }
 
-        JSlider direction_of_light = new JSlider(JSlider.HORIZONTAL, 0, 360, ((int) (s.ls.light_direction)));
-        direction_of_light.setPreferredSize(new Dimension(200, 40));
-        direction_of_light.setMajorTickSpacing(60);
-        direction_of_light.setMinorTickSpacing(1);
-        direction_of_light.setToolTipText("Sets the direction of light.");
-        //color_blend.setPaintTicks(true);
-        direction_of_light.setPaintLabels(true);
-        //direction_of_light.setSnapToTicks(true);
-        direction_of_light.setFocusable(false);
-
-        JSlider depth = new JSlider(JSlider.HORIZONTAL, 0, 99, ((int) (s.ls.light_magnitude * 100)));
-        depth.setPreferredSize(new Dimension(200, 40));
-        depth.setToolTipText("Sets the magnitude of light.");
-        //color_blend.setPaintTicks(true);
-        depth.setPaintLabels(true);
-        //depth.setSnapToTicks(true);
-        depth.setFocusable(false);
-
-        Hashtable<Integer, JLabel> table3 = new Hashtable<Integer, JLabel>();
-        table3.put(0, new JLabel("0.0"));
-        table3.put(25, new JLabel("0.25"));
-        table3.put(50, new JLabel("0.5"));
-        table3.put(75, new JLabel("0.75"));
-        table3.put(99, new JLabel("0.99"));
-        depth.setLabelTable(table3);
-
-        final JComboBox light_mode_combo = new JComboBox(Constants.lightModes);
-        light_mode_combo.setSelectedIndex(s.ls.lightMode);
-        light_mode_combo.setFocusable(false);
-        light_mode_combo.setToolTipText("Sets the light mode.");
-
-        JPanel p7 = new JPanel();
-        p7.add(light_mode_combo);
-
-        p1.add(new JLabel("Direction:", SwingConstants.HORIZONTAL));
-        p1.add(new JLabel("Magnitude:", SwingConstants.HORIZONTAL));
-        p1.add(new JLabel("Light Mode:", SwingConstants.HORIZONTAL));
-        p1.add(direction_of_light);
-        p1.add(depth);
-        p1.add(p7);
-
-        JTextField noise_factor_field = new JTextField();
-        noise_factor_field.setText("" + s.ls.l_noise_reducing_factor);
-
-        JPanel p2 = new JPanel();
-        p2.setLayout(new GridLayout(2, 4));
-
-        JTextField light_intensity_field = new JTextField();
-        light_intensity_field.setText("" + s.ls.lightintensity);
-
-        JTextField ambient_light_field = new JTextField();
-        ambient_light_field.setText("" + s.ls.ambientlight);
-
-        JTextField specular_intensity_field = new JTextField();
-        specular_intensity_field.setText("" + s.ls.specularintensity);
-
-        JTextField shininess_field = new JTextField();
-        shininess_field.setText("" + s.ls.shininess);
-
-        p2.add(new JLabel("Light Intensity:", SwingConstants.HORIZONTAL));
-        p2.add(new JLabel("Ambient Light:", SwingConstants.HORIZONTAL));
-        p2.add(new JLabel("Specular Intensity:", SwingConstants.HORIZONTAL));
-        p2.add(new JLabel("Shininess:", SwingConstants.HORIZONTAL));
-        p2.add(light_intensity_field);
-        p2.add(ambient_light_field);
-        p2.add(specular_intensity_field);
-        p2.add(shininess_field);
-
-        JPanel p3 = new JPanel();
-        p3.setLayout(new GridLayout(2, 4));
-
-        p3.add(new JLabel("Transfer Function:", SwingConstants.HORIZONTAL));
-        p3.add(new JLabel("Transfer Factor:", SwingConstants.HORIZONTAL));
-        p3.add(new JLabel("Color Mode:", SwingConstants.HORIZONTAL));
-        p3.add(new JLabel("Color Blending:", SwingConstants.HORIZONTAL));
-
-        JComboBox transfer_combo = new JComboBox(Constants.lightTransfer);
-        transfer_combo.setSelectedIndex(s.ls.heightTransfer);
-        transfer_combo.setFocusable(false);
-        transfer_combo.setToolTipText("Sets the height transfer function.");
-
-        JTextField tranfer_factor_field = new JTextField(20);
-        tranfer_factor_field.setText("" + s.ls.heightTransferFactor);
-
-        final JComboBox color_method_combo = new JComboBox(Constants.colorMethod);
-        color_method_combo.setSelectedIndex(s.ls.colorMode);
-        color_method_combo.setFocusable(false);
-        color_method_combo.setToolTipText("Sets the color mode.");
-
-        final JSlider color_blend_opt = new JSlider(JSlider.HORIZONTAL, 0, 100, (int) (s.ls.light_blending * 100));
-        color_blend_opt.setMajorTickSpacing(25);
-        color_blend_opt.setMinorTickSpacing(1);
-        color_blend_opt.setToolTipText("Sets the color blending percentage.");
-        color_blend_opt.setFocusable(false);
-        color_blend_opt.setPaintLabels(true);
-
-        color_method_combo.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                color_blend_opt.setEnabled(color_method_combo.getSelectedIndex() == 3);
-            }
-        });
-
-        JPanel p4 = new JPanel();
-        p4.add(transfer_combo);
-        JPanel p5 = new JPanel();
-        p5.add(tranfer_factor_field);
-        JPanel p6 = new JPanel();
-        p6.add(color_method_combo);
-
-        p3.add(p4);
-        p3.add(p5);
-        p3.add(p6);
-        p3.add(color_blend_opt);
-
-        color_blend_opt.setEnabled(s.ls.colorMode == 3);
-
-        Object[] message = {
-            " ",
-            enable_light,
-            " ",
-            "Set the light direction, magnitude, and light mode.",
-            " ", p1,
-            " ",
-            "Set the light properties.",
-            p2,
-            " ",
-            "Set the height transfer and color options.",
-            p3,
-            " ",
-            "Set the image noise reduction factor.",
-            "Noise Reduction Factor:",
-            noise_factor_field,};
-
-        int res = JOptionPane.showConfirmDialog(scroll_pane, message, "Light", JOptionPane.OK_CANCEL_OPTION);
-
-        double temp, temp2, temp3, temp4, temp5, temp6;
-        if (res == JOptionPane.OK_OPTION) {
-            try {
-                temp = Double.parseDouble(noise_factor_field.getText());
-                temp2 = Double.parseDouble(light_intensity_field.getText());
-                temp3 = Double.parseDouble(ambient_light_field.getText());
-                temp4 = Double.parseDouble(specular_intensity_field.getText());
-                temp5 = Double.parseDouble(shininess_field.getText());
-                temp6 = Double.parseDouble(tranfer_factor_field.getText());
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-                main_panel.repaint();
-                return;
-            }
-        } else {
-            main_panel.repaint();
-            return;
-        }
-
-        if (temp <= 0) {
-            main_panel.repaint();
-            JOptionPane.showMessageDialog(scroll_pane, "The noise reduction factor must be greater that 0.", "Error!", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        if (greedy_algorithm && enable_light.isSelected() && !julia_map && !s.d3s.d3 && !s.ds.domain_coloring) {
-            JOptionPane.showMessageDialog(scroll_pane, "Greedy Drawing Algorithm is enabled, which creates glitches in the image.\nYou should disable it for a better result.", "Warning!", JOptionPane.WARNING_MESSAGE);
-        }
-
-        s.ls.lighting = enable_light.isSelected();
-        s.ls.light_direction = direction_of_light.getValue();
-        s.ls.light_magnitude = depth.getValue() / 100.0;
-        s.ls.lightintensity = temp2;
-        s.ls.ambientlight = temp3;
-        s.ls.specularintensity = temp4;
-        s.ls.shininess = temp5;
-        s.ls.light_blending = color_blend_opt.getValue() / 100.0;
-        s.ls.colorMode = color_method_combo.getSelectedIndex();
-        s.ls.heightTransfer = transfer_combo.getSelectedIndex();
-        s.ls.heightTransferFactor = temp6;
-        s.ls.lightMode = light_mode_combo.getSelectedIndex();
-
-        double lightAngleRadians = Math.toRadians(s.ls.light_direction);
-        s.ls.lightVector[0] = Math.cos(lightAngleRadians) * s.ls.light_magnitude;
-        s.ls.lightVector[1] = Math.sin(lightAngleRadians) * s.ls.light_magnitude;
-
-        s.ls.l_noise_reducing_factor = temp;
-
-        if (!s.fns.smoothing && s.ls.lighting && !s.ds.domain_coloring) {
-            JOptionPane.showMessageDialog(scroll_pane, "Smoothing is disabled.\nYou should enable smoothing for a better result.", "Warning!", JOptionPane.WARNING_MESSAGE);
-        }
-
+    public void setPostProcessingPost() {
         options_menu.getProcessing().updateIcons(s);
-
         updateColors();
+    }
 
+    public void setPaletteGradientMergingPost() {
+        options_menu.getColorsMenu().updateIcons(s);
+        updateColors();
     }
 
     public void setPaletteGradientMerging() {
 
         resetOrbit();
-        JTextField palette_blend_factor_field = new JTextField();
-        palette_blend_factor_field.setText("" + s.pbs.gradient_intensity);
+        new PaletteGradientMergingDialog(ptr, s);
 
-        palette_blend_factor_field.addAncestorListener(new RequestFocusListener());
-
-        JTextField palette_offset_field = new JTextField();
-        palette_offset_field.setText("" + s.pbs.gradient_offset);
-
-        final JCheckBox enable_blend_palette = new JCheckBox("Palette/Gradient Merging");
-        enable_blend_palette.setSelected(s.pbs.palette_gradient_merge);
-        enable_blend_palette.setFocusable(false);
-
-        JSlider color_blend_opt = new JSlider(JSlider.HORIZONTAL, 0, 100, (int) (s.pbs.palette_blending * 100));
-        color_blend_opt.setMajorTickSpacing(25);
-        color_blend_opt.setMinorTickSpacing(1);
-        color_blend_opt.setToolTipText("Sets the color blending percentage.");
-        color_blend_opt.setFocusable(false);
-        color_blend_opt.setPaintLabels(true);
-
-        final JComboBox merging_method_combo = new JComboBox(Constants.colorMethod);
-        merging_method_combo.setSelectedIndex(s.pbs.merging_type);
-        merging_method_combo.setFocusable(false);
-        merging_method_combo.setToolTipText("Sets the palette/gradient merging method.");
-
-        merging_method_combo.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                color_blend_opt.setEnabled(merging_method_combo.getSelectedIndex() == 3);
-            }
-        });
-
-        color_blend_opt.setEnabled(s.pbs.merging_type == 3);
-
-        Object[] message = {
-            " ",
-            enable_blend_palette,
-            " ",
-            "Set the gradient intensity.",
-            "Gradient Intensity:", palette_blend_factor_field,
-            " ",
-            "Set the gradient offset.",
-            "Gradient Offset:", palette_offset_field,
-            " ",
-            "Set the palette/gradient merging method.",
-            "Palette/Gradient Merging method:", merging_method_combo,
-            " ",
-            "Set the color blending percentage.",
-            "Color Blending:", color_blend_opt,
-            " "};
-
-        int res = JOptionPane.showConfirmDialog(scroll_pane, message, "Palette/Gradient Merging", JOptionPane.OK_CANCEL_OPTION);
-
-        double temp;
-        int temp2;
-        if (res == JOptionPane.OK_OPTION) {
-            try {
-                temp = Double.parseDouble(palette_blend_factor_field.getText());
-                temp2 = Integer.parseInt(palette_offset_field.getText());
-            } catch (Exception ex) {
-                JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-                main_panel.repaint();
-                return;
-            }
-        } else {
-            main_panel.repaint();
-            return;
-        }
-
-        if (temp < 0) {
-            main_panel.repaint();
-            JOptionPane.showMessageDialog(scroll_pane, "The gradient intensity must be greater than -1.", "Error!", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        if (temp2 < 0) {
-            main_panel.repaint();
-            JOptionPane.showMessageDialog(scroll_pane, "The gradient offset must be greater than -1.", "Error!", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        s.pbs.gradient_intensity = temp;
-        s.pbs.palette_gradient_merge = enable_blend_palette.isSelected();
-        s.pbs.merging_type = merging_method_combo.getSelectedIndex();
-        s.pbs.palette_blending = color_blend_opt.getValue() / 100.0;
-        s.pbs.gradient_offset = temp2;
-
-        options_menu.getColorsMenu().updateIcons(s);
-
-        updateColors();
     }
 
-    private void updateColors() {
+    public void updateColors() {
 
         setOptions(false);
 
@@ -15415,7 +8865,7 @@ public class MainWindow extends JFrame implements Constants {
 
         whole_image_done = false;
 
-        if (s.fs.filters[ANTIALIASING] || s.ots.useTraps || s.ds.domain_coloring) {
+        if (s.fs.filters[ANTIALIASING] || s.ots.useTraps) {
             if (julia_map) {
                 createThreadsJuliaMap();
             } else {
@@ -15480,25 +8930,26 @@ public class MainWindow extends JFrame implements Constants {
 
     }
 
-    private void loadAutoSave() {
+    private boolean loadAutoSave() {
 
         String filename = "autoload.fzs";
         try {
             if (new File(filename).exists()) {
                 s.readSettings(filename, scroll_pane, true);
                 prepareUI();
+                return true;
             }
         } catch (IOException ex) {
             JOptionPane.showMessageDialog(scroll_pane, "Error while loading the " + filename + " file.", "Error!", JOptionPane.ERROR_MESSAGE);
-            main_panel.repaint();
         } catch (ClassNotFoundException ex) {
             JOptionPane.showMessageDialog(scroll_pane, "Error while loading the " + filename + " file.", "Error!", JOptionPane.ERROR_MESSAGE);
-            main_panel.repaint();
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(scroll_pane, "Error while loading the " + filename + " file.\nThe application will terminate.", "Error!", JOptionPane.ERROR_MESSAGE);
             savePreferences();
             System.exit(-1);
         }
+
+        return false;
 
     }
 
@@ -15508,76 +8959,22 @@ public class MainWindow extends JFrame implements Constants {
         JOptionPane.showMessageDialog(scroll_pane, filename + " was updated with the current settings.\nThe new settings will be loaded at the start-up of the application.", "Initial Settings", JOptionPane.INFORMATION_MESSAGE);
     }
 
-    public void setCorners(JTextField field_real, JTextField field_imaginary, JTextField field_size) {
-        double tempx, tempy, tempSize;
-        try {
-            tempx = Double.parseDouble(field_real.getText());
-            tempy = Double.parseDouble(field_imaginary.getText());
-            tempSize = Double.parseDouble(field_size.getText());
-        } catch (Exception ex) {
-            tempx = s.xCenter;
-            tempy = s.yCenter;
-            tempSize = s.size;
-        }
+    public void setFunctionPostNova() {
+        options_menu.getPeriodicityChecking().setEnabled(false);
+        options_menu.getBailout().setEnabled(false);
+        options_menu.getBailoutConditionMenu().setEnabled(false);
+    }
 
-        double[] corners = MathUtils.convertFromCenterSizeToCorners(tempx, tempy, tempSize);
-
-        JTextField corner1_real = new JTextField(20);
-        corner1_real.addAncestorListener(new RequestFocusListener());
-        corner1_real.setText("" + corners[0]);
-
-        JTextField corner1_imag = new JTextField(20);
-        corner1_imag.setText("" + corners[1]);
-        JTextField corner2_real = new JTextField(20);
-        corner2_real.setText("" + corners[2]);
-        JTextField corner2_imag = new JTextField(20);
-        corner2_imag.setText("" + corners[3]);
-
-        JPanel p1 = new JPanel();
-        p1.add(new JLabel("Real: "));
-        p1.add(corner1_real);
-        p1.add(new JLabel(" Imaginary: "));
-        p1.add(corner1_imag);
-
-        JPanel p2 = new JPanel();
-        p2.add(new JLabel("Real: "));
-        p2.add(corner2_real);
-        p2.add(new JLabel(" Imaginary: "));
-        p2.add(corner2_imag);
-
-        Object[] message = {
-            " ",
-            "Set the corners.",
-            "Corner 1:",
-            p1,
-            " ",
-            "Corner 2:",
-            p2,
-            " "};
-
-        int res = JOptionPane.showConfirmDialog(scroll_pane, message, "Corners", JOptionPane.OK_CANCEL_OPTION);
-
-        if (res == JOptionPane.OK_OPTION) {
-            double tempc1_re, tempc1_im, tempc2_re, tempc2_im;
-            try {
-                tempc1_re = Double.parseDouble(corner1_real.getText());
-                tempc1_im = Double.parseDouble(corner1_imag.getText());
-                tempc2_re = Double.parseDouble(corner2_real.getText());
-                tempc2_im = Double.parseDouble(corner2_imag.getText());
-            } catch (Exception ex) {
-                main_panel.repaint();
-                JOptionPane.showMessageDialog(scroll_pane, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            double[] centersize = MathUtils.convertFromCornersToCenterSize(new double[]{tempc1_re, tempc1_im, tempc2_re, tempc2_im});
-            field_real.setText("" + centersize[0]);
-            field_imaginary.setText("" + centersize[1]);
-            field_size.setText("" + centersize[2]);
-        } else {
-            main_panel.repaint();
-            return;
-        }
+    public void setFunctionPostKleinian() {
+        tools_menu.getJulia().setEnabled(false);
+        toolbar.getJuliaButton().setEnabled(false);
+        tools_menu.getJuliaMap().setEnabled(false);
+        toolbar.getJuliaMapButton().setEnabled(false);
+        options_menu.getPeriodicityChecking().setEnabled(false);
+        options_menu.getPerturbation().setEnabled(false);
+        options_menu.getInitialValue().setEnabled(false);
+        options_menu.getBailout().setEnabled(false);
+        options_menu.getBailoutConditionMenu().setEnabled(false);
     }
 
     public static void main(String[] args) throws InterruptedException, Exception {
@@ -15593,9 +8990,8 @@ public class MainWindow extends JFrame implements Constants {
         MainWindow mw = new MainWindow();
         mw.setVisible(true);
 
-        boolean actionOk = mw.getCommonFunctions().copyLib();
+        mw.checkCompilationStatus();
         mw.getCommonFunctions().checkForUpdate(false);
-        mw.getCommonFunctions().exportCodeFiles(actionOk);
 
     }
 }

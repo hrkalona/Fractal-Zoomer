@@ -16,6 +16,7 @@
  */
 package fractalzoomer.main.app_settings;
 
+import fractalzoomer.bailout_conditions.SkipBailoutCondition;
 import fractalzoomer.core.Complex;
 import fractalzoomer.core.ThreadDraw;
 import fractalzoomer.main.Constants;
@@ -239,6 +240,9 @@ public class Settings implements Constants {
             } else if (version == 1072) {
                 xJuliaCenter = ((SettingsJulia1072) settings).getXJuliaCenter();
                 yJuliaCenter = ((SettingsJulia1072) settings).getYJuliaCenter();
+            } else if (version == 1073) {
+                xJuliaCenter = ((SettingsJulia1073) settings).getXJuliaCenter();
+                yJuliaCenter = ((SettingsJulia1073) settings).getYJuliaCenter();
             }
 
             fns.julia = true;
@@ -715,6 +719,9 @@ public class Settings implements Constants {
             } else if (fns.plane_type == CIRCLEINVERSION_PLANE) {
                 fns.plane_transform_center = ((SettingsFractals1053) settings).getPlaneTransformCenter();
                 fns.plane_transform_radius = ((SettingsFractals1053) settings).getPlaneTransformRadius();
+            } else if (fns.plane_type == SKEW_PLANE) {
+                fns.plane_transform_angle = ((SettingsFractals1053) settings).getPlaneTransformAngle();
+                fns.plane_transform_angle2 = ((SettingsFractals1053) settings).getPlaneTransformAngle2();
             }
         }
 
@@ -866,7 +873,7 @@ public class Settings implements Constants {
             ls.lightVector[0] = Math.cos(lightAngleRadians) * ls.light_magnitude;
             ls.lightVector[1] = Math.sin(lightAngleRadians) * ls.light_magnitude;
         }
-        
+
         if (version < 1072) {
             ots.trapColor1 = defaults.ots.trapColor1;
             ots.trapColor2 = defaults.ots.trapColor2;
@@ -874,31 +881,40 @@ public class Settings implements Constants {
             ots.trapColorInterpolation = defaults.ots.trapColorInterpolation;
             ots.trapIncludeNotEscaped = defaults.ots.trapIncludeNotEscaped;
             ots.trapIncludeEscaped = defaults.ots.trapIncludeEscaped;
-            
+
             sts.statisticIncludeEscaped = defaults.sts.statisticIncludeEscaped;
             sts.statisticIncludeNotEscaped = defaults.sts.statisticIncludeNotEscaped;
-            
+
             ps.direct_palette = defaults.ps.direct_palette;
             ps2.direct_palette = defaults.ps2.direct_palette;
-        }
-        else {
+        } else {
             ots.trapColor1 = ((SettingsFractals1072) settings).getTrapColor1();
             ots.trapColor2 = ((SettingsFractals1072) settings).getTrapColor2();
             ots.trapColor3 = ((SettingsFractals1072) settings).getTrapColor3();
             ots.trapColorInterpolation = ((SettingsFractals1072) settings).getTrapColorInterpolation();
             ots.trapIncludeNotEscaped = ((SettingsFractals1072) settings).getTrapIncludeNotEscaped();
             ots.trapIncludeEscaped = ((SettingsFractals1072) settings).getTrapIncludeEscaped();
-            
+
             sts.statisticIncludeEscaped = ((SettingsFractals1072) settings).getStatisticIncludeEscaped();
             sts.statisticIncludeNotEscaped = ((SettingsFractals1072) settings).getStatisticIncludeNotEscaped();
-            
-            if(ps.color_choice == DIRECT_PALETTE_ID) {
+
+            if (ps.color_choice == DIRECT_PALETTE_ID) {
                 ps.direct_palette = ((SettingsFractals1072) settings).getDirectPalette();
             }
-            
-            if(ps2.color_choice == DIRECT_PALETTE_ID) {
+
+            if (ps2.color_choice == DIRECT_PALETTE_ID) {
                 ps2.direct_palette = ((SettingsFractals1072) settings).getDirectPalette2();
             }
+        }
+
+        if (version < 1073) {
+            sts.user_statistic_init_value = defaults.sts.user_statistic_init_value;
+            fns.skip_bailout_iterations = defaults.fns.skip_bailout_iterations;
+            gs.gradient_offset = defaults.gs.gradient_offset;
+        } else {
+            sts.user_statistic_init_value = ((SettingsFractals1073) settings).getUserStatisticInitValue();
+            fns.skip_bailout_iterations = ((SettingsFractals1073) settings).getSkipBailoutIterations();
+            gs.gradient_offset = ((SettingsFractals1073) settings).getGradientOffset();
         }
 
         if (fns.plane_type == USER_PLANE) {
@@ -1090,6 +1106,13 @@ public class Settings implements Constants {
                 fns.mps.height = ((SettingsFractals1072) settings).getPendulumHeight();
                 fns.mps.pendulum = ((SettingsFractals1072) settings).getPendulum();
                 fns.mps.stepsize = ((SettingsFractals1072) settings).getPendulumStepsize();
+
+                if (version < 1073) {
+                    fns.mps.magnetPendVariableId = defaults.fns.mps.magnetPendVariableId;
+                } else {
+                    fns.mps.magnetPendVariableId = ((SettingsFractals1073) settings).getMagnetPendVariableId();
+                }
+
                 break;
             case LYAPUNOV:
                 fns.lpns.lyapunovA = ((SettingsFractals1072) settings).getLyapunovA();
@@ -1098,6 +1121,16 @@ public class Settings implements Constants {
                 fns.lpns.lyapunovD = ((SettingsFractals1072) settings).getLyapunovD();
                 fns.lpns.useLyapunovExponent = ((SettingsFractals1072) settings).getUseLyapunovExponent();
                 fns.lpns.lyapunovExpression = ((SettingsFractals1072) settings).getLyapunovExpression();
+
+                if (version < 1073) {
+                    fns.lpns.lyapunovFunction = defaults.fns.lpns.lyapunovFunction;
+                    fns.lpns.lyapunovExponentFunction = defaults.fns.lpns.lyapunovExponentFunction;
+                    fns.lpns.lyapunovVariableId = defaults.fns.lpns.lyapunovVariableId;
+                } else {
+                    fns.lpns.lyapunovFunction = ((SettingsFractals1073) settings).getLyapunovFunction();
+                    fns.lpns.lyapunovExponentFunction = ((SettingsFractals1073) settings).getLyapunovExponentFunction();
+                    fns.lpns.lyapunovVariableId = ((SettingsFractals1073) settings).getLyapunovVariableId();
+                }
 
                 String[] subExpressions = LyapunovSettings.getTokens(fns.lpns.lyapunovExpression);
 
@@ -1115,9 +1148,9 @@ public class Settings implements Constants {
                     parser.parse(subExpression);
                     temp_bool = temp_bool | parser.foundC();
                 }
-                
+
                 fns.lpns.lyapunovFinalExpression = subExpressions;
-                userFormulaHasC = temp_bool;                
+                userFormulaHasC = temp_bool;
                 break;
             case GENERIC_CaZbdZe:
                 fns.gcs.alpha = ((SettingsFractals1072) settings).getAlpha();
@@ -1168,6 +1201,141 @@ public class Settings implements Constants {
                 fns.z_exponent_nova = settings.getZExponentNova();
                 fns.relaxation = settings.getRelaxation();
                 fns.nova_method = settings.getNovaMethod();
+                break;
+            case INERTIA_GRAVITY:
+                fns.igs.bodyLocation = ((SettingsFractals1073) settings).getBodyLocation();
+                fns.igs.bodyGravity = ((SettingsFractals1073) settings).getBodyGravity();
+                fns.igs.inertia_contribution = ((SettingsFractals1073) settings).getInertiaContribution();
+                fns.igs.initial_inertia = ((SettingsFractals1073) settings).getInitialInertia();
+                fns.igs.inertia_exponent = ((SettingsFractals1073) settings).getInertiaExponent();
+                fns.igs.pull_scaling_function = ((SettingsFractals1073) settings).getPullScalingFunction();
+                fns.igs.time_step = ((SettingsFractals1073) settings).getTimeStep();
+                break;
+            case GENERIC_CpAZpBC:
+                fns.gcps.alpha2 = ((SettingsFractals1073) settings).getAlpha2();
+                fns.gcps.beta2 = ((SettingsFractals1073) settings).getBeta2();
+                break;
+            case LAMBDA_FN_FN:
+                fns.lfns.lambda_formula_conditions = ((SettingsFractals1073) settings).getLambdaFormulaConditions();
+                fns.lfns.lambda_formula_condition_formula = ((SettingsFractals1073) settings).getLambdaFormulaConditionFormula();
+                break;
+            case USER_FORMULA_NOVA:
+                fns.nova_method = settings.getNovaMethod();
+
+                fns.user_relaxation_formula = ((SettingsFractals1073) settings).getUserRelaxationFormula();
+                fns.user_nova_addend_formula = ((SettingsFractals1073) settings).getUserNovaAddendFormula();
+
+                temp_bool = false;
+
+                switch (fns.nova_method) {
+                    case NOVA_NEWTON:
+                        fns.user_fz_formula = ((SettingsFractals1058) settings).getUserFzFormula();
+                        fns.user_dfz_formula = ((SettingsFractals1058) settings).getUserDfzFormula();
+
+                        parser.parse(fns.user_fz_formula);
+                        temp_bool = temp_bool | parser.foundC();
+
+                        parser.parse(fns.user_dfz_formula);
+                        temp_bool = temp_bool | parser.foundC();
+                        break;
+                    case NOVA_HALLEY:
+                        fns.user_fz_formula = ((SettingsFractals1058) settings).getUserFzFormula();
+                        fns.user_dfz_formula = ((SettingsFractals1058) settings).getUserDfzFormula();
+                        fns.user_ddfz_formula = ((SettingsFractals1058) settings).getUserDdfzFormula();
+
+                        parser.parse(fns.user_fz_formula);
+                        temp_bool = temp_bool | parser.foundC();
+
+                        parser.parse(fns.user_dfz_formula);
+                        temp_bool = temp_bool | parser.foundC();
+
+                        parser.parse(fns.user_ddfz_formula);
+                        temp_bool = temp_bool | parser.foundC();
+                        break;
+                    case NOVA_SCHRODER:
+                        fns.user_fz_formula = ((SettingsFractals1058) settings).getUserFzFormula();
+                        fns.user_dfz_formula = ((SettingsFractals1058) settings).getUserDfzFormula();
+                        fns.user_ddfz_formula = ((SettingsFractals1058) settings).getUserDdfzFormula();
+
+                        parser.parse(fns.user_fz_formula);
+                        temp_bool = temp_bool | parser.foundC();
+
+                        parser.parse(fns.user_dfz_formula);
+                        temp_bool = temp_bool | parser.foundC();
+
+                        parser.parse(fns.user_ddfz_formula);
+                        temp_bool = temp_bool | parser.foundC();
+                        break;
+                    case NOVA_HOUSEHOLDER:
+                        fns.user_fz_formula = ((SettingsFractals1058) settings).getUserFzFormula();
+                        fns.user_dfz_formula = ((SettingsFractals1058) settings).getUserDfzFormula();
+                        fns.user_ddfz_formula = ((SettingsFractals1058) settings).getUserDdfzFormula();
+
+                        parser.parse(fns.user_fz_formula);
+                        temp_bool = temp_bool | parser.foundC();
+
+                        parser.parse(fns.user_dfz_formula);
+                        temp_bool = temp_bool | parser.foundC();
+
+                        parser.parse(fns.user_ddfz_formula);
+                        temp_bool = temp_bool | parser.foundC();
+                        break;
+                    case NOVA_SECANT:
+                        fns.user_fz_formula = ((SettingsFractals1058) settings).getUserFzFormula();
+
+                        parser.parse(fns.user_fz_formula);
+                        temp_bool = temp_bool | parser.foundC();
+                        break;
+                    case NOVA_STEFFENSEN:
+                        fns.user_fz_formula = ((SettingsFractals1058) settings).getUserFzFormula();
+
+                        parser.parse(fns.user_fz_formula);
+                        temp_bool = temp_bool | parser.foundC();
+                        break;
+                    case NOVA_MULLER:
+                        fns.user_fz_formula = ((SettingsFractals1058) settings).getUserFzFormula();
+
+                        parser.parse(fns.user_fz_formula);
+                        temp_bool = temp_bool | parser.foundC();
+                        break;
+                    case NOVA_PARHALLEY:
+                        fns.user_fz_formula = ((SettingsFractals1058) settings).getUserFzFormula();
+                        fns.user_dfz_formula = ((SettingsFractals1058) settings).getUserDfzFormula();
+                        fns.user_ddfz_formula = ((SettingsFractals1058) settings).getUserDdfzFormula();
+
+                        parser.parse(fns.user_fz_formula);
+                        temp_bool = temp_bool | parser.foundC();
+
+                        parser.parse(fns.user_dfz_formula);
+                        temp_bool = temp_bool | parser.foundC();
+
+                        parser.parse(fns.user_ddfz_formula);
+                        temp_bool = temp_bool | parser.foundC();
+                        break;
+                    case NOVA_LAGUERRE:
+                        fns.user_fz_formula = ((SettingsFractals1058) settings).getUserFzFormula();
+                        fns.user_dfz_formula = ((SettingsFractals1058) settings).getUserDfzFormula();
+                        fns.user_ddfz_formula = ((SettingsFractals1058) settings).getUserDdfzFormula();
+                        fns.laguerre_deg = ((SettingsFractals1067) settings).getLaguerreDeg();
+
+                        parser.parse(fns.user_fz_formula);
+                        temp_bool = temp_bool | parser.foundC();
+
+                        parser.parse(fns.user_dfz_formula);
+                        temp_bool = temp_bool | parser.foundC();
+
+                        parser.parse(fns.user_ddfz_formula);
+                        temp_bool = temp_bool | parser.foundC();
+                        break;
+                }
+
+                parser.parse(fns.user_relaxation_formula);
+                temp_bool = temp_bool | parser.foundC();
+
+                parser.parse(fns.user_nova_addend_formula);
+                temp_bool = temp_bool | parser.foundC();
+
+                userFormulaHasC = temp_bool;
                 break;
             case USER_FORMULA:
                 fns.user_formula = settings.getUserFormula();
@@ -1254,9 +1422,9 @@ public class Settings implements Constants {
             file_temp = new ObjectOutputStream(new FileOutputStream(filename));
             SettingsFractals settings;
             if (fns.julia) {
-                settings = new SettingsJulia1072(this);
+                settings = new SettingsJulia1073(this);
             } else {
-                settings = new SettingsFractals1072(this);
+                settings = new SettingsFractals1073(this);
             }
             file_temp.writeObject(settings);
             file_temp.flush();
@@ -1798,6 +1966,7 @@ public class Settings implements Constants {
 
         return isRootFindingMethod()
                 || fns.function == NOVA
+                || fns.function == USER_FORMULA_NOVA
                 || (fns.function == USER_FORMULA && fns.bail_technique == 1) || (fns.function == USER_FORMULA_ITERATION_BASED && fns.bail_technique == 1) || (fns.function == USER_FORMULA_CONDITIONAL && fns.bail_technique == 1) || (fns.function == USER_FORMULA_COUPLED && fns.bail_technique == 1);
 
     }
@@ -1827,7 +1996,8 @@ public class Settings implements Constants {
 
     public boolean functionSupportsC() {
 
-        return !isRootFindingMethod() && fns.function != KLEINIAN && fns.function != SIERPINSKI_GASKET && (fns.function != USER_FORMULA || (fns.function == USER_FORMULA && userFormulaHasC == true)) && (fns.function != USER_FORMULA_ITERATION_BASED || (fns.function == USER_FORMULA_ITERATION_BASED && userFormulaHasC == true)) && (fns.function != USER_FORMULA_CONDITIONAL || (fns.function == USER_FORMULA_CONDITIONAL && userFormulaHasC == true)) && (fns.function != USER_FORMULA_COUPLED || (fns.function == USER_FORMULA_COUPLED && userFormulaHasC == true))
+        return !isRootFindingMethod() && fns.function != KLEINIAN && fns.function != SIERPINSKI_GASKET && fns.function != INERTIA_GRAVITY
+                && (fns.function != USER_FORMULA_NOVA || (fns.function == USER_FORMULA_NOVA && userFormulaHasC == true)) && (fns.function != USER_FORMULA || (fns.function == USER_FORMULA && userFormulaHasC == true)) && (fns.function != USER_FORMULA_ITERATION_BASED || (fns.function == USER_FORMULA_ITERATION_BASED && userFormulaHasC == true)) && (fns.function != USER_FORMULA_CONDITIONAL || (fns.function == USER_FORMULA_CONDITIONAL && userFormulaHasC == true)) && (fns.function != USER_FORMULA_COUPLED || (fns.function == USER_FORMULA_COUPLED && userFormulaHasC == true))
                 && (fns.function != LYAPUNOV || (fns.function == LYAPUNOV && userFormulaHasC == true));
 
     }
@@ -1850,9 +2020,11 @@ public class Settings implements Constants {
 
         ColorAlgorithm.GlobalIncrementBypass = globalIncrementBypass;
 
-        ThreadDraw.gradient = CustomPalette.createGradient(gs.colorA.getRGB(), gs.colorB.getRGB(), Constants.GRADIENT_LENGTH, gs.gradient_interpolation, gs.gradient_color_space, gs.gradient_reversed);
+        ThreadDraw.gradient = CustomPalette.createGradient(gs.colorA.getRGB(), gs.colorB.getRGB(), Constants.GRADIENT_LENGTH, gs.gradient_interpolation, gs.gradient_color_space, gs.gradient_reversed, 0);
 
         ThreadDraw.COLOR_SMOOTHING_METHOD = color_smoothing_method;
+
+        SkipBailoutCondition.SKIPPED_ITERATION_COUNT = fns.skip_bailout_iterations;
 
     }
 

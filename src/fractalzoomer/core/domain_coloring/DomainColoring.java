@@ -72,6 +72,7 @@ public abstract class DomainColoring {
     protected int isoLinesColorBlue;
     
     protected int[] gradient;
+    protected int gradient_offset;
 
     protected double isoLinesBlendingFactor;
 
@@ -97,6 +98,8 @@ public abstract class DomainColoring {
         max_norm_re_im_value = 20.0;
         
         contourMethod = 3;
+        
+        gradient_offset = 0;
 
         this.blending = blending;
 
@@ -144,12 +147,24 @@ public abstract class DomainColoring {
         if (coloring_mode == 1) {
             return getColor(h * palette.getPaletteLength());
         } else if (coloring_mode == 0){
-            return Color.HSBtoRGB((float) h, 1, 1);    
+            return HSBcolor(h, color_cycling_location);
         }
         else {
-            int [] res = ColorSpaceConverter.LCHtoRGB(50, 100, h * 360);
-            return 0xFF000000 | res[0] << 16 | res[1] << 8 | res[2];
+            return LCHcolor(h, color_cycling_location);
         }
+        
+    }
+    
+    public static int HSBcolor(double h, int color_cycling_location) {
+        
+        return Color.HSBtoRGB((float) ((h + color_cycling_location * 0.01) % 1.0), 1, 1);
+        
+    }
+    
+    public static int LCHcolor(double h, int color_cycling_location) {
+        
+        int [] res = ColorSpaceConverter.LCHtoRGB(50, 100, ((h + color_cycling_location * 0.01) % 1.0) * 360);
+        return 0xFF000000 | res[0] << 16 | res[1] << 8 | res[2];
         
     }
 
@@ -594,9 +609,11 @@ public abstract class DomainColoring {
          else if(contourMethod == 3) {// blend
              int index = (int)(coef * (gradient.length - 1) + 0.5);
         
-             int temp_red = (gradient[index] >> 16) & 0xff;
-             int temp_green = (gradient[index] >> 8) & 0xff;
-             int temp_blue = gradient[index] & 0xff;
+             int grad_color = gradient[(index + gradient_offset) % gradient.length];
+             
+             int temp_red = (grad_color >> 16) & 0xff;
+             int temp_green = (grad_color >> 8) & 0xff;
+             int temp_blue = grad_color & 0xff;
 
              return blending.blend(temp_red, temp_green, temp_blue, red, green, blue, 1 - contourBlending);
          }
@@ -610,6 +627,18 @@ public abstract class DomainColoring {
             return 0xff000000 | (red << 16) | (green << 8) | blue;
          }
       
+     }
+     
+     public void setColorCyclingLocation(int color_cycling_location) {
+         
+         this.color_cycling_location = color_cycling_location;
+         
+     }
+     
+     public void setGradientOffset(int gradient_offset) {
+         
+         this.gradient_offset = gradient_offset;
+         
      }
 
 }

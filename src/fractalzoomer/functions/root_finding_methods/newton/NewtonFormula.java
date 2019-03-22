@@ -273,12 +273,14 @@ public class NewtonFormula extends NewtonRootFindingMethod {
             parser2.setSvalue(start);
         }
 
+        Complex c_maxn = new Complex(max_iterations, 0);
+                
         if (parser.foundMaxn()) {
-            parser.setMaxnvalue(new Complex(max_iterations, 0));
+            parser.setMaxnvalue(c_maxn);
         }
 
         if (parser2.foundMaxn()) {
-            parser2.setMaxnvalue(new Complex(max_iterations, 0));
+            parser2.setMaxnvalue(c_maxn);
         }
 
         if (parser.foundP()) {

@@ -72,9 +72,9 @@ public class CustomPalette extends Palette {
 
     }
 
-    public static Color[] getGradient(int colorA, int colorB, int length, int color_interpolation, int color_space, boolean reversed) {
+    public static Color[] getGradient(int colorA, int colorB, int length, int color_interpolation, int color_space, boolean reversed, int offset) {
 
-        int[] palette = createGradient(colorA, colorB, length, color_interpolation, color_space, reversed);
+        int[] palette = createGradient(colorA, colorB, length, color_interpolation, color_space, reversed, offset);
 
         Color[] palette2 = new Color[palette.length];
 
@@ -86,7 +86,7 @@ public class CustomPalette extends Palette {
 
     }
 
-    public static int[] createGradient(int colorA, int colorB, int length, int color_interpolation, int color_space, boolean reversed) {
+    public static int[] createGradient(int colorA, int colorB, int length, int color_interpolation, int color_space, boolean reversed, int offset) {
 
         int[] palette = new int[length]; // allocate pallete
 
@@ -135,6 +135,7 @@ public class CustomPalette extends Palette {
                 break;
         }
 
+        int n = length - offset % length;
         int red, green, blue;
   
         for(int i = 0; i < colors.length - 1; i++) { // interpolate first color only
@@ -175,7 +176,7 @@ public class CustomPalette extends Palette {
 
                     int[] res = ColorSpaceConverter.HSBtoRGB(h, s, b);
 
-                    palette[k % palette.length] = 0xff000000 | (res[0] << 16) | (res[1] << 8) | res[2];
+                    palette[(n + k) % palette.length] = 0xff000000 | (res[0] << 16) | (res[1] << 8) | res[2];
                 }
                 else if(color_space == MainWindow.COLOR_SPACE_HSL) {
                     double[] c1_hsl = ColorSpaceConverter.RGBtoHSL(c1[1], c1[2], c1[3]);
@@ -206,10 +207,10 @@ public class CustomPalette extends Palette {
 
                     int[] res = ColorSpaceConverter.HSLtoRGB(h, s, l);
 
-                    palette[k % palette.length] = 0xff000000 | (res[0] << 16) | (res[1] << 8) | res[2];
+                    palette[(n + k) % palette.length] = 0xff000000 | (res[0] << 16) | (res[1] << 8) | res[2];
                 }
                 else if(color_space == MainWindow.COLOR_SPACE_RGB) {
-                    palette[k % palette.length] = method.interpolate(c1[1], c1[2], c1[3], c2[1], c2[2], c2[3], coef);//0xff000000 | (red << 16) | (green << 8) | blue;
+                    palette[(n + k) % palette.length] = method.interpolate(c1[1], c1[2], c1[3], c2[1], c2[2], c2[3], coef);//0xff000000 | (red << 16) | (green << 8) | blue;
                     //System.out.print((0xff000000 | (red << 16) | (green << 8) | blue) + ", ");
                 }
                 else if(color_space == MainWindow.COLOR_SPACE_EXP) {
@@ -234,7 +235,7 @@ public class CustomPalette extends Palette {
                     green = (int)(Math.exp(method.interpolate(from_g, to_g, coef)));
                     blue = (int)(Math.exp(method.interpolate(from_b, to_b, coef)));
 
-                    palette[k % palette.length] = 0xff000000 | (red << 16) | (green << 8) | blue;
+                    palette[(n + k) % palette.length] = 0xff000000 | (red << 16) | (green << 8) | blue;
                 }
                 else if(color_space == MainWindow.COLOR_SPACE_SQUARE) {
                     double to_r = Math.sqrt(c2[1]);
@@ -250,7 +251,7 @@ public class CustomPalette extends Palette {
                     green = (int)(Math.pow(method.interpolate(from_g, to_g, coef), 2));
                     blue = (int)(Math.pow(method.interpolate(from_b, to_b, coef), 2));
 
-                    palette[k % palette.length] = 0xff000000 | (red << 16) | (green << 8) | blue;
+                    palette[(n + k) % palette.length] = 0xff000000 | (red << 16) | (green << 8) | blue;
                 }
                 else if(color_space == MainWindow.COLOR_SPACE_SQRT) {
                     double to_r = c2[1] * c2[1];
@@ -266,7 +267,7 @@ public class CustomPalette extends Palette {
                     green = (int)(Math.sqrt(method.interpolate(from_g, to_g, coef)));
                     blue = (int)(Math.sqrt(method.interpolate(from_b, to_b, coef)));
 
-                    palette[k % palette.length] = 0xff000000 | (red << 16) | (green << 8) | blue;
+                    palette[(n + k) % palette.length] = 0xff000000 | (red << 16) | (green << 8) | blue;
                 }
                 else if(color_space == MainWindow.COLOR_SPACE_RYB) {
                     double[] ryb_from = ColorSpaceConverter.RGBtoRYB(c1[1], c1[2], c1[3]);
@@ -278,7 +279,7 @@ public class CustomPalette extends Palette {
 
                     int[] rgb = ColorSpaceConverter.RYBtoRGB(r, y, b);
 
-                    palette[k % palette.length] = 0xff000000 | ((int)(rgb[0]) << 16) | ((int)(rgb[1]) << 8) | (int)(rgb[2]);
+                    palette[(n + k) % palette.length] = 0xff000000 | ((int)(rgb[0]) << 16) | ((int)(rgb[1]) << 8) | (int)(rgb[2]);
                 }
                 else if(color_space == MainWindow.COLOR_SPACE_LAB) {
                     double[] from = ColorSpaceConverter.RGBtoLAB(c1[1], c1[2], c1[3]);
@@ -295,7 +296,7 @@ public class CustomPalette extends Palette {
                     res[1] = ColorSpaceConverter.clamp(res[1]);
                     res[2] = ColorSpaceConverter.clamp(res[2]);
 
-                    palette[k % palette.length] = 0xff000000 | ((int)(res[0]) << 16) | ((int)(res[1]) << 8) | (int)(res[2]);
+                    palette[(n + k) % palette.length] = 0xff000000 | ((int)(res[0]) << 16) | ((int)(res[1]) << 8) | (int)(res[2]);
                 }
                 else if(color_space == MainWindow.COLOR_SPACE_XYZ) {
                     double[] from = ColorSpaceConverter.RGBtoXYZ(c1[1], c1[2], c1[3]);
@@ -312,7 +313,7 @@ public class CustomPalette extends Palette {
                     res[1] = ColorSpaceConverter.clamp(res[1]);
                     res[2] = ColorSpaceConverter.clamp(res[2]);
 
-                    palette[k % palette.length] = 0xff000000 | ((int)(res[0]) << 16) | ((int)(res[1]) << 8) | (int)(res[2]);
+                    palette[(n + k) % palette.length] = 0xff000000 | ((int)(res[0]) << 16) | ((int)(res[1]) << 8) | (int)(res[2]);
                 }
                 else if(color_space == MainWindow.COLOR_SPACE_LCH) {
                     double[] from = ColorSpaceConverter.RGBtoLCH(c1[1], c1[2], c1[3]);
@@ -348,7 +349,7 @@ public class CustomPalette extends Palette {
                     res[1] = ColorSpaceConverter.clamp(res[1]);
                     res[2] = ColorSpaceConverter.clamp(res[2]);
 
-                    palette[k % palette.length] = 0xff000000 | ((int)(res[0]) << 16) | ((int)(res[1]) << 8) | (int)(res[2]);
+                    palette[(n + k) % palette.length] = 0xff000000 | ((int)(res[0]) << 16) | ((int)(res[1]) << 8) | (int)(res[2]);
                 }
                 else if(color_space == MainWindow.COLOR_SPACE_BEZIER_RGB) {
                     double a = method.getCoef(coef);
@@ -356,7 +357,7 @@ public class CustomPalette extends Palette {
                     green = ColorSpaceConverter.clamp((int)evaluateBezier(a, c1[2], bezierControlPoints_green[0][i].y, bezierControlPoints_green[1][i].y, c2[2]));
                     blue = ColorSpaceConverter.clamp((int)evaluateBezier(a, c1[3], bezierControlPoints_blue[0][i].y, bezierControlPoints_blue[1][i].y, c2[3]));
 
-                    palette[k % palette.length] = 0xff000000 | (red << 16) | (green << 8) | blue;
+                    palette[(n + k) % palette.length] = 0xff000000 | (red << 16) | (green << 8) | blue;
                 }
             }
         }

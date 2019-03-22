@@ -20,38 +20,16 @@ import fractalzoomer.core.Complex;
 import fractalzoomer.fractal_options.iteration_statistics.CosArgDivideInverseNorm;
 import fractalzoomer.fractal_options.iteration_statistics.UserStatisticColoringRootFindingMethod;
 import fractalzoomer.functions.Fractal;
-import fractalzoomer.in_coloring_algorithms.AtanReTimesImTimesAbsReTimesAbsIm;
-import fractalzoomer.in_coloring_algorithms.CosMag;
-import fractalzoomer.in_coloring_algorithms.DecompositionLike;
-import fractalzoomer.in_coloring_algorithms.MagTimesCosReSquared;
-import fractalzoomer.in_coloring_algorithms.MaximumIterations;
-import fractalzoomer.in_coloring_algorithms.ReDivideIm;
-import fractalzoomer.in_coloring_algorithms.SinReSquaredMinusImSquared;
-import fractalzoomer.in_coloring_algorithms.Squares;
-import fractalzoomer.in_coloring_algorithms.Squares2;
-import fractalzoomer.in_coloring_algorithms.UserConditionalInColorAlgorithm;
-import fractalzoomer.in_coloring_algorithms.UserInColorAlgorithm;
-import fractalzoomer.in_coloring_algorithms.ZMag;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.MagneticPendulumSettings;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
 import fractalzoomer.main.app_settings.StatisticsSettings;
-import fractalzoomer.out_coloring_algorithms.BinaryDecomposition;
-import fractalzoomer.out_coloring_algorithms.BinaryDecomposition2;
 import fractalzoomer.out_coloring_algorithms.BinaryDecomposition2MagneticPendulum;
 import fractalzoomer.out_coloring_algorithms.BinaryDecompositionMagneticPendulum;
 import fractalzoomer.out_coloring_algorithms.ColorDecompositionMagneticPendulum;
-import fractalzoomer.out_coloring_algorithms.ColorDecompositionRootFindingMethod;
-import fractalzoomer.out_coloring_algorithms.EscapeTime;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeAlgorithm1;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeColorDecompositionMagneticPendulum;
-import fractalzoomer.out_coloring_algorithms.EscapeTimeColorDecompositionRootFindingMethod;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeMagneticPendulum;
-import fractalzoomer.out_coloring_algorithms.SmoothBinaryDecomposition2RootFindingMethod;
-import fractalzoomer.out_coloring_algorithms.SmoothBinaryDecompositionRootFindingMethod;
-import fractalzoomer.out_coloring_algorithms.SmoothColorDecompositionRootFindingMethod;
-import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeColorDecompositionRootFindingMethod;
-import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeRootFindingMethod;
 import fractalzoomer.out_coloring_algorithms.UserConditionalOutColorAlgorithmRootFindingMethod;
 import fractalzoomer.out_coloring_algorithms.UserOutColorAlgorithmRootFindingMethod;
 import fractalzoomer.utils.ColorAlgorithm;
@@ -73,11 +51,14 @@ public class MagneticPendulum extends Fractal {
     private double stepsize;
     private double stepsize_squared;
     private Object[] iterationData;
+    private int magnetPendVariableId;
 
     public MagneticPendulum(double xCenter, double yCenter, double size, int max_iterations, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int converging_smooth_algorithm, OrbitTrapSettings ots, StatisticsSettings sts, MagneticPendulumSettings mps) {
 
         super(xCenter, yCenter, size, max_iterations, 0, 0, "", "", 0, 0, false, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, ots);
 
+        magnetPendVariableId = mps.magnetPendVariableId;
+        
         pendulum = new Complex(mps.pendulum[0], mps.pendulum[1]);
 
         height_squared = mps.height * mps.height;
@@ -163,12 +144,12 @@ public class MagneticPendulum extends Fractal {
             acc_next.plus_mutable(d.times_mutable(strengths[i].divide(dist * dist * dist)));
         }
 
-        acc_next.sub_mutable((complex[0].sub(pendulum)).times(gravity));
+        acc_next.sub_mutable((complex[0].sub(pendulum)).times_mutable(gravity));
         acc_next.sub_mutable(complex[1].times(friction));
 
-        complex[1].plus_mutable((acc_next.times(2).plus(complex[2].times(5).sub(complex[3]))).divide(6).times(stepsize));
+        complex[1].plus_mutable((acc_next.times(2).plus_mutable(complex[2].times(5).sub_mutable(complex[3]))).divide_mutable(6).times_mutable(stepsize));
 
-        Complex dir = complex[1].times(stepsize).plus((acc_next.times(4).sub(complex[2])).divide(6).times(stepsize_squared));
+        Complex dir = complex[1].times(stepsize).plus_mutable((acc_next.times(4).sub_mutable(complex[2])).divide_mutable(6).times_mutable(stepsize_squared));
 
         complex[4].plus_mutable(dir.norm());
 
@@ -214,6 +195,8 @@ public class MagneticPendulum extends Fractal {
 
         }
 
+        globalVars[magnetPendVariableId].assign(complex[4]);
+        
         escaped = true;
         Object[] object = {iterations, complex[0], 0, zold, zold2, pixel, start, complex[4]};
         iterationData = object;
@@ -358,7 +341,7 @@ public class MagneticPendulum extends Fractal {
         statisticIncludeNotEscaped = sts.statisticIncludeNotEscaped;
         
         if (sts.statisticGroup == 1) {
-            statistic = new UserStatisticColoringRootFindingMethod(sts.statistic_intensity, sts.user_statistic_formula, xCenter, yCenter, max_iterations, size, 0, plane_transform_center, globalVars, sts.useAverage);
+            statistic = new UserStatisticColoringRootFindingMethod(sts.statistic_intensity, sts.user_statistic_formula, xCenter, yCenter, max_iterations, size, 0, plane_transform_center, globalVars, sts.useAverage, sts.user_statistic_init_value);
             return;
         }
 

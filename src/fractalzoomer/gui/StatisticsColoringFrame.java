@@ -87,8 +87,8 @@ public class StatisticsColoringFrame extends JFrame {
         }
 
         ptra2.setEnabled(false);
-        int custom_palette_window_width = MainWindow.runsOnWindows ? 680 : 760;
-        int custom_palette_window_height = 660;
+        int custom_palette_window_width = (MainWindow.runsOnWindows ? 680 : 760) + 50;
+        int custom_palette_window_height = 690;
         setTitle("Statistical Coloring");
         setIconImage(getIcon("/fractalzoomer/icons/statistics_coloring.png").getImage());
 
@@ -113,7 +113,7 @@ public class StatisticsColoringFrame extends JFrame {
         JPanel panel3 = new JPanel();
         panel3.setLayout(new FlowLayout());
         panel3.setBackground(MainWindow.bg_color);
-        panel3.setPreferredSize(new Dimension(MainWindow.runsOnWindows ? 580 : 660, 520));
+        panel3.setPreferredSize(new Dimension((MainWindow.runsOnWindows ? 580 : 660) + 50, 550));
 
         JCheckBox statistics = new JCheckBox("Statistical Coloring");
         statistics.setFocusable(false);
@@ -121,6 +121,7 @@ public class StatisticsColoringFrame extends JFrame {
         statistics.setSelected(sts.statistic);
 
         JTextField intensity = new JTextField(10);
+        intensity.addAncestorListener(new RequestFocusListener());
         intensity.setText("" + sts.statistic_intensity);
         panel2.add(statistics);
         panel2.add(new JLabel(" Intensity: "));
@@ -142,7 +143,7 @@ public class StatisticsColoringFrame extends JFrame {
         panel2.add(include_notescaped_opt);
 
         JTabbedPane tabbedPane = new JTabbedPane();
-        tabbedPane.setPreferredSize(new Dimension(MainWindow.runsOnWindows ? 560 : 640, 470));
+        tabbedPane.setPreferredSize(new Dimension((MainWindow.runsOnWindows ? 560 : 640) + 50, 500));
         tabbedPane.setFocusable(false);
 
         final JPanel panel = new JPanel();
@@ -163,6 +164,7 @@ public class StatisticsColoringFrame extends JFrame {
         JPanel panel21 = new JPanel();
         panel21.setLayout(new FlowLayout());
         panel21.setBackground(MainWindow.bg_color);
+        
         JPanel panel22 = new JPanel();
         panel22.setLayout(new FlowLayout());
         panel22.setBackground(MainWindow.bg_color);
@@ -172,9 +174,19 @@ public class StatisticsColoringFrame extends JFrame {
 
         JTextField field_formula = new JTextField(45);
         field_formula.setText("" + sts.user_statistic_formula);
+        
+        JTextField field_formula_init = new JTextField(45);
+        field_formula_init.setText("" + sts.user_statistic_init_value);
 
         panel22.add(new JLabel("value = value + "));
         panel22.add(field_formula);
+        
+        JPanel panel24 = new JPanel();
+        panel24.setLayout(new FlowLayout());
+        panel24.setBackground(MainWindow.bg_color);
+        
+        panel24.add(new JLabel("value(0) = "));
+        panel24.add(field_formula_init);
 
         JCheckBox average = new JCheckBox("Average");
         average.setFocusable(false);
@@ -189,7 +201,7 @@ public class StatisticsColoringFrame extends JFrame {
         JPanel panel23 = new JPanel();
         panel23.setLayout(new FlowLayout());
         panel23.setBackground(MainWindow.bg_color);
-        panel23.setPreferredSize(new Dimension(MainWindow.runsOnWindows ? 500 : 580, 30));
+        panel23.setPreferredSize(new Dimension((MainWindow.runsOnWindows ? 500 : 580) + 50, 30));
 
         panel23.add(average);
         if(s.isMagnetType()) {
@@ -253,13 +265,14 @@ public class StatisticsColoringFrame extends JFrame {
         info_panel.add(info_user);
         info_panel.add(code_editor);
         info_panel.add(compile_code);
-        info_panel.setPreferredSize(new Dimension(MainWindow.runsOnWindows ? 500 : 580, 28));
+        info_panel.setPreferredSize(new Dimension((MainWindow.runsOnWindows ? 500 : 580) + 50, 28));
         info_panel.setBackground(MainWindow.bg_color);
 
         panel4.add(info_panel);
         panel4.add(panel21);
         panel4.add(panel23);
         panel4.add(panel22);
+        panel4.add(panel24);
 
         tabbedPane.setSelectedIndex(sts.statisticGroup);
 
@@ -399,6 +412,11 @@ public class StatisticsColoringFrame extends JFrame {
 
                 try {
                     s.parser.parse(field_formula.getText());
+                    
+                    if(s.parser.foundR()) {
+                        JOptionPane.showMessageDialog(ptra, "The variable: r cannot be used in the value formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
 
                     if(s.isConvergingType()) {
                         if(s.parser.foundBail()) {
@@ -410,7 +428,13 @@ public class StatisticsColoringFrame extends JFrame {
                         JOptionPane.showMessageDialog(this_frame, "The variable: cbail can only be used in converging type fractals\n(Root finding methods, Nova, User converging formulas).", "Error!", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
-
+                    
+                    s.parser.parse(field_formula_init.getText());
+                    
+                    if (s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR()) {
+                        JOptionPane.showMessageDialog(ptra, "The variables: z, n, s, p, pp, bail, cbail, r cannot be used in the value(0) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
                 }
                 catch(ParserException ex) {
                     JOptionPane.showMessageDialog(this_frame, ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
@@ -444,6 +468,7 @@ public class StatisticsColoringFrame extends JFrame {
 
                 sts.statisticGroup = tabbedPane.getSelectedIndex();
                 sts.user_statistic_formula = field_formula.getText();
+                sts.user_statistic_init_value = field_formula_init.getText();
                 sts.useAverage = average.isSelected();
                 sts.statistic_escape_type = escape_type.getSelectedIndex();
 
@@ -478,7 +503,7 @@ public class StatisticsColoringFrame extends JFrame {
 
         RoundedPanel round_panel = new RoundedPanel(true, true, true, 15);
         round_panel.setBackground(MainWindow.bg_color);
-        round_panel.setPreferredSize(new Dimension(MainWindow.runsOnWindows ? 610 : 690, 580));
+        round_panel.setPreferredSize(new Dimension((MainWindow.runsOnWindows ? 610 : 690) + 50, 610));
         round_panel.setLayout(new GridBagLayout());
 
         GridBagConstraints con = new GridBagConstraints();

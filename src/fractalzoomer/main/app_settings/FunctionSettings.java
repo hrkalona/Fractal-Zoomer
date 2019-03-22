@@ -111,6 +111,12 @@ public class FunctionSettings implements Constants {
     public double[] durand_kerner_init_val;
     public MagneticPendulumSettings mps;
     public LyapunovSettings lpns;
+    public String user_relaxation_formula;
+    public String user_nova_addend_formula;
+    public GenericCpAZpBCSettings gcps;
+    public InertiaGravityFractalSettings igs;
+    public LambdaFnFnSettings lfns;
+    public int skip_bailout_iterations;
     
     public FunctionSettings() {
         n_norm = 2;
@@ -125,6 +131,7 @@ public class FunctionSettings implements Constants {
         
         bailout = 2;
         bailout_test_algorithm = 0;
+        skip_bailout_iterations = 0;
 
         bailout_test_user_formula = "norm(z)";
         bailout_test_user_formula2 = "bail";
@@ -225,6 +232,9 @@ public class FunctionSettings implements Constants {
         user_dfz_formula = "3*z^2";
         user_ddfz_formula = "6*z";
         
+        user_relaxation_formula = "1.0";
+        user_nova_addend_formula = "c";
+        
         user_formula = "z^2 + c";
         user_formula2 = "c";
 
@@ -322,6 +332,9 @@ public class FunctionSettings implements Constants {
         
         mps = new MagneticPendulumSettings();
         lpns = new LyapunovSettings();
+        gcps = new GenericCpAZpBCSettings();
+        igs = new InertiaGravityFractalSettings();
+        lfns = new LambdaFnFnSettings();
         
     }
     

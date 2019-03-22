@@ -38,7 +38,7 @@ public abstract class GenericStatistic {
     }
     
     public abstract void insert(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start);
-    public abstract void initialize();
+    public abstract void initialize(Complex pixel);
     public abstract double getValue();
     public abstract int getType();
     

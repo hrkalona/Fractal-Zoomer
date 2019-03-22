@@ -44,7 +44,7 @@ public class CosArgDivideInverseNorm extends GenericStatistic {
     }
 
     @Override
-    public void initialize() {
+    public void initialize(Complex pixel) {
         sum = 0;
     }
 

@@ -81,19 +81,24 @@ public abstract class Julia extends Fractal {
     @Override
     public double calculateJulia(Complex pixel) {
 
-        escaped = false;
-        
-        if(statistic != null) {
-            statistic.initialize();
-        }
+        escaped = false; 
         
         resetGlobalVars();
-
-        if (apply_plane_on_julia) {
-            return periodicity_checking ? calculateJuliaWithPeriodicity(plane.transform(rotation.rotate(pixel))) : calculateJuliaWithoutPeriodicity(plane.transform(rotation.rotate(pixel)));
-        } else {
-            return periodicity_checking ? calculateJuliaWithPeriodicity(rotation.rotate(pixel)) : calculateJuliaWithoutPeriodicity(rotation.rotate(pixel));
+        
+        Complex transformed;
+        
+        if(apply_plane_on_julia) {
+            transformed = plane.transform(rotation.rotate(pixel));
         }
+        else {
+            transformed = rotation.rotate(pixel);
+        }
+        
+        if(statistic != null) {
+            statistic.initialize(transformed);
+        }
+
+        return periodicity_checking ? calculateJuliaWithPeriodicity(transformed) : calculateJuliaWithoutPeriodicity(transformed);
 
     }
 

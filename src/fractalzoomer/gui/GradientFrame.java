@@ -20,6 +20,7 @@ import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.GradientSettings;
 import fractalzoomer.palettes.CustomPalette;
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GradientPaint;
@@ -27,8 +28,11 @@ import java.awt.Graphics2D;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.Point;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -43,18 +47,26 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSpinner;
+import javax.swing.JSpinner.DefaultEditor;
+import javax.swing.SpinnerModel;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 /**
  *
  * @author kaloch
  */
 public class GradientFrame extends JFrame {
-	private static final long serialVersionUID = -1756188920359636585L;
-	private MainWindow ptra2;
+
+    private static final long serialVersionUID = -1756188920359636585L;
+    private MainWindow ptra2;
     private GradientFrame this_frame;
     private JLabel gradient_label;
     private BufferedImage colors;
@@ -63,6 +75,10 @@ public class GradientFrame extends JFrame {
     private JLabel color_b_label;
     private JComboBox combo_box_color_space;
     private JCheckBox check_box_reveres_palette;
+    private JSpinner offset_textfield;
+    private int mouse_color_label_x;
+    private Cursor grab_cursor;
+    private Cursor grabbing_cursor;
 
     public GradientFrame(MainWindow ptra, GradientSettings gs) {
 
@@ -73,10 +89,13 @@ public class GradientFrame extends JFrame {
         this_frame = this;
 
         ptra2.setEnabled(false);
-        int custom_palette_window_width = 580;
+        int custom_palette_window_width = 760;
         int custom_palette_window_height = 260;
         setTitle("Gradient");
         setIconImage(getIcon("/fractalzoomer/icons/gradient.png").getImage());
+        
+        grab_cursor = Toolkit.getDefaultToolkit().createCustomCursor(getIcon("/fractalzoomer/icons/cursor_grab.gif").getImage(), new Point(16, 16), "grab");
+        grabbing_cursor = Toolkit.getDefaultToolkit().createCustomCursor(getIcon("/fractalzoomer/icons/cursor_grabbing.gif").getImage(), new Point(16, 16), "grabbing");
 
         setSize(custom_palette_window_width, custom_palette_window_height);
         setLocation((int) (ptra2.getLocation().getX() + ptra2.getSize().getWidth() / 2) - (custom_palette_window_width / 2), (int) (ptra2.getLocation().getY() + ptra2.getSize().getHeight() / 2) - (custom_palette_window_height / 2));
@@ -94,7 +113,7 @@ public class GradientFrame extends JFrame {
 
         JPanel gradient_panel = new JPanel();
 
-        gradient_panel.setPreferredSize(new Dimension(500, 130));
+        gradient_panel.setPreferredSize(new Dimension(680, 130));
         gradient_panel.setLayout(new GridLayout(2, 1));
         gradient_panel.setBackground(MainWindow.bg_color);
 
@@ -173,7 +192,7 @@ public class GradientFrame extends JFrame {
             }
 
         });
-        
+
         check_box_reveres_palette = new JCheckBox("Reversed");
         check_box_reveres_palette.setSelected(gs.gradient_reversed);
         check_box_reveres_palette.setFocusable(false);
@@ -185,10 +204,16 @@ public class GradientFrame extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    Color[] c = CustomPalette.getGradient(color_a_label.getBackground().getRGB(), color_b_label.getBackground().getRGB(), MainWindow.GRADIENT_LENGTH, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected());
+                    int temp3 = Integer.parseInt(((DefaultEditor) offset_textfield.getEditor()).getTextField().getText());
+
+                    if (temp3 < 0) {
+                        throw new NumberFormatException();
+                    }
+
+                    Color[] c = CustomPalette.getGradient(color_a_label.getBackground().getRGB(), color_b_label.getBackground().getRGB(), MainWindow.GRADIENT_LENGTH, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp3);
 
                     paintGradient(c);
-                } catch (ArithmeticException ex) {
+                } catch (Exception ex) {
                     Graphics2D g = colors.createGraphics();
                     g.setColor(Color.LIGHT_GRAY);
                     g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
@@ -196,7 +221,6 @@ public class GradientFrame extends JFrame {
                 }
             }
         });
-
 
         String[] color_interp_str = {"Linear", "Cosine", "Acceleration", "Deceleration", "Exponential", "Catmull-Rom", "Catmull-Rom 2", "Sigmoid"};
 
@@ -209,10 +233,16 @@ public class GradientFrame extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    Color[] c = CustomPalette.getGradient(color_a_label.getBackground().getRGB(), color_b_label.getBackground().getRGB(), MainWindow.GRADIENT_LENGTH, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected());
+                    int temp3 = Integer.parseInt(((DefaultEditor) offset_textfield.getEditor()).getTextField().getText());
+
+                    if (temp3 < 0) {
+                        throw new NumberFormatException();
+                    }
+
+                    Color[] c = CustomPalette.getGradient(color_a_label.getBackground().getRGB(), color_b_label.getBackground().getRGB(), MainWindow.GRADIENT_LENGTH, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp3);
 
                     paintGradient(c);
-                } catch (ArithmeticException ex) {
+                } catch (Exception ex) {
                     Graphics2D g = colors.createGraphics();
                     g.setColor(Color.LIGHT_GRAY);
                     g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
@@ -242,10 +272,16 @@ public class GradientFrame extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
-                    Color[] c = CustomPalette.getGradient(color_a_label.getBackground().getRGB(), color_b_label.getBackground().getRGB(), MainWindow.GRADIENT_LENGTH, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected());
+                    int temp3 = Integer.parseInt(((DefaultEditor) offset_textfield.getEditor()).getTextField().getText());
+
+                    if (temp3 < 0) {
+                        throw new NumberFormatException();
+                    }
+
+                    Color[] c = CustomPalette.getGradient(color_a_label.getBackground().getRGB(), color_b_label.getBackground().getRGB(), MainWindow.GRADIENT_LENGTH, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp3);
 
                     paintGradient(c);
-                } catch (ArithmeticException ex) {
+                } catch (Exception ex) {
                     Graphics2D g = colors.createGraphics();
                     g.setColor(Color.LIGHT_GRAY);
                     g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
@@ -270,23 +306,23 @@ public class GradientFrame extends JFrame {
         options_panel.setBackground(MainWindow.bg_color);
 
         JPanel color_panel = new JPanel();
-        color_panel.setPreferredSize(new Dimension(160, 60));
+        color_panel.setPreferredSize(new Dimension(340, 60));
         color_panel.setLayout(new FlowLayout());
         color_panel.setBackground(MainWindow.bg_color);
-        
+
         color_panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Colors", TitledBorder.DEFAULT_POSITION, TitledBorder.DEFAULT_POSITION));
-        
+
         color_panel.add(color_a_label);
         color_panel.add(color_b_label);
         color_panel.add(check_box_reveres_palette);
-        
+
         options_panel.add(color_panel);
         options_panel.add(color_space_panel);
         options_panel.add(color_interp_panel);
 
-        colors = new BufferedImage(472, 45, BufferedImage.TYPE_INT_ARGB);
+        colors = new BufferedImage(652, 45, BufferedImage.TYPE_INT_ARGB);
 
-        Color[] c = CustomPalette.getGradient(gs.colorA.getRGB(), gs.colorB.getRGB(), MainWindow.GRADIENT_LENGTH, gs.gradient_interpolation, gs.gradient_color_space, gs.gradient_reversed);
+        Color[] c = CustomPalette.getGradient(gs.colorA.getRGB(), gs.colorB.getRGB(), MainWindow.GRADIENT_LENGTH, gs.gradient_interpolation, gs.gradient_color_space, gs.gradient_reversed, gs.gradient_offset);
 
         try {
             Graphics2D g = colors.createGraphics();
@@ -305,17 +341,82 @@ public class GradientFrame extends JFrame {
         gradient_label.setPreferredSize(new Dimension(colors.getWidth(), colors.getHeight()));
         gradient_label.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
         
+        gradient_label.addMouseListener(new MouseListener() {
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                mouse_color_label_x = (int) gradient_label.getMousePosition().getX();
+
+                if (e.getModifiers() == InputEvent.BUTTON1_MASK) {
+                    gradient_label.setCursor(grabbing_cursor);
+                } else if (e.getModifiers() != InputEvent.BUTTON1_MASK) {
+                    gradient_label.setCursor(grab_cursor);
+                }
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if (e.getModifiers() == InputEvent.BUTTON1_MASK) {
+                    gradient_label.setCursor(grab_cursor);
+                } else if (e.getModifiers() != InputEvent.BUTTON1_MASK) {
+                    gradient_label.setCursor(grab_cursor);
+                }
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+
+            }
+
+        });
+
         gradient_label.addMouseMotionListener(new MouseMotionListener() {
 
             @Override
             public void mouseDragged(MouseEvent e) {
-                
+                try {
+                    if (e.getModifiers() == InputEvent.BUTTON1_MASK) {
+                        gradient_label.setCursor(grabbing_cursor);
+                    } else if (e.getModifiers() != InputEvent.BUTTON1_MASK) {
+                        gradient_label.setCursor(grab_cursor);
+                    }
+
+                    int diff = (int) gradient_label.getMousePosition().getX() - mouse_color_label_x;
+                    
+                    int temp3 = Integer.parseInt(((DefaultEditor) offset_textfield.getEditor()).getTextField().getText());
+
+                    if (temp3 < 0) {
+                        throw new NumberFormatException();
+                    }
+
+                    temp3 -= diff;
+
+                    if (temp3 < 0) {
+                        temp3 = 0;
+                    }
+
+                    ((DefaultEditor) offset_textfield.getEditor()).getTextField().setText("" + temp3);
+
+                    mouse_color_label_x = (int) gradient_label.getMousePosition().getX();
+                } catch (Exception ex) {
+                }
 
             }
 
             @Override
             public void mouseMoved(MouseEvent e) {
                 try {
+                    gradient_label.setCursor(grab_cursor);
                     Color temp_color = new Color(colors.getRGB((int) gradient_label.getMousePosition().getX(), (int) gradient_label.getMousePosition().getY()));
                     String rr = Integer.toHexString(temp_color.getRed());
                     String bb = Integer.toHexString(temp_color.getBlue());
@@ -338,6 +439,87 @@ public class GradientFrame extends JFrame {
 
         gp.add(gradient_label);
 
+        JLabel offset_label = new JLabel(" Gradient Offset");
+
+        color_panel.add(offset_label);
+
+        SpinnerModel spinnerModel = new SpinnerNumberModel(gs.gradient_offset, //initial value
+                0, //min
+                Integer.MAX_VALUE, //max
+                1);
+
+        offset_textfield = new JSpinner(spinnerModel);
+        offset_textfield.setPreferredSize(new Dimension(70, 26));
+        offset_textfield.setToolTipText("Adds an offset to the current gradient.");
+        ((DefaultEditor) offset_textfield.getEditor()).getTextField().getDocument().addDocumentListener(new DocumentListener() {
+
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+
+                try {
+                    int temp3 = Integer.parseInt(((DefaultEditor) offset_textfield.getEditor()).getTextField().getText());
+
+                    if (temp3 < 0) {
+                        throw new NumberFormatException();
+                    }
+
+                    Color[] c = CustomPalette.getGradient(color_a_label.getBackground().getRGB(), color_b_label.getBackground().getRGB(), MainWindow.GRADIENT_LENGTH, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp3);
+
+                    paintGradient(c);
+                } catch (Exception ex) {
+                    Graphics2D g = colors.createGraphics();
+                    g.setColor(Color.LIGHT_GRAY);
+                    g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
+                    gradient_label.repaint();
+                }
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+
+                try {
+                    int temp3 = Integer.parseInt(((DefaultEditor) offset_textfield.getEditor()).getTextField().getText());
+
+                    if (temp3 < 0) {
+                        throw new NumberFormatException();
+                    }
+
+                    Color[] c = CustomPalette.getGradient(color_a_label.getBackground().getRGB(), color_b_label.getBackground().getRGB(), MainWindow.GRADIENT_LENGTH, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp3);
+
+                    paintGradient(c);
+                } catch (Exception ex) {
+                    Graphics2D g = colors.createGraphics();
+                    g.setColor(Color.LIGHT_GRAY);
+                    g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
+                    gradient_label.repaint();
+                }
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+
+                try {
+                    int temp3 = Integer.parseInt(((DefaultEditor) offset_textfield.getEditor()).getTextField().getText());
+
+                    if (temp3 < 0) {
+                        throw new NumberFormatException();
+                    }
+
+                    Color[] c = CustomPalette.getGradient(color_a_label.getBackground().getRGB(), color_b_label.getBackground().getRGB(), MainWindow.GRADIENT_LENGTH, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp3);
+
+                    paintGradient(c);
+                } catch (Exception ex) {
+                    Graphics2D g = colors.createGraphics();
+                    g.setColor(Color.LIGHT_GRAY);
+                    g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
+                    gradient_label.repaint();
+                }
+
+            }
+        });
+        
+        color_panel.add(offset_textfield);
+
         gradient_panel.add(options_panel);
         gradient_panel.add(gp);
 
@@ -353,8 +535,21 @@ public class GradientFrame extends JFrame {
 
             @Override
             public void actionPerformed(ActionEvent e) {
+                
+                int temp2;
+                try {
+                    temp2 = Integer.parseInt(((DefaultEditor) offset_textfield.getEditor()).getTextField().getText());
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(this_frame, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
 
-                ptra2.gradientChanged(color_a_label.getBackground(), color_b_label.getBackground(), combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected());
+                if (temp2 < 0) {
+                    JOptionPane.showMessageDialog(this_frame, "Offset must be greater than -1.", "Error!", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                ptra2.gradientChanged(color_a_label.getBackground(), color_b_label.getBackground(), combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp2);
                 ptra2.setEnabled(true);
                 dispose();
 
@@ -381,7 +576,7 @@ public class GradientFrame extends JFrame {
 
         RoundedPanel round_panel = new RoundedPanel(true, true, true, 15);
         round_panel.setBackground(MainWindow.bg_color);
-        round_panel.setPreferredSize(new Dimension(510, 180));
+        round_panel.setPreferredSize(new Dimension(690, 180));
         round_panel.setLayout(new GridBagLayout());
 
         GridBagConstraints con = new GridBagConstraints();
@@ -421,7 +616,7 @@ public class GradientFrame extends JFrame {
 
         try {
             Graphics2D g = colors.createGraphics();
-            for (int i = 0; i < c.length - 1; i++) { 
+            for (int i = 0; i < c.length - 1; i++) {
                 GradientPaint gp = new GradientPaint(i * colors.getWidth() / c.length, 0, c[i], (i + 1) * colors.getWidth() / c.length, 0, c[(i + 1) % c.length]);
                 g.setPaint(gp);
                 g.fill(new Rectangle2D.Double(i * colors.getWidth() / c.length, 0, (i + 1) * colors.getWidth() / c.length - i * colors.getWidth() / c.length, colors.getHeight()));
@@ -438,10 +633,16 @@ public class GradientFrame extends JFrame {
 
     public void colorChanged() {
         try {
-            Color[] c = CustomPalette.getGradient(color_a_label.getBackground().getRGB(), color_b_label.getBackground().getRGB(), MainWindow.GRADIENT_LENGTH, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected());
+            int temp3 = Integer.parseInt(((DefaultEditor) offset_textfield.getEditor()).getTextField().getText());
+
+            if (temp3 < 0) {
+                throw new NumberFormatException();
+            }
+
+            Color[] c = CustomPalette.getGradient(color_a_label.getBackground().getRGB(), color_b_label.getBackground().getRGB(), MainWindow.GRADIENT_LENGTH, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp3);
 
             paintGradient(c);
-        } catch (ArithmeticException ex) {
+        } catch (Exception ex) {
             Graphics2D g = colors.createGraphics();
             g.setColor(Color.LIGHT_GRAY);
             g.fillRect(0, 0, colors.getWidth(), colors.getHeight());

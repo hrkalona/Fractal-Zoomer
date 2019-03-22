@@ -1,3 +1,15 @@
+Version 1.0.7.3
+    -Added User Nova Formula function.
+    -Added Modified Inertia/Gravity function.
+    -Added the lambda(Fn || Fn) function.
+    -Added more parameters to the Lyapunov function.
+    -Added more bailout conditions and the ability to skip the bailout condition check for a number of iterations.
+    -Added some palettes from FractInt.
+    -Color cycling can now be used in domain coloring mode.
+    -Added an initialization parameter to user statistical coloring.
+    -Refactored all the dialogs, and they no longer close on an invalid input.
+    -Refactored the code and fixed some bugs.
+
 Version 1.0.7.2
     -Added Magnetic Pendulum simulation as a fractal function.
     -Added the Lyapunov fractal function.

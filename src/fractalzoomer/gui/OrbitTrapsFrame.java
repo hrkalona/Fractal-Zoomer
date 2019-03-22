@@ -23,6 +23,7 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -42,6 +43,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
 import javax.swing.border.EtchedBorder;
+import javax.swing.border.TitledBorder;
 
 public class OrbitTrapsFrame extends JFrame {
 	private static final long serialVersionUID = -4097447483434039100L;
@@ -63,7 +65,7 @@ public class OrbitTrapsFrame extends JFrame {
 
         ptra2.setEnabled(false);
         int color_window_width = 700;
-        int color_window_height = 435;
+        int color_window_height = 475;
         setTitle("Orbit Traps");
         setSize(color_window_width, color_window_height);
         setIconImage(getIcon("/fractalzoomer/icons/orbit_traps.png").getImage());
@@ -81,7 +83,7 @@ public class OrbitTrapsFrame extends JFrame {
         });
 
         JPanel options_panel = new JPanel();
-        options_panel.setPreferredSize(new Dimension(600, 290));
+        options_panel.setPreferredSize(new Dimension(600, 330));
         options_panel.setBackground(MainWindow.bg_color);
         options_panel.setLayout(new FlowLayout());
 
@@ -356,14 +358,29 @@ public class OrbitTrapsFrame extends JFrame {
         p6.add(trap3_color_label);
         p6.add(new JLabel("  Interpolation: "));
         p6.add(interpolation_opt);
+        
+        JPanel color_options_panel = new JPanel();
+        color_options_panel.setPreferredSize(new Dimension(580, 110));
+        color_options_panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Trap Options", TitledBorder.DEFAULT_POSITION, TitledBorder.DEFAULT_POSITION));
+        color_options_panel.setLayout(new GridLayout(2, 1));
+        color_options_panel.setBackground(MainWindow.bg_color);
+        
+        JPanel trap_options_panel = new JPanel();
+        trap_options_panel.setPreferredSize(new Dimension(580, 170));
+        trap_options_panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Color Options", TitledBorder.DEFAULT_POSITION, TitledBorder.DEFAULT_POSITION));
+        trap_options_panel.setLayout(new GridLayout(4, 1));
+        trap_options_panel.setBackground(MainWindow.bg_color);
+        
+        color_options_panel.add(p4);
+        color_options_panel.add(p6);
 
-
-        options_panel.add(p1);
-        options_panel.add(p2);
-        options_panel.add(p3);
-        options_panel.add(p5);
-        options_panel.add(p4);
-        options_panel.add(p6);
+        trap_options_panel.add(p1);
+        trap_options_panel.add(p2);
+        trap_options_panel.add(p3);
+        trap_options_panel.add(p5);
+        
+        options_panel.add(trap_options_panel);
+        options_panel.add(color_options_panel);
 
         JButton ok = new JButton("Ok");
         ok.setFocusable(false);
@@ -459,7 +476,7 @@ public class OrbitTrapsFrame extends JFrame {
 
         RoundedPanel round_panel = new RoundedPanel(true, true, true, 15);
         round_panel.setBackground(MainWindow.bg_color);
-        round_panel.setPreferredSize(new Dimension(630, 350));
+        round_panel.setPreferredSize(new Dimension(630, 390));
         round_panel.setLayout(new GridBagLayout());
 
         GridBagConstraints con = new GridBagConstraints();

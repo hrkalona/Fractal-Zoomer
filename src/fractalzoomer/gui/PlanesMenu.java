@@ -112,6 +112,7 @@ public class PlanesMenu extends JMenu {
         planeNames[MainWindow.RZETA_PLANE] = "riemann zeta";
         planeNames[MainWindow.INFLECTION_PLANE] = "Inflection";
         planeNames[MainWindow.RIPPLES_PLANE] = "Ripples";
+        planeNames[MainWindow.SKEW_PLANE] = "Skew";
     }
 
     public PlanesMenu(MainWindow ptr2, String name, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, int plane_type) {
@@ -542,6 +543,20 @@ public class PlanesMenu extends JMenu {
         });
         planes_distort_menu.add(planes[MainWindow.RIPPLES_PLANE]);
         planes_button_group.add(planes[MainWindow.RIPPLES_PLANE]);
+        
+        planes[MainWindow.SKEW_PLANE] = new JRadioButtonMenuItem(planeNames[MainWindow.SKEW_PLANE]);
+        planes[MainWindow.SKEW_PLANE].setToolTipText("The skew plane.");
+        planes[MainWindow.SKEW_PLANE].addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setPlane(MainWindow.SKEW_PLANE);
+
+            }
+        });
+        planes_distort_menu.add(planes[MainWindow.SKEW_PLANE]);
+        planes_button_group.add(planes[MainWindow.SKEW_PLANE]);
 
         planes[MainWindow.NEWTON3_PLANE] = new JRadioButtonMenuItem(planeNames[MainWindow.NEWTON3_PLANE]);
         planes[MainWindow.NEWTON3_PLANE].setToolTipText("The Newton 3 plane.");

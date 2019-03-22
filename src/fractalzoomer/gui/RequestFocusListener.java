@@ -67,6 +67,10 @@ public class RequestFocusListener implements AncestorListener
 	{
 		JComponent component = e.getComponent();
 		component.requestFocusInWindow();
+                
+                if(component instanceof JTextField) {
+                    ((JTextField)component).selectAll();
+                }
 
 		if (removeListener)
 			component.removeAncestorListener( this );

@@ -54,4 +54,7 @@ public interface ExpressionNodeVisitor
   
   /**  Visit a FunctionUser2ArgumentExpressionNode */
   public void visit(FunctionUser2ArgumentExpressionNode node);
+  
+  /**  Visit a NoArgumentExpressionNode */
+  public void visit(NoArgumentExpressionNode node);
 }

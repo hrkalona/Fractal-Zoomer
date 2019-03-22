@@ -60,7 +60,7 @@ public class RealConstantExpressionNode implements ExpressionNode
   @Override
   public Complex getValue()
   {
-    return value;
+    return new Complex(value);
   }
 
   /**

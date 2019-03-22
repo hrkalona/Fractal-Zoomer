@@ -29,8 +29,11 @@ public class LyapunovSettings {
     public String lyapunovC;
     public String lyapunovD;
     public String lyapunovExpression;
+    public String lyapunovFunction;
+    public String lyapunovExponentFunction;
     public String[] lyapunovFinalExpression;
     public boolean useLyapunovExponent;
+    public int lyapunovVariableId;
     
     public LyapunovSettings() {
         lyapunovA = "re(c)";
@@ -42,6 +45,9 @@ public class LyapunovSettings {
         lyapunovFinalExpression[0] = lyapunovA;
         lyapunovFinalExpression[1] = lyapunovB;
         useLyapunovExponent = true;
+        lyapunovFunction = "r * z * (1 - z)";
+        lyapunovExponentFunction = "r * (1 - 2 * z)";
+        lyapunovVariableId = 0;
     }
     
     public static String[] getTokens(String input) {

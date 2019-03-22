@@ -1607,7 +1607,7 @@ public class CustomPaletteEditorFrame extends JFrame {
         
         int count = 0;
         for(l = 0; l < palette.length; l++) {
-            if(l != MainWindow.CUSTOM_PALETTE_ID && l != MainWindow.DIRECT_PALETTE_ID) {
+            if(l < MainWindow.CUSTOM_PALETTE_ID && l != MainWindow.CUSTOM_PALETTE_ID && l != MainWindow.DIRECT_PALETTE_ID) {
                 count++;
             }
         }
@@ -1617,7 +1617,7 @@ public class CustomPaletteEditorFrame extends JFrame {
         palette_indexing = new int[preset_palettes_str.length];
 
         for (l = 0; l < preset_palettes_str.length; l++) {
-            if(l != MainWindow.CUSTOM_PALETTE_ID && l != MainWindow.DIRECT_PALETTE_ID) {
+            if(l < MainWindow.CUSTOM_PALETTE_ID && l != MainWindow.CUSTOM_PALETTE_ID && l != MainWindow.DIRECT_PALETTE_ID) {
                 preset_palettes_str[l + 1] = palette[l].getText();
                 palette_indexing[l + 1] = l;
             }

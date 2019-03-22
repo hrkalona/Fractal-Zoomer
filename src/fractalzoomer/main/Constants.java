@@ -23,14 +23,14 @@ import java.awt.Color;
  * @author hrkalona2
  */
 public interface Constants {
-    public static final int VERSION = 1072;
+    public static final int VERSION = 1073;
     public static final int FAST_JULIA_IMAGE_SIZE = 252;
-    public static final int TOTAL_PALETTES = 20;
+    public static final int TOTAL_PALETTES = 36;
     public static final int TOTAL_INCOLORING_ALGORITHMS = 11;
     public static final int TOTAL_OUTCOLORING_ALGORITHMS = 25;
-    public static final int TOTAL_BAILOUT_CONDITIONS = 8;
-    public static final int TOTAL_PLANES = 63;
-    public static final int TOTAL_FUNCTIONS = 173;
+    public static final int TOTAL_BAILOUT_CONDITIONS = 11;
+    public static final int TOTAL_PLANES = 64;
+    public static final int TOTAL_FUNCTIONS = 177;
     public static final int TOTAL_FILTERS = 35;
     public static final int TOTAL_COLOR_TRANSFER_FILTERS = 7;
     public static final int TOTAL_COLOR_BLENDING = 30;
@@ -57,6 +57,7 @@ public interface Constants {
     public static final String[] lightModes = {"Mode 1", "Mode 2", "Mode 3"};
     public static final String[] statisticalColoringName = {"Stripe Average", "Curvature Average", "Triange Inequality Average", "cos(density * arg(z)) / norm(z) Average", "cos(density * (arg(z - p) + pi)) / (factor + 1 / norm(z - p))"};
     public static final String[] domainProcessingTransferNames = {"x * factor", "1 / (x * factor)"};
+    public static final String[] inertiaGravityPullFunction = {"Exponential", "Linear", "Oddball"};
     /**
      * ** FUNCTION ***
      */
@@ -233,6 +234,10 @@ public interface Constants {
     public static final int BAIRSTOWGENERALIZED3 = 170;
     public static final int BAIRSTOWGENERALIZED8 = 171;
     public static final int BAIRSTOWPOLY = 172;
+    public static final int USER_FORMULA_NOVA = 173;
+    public static final int GENERIC_CpAZpBC = 174;
+    public static final int INERTIA_GRAVITY = 175;
+    public static final int LAMBDA_FN_FN = 176;
     /**
      * ***************
      */
@@ -379,6 +384,7 @@ public interface Constants {
     public static final int RZETA_PLANE = 60;
     public static final int INFLECTION_PLANE = 61;
     public static final int RIPPLES_PLANE = 62;
+    public static final int SKEW_PLANE = 63;
     /**
      * **************
      */
@@ -390,10 +396,13 @@ public interface Constants {
     public static final int BAILOUT_CONDITION_SQUARE = 1;
     public static final int BAILOUT_CONDITION_RHOMBUS = 2;
     public static final int BAILOUT_CONDITION_NNORM = 3;
-    public static final int BAILOUT_CONDITION_STRIP = 4;
+    public static final int BAILOUT_CONDITION_REAL_STRIP = 4;
     public static final int BAILOUT_CONDITION_HALFPLANE = 5;
     public static final int BAILOUT_CONDITION_USER = 6;
     public static final int BAILOUT_CONDITION_FIELD_LINES = 7;
+    public static final int BAILOUT_CONDITION_CROSS = 8;
+    public static final int BAILOUT_CONDITION_IM_STRIP = 9;
+    public static final int BAILOUT_CONDITION_RE_IM_SQUARED = 10;
     /**
      * ********************
      */
@@ -662,6 +671,12 @@ public interface Constants {
     /**
      * **************************************
      */
+    
+    
+    public static final int PULL_EXP = 0;
+    public static final int PULL_LINEAR = 1;
+    public static final int PULL_ODDBALL = 2;
+    
 
     public static final int CUSTOM_PALETTE_ID = 18;
     public static final int DIRECT_PALETTE_ID = 19;

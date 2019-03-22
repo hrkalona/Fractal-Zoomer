@@ -130,6 +130,16 @@ public class Function2ArgumentsExpressionNode implements ExpressionNode {
      * function id for the rotation function
      */
     public static final int ROT = 20;
+    
+    /**
+     * function id for the distance function
+     */
+    public static final int DIST = 21;
+    
+    /**
+     * function id for the squared distance function
+     */
+    public static final int SDIST = 22;
 
     /**
      * the function to apply to the arguments
@@ -245,6 +255,14 @@ public class Function2ArgumentsExpressionNode implements ExpressionNode {
             case ROT:
                 function = new RotFunction();
                 break;
+                
+            case DIST:
+                function = new DistanceFunction();
+                break;
+                
+            case SDIST:
+                function = new DistanceSquaredFunction();
+                break;
 
         }
     }
@@ -349,6 +367,14 @@ public class Function2ArgumentsExpressionNode implements ExpressionNode {
         
         if (str.equals("rot")) {
             return Function2ArgumentsExpressionNode.ROT;
+        }
+        
+        if (str.equals("dist")) {
+            return Function2ArgumentsExpressionNode.DIST;
+        } 
+        
+        if (str.equals("sdist")) {
+            return Function2ArgumentsExpressionNode.SDIST;
         } 
 
         throw new ParserException("Unexpected Function " + str + " found.");
@@ -363,7 +389,7 @@ public class Function2ArgumentsExpressionNode implements ExpressionNode {
      * @return a string containing all the function names
      */
     public static String getAllFunctions() {
-        return "bipol|ibipol|inflect|foldu|foldd|foldl|foldr|foldi|foldo|shear|cmp|add|sub|mul|div|rem|pow|logn|fuzz|normn|rot";
+        return "bipol|ibipol|inflect|foldu|foldd|foldl|foldr|foldi|foldo|shear|cmp|add|sub|mul|div|rem|pow|logn|fuzz|normn|rot|dist|sdist";
     }
 
     /**

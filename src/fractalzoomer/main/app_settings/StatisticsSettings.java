@@ -36,6 +36,7 @@ public class StatisticsSettings implements Constants {
     public int statistic_escape_type;
     public boolean statisticIncludeEscaped;
     public boolean statisticIncludeNotEscaped;
+    public String user_statistic_init_value;
     
     public StatisticsSettings(StatisticsSettings copy) {
         statistic = copy.statistic;
@@ -51,6 +52,7 @@ public class StatisticsSettings implements Constants {
         statistic_escape_type = copy.statistic_escape_type;
         statisticIncludeNotEscaped = copy.statisticIncludeNotEscaped;  
         statisticIncludeEscaped = copy.statisticIncludeEscaped;
+        user_statistic_init_value = copy.user_statistic_init_value;
     }
     
     public StatisticsSettings() {
@@ -63,6 +65,7 @@ public class StatisticsSettings implements Constants {
         StripeDenominatorFactor = 12;
         statisticGroup = 0;
         user_statistic_formula = "(0.5 * cos(12 * arg(z)) + 0.5) / norm(z)";
+        user_statistic_init_value = "0.0";
         useAverage = true;
         statistic_escape_type = ESCAPING;
         statisticIncludeNotEscaped = false;  

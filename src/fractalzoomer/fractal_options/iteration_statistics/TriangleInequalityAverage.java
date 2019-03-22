@@ -58,7 +58,7 @@ public class TriangleInequalityAverage extends GenericStatistic {
     }
 
     @Override
-    public void initialize() {
+    public void initialize(Complex pixel) {
         sum = 0;
         sum2 = 0;
         samples = 0;

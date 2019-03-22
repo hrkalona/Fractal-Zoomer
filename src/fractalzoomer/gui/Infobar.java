@@ -20,6 +20,7 @@ import fractalzoomer.main.CommonFunctions;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
 import fractalzoomer.palettes.CustomPalette;
+import fractalzoomer.palettes.PresetPalette;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -39,6 +40,7 @@ import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
 import javax.swing.JPopupMenu;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JToolBar;
@@ -90,7 +92,7 @@ public class Infobar extends JToolBar {
 
         BufferedImage palette_in_preview = CommonFunctions.getInColoringPalettePreview(s, s.ps2.color_cycling_location, PALETTE_PREVIEW_WIDTH, PALETTE_PREVIEW_HEIGHT);
 
-        BufferedImage gradient_preview = CommonFunctions.getGradientPreview(s.gs, GRADIENT_PREVIEW_WIDTH, GRADIENT_PREVIEW_HEIGHT);
+        BufferedImage gradient_preview = CommonFunctions.getGradientPreview(s.gs, s.gs.gradient_offset, GRADIENT_PREVIEW_WIDTH, GRADIENT_PREVIEW_HEIGHT);
 
         BufferedImage max_it_preview = new BufferedImage(SQUARE_TILE_SIZE, SQUARE_TILE_SIZE, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = max_it_preview.createGraphics();
@@ -362,22 +364,31 @@ public class Infobar extends JToolBar {
         JRadioButtonMenuItem[] palette = new JRadioButtonMenuItem[PaletteMenu.paletteNames.length];
 
         ButtonGroup palettes_group = new ButtonGroup();
+        
+        JMenu paletteLegacyFractintMenu = new JMenu("Legacy FractInt Maps");
+        paletteLegacyFractintMenu.setIcon(getIcon("/fractalzoomer/icons/palette.png"));
 
         for (i = 0; i < palette.length; i++) {
 
             if (i != MainWindow.DIRECT_PALETTE_ID) {
                 Color[] c = null;
                 if (i == color_choice) { // the current activated palette
-                    if (i != MainWindow.CUSTOM_PALETTE_ID) {
-                        c = CustomPalette.getPalette(CustomPaletteEditorFrame.editor_default_palettes[i], MainWindow.INTERPOLATION_LINEAR, MainWindow.COLOR_SPACE_RGB, false, color_cycling_location, 0, MainWindow.PROCESSING_NONE);
-                    } else {
+                    if (i < MainWindow.CUSTOM_PALETTE_ID) {
+                        c = PresetPalette.getPalette(i, color_cycling_location);
+                    } else if (i == MainWindow.CUSTOM_PALETTE_ID) {
                         c = CustomPalette.getPalette(custom_palette, color_interpolation, color_space, reversed_palette, color_cycling_location, scale_factor_palette_val, processing_alg);
                     }
+                    else {
+                        c = PresetPalette.getPalette(i, color_cycling_location);
+                    }
                 } else {// the remaining palettes
-                    if (i != MainWindow.CUSTOM_PALETTE_ID) {
-                        c = CustomPalette.getPalette(CustomPaletteEditorFrame.editor_default_palettes[i], MainWindow.INTERPOLATION_LINEAR, MainWindow.COLOR_SPACE_RGB, false, 0, 0, MainWindow.PROCESSING_NONE); // 0 color cycling loc
-                    } else {
+                    if (i < MainWindow.CUSTOM_PALETTE_ID) {
+                        c = PresetPalette.getPalette(i, 0);
+                    } else if (i == MainWindow.CUSTOM_PALETTE_ID) {
                         c = CustomPalette.getPalette(custom_palette, color_interpolation, color_space, reversed_palette, temp_color_cycling_location, scale_factor_palette_val, processing_alg); // temp color cycling loc
+                    }
+                    else {
+                        c = PresetPalette.getPalette(i, 0);
                     }
                 }
 
@@ -421,8 +432,9 @@ public class Infobar extends JToolBar {
                 }
                 
                 popup.addSeparator();
+                popup.add(palette[i]);        
             }
-            else if (i != MainWindow.CUSTOM_PALETTE_ID) {
+            else if (i < MainWindow.CUSTOM_PALETTE_ID) {
                 palette[i].addActionListener(new ActionListener() {
 
                     int temp = i;
@@ -436,9 +448,14 @@ public class Infobar extends JToolBar {
                         ptr.setPalette(temp, null, outcoloring_mode ? 0 : 1);
 
                     }
-                });            
+                });
+                
+                popup.add(palette[i]);
             }
-            else {
+            else if (i == MainWindow.CUSTOM_PALETTE_ID) {                
+                popup.addSeparator();
+                popup.add(paletteLegacyFractintMenu);
+                
                 palette[i].addActionListener(new ActionListener() {
 
                     int temp = i;
@@ -461,9 +478,27 @@ public class Infobar extends JToolBar {
                 }
 
                 popup.addSeparator();
+                popup.add(palette[i]);
+            }
+            else {
+                palette[i].addActionListener(new ActionListener() {
+
+                    int temp = i;
+
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+
+                        if (!this_toolbar.isVisible()) {
+                            return;
+                        }
+                        ptr.setPalette(temp, null, outcoloring_mode ? 0 : 1);
+
+                    }
+                });
+                
+                paletteLegacyFractintMenu.add(palette[i]);
             }
 
-            popup.add(palette[i]);
             palettes_group.add(palette[i]);
 
         }
@@ -489,6 +524,23 @@ public class Infobar extends JToolBar {
         palette[MainWindow.CUSTOM_PALETTE_ID].setToolTipText("A palette custom made by the user.");
         palette[MainWindow.DIRECT_PALETTE_ID].setToolTipText("A palette loaded directly from a file (RGB: 0-255 0-255 0-255 format).");
 
+        palette[20].setToolTipText("A legacy FractInt palette.");
+        palette[21].setToolTipText("A legacy FractInt palette.");
+        palette[22].setToolTipText("A legacy FractInt palette.");
+        palette[23].setToolTipText("A legacy FractInt palette.");
+        palette[24].setToolTipText("A legacy FractInt palette.");
+        palette[25].setToolTipText("A legacy FractInt palette.");
+        palette[26].setToolTipText("A legacy FractInt palette.");
+        palette[27].setToolTipText("A legacy FractInt palette.");
+        palette[28].setToolTipText("A legacy FractInt palette.");
+        palette[29].setToolTipText("A legacy FractInt palette.");
+        palette[30].setToolTipText("A legacy FractInt palette.");
+        palette[31].setToolTipText("A legacy FractInt palette.");
+        palette[32].setToolTipText("A legacy FractInt palette.");
+        palette[33].setToolTipText("A legacy FractInt palette.");
+        palette[34].setToolTipText("A legacy FractInt palette.");
+        palette[35].setToolTipText("A legacy FractInt palette.");
+        
         palette[color_choice].setSelected(true);
         popup.show(e.getComponent(), e.getX(), e.getY());
 

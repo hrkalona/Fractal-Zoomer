@@ -59,6 +59,7 @@ public class OptionsMenu extends JMenu {
     private JCheckBoxMenuItem toolbar_opt;
     private JCheckBoxMenuItem statusbar_opt;
     private JCheckBoxMenuItem infobar_opt;
+    private JCheckBoxMenuItem fullscreen_opt;
 
     public OptionsMenu(MainWindow ptr2, String name, PaletteSettings ps, PaletteSettings ps2, boolean smoothing, boolean show_orbit_converging_point, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, int out_coloring_algorithm, int in_coloring_algorithm, int function, int plane_type, int bailout_test_algorithm, int color_blending, int temp_color_cycling_location, int temp_color_cycling_location2) {
 
@@ -114,6 +115,7 @@ public class OptionsMenu extends JMenu {
         toolbar_opt = new JCheckBoxMenuItem("Tool Bar");
         statusbar_opt = new JCheckBoxMenuItem("Status Bar");
         infobar_opt = new JCheckBoxMenuItem("Information Bar");
+        fullscreen_opt = new JCheckBoxMenuItem("Full Screen");
 
         size_of_image.setToolTipText("Sets the image size.");
         iterations.setToolTipText("Sets the maximum number of iterations.");
@@ -130,7 +132,8 @@ public class OptionsMenu extends JMenu {
         overview_opt.setToolTipText("Creates a report of all the active fractal options.");
         toolbar_opt.setToolTipText("Activates the tool bar.");
         statusbar_opt.setToolTipText("Activates the status bar.");
-        infobar_opt.setToolTipText("Activates the information bar.");      
+        infobar_opt.setToolTipText("Activates the information bar."); 
+        fullscreen_opt.setToolTipText("Toggles the application from window mode to full screen.");
 
         size_of_image.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, ActionEvent.CTRL_MASK));
         iterations.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, 0));
@@ -146,7 +149,8 @@ public class OptionsMenu extends JMenu {
         filters_options.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, ActionEvent.SHIFT_MASK));
         toolbar_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T, ActionEvent.ALT_MASK));
         statusbar_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.ALT_MASK));
-        infobar_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, ActionEvent.ALT_MASK));      
+        infobar_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, ActionEvent.ALT_MASK)); 
+        fullscreen_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F11, 0));
 
         overview_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.SHIFT_MASK));
 
@@ -299,13 +303,26 @@ public class OptionsMenu extends JMenu {
 
             }
         });
+        
+        fullscreen_opt.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFullScreen();
+
+            }
+        });
 
         window_menu.add(toolbar_opt);
         window_menu.add(infobar_opt);
         window_menu.add(statusbar_opt);
+        window_menu.add(fullscreen_opt);
+        
         toolbar_opt.setSelected(true);
         infobar_opt.setSelected(true);
         statusbar_opt.setSelected(true);
+        fullscreen_opt.setSelected(false);
 
         filters_options.addActionListener(new ActionListener() {
 
@@ -662,6 +679,12 @@ public class OptionsMenu extends JMenu {
     public JCheckBoxMenuItem getInfobar() {
 
         return infobar_opt;
+
+    }
+    
+    public JCheckBoxMenuItem getFullscreen() {
+
+        return fullscreen_opt;
 
     }
 

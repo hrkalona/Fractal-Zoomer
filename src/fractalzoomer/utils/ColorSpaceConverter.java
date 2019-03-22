@@ -272,7 +272,7 @@ import java.awt.Color;
         }
         
         double L = (MIN + MAX) * 0.5;
-        
+
         return new double[] {H / 360.0, S, L};
     }
 

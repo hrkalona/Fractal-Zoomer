@@ -39,7 +39,7 @@ public class CustomDomainColoring extends DomainColoring {
     private double normType;
     private int[] order;
 
-    public CustomDomainColoring(DomainColoringSettings ds, PaletteColor palette, TransferFunction color_transfer, int color_cycling_location, Blending blending, int[] gradient, int interpolation) {
+    public CustomDomainColoring(DomainColoringSettings ds, PaletteColor palette, TransferFunction color_transfer, int color_cycling_location, Blending blending, int[] gradient, int interpolation, int gradient_offset) {
 
         super(ds.domain_coloring_mode, palette, color_transfer, color_cycling_location, interpolation, blending);
 
@@ -63,6 +63,7 @@ public class CustomDomainColoring extends DomainColoring {
         contourMethod = ds.contourMethod;
 
         this.gradient = gradient;
+        this.gradient_offset = gradient_offset;
 
         gridFactor = (Math.PI / ds.gridFactor);
         logBaseFinal = Math.log(ds.logBase);

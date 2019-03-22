@@ -171,7 +171,7 @@ public class FractalColorsFrame extends JFrame {
         use_palette_color.setBackground(MainWindow.bg_color);
         use_palette_color.setFocusable(false);
         use_palette_color.setSelected(use_palette_color_special);
-        use_palette_color.setToolTipText("<html>Sets the special color for the following color algorithms:<br>Binary Decomposition<br>Binary Decomposition 2<br>Biomorph<br>Escape Time + Grid<br>Escape Time + Field Lines<br>Escape Time + Field Lines 2<br>cos(norm(z))<br>Squares 2<br>User Out/In Coloring algorithm with negative values<br>Background color for orbit traps</html>");
+        use_palette_color.setToolTipText("<html>Sets the special color for the following color algorithms:<br>Binary Decomposition<br>Binary Decomposition 2<br>Biomorph<br>Escape Time + Grid<br>Escape Time + Field Lines<br>Escape Time + Field Lines 2<br>cos(norm(z))<br>Squares 2<br>User Out/In Coloring algorithm with negative values</html>");
 
         final JLabel special_color_label = new JLabel("");
         special_color_label.setPreferredSize(new Dimension(22, 22));
@@ -240,10 +240,10 @@ public class FractalColorsFrame extends JFrame {
 
         dem_color_panel.add(new JLabel("Distance Estimation Color: "));
         dem_color_panel.add(dem_color_label);
-     
-        special_color_panel.add(use_palette_color);
-        special_color_panel.add(new JLabel(" Special Color: "));
+       
+        special_color_panel.add(new JLabel("Special Color: "));
         special_color_panel.add(special_color_label);
+        special_color_panel.add(use_palette_color);
         
         special_color_panel2.add(remove_special_increment);
         special_color_panel2.add(help_button);
