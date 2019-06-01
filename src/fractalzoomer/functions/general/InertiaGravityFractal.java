@@ -111,7 +111,7 @@ public class InertiaGravityFractal extends Fractal {
         timeStep = new Complex(igs.time_step[0], igs.time_step[1]);
         inertia_exponent = igs.inertia_exponent;
         pull_scaling_function = igs.pull_scaling_function;
-        
+
     }
 
     @Override
@@ -143,7 +143,7 @@ public class InertiaGravityFractal extends Fractal {
         }
 
         pull.times_mutable(timeStep);
-        
+
         complex[1].times_mutable(inertiaContrib).plus_mutable(pull);	// inertia = scalar * inertia + pull			
 
         complex[0].plus_mutable(complex[1].times(timeStep)); // z = z + inertia
@@ -174,6 +174,11 @@ public class InertiaGravityFractal extends Fractal {
 
             if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, pixel, start)) {
                 escaped = true;
+
+                if (outTrueColorAlgorithm != null) {
+                    setTrueColorOut(complex[0], zold, zold2, iterations, pixel, start);
+                }
+
                 Object[] object = {iterations, complex[0], zold, zold2, pixel, start};
                 double out = out_color_algorithm.getResult(object);
 
@@ -189,6 +194,10 @@ public class InertiaGravityFractal extends Fractal {
                 statistic.insert(complex[0], zold, zold2, iterations, pixel, start);
             }
 
+        }
+
+        if (inTrueColorAlgorithm != null) {
+            setTrueColorIn(complex[0], zold, zold2, iterations, pixel, start);
         }
 
         Object[] object = {complex[0], zold, zold2, pixel, start};

@@ -30,8 +30,9 @@ import fractalzoomer.parser.Parser;
  * @author hrkalona2
  */
 public class UserStatisticColoringMagnetConverging extends GenericStatistic {
-    private Complex sum;
-    private Complex sum2;
+    private Complex val;
+    private Complex val2;
+    private int statisticIteration;
     private ExpressionNode expr;
     private Parser parser;
     private Complex[] globalVars;
@@ -39,15 +40,21 @@ public class UserStatisticColoringMagnetConverging extends GenericStatistic {
     private boolean useAverage;
     private Complex root;
     private PlanePointOption init_val;
+    private int reductionFunction;
+    private boolean useIterations;
+    private boolean useSmoothing;
     
-    public UserStatisticColoringMagnetConverging(double statistic_intensity, String user_statistic_formula, double xCenter, double yCenter, int max_iterations, double size, double convergent_bailout, double bailout, double[] point, Complex[] globalVars, boolean useAverage, String user_statistic_init_value) {
+    public UserStatisticColoringMagnetConverging(double statistic_intensity, String user_statistic_formula, double xCenter, double yCenter, int max_iterations, double size, double convergent_bailout, double bailout, double[] point, Complex[] globalVars, boolean useAverage, String user_statistic_init_value, int reductionFunction, boolean useIterations, boolean useSmoothing) {
         super(statistic_intensity);
-        sum = new Complex();
-        sum2 = new Complex();
+        val = new Complex();
+        val2 = new Complex();
         
         root = new Complex(1, 0);
         
         this.useAverage = useAverage;
+        this.reductionFunction = reductionFunction;
+        this.useIterations = useIterations;
+        this.useSmoothing = useSmoothing;
         
         log_convergent_bailout = Math.log(convergent_bailout);
         
@@ -116,35 +123,74 @@ public class UserStatisticColoringMagnetConverging extends GenericStatistic {
             }
         }
        
-        samples++;
-        sum2.assign(sum);
-        sum.plus_mutable(expr.getValue());
-        
-        z_val.assign(z);
-        zold_val.assign(zold);
+        switch (reductionFunction) {
+            case MainWindow.REDUCTION_SUM:
+                samples++;
+                val2.assign(val);
+                val.plus_mutable(expr.getValue());
+
+                z_val.assign(z);
+                zold_val.assign(zold);
+                break;
+            case MainWindow.REDUCTION_MIN:
+                Complex newVal = expr.getValue();
+                int res = newVal.compare(val);
+
+                if (res == 1) { //newVal < val
+                    val.assign(newVal);
+                    statisticIteration = iterations;
+                }
+                break;
+            case MainWindow.REDUCTION_MAX:
+                newVal = expr.getValue();
+                res = newVal.compare(val);
+
+                if (res == -1) { //newVal > val
+                    val.assign(newVal);
+                    statisticIteration = iterations;
+                }
+                break;
+            case MainWindow.REDUCTION_ASSIGN:
+                val.assign(expr.getValue());
+                break;
+        }
     }
 
     @Override
     public void initialize(Complex pixel) {
-        sum = new Complex(init_val.getValue(pixel));
-        sum2 = new Complex(sum);
+        val = new Complex(init_val.getValue(pixel));
+        val2 = new Complex(val);
         samples = 0;
+        statisticIteration = 0;
     }
 
     @Override
     public double getValue() {
+        
+        if (reductionFunction == MainWindow.REDUCTION_MAX || reductionFunction == MainWindow.REDUCTION_MIN) {
+            return useIterations ? statisticIteration * statistic_intensity : val.getRe() * statistic_intensity;
+        }
+        else if(reductionFunction != MainWindow.REDUCTION_SUM) {
+            return val.getRe() * statistic_intensity;
+        }
+        
         if(samples < 1) {
             return 0;
         }
         
-        double smoothing = OutColorAlgorithm.fractionalPartMagnetConverging(z_val, zold_val, root, log_convergent_bailout);
-        double sumRe = sum.getRe();
-        double sum2Re = sum2.getRe();
+        double sumRe = val.getRe();
+        double sum2Re = val2.getRe();
         
         if(useAverage) {
             sumRe = sumRe / samples;
             sum2Re = samples < 2 ? 0 : sum2Re / (samples - 1);
         }
+        
+        if(!useSmoothing) {
+            return sumRe * statistic_intensity;
+        }
+        
+        double smoothing = OutColorAlgorithm.fractionalPartMagnetConverging(z_val, zold_val, root, log_convergent_bailout);
         
 	return (sumRe + (sum2Re - sumRe) * smoothing) * statistic_intensity;
     }

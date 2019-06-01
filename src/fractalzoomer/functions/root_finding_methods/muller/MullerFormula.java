@@ -62,8 +62,8 @@ public class MullerFormula extends MullerRootFindingMethod {
         expr = parser.parse(user_fz_formula);
 
         point = new Complex(plane_transform_center[0], plane_transform_center[1]);
-        
-        if(sts.statistic) {
+
+        if (sts.statistic) {
             StatisticFactory(sts, plane_transform_center);
         }
 
@@ -140,12 +140,17 @@ public class MullerFormula extends MullerRootFindingMethod {
 
             if (iterations > 0 && (temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
                 escaped = true;
+
+                if (outTrueColorAlgorithm != null) {
+                    setTrueColorOut(complex[0], zold, zold2, iterations, pixel, start);
+                }
+
                 Object[] object = {iterations, complex[0], temp, zold, zold2, pixel, start};
                 iterationData = object;
                 double out = out_color_algorithm.getResult(object);
-                
+
                 out = getFinalValueOut(out);
-                
+
                 return out;
             }
             zold2.assign(zold);
@@ -153,19 +158,23 @@ public class MullerFormula extends MullerRootFindingMethod {
             function(complex);
 
             setVariables(zold, zold2);
-            
-            if(statistic != null) {
+
+            if (statistic != null) {
                 statistic.insert(complex[0], zold, zold2, iterations, pixel, start);
             }
 
         }
 
+        if (inTrueColorAlgorithm != null) {
+            setTrueColorIn(complex[0], zold, zold2, iterations, pixel, start);
+        }
+
         Object[] object = {complex[0], zold, zold2, pixel, start};
         iterationData = object;
         double in = in_color_algorithm.getResult(object);
-        
+
         in = getFinalValueIn(in);
-        
+
         return in;
 
     }

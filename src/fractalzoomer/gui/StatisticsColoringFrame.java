@@ -71,12 +71,13 @@ public class StatisticsColoringFrame extends JFrame {
         JRadioButton triangle_inequality_average = new JRadioButton(Constants.statisticalColoringName[MainWindow.TRIANGLE_INEQUALITY_AVERAGE]);
         JRadioButton alg1 = new JRadioButton(Constants.statisticalColoringName[MainWindow.COS_ARG_DIVIDE_NORM_AVERAGE]);
         JRadioButton alg2 = new JRadioButton(Constants.statisticalColoringName[MainWindow.COS_ARG_DIVIDE_INVERSE_NORM]);
+        JRadioButton atomDomain = new JRadioButton(Constants.statisticalColoringName[MainWindow.ATOM_DOMAIN_BOF60_BOF61]);
 
         if(s.fns.function != MainWindow.MANDELBROT) {
             triangle_inequality_average.setEnabled(false);
         }
 
-        if(s.isRootFindingMethod()) {
+        if(s.isConvergingType()) {
             stripe_average.setEnabled(false);
             curvature_average.setEnabled(false);
             alg1.setEnabled(false);
@@ -87,7 +88,7 @@ public class StatisticsColoringFrame extends JFrame {
         }
 
         ptra2.setEnabled(false);
-        int custom_palette_window_width = (MainWindow.runsOnWindows ? 680 : 760) + 50;
+        int custom_palette_window_width = (MainWindow.runsOnWindows ? 680 : 780) + 50;
         int custom_palette_window_height = 690;
         setTitle("Statistical Coloring");
         setIconImage(getIcon("/fractalzoomer/icons/statistics_coloring.png").getImage());
@@ -113,7 +114,7 @@ public class StatisticsColoringFrame extends JFrame {
         JPanel panel3 = new JPanel();
         panel3.setLayout(new FlowLayout());
         panel3.setBackground(MainWindow.bg_color);
-        panel3.setPreferredSize(new Dimension((MainWindow.runsOnWindows ? 580 : 660) + 50, 550));
+        panel3.setPreferredSize(new Dimension((MainWindow.runsOnWindows ? 580 : 680) + 50, 550));
 
         JCheckBox statistics = new JCheckBox("Statistical Coloring");
         statistics.setFocusable(false);
@@ -143,11 +144,11 @@ public class StatisticsColoringFrame extends JFrame {
         panel2.add(include_notescaped_opt);
 
         JTabbedPane tabbedPane = new JTabbedPane();
-        tabbedPane.setPreferredSize(new Dimension((MainWindow.runsOnWindows ? 560 : 640) + 50, 500));
+        tabbedPane.setPreferredSize(new Dimension((MainWindow.runsOnWindows ? 560 : 660) + 50, 500));
         tabbedPane.setFocusable(false);
 
         final JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(5, 1));
+        panel.setLayout(new GridLayout(6, 1));
         panel.setBackground(MainWindow.bg_color);
         panel.setPreferredSize(new Dimension((int)tabbedPane.getPreferredSize().getWidth() - 20, (int)tabbedPane.getPreferredSize().getHeight() - 40));
 
@@ -169,7 +170,7 @@ public class StatisticsColoringFrame extends JFrame {
         panel22.setLayout(new FlowLayout());
         panel22.setBackground(MainWindow.bg_color);
 
-        JLabel html_label = CommonFunctions.createUserFormulaHtmlLabels("z, c, s, p, pp, n, maxn, bail, cbail, center, size, sizei, v1 - v30, point", "user statistical formula", " Only the real component of the complex number will be used.");
+        JLabel html_label = CommonFunctions.createUserFormulaHtmlLabels("z, c, s, p, pp, n, maxn, bail, cbail, center, size, sizei, v1 - v30, point", "user statistical formula", " Only the real component of the complex number will be used on the final value.");
         panel21.add(html_label);
 
         JTextField field_formula = new JTextField(45);
@@ -177,9 +178,16 @@ public class StatisticsColoringFrame extends JFrame {
         
         JTextField field_formula_init = new JTextField(45);
         field_formula_init.setText("" + sts.user_statistic_init_value);
+        
+        JComboBox reduction = new JComboBox(MainWindow.reductionMethod);
+        reduction.setSelectedIndex(sts.reductionFunction);
+        reduction.setFocusable(false);
 
-        panel22.add(new JLabel("value = value + "));
+        panel22.add(new JLabel("value = "));
+        panel22.add(reduction);
+        panel22.add(new JLabel("(value, "));
         panel22.add(field_formula);
+        panel22.add(new JLabel(")"));
         
         JPanel panel24 = new JPanel();
         panel24.setLayout(new FlowLayout());
@@ -188,11 +196,46 @@ public class StatisticsColoringFrame extends JFrame {
         panel24.add(new JLabel("value(0) = "));
         panel24.add(field_formula_init);
 
-        JCheckBox average = new JCheckBox("Average");
+        JCheckBox average = new JCheckBox("Average Sum");
         average.setFocusable(false);
         average.setSelected(sts.useAverage);
         average.setBackground(MainWindow.bg_color);
-        average.setToolTipText("Averages the computed value.");
+        average.setToolTipText("Averages the computed value of the sum.");
+        average.setEnabled(sts.reductionFunction == MainWindow.REDUCTION_SUM);
+        
+        JCheckBox smoothing = new JCheckBox("Smooth Sum");
+        smoothing.setFocusable(false);
+        smoothing.setSelected(sts.useSmoothing);
+        smoothing.setBackground(MainWindow.bg_color);
+        smoothing.setToolTipText("Smooths the computed value of the sum.");
+        smoothing.setEnabled(sts.reductionFunction == MainWindow.REDUCTION_SUM);
+        
+        JCheckBox iterations = new JCheckBox("Similar Iterations");
+        iterations.setFocusable(false);
+        iterations.setSelected(sts.useIterations);
+        iterations.setBackground(MainWindow.bg_color);
+        iterations.setToolTipText("Uses the iterations of the minimum or maximum calculated value.");
+        iterations.setEnabled(sts.reductionFunction == MainWindow.REDUCTION_MAX || sts.reductionFunction == MainWindow.REDUCTION_MIN);
+
+        reduction.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                average.setEnabled(reduction.getSelectedIndex() == MainWindow.REDUCTION_SUM);
+                smoothing.setEnabled(reduction.getSelectedIndex() == MainWindow.REDUCTION_SUM);
+                iterations.setEnabled(reduction.getSelectedIndex() == MainWindow.REDUCTION_MAX || reduction.getSelectedIndex() == MainWindow.REDUCTION_MIN);
+                
+                if(reduction.getSelectedIndex() == MainWindow.REDUCTION_MAX) {
+                    field_formula_init.setText("" + (-Double.MAX_VALUE));
+                }
+                else if(reduction.getSelectedIndex() == MainWindow.REDUCTION_MIN) {
+                    field_formula_init.setText("" + Double.MAX_VALUE);
+                }
+                else if(reduction.getSelectedIndex() == MainWindow.REDUCTION_SUM) {
+                    field_formula_init.setText("0.0");
+                }
+            }
+            
+        });
 
         JComboBox escape_type = new JComboBox(new String[] {"Escaping", "Converging"});
         escape_type.setSelectedIndex(sts.statistic_escape_type);
@@ -201,9 +244,11 @@ public class StatisticsColoringFrame extends JFrame {
         JPanel panel23 = new JPanel();
         panel23.setLayout(new FlowLayout());
         panel23.setBackground(MainWindow.bg_color);
-        panel23.setPreferredSize(new Dimension((MainWindow.runsOnWindows ? 500 : 580) + 50, 30));
+        panel23.setPreferredSize(new Dimension((MainWindow.runsOnWindows ? 500 : 600) + 50, 30));
 
         panel23.add(average);
+        panel23.add(smoothing);
+        panel23.add(iterations);
         if(s.isMagnetType()) {
             panel23.add(new JLabel("Type: "));
             panel23.add(escape_type);
@@ -265,7 +310,7 @@ public class StatisticsColoringFrame extends JFrame {
         info_panel.add(info_user);
         info_panel.add(code_editor);
         info_panel.add(compile_code);
-        info_panel.setPreferredSize(new Dimension((MainWindow.runsOnWindows ? 500 : 580) + 50, 28));
+        info_panel.setPreferredSize(new Dimension((MainWindow.runsOnWindows ? 500 : 600) + 50, 28));
         info_panel.setBackground(MainWindow.bg_color);
 
         panel4.add(info_panel);
@@ -363,18 +408,43 @@ public class StatisticsColoringFrame extends JFrame {
         alg2_border.setChangeListener();
 
         alg2_panel.setBorder(alg2_border);
+        
+        
+        
+        final JPanel atom_domain_panel = new JPanel();
+        atom_domain_panel.setLayout(new FlowLayout());
+        atom_domain_panel.setBackground(MainWindow.bg_color);
+
+        JCheckBox showAtomDomain = new JCheckBox("Similar Iterations");
+        showAtomDomain.setToolTipText("Highlights all the areas that share the same iteration number.");
+        showAtomDomain.setBackground(MainWindow.bg_color);
+        showAtomDomain.setSelected(sts.showAtomDomains);
+        showAtomDomain.setFocusable(false);
+
+        atom_domain_panel.add(showAtomDomain);     
+
+        atomDomain.setBackground(MainWindow.bg_color);
+        atomDomain.setSelected(sts.statistic_type == MainWindow.ATOM_DOMAIN_BOF60_BOF61);
+        button_group.add(atomDomain);
+
+        ComponentTitledBorder atom_domain_border = new ComponentTitledBorder(atomDomain, atom_domain_panel, BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), this_frame);
+        atom_domain_border.setChangeListener();
+
+        atom_domain_panel.setBorder(atom_domain_border);
 
         panel.add(stripe_panel);
         panel.add(curvature_panel);
         panel.add(triangle_inequality_panel);
         panel.add(alg1_panel);
         panel.add(alg2_panel);
+        panel.add(atom_domain_panel);
 
         stripe_border.setState(stripe_average.isSelected());
         curvature_border.setState(curvature_average.isSelected());
         triangle_inequality_border.setState(triangle_inequality_average.isSelected());
         alg1_border.setState(alg1.isSelected());
         alg2_border.setState(alg2.isSelected());
+        atom_domain_border.setState(atomDomain.isSelected());
 
         panel3.add(panel2);
         panel3.add(tabbedPane);
@@ -449,6 +519,9 @@ public class StatisticsColoringFrame extends JFrame {
                 sts.StripeDenominatorFactor = temp5;
                 sts.statisticIncludeNotEscaped = include_notescaped_opt.isSelected();
                 sts.statisticIncludeEscaped = include_escaped_opt.isSelected();
+                sts.reductionFunction = reduction.getSelectedIndex();
+                sts.useIterations = iterations.isSelected();
+                sts.useSmoothing = smoothing.isSelected();
 
                 if(stripe_average.isSelected()) {
                     sts.statistic_type = MainWindow.STRIPE_AVERAGE;
@@ -465,12 +538,16 @@ public class StatisticsColoringFrame extends JFrame {
                 else if(triangle_inequality_average.isSelected()) {
                     sts.statistic_type = MainWindow.TRIANGLE_INEQUALITY_AVERAGE;
                 }
+                else if(atomDomain.isSelected()) {
+                    sts.statistic_type = MainWindow.ATOM_DOMAIN_BOF60_BOF61;
+                }
 
                 sts.statisticGroup = tabbedPane.getSelectedIndex();
                 sts.user_statistic_formula = field_formula.getText();
                 sts.user_statistic_init_value = field_formula_init.getText();
                 sts.useAverage = average.isSelected();
                 sts.statistic_escape_type = escape_type.getSelectedIndex();
+                sts.showAtomDomains = showAtomDomain.isSelected();
 
                 if(!s.fns.smoothing && sts.statistic) {
                     JOptionPane.showMessageDialog(this_frame, "Smoothing is disabled.\nYou should enable smoothing for a better result.", "Warning!", JOptionPane.WARNING_MESSAGE);
@@ -503,7 +580,7 @@ public class StatisticsColoringFrame extends JFrame {
 
         RoundedPanel round_panel = new RoundedPanel(true, true, true, 15);
         round_panel.setBackground(MainWindow.bg_color);
-        round_panel.setPreferredSize(new Dimension((MainWindow.runsOnWindows ? 610 : 690) + 50, 610));
+        round_panel.setPreferredSize(new Dimension((MainWindow.runsOnWindows ? 610 : 710) + 50, 610));
         round_panel.setLayout(new GridBagLayout());
 
         GridBagConstraints con = new GridBagConstraints();

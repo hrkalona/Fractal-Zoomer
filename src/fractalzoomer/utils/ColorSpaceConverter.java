@@ -35,6 +35,18 @@ import java.awt.Color;
    *   corrects RGB to XYZ (and LAB) conversion.
    */
   public class ColorSpaceConverter {
+      public static final int RGB = 0;
+      public static final int XYZ = 1;
+      public static final int HSB = 2;
+      public static final int HSL = 3;
+      public static final int RYB = 4;
+      public static final int LAB = 5;
+      public static final int LCH = 6;
+      public static final int PALETTE = 7;
+      public static final int GRADIENT = 8;
+      public static final int DIRECT = 9;
+      
+      
 
     /**
      * reference white in XYZ coordinates
@@ -746,6 +758,18 @@ import java.awt.Color;
         }
 	if(c > 255) {
             return 255;
+        }
+	return c;
+                
+    }
+    
+    public static double clamp(double c) {
+        
+        if(c < 0) {
+            return 0;
+        }
+	if(c > 1) {
+            return 1;
         }
 	return c;
                 

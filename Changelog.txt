@@ -1,3 +1,13 @@
+Version 1.0.7.4
+    -Added the Newton-Hines root finding method.
+    -Added a Newton/Mandelbrot variation function.
+    -Added a Lambert W variation function.
+    -Added Atom Domain (bof60/bof61) as a statistical coloring algorithm.
+    -Changed the user statistical coloring algorithm to support more reduction functions.
+    -Added Out/In true coloring methods, so the user can have more control on the final color.
+    -Changed Lyapunov function to support an initial value configuration.
+    -Refactored the code and fixed some bugs.
+
 Version 1.0.7.3
     -Added User Nova Formula function.
     -Added Modified Inertia/Gravity function.

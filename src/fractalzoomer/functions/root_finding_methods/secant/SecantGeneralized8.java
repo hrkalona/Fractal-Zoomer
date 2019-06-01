@@ -44,7 +44,7 @@ public class SecantGeneralized8 extends SecantRootFindingMethod {
 
         InColoringAlgorithmFactory(in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, plane_transform_center);
 
-        if(sts.statistic) {
+        if (sts.statistic) {
             StatisticFactory(sts, plane_transform_center);
         }
     }
@@ -94,30 +94,39 @@ public class SecantGeneralized8 extends SecantRootFindingMethod {
 
             if (iterations > 0 && (temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
                 escaped = true;
+
+                if (outTrueColorAlgorithm != null) {
+                    setTrueColorOut(complex[0], zold, zold2, iterations, pixel, start);
+                }
+
                 Object[] object = {iterations, complex[0], temp, zold, zold2, pixel, start};
                 iterationData = object;
                 double out = out_color_algorithm.getResult(object);
-                
+
                 out = getFinalValueOut(out);
-                
+
                 return out;
             }
             zold2.assign(zold);
             zold.assign(complex[0]);
             function(complex);
-            
-            if(statistic != null) {
+
+            if (statistic != null) {
                 statistic.insert(complex[0], zold, zold2, iterations, pixel, start);
             }
 
         }
 
+        if (inTrueColorAlgorithm != null) {
+            setTrueColorIn(complex[0], zold, zold2, iterations, pixel, start);
+        }
+
         Object[] object = {complex[0], zold, zold2, pixel, start};
         iterationData = object;
         double in = in_color_algorithm.getResult(object);
-        
+
         in = getFinalValueIn(in);
-        
+
         return in;
 
     }

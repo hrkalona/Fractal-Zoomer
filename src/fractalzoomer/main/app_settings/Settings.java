@@ -243,6 +243,9 @@ public class Settings implements Constants {
             } else if (version == 1073) {
                 xJuliaCenter = ((SettingsJulia1073) settings).getXJuliaCenter();
                 yJuliaCenter = ((SettingsJulia1073) settings).getYJuliaCenter();
+            } else if (version == 1074) {
+                xJuliaCenter = ((SettingsJulia1074) settings).getXJuliaCenter();
+                yJuliaCenter = ((SettingsJulia1074) settings).getYJuliaCenter();
             }
 
             fns.julia = true;
@@ -917,6 +920,46 @@ public class Settings implements Constants {
             gs.gradient_offset = ((SettingsFractals1073) settings).getGradientOffset();
         }
 
+        if (version < 1074) {
+            fns.tcs.trueColorOut = defaults.fns.tcs.trueColorOut;
+            fns.tcs.trueColorIn = defaults.fns.tcs.trueColorIn;
+            fns.tcs.trueColorOutMode = defaults.fns.tcs.trueColorOutMode;
+            fns.tcs.trueColorInMode = defaults.fns.tcs.trueColorInMode;
+            fns.tcs.trueColorOutPreset = defaults.fns.tcs.trueColorOutPreset;
+            fns.tcs.trueColorInPreset = defaults.fns.tcs.trueColorInPreset;
+            fns.tcs.outTcComponent1 = defaults.fns.tcs.outTcComponent1;
+            fns.tcs.outTcComponent2 = defaults.fns.tcs.outTcComponent2;
+            fns.tcs.outTcComponent3 = defaults.fns.tcs.outTcComponent3;
+            fns.tcs.inTcComponent1 = defaults.fns.tcs.inTcComponent1;
+            fns.tcs.inTcComponent2 = defaults.fns.tcs.inTcComponent2;
+            fns.tcs.inTcComponent3 = defaults.fns.tcs.inTcComponent3;
+            fns.tcs.outTcColorSpace = defaults.fns.tcs.outTcColorSpace;
+            fns.tcs.inTcColorSpace = defaults.fns.tcs.inTcColorSpace;
+            sts.showAtomDomains = defaults.sts.showAtomDomains;
+            sts.reductionFunction = defaults.sts.reductionFunction;
+            sts.useIterations = defaults.sts.useIterations;
+            sts.useSmoothing = defaults.sts.useSmoothing;
+        } else {
+            fns.tcs.trueColorOut = ((SettingsFractals1074) settings).getTrueColorOut();
+            fns.tcs.trueColorIn = ((SettingsFractals1074) settings).getTrueColorIn();
+            fns.tcs.trueColorOutMode = ((SettingsFractals1074) settings).getTrueColorOutMode();
+            fns.tcs.trueColorInMode = ((SettingsFractals1074) settings).getTrueColorInMode();
+            fns.tcs.trueColorOutPreset = ((SettingsFractals1074) settings).getTrueColorOutPreset();
+            fns.tcs.trueColorInPreset = ((SettingsFractals1074) settings).getTrueColorInPreset();
+            fns.tcs.outTcComponent1 = ((SettingsFractals1074) settings).getOutTcComponent1();
+            fns.tcs.outTcComponent2 = ((SettingsFractals1074) settings).getOutTcComponent2();
+            fns.tcs.outTcComponent3 = ((SettingsFractals1074) settings).getOutTcComponent3();
+            fns.tcs.inTcComponent1 = ((SettingsFractals1074) settings).getInTcComponent1();
+            fns.tcs.inTcComponent2 = ((SettingsFractals1074) settings).getInTcComponent2();
+            fns.tcs.inTcComponent3 = ((SettingsFractals1074) settings).getInTcComponent3();
+            fns.tcs.outTcColorSpace = ((SettingsFractals1074) settings).getOutTcColorSpace();
+            fns.tcs.inTcColorSpace = ((SettingsFractals1074) settings).getInTcColorSpace();
+            sts.showAtomDomains = ((SettingsFractals1074) settings).getShowAtomDomains();
+            sts.reductionFunction = ((SettingsFractals1074) settings).getReductionFunction();
+            sts.useIterations = ((SettingsFractals1074) settings).getUseIterations();
+            sts.useSmoothing = ((SettingsFractals1074) settings).getUseSmoothing();
+        }
+
         if (fns.plane_type == USER_PLANE) {
             if (version < 1058) {
                 fns.user_plane_algorithm = defaults.fns.user_plane_algorithm;
@@ -1084,6 +1127,7 @@ public class Settings implements Constants {
             case LAGUERREPOLY:
             case DURAND_KERNERPOLY:
             case BAIRSTOWPOLY:
+            case NEWTON_HINESPOLY:
                 fns.coefficients = settings.getCoefficients();
 
                 if (version < 1072) {
@@ -1094,6 +1138,12 @@ public class Settings implements Constants {
 
                 if (fns.function == DURAND_KERNERPOLY) {
                     fns.durand_kerner_init_val = ((SettingsFractals1072) settings).getDurandKernerInitVal();
+                }
+
+                if (version < 1074) {
+                    fns.newton_hines_k = defaults.fns.newton_hines_k;
+                } else {
+                    fns.newton_hines_k = ((SettingsFractals1074) settings).getNewtonHinesK();
                 }
 
                 createPoly();
@@ -1111,6 +1161,12 @@ public class Settings implements Constants {
                     fns.mps.magnetPendVariableId = defaults.fns.mps.magnetPendVariableId;
                 } else {
                     fns.mps.magnetPendVariableId = ((SettingsFractals1073) settings).getMagnetPendVariableId();
+                }
+                
+                if (version < 1074) {
+                    fns.mps.stepsize_im = defaults.fns.mps.stepsize_im;
+                } else {
+                    fns.mps.stepsize_im = ((SettingsFractals1074) settings).getStepsizeIm();
                 }
 
                 break;
@@ -1130,6 +1186,12 @@ public class Settings implements Constants {
                     fns.lpns.lyapunovFunction = ((SettingsFractals1073) settings).getLyapunovFunction();
                     fns.lpns.lyapunovExponentFunction = ((SettingsFractals1073) settings).getLyapunovExponentFunction();
                     fns.lpns.lyapunovVariableId = ((SettingsFractals1073) settings).getLyapunovVariableId();
+                }
+                
+                if (version < 1074) {
+                    fns.lpns.lyapunovInitialValue = defaults.fns.lpns.lyapunovInitialValue;
+                } else {
+                    fns.lpns.lyapunovInitialValue = ((SettingsFractals1074) settings).getLyapunovInitialValue();
                 }
 
                 String[] subExpressions = LyapunovSettings.getTokens(fns.lpns.lyapunovExpression);
@@ -1197,10 +1259,19 @@ public class Settings implements Constants {
                 fns.user_ddfz_formula = ((SettingsFractals1058) settings).getUserDdfzFormula();
                 fns.laguerre_deg = ((SettingsFractals1067) settings).getLaguerreDeg();
                 break;
+            case NEWTON_HINESFORMULA:
+                fns.user_fz_formula = ((SettingsFractals1058) settings).getUserFzFormula();
+                fns.user_dfz_formula = ((SettingsFractals1058) settings).getUserDfzFormula();
+                fns.newton_hines_k = ((SettingsFractals1074) settings).getNewtonHinesK();
+                break;
             case NOVA:
                 fns.z_exponent_nova = settings.getZExponentNova();
                 fns.relaxation = settings.getRelaxation();
                 fns.nova_method = settings.getNovaMethod();
+
+                if (fns.nova_method == NOVA_NEWTON_HINES) {
+                    fns.newton_hines_k = ((SettingsFractals1074) settings).getNewtonHinesK();
+                }
                 break;
             case INERTIA_GRAVITY:
                 fns.igs.bodyLocation = ((SettingsFractals1073) settings).getBodyLocation();
@@ -1327,6 +1398,18 @@ public class Settings implements Constants {
                         parser.parse(fns.user_ddfz_formula);
                         temp_bool = temp_bool | parser.foundC();
                         break;
+                    case NOVA_NEWTON_HINES:
+                        fns.user_fz_formula = ((SettingsFractals1058) settings).getUserFzFormula();
+                        fns.user_dfz_formula = ((SettingsFractals1058) settings).getUserDfzFormula();
+
+                        parser.parse(fns.user_fz_formula);
+                        temp_bool = temp_bool | parser.foundC();
+
+                        parser.parse(fns.user_dfz_formula);
+                        temp_bool = temp_bool | parser.foundC();
+                        fns.newton_hines_k = ((SettingsFractals1074) settings).getNewtonHinesK();
+                        break;
+
                 }
 
                 parser.parse(fns.user_relaxation_formula);
@@ -1422,9 +1505,9 @@ public class Settings implements Constants {
             file_temp = new ObjectOutputStream(new FileOutputStream(filename));
             SettingsFractals settings;
             if (fns.julia) {
-                settings = new SettingsJulia1073(this);
+                settings = new SettingsJulia1074(this);
             } else {
-                settings = new SettingsFractals1073(this);
+                settings = new SettingsFractals1074(this);
             }
             file_temp.writeObject(settings);
             file_temp.flush();
@@ -1439,6 +1522,11 @@ public class Settings implements Constants {
 
     public void startingPosition() {
         switch (fns.function) {
+            case MANDEL_NEWTON:
+                xCenter = 0;
+                yCenter = 0;
+                size = 24;
+                break;
             case MAGNET1:
                 if (fns.julia) {
                     xCenter = 0;
@@ -1621,11 +1709,19 @@ public class Settings implements Constants {
             sts.user_statistic_formula = "(0.5 * cos(12 * arg(z)) + 0.5) / norm(z)";
             sts.useAverage = true;
         }
+        sts.reductionFunction = REDUCTION_SUM;
+        sts.user_statistic_init_value = "0.0";
     }
 
     public void defaultFractalSettings() {
 
         switch (fns.function) {
+            case MANDEL_NEWTON:
+                xCenter = 0;
+                yCenter = 0;
+                size = 24;
+                fns.bailout = fns.bailout < 8 ? 8 : fns.bailout;
+                break;
             case MAGNET1:
                 if (fns.julia) {
                     xCenter = 0;
@@ -1732,6 +1828,14 @@ public class Settings implements Constants {
             case BAIRSTOWGENERALIZED3:
             case BAIRSTOWGENERALIZED8:
             case BAIRSTOWPOLY:
+            case NEWTON_HINES3:
+            case NEWTON_HINES4:
+            case NEWTON_HINESGENERALIZED3:
+            case NEWTON_HINESGENERALIZED8:
+            case NEWTON_HINESSIN:
+            case NEWTON_HINESCOS:
+            case NEWTON_HINESPOLY:
+            case NEWTON_HINESFORMULA:
                 xCenter = 0;
                 yCenter = 0;
                 size = 6;
@@ -1967,6 +2071,7 @@ public class Settings implements Constants {
         return isRootFindingMethod()
                 || fns.function == NOVA
                 || fns.function == USER_FORMULA_NOVA
+                || fns.function == LAMBERT_W_VARIATION
                 || (fns.function == USER_FORMULA && fns.bail_technique == 1) || (fns.function == USER_FORMULA_ITERATION_BASED && fns.bail_technique == 1) || (fns.function == USER_FORMULA_CONDITIONAL && fns.bail_technique == 1) || (fns.function == USER_FORMULA_COUPLED && fns.bail_technique == 1);
 
     }
@@ -1990,7 +2095,8 @@ public class Settings implements Constants {
                 || fns.function == LAGUERRE3 || fns.function == LAGUERRE4 || fns.function == LAGUERREGENERALIZED3 || fns.function == LAGUERREGENERALIZED8 || fns.function == LAGUERRESIN || fns.function == LAGUERRECOS || fns.function == LAGUERREPOLY || fns.function == LAGUERREFORMULA
                 || fns.function == DURAND_KERNER3 || fns.function == DURAND_KERNER4 || fns.function == DURAND_KERNERGENERALIZED3 || fns.function == DURAND_KERNERGENERALIZED8 || fns.function == DURAND_KERNERPOLY
                 || fns.function == BAIRSTOW3 || fns.function == BAIRSTOW4 || fns.function == BAIRSTOWGENERALIZED3 || fns.function == BAIRSTOWGENERALIZED8 || fns.function == BAIRSTOWPOLY
-                || fns.function == MAGNETIC_PENDULUM;
+                || fns.function == MAGNETIC_PENDULUM
+                || fns.function == NEWTON_HINES3 || fns.function == NEWTON_HINES4 || fns.function == NEWTON_HINESGENERALIZED3 || fns.function == NEWTON_HINESGENERALIZED8 || fns.function == NEWTON_HINESSIN || fns.function == NEWTON_HINESCOS || fns.function == NEWTON_HINESPOLY || fns.function == NEWTON_HINESFORMULA;
 
     }
 

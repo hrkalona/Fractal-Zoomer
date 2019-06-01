@@ -26,6 +26,7 @@ import fractalzoomer.fractal_options.perturbation.Perturbation;
 import fractalzoomer.fractal_options.perturbation.VariableConditionalPerturbation;
 import fractalzoomer.fractal_options.perturbation.VariablePerturbation;
 import fractalzoomer.functions.Julia;
+import fractalzoomer.main.app_settings.LyapunovSettings;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
 import fractalzoomer.main.app_settings.StatisticsSettings;
 import fractalzoomer.parser.ExpressionNode;
@@ -51,8 +52,9 @@ public class Lyapunov extends Julia {
     private double sum;
     private int samples;
     private int lyapunovVariableId;
+    private boolean usingDefaultFunctions;
 
-    public Lyapunov(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_value, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, OrbitTrapSettings ots, StatisticsSettings sts, String[] lyapunov_expression, boolean useLyapunovExponent, String lyapunovFunction, String lyapunovExponentFunction, int lyapunovVariableId) {
+    public Lyapunov(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_value, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, OrbitTrapSettings ots, StatisticsSettings sts, String[] lyapunov_expression, boolean useLyapunovExponent, String lyapunovFunction, String lyapunovExponentFunction, int lyapunovVariableId, String lyapunovInitialValue) {
 
         super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, ots);
 
@@ -81,7 +83,7 @@ public class Lyapunov extends Julia {
                 init_val = new InitialValue(initial_vals[0], initial_vals[1]);
             }
         } else {
-            init_val = new InitialValue(0.5, 0);
+            init_val = new VariableInitialValue(lyapunovInitialValue, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
         }
 
         OutColoringAlgorithmFactory(out_coloring_algorithm, smoothing, escaping_smooth_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, plane_transform_center);
@@ -103,13 +105,18 @@ public class Lyapunov extends Julia {
             expr[i] = parser[i].parse(lyapunov_expression[i]);
         }
 
-        function_parser = new Parser();
-        function_expr = function_parser.parse(lyapunovFunction);
+        usingDefaultFunctions = lyapunovFunction.replaceAll("\\s+", "").equals(LyapunovSettings.DEFAULT_LYAPUNOV_FUNCTION_TRIMMED) && lyapunovExponentFunction.replaceAll("\\s+", "").equals(LyapunovSettings.DEFAULT_LYAPUNOV_EXPONENT_FUNCTION_TRIMMED);
 
-        exponent_parser = new Parser();
-        exponent_expr = exponent_parser.parse(lyapunovExponentFunction);
+        if (!usingDefaultFunctions) {
+            function_parser = new Parser();
+            function_expr = function_parser.parse(lyapunovFunction);
+
+            exponent_parser = new Parser();
+            exponent_expr = exponent_parser.parse(lyapunovExponentFunction);
+        }
 
         point = new Complex(plane_transform_center[0], plane_transform_center[1]);
+
     }
 
     public Lyapunov(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, OrbitTrapSettings ots, StatisticsSettings sts, String[] lyapunov_expression, boolean useLyapunovExponent, String lyapunovFunction, String lyapunovExponentFunction, int lyapunovVariableId, double xJuliaCenter, double yJuliaCenter) {
@@ -135,17 +142,22 @@ public class Lyapunov extends Julia {
             expr[i] = parser[i].parse(lyapunov_expression[i]);
         }
 
-        function_parser = new Parser();
-        function_expr = function_parser.parse(lyapunovFunction);
+        usingDefaultFunctions = lyapunovFunction.replaceAll("\\s+", "").equals(LyapunovSettings.DEFAULT_LYAPUNOV_FUNCTION_TRIMMED) && lyapunovExponentFunction.replaceAll("\\s+", "").equals(LyapunovSettings.DEFAULT_LYAPUNOV_EXPONENT_FUNCTION_TRIMMED);
 
-        exponent_parser = new Parser();
-        exponent_expr = exponent_parser.parse(lyapunovExponentFunction);
+        if (!usingDefaultFunctions) {
+            function_parser = new Parser();
+            function_expr = function_parser.parse(lyapunovFunction);
+
+            exponent_parser = new Parser();
+            exponent_expr = exponent_parser.parse(lyapunovExponentFunction);
+        }
 
         point = new Complex(plane_transform_center[0], plane_transform_center[1]);
+
     }
 
     //orbit
-    public Lyapunov(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_value, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, String[] lyapunov_expression, String lyapunovFunction, String lyapunovExponentFunction) {
+    public Lyapunov(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_value, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, String[] lyapunov_expression, String lyapunovFunction, String lyapunovExponentFunction, String lyapunovInitialValue) {
 
         super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
 
@@ -174,7 +186,7 @@ public class Lyapunov extends Julia {
                 init_val = new InitialValue(initial_vals[0], initial_vals[1]);
             }
         } else {
-            init_val = new InitialValue(0.5, 0);
+            init_val = new VariableInitialValue(lyapunovInitialValue, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
         }
 
         parser = new Parser[lyapunov_expression.length];
@@ -185,11 +197,15 @@ public class Lyapunov extends Julia {
             expr[i] = parser[i].parse(lyapunov_expression[i]);
         }
 
-        function_parser = new Parser();
-        function_expr = function_parser.parse(lyapunovFunction);
+        usingDefaultFunctions = lyapunovFunction.replaceAll("\\s+", "").equals(LyapunovSettings.DEFAULT_LYAPUNOV_FUNCTION_TRIMMED) && lyapunovExponentFunction.replaceAll("\\s+", "").equals(LyapunovSettings.DEFAULT_LYAPUNOV_EXPONENT_FUNCTION_TRIMMED);
 
-        exponent_parser = new Parser();
-        exponent_expr = exponent_parser.parse(lyapunovExponentFunction);
+        if (!usingDefaultFunctions) {
+            function_parser = new Parser();
+            function_expr = function_parser.parse(lyapunovFunction);
+
+            exponent_parser = new Parser();
+            exponent_expr = exponent_parser.parse(lyapunovExponentFunction);
+        }
 
         point = new Complex(plane_transform_center[0], plane_transform_center[1]);
 
@@ -207,11 +223,15 @@ public class Lyapunov extends Julia {
             expr[i] = parser[i].parse(lyapunov_expression[i]);
         }
 
-        function_parser = new Parser();
-        function_expr = function_parser.parse(lyapunovFunction);
+        usingDefaultFunctions = lyapunovFunction.replaceAll("\\s+", "").equals(LyapunovSettings.DEFAULT_LYAPUNOV_FUNCTION_TRIMMED) && lyapunovExponentFunction.replaceAll("\\s+", "").equals(LyapunovSettings.DEFAULT_LYAPUNOV_EXPONENT_FUNCTION_TRIMMED);
 
-        exponent_parser = new Parser();
-        exponent_expr = exponent_parser.parse(lyapunovExponentFunction);
+        if (!usingDefaultFunctions) {
+            function_parser = new Parser();
+            function_expr = function_parser.parse(lyapunovFunction);
+
+            exponent_parser = new Parser();
+            exponent_expr = exponent_parser.parse(lyapunovExponentFunction);
+        }
 
         point = new Complex(plane_transform_center[0], plane_transform_center[1]);
 
@@ -219,10 +239,10 @@ public class Lyapunov extends Julia {
 
     @Override
     protected void function(Complex[] complex) {
-        
+
         Complex step = new Complex();
 
-        if (function_parser.foundR() || exponent_parser.foundR()) {
+        if (usingDefaultFunctions || function_parser.foundR() || exponent_parser.foundR()) {
             int index = iterations % parser.length;
 
             if (parser[index].foundN()) {
@@ -246,55 +266,63 @@ public class Lyapunov extends Julia {
             step = expr[index].getValue();
         }
 
-        if (function_parser.foundR()) {
-            function_parser.setRvalue(step);
-        }
+        double calculatedExponent = 0;
 
-        if (function_parser.foundN()) {
-            function_parser.setNvalue(new Complex(iterations, 0));
-        }
-
-        if (function_parser.foundZ()) {
-            function_parser.setZvalue(complex[0]);
-        }
-
-        if (function_parser.foundC()) {
-            function_parser.setCvalue(complex[1]);
-        }
-
-        for (int i = 0; i < Parser.EXTRA_VARS; i++) {
-            if (function_parser.foundVar(i)) {
-                function_parser.setVarsvalue(i, globalVars[i]);
+        if (usingDefaultFunctions) {
+            complex[0] = complex[0].times(step).times_mutable(complex[0].r_sub(1));
+            calculatedExponent = (complex[0].times(2).r_sub_mutable(1)).times_mutable(step).norm();
+        } else {
+            if (function_parser.foundR()) {
+                function_parser.setRvalue(step);
             }
-        }
 
-        complex[0] = function_expr.getValue();     
-        
-        if (exponent_parser.foundR()) {
-            exponent_parser.setRvalue(step);
-        }
-
-        if (exponent_parser.foundN()) {
-            exponent_parser.setNvalue(new Complex(iterations, 0));
-        }
-
-        if (exponent_parser.foundZ()) {
-            exponent_parser.setZvalue(complex[0]);
-        }
-
-        if (exponent_parser.foundC()) {
-            exponent_parser.setCvalue(complex[1]);
-        }
-
-        for (int i = 0; i < Parser.EXTRA_VARS; i++) {
-            if (exponent_parser.foundVar(i)) {
-                exponent_parser.setVarsvalue(i, globalVars[i]);
+            if (function_parser.foundN()) {
+                function_parser.setNvalue(new Complex(iterations, 0));
             }
+
+            if (function_parser.foundZ()) {
+                function_parser.setZvalue(complex[0]);
+            }
+
+            if (function_parser.foundC()) {
+                function_parser.setCvalue(complex[1]);
+            }
+
+            for (int i = 0; i < Parser.EXTRA_VARS; i++) {
+                if (function_parser.foundVar(i)) {
+                    function_parser.setVarsvalue(i, globalVars[i]);
+                }
+            }
+
+            complex[0] = function_expr.getValue();
+
+            if (exponent_parser.foundR()) {
+                exponent_parser.setRvalue(step);
+            }
+
+            if (exponent_parser.foundN()) {
+                exponent_parser.setNvalue(new Complex(iterations, 0));
+            }
+
+            if (exponent_parser.foundZ()) {
+                exponent_parser.setZvalue(complex[0]);
+            }
+
+            if (exponent_parser.foundC()) {
+                exponent_parser.setCvalue(complex[1]);
+            }
+
+            for (int i = 0; i < Parser.EXTRA_VARS; i++) {
+                if (exponent_parser.foundVar(i)) {
+                    exponent_parser.setVarsvalue(i, globalVars[i]);
+                }
+            }
+
+            calculatedExponent = exponent_expr.getValue().norm();
         }
 
-        double temp = exponent_expr.getValue().norm();
-        if (temp > 0) {
-            sum += Math.log(temp);
+        if (calculatedExponent > 0) {
+            sum += Math.log(calculatedExponent);
             samples++;
         }
 
@@ -332,6 +360,10 @@ public class Lyapunov extends Julia {
             if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
                 escaped = true;
 
+                if (outTrueColorAlgorithm != null) {
+                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start);
+                }
+
                 Object[] object = {iterations, complex[0], zold, zold2, complex[1], start};
                 double out = out_color_algorithm.getResult(object);
 
@@ -353,16 +385,20 @@ public class Lyapunov extends Julia {
 
         double res = sum / samples;
         
+        globalVars[lyapunovVariableId].assign(res);
+        
+        if (inTrueColorAlgorithm != null) {
+            setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start);
+        }
+
         if (useLyapunovExponent) {
-            
+
             if (res > 0) {
                 return getFinalValueOut(ColorAlgorithm.MAXIMUM_ITERATIONS);
             }
 
             return getFinalValueIn(Math.abs(res) + max_iterations);
         }
-        
-        globalVars[lyapunovVariableId].assign(res);
 
         Object[] object = {complex[0], zold, zold2, complex[1], start};
         double in = in_color_algorithm.getResult(object);
@@ -404,6 +440,11 @@ public class Lyapunov extends Julia {
 
             if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
                 escaped = true;
+
+                if (outTrueColorAlgorithm != null) {
+                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start);
+                }
+
                 Object[] object = {iterations, complex[0], zold, zold2, complex[1], start};
                 double out = out_color_algorithm.getResult(object);
 
@@ -492,6 +533,11 @@ public class Lyapunov extends Julia {
         for (; iterations < max_iterations; iterations++) {
             if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
                 escaped = true;
+
+                if (outTrueColorAlgorithm != null) {
+                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start);
+                }
+
                 Object[] object = {iterations, complex[0], zold, zold2, complex[1], start};
                 double out = out_color_algorithm.getResult(object);
 
@@ -545,6 +591,11 @@ public class Lyapunov extends Julia {
 
             if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
                 escaped = true;
+
+                if (outTrueColorAlgorithm != null) {
+                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start);
+                }
+
                 Object[] object = {iterations, complex[0], zold, zold2, complex[1], start};
                 double out = out_color_algorithm.getResult(object);
 
@@ -563,19 +614,23 @@ public class Lyapunov extends Julia {
             }
 
         }
-        
+
         double res = sum / samples;
         
+        globalVars[lyapunovVariableId].assign(res);
+        
+        if (inTrueColorAlgorithm != null) {
+            setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start);
+        }
+
         if (useLyapunovExponent) {
-            
+
             if (res > 0) {
                 return getFinalValueOut(ColorAlgorithm.MAXIMUM_ITERATIONS);
             }
 
             return getFinalValueIn(Math.abs(res) + max_iterations);
         }
-        
-        globalVars[lyapunovVariableId].assign(res);
 
         Object[] object = {complex[0], zold, zold2, complex[1], start};
         double in = in_color_algorithm.getResult(object);
@@ -691,20 +746,22 @@ public class Lyapunov extends Julia {
             }
         }
 
-        if (function_parser.foundP()) {
-            function_parser.setPvalue(zold);
-        }
+        if (!usingDefaultFunctions) {
+            if (function_parser.foundP()) {
+                function_parser.setPvalue(zold);
+            }
 
-        if (function_parser.foundPP()) {
-            function_parser.setPPvalue(zold2);
-        }
+            if (function_parser.foundPP()) {
+                function_parser.setPPvalue(zold2);
+            }
 
-        if (exponent_parser.foundP()) {
-            exponent_parser.setPvalue(zold);
-        }
+            if (exponent_parser.foundP()) {
+                exponent_parser.setPvalue(zold);
+            }
 
-        if (exponent_parser.foundPP()) {
-            exponent_parser.setPPvalue(zold2);
+            if (exponent_parser.foundPP()) {
+                exponent_parser.setPPvalue(zold2);
+            }
         }
 
     }
@@ -749,68 +806,70 @@ public class Lyapunov extends Julia {
             }
         }
 
-        if (function_parser.foundS()) {
-            function_parser.setSvalue(start);
-        }
+        if (!usingDefaultFunctions) {
+            if (function_parser.foundS()) {
+                function_parser.setSvalue(start);
+            }
 
-        if (function_parser.foundMaxn()) {
-            function_parser.setMaxnvalue(new Complex(max_iterations, 0));
-        }
+            if (function_parser.foundMaxn()) {
+                function_parser.setMaxnvalue(new Complex(max_iterations, 0));
+            }
 
-        if (function_parser.foundP()) {
-            function_parser.setPvalue(zold);
-        }
+            if (function_parser.foundP()) {
+                function_parser.setPvalue(zold);
+            }
 
-        if (function_parser.foundPP()) {
-            function_parser.setPPvalue(zold2);
-        }
+            if (function_parser.foundPP()) {
+                function_parser.setPPvalue(zold2);
+            }
 
-        if (function_parser.foundCenter()) {
-            function_parser.setCentervalue(c_center);
-        }
+            if (function_parser.foundCenter()) {
+                function_parser.setCentervalue(c_center);
+            }
 
-        if (function_parser.foundSize()) {
-            function_parser.setSizevalue(c_size);
-        }
+            if (function_parser.foundSize()) {
+                function_parser.setSizevalue(c_size);
+            }
 
-        if (function_parser.foundISize()) {
-            function_parser.setISizevalue(c_isize);
-        }
+            if (function_parser.foundISize()) {
+                function_parser.setISizevalue(c_isize);
+            }
 
-        if (function_parser.foundPoint()) {
-            function_parser.setPointvalue(point);
-        }
+            if (function_parser.foundPoint()) {
+                function_parser.setPointvalue(point);
+            }
 
-        if (exponent_parser.foundS()) {
-            exponent_parser.setSvalue(start);
-        }
+            if (exponent_parser.foundS()) {
+                exponent_parser.setSvalue(start);
+            }
 
-        if (exponent_parser.foundMaxn()) {
-            exponent_parser.setMaxnvalue(new Complex(max_iterations, 0));
-        }
+            if (exponent_parser.foundMaxn()) {
+                exponent_parser.setMaxnvalue(new Complex(max_iterations, 0));
+            }
 
-        if (exponent_parser.foundP()) {
-            exponent_parser.setPvalue(zold);
-        }
+            if (exponent_parser.foundP()) {
+                exponent_parser.setPvalue(zold);
+            }
 
-        if (exponent_parser.foundPP()) {
-            exponent_parser.setPPvalue(zold2);
-        }
+            if (exponent_parser.foundPP()) {
+                exponent_parser.setPPvalue(zold2);
+            }
 
-        if (exponent_parser.foundCenter()) {
-            exponent_parser.setCentervalue(c_center);
-        }
+            if (exponent_parser.foundCenter()) {
+                exponent_parser.setCentervalue(c_center);
+            }
 
-        if (exponent_parser.foundSize()) {
-            exponent_parser.setSizevalue(c_size);
-        }
+            if (exponent_parser.foundSize()) {
+                exponent_parser.setSizevalue(c_size);
+            }
 
-        if (exponent_parser.foundISize()) {
-            exponent_parser.setISizevalue(c_isize);
-        }
+            if (exponent_parser.foundISize()) {
+                exponent_parser.setISizevalue(c_isize);
+            }
 
-        if (exponent_parser.foundPoint()) {
-            exponent_parser.setPointvalue(point);
+            if (exponent_parser.foundPoint()) {
+                exponent_parser.setPointvalue(point);
+            }
         }
 
     }

@@ -48,6 +48,7 @@ import fractalzoomer.functions.root_finding_methods.bairstow.*;
 import fractalzoomer.functions.root_finding_methods.durand_kerner.*;
 import fractalzoomer.functions.root_finding_methods.laguerre.*;
 import fractalzoomer.functions.root_finding_methods.muller.*;
+import fractalzoomer.functions.root_finding_methods.newton_hines.*;
 import fractalzoomer.functions.root_finding_methods.parhalley.*;
 import fractalzoomer.functions.user_formulas.*;
 import fractalzoomer.functions.root_finding_methods.secant.*;
@@ -57,6 +58,7 @@ import fractalzoomer.main.ImageExpanderWindow;
 import fractalzoomer.main.app_settings.*;
 import fractalzoomer.palettes.PaletteColor;
 import fractalzoomer.palettes.transfer_functions.*;
+import fractalzoomer.true_coloring_algorithms.TrueColorAlgorithm;
 import fractalzoomer.utils.ColorAlgorithm;
 import fractalzoomer.utils.ColorGenerator;
 import fractalzoomer.utils.ColorSpaceConverter;
@@ -255,6 +257,7 @@ public abstract class ThreadDraw extends Thread {
     protected IterationAlgorithm iteration_algorithm;
     private boolean domain_coloring;
     private DomainColoringSettings ds;
+    private boolean usesTrueColorIn;
     protected double height_ratio;
     protected boolean polar_projection;
     protected double circle_period;
@@ -265,7 +268,7 @@ public abstract class ThreadDraw extends Thread {
     private TransferFunction color_transfer_outcoloring;
     private TransferFunction color_transfer_incoloring;
     private Blending blending;
-    private InterpolationMethod method;       
+    private InterpolationMethod method;
     private int color_blending;
     private DomainColoring domain_color;
     private MainWindow ptr;
@@ -285,7 +288,7 @@ public abstract class ThreadDraw extends Thread {
     public static int SKIPPED_PIXELS_ALG = 0;
     public static int SKIPPED_PIXELS_COLOR = 0xFFFFFFFF;
     public static int[] gradient;
-	
+
     static {
 
         default_init_val = "c";
@@ -293,40 +296,40 @@ public abstract class ThreadDraw extends Thread {
         List<Color> colors = ColorGenerator.generate(600, 0, 0);
         algorithm_colors = new int[colors.size()];
 
-        for(int i = 0; i < algorithm_colors.length; i++) {
+        for (int i = 0; i < algorithm_colors.length; i++) {
             algorithm_colors[i] = colors.get(i).getRGB();
         }
- 
+
     }
 
     public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, FunctionSettings fns, D3Settings d3s, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, DomainColoringSettings ds, boolean inverse_dem, boolean quickDraw, double color_intensity, int transfer_function, double color_intensity2, int transfer_function2, boolean usePaletteForInColoring, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, int color_blending, OrbitTrapSettings ots, ContourColoringSettings cns, int[] post_processing_order, LightSettings ls, PaletteGradientMergingSettings pbs, StatisticsSettings sts, int gradient_offset) {
-        settingsFractal(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns.bailout_test_algorithm, fns.bailout, fns.bailout_test_user_formula, fns.bailout_test_user_formula2, fns.bailout_test_comparison, fns.n_norm, d3s, ptr, fractal_color, dem_color, image, fs, fns.out_coloring_algorithm, fns.user_out_coloring_algorithm, fns.outcoloring_formula, fns.user_outcoloring_conditions, fns.user_outcoloring_condition_formula, fns.in_coloring_algorithm, fns.user_in_coloring_algorithm, fns.incoloring_formula, fns.user_incoloring_conditions, fns.user_incoloring_condition_formula, fns.smoothing, periodicity_checking, fns.plane_type, fns.burning_ship, fns.mandel_grass, fns.mandel_grass_vals, fns.function, fns.z_exponent, fns.z_exponent_complex, color_cycling_location, color_cycling_location2, fns.rotation_vals, fns.rotation_center, fns.perturbation, fns.perturbation_vals, fns.variable_perturbation, fns.user_perturbation_algorithm, fns.user_perturbation_conditions, fns.user_perturbation_condition_formula, fns.perturbation_user_formula, fns.init_val, fns.initial_vals, fns.variable_init_value, fns.user_initial_value_algorithm, fns.user_initial_value_conditions, fns.user_initial_value_condition_formula, fns.initial_value_user_formula, fns.coefficients, fns.z_exponent_nova, fns.relaxation, fns.nova_method, fns.user_formula, fns.user_formula2, fns.bail_technique, fns.user_plane, fns.user_plane_algorithm, fns.user_plane_conditions, fns.user_plane_condition_formula, fns.user_formula_iteration_based, fns.user_formula_conditions, fns.user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, fns.plane_transform_center, fns.plane_transform_angle, fns.plane_transform_radius, fns.plane_transform_scales, fns.plane_transform_wavelength, fns.waveType, fns.plane_transform_angle2, fns.plane_transform_sides, fns.plane_transform_amount, fns.escaping_smooth_algorithm, fns.converging_smooth_algorithm, bms, polar_projection, circle_period, fdes, rps, fns.user_fz_formula, fns.user_dfz_formula, fns.user_ddfz_formula, fns.coupling, fns.user_formula_coupled, fns.coupling_method, fns.coupling_amplitude, fns.coupling_frequency, fns.coupling_seed, ds, inverse_dem, quickDraw, color_intensity, transfer_function, color_intensity2, transfer_function2, usePaletteForInColoring, ens, ofs, gss, fns.laguerre_deg, color_blending, ots, cns, fns.kleinianLine, fns.kleinianK, fns.kleinianM, post_processing_order, ls, pbs, sts, fns.gcs, fns.durand_kerner_init_val, fns.mps, fns.coefficients_im, fns.lpns.lyapunovFinalExpression, fns.lpns.useLyapunovExponent , gradient_offset, fns.lpns.lyapunovFunction, fns.lpns.lyapunovExponentFunction, fns.lpns.lyapunovVariableId, fns.user_relaxation_formula, fns.user_nova_addend_formula, fns.gcps, fns.igs, fns.lfns);
+        settingsFractal(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns.bailout_test_algorithm, fns.bailout, fns.bailout_test_user_formula, fns.bailout_test_user_formula2, fns.bailout_test_comparison, fns.n_norm, d3s, ptr, fractal_color, dem_color, image, fs, fns.out_coloring_algorithm, fns.user_out_coloring_algorithm, fns.outcoloring_formula, fns.user_outcoloring_conditions, fns.user_outcoloring_condition_formula, fns.in_coloring_algorithm, fns.user_in_coloring_algorithm, fns.incoloring_formula, fns.user_incoloring_conditions, fns.user_incoloring_condition_formula, fns.smoothing, periodicity_checking, fns.plane_type, fns.burning_ship, fns.mandel_grass, fns.mandel_grass_vals, fns.function, fns.z_exponent, fns.z_exponent_complex, color_cycling_location, color_cycling_location2, fns.rotation_vals, fns.rotation_center, fns.perturbation, fns.perturbation_vals, fns.variable_perturbation, fns.user_perturbation_algorithm, fns.user_perturbation_conditions, fns.user_perturbation_condition_formula, fns.perturbation_user_formula, fns.init_val, fns.initial_vals, fns.variable_init_value, fns.user_initial_value_algorithm, fns.user_initial_value_conditions, fns.user_initial_value_condition_formula, fns.initial_value_user_formula, fns.coefficients, fns.z_exponent_nova, fns.relaxation, fns.nova_method, fns.user_formula, fns.user_formula2, fns.bail_technique, fns.user_plane, fns.user_plane_algorithm, fns.user_plane_conditions, fns.user_plane_condition_formula, fns.user_formula_iteration_based, fns.user_formula_conditions, fns.user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, fns.plane_transform_center, fns.plane_transform_angle, fns.plane_transform_radius, fns.plane_transform_scales, fns.plane_transform_wavelength, fns.waveType, fns.plane_transform_angle2, fns.plane_transform_sides, fns.plane_transform_amount, fns.escaping_smooth_algorithm, fns.converging_smooth_algorithm, bms, polar_projection, circle_period, fdes, rps, fns.user_fz_formula, fns.user_dfz_formula, fns.user_ddfz_formula, fns.coupling, fns.user_formula_coupled, fns.coupling_method, fns.coupling_amplitude, fns.coupling_frequency, fns.coupling_seed, ds, inverse_dem, quickDraw, color_intensity, transfer_function, color_intensity2, transfer_function2, usePaletteForInColoring, ens, ofs, gss, fns.laguerre_deg, color_blending, ots, cns, fns.kleinianLine, fns.kleinianK, fns.kleinianM, post_processing_order, ls, pbs, sts, fns.gcs, fns.durand_kerner_init_val, fns.mps, fns.coefficients_im, fns.lpns.lyapunovFinalExpression, fns.lpns.useLyapunovExponent, gradient_offset, fns.lpns.lyapunovFunction, fns.lpns.lyapunovExponentFunction, fns.lpns.lyapunovVariableId, fns.user_relaxation_formula, fns.user_nova_addend_formula, fns.gcps, fns.igs, fns.lfns, fns.newton_hines_k, fns.tcs, fns.lpns.lyapunovInitialValue);
     }
 
     public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, FunctionSettings fns, ImageExpanderWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, DomainColoringSettings ds, boolean inverse_dem, double color_intensity, int transfer_function, double color_intensity2, int transfer_function2, boolean usePaletteForInColoring, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, int color_blending, OrbitTrapSettings ots, ContourColoringSettings cns, int[] post_processing_order, LightSettings ls, PaletteGradientMergingSettings pbs, StatisticsSettings sts, int gradient_offset) {
-        settingsFractalExpander(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns.bailout_test_algorithm, fns.bailout, fns.bailout_test_user_formula, fns.bailout_test_user_formula2, fns.bailout_test_comparison, fns.n_norm, ptr, fractal_color, dem_color, image, fs, fns.out_coloring_algorithm, fns.user_out_coloring_algorithm, fns.outcoloring_formula, fns.user_outcoloring_conditions, fns.user_outcoloring_condition_formula, fns.in_coloring_algorithm, fns.user_in_coloring_algorithm, fns.incoloring_formula, fns.user_incoloring_conditions, fns.user_incoloring_condition_formula, fns.smoothing, periodicity_checking, fns.plane_type, fns.burning_ship, fns.mandel_grass, fns.mandel_grass_vals, fns.function, fns.z_exponent, fns.z_exponent_complex, color_cycling_location, color_cycling_location2, fns.rotation_vals, fns.rotation_center, fns.perturbation, fns.perturbation_vals, fns.variable_perturbation, fns.user_perturbation_algorithm, fns.user_perturbation_conditions, fns.user_perturbation_condition_formula, fns.perturbation_user_formula, fns.init_val, fns.initial_vals, fns.variable_init_value, fns.user_initial_value_algorithm, fns.user_initial_value_conditions, fns.user_initial_value_condition_formula, fns.initial_value_user_formula, fns.coefficients, fns.z_exponent_nova, fns.relaxation, fns.nova_method, fns.user_formula, fns.user_formula2, fns.bail_technique, fns.user_plane, fns.user_plane_algorithm, fns.user_plane_conditions, fns.user_plane_condition_formula, fns.user_formula_iteration_based, fns.user_formula_conditions, fns.user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, fns.plane_transform_center, fns.plane_transform_angle, fns.plane_transform_radius, fns.plane_transform_scales, fns.plane_transform_wavelength, fns.waveType, fns.plane_transform_angle2, fns.plane_transform_sides, fns.plane_transform_amount, fns.escaping_smooth_algorithm, fns.converging_smooth_algorithm, bms, polar_projection, circle_period, fdes, rps, fns.user_fz_formula, fns.user_dfz_formula, fns.user_ddfz_formula, fns.coupling, fns.user_formula_coupled, fns.coupling_method, fns.coupling_amplitude, fns.coupling_frequency, fns.coupling_seed, ds, inverse_dem, color_intensity, transfer_function, color_intensity2, transfer_function2, usePaletteForInColoring, ens, ofs, gss, fns.laguerre_deg, color_blending, ots, cns, fns.kleinianLine, fns.kleinianK, fns.kleinianM, post_processing_order, ls, pbs, sts, fns.gcs, fns.durand_kerner_init_val, fns.mps, fns.coefficients_im, fns.lpns.lyapunovFinalExpression, fns.lpns.useLyapunovExponent, gradient_offset , fns.lpns.lyapunovFunction, fns.lpns.lyapunovExponentFunction, fns.lpns.lyapunovVariableId, fns.user_relaxation_formula, fns.user_nova_addend_formula, fns.gcps, fns.igs, fns.lfns);
+        settingsFractalExpander(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns.bailout_test_algorithm, fns.bailout, fns.bailout_test_user_formula, fns.bailout_test_user_formula2, fns.bailout_test_comparison, fns.n_norm, ptr, fractal_color, dem_color, image, fs, fns.out_coloring_algorithm, fns.user_out_coloring_algorithm, fns.outcoloring_formula, fns.user_outcoloring_conditions, fns.user_outcoloring_condition_formula, fns.in_coloring_algorithm, fns.user_in_coloring_algorithm, fns.incoloring_formula, fns.user_incoloring_conditions, fns.user_incoloring_condition_formula, fns.smoothing, periodicity_checking, fns.plane_type, fns.burning_ship, fns.mandel_grass, fns.mandel_grass_vals, fns.function, fns.z_exponent, fns.z_exponent_complex, color_cycling_location, color_cycling_location2, fns.rotation_vals, fns.rotation_center, fns.perturbation, fns.perturbation_vals, fns.variable_perturbation, fns.user_perturbation_algorithm, fns.user_perturbation_conditions, fns.user_perturbation_condition_formula, fns.perturbation_user_formula, fns.init_val, fns.initial_vals, fns.variable_init_value, fns.user_initial_value_algorithm, fns.user_initial_value_conditions, fns.user_initial_value_condition_formula, fns.initial_value_user_formula, fns.coefficients, fns.z_exponent_nova, fns.relaxation, fns.nova_method, fns.user_formula, fns.user_formula2, fns.bail_technique, fns.user_plane, fns.user_plane_algorithm, fns.user_plane_conditions, fns.user_plane_condition_formula, fns.user_formula_iteration_based, fns.user_formula_conditions, fns.user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, fns.plane_transform_center, fns.plane_transform_angle, fns.plane_transform_radius, fns.plane_transform_scales, fns.plane_transform_wavelength, fns.waveType, fns.plane_transform_angle2, fns.plane_transform_sides, fns.plane_transform_amount, fns.escaping_smooth_algorithm, fns.converging_smooth_algorithm, bms, polar_projection, circle_period, fdes, rps, fns.user_fz_formula, fns.user_dfz_formula, fns.user_ddfz_formula, fns.coupling, fns.user_formula_coupled, fns.coupling_method, fns.coupling_amplitude, fns.coupling_frequency, fns.coupling_seed, ds, inverse_dem, color_intensity, transfer_function, color_intensity2, transfer_function2, usePaletteForInColoring, ens, ofs, gss, fns.laguerre_deg, color_blending, ots, cns, fns.kleinianLine, fns.kleinianK, fns.kleinianM, post_processing_order, ls, pbs, sts, fns.gcs, fns.durand_kerner_init_val, fns.mps, fns.coefficients_im, fns.lpns.lyapunovFinalExpression, fns.lpns.useLyapunovExponent, gradient_offset, fns.lpns.lyapunovFunction, fns.lpns.lyapunovExponentFunction, fns.lpns.lyapunovVariableId, fns.user_relaxation_formula, fns.user_nova_addend_formula, fns.gcps, fns.igs, fns.lfns, fns.newton_hines_k, fns.tcs, fns.lpns.lyapunovInitialValue);
     }
 
     public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, FunctionSettings fns, D3Settings d3s, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, DomainColoringSettings ds, boolean inverse_dem, boolean quickDraw, double color_intensity, int transfer_function, double color_intensity2, int transfer_function2, boolean usePaletteForInColoring, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, int color_blending, OrbitTrapSettings ots, ContourColoringSettings cns, int[] post_processing_order, LightSettings ls, PaletteGradientMergingSettings pbs, StatisticsSettings sts, int gradient_offset, double xJuliaCenter, double yJuliaCenter) {
-        settingsJulia(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns.bailout_test_algorithm, fns.bailout, fns.bailout_test_user_formula, fns.bailout_test_user_formula2, fns.bailout_test_comparison, fns.n_norm, d3s, ptr, fractal_color, dem_color, image, fs, fns.out_coloring_algorithm, fns.user_out_coloring_algorithm, fns.outcoloring_formula, fns.user_outcoloring_conditions, fns.user_outcoloring_condition_formula, fns.in_coloring_algorithm, fns.user_in_coloring_algorithm, fns.incoloring_formula, fns.user_incoloring_conditions, fns.user_incoloring_condition_formula, fns.smoothing, periodicity_checking, fns.plane_type, fns.apply_plane_on_julia, fns.apply_plane_on_julia_seed, fns.burning_ship, fns.mandel_grass, fns.mandel_grass_vals, fns.function, fns.z_exponent, fns.z_exponent_complex, color_cycling_location, color_cycling_location2, fns.rotation_vals, fns.rotation_center, fns.coefficients, fns.z_exponent_nova, fns.relaxation, fns.nova_method, fns.user_formula, fns.user_formula2, fns.bail_technique, fns.user_plane, fns.user_plane_algorithm, fns.user_plane_conditions, fns.user_plane_condition_formula, fns.user_formula_iteration_based, fns.user_formula_conditions, fns.user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, fns.plane_transform_center, fns.plane_transform_angle, fns.plane_transform_radius, fns.plane_transform_scales, fns.plane_transform_wavelength, fns.waveType, fns.plane_transform_angle2, fns.plane_transform_sides, fns.plane_transform_amount, fns.escaping_smooth_algorithm, fns.converging_smooth_algorithm, bms, polar_projection, circle_period, fdes, rps, fns.coupling, fns.user_formula_coupled, fns.coupling_method, fns.coupling_amplitude, fns.coupling_frequency, fns.coupling_seed, ds, inverse_dem, quickDraw, color_intensity, transfer_function, color_intensity2, transfer_function2, usePaletteForInColoring, ens, ofs, gss, color_blending, ots, cns, post_processing_order, ls, pbs, sts, fns.gcs, fns.coefficients_im, fns.lpns.lyapunovFinalExpression, fns.lpns.useLyapunovExponent, gradient_offset , fns.lpns.lyapunovFunction, fns.lpns.lyapunovExponentFunction, fns.lpns.lyapunovVariableId, fns.user_fz_formula, fns.user_dfz_formula, fns.user_ddfz_formula, fns.user_relaxation_formula, fns.user_nova_addend_formula, fns.laguerre_deg, fns.gcps, fns.lfns, xJuliaCenter, yJuliaCenter);
+        settingsJulia(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns.bailout_test_algorithm, fns.bailout, fns.bailout_test_user_formula, fns.bailout_test_user_formula2, fns.bailout_test_comparison, fns.n_norm, d3s, ptr, fractal_color, dem_color, image, fs, fns.out_coloring_algorithm, fns.user_out_coloring_algorithm, fns.outcoloring_formula, fns.user_outcoloring_conditions, fns.user_outcoloring_condition_formula, fns.in_coloring_algorithm, fns.user_in_coloring_algorithm, fns.incoloring_formula, fns.user_incoloring_conditions, fns.user_incoloring_condition_formula, fns.smoothing, periodicity_checking, fns.plane_type, fns.apply_plane_on_julia, fns.apply_plane_on_julia_seed, fns.burning_ship, fns.mandel_grass, fns.mandel_grass_vals, fns.function, fns.z_exponent, fns.z_exponent_complex, color_cycling_location, color_cycling_location2, fns.rotation_vals, fns.rotation_center, fns.coefficients, fns.z_exponent_nova, fns.relaxation, fns.nova_method, fns.user_formula, fns.user_formula2, fns.bail_technique, fns.user_plane, fns.user_plane_algorithm, fns.user_plane_conditions, fns.user_plane_condition_formula, fns.user_formula_iteration_based, fns.user_formula_conditions, fns.user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, fns.plane_transform_center, fns.plane_transform_angle, fns.plane_transform_radius, fns.plane_transform_scales, fns.plane_transform_wavelength, fns.waveType, fns.plane_transform_angle2, fns.plane_transform_sides, fns.plane_transform_amount, fns.escaping_smooth_algorithm, fns.converging_smooth_algorithm, bms, polar_projection, circle_period, fdes, rps, fns.coupling, fns.user_formula_coupled, fns.coupling_method, fns.coupling_amplitude, fns.coupling_frequency, fns.coupling_seed, ds, inverse_dem, quickDraw, color_intensity, transfer_function, color_intensity2, transfer_function2, usePaletteForInColoring, ens, ofs, gss, color_blending, ots, cns, post_processing_order, ls, pbs, sts, fns.gcs, fns.coefficients_im, fns.lpns.lyapunovFinalExpression, fns.lpns.useLyapunovExponent, gradient_offset, fns.lpns.lyapunovFunction, fns.lpns.lyapunovExponentFunction, fns.lpns.lyapunovVariableId, fns.user_fz_formula, fns.user_dfz_formula, fns.user_ddfz_formula, fns.user_relaxation_formula, fns.user_nova_addend_formula, fns.laguerre_deg, fns.gcps, fns.lfns, fns.newton_hines_k, fns.tcs, xJuliaCenter, yJuliaCenter);
     }
 
     public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, FunctionSettings fns, ImageExpanderWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, DomainColoringSettings ds, boolean inverse_dem, double color_intensity, int transfer_function, double color_intensity2, int transfer_function2, boolean usePaletteForInColoring, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, int color_blending, OrbitTrapSettings ots, ContourColoringSettings cns, int[] post_processing_order, LightSettings ls, PaletteGradientMergingSettings pbs, StatisticsSettings sts, int gradient_offset, double xJuliaCenter, double yJuliaCenter) {
-        settingsJuliaExpander(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns.bailout_test_algorithm, fns.bailout, fns.bailout_test_user_formula, fns.bailout_test_user_formula2, fns.bailout_test_comparison, fns.n_norm, ptr, fractal_color, dem_color, image, fs, fns.out_coloring_algorithm, fns.user_out_coloring_algorithm, fns.outcoloring_formula, fns.user_outcoloring_conditions, fns.user_outcoloring_condition_formula, fns.in_coloring_algorithm, fns.user_in_coloring_algorithm, fns.incoloring_formula, fns.user_incoloring_conditions, fns.user_incoloring_condition_formula, fns.smoothing, periodicity_checking, fns.plane_type, fns.apply_plane_on_julia, fns.apply_plane_on_julia_seed, fns.burning_ship, fns.mandel_grass, fns.mandel_grass_vals, fns.function, fns.z_exponent, fns.z_exponent_complex, color_cycling_location, color_cycling_location2, fns.rotation_vals, fns.rotation_center, fns.coefficients, fns.z_exponent_nova, fns.relaxation, fns.nova_method, fns.user_formula, fns.user_formula2, fns.bail_technique, fns.user_plane, fns.user_plane_algorithm, fns.user_plane_conditions, fns.user_plane_condition_formula, fns.user_formula_iteration_based, fns.user_formula_conditions, fns.user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, fns.plane_transform_center, fns.plane_transform_angle, fns.plane_transform_radius, fns.plane_transform_scales, fns.plane_transform_wavelength, fns.waveType, fns.plane_transform_angle2, fns.plane_transform_sides, fns.plane_transform_amount, fns.escaping_smooth_algorithm, fns.converging_smooth_algorithm, bms, polar_projection, circle_period, fdes, rps, fns.coupling, fns.user_formula_coupled, fns.coupling_method, fns.coupling_amplitude, fns.coupling_frequency, fns.coupling_seed, ds, inverse_dem, color_intensity, transfer_function, color_intensity2, transfer_function2, usePaletteForInColoring, ens, ofs, gss, color_blending, ots, cns, post_processing_order, ls, pbs, sts, fns.gcs, fns.coefficients_im, fns.lpns.lyapunovFinalExpression, fns.lpns.useLyapunovExponent, gradient_offset , fns.lpns.lyapunovFunction, fns.lpns.lyapunovExponentFunction, fns.lpns.lyapunovVariableId, fns.user_fz_formula, fns.user_dfz_formula, fns.user_ddfz_formula, fns.user_relaxation_formula, fns.user_nova_addend_formula, fns.laguerre_deg, fns.gcps, fns.lfns, xJuliaCenter, yJuliaCenter);
+        settingsJuliaExpander(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns.bailout_test_algorithm, fns.bailout, fns.bailout_test_user_formula, fns.bailout_test_user_formula2, fns.bailout_test_comparison, fns.n_norm, ptr, fractal_color, dem_color, image, fs, fns.out_coloring_algorithm, fns.user_out_coloring_algorithm, fns.outcoloring_formula, fns.user_outcoloring_conditions, fns.user_outcoloring_condition_formula, fns.in_coloring_algorithm, fns.user_in_coloring_algorithm, fns.incoloring_formula, fns.user_incoloring_conditions, fns.user_incoloring_condition_formula, fns.smoothing, periodicity_checking, fns.plane_type, fns.apply_plane_on_julia, fns.apply_plane_on_julia_seed, fns.burning_ship, fns.mandel_grass, fns.mandel_grass_vals, fns.function, fns.z_exponent, fns.z_exponent_complex, color_cycling_location, color_cycling_location2, fns.rotation_vals, fns.rotation_center, fns.coefficients, fns.z_exponent_nova, fns.relaxation, fns.nova_method, fns.user_formula, fns.user_formula2, fns.bail_technique, fns.user_plane, fns.user_plane_algorithm, fns.user_plane_conditions, fns.user_plane_condition_formula, fns.user_formula_iteration_based, fns.user_formula_conditions, fns.user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, fns.plane_transform_center, fns.plane_transform_angle, fns.plane_transform_radius, fns.plane_transform_scales, fns.plane_transform_wavelength, fns.waveType, fns.plane_transform_angle2, fns.plane_transform_sides, fns.plane_transform_amount, fns.escaping_smooth_algorithm, fns.converging_smooth_algorithm, bms, polar_projection, circle_period, fdes, rps, fns.coupling, fns.user_formula_coupled, fns.coupling_method, fns.coupling_amplitude, fns.coupling_frequency, fns.coupling_seed, ds, inverse_dem, color_intensity, transfer_function, color_intensity2, transfer_function2, usePaletteForInColoring, ens, ofs, gss, color_blending, ots, cns, post_processing_order, ls, pbs, sts, fns.gcs, fns.coefficients_im, fns.lpns.lyapunovFinalExpression, fns.lpns.useLyapunovExponent, gradient_offset, fns.lpns.lyapunovFunction, fns.lpns.lyapunovExponentFunction, fns.lpns.lyapunovVariableId, fns.user_fz_formula, fns.user_dfz_formula, fns.user_ddfz_formula, fns.user_relaxation_formula, fns.user_nova_addend_formula, fns.laguerre_deg, fns.gcps, fns.lfns, fns.newton_hines_k, fns.tcs, xJuliaCenter, yJuliaCenter);
     }
 
     public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, FunctionSettings fns, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, boolean inverse_dem, double color_intensity, int transfer_function, double color_intensity2, int transfer_function2, boolean usePaletteForInColoring, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, int color_blending, OrbitTrapSettings ots, ContourColoringSettings cns, int[] post_processing_order, LightSettings ls, PaletteGradientMergingSettings pbs, StatisticsSettings sts, int gradient_offset) {
-        settingsJuliaMap(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns.bailout_test_algorithm, fns.bailout, fns.bailout_test_user_formula, fns.bailout_test_user_formula2, fns.bailout_test_comparison, fns.n_norm, ptr, fractal_color, dem_color, image, fs, fns.out_coloring_algorithm, fns.user_out_coloring_algorithm, fns.outcoloring_formula, fns.user_outcoloring_conditions, fns.user_outcoloring_condition_formula, fns.in_coloring_algorithm, fns.user_in_coloring_algorithm, fns.incoloring_formula, fns.user_incoloring_conditions, fns.user_incoloring_condition_formula, fns.smoothing, periodicity_checking, fns.plane_type, fns.apply_plane_on_julia, fns.apply_plane_on_julia_seed, fns.burning_ship, fns.mandel_grass, fns.mandel_grass_vals, fns.function, fns.z_exponent, fns.z_exponent_complex, color_cycling_location, color_cycling_location2, fns.rotation_vals, fns.rotation_center, fns.coefficients, fns.z_exponent_nova, fns.relaxation, fns.nova_method, fns.user_formula, fns.user_formula2, fns.bail_technique, fns.user_plane, fns.user_plane_algorithm, fns.user_plane_conditions, fns.user_plane_condition_formula, fns.user_formula_iteration_based, fns.user_formula_conditions, fns.user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, fns.plane_transform_center, fns.plane_transform_angle, fns.plane_transform_radius, fns.plane_transform_scales, fns.plane_transform_wavelength, fns.waveType, fns.plane_transform_angle2, fns.plane_transform_sides, fns.plane_transform_amount, fns.escaping_smooth_algorithm, fns.converging_smooth_algorithm, bms, polar_projection, circle_period, fdes, rps, fns.coupling, fns.user_formula_coupled, fns.coupling_method, fns.coupling_amplitude, fns.coupling_frequency, fns.coupling_seed, inverse_dem, color_intensity, transfer_function, color_intensity2, transfer_function2, usePaletteForInColoring, ens, ofs, gss, color_blending, ots, cns, post_processing_order, ls, pbs, sts, fns.gcs, fns.coefficients_im, fns.lpns.lyapunovFinalExpression, fns.lpns.useLyapunovExponent, gradient_offset, fns.lpns.lyapunovFunction, fns.lpns.lyapunovExponentFunction, fns.lpns.lyapunovVariableId, fns.user_fz_formula, fns.user_dfz_formula, fns.user_ddfz_formula, fns.user_relaxation_formula, fns.user_nova_addend_formula, fns.laguerre_deg, fns.gcps, fns.lfns);
+        settingsJuliaMap(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns.bailout_test_algorithm, fns.bailout, fns.bailout_test_user_formula, fns.bailout_test_user_formula2, fns.bailout_test_comparison, fns.n_norm, ptr, fractal_color, dem_color, image, fs, fns.out_coloring_algorithm, fns.user_out_coloring_algorithm, fns.outcoloring_formula, fns.user_outcoloring_conditions, fns.user_outcoloring_condition_formula, fns.in_coloring_algorithm, fns.user_in_coloring_algorithm, fns.incoloring_formula, fns.user_incoloring_conditions, fns.user_incoloring_condition_formula, fns.smoothing, periodicity_checking, fns.plane_type, fns.apply_plane_on_julia, fns.apply_plane_on_julia_seed, fns.burning_ship, fns.mandel_grass, fns.mandel_grass_vals, fns.function, fns.z_exponent, fns.z_exponent_complex, color_cycling_location, color_cycling_location2, fns.rotation_vals, fns.rotation_center, fns.coefficients, fns.z_exponent_nova, fns.relaxation, fns.nova_method, fns.user_formula, fns.user_formula2, fns.bail_technique, fns.user_plane, fns.user_plane_algorithm, fns.user_plane_conditions, fns.user_plane_condition_formula, fns.user_formula_iteration_based, fns.user_formula_conditions, fns.user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, fns.plane_transform_center, fns.plane_transform_angle, fns.plane_transform_radius, fns.plane_transform_scales, fns.plane_transform_wavelength, fns.waveType, fns.plane_transform_angle2, fns.plane_transform_sides, fns.plane_transform_amount, fns.escaping_smooth_algorithm, fns.converging_smooth_algorithm, bms, polar_projection, circle_period, fdes, rps, fns.coupling, fns.user_formula_coupled, fns.coupling_method, fns.coupling_amplitude, fns.coupling_frequency, fns.coupling_seed, inverse_dem, color_intensity, transfer_function, color_intensity2, transfer_function2, usePaletteForInColoring, ens, ofs, gss, color_blending, ots, cns, post_processing_order, ls, pbs, sts, fns.gcs, fns.coefficients_im, fns.lpns.lyapunovFinalExpression, fns.lpns.useLyapunovExponent, gradient_offset, fns.lpns.lyapunovFunction, fns.lpns.lyapunovExponentFunction, fns.lpns.lyapunovVariableId, fns.user_fz_formula, fns.user_dfz_formula, fns.user_ddfz_formula, fns.user_relaxation_formula, fns.user_nova_addend_formula, fns.laguerre_deg, fns.gcps, fns.lfns, fns.newton_hines_k, fns.tcs);
     }
 
     public ThreadDraw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, FunctionSettings fns, MainWindow ptr, Color fractal_color, Color dem_color, boolean fast_julia_filters, BufferedImage image, boolean periodicity_checking, FiltersSettings fs, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, boolean inverse_dem, double color_intensity, int transfer_function, double color_intensity2, int transfer_function2, boolean usePaletteForInColoring, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, int color_blending, OrbitTrapSettings ots, ContourColoringSettings cns, int[] post_processing_order, LightSettings ls, PaletteGradientMergingSettings pbs, StatisticsSettings sts, int gradient_offset, double xJuliaCenter, double yJuliaCenter) {
-        settingsJuliaPreview(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns.bailout_test_algorithm, fns.bailout, fns.bailout_test_user_formula, fns.bailout_test_user_formula2, fns.bailout_test_comparison, fns.n_norm, ptr, fractal_color, dem_color, fast_julia_filters, image, periodicity_checking, fns.plane_type, fns.apply_plane_on_julia, fns.apply_plane_on_julia_seed, fns.out_coloring_algorithm, fns.user_out_coloring_algorithm, fns.outcoloring_formula, fns.user_outcoloring_conditions, fns.user_outcoloring_condition_formula, fns.in_coloring_algorithm, fns.user_in_coloring_algorithm, fns.incoloring_formula, fns.user_incoloring_conditions, fns.user_incoloring_condition_formula, fns.smoothing, fs, fns.burning_ship, fns.mandel_grass, fns.mandel_grass_vals, fns.function, fns.z_exponent, fns.z_exponent_complex, color_cycling_location, color_cycling_location2, fns.rotation_vals, fns.rotation_center, fns.coefficients, fns.z_exponent_nova, fns.relaxation, fns.nova_method, fns.user_formula, fns.user_formula2, fns.bail_technique, fns.user_plane, fns.user_plane_algorithm, fns.user_plane_conditions, fns.user_plane_condition_formula, fns.user_formula_iteration_based, fns.user_formula_conditions, fns.user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, fns.plane_transform_center, fns.plane_transform_angle, fns.plane_transform_radius, fns.plane_transform_scales, fns.plane_transform_wavelength, fns.waveType, fns.plane_transform_angle2, fns.plane_transform_sides, fns.plane_transform_amount, fns.escaping_smooth_algorithm, fns.converging_smooth_algorithm, bms, polar_projection, circle_period, fdes, rps, fns.coupling, fns.user_formula_coupled, fns.coupling_method, fns.coupling_amplitude, fns.coupling_frequency, fns.coupling_seed, inverse_dem, color_intensity, transfer_function, color_intensity2, transfer_function2, usePaletteForInColoring, ens, ofs, gss, color_blending, ots, cns, post_processing_order, ls, pbs, sts, fns.gcs, fns.coefficients_im, fns.lpns.lyapunovFinalExpression, fns.lpns.useLyapunovExponent, gradient_offset, fns.lpns.lyapunovFunction, fns.lpns.lyapunovExponentFunction, fns.lpns.lyapunovVariableId, fns.user_fz_formula, fns.user_dfz_formula, fns.user_ddfz_formula, fns.user_relaxation_formula, fns.user_nova_addend_formula, fns.laguerre_deg, fns.gcps, fns.lfns, xJuliaCenter, yJuliaCenter);
+        settingsJuliaPreview(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns.bailout_test_algorithm, fns.bailout, fns.bailout_test_user_formula, fns.bailout_test_user_formula2, fns.bailout_test_comparison, fns.n_norm, ptr, fractal_color, dem_color, fast_julia_filters, image, periodicity_checking, fns.plane_type, fns.apply_plane_on_julia, fns.apply_plane_on_julia_seed, fns.out_coloring_algorithm, fns.user_out_coloring_algorithm, fns.outcoloring_formula, fns.user_outcoloring_conditions, fns.user_outcoloring_condition_formula, fns.in_coloring_algorithm, fns.user_in_coloring_algorithm, fns.incoloring_formula, fns.user_incoloring_conditions, fns.user_incoloring_condition_formula, fns.smoothing, fs, fns.burning_ship, fns.mandel_grass, fns.mandel_grass_vals, fns.function, fns.z_exponent, fns.z_exponent_complex, color_cycling_location, color_cycling_location2, fns.rotation_vals, fns.rotation_center, fns.coefficients, fns.z_exponent_nova, fns.relaxation, fns.nova_method, fns.user_formula, fns.user_formula2, fns.bail_technique, fns.user_plane, fns.user_plane_algorithm, fns.user_plane_conditions, fns.user_plane_condition_formula, fns.user_formula_iteration_based, fns.user_formula_conditions, fns.user_formula_condition_formula, exterior_de, exterior_de_factor, height_ratio, fns.plane_transform_center, fns.plane_transform_angle, fns.plane_transform_radius, fns.plane_transform_scales, fns.plane_transform_wavelength, fns.waveType, fns.plane_transform_angle2, fns.plane_transform_sides, fns.plane_transform_amount, fns.escaping_smooth_algorithm, fns.converging_smooth_algorithm, bms, polar_projection, circle_period, fdes, rps, fns.coupling, fns.user_formula_coupled, fns.coupling_method, fns.coupling_amplitude, fns.coupling_frequency, fns.coupling_seed, inverse_dem, color_intensity, transfer_function, color_intensity2, transfer_function2, usePaletteForInColoring, ens, ofs, gss, color_blending, ots, cns, post_processing_order, ls, pbs, sts, fns.gcs, fns.coefficients_im, fns.lpns.lyapunovFinalExpression, fns.lpns.useLyapunovExponent, gradient_offset, fns.lpns.lyapunovFunction, fns.lpns.lyapunovExponentFunction, fns.lpns.lyapunovVariableId, fns.user_fz_formula, fns.user_dfz_formula, fns.user_ddfz_formula, fns.user_relaxation_formula, fns.user_nova_addend_formula, fns.laguerre_deg, fns.gcps, fns.lfns, fns.newton_hines_k, fns.tcs, xJuliaCenter, yJuliaCenter);
     }
 
     //Fractal
-    private void settingsFractal(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, D3Settings d3s, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, int plane_type, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, int color_cycling_location2, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_val, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, boolean exterior_de, double exterior_de_factor, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, int converging_smooth_algorithm, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, String user_fz_formula, String user_dfz_formula, String user_ddfz_formula, double coupling, String[] user_formula_coupled, int coupling_method, double coupling_amplitude, double coupling_frequency, int coupling_seed, DomainColoringSettings ds, boolean inverse_dem, boolean quickDraw, double color_intensity, int transfer_function, double color_intensity2, int transfer_function2, boolean usePaletteForInColoring, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, double[] laguerre_deg, int color_blending, OrbitTrapSettings ots, ContourColoringSettings cns, double[] kleinianLine, double kleinianK, double kleinianM, int[] post_processing_order, LightSettings ls, PaletteGradientMergingSettings pbs, StatisticsSettings sts, GenericCaZbdZeSettings gcs, double[] durand_kernel_init_val, MagneticPendulumSettings mps, double[] coefficients_im, String[] lyapunovExpression, boolean useLyapunovExponent, int gradient_offset, String lyapunovFunction, String lyapunovExponentFunction, int lyapunovVariableId, String user_relaxation_formula, String user_nova_addend_formula, GenericCpAZpBCSettings gcps, InertiaGravityFractalSettings igs, LambdaFnFnSettings lfns) {
+    private void settingsFractal(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, D3Settings d3s, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, int plane_type, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, int color_cycling_location2, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_val, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, boolean exterior_de, double exterior_de_factor, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, int converging_smooth_algorithm, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, String user_fz_formula, String user_dfz_formula, String user_ddfz_formula, double coupling, String[] user_formula_coupled, int coupling_method, double coupling_amplitude, double coupling_frequency, int coupling_seed, DomainColoringSettings ds, boolean inverse_dem, boolean quickDraw, double color_intensity, int transfer_function, double color_intensity2, int transfer_function2, boolean usePaletteForInColoring, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, double[] laguerre_deg, int color_blending, OrbitTrapSettings ots, ContourColoringSettings cns, double[] kleinianLine, double kleinianK, double kleinianM, int[] post_processing_order, LightSettings ls, PaletteGradientMergingSettings pbs, StatisticsSettings sts, GenericCaZbdZeSettings gcs, double[] durand_kernel_init_val, MagneticPendulumSettings mps, double[] coefficients_im, String[] lyapunovExpression, boolean useLyapunovExponent, int gradient_offset, String lyapunovFunction, String lyapunovExponentFunction, int lyapunovVariableId, String user_relaxation_formula, String user_nova_addend_formula, GenericCpAZpBCSettings gcps, InertiaGravityFractalSettings igs, LambdaFnFnSettings lfns, double[] newton_hines_k, TrueColorSettings tcs, String lyapunovInitialValue) {
 
-        if(quickDraw && max_iterations > 1000) {
+        if (quickDraw && max_iterations > 1000) {
             max_iterations = 1000;
         }
 
@@ -393,29 +396,26 @@ public abstract class ThreadDraw extends Thread {
 
         progress = ptr.getProgressBar();
 
-        if(filters[MainWindow.ANTIALIASING]) {
-            if(d3 && polar_projection) {
+        if (filters[MainWindow.ANTIALIASING]) {
+            if (d3 && polar_projection) {
                 y_antialiasing_size = ((2 * circle_period * Math.PI) / detail) * 0.25;
                 x_antialiasing_size = y_antialiasing_size * height_ratio;
 
                 x_antialiasing_size_x2 = 2 * x_antialiasing_size;
                 y_antialiasing_size_x2 = 2 * y_antialiasing_size;
-            }
-            else if(polar_projection) {
+            } else if (polar_projection) {
                 y_antialiasing_size = ((2 * circle_period * Math.PI) / image.getHeight()) * 0.25;
                 x_antialiasing_size = y_antialiasing_size * height_ratio;
 
                 x_antialiasing_size_x2 = 2 * x_antialiasing_size;
                 y_antialiasing_size_x2 = 2 * y_antialiasing_size;
-            }
-            else if(d3) {
+            } else if (d3) {
                 x_antialiasing_size = (size / detail) * 0.25;
                 x_antialiasing_size_x2 = 2 * x_antialiasing_size;
 
                 y_antialiasing_size = ((size * height_ratio) / detail) * 0.25;
                 y_antialiasing_size_x2 = 2 * y_antialiasing_size;
-            }
-            else {
+            } else {
                 x_antialiasing_size = (size / image.getHeight()) * 0.25;
                 x_antialiasing_size_x2 = 2 * x_antialiasing_size;
 
@@ -424,18 +424,15 @@ public abstract class ThreadDraw extends Thread {
             }
         }
 
-        if(domain_coloring) {
-            if(polar_projection) {
+        if (domain_coloring) {
+            if (polar_projection) {
                 action = DOMAIN_POLAR;
-            }
-            else {
+            } else {
                 action = DOMAIN;
             }
-        }
-        else if(polar_projection) {
+        } else if (polar_projection) {
             action = POLAR;
-        }
-        else {
+        } else {
             action = NORMAL;
         }
 
@@ -445,10 +442,10 @@ public abstract class ThreadDraw extends Thread {
         this.quickDraw = quickDraw;
         tile = TILE_SIZE;
 
-        rgbs = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
+        rgbs = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 
-        fractalFactory(function, xCenter, yCenter, size, max_iterations, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, z_exponent, z_exponent_complex, coefficients, coefficients_im, z_exponent_nova, relaxation, nova_method, bail_technique, user_formula, user_formula2, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, coupling, user_formula_coupled, coupling_method, coupling_amplitude, coupling_frequency, coupling_seed, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, gcs, lyapunovExpression, ots, exterior_de, exterior_de_factor, inverse_dem, escaping_smooth_algorithm, converging_smooth_algorithm, sts, useLyapunovExponent, user_fz_formula, user_dfz_formula, user_ddfz_formula, kleinianLine, kleinianK, kleinianM, laguerre_deg, durand_kernel_init_val, mps, lyapunovFunction, lyapunovExponentFunction, lyapunovVariableId, user_relaxation_formula, user_nova_addend_formula, gcps, igs, lfns);
-                
+        fractalFactory(function, xCenter, yCenter, size, max_iterations, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, z_exponent, z_exponent_complex, coefficients, coefficients_im, z_exponent_nova, relaxation, nova_method, bail_technique, user_formula, user_formula2, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, coupling, user_formula_coupled, coupling_method, coupling_amplitude, coupling_frequency, coupling_seed, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, gcs, lyapunovExpression, ots, exterior_de, exterior_de_factor, inverse_dem, escaping_smooth_algorithm, converging_smooth_algorithm, sts, useLyapunovExponent, user_fz_formula, user_dfz_formula, user_ddfz_formula, kleinianLine, kleinianK, kleinianM, laguerre_deg, durand_kernel_init_val, mps, lyapunovFunction, lyapunovExponentFunction, lyapunovVariableId, user_relaxation_formula, user_nova_addend_formula, gcps, igs, lfns, newton_hines_k, tcs, lyapunovInitialValue);
+
         blendingFactory(COLOR_SMOOTHING_METHOD);
         interpolationFactory(COLOR_SMOOTHING_METHOD);
 
@@ -458,7 +455,7 @@ public abstract class ThreadDraw extends Thread {
 
         convergent_bailout = fractal.getConvergentBailout();
 
-        if(domain_coloring) {
+        if (domain_coloring) {
             domainColoringFactory(ds, COLOR_SMOOTHING_METHOD);
         }
 
@@ -468,7 +465,7 @@ public abstract class ThreadDraw extends Thread {
     }
 
     //Fractal-Expander
-    private void settingsFractalExpander(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, ImageExpanderWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, int plane_type, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, int color_cycling_location2, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_val, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, boolean exterior_de, double exterior_de_factor, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, int converging_smooth_algorithm, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, String user_fz_formula, String user_dfz_formula, String user_ddfz_formula, double coupling, String[] user_formula_coupled, int coupling_method, double coupling_amplitude, double coupling_frequency, int coupling_seed, DomainColoringSettings ds, boolean inverse_dem, double color_intensity, int transfer_function, double color_intensity2, int transfer_function2, boolean usePaletteForInColoring, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, double[] laguerre_deg, int color_blending, OrbitTrapSettings ots, ContourColoringSettings cns, double[] kleinianLine, double kleinianK, double kleinianM, int[] post_processing_order, LightSettings ls, PaletteGradientMergingSettings pbs, StatisticsSettings sts, GenericCaZbdZeSettings gcs, double[] durand_kernel_init_val, MagneticPendulumSettings mps, double[] coefficients_im, String[] lyapunovExpression, boolean useLyapunovExponent, int gradient_offset, String lyapunovFunction, String lyapunovExponentFunction, int lyapunovVariableId, String user_relaxation_formula, String user_nova_addend_formula, GenericCpAZpBCSettings gcps, InertiaGravityFractalSettings igs, LambdaFnFnSettings lfns) {
+    private void settingsFractalExpander(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, ImageExpanderWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, int plane_type, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, int color_cycling_location2, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_val, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, boolean exterior_de, double exterior_de_factor, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, int converging_smooth_algorithm, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, String user_fz_formula, String user_dfz_formula, String user_ddfz_formula, double coupling, String[] user_formula_coupled, int coupling_method, double coupling_amplitude, double coupling_frequency, int coupling_seed, DomainColoringSettings ds, boolean inverse_dem, double color_intensity, int transfer_function, double color_intensity2, int transfer_function2, boolean usePaletteForInColoring, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, double[] laguerre_deg, int color_blending, OrbitTrapSettings ots, ContourColoringSettings cns, double[] kleinianLine, double kleinianK, double kleinianM, int[] post_processing_order, LightSettings ls, PaletteGradientMergingSettings pbs, StatisticsSettings sts, GenericCaZbdZeSettings gcs, double[] durand_kernel_init_val, MagneticPendulumSettings mps, double[] coefficients_im, String[] lyapunovExpression, boolean useLyapunovExponent, int gradient_offset, String lyapunovFunction, String lyapunovExponentFunction, int lyapunovVariableId, String user_relaxation_formula, String user_nova_addend_formula, GenericCpAZpBCSettings gcps, InertiaGravityFractalSettings igs, LambdaFnFnSettings lfns, double[] newton_hines_k, TrueColorSettings tcs, String lyapunovInitialValue) {
 
         this.FROMx = FROMx;
         this.TOx = TOx;
@@ -513,15 +510,14 @@ public abstract class ThreadDraw extends Thread {
 
         progress = ptrExpander.getProgressBar();
 
-        if(filters[MainWindow.ANTIALIASING]) {
-            if(polar_projection) {
+        if (filters[MainWindow.ANTIALIASING]) {
+            if (polar_projection) {
                 y_antialiasing_size = ((2 * circle_period * Math.PI) / image.getHeight()) * 0.25;
                 x_antialiasing_size = y_antialiasing_size * height_ratio;
 
                 x_antialiasing_size_x2 = 2 * x_antialiasing_size;
                 y_antialiasing_size_x2 = 2 * y_antialiasing_size;
-            }
-            else {
+            } else {
                 x_antialiasing_size = (size / image.getHeight()) * 0.25;
                 x_antialiasing_size_x2 = 2 * x_antialiasing_size;
 
@@ -530,18 +526,15 @@ public abstract class ThreadDraw extends Thread {
             }
         }
 
-        if(domain_coloring) {
-            if(polar_projection) {
+        if (domain_coloring) {
+            if (polar_projection) {
                 action = DOMAIN_POLAR_EXPANDER;
-            }
-            else {
+            } else {
                 action = DOMAIN_EXPANDER;
             }
-        }
-        else if(polar_projection) {
+        } else if (polar_projection) {
             action = POLAR_EXPANDER;
-        }
-        else {
+        } else {
             action = NORMAL_EXPANDER;
         }
 
@@ -550,9 +543,9 @@ public abstract class ThreadDraw extends Thread {
 
         tile = TILE_SIZE;
 
-        rgbs = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
+        rgbs = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 
-        fractalFactory(function, xCenter, yCenter, size, max_iterations, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, z_exponent, z_exponent_complex, coefficients, coefficients_im, z_exponent_nova, relaxation, nova_method, bail_technique, user_formula, user_formula2, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, coupling, user_formula_coupled, coupling_method, coupling_amplitude, coupling_frequency, coupling_seed, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, gcs, lyapunovExpression, ots, exterior_de, exterior_de_factor, inverse_dem, escaping_smooth_algorithm, converging_smooth_algorithm, sts, useLyapunovExponent, user_fz_formula, user_dfz_formula, user_ddfz_formula, kleinianLine, kleinianK, kleinianM, laguerre_deg, durand_kernel_init_val, mps, lyapunovFunction, lyapunovExponentFunction, lyapunovVariableId, user_relaxation_formula, user_nova_addend_formula, gcps, igs, lfns);
+        fractalFactory(function, xCenter, yCenter, size, max_iterations, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, z_exponent, z_exponent_complex, coefficients, coefficients_im, z_exponent_nova, relaxation, nova_method, bail_technique, user_formula, user_formula2, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, coupling, user_formula_coupled, coupling_method, coupling_amplitude, coupling_frequency, coupling_seed, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, gcs, lyapunovExpression, ots, exterior_de, exterior_de_factor, inverse_dem, escaping_smooth_algorithm, converging_smooth_algorithm, sts, useLyapunovExponent, user_fz_formula, user_dfz_formula, user_ddfz_formula, kleinianLine, kleinianK, kleinianM, laguerre_deg, durand_kernel_init_val, mps, lyapunovFunction, lyapunovExponentFunction, lyapunovVariableId, user_relaxation_formula, user_nova_addend_formula, gcps, igs, lfns, newton_hines_k, tcs, lyapunovInitialValue);
 
         blendingFactory(COLOR_SMOOTHING_METHOD);
         interpolationFactory(COLOR_SMOOTHING_METHOD);
@@ -563,7 +556,7 @@ public abstract class ThreadDraw extends Thread {
 
         convergent_bailout = fractal.getConvergentBailout();
 
-        if(domain_coloring) {
+        if (domain_coloring) {
             domainColoringFactory(ds, COLOR_SMOOTHING_METHOD);
         }
 
@@ -573,9 +566,9 @@ public abstract class ThreadDraw extends Thread {
     }
 
     //Julia
-    private void settingsJulia(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, D3Settings d3s, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, int color_cycling_location2, double[] rotation_vals, double[] rotation_center, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, boolean exterior_de, double exterior_de_factor, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, int converging_smooth_algorithm, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, double coupling, String[] user_formula_coupled, int coupling_method, double coupling_amplitude, double coupling_frequency, int coupling_seed, DomainColoringSettings ds, boolean inverse_dem, boolean quickDraw, double color_intensity, int transfer_function, double color_intensity2, int transfer_function2, boolean usePaletteForInColoring, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, int color_blending, OrbitTrapSettings ots, ContourColoringSettings cns, int[] post_processing_order, LightSettings ls, PaletteGradientMergingSettings pbs, StatisticsSettings sts, GenericCaZbdZeSettings gcs, double[] coefficients_im, String[] lyapunovExpression, boolean useLyapunovExponent, int gradient_offset, String lyapunovFunction, String lyapunovExponentFunction, int lyapunovVariableId, String user_fz_formula, String user_dfz_formula, String user_ddfz_formula, String user_relaxation_formula, String user_nova_addend_formula, double[] laguerre_deg, GenericCpAZpBCSettings gcps, LambdaFnFnSettings lfns, double xJuliaCenter, double yJuliaCenter) {
+    private void settingsJulia(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, D3Settings d3s, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, int color_cycling_location2, double[] rotation_vals, double[] rotation_center, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, boolean exterior_de, double exterior_de_factor, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, int converging_smooth_algorithm, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, double coupling, String[] user_formula_coupled, int coupling_method, double coupling_amplitude, double coupling_frequency, int coupling_seed, DomainColoringSettings ds, boolean inverse_dem, boolean quickDraw, double color_intensity, int transfer_function, double color_intensity2, int transfer_function2, boolean usePaletteForInColoring, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, int color_blending, OrbitTrapSettings ots, ContourColoringSettings cns, int[] post_processing_order, LightSettings ls, PaletteGradientMergingSettings pbs, StatisticsSettings sts, GenericCaZbdZeSettings gcs, double[] coefficients_im, String[] lyapunovExpression, boolean useLyapunovExponent, int gradient_offset, String lyapunovFunction, String lyapunovExponentFunction, int lyapunovVariableId, String user_fz_formula, String user_dfz_formula, String user_ddfz_formula, String user_relaxation_formula, String user_nova_addend_formula, double[] laguerre_deg, GenericCpAZpBCSettings gcps, LambdaFnFnSettings lfns, double[] newton_hines_k, TrueColorSettings tcs, double xJuliaCenter, double yJuliaCenter) {
 
-        if(quickDraw && max_iterations > 1000) {
+        if (quickDraw && max_iterations > 1000) {
             max_iterations = 1000;
         }
 
@@ -642,29 +635,26 @@ public abstract class ThreadDraw extends Thread {
 
         progress = ptr.getProgressBar();
 
-        if(filters[MainWindow.ANTIALIASING]) {
-            if(d3 && polar_projection) {
+        if (filters[MainWindow.ANTIALIASING]) {
+            if (d3 && polar_projection) {
                 y_antialiasing_size = ((2 * circle_period * Math.PI) / detail) * 0.25;
                 x_antialiasing_size = y_antialiasing_size * height_ratio;
 
                 x_antialiasing_size_x2 = 2 * x_antialiasing_size;
                 y_antialiasing_size_x2 = 2 * y_antialiasing_size;
-            }
-            else if(polar_projection) {
+            } else if (polar_projection) {
                 y_antialiasing_size = ((2 * circle_period * Math.PI) / image.getHeight()) * 0.25;
                 x_antialiasing_size = y_antialiasing_size * height_ratio;
 
                 x_antialiasing_size_x2 = 2 * x_antialiasing_size;
                 y_antialiasing_size_x2 = 2 * y_antialiasing_size;
-            }
-            else if(d3) {
+            } else if (d3) {
                 x_antialiasing_size = (size / detail) * 0.25;
                 x_antialiasing_size_x2 = 2 * x_antialiasing_size;
 
                 y_antialiasing_size = ((size * height_ratio) / detail) * 0.25;
                 y_antialiasing_size_x2 = 2 * y_antialiasing_size;
-            }
-            else {
+            } else {
                 x_antialiasing_size = (size / image.getHeight()) * 0.25;
                 x_antialiasing_size_x2 = 2 * x_antialiasing_size;
 
@@ -673,27 +663,24 @@ public abstract class ThreadDraw extends Thread {
             }
         }
 
-        if(domain_coloring) {
-            if(polar_projection) {
+        if (domain_coloring) {
+            if (polar_projection) {
                 action = DOMAIN_POLAR;
-            }
-            else {
+            } else {
                 action = DOMAIN;
             }
-        }
-        else if(polar_projection) {
+        } else if (polar_projection) {
             action = POLAR;
-        }
-        else {
+        } else {
             action = NORMAL;
         }
 
         this.usePaletteForInColoring = usePaletteForInColoring;
         colorTranferFactory(transfer_function, transfer_function2, color_intensity, color_intensity2);
 
-        rgbs = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
+        rgbs = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 
-        juliaFactory(function, xCenter, yCenter, size, max_iterations, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, z_exponent, z_exponent_complex, coefficients, coefficients_im, z_exponent_nova, relaxation, nova_method, bail_technique, user_formula, user_formula2, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, coupling, user_formula_coupled, coupling_method, coupling_amplitude, coupling_frequency, coupling_seed, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, gcs, lyapunovExpression, ots, exterior_de, exterior_de_factor, inverse_dem, escaping_smooth_algorithm, converging_smooth_algorithm, sts, useLyapunovExponent, lyapunovFunction, lyapunovExponentFunction, lyapunovVariableId, user_fz_formula, user_dfz_formula, user_ddfz_formula, user_relaxation_formula, user_nova_addend_formula, laguerre_deg, gcps, lfns, xJuliaCenter, yJuliaCenter);
+        juliaFactory(function, xCenter, yCenter, size, max_iterations, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, z_exponent, z_exponent_complex, coefficients, coefficients_im, z_exponent_nova, relaxation, nova_method, bail_technique, user_formula, user_formula2, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, coupling, user_formula_coupled, coupling_method, coupling_amplitude, coupling_frequency, coupling_seed, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, gcs, lyapunovExpression, ots, exterior_de, exterior_de_factor, inverse_dem, escaping_smooth_algorithm, converging_smooth_algorithm, sts, useLyapunovExponent, lyapunovFunction, lyapunovExponentFunction, lyapunovVariableId, user_fz_formula, user_dfz_formula, user_ddfz_formula, user_relaxation_formula, user_nova_addend_formula, laguerre_deg, gcps, lfns, newton_hines_k, tcs, xJuliaCenter, yJuliaCenter);
 
         blendingFactory(COLOR_SMOOTHING_METHOD);
         interpolationFactory(COLOR_SMOOTHING_METHOD);
@@ -707,7 +694,7 @@ public abstract class ThreadDraw extends Thread {
 
         convergent_bailout = fractal.getConvergentBailout();
 
-        if(domain_coloring) {
+        if (domain_coloring) {
             domainColoringFactory(ds, COLOR_SMOOTHING_METHOD);
         }
 
@@ -717,7 +704,7 @@ public abstract class ThreadDraw extends Thread {
     }
 
     //Julia-Expander
-    private void settingsJuliaExpander(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, ImageExpanderWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, int color_cycling_location2, double[] rotation_vals, double[] rotation_center, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, boolean exterior_de, double exterior_de_factor, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, int converging_smooth_algorithm, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, double coupling, String[] user_formula_coupled, int coupling_method, double coupling_amplitude, double coupling_frequency, int coupling_seed, DomainColoringSettings ds, boolean inverse_dem, double color_intensity, int transfer_function, double color_intensity2, int transfer_function2, boolean usePaletteForInColoring, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, int color_blending, OrbitTrapSettings ots, ContourColoringSettings cns, int[] post_processing_order, LightSettings ls, PaletteGradientMergingSettings pbs, StatisticsSettings sts, GenericCaZbdZeSettings gcs, double[] coefficients_im, String[] lyapunovExpression, boolean useLyapunovExponent, int gradient_offset, String lyapunovFunction, String lyapunovExponentFunction, int lyapunovVariableId, String user_fz_formula, String user_dfz_formula, String user_ddfz_formula, String user_relaxation_formula, String user_nova_addend_formula, double[] laguerre_deg, GenericCpAZpBCSettings gcps, LambdaFnFnSettings lfns, double xJuliaCenter, double yJuliaCenter) {
+    private void settingsJuliaExpander(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, ImageExpanderWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, int color_cycling_location2, double[] rotation_vals, double[] rotation_center, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, boolean exterior_de, double exterior_de_factor, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, int converging_smooth_algorithm, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, double coupling, String[] user_formula_coupled, int coupling_method, double coupling_amplitude, double coupling_frequency, int coupling_seed, DomainColoringSettings ds, boolean inverse_dem, double color_intensity, int transfer_function, double color_intensity2, int transfer_function2, boolean usePaletteForInColoring, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, int color_blending, OrbitTrapSettings ots, ContourColoringSettings cns, int[] post_processing_order, LightSettings ls, PaletteGradientMergingSettings pbs, StatisticsSettings sts, GenericCaZbdZeSettings gcs, double[] coefficients_im, String[] lyapunovExpression, boolean useLyapunovExponent, int gradient_offset, String lyapunovFunction, String lyapunovExponentFunction, int lyapunovVariableId, String user_fz_formula, String user_dfz_formula, String user_ddfz_formula, String user_relaxation_formula, String user_nova_addend_formula, double[] laguerre_deg, GenericCpAZpBCSettings gcps, LambdaFnFnSettings lfns, double[] newton_hines_k, TrueColorSettings tcs, double xJuliaCenter, double yJuliaCenter) {
 
         this.FROMx = FROMx;
         this.TOx = TOx;
@@ -762,15 +749,14 @@ public abstract class ThreadDraw extends Thread {
 
         progress = ptrExpander.getProgressBar();
 
-        if(filters[MainWindow.ANTIALIASING]) {
-            if(polar_projection) {
+        if (filters[MainWindow.ANTIALIASING]) {
+            if (polar_projection) {
                 y_antialiasing_size = ((2 * circle_period * Math.PI) / image.getHeight()) * 0.25;
                 x_antialiasing_size = y_antialiasing_size * height_ratio;
 
                 x_antialiasing_size_x2 = 2 * x_antialiasing_size;
                 y_antialiasing_size_x2 = 2 * y_antialiasing_size;
-            }
-            else {
+            } else {
                 x_antialiasing_size = (size / image.getHeight()) * 0.25;
                 x_antialiasing_size_x2 = 2 * x_antialiasing_size;
 
@@ -779,27 +765,24 @@ public abstract class ThreadDraw extends Thread {
             }
         }
 
-        if(domain_coloring) {
-            if(polar_projection) {
+        if (domain_coloring) {
+            if (polar_projection) {
                 action = DOMAIN_POLAR_EXPANDER;
-            }
-            else {
+            } else {
                 action = DOMAIN_EXPANDER;
             }
-        }
-        else if(polar_projection) {
+        } else if (polar_projection) {
             action = POLAR_EXPANDER;
-        }
-        else {
+        } else {
             action = NORMAL_EXPANDER;
         }
 
         this.usePaletteForInColoring = usePaletteForInColoring;
         colorTranferFactory(transfer_function, transfer_function2, color_intensity, color_intensity2);
 
-        rgbs = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
+        rgbs = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 
-        juliaFactory(function, xCenter, yCenter, size, max_iterations, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, z_exponent, z_exponent_complex, coefficients, coefficients_im, z_exponent_nova, relaxation, nova_method, bail_technique, user_formula, user_formula2, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, coupling, user_formula_coupled, coupling_method, coupling_amplitude, coupling_frequency, coupling_seed, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, gcs, lyapunovExpression, ots, exterior_de, exterior_de_factor, inverse_dem, escaping_smooth_algorithm, converging_smooth_algorithm, sts, useLyapunovExponent, lyapunovFunction, lyapunovExponentFunction, lyapunovVariableId, user_fz_formula, user_dfz_formula, user_ddfz_formula, user_relaxation_formula, user_nova_addend_formula, laguerre_deg, gcps, lfns, xJuliaCenter, yJuliaCenter);
+        juliaFactory(function, xCenter, yCenter, size, max_iterations, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, z_exponent, z_exponent_complex, coefficients, coefficients_im, z_exponent_nova, relaxation, nova_method, bail_technique, user_formula, user_formula2, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, coupling, user_formula_coupled, coupling_method, coupling_amplitude, coupling_frequency, coupling_seed, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, gcs, lyapunovExpression, ots, exterior_de, exterior_de_factor, inverse_dem, escaping_smooth_algorithm, converging_smooth_algorithm, sts, useLyapunovExponent, lyapunovFunction, lyapunovExponentFunction, lyapunovVariableId, user_fz_formula, user_dfz_formula, user_ddfz_formula, user_relaxation_formula, user_nova_addend_formula, laguerre_deg, gcps, lfns, newton_hines_k, tcs, xJuliaCenter, yJuliaCenter);
 
         blendingFactory(COLOR_SMOOTHING_METHOD);
         interpolationFactory(COLOR_SMOOTHING_METHOD);
@@ -812,7 +795,7 @@ public abstract class ThreadDraw extends Thread {
 
         convergent_bailout = fractal.getConvergentBailout();
 
-        if(domain_coloring) {
+        if (domain_coloring) {
             domainColoringFactory(ds, COLOR_SMOOTHING_METHOD);
         }
 
@@ -822,7 +805,7 @@ public abstract class ThreadDraw extends Thread {
     }
 
     //Julia Map
-    private void settingsJuliaMap(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, int color_cycling_location2, double[] rotation_vals, double[] rotation_center, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, boolean exterior_de, double exterior_de_factor, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, int converging_smooth_algorithm, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, double coupling, String[] user_formula_coupled, int coupling_method, double coupling_amplitude, double coupling_frequency, int coupling_seed, boolean inverse_dem, double color_intensity, int transfer_function, double color_intensity2, int transfer_function2, boolean usePaletteForInColoring, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, int color_blending, OrbitTrapSettings ots, ContourColoringSettings cns, int[] post_processing_order, LightSettings ls, PaletteGradientMergingSettings pbs, StatisticsSettings sts, GenericCaZbdZeSettings gcs, double[] coefficients_im, String[] lyapunovExpression, boolean useLyapunovExponent, int gradient_offset, String lyapunovFunction, String lyapunovExponentFunction, int lyapunovVariableId, String user_fz_formula, String user_dfz_formula, String user_ddfz_formula, String user_relaxation_formula, String user_nova_addend_formula, double[] laguerre_deg, GenericCpAZpBCSettings gcps, LambdaFnFnSettings lfns) {
+    private void settingsJuliaMap(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, int color_cycling_location2, double[] rotation_vals, double[] rotation_center, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, boolean exterior_de, double exterior_de_factor, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, int converging_smooth_algorithm, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, double coupling, String[] user_formula_coupled, int coupling_method, double coupling_amplitude, double coupling_frequency, int coupling_seed, boolean inverse_dem, double color_intensity, int transfer_function, double color_intensity2, int transfer_function2, boolean usePaletteForInColoring, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, int color_blending, OrbitTrapSettings ots, ContourColoringSettings cns, int[] post_processing_order, LightSettings ls, PaletteGradientMergingSettings pbs, StatisticsSettings sts, GenericCaZbdZeSettings gcs, double[] coefficients_im, String[] lyapunovExpression, boolean useLyapunovExponent, int gradient_offset, String lyapunovFunction, String lyapunovExponentFunction, int lyapunovVariableId, String user_fz_formula, String user_dfz_formula, String user_ddfz_formula, String user_relaxation_formula, String user_nova_addend_formula, double[] laguerre_deg, GenericCpAZpBCSettings gcps, LambdaFnFnSettings lfns, double[] newton_hines_k, TrueColorSettings tcs) {
 
         this.FROMx = FROMx;
         this.TOx = TOx;
@@ -863,19 +846,18 @@ public abstract class ThreadDraw extends Thread {
 
         this.ots = ots;
 
-        rgbs = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
+        rgbs = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 
         progress = ptr.getProgressBar();
 
-        if(filters[MainWindow.ANTIALIASING]) {
-            if(polar_projection) {
+        if (filters[MainWindow.ANTIALIASING]) {
+            if (polar_projection) {
                 y_antialiasing_size = ((2 * circle_period * Math.PI) / (TOx - FROMx)) * 0.25;
                 x_antialiasing_size = y_antialiasing_size * height_ratio;
 
                 x_antialiasing_size_x2 = 2 * x_antialiasing_size;
                 y_antialiasing_size_x2 = 2 * y_antialiasing_size;
-            }
-            else {
+            } else {
                 x_antialiasing_size = (size / (TOx - FROMx)) * 0.25;
                 x_antialiasing_size_x2 = 2 * x_antialiasing_size;
 
@@ -887,16 +869,15 @@ public abstract class ThreadDraw extends Thread {
         this.usePaletteForInColoring = usePaletteForInColoring;
         colorTranferFactory(transfer_function, transfer_function2, color_intensity, color_intensity2);
 
-        if(polar_projection) {
+        if (polar_projection) {
             action = JULIA_MAP_POLAR;
-        }
-        else {
+        } else {
             action = JULIA_MAP;
         }
 
         double xJuliaCenter, yJuliaCenter;
 
-        if(polar_projection) {
+        if (polar_projection) {
             double start;
             double center = Math.log(size);
 
@@ -917,8 +898,7 @@ public abstract class ThreadDraw extends Thread {
 
             xJuliaCenter = p.x;
             yJuliaCenter = p.y;
-        }
-        else {
+        } else {
             double size_2_x = size * 0.5;
             double size_2_y = (size * height_ratio) * 0.5;
 
@@ -935,12 +915,12 @@ public abstract class ThreadDraw extends Thread {
 
         double mapxCenter = 0;
         double mapyCenter = 0;
-        
-        if(function == MainWindow.FORMULA27) {
+
+        if (function == MainWindow.FORMULA27) {
             mapxCenter = -2;
         }
-        
-        juliaFactory(function, mapxCenter, mapyCenter, size, max_iterations, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, z_exponent, z_exponent_complex, coefficients, coefficients_im, z_exponent_nova, relaxation, nova_method, bail_technique, user_formula, user_formula2, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, coupling, user_formula_coupled, coupling_method, coupling_amplitude, coupling_frequency, coupling_seed, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, gcs, lyapunovExpression, ots, exterior_de, exterior_de_factor, inverse_dem, escaping_smooth_algorithm, converging_smooth_algorithm, sts, useLyapunovExponent, lyapunovFunction, lyapunovExponentFunction, lyapunovVariableId, user_fz_formula, user_dfz_formula, user_ddfz_formula, user_relaxation_formula, user_nova_addend_formula, laguerre_deg, gcps, lfns, xJuliaCenter, yJuliaCenter);
+
+        juliaFactory(function, mapxCenter, mapyCenter, size, max_iterations, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, z_exponent, z_exponent_complex, coefficients, coefficients_im, z_exponent_nova, relaxation, nova_method, bail_technique, user_formula, user_formula2, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, coupling, user_formula_coupled, coupling_method, coupling_amplitude, coupling_frequency, coupling_seed, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, gcs, lyapunovExpression, ots, exterior_de, exterior_de_factor, inverse_dem, escaping_smooth_algorithm, converging_smooth_algorithm, sts, useLyapunovExponent, lyapunovFunction, lyapunovExponentFunction, lyapunovVariableId, user_fz_formula, user_dfz_formula, user_ddfz_formula, user_relaxation_formula, user_nova_addend_formula, laguerre_deg, gcps, lfns, newton_hines_k, tcs, xJuliaCenter, yJuliaCenter);
 
         blendingFactory(COLOR_SMOOTHING_METHOD);
         interpolationFactory(COLOR_SMOOTHING_METHOD);
@@ -956,7 +936,7 @@ public abstract class ThreadDraw extends Thread {
     }
 
     //Julia Preview
-    private void settingsJuliaPreview(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, MainWindow ptr, Color fractal_color, Color dem_color, boolean fast_julia_filters, BufferedImage image, boolean periodicity_checking, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, FiltersSettings fs, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, int color_cycling_location2, double[] rotation_vals, double[] rotation_center, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, boolean exterior_de, double exterior_de_factor, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, int converging_smooth_algorithm, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, double coupling, String[] user_formula_coupled, int coupling_method, double coupling_amplitude, double coupling_frequency, int coupling_seed, boolean inverse_dem, double color_intensity, int transfer_function, double color_intensity2, int transfer_function2, boolean usePaletteForInColoring, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, int color_blending, OrbitTrapSettings ots, ContourColoringSettings cns, int[] post_processing_order, LightSettings ls, PaletteGradientMergingSettings pbs, StatisticsSettings sts, GenericCaZbdZeSettings gcs, double[] coefficients_im, String[] lyapunovExpression, boolean useLyapunovExponent, int gradient_offset, String lyapunovFunction, String lyapunovExponentFunction, int lyapunovVariableId, String user_fz_formula, String user_dfz_formula, String user_ddfz_formula, String user_relaxation_formula, String user_nova_addend_formula, double[] laguerre_deg, GenericCpAZpBCSettings gcps, LambdaFnFnSettings lfns, double xJuliaCenter, double yJuliaCenter) {
+    private void settingsJuliaPreview(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, MainWindow ptr, Color fractal_color, Color dem_color, boolean fast_julia_filters, BufferedImage image, boolean periodicity_checking, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, FiltersSettings fs, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, int color_cycling_location, int color_cycling_location2, double[] rotation_vals, double[] rotation_center, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, boolean exterior_de, double exterior_de_factor, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, int converging_smooth_algorithm, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, double coupling, String[] user_formula_coupled, int coupling_method, double coupling_amplitude, double coupling_frequency, int coupling_seed, boolean inverse_dem, double color_intensity, int transfer_function, double color_intensity2, int transfer_function2, boolean usePaletteForInColoring, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, int color_blending, OrbitTrapSettings ots, ContourColoringSettings cns, int[] post_processing_order, LightSettings ls, PaletteGradientMergingSettings pbs, StatisticsSettings sts, GenericCaZbdZeSettings gcs, double[] coefficients_im, String[] lyapunovExpression, boolean useLyapunovExponent, int gradient_offset, String lyapunovFunction, String lyapunovExponentFunction, int lyapunovVariableId, String user_fz_formula, String user_dfz_formula, String user_ddfz_formula, String user_relaxation_formula, String user_nova_addend_formula, double[] laguerre_deg, GenericCpAZpBCSettings gcps, LambdaFnFnSettings lfns, double[] newton_hines_k, TrueColorSettings tcs, double xJuliaCenter, double yJuliaCenter) {
 
         this.FROMx = FROMx;
         this.TOx = TOx;
@@ -998,19 +978,18 @@ public abstract class ThreadDraw extends Thread {
 
         this.ots = ots;
 
-        rgbs = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
+        rgbs = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 
         progress = ptr.getProgressBar();
 
-        if(filters[MainWindow.ANTIALIASING]) {
-            if(polar_projection) {
+        if (filters[MainWindow.ANTIALIASING]) {
+            if (polar_projection) {
                 y_antialiasing_size = ((2 * circle_period * Math.PI) / image.getHeight()) * 0.25;
                 x_antialiasing_size = y_antialiasing_size * height_ratio;
 
                 x_antialiasing_size_x2 = 2 * x_antialiasing_size;
                 y_antialiasing_size_x2 = 2 * y_antialiasing_size;
-            }
-            else {
+            } else {
                 x_antialiasing_size = (size / image.getHeight()) * 0.25;
                 x_antialiasing_size_x2 = 2 * x_antialiasing_size;
 
@@ -1019,17 +998,16 @@ public abstract class ThreadDraw extends Thread {
             }
         }
 
-        if(polar_projection) {
+        if (polar_projection) {
             action = FAST_JULIA_POLAR;
-        }
-        else {
+        } else {
             action = FAST_JULIA;
         }
 
         this.usePaletteForInColoring = usePaletteForInColoring;
         colorTranferFactory(transfer_function, transfer_function2, color_intensity, color_intensity2);
 
-        juliaFactory(function, xCenter, yCenter, size, max_iterations, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, z_exponent, z_exponent_complex, coefficients, coefficients_im, z_exponent_nova, relaxation, nova_method, bail_technique, user_formula, user_formula2, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, coupling, user_formula_coupled, coupling_method, coupling_amplitude, coupling_frequency, coupling_seed, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, gcs, lyapunovExpression, ots, exterior_de, exterior_de_factor, inverse_dem, escaping_smooth_algorithm, converging_smooth_algorithm, sts, useLyapunovExponent, lyapunovFunction, lyapunovExponentFunction, lyapunovVariableId, user_fz_formula, user_dfz_formula, user_ddfz_formula, user_relaxation_formula, user_nova_addend_formula, laguerre_deg, gcps, lfns, xJuliaCenter, yJuliaCenter);
+        juliaFactory(function, xCenter, yCenter, size, max_iterations, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, z_exponent, z_exponent_complex, coefficients, coefficients_im, z_exponent_nova, relaxation, nova_method, bail_technique, user_formula, user_formula2, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, coupling, user_formula_coupled, coupling_method, coupling_amplitude, coupling_frequency, coupling_seed, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, gcs, lyapunovExpression, ots, exterior_de, exterior_de_factor, inverse_dem, escaping_smooth_algorithm, converging_smooth_algorithm, sts, useLyapunovExponent, lyapunovFunction, lyapunovExponentFunction, lyapunovVariableId, user_fz_formula, user_dfz_formula, user_ddfz_formula, user_relaxation_formula, user_nova_addend_formula, laguerre_deg, gcps, lfns, newton_hines_k, tcs, xJuliaCenter, yJuliaCenter);
 
         blendingFactory(COLOR_SMOOTHING_METHOD);
         interpolationFactory(COLOR_SMOOTHING_METHOD);
@@ -1082,7 +1060,7 @@ public abstract class ThreadDraw extends Thread {
         this.pbs = pbs;
 
         this.ots = ots;
-        
+
         domain_coloring = ds.domain_coloring;
 
         progress = ptr.getProgressBar();
@@ -1093,11 +1071,11 @@ public abstract class ThreadDraw extends Thread {
         blendingFactory(COLOR_SMOOTHING_METHOD);
         interpolationFactory(COLOR_SMOOTHING_METHOD);
 
-        if(domain_coloring) {
+        if (domain_coloring) {
             domainColoringFactory(ds, COLOR_SMOOTHING_METHOD);
         }
 
-        rgbs = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
+        rgbs = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 
     }
 
@@ -1139,7 +1117,7 @@ public abstract class ThreadDraw extends Thread {
         this.pbs = pbs;
 
         this.ots = ots;
-        
+
         domain_coloring = ds.domain_coloring;
 
         progress = ptr.getProgressBar();
@@ -1149,12 +1127,12 @@ public abstract class ThreadDraw extends Thread {
 
         blendingFactory(COLOR_SMOOTHING_METHOD);
         interpolationFactory(COLOR_SMOOTHING_METHOD);
-        
-        if(domain_coloring) {
+
+        if (domain_coloring) {
             domainColoringFactory(ds, COLOR_SMOOTHING_METHOD);
         }
 
-        rgbs = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
+        rgbs = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 
         drawing_done = 0;
 
@@ -1183,10 +1161,10 @@ public abstract class ThreadDraw extends Thread {
 
         this.color_blending = color_blending;
 
-        rgbs = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
+        rgbs = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 
         scale = d3s.d3_size_scale;
-        
+
         d3_color_type = d3s.d3_color_type;
 
         progress = ptr.getProgressBar();
@@ -1194,10 +1172,9 @@ public abstract class ThreadDraw extends Thread {
         blendingFactory(COLOR_SMOOTHING_METHOD);
         interpolationFactory(COLOR_SMOOTHING_METHOD);
 
-        if(draw_action) {
+        if (draw_action) {
             action = ROTATE_3D_MODEL;
-        }
-        else {
+        } else {
             action = APPLY_PALETTE_AND_FILTER_3D_MODEL;
             drawing_done = 0;
         }
@@ -1211,10 +1188,9 @@ public abstract class ThreadDraw extends Thread {
             switch (action) {
 
                 case NORMAL:
-                    if(quickDraw) {
+                    if (quickDraw) {
                         quickDraw();
-                    }
-                    else {
+                    } else {
                         draw();
                     }
                     break;
@@ -1237,10 +1213,9 @@ public abstract class ThreadDraw extends Thread {
                     applyPaletteAndFilter3DModel();
                     break;
                 case POLAR:
-                    if(quickDraw) {
+                    if (quickDraw) {
                         quickDrawPolar();
-                    }
-                    else {
+                    } else {
                         drawPolar();
                     }
                     break;
@@ -1251,18 +1226,16 @@ public abstract class ThreadDraw extends Thread {
                     drawJuliaMapPolar();
                     break;
                 case DOMAIN:
-                    if(quickDraw) {
+                    if (quickDraw) {
                         quickDrawDomain();
-                    }
-                    else {
+                    } else {
                         drawDomain();
                     }
                     break;
                 case DOMAIN_POLAR:
-                    if(quickDraw) {
+                    if (quickDraw) {
                         quickDrawDomainPolar();
-                    }
-                    else {
+                    } else {
                         drawDomainPolar();
                     }
                     break;
@@ -1279,13 +1252,11 @@ public abstract class ThreadDraw extends Thread {
                     drawDomainPolarExpander();
                     break;
             }
-        }
-        catch(OutOfMemoryError e) {
-            if(ptrExpander != null) {
+        } catch (OutOfMemoryError e) {
+            if (ptrExpander != null) {
                 JOptionPane.showMessageDialog(ptrExpander, "Maximum Heap size was reached.\nPlease set the maximum Heap size to a higher value.\nThe application will terminate.", "Error!", JOptionPane.ERROR_MESSAGE);
                 ptrExpander.savePreferences();
-            }
-            else {
+            } else {
                 JOptionPane.showMessageDialog(ptr, "Maximum Heap size was reached.\nThe application will terminate.", "Error!", JOptionPane.ERROR_MESSAGE);
                 ptr.savePreferences();
             }
@@ -1298,20 +1269,19 @@ public abstract class ThreadDraw extends Thread {
 
         int image_size = image.getHeight();
 
-        if(filters[MainWindow.ANTIALIASING]) {
+        if (filters[MainWindow.ANTIALIASING]) {
             drawIterationsDomainAntialiased(image_size);
-        }
-        else {
+        } else {
             drawIterationsDomain(image_size);
         }
 
-        if(drawing_done != 0) {
+        if (drawing_done != 0) {
             update(drawing_done);
         }
 
         total_calculated.addAndGet(thread_calculated);
 
-        if(finalize_sync.incrementAndGet() == ptrExpander.getNumberOfThreads()) {
+        if (finalize_sync.incrementAndGet() == ptrExpander.getNumberOfThreads()) {
 
             image_iterations = null;
             escaped = null;
@@ -1326,7 +1296,7 @@ public abstract class ThreadDraw extends Thread {
             progress.setValue((image_size * image_size) + ((image_size * image_size) / 100));
 
             int temp2 = image_size * image_size;
-            progress.setToolTipText("<html>Elapsed Time: " + (System.currentTimeMillis() - ptrExpander.getCalculationTime()) + " ms<br>Pixels Calculated: " + String.format("%6.2f", ((double)total_calculated.get()) / (temp2) * 100) + "%<br>Threads used: " + ptrExpander.getNumberOfThreads() + "</html>");
+            progress.setToolTipText("<html>Elapsed Time: " + (System.currentTimeMillis() - ptrExpander.getCalculationTime()) + " ms<br>Pixels Calculated: " + String.format("%6.2f", ((double) total_calculated.get()) / (temp2) * 100) + "%<br>Threads used: " + ptrExpander.getNumberOfThreads() + "</html>");
 
         }
     }
@@ -1335,20 +1305,19 @@ public abstract class ThreadDraw extends Thread {
 
         int image_size = image.getHeight();
 
-        if(filters[MainWindow.ANTIALIASING]) {
+        if (filters[MainWindow.ANTIALIASING]) {
             drawIterationsDomainPolarAntialiased(image_size);
-        }
-        else {
+        } else {
             drawIterationsDomainPolar(image_size);
         }
 
-        if(drawing_done != 0) {
+        if (drawing_done != 0) {
             update(drawing_done);
         }
 
         total_calculated.addAndGet(thread_calculated);
 
-        if(finalize_sync.incrementAndGet() == ptrExpander.getNumberOfThreads()) {
+        if (finalize_sync.incrementAndGet() == ptrExpander.getNumberOfThreads()) {
 
             image_iterations = null;
             escaped = null;
@@ -1363,7 +1332,7 @@ public abstract class ThreadDraw extends Thread {
             progress.setValue((image_size * image_size) + ((image_size * image_size) / 100));
 
             int temp2 = image_size * image_size;
-            progress.setToolTipText("<html>Elapsed Time: " + (System.currentTimeMillis() - ptrExpander.getCalculationTime()) + " ms<br>Pixels Calculated: " + String.format("%6.2f", ((double)total_calculated.get()) / (temp2) * 100) + "%<br>Threads used: " + ptrExpander.getNumberOfThreads() + "</html>");
+            progress.setToolTipText("<html>Elapsed Time: " + (System.currentTimeMillis() - ptrExpander.getCalculationTime()) + " ms<br>Pixels Calculated: " + String.format("%6.2f", ((double) total_calculated.get()) / (temp2) * 100) + "%<br>Threads used: " + ptrExpander.getNumberOfThreads() + "</html>");
 
         }
     }
@@ -1372,20 +1341,19 @@ public abstract class ThreadDraw extends Thread {
 
         int image_size = image.getHeight();
 
-        if(filters[MainWindow.ANTIALIASING]) {
+        if (filters[MainWindow.ANTIALIASING]) {
             drawIterationsPolarAntialiased(image_size);
-        }
-        else {
+        } else {
             drawIterationsPolar(image_size);
         }
 
-        if(drawing_done != 0) {
+        if (drawing_done != 0) {
             update(drawing_done);
         }
 
         total_calculated.addAndGet(thread_calculated);
 
-        if(finalize_sync.incrementAndGet() == ptrExpander.getNumberOfThreads()) {
+        if (finalize_sync.incrementAndGet() == ptrExpander.getNumberOfThreads()) {
 
             image_iterations = null;
             escaped = null;
@@ -1400,7 +1368,7 @@ public abstract class ThreadDraw extends Thread {
             progress.setValue((image_size * image_size) + ((image_size * image_size) / 100));
 
             int temp2 = image_size * image_size;
-            progress.setToolTipText("<html>Elapsed Time: " + (System.currentTimeMillis() - ptrExpander.getCalculationTime()) + " ms<br>Pixels Calculated: " + String.format("%6.2f", ((double)total_calculated.get()) / (temp2) * 100) + "%<br>Threads used: " + ptrExpander.getNumberOfThreads() + "</html>");
+            progress.setToolTipText("<html>Elapsed Time: " + (System.currentTimeMillis() - ptrExpander.getCalculationTime()) + " ms<br>Pixels Calculated: " + String.format("%6.2f", ((double) total_calculated.get()) / (temp2) * 100) + "%<br>Threads used: " + ptrExpander.getNumberOfThreads() + "</html>");
 
         }
     }
@@ -1409,20 +1377,19 @@ public abstract class ThreadDraw extends Thread {
 
         int image_size = image.getHeight();
 
-        if(filters[MainWindow.ANTIALIASING]) {
+        if (filters[MainWindow.ANTIALIASING]) {
             drawIterationsAntialiased(image_size);
-        }
-        else {
+        } else {
             drawIterations(image_size);
         }
 
-        if(drawing_done != 0) {
+        if (drawing_done != 0) {
             update(drawing_done);
         }
 
         total_calculated.addAndGet(thread_calculated);
 
-        if(finalize_sync.incrementAndGet() == ptrExpander.getNumberOfThreads()) {
+        if (finalize_sync.incrementAndGet() == ptrExpander.getNumberOfThreads()) {
 
             image_iterations = null;
             escaped = null;
@@ -1437,7 +1404,7 @@ public abstract class ThreadDraw extends Thread {
             progress.setValue((image_size * image_size) + ((image_size * image_size) / 100));
 
             int temp2 = image_size * image_size;
-            progress.setToolTipText("<html>Elapsed Time: " + (System.currentTimeMillis() - ptrExpander.getCalculationTime()) + " ms<br>Pixels Calculated: " + String.format("%6.2f", ((double)total_calculated.get()) / (temp2) * 100) + "%<br>Threads used: " + ptrExpander.getNumberOfThreads() + "</html>");
+            progress.setToolTipText("<html>Elapsed Time: " + (System.currentTimeMillis() - ptrExpander.getCalculationTime()) + " ms<br>Pixels Calculated: " + String.format("%6.2f", ((double) total_calculated.get()) / (temp2) * 100) + "%<br>Threads used: " + ptrExpander.getNumberOfThreads() + "</html>");
 
         }
     }
@@ -1446,38 +1413,33 @@ public abstract class ThreadDraw extends Thread {
 
         int image_size = image.getHeight();
 
-        if(d3) {
-            if(filters[MainWindow.ANTIALIASING]) {
+        if (d3) {
+            if (filters[MainWindow.ANTIALIASING]) {
                 drawIterations3DAntialiased(image_size);
-            }
-            else {
+            } else {
                 drawIterations3D(image_size);
             }
-        }
-        else if(filters[MainWindow.ANTIALIASING]) {
+        } else if (filters[MainWindow.ANTIALIASING]) {
             drawIterationsAntialiased(image_size);
-        }
-        else {
+        } else {
             drawIterations(image_size);
         }
 
-        if(drawing_done != 0) {
+        if (drawing_done != 0) {
             update(drawing_done);
         }
 
         total_calculated.addAndGet(thread_calculated);
 
-        if(finalize_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
+        if (finalize_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
 
             applyFilters();
 
-            if(d3) {
+            if (d3) {
                 ptr.updateValues("3D mode");
-            }
-            else if(iteration_algorithm instanceof JuliaIterationAlgorithm) {
+            } else if (iteration_algorithm instanceof JuliaIterationAlgorithm) {
                 ptr.updateValues("Julia mode");
-            }
-            else {
+            } else {
                 ptr.updateValues("Normal mode");
             }
 
@@ -1485,18 +1447,17 @@ public abstract class ThreadDraw extends Thread {
             ptr.setWholeImageDone(true);
             ptr.reloadTitle();
             ptr.getMainPanel().repaint();
-            if(d3) {
+            if (d3) {
                 progress.setValue((detail * detail) + (detail * detail / 100));
-            }
-            else {
+            } else {
                 progress.setValue((image_size * image_size) + ((image_size * image_size) / 100));
             }
 
             int temp2 = image_size * image_size;
-            progress.setToolTipText("<html>Elapsed Time: " + (System.currentTimeMillis() - ptr.getCalculationTime()) + " ms<br>Pixels Calculated: " + String.format("%6.2f", ((double)total_calculated.get()) / (temp2) * 100) + "%<br>Threads used: " + ptr.getNumberOfThreads() + "</html>");
+            progress.setToolTipText("<html>Elapsed Time: " + (System.currentTimeMillis() - ptr.getCalculationTime()) + " ms<br>Pixels Calculated: " + String.format("%6.2f", ((double) total_calculated.get()) / (temp2) * 100) + "%<br>Threads used: " + ptr.getNumberOfThreads() + "</html>");
         }
     }
-    
+
     private void quickDraw() {
 
         int image_size = image.getHeight();
@@ -1505,12 +1466,11 @@ public abstract class ThreadDraw extends Thread {
 
         total_calculated.addAndGet(thread_calculated);
 
-        if(finalize_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
+        if (finalize_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
 
-            if(iteration_algorithm instanceof JuliaIterationAlgorithm) {
+            if (iteration_algorithm instanceof JuliaIterationAlgorithm) {
                 ptr.updateValues("Julia mode");
-            }
-            else {
+            } else {
                 ptr.updateValues("Normal mode");
             }
 
@@ -1519,7 +1479,7 @@ public abstract class ThreadDraw extends Thread {
             ptr.getMainPanel().repaint();
 
             int temp2 = image_size * image_size;
-            progress.setToolTipText("<html>Elapsed Time: " + (System.currentTimeMillis() - ptr.getCalculationTime()) + " ms<br>Pixels Calculated: " + String.format("%6.2f", ((double)total_calculated.get()) / (temp2) * 100) + "%<br>Threads used: " + ptr.getNumberOfThreads() + "</html>");
+            progress.setToolTipText("<html>Elapsed Time: " + (System.currentTimeMillis() - ptr.getCalculationTime()) + " ms<br>Pixels Calculated: " + String.format("%6.2f", ((double) total_calculated.get()) / (temp2) * 100) + "%<br>Threads used: " + ptr.getNumberOfThreads() + "</html>");
 
             ptr.createCompleteImage(QUICK_DRAW_DELAY);
         }
@@ -1533,12 +1493,11 @@ public abstract class ThreadDraw extends Thread {
 
         total_calculated.addAndGet(thread_calculated);
 
-        if(finalize_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
+        if (finalize_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
 
-            if(iteration_algorithm instanceof JuliaIterationAlgorithm) {
+            if (iteration_algorithm instanceof JuliaIterationAlgorithm) {
                 ptr.updateValues("Julia mode");
-            }
-            else {
+            } else {
                 ptr.updateValues("Normal mode");
             }
 
@@ -1547,7 +1506,7 @@ public abstract class ThreadDraw extends Thread {
             ptr.getMainPanel().repaint();
 
             int temp2 = image_size * image_size;
-            progress.setToolTipText("<html>Elapsed Time: " + (System.currentTimeMillis() - ptr.getCalculationTime()) + " ms<br>Pixels Calculated: " + String.format("%6.2f", ((double)total_calculated.get()) / (temp2) * 100) + "%<br>Threads used: " + ptr.getNumberOfThreads() + "</html>");
+            progress.setToolTipText("<html>Elapsed Time: " + (System.currentTimeMillis() - ptr.getCalculationTime()) + " ms<br>Pixels Calculated: " + String.format("%6.2f", ((double) total_calculated.get()) / (temp2) * 100) + "%<br>Threads used: " + ptr.getNumberOfThreads() + "</html>");
 
             ptr.createCompleteImage(QUICK_DRAW_DELAY);
         }
@@ -1557,35 +1516,31 @@ public abstract class ThreadDraw extends Thread {
 
         int image_size = image.getHeight();
 
-        if(d3) {
-            if(filters[MainWindow.ANTIALIASING]) {
+        if (d3) {
+            if (filters[MainWindow.ANTIALIASING]) {
                 drawIterationsDomain3DAntialiased(image_size);
-            }
-            else {
+            } else {
                 drawIterationsDomain3D(image_size);
             }
-        }
-        else if(filters[MainWindow.ANTIALIASING]) {
+        } else if (filters[MainWindow.ANTIALIASING]) {
             drawIterationsDomainAntialiased(image_size);
-        }
-        else {
+        } else {
             drawIterationsDomain(image_size);
         }
 
-        if(drawing_done != 0) {
+        if (drawing_done != 0) {
             update(drawing_done);
         }
 
         total_calculated.addAndGet(thread_calculated);
 
-        if(finalize_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
+        if (finalize_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
 
             applyFilters();
 
-            if(d3) {
+            if (d3) {
                 ptr.updateValues("3D mode");
-            }
-            else {
+            } else {
                 ptr.updateValues("Domain C. mode");
             }
 
@@ -1593,15 +1548,14 @@ public abstract class ThreadDraw extends Thread {
             ptr.setWholeImageDone(true);
             ptr.reloadTitle();
             ptr.getMainPanel().repaint();
-            if(d3) {
+            if (d3) {
                 progress.setValue((detail * detail) + (detail * detail / 100));
-            }
-            else {
+            } else {
                 progress.setValue((image_size * image_size) + ((image_size * image_size) / 100));
             }
 
             int temp2 = image_size * image_size;
-            progress.setToolTipText("<html>Elapsed Time: " + (System.currentTimeMillis() - ptr.getCalculationTime()) + " ms<br>Pixels Calculated: " + String.format("%6.2f", ((double)total_calculated.get()) / (temp2) * 100) + "%<br>Threads used: " + ptr.getNumberOfThreads() + "</html>");
+            progress.setToolTipText("<html>Elapsed Time: " + (System.currentTimeMillis() - ptr.getCalculationTime()) + " ms<br>Pixels Calculated: " + String.format("%6.2f", ((double) total_calculated.get()) / (temp2) * 100) + "%<br>Threads used: " + ptr.getNumberOfThreads() + "</html>");
         }
     }
 
@@ -1613,7 +1567,7 @@ public abstract class ThreadDraw extends Thread {
 
         total_calculated.addAndGet(thread_calculated);
 
-        if(finalize_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
+        if (finalize_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
 
             ptr.updateValues("Domain C. mode");
 
@@ -1622,7 +1576,7 @@ public abstract class ThreadDraw extends Thread {
             ptr.getMainPanel().repaint();
 
             int temp2 = image_size * image_size;
-            progress.setToolTipText("<html>Elapsed Time: " + (System.currentTimeMillis() - ptr.getCalculationTime()) + " ms<br>Pixels Calculated: " + String.format("%6.2f", ((double)total_calculated.get()) / (temp2) * 100) + "%<br>Threads used: " + ptr.getNumberOfThreads() + "</html>");
+            progress.setToolTipText("<html>Elapsed Time: " + (System.currentTimeMillis() - ptr.getCalculationTime()) + " ms<br>Pixels Calculated: " + String.format("%6.2f", ((double) total_calculated.get()) / (temp2) * 100) + "%<br>Threads used: " + ptr.getNumberOfThreads() + "</html>");
 
             ptr.createCompleteImage(QUICK_DRAW_DELAY);
         }
@@ -1636,7 +1590,7 @@ public abstract class ThreadDraw extends Thread {
 
         total_calculated.addAndGet(thread_calculated);
 
-        if(finalize_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
+        if (finalize_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
 
             ptr.updateValues("Domain C. mode");
 
@@ -1645,7 +1599,7 @@ public abstract class ThreadDraw extends Thread {
             ptr.getMainPanel().repaint();
 
             int temp2 = image_size * image_size;
-            progress.setToolTipText("<html>Elapsed Time: " + (System.currentTimeMillis() - ptr.getCalculationTime()) + " ms<br>Pixels Calculated: " + String.format("%6.2f", ((double)total_calculated.get()) / (temp2) * 100) + "%<br>Threads used: " + ptr.getNumberOfThreads() + "</html>");
+            progress.setToolTipText("<html>Elapsed Time: " + (System.currentTimeMillis() - ptr.getCalculationTime()) + " ms<br>Pixels Calculated: " + String.format("%6.2f", ((double) total_calculated.get()) / (temp2) * 100) + "%<br>Threads used: " + ptr.getNumberOfThreads() + "</html>");
 
             ptr.createCompleteImage(QUICK_DRAW_DELAY);
         }
@@ -1654,38 +1608,33 @@ public abstract class ThreadDraw extends Thread {
     private void drawPolar() {
         int image_size = image.getHeight();
 
-        if(d3) {
-            if(filters[MainWindow.ANTIALIASING]) {
+        if (d3) {
+            if (filters[MainWindow.ANTIALIASING]) {
                 drawIterationsPolar3DAntialiased(image_size);
-            }
-            else {
+            } else {
                 drawIterationsPolar3D(image_size);
             }
-        }
-        else if(filters[MainWindow.ANTIALIASING]) {
+        } else if (filters[MainWindow.ANTIALIASING]) {
             drawIterationsPolarAntialiased(image_size);
-        }
-        else {
+        } else {
             drawIterationsPolar(image_size);
         }
 
-        if(drawing_done != 0) {
+        if (drawing_done != 0) {
             update(drawing_done);
         }
 
         total_calculated.addAndGet(thread_calculated);
 
-        if(finalize_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
+        if (finalize_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
 
             applyFilters();
 
-            if(d3) {
+            if (d3) {
                 ptr.updateValues("3D mode");
-            }
-            else if(iteration_algorithm instanceof JuliaIterationAlgorithm) {
+            } else if (iteration_algorithm instanceof JuliaIterationAlgorithm) {
                 ptr.updateValues("Julia mode");
-            }
-            else {
+            } else {
                 ptr.updateValues("Normal mode");
             }
 
@@ -1693,50 +1642,45 @@ public abstract class ThreadDraw extends Thread {
             ptr.setWholeImageDone(true);
             ptr.reloadTitle();
             ptr.getMainPanel().repaint();
-            if(d3) {
+            if (d3) {
                 progress.setValue((detail * detail) + (detail * detail / 100));
-            }
-            else {
+            } else {
                 progress.setValue((image_size * image_size) + ((image_size * image_size) / 100));
             }
 
             int temp2 = image_size * image_size;
-            progress.setToolTipText("<html>Elapsed Time: " + (System.currentTimeMillis() - ptr.getCalculationTime()) + " ms<br>Pixels Calculated: " + String.format("%6.2f", ((double)total_calculated.get()) / (temp2) * 100) + "%<br>Threads used: " + ptr.getNumberOfThreads() + "</html>");
+            progress.setToolTipText("<html>Elapsed Time: " + (System.currentTimeMillis() - ptr.getCalculationTime()) + " ms<br>Pixels Calculated: " + String.format("%6.2f", ((double) total_calculated.get()) / (temp2) * 100) + "%<br>Threads used: " + ptr.getNumberOfThreads() + "</html>");
         }
     }
 
     private void drawDomainPolar() {
         int image_size = image.getHeight();
 
-        if(d3) {
-            if(filters[MainWindow.ANTIALIASING]) {
+        if (d3) {
+            if (filters[MainWindow.ANTIALIASING]) {
                 drawIterationsDomainPolar3DAntialiased(image_size);
-            }
-            else {
+            } else {
                 drawIterationsDomainPolar3D(image_size);
             }
-        }
-        else if(filters[MainWindow.ANTIALIASING]) {
+        } else if (filters[MainWindow.ANTIALIASING]) {
             drawIterationsDomainPolarAntialiased(image_size);
-        }
-        else {
+        } else {
             drawIterationsDomainPolar(image_size);
         }
 
-        if(drawing_done != 0) {
+        if (drawing_done != 0) {
             update(drawing_done);
         }
 
         total_calculated.addAndGet(thread_calculated);
 
-        if(finalize_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
+        if (finalize_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
 
             applyFilters();
 
-            if(d3) {
+            if (d3) {
                 ptr.updateValues("3D mode");
-            }
-            else {
+            } else {
                 ptr.updateValues("Domain C. mode");
             }
 
@@ -1744,15 +1688,14 @@ public abstract class ThreadDraw extends Thread {
             ptr.setWholeImageDone(true);
             ptr.reloadTitle();
             ptr.getMainPanel().repaint();
-            if(d3) {
+            if (d3) {
                 progress.setValue((detail * detail) + (detail * detail / 100));
-            }
-            else {
+            } else {
                 progress.setValue((image_size * image_size) + ((image_size * image_size) / 100));
             }
 
             int temp2 = image_size * image_size;
-            progress.setToolTipText("<html>Elapsed Time: " + (System.currentTimeMillis() - ptr.getCalculationTime()) + " ms<br>Pixels Calculated: " + String.format("%6.2f", ((double)total_calculated.get()) / (temp2) * 100) + "%<br>Threads used: " + ptr.getNumberOfThreads() + "</html>");
+            progress.setToolTipText("<html>Elapsed Time: " + (System.currentTimeMillis() - ptr.getCalculationTime()) + " ms<br>Pixels Calculated: " + String.format("%6.2f", ((double) total_calculated.get()) / (temp2) * 100) + "%<br>Threads used: " + ptr.getNumberOfThreads() + "</html>");
         }
     }
 
@@ -1760,9 +1703,9 @@ public abstract class ThreadDraw extends Thread {
 
     protected int getFinalColor(double result, boolean escaped) {
 
-        if(ots.useTraps) {
-            if((!ots.trapIncludeNotEscaped && (!escaped || Math.abs(result) == ColorAlgorithm.MAXIMUM_ITERATIONS))
-            || (!ots.trapIncludeEscaped && escaped && Math.abs(result) != ColorAlgorithm.MAXIMUM_ITERATIONS)) {
+        if (ots.useTraps) {
+            if ((!ots.trapIncludeNotEscaped && (!escaped || Math.abs(result) == ColorAlgorithm.MAXIMUM_ITERATIONS))
+                    || (!ots.trapIncludeEscaped && escaped && Math.abs(result) != ColorAlgorithm.MAXIMUM_ITERATIONS)) {
                 return getPaletteColor(result, escaped);
             }
             return getTrapColor(getPaletteColor(result, escaped));
@@ -1774,31 +1717,39 @@ public abstract class ThreadDraw extends Thread {
 
     private int getPaletteColor(double result, boolean escaped) {
 
-        if(USE_DIRECT_COLOR) {
-            return 0xFF000000 | (0x00FFFFFF & (int)result);
+        if (USE_DIRECT_COLOR) {
+            return 0xFF000000 | (0x00FFFFFF & (int) result);
         }
 
         int colorA = 0;
 
-        if(result == ColorAlgorithm.MAXIMUM_ITERATIONS) {
+        if (fractal != null && fractal.hasTrueColor()) {
+            fractal.resetTrueColor();
+            colorA = fractal.getTrueColorValue();
+
+            if (pbs.palette_gradient_merge) {
+                colorA = result < 0 ? getPaletteMergedColor(result * pbs.gradient_intensity - 2 * color_cycling_location_outcoloring, colorA) : getPaletteMergedColor(result * pbs.gradient_intensity + 2 * color_cycling_location_outcoloring, colorA);
+            }
+
+            return colorA;
+        }
+
+        if (result == ColorAlgorithm.MAXIMUM_ITERATIONS) {
             colorA = fractal_color;
-        }
-        else if(result == -ColorAlgorithm.MAXIMUM_ITERATIONS) {
+        } else if (result == -ColorAlgorithm.MAXIMUM_ITERATIONS) {
             colorA = dem_color;
-        }
-        else if(!escaped && usePaletteForInColoring) {
+        } else if (!escaped && usePaletteForInColoring) {
             double transfered_result = color_transfer_incoloring.transfer(result);
             colorA = transfered_result < 0 ? palette_incoloring.getPaletteColor(transfered_result - color_cycling_location_incoloring) : palette_incoloring.getPaletteColor(transfered_result + color_cycling_location_incoloring);
 
-            if(pbs.palette_gradient_merge) {
+            if (pbs.palette_gradient_merge) {
                 colorA = result < 0 ? getPaletteMergedColor(result * pbs.gradient_intensity - 2 * color_cycling_location_outcoloring, colorA) : getPaletteMergedColor(result * pbs.gradient_intensity + 2 * color_cycling_location_outcoloring, colorA);
             }
-        }
-        else {
+        } else {
             double transfered_result = color_transfer_outcoloring.transfer(result);
             colorA = transfered_result < 0 ? palette_outcoloring.getPaletteColor(transfered_result - color_cycling_location_outcoloring) : palette_outcoloring.getPaletteColor(transfered_result + color_cycling_location_outcoloring);
 
-            if(pbs.palette_gradient_merge) {
+            if (pbs.palette_gradient_merge) {
                 colorA = result < 0 ? getPaletteMergedColor(result * pbs.gradient_intensity - 2 * color_cycling_location_outcoloring, colorA) : getPaletteMergedColor(result * pbs.gradient_intensity + 2 * color_cycling_location_outcoloring, colorA);
             }
         }
@@ -1815,44 +1766,40 @@ public abstract class ThreadDraw extends Thread {
         int old_green = (color >> 8) & 0xFF;
         int old_blue = color & 0xFF;
 
-        if(temp > 1) {
-            temp = (int)temp % 2 == 1 ? 1 - (temp - (int)temp) : (temp - (int)temp);
+        if (temp > 1) {
+            temp = (int) temp % 2 == 1 ? 1 - (temp - (int) temp) : (temp - (int) temp);
         }
 
-        int index = (int)(temp * (gradient.length - 1) + 0.5);
+        int index = (int) (temp * (gradient.length - 1) + 0.5);
 
         int grad_color = getGradientColor(index + gradient_offset);
-        
+
         int temp_red = grad_color & 0xff;
         int temp_green = grad_color & 0xff;
         int temp_blue = grad_color & 0xff;
 
-        if(pbs.merging_type == 0) { //Lab
+        if (pbs.merging_type == 0) { //Lab
             double[] grad = ColorSpaceConverter.RGBtoLAB(temp_red, temp_green, temp_blue);
             double[] res = ColorSpaceConverter.RGBtoLAB(old_red, old_green, old_blue);
             int[] rgb = ColorSpaceConverter.LABtoRGB(grad[0], res[1], res[2]);
             return 0xff000000 | (rgb[0] << 16) | (rgb[1] << 8) | rgb[2];
-        }
-        else if(pbs.merging_type == 1) { //HSB
+        } else if (pbs.merging_type == 1) { //HSB
             double[] grad = ColorSpaceConverter.RGBtoHSB(temp_red, temp_green, temp_blue);
             double[] res = ColorSpaceConverter.RGBtoHSB(old_red, old_green, old_blue);
             int[] rgb = ColorSpaceConverter.HSBtoRGB(res[0], res[1], grad[2]);
             return 0xff000000 | (rgb[0] << 16) | (rgb[1] << 8) | rgb[2];
-        }
-        else if(pbs.merging_type == 2) { //HSL
+        } else if (pbs.merging_type == 2) { //HSL
             double[] grad = ColorSpaceConverter.RGBtoHSL(temp_red, temp_green, temp_blue);
             double[] res = ColorSpaceConverter.RGBtoHSL(old_red, old_green, old_blue);
             int[] rgb = ColorSpaceConverter.HSLtoRGB(res[0], res[1], grad[2]);
             return 0xff000000 | (rgb[0] << 16) | (rgb[1] << 8) | rgb[2];
-        }
-        else if(pbs.merging_type == 3) {// blend
+        } else if (pbs.merging_type == 3) {// blend
             return blending.blend(temp_red, temp_green, temp_blue, old_red, old_green, old_blue, 1 - pbs.palette_blending);
-        }
-        else { //scale
+        } else { //scale
             double avg = ((temp_red + temp_green + temp_blue) / 3.0) / 255.0;
-            old_red = (int)(old_red * avg + 0.5);
-            old_green = (int)(old_green * avg + 0.5);
-            old_blue = (int)(old_blue * avg + 0.5);
+            old_red = (int) (old_red * avg + 0.5);
+            old_green = (int) (old_green * avg + 0.5);
+            old_blue = (int) (old_blue * avg + 0.5);
             return 0xff000000 | (old_red << 16) | (old_green << 8) | old_blue;
         }
 
@@ -1864,38 +1811,37 @@ public abstract class ThreadDraw extends Thread {
 
         double distance = trap.getDistance();
 
-        if((ots.trapMaxDistance != 0 && distance > ots.trapMaxDistance) || distance == Double.MAX_VALUE) {
+        if ((ots.trapMaxDistance != 0 && distance > ots.trapMaxDistance) || distance == Double.MAX_VALUE) {
             return originalColor;
         }
 
         double maxDistance = ots.trapMaxDistance != 0 ? ots.trapMaxDistance : trap.getMaxValue();
         distance /= maxDistance;
-     
+
         int trapColor = getModifiedColor((originalColor >> 16) & 0xFF, (originalColor >> 8) & 0xFF, originalColor & 0xFF, distance, ots.trapColorMethod, 1 - ots.trapBlending, true);
-        
-        if(ots.trapColorInterpolation == 0) {
+
+        if (ots.trapColorInterpolation == 0) {
             return trapColor;
         }
-        
+
         int red = (trapColor >> 16) & 0xFF;
         int green = (trapColor >> 8) & 0xFF;
-        int blue =  trapColor & 0xFF;
-        
+        int blue = trapColor & 0xFF;
+
         int trapRed = ots.trapColor1.getRed();
         int trapGreen = ots.trapColor1.getGreen();
         int trapBlue = ots.trapColor1.getBlue();
-        
-        if(trap.getTrapId() == 1) {
+
+        if (trap.getTrapId() == 1) {
             trapRed = ots.trapColor2.getRed();
             trapGreen = ots.trapColor2.getGreen();
             trapBlue = ots.trapColor2.getBlue();
-        }
-        else if(trap.getTrapId() == 2) {
+        } else if (trap.getTrapId() == 2) {
             trapRed = ots.trapColor3.getRed();
             trapGreen = ots.trapColor3.getGreen();
             trapBlue = ots.trapColor3.getBlue();
         }
-        
+
         return method.interpolate(red, green, blue, trapRed, trapGreen, trapBlue, ots.trapColorInterpolation);
     }
 
@@ -1920,11 +1866,11 @@ public abstract class ThreadDraw extends Thread {
 
             loc = QUICKDRAW_THREAD_CHUNK_SIZE * normal_drawing_algorithm_pixel.getAndIncrement();
 
-            if(loc >= condition) {
+            if (loc >= condition) {
                 break;
             }
 
-            for(int count = 0; count < QUICKDRAW_THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
+            for (int count = 0; count < QUICKDRAW_THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
                 tempx = loc % image_size_tile;
                 tempy = loc / image_size_tile;
 
@@ -1939,14 +1885,14 @@ public abstract class ThreadDraw extends Thread {
                 tempx = tempx == image_size_tile - 1 ? image_size : x + tile;
                 tempy = tempy == image_size_tile - 1 ? image_size : y + tile;
 
-                for(int i = y; i < tempy; i++) {
-                    for(int j = x, loc3 = i * image_size + j; j < tempx; j++, loc3++) {
+                for (int i = y; i < tempy; i++) {
+                    for (int j = x, loc3 = i * image_size + j; j < tempx; j++, loc3++) {
                         rgbs[loc3] = color;
                     }
                 }
             }
 
-        } while(true);
+        } while (true);
 
     }
 
@@ -1971,11 +1917,11 @@ public abstract class ThreadDraw extends Thread {
 
             loc = QUICKDRAW_THREAD_CHUNK_SIZE * normal_drawing_algorithm_pixel.getAndIncrement();
 
-            if(loc >= condition) {
+            if (loc >= condition) {
                 break;
             }
 
-            for(int count = 0; count < QUICKDRAW_THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
+            for (int count = 0; count < QUICKDRAW_THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
                 tempx = loc % image_size_tile;
                 tempy = loc / image_size_tile;
 
@@ -1992,14 +1938,14 @@ public abstract class ThreadDraw extends Thread {
                 tempx = tempx == image_size_tile - 1 ? image_size : x + tile;
                 tempy = tempy == image_size_tile - 1 ? image_size : y + tile;
 
-                for(int i = y; i < tempy; i++) {
-                    for(int j = x, loc3 = i * image_size + j; j < tempx; j++, loc3++) {
+                for (int i = y; i < tempy; i++) {
+                    for (int j = x, loc3 = i * image_size + j; j < tempx; j++, loc3++) {
                         rgbs[loc3] = color;
                     }
                 }
             }
 
-        } while(true);
+        } while (true);
 
     }
 
@@ -2029,11 +1975,11 @@ public abstract class ThreadDraw extends Thread {
 
             loc = QUICKDRAW_THREAD_CHUNK_SIZE * normal_drawing_algorithm_pixel.getAndIncrement();
 
-            if(loc >= condition) {
+            if (loc >= condition) {
                 break;
             }
 
-            for(int count = 0; count < QUICKDRAW_THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
+            for (int count = 0; count < QUICKDRAW_THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
                 tempx = loc % image_size_tile;
                 tempy = loc / image_size_tile;
 
@@ -2057,14 +2003,14 @@ public abstract class ThreadDraw extends Thread {
                 tempx = tempx == image_size_tile - 1 ? image_size : x + tile;
                 tempy = tempy == image_size_tile - 1 ? image_size : y + tile;
 
-                for(int i = y; i < tempy; i++) {
-                    for(int j = x, loc3 = i * image_size + j; j < tempx; j++, loc3++) {
+                for (int i = y; i < tempy; i++) {
+                    for (int j = x, loc3 = i * image_size + j; j < tempx; j++, loc3++) {
                         rgbs[loc3] = color;
                     }
                 }
             }
 
-        } while(true);
+        } while (true);
 
     }
 
@@ -2094,11 +2040,11 @@ public abstract class ThreadDraw extends Thread {
 
             loc = QUICKDRAW_THREAD_CHUNK_SIZE * normal_drawing_algorithm_pixel.getAndIncrement();
 
-            if(loc >= condition) {
+            if (loc >= condition) {
                 break;
             }
 
-            for(int count = 0; count < QUICKDRAW_THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
+            for (int count = 0; count < QUICKDRAW_THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
                 tempx = loc % image_size_tile;
                 tempy = loc / image_size_tile;
 
@@ -2120,14 +2066,14 @@ public abstract class ThreadDraw extends Thread {
                 tempx = tempx == image_size_tile - 1 ? image_size : x + tile;
                 tempy = tempy == image_size_tile - 1 ? image_size : y + tile;
 
-                for(int i = y; i < tempy; i++) {
-                    for(int j = x, loc3 = i * image_size + j; j < tempx; j++, loc3++) {
+                for (int i = y; i < tempy; i++) {
+                    for (int j = x, loc3 = i * image_size + j; j < tempx; j++, loc3++) {
                         rgbs[loc3] = color;
                     }
                 }
             }
 
-        } while(true);
+        } while (true);
 
     }
 
@@ -2154,35 +2100,35 @@ public abstract class ThreadDraw extends Thread {
 
             loc = THREAD_CHUNK_SIZE * normal_drawing_algorithm_pixel.getAndIncrement();
 
-            if(loc >= condition) {
+            if (loc >= condition) {
                 break;
             }
 
-            for(int count = 0; count < THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
+            for (int count = 0; count < THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
                 x = loc % image_size;
                 y = loc / image_size;
 
                 Complex val = iteration_algorithm.calculateDomain(new Complex(temp_xcenter_size + temp_size_image_size_x * x, temp_ycenter_size - temp_size_image_size_y * y));
                 image_iterations[loc] = scaleDomainHeight(val.norm());
                 rgbs[loc] = domain_color.getDomainColor(val);
-                
-                if(domain_image_data != null) {
+
+                if (domain_image_data != null) {
                     domain_image_data[loc] = val;
                 }
 
                 drawing_done++;
             }
 
-            if(drawing_done / pixel_percent >= 1) {
+            if (drawing_done / pixel_percent >= 1) {
                 update(drawing_done);
                 thread_calculated += drawing_done;
                 drawing_done = 0;
             }
 
-        } while(true);
+        } while (true);
 
         thread_calculated += drawing_done;
-        
+
         postProcess(image_size);
 
     }
@@ -2218,11 +2164,11 @@ public abstract class ThreadDraw extends Thread {
 
             loc = THREAD_CHUNK_SIZE * normal_drawing_algorithm_pixel.getAndIncrement();
 
-            if(loc >= condition) {
+            if (loc >= condition) {
                 break;
             }
 
-            for(int count = 0; count < THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
+            for (int count = 0; count < THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
                 x = loc % image_size;
                 y = loc / image_size;
 
@@ -2235,24 +2181,24 @@ public abstract class ThreadDraw extends Thread {
                 Complex val = iteration_algorithm.calculateDomain(new Complex(xcenter + r * cf, ycenter + r * sf));
                 image_iterations[loc] = scaleDomainHeight(val.norm());
                 rgbs[loc] = domain_color.getDomainColor(val);
-                
-                if(domain_image_data != null) {
+
+                if (domain_image_data != null) {
                     domain_image_data[loc] = val;
                 }
-                
+
                 drawing_done++;
             }
 
-            if(drawing_done / pixel_percent >= 1) {
+            if (drawing_done / pixel_percent >= 1) {
                 update(drawing_done);
                 thread_calculated += drawing_done;
                 drawing_done = 0;
             }
 
-        } while(true);
+        } while (true);
 
         thread_calculated += drawing_done;
-        
+
         postProcess(image_size);
 
     }
@@ -2285,9 +2231,9 @@ public abstract class ThreadDraw extends Thread {
         int red, green, blue;
 
         Object[] ret = createPolarAntialiasingSteps();
-        double[] antialiasing_x = (double[])(ret[0]);
-        double[] antialiasing_y_sin = (double[])(ret[1]);
-        double[] antialiasing_y_cos = (double[])(ret[2]);
+        double[] antialiasing_x = (double[]) (ret[0]);
+        double[] antialiasing_y_sin = (double[]) (ret[1]);
+        double[] antialiasing_y_cos = (double[]) (ret[2]);
 
         int supersampling_num = (filters_options_vals[MainWindow.ANTIALIASING] == 0 ? 4 : 8 * filters_options_vals[MainWindow.ANTIALIASING]);
 
@@ -2297,11 +2243,11 @@ public abstract class ThreadDraw extends Thread {
 
             loc = THREAD_CHUNK_SIZE * normal_drawing_algorithm_pixel.getAndIncrement();
 
-            if(loc >= condition) {
+            if (loc >= condition) {
                 break;
             }
 
-            for(int count = 0; count < THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
+            for (int count = 0; count < THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
                 x = loc % image_size;
                 y = loc / image_size;
 
@@ -2314,17 +2260,17 @@ public abstract class ThreadDraw extends Thread {
                 Complex val = iteration_algorithm.calculateDomain(new Complex(xcenter + r * cf, ycenter + r * sf));
                 image_iterations[loc] = scaleDomainHeight(val.norm());
                 color = domain_color.getDomainColor(val);
-                
-                if(domain_image_data != null) {
+
+                if (domain_image_data != null) {
                     domain_image_data[loc] = val;
                 }
-                
+
                 red = (color >> 16) & 0xff;
                 green = (color >> 8) & 0xff;
                 blue = color & 0xff;
 
                 //Supersampling
-                for(int i = 0; i < supersampling_num; i++) {
+                for (int i = 0; i < supersampling_num; i++) {
 
                     sf2 = sf * antialiasing_y_cos[i] + cf * antialiasing_y_sin[i];
                     cf2 = cf * antialiasing_y_cos[i] - sf * antialiasing_y_sin[i];
@@ -2338,21 +2284,21 @@ public abstract class ThreadDraw extends Thread {
                     blue += color & 0xff;
                 }
 
-                rgbs[loc] = 0xff000000 | (((int)(red / temp_samples + 0.5)) << 16) | (((int)(green / temp_samples + 0.5)) << 8) | ((int)(blue / temp_samples + 0.5));
+                rgbs[loc] = 0xff000000 | (((int) (red / temp_samples + 0.5)) << 16) | (((int) (green / temp_samples + 0.5)) << 8) | ((int) (blue / temp_samples + 0.5));
 
                 drawing_done++;
             }
 
-            if(drawing_done / pixel_percent >= 1) {
+            if (drawing_done / pixel_percent >= 1) {
                 update(drawing_done);
                 thread_calculated += drawing_done;
                 drawing_done = 0;
             }
 
-        } while(true);
-        
+        } while (true);
+
         thread_calculated += drawing_done;
-        
+
         postProcess(image_size);
 
     }
@@ -2365,7 +2311,7 @@ public abstract class ThreadDraw extends Thread {
 
         int n1 = detail - 1;
 
-        double dx = image_size / (double)detail;
+        double dx = image_size / (double) detail;
 
         double ct = Math.cos(fiX), cf = Math.cos(fiY), st = Math.sin(fiX), sf = Math.sin(fiY);
         double m00 = scale * cf, m02 = scale * sf, m10 = scale * st * sf, m11 = scale * ct, m12 = -scale * st * cf;
@@ -2378,11 +2324,11 @@ public abstract class ThreadDraw extends Thread {
 
         int pixel_percent = detail * detail / 100;
 
-        for(x = FROMx; x < TOx; x++) {
+        for (x = FROMx; x < TOx; x++) {
             double c1 = dx * x - w2;
-            for(y = FROMy; y < TOy; y++) {
+            for (y = FROMy; y < TOy; y++) {
 
-                if(y < n1 && x < n1) {
+                if (y < n1 && x < n1) {
                     norm_0_0 = vert[x][y][1] - vert[x + 1][y][1];
                     norm_0_1 = dx;
                     norm_0_2 = vert[x + 1][y][1] - vert[x + 1][y + 1][1];
@@ -2399,26 +2345,26 @@ public abstract class ThreadDraw extends Thread {
                     norm_1_1 /= mod;
                     norm_1_2 /= mod;
 
-                    Norm1z[x][y][0] = (float)(m20 * norm_0_0 + m21 * norm_0_1 + m22 * norm_0_2);
-                    Norm1z[x][y][1] = (float)(m20 * norm_1_0 + m21 * norm_1_1 + m22 * norm_1_2);
+                    Norm1z[x][y][0] = (float) (m20 * norm_0_0 + m21 * norm_0_1 + m22 * norm_0_2);
+                    Norm1z[x][y][1] = (float) (m20 * norm_1_0 + m21 * norm_1_1 + m22 * norm_1_2);
                 }
 
                 double c2 = dx * y - w2;
-                vert1[x][y][0] = (float)(m00 * c1 + m02 * c2);
-                vert1[x][y][1] = (float)(m10 * c1 + m11 * vert[x][y][1] + m12 * c2);
+                vert1[x][y][0] = (float) (m00 * c1 + m02 * c2);
+                vert1[x][y][1] = (float) (m10 * c1 + m11 * vert[x][y][1] + m12 * c2);
 
-                if(update_progress) {
+                if (update_progress) {
                     drawing_done++;
                 }
             }
 
-            if(update_progress && (drawing_done / pixel_percent >= 1)) {
+            if (update_progress && (drawing_done / pixel_percent >= 1)) {
                 update(drawing_done);
                 drawing_done = 0;
             }
         }
 
-        if(painting_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
+        if (painting_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
 
             paint3D(w2, update_progress);
 
@@ -2441,7 +2387,7 @@ public abstract class ThreadDraw extends Thread {
 
         int w2 = image_size / 2;
 
-        double dx = image_size / (double)detail, dr_x = size / detail, dr_y = (size * height_ratio) / detail;
+        double dx = image_size / (double) detail, dr_x = size / detail, dr_y = (size * height_ratio) / detail;
 
         int x, y, loc;
 
@@ -2451,16 +2397,16 @@ public abstract class ThreadDraw extends Thread {
 
             loc = THREAD_CHUNK_SIZE * normal_drawing_algorithm_pixel.getAndIncrement();
 
-            if(loc >= condition) {
+            if (loc >= condition) {
                 break;
             }
 
-            for(int count = 0; count < THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
+            for (int count = 0; count < THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
                 x = loc % detail;
                 y = loc / detail;
 
                 temp = iteration_algorithm.calculate3D(new Complex(temp_xcenter_size + dr_x * x, temp_ycenter_size - dr_y * y));
-                vert[x][y][1] = (float)(temp[0]);
+                vert[x][y][1] = (float) (temp[0]);
                 escaped[loc] = iteration_algorithm.escaped();
                 vert[x][y][0] = getFinalColor(temp[1], escaped[loc]);
                 image_iterations[loc] = temp[1];
@@ -2468,12 +2414,12 @@ public abstract class ThreadDraw extends Thread {
                 drawing_done++;
             }
 
-            if(drawing_done / pixel_percent >= 1) {
+            if (drawing_done / pixel_percent >= 1) {
                 update(drawing_done);
                 drawing_done = 0;
             }
 
-        } while(true);
+        } while (true);
 
         postProcess(detail);
 
@@ -2481,7 +2427,7 @@ public abstract class ThreadDraw extends Thread {
 
         calculate3DVectors(dx, w2);
 
-        if(painting_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
+        if (painting_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
 
             paint3D(w2, true);
 
@@ -2502,7 +2448,7 @@ public abstract class ThreadDraw extends Thread {
         int pixel_percent = detail * detail / 100;
 
         int w2 = image_size / 2;
-        double dx = image_size / (double)detail, dr_x = size / detail, dr_y = (size * height_ratio) / detail;
+        double dx = image_size / (double) detail, dr_x = size / detail, dr_y = (size * height_ratio) / detail;
 
         int x, y, loc;
 
@@ -2512,17 +2458,17 @@ public abstract class ThreadDraw extends Thread {
 
             loc = THREAD_CHUNK_SIZE * normal_drawing_algorithm_pixel.getAndIncrement();
 
-            if(loc >= condition) {
+            if (loc >= condition) {
                 break;
             }
 
-            for(int count = 0; count < THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
+            for (int count = 0; count < THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
                 x = loc % detail;
                 y = loc / detail;
 
                 Complex a = iteration_algorithm.calculateDomain(new Complex(temp_xcenter_size + dr_x * x, temp_ycenter_size - dr_y * y));
                 double norm = a.norm();
-                
+
                 vert[x][y][1] = calaculateDomainColoringHeight(norm);
                 vert[x][y][0] = domain_color.getDomainColor(a);
                 image_iterations[loc] = scaleDomainHeight(norm);
@@ -2530,20 +2476,20 @@ public abstract class ThreadDraw extends Thread {
                 drawing_done++;
             }
 
-            if(drawing_done / pixel_percent >= 1) {
+            if (drawing_done / pixel_percent >= 1) {
                 update(drawing_done);
                 drawing_done = 0;
             }
 
-        } while(true);
-        
+        } while (true);
+
         postProcess(detail);
 
         heightProcessing();
 
         calculate3DVectors(dx, w2);
 
-        if(painting_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
+        if (painting_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
 
             paint3D(w2, true);
 
@@ -2565,7 +2511,7 @@ public abstract class ThreadDraw extends Thread {
 
         int w2 = image_size / 2;
 
-        double dx = image_size / (double)detail;
+        double dx = image_size / (double) detail;
 
         double start;
         double center = Math.log(size);
@@ -2585,11 +2531,11 @@ public abstract class ThreadDraw extends Thread {
 
             loc = THREAD_CHUNK_SIZE * normal_drawing_algorithm_pixel.getAndIncrement();
 
-            if(loc >= condition) {
+            if (loc >= condition) {
                 break;
             }
 
-            for(int count = 0; count < THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
+            for (int count = 0; count < THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
                 x = loc % detail;
                 y = loc / detail;
 
@@ -2600,7 +2546,7 @@ public abstract class ThreadDraw extends Thread {
                 r2 = Math.exp(x * mulx + start);
 
                 temp = iteration_algorithm.calculate3D(new Complex(xcenter + r2 * cf2, ycenter + r2 * sf2));
-                vert[x][y][1] = (float)(temp[0]);
+                vert[x][y][1] = (float) (temp[0]);
                 escaped[loc] = iteration_algorithm.escaped();
                 vert[x][y][0] = getFinalColor(temp[1], escaped[loc]);
                 image_iterations[loc] = temp[1];
@@ -2608,12 +2554,12 @@ public abstract class ThreadDraw extends Thread {
                 drawing_done++;
             }
 
-            if(drawing_done / pixel_percent >= 1) {
+            if (drawing_done / pixel_percent >= 1) {
                 update(drawing_done);
                 drawing_done = 0;
             }
 
-        } while(true);
+        } while (true);
 
         postProcess(detail);
 
@@ -2621,7 +2567,7 @@ public abstract class ThreadDraw extends Thread {
 
         calculate3DVectors(dx, w2);
 
-        if(painting_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
+        if (painting_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
 
             paint3D(w2, true);
 
@@ -2641,7 +2587,7 @@ public abstract class ThreadDraw extends Thread {
 
         int w2 = image_size / 2;
 
-        double dx = image_size / (double)detail;
+        double dx = image_size / (double) detail;
 
         double start;
         double center = Math.log(size);
@@ -2661,11 +2607,11 @@ public abstract class ThreadDraw extends Thread {
 
             loc = THREAD_CHUNK_SIZE * normal_drawing_algorithm_pixel.getAndIncrement();
 
-            if(loc >= condition) {
+            if (loc >= condition) {
                 break;
             }
 
-            for(int count = 0; count < THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
+            for (int count = 0; count < THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
                 x = loc % detail;
                 y = loc / detail;
 
@@ -2677,7 +2623,7 @@ public abstract class ThreadDraw extends Thread {
 
                 Complex a = iteration_algorithm.calculateDomain(new Complex(xcenter + r2 * cf2, ycenter + r2 * sf2));
                 double norm = a.norm();
-                
+
                 vert[x][y][1] = calaculateDomainColoringHeight(norm);
                 vert[x][y][0] = domain_color.getDomainColor(a);
                 image_iterations[loc] = scaleDomainHeight(norm);
@@ -2685,20 +2631,20 @@ public abstract class ThreadDraw extends Thread {
                 drawing_done++;
             }
 
-            if(drawing_done / pixel_percent >= 1) {
+            if (drawing_done / pixel_percent >= 1) {
                 update(drawing_done);
                 drawing_done = 0;
             }
 
-        } while(true);
-        
+        } while (true);
+
         postProcess(detail);
 
         heightProcessing();
 
         calculate3DVectors(dx, w2);
 
-        if(painting_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
+        if (painting_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
 
             paint3D(w2, true);
 
@@ -2720,7 +2666,7 @@ public abstract class ThreadDraw extends Thread {
 
         int w2 = image_size / 2;
 
-        double dx = image_size / (double)detail;
+        double dx = image_size / (double) detail;
 
         double start;
         double center = Math.log(size);
@@ -2744,19 +2690,19 @@ public abstract class ThreadDraw extends Thread {
         double temp_samples = supersampling_num + 1;
 
         Object[] ret = createPolarAntialiasingSteps();
-        double[] antialiasing_x = (double[])(ret[0]);
-        double[] antialiasing_y_sin = (double[])(ret[1]);
-        double[] antialiasing_y_cos = (double[])(ret[2]);
+        double[] antialiasing_x = (double[]) (ret[0]);
+        double[] antialiasing_y_sin = (double[]) (ret[1]);
+        double[] antialiasing_y_cos = (double[]) (ret[2]);
 
         do {
 
             loc = THREAD_CHUNK_SIZE * normal_drawing_algorithm_pixel.getAndIncrement();
 
-            if(loc >= condition) {
+            if (loc >= condition) {
                 break;
             }
 
-            for(int count = 0; count < THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
+            for (int count = 0; count < THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
                 x = loc % detail;
                 y = loc / detail;
 
@@ -2777,7 +2723,7 @@ public abstract class ThreadDraw extends Thread {
                 blue = color & 0xff;
 
                 //Supersampling
-                for(int k = 0; k < supersampling_num; k++) {
+                for (int k = 0; k < supersampling_num; k++) {
 
                     sf3 = sf2 * antialiasing_y_cos[k] + cf2 * antialiasing_y_sin[k];
                     cf3 = cf2 * antialiasing_y_cos[k] - sf2 * antialiasing_y_sin[k];
@@ -2793,18 +2739,18 @@ public abstract class ThreadDraw extends Thread {
                     blue += color & 0xff;
                 }
 
-                vert[x][y][1] = (float)(height / temp_samples);
-                vert[x][y][0] = 0xff000000 | (((int)(red / temp_samples + 0.5)) << 16) | (((int)(green / temp_samples + 0.5)) << 8) | ((int)(blue / temp_samples + 0.5));
+                vert[x][y][1] = (float) (height / temp_samples);
+                vert[x][y][0] = 0xff000000 | (((int) (red / temp_samples + 0.5)) << 16) | (((int) (green / temp_samples + 0.5)) << 8) | ((int) (blue / temp_samples + 0.5));
 
                 drawing_done++;
             }
 
-            if(drawing_done / pixel_percent >= 1) {
+            if (drawing_done / pixel_percent >= 1) {
                 update(drawing_done);
                 drawing_done = 0;
             }
 
-        } while(true);
+        } while (true);
 
         postProcess(detail);
 
@@ -2812,7 +2758,7 @@ public abstract class ThreadDraw extends Thread {
 
         calculate3DVectors(dx, w2);
 
-        if(painting_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
+        if (painting_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
 
             paint3D(w2, true);
 
@@ -2832,7 +2778,7 @@ public abstract class ThreadDraw extends Thread {
 
         int w2 = image_size / 2;
 
-        double dx = image_size / (double)detail;
+        double dx = image_size / (double) detail;
 
         double start;
         double center = Math.log(size);
@@ -2856,19 +2802,19 @@ public abstract class ThreadDraw extends Thread {
         double temp_samples = supersampling_num + 1;
 
         Object[] ret = createPolarAntialiasingSteps();
-        double[] antialiasing_x = (double[])(ret[0]);
-        double[] antialiasing_y_sin = (double[])(ret[1]);
-        double[] antialiasing_y_cos = (double[])(ret[2]);
+        double[] antialiasing_x = (double[]) (ret[0]);
+        double[] antialiasing_y_sin = (double[]) (ret[1]);
+        double[] antialiasing_y_cos = (double[]) (ret[2]);
 
         do {
 
             loc = THREAD_CHUNK_SIZE * normal_drawing_algorithm_pixel.getAndIncrement();
 
-            if(loc >= condition) {
+            if (loc >= condition) {
                 break;
             }
 
-            for(int count = 0; count < THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
+            for (int count = 0; count < THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
                 x = loc % detail;
                 y = loc / detail;
 
@@ -2880,7 +2826,7 @@ public abstract class ThreadDraw extends Thread {
 
                 Complex a = iteration_algorithm.calculateDomain(new Complex(xcenter + r2 * cf2, ycenter + r2 * sf2));
                 double norm = a.norm();
-                
+
                 height = calaculateDomainColoringHeight(norm);
                 color = domain_color.getDomainColor(a);
 
@@ -2889,7 +2835,7 @@ public abstract class ThreadDraw extends Thread {
                 blue = color & 0xff;
 
                 //Supersampling
-                for(int k = 0; k < supersampling_num; k++) {
+                for (int k = 0; k < supersampling_num; k++) {
 
                     sf3 = sf2 * antialiasing_y_cos[k] + cf2 * antialiasing_y_sin[k];
                     cf3 = cf2 * antialiasing_y_cos[k] - sf2 * antialiasing_y_sin[k];
@@ -2906,27 +2852,27 @@ public abstract class ThreadDraw extends Thread {
                     blue += color & 0xff;
                 }
 
-                vert[x][y][1] = (float)(height / temp_samples);
-                vert[x][y][0] = 0xff000000 | (((int)(red / temp_samples + 0.5)) << 16) | (((int)(green / temp_samples + 0.5)) << 8) | ((int)(blue / temp_samples + 0.5));
+                vert[x][y][1] = (float) (height / temp_samples);
+                vert[x][y][0] = 0xff000000 | (((int) (red / temp_samples + 0.5)) << 16) | (((int) (green / temp_samples + 0.5)) << 8) | ((int) (blue / temp_samples + 0.5));
                 image_iterations[loc] = scaleDomainHeight(norm);
 
                 drawing_done++;
             }
 
-            if(drawing_done / pixel_percent >= 1) {
+            if (drawing_done / pixel_percent >= 1) {
                 update(drawing_done);
                 drawing_done = 0;
             }
 
-        } while(true);
-        
+        } while (true);
+
         postProcess(detail);
 
         heightProcessing();
 
         calculate3DVectors(dx, w2);
 
-        if(painting_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
+        if (painting_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
 
             paint3D(w2, true);
 
@@ -2950,7 +2896,7 @@ public abstract class ThreadDraw extends Thread {
 
         int w2 = image_size / 2;
 
-        double dx = image_size / (double)detail, dr_x = size / detail, dr_y = (size * height_ratio) / detail;
+        double dx = image_size / (double) detail, dr_x = size / detail, dr_y = (size * height_ratio) / detail;
 
         int x, y, loc;
 
@@ -2964,18 +2910,18 @@ public abstract class ThreadDraw extends Thread {
         double temp_x0, temp_y0, height;
 
         Object[] ret = createAntialiasingSteps();
-        double[] antialiasing_x = (double[])(ret[0]);
-        double[] antialiasing_y = (double[])(ret[1]);
+        double[] antialiasing_x = (double[]) (ret[0]);
+        double[] antialiasing_y = (double[]) (ret[1]);
 
         do {
 
             loc = THREAD_CHUNK_SIZE * normal_drawing_algorithm_pixel.getAndIncrement();
 
-            if(loc >= condition) {
+            if (loc >= condition) {
                 break;
             }
 
-            for(int count = 0; count < THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
+            for (int count = 0; count < THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
                 x = loc % detail;
                 y = loc / detail;
 
@@ -2990,7 +2936,7 @@ public abstract class ThreadDraw extends Thread {
                 blue = color & 0xff;
 
                 //Supersampling
-                for(int k = 0; k < supersampling_num; k++) {
+                for (int k = 0; k < supersampling_num; k++) {
                     temp = iteration_algorithm.calculate3D(new Complex(temp_x0 + antialiasing_x[k], temp_y0 + antialiasing_y[k]));
                     color = getFinalColor(temp[1], iteration_algorithm.escaped());
 
@@ -3000,18 +2946,18 @@ public abstract class ThreadDraw extends Thread {
                     blue += color & 0xff;
                 }
 
-                vert[x][y][1] = (float)(height / temp_samples);
-                vert[x][y][0] = 0xff000000 | (((int)(red / temp_samples + 0.5)) << 16) | (((int)(green / temp_samples + 0.5)) << 8) | ((int)(blue / temp_samples + 0.5));
+                vert[x][y][1] = (float) (height / temp_samples);
+                vert[x][y][0] = 0xff000000 | (((int) (red / temp_samples + 0.5)) << 16) | (((int) (green / temp_samples + 0.5)) << 8) | ((int) (blue / temp_samples + 0.5));
 
                 drawing_done++;
             }
 
-            if(drawing_done / pixel_percent >= 1) {
+            if (drawing_done / pixel_percent >= 1) {
                 update(drawing_done);
                 drawing_done = 0;
             }
 
-        } while(true);
+        } while (true);
 
         postProcess(detail);
 
@@ -3019,7 +2965,7 @@ public abstract class ThreadDraw extends Thread {
 
         calculate3DVectors(dx, w2);
 
-        if(painting_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
+        if (painting_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
 
             paint3D(w2, true);
 
@@ -3041,7 +2987,7 @@ public abstract class ThreadDraw extends Thread {
 
         int w2 = image_size / 2;
 
-        double dx = image_size / (double)detail, dr_x = size / detail, dr_y = (size * height_ratio) / detail;
+        double dx = image_size / (double) detail, dr_x = size / detail, dr_y = (size * height_ratio) / detail;
 
         int x, y, loc;
 
@@ -3055,24 +3001,24 @@ public abstract class ThreadDraw extends Thread {
         double temp_x0, temp_y0, height;
 
         Object[] ret = createAntialiasingSteps();
-        double[] antialiasing_x = (double[])(ret[0]);
-        double[] antialiasing_y = (double[])(ret[1]);
+        double[] antialiasing_x = (double[]) (ret[0]);
+        double[] antialiasing_y = (double[]) (ret[1]);
 
         do {
 
             loc = THREAD_CHUNK_SIZE * normal_drawing_algorithm_pixel.getAndIncrement();
 
-            if(loc >= condition) {
+            if (loc >= condition) {
                 break;
             }
 
-            for(int count = 0; count < THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
+            for (int count = 0; count < THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
                 x = loc % detail;
                 y = loc / detail;
 
                 Complex a = iteration_algorithm.calculateDomain(new Complex(temp_x0 = temp_xcenter_size + dr_x * x, temp_y0 = temp_ycenter_size - dr_y * y));
                 double norm = a.norm();
-                
+
                 height = calaculateDomainColoringHeight(norm);
                 color = domain_color.getDomainColor(a);
 
@@ -3081,7 +3027,7 @@ public abstract class ThreadDraw extends Thread {
                 blue = color & 0xff;
 
                 //Supersampling
-                for(int k = 0; k < supersampling_num; k++) {
+                for (int k = 0; k < supersampling_num; k++) {
                     a = iteration_algorithm.calculateDomain(new Complex(temp_x0 + antialiasing_x[k], temp_y0 + antialiasing_y[k]));
 
                     color = domain_color.getDomainColor(a);
@@ -3092,27 +3038,27 @@ public abstract class ThreadDraw extends Thread {
                     blue += color & 0xff;
                 }
 
-                vert[x][y][1] = (float)(height / temp_samples);
-                vert[x][y][0] = 0xff000000 | (((int)(red / temp_samples + 0.5)) << 16) | (((int)(green / temp_samples + 0.5)) << 8) | ((int)(blue / temp_samples + 0.5));
+                vert[x][y][1] = (float) (height / temp_samples);
+                vert[x][y][0] = 0xff000000 | (((int) (red / temp_samples + 0.5)) << 16) | (((int) (green / temp_samples + 0.5)) << 8) | ((int) (blue / temp_samples + 0.5));
                 image_iterations[loc] = scaleDomainHeight(norm);
 
                 drawing_done++;
             }
 
-            if(drawing_done / pixel_percent >= 1) {
+            if (drawing_done / pixel_percent >= 1) {
                 update(drawing_done);
                 drawing_done = 0;
             }
 
-        } while(true);       
-        
+        } while (true);
+
         postProcess(detail);
 
         heightProcessing();
 
         calculate3DVectors(dx, w2);
 
-        if(painting_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
+        if (painting_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
 
             paint3D(w2, true);
 
@@ -3146,8 +3092,8 @@ public abstract class ThreadDraw extends Thread {
         int condition = image_size * image_size;
 
         Object[] ret = createAntialiasingSteps();
-        double[] antialiasing_x = (double[])(ret[0]);
-        double[] antialiasing_y = (double[])(ret[1]);
+        double[] antialiasing_x = (double[]) (ret[0]);
+        double[] antialiasing_y = (double[]) (ret[1]);
 
         int supersampling_num = (filters_options_vals[MainWindow.ANTIALIASING] == 0 ? 4 : 8 * filters_options_vals[MainWindow.ANTIALIASING]);
         double temp_samples = supersampling_num + 1;
@@ -3156,22 +3102,22 @@ public abstract class ThreadDraw extends Thread {
 
             loc = THREAD_CHUNK_SIZE * normal_drawing_algorithm_pixel.getAndIncrement();
 
-            if(loc >= condition) {
+            if (loc >= condition) {
                 break;
             }
 
-            for(int count = 0; count < THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
+            for (int count = 0; count < THREAD_CHUNK_SIZE && loc < condition; count++, loc++) {
                 x = loc % image_size;
                 y = loc / image_size;
 
                 temp_x0 = temp_xcenter_size + temp_size_image_size_x * x;
                 temp_y0 = temp_ycenter_size - temp_size_image_size_y * y;
 
-                Complex val = iteration_algorithm.calculateDomain(new Complex(temp_x0, temp_y0));               
+                Complex val = iteration_algorithm.calculateDomain(new Complex(temp_x0, temp_y0));
                 image_iterations[loc] = scaleDomainHeight(val.norm());
                 color = domain_color.getDomainColor(val);
-                
-                if(domain_image_data != null) {
+
+                if (domain_image_data != null) {
                     domain_image_data[loc] = val;
                 }
 
@@ -3180,7 +3126,7 @@ public abstract class ThreadDraw extends Thread {
                 blue = color & 0xff;
 
                 //Supersampling
-                for(int i = 0; i < supersampling_num; i++) {
+                for (int i = 0; i < supersampling_num; i++) {
                     color = domain_color.getDomainColor(iteration_algorithm.calculateDomain(new Complex(temp_x0 + antialiasing_x[i], temp_y0 + antialiasing_y[i])));
 
                     red += (color >> 16) & 0xff;
@@ -3188,18 +3134,18 @@ public abstract class ThreadDraw extends Thread {
                     blue += color & 0xff;
                 }
 
-                rgbs[loc] = 0xff000000 | (((int)(red / temp_samples + 0.5)) << 16) | (((int)(green / temp_samples + 0.5)) << 8) | ((int)(blue / temp_samples + 0.5));
+                rgbs[loc] = 0xff000000 | (((int) (red / temp_samples + 0.5)) << 16) | (((int) (green / temp_samples + 0.5)) << 8) | ((int) (blue / temp_samples + 0.5));
 
                 drawing_done++;
             }
 
-            if(drawing_done / pixel_percent >= 1) {
+            if (drawing_done / pixel_percent >= 1) {
                 update(drawing_done);
                 thread_calculated += drawing_done;
                 drawing_done = 0;
             }
 
-        } while(true);
+        } while (true);
 
         thread_calculated += drawing_done;
 
@@ -3213,16 +3159,15 @@ public abstract class ThreadDraw extends Thread {
 
         int image_size = image.getHeight();
 
-        if(fast_julia_filters && filters[MainWindow.ANTIALIASING]) {
+        if (fast_julia_filters && filters[MainWindow.ANTIALIASING]) {
             drawFastJuliaAntialiased(image_size);
-        }
-        else {
+        } else {
             drawFastJulia(image_size);
         }
 
-        if(finalize_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
+        if (finalize_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
 
-            if(fast_julia_filters) {
+            if (fast_julia_filters) {
                 applyFiltersNoProgress();
             }
 
@@ -3239,16 +3184,15 @@ public abstract class ThreadDraw extends Thread {
 
         int image_size = image.getHeight();
 
-        if(fast_julia_filters && filters[MainWindow.ANTIALIASING]) {
+        if (fast_julia_filters && filters[MainWindow.ANTIALIASING]) {
             drawFastJuliaPolarAntialiased(image_size);
-        }
-        else {
+        } else {
             drawFastJuliaPolar(image_size);
         }
 
-        if(finalize_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
+        if (finalize_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
 
-            if(fast_julia_filters) {
+            if (fast_julia_filters) {
                 applyFilters();
             }
 
@@ -3264,7 +3208,7 @@ public abstract class ThreadDraw extends Thread {
     private int contourColoring(double[] image_iterations, int i, int j, int image_size, int color, boolean[] escaped) {
 
         int loc = i * image_size + j;
-        if((!ots.useTraps  || (ots.useTraps && !ots.trapIncludeNotEscaped)) && Math.abs(image_iterations[loc]) == ColorAlgorithm.MAXIMUM_ITERATIONS) {
+        if ((!ots.useTraps || (ots.useTraps && !ots.trapIncludeNotEscaped)) && !usesTrueColorIn && Math.abs(image_iterations[loc]) == ColorAlgorithm.MAXIMUM_ITERATIONS) {
             return getPaletteColor(image_iterations[loc], escaped[loc]);
         }
 
@@ -3274,18 +3218,17 @@ public abstract class ThreadDraw extends Thread {
         int g = (color >> 8) & 0xFF;
         int b = color & 0xFF;
 
-        if(cns.contour_algorithm == 0) {
-            res = res - (int)res;
+        if (cns.contour_algorithm == 0) {
+            res = res - (int) res;
 
             double min_contour = 0.06;
             double max_contour = 1 - min_contour;
 
-            if(res < min_contour || res > max_contour) {
+            if (res < min_contour || res > max_contour) {
                 double coef = 0;
-                if(res < min_contour) {
+                if (res < min_contour) {
                     coef = (res / min_contour) / 2 + 0.5;
-                }
-                else {
+                } else {
                     coef = ((res - max_contour) / min_contour) / 2;
                 }
 
@@ -3302,9 +3245,8 @@ public abstract class ThreadDraw extends Thread {
 
                 return method.interpolate(temp_red1, temp_green1, temp_blue1, temp_red2, temp_green2, temp_blue2, coef);
             }
-        }
-        else {
-            res = 2 * (res - (int)res);
+        } else {
+            res = 2 * (res - (int) res);
 
             res = res > 1 ? 2.0 - res : res;
         }
@@ -3316,7 +3258,7 @@ public abstract class ThreadDraw extends Thread {
     private int offsetColoring(double[] image_iterations, int i, int j, int image_size, int color, boolean[] escaped) {
 
         int loc = i * image_size + j;
-        if((!ots.useTraps  || (ots.useTraps && !ots.trapIncludeNotEscaped)) && Math.abs(image_iterations[loc]) == ColorAlgorithm.MAXIMUM_ITERATIONS) {
+        if ((!ots.useTraps || (ots.useTraps && !ots.trapIncludeNotEscaped)) && !usesTrueColorIn && Math.abs(image_iterations[loc]) == ColorAlgorithm.MAXIMUM_ITERATIONS) {
             return getPaletteColor(image_iterations[loc], escaped[loc]);
         }
 
@@ -3340,7 +3282,7 @@ public abstract class ThreadDraw extends Thread {
     private int greyscaleColoring(double[] image_iterations, int i, int j, int image_size, int color, boolean[] escaped) {
 
         int loc = i * image_size + j;
-        if((!ots.useTraps  || (ots.useTraps && !ots.trapIncludeNotEscaped)) && Math.abs(image_iterations[loc]) == ColorAlgorithm.MAXIMUM_ITERATIONS) {
+        if ((!ots.useTraps || (ots.useTraps && !ots.trapIncludeNotEscaped)) && !usesTrueColorIn && Math.abs(image_iterations[loc]) == ColorAlgorithm.MAXIMUM_ITERATIONS) {
             return getPaletteColor(image_iterations[loc], escaped[loc]);
         }
 
@@ -3348,7 +3290,7 @@ public abstract class ThreadDraw extends Thread {
         int g = (color >> 8) & 0xFF;
         int b = color & 0xFF;
 
-        int greyscale = (int)((r + g + b) / 3.0 + 0.5);
+        int greyscale = (int) ((r + g + b) / 3.0 + 0.5);
 
         return 0xff000000 | (greyscale << 16) | (greyscale << 8) | greyscale;
 
@@ -3357,7 +3299,7 @@ public abstract class ThreadDraw extends Thread {
     private int entropyColoring(double[] image_iterations, int i, int j, int image_size, int color, boolean[] escaped) {
 
         int loc = i * image_size + j;
-        if((!ots.useTraps  || (ots.useTraps && !ots.trapIncludeNotEscaped)) && Math.abs(image_iterations[loc]) == ColorAlgorithm.MAXIMUM_ITERATIONS) {
+        if ((!ots.useTraps || (ots.useTraps && !ots.trapIncludeNotEscaped)) && !usesTrueColorIn && Math.abs(image_iterations[loc]) == ColorAlgorithm.MAXIMUM_ITERATIONS) {
             return getPaletteColor(image_iterations[loc], escaped[loc]);
         }
 
@@ -3369,16 +3311,16 @@ public abstract class ThreadDraw extends Thread {
         double[] values = new double[kernel_size * kernel_size];
         int length = 0;
 
-        for(int k = i - kernel_size2, p = 0; p < kernel_size; k++, p++) {
-            for(int l = j - kernel_size2, t = 0; t < kernel_size; l++, t++) {
+        for (int k = i - kernel_size2, p = 0; p < kernel_size; k++, p++) {
+            for (int l = j - kernel_size2, t = 0; t < kernel_size; l++, t++) {
 
-                if(k >= 0 && k < image_size && l >= 0 && l < image_size) {
+                if (k >= 0 && k < image_size && l >= 0 && l < image_size) {
 
                     double temp = ColorAlgorithm.transformResultToHeight(image_iterations[k * image_size + l], max_iterations);
 
                     values[p * kernel_size + t] = temp;
 
-                    if(temp < min_value) {
+                    if (temp < min_value) {
                         min_value = temp;
                     }
                     length++;
@@ -3389,16 +3331,16 @@ public abstract class ThreadDraw extends Thread {
         }
 
         double sum = 0;
-        for(int k = 0; k < length; k++) {
+        for (int k = 0; k < length; k++) {
             values[k] -= min_value;
             sum += values[k];
         }
 
         double sum2 = 0;
-        for(int k = 0; k < length; k++) {
+        for (int k = 0; k < length; k++) {
             values[k] /= sum;
 
-            if(values[k] > 0) {
+            if (values[k] > 0) {
                 sum2 += values[k] * Math.log(values[k]);
             }
 
@@ -3414,7 +3356,7 @@ public abstract class ThreadDraw extends Thread {
 
         int temp_red = 0, temp_green = 0, temp_blue = 0;
 
-        if(ens.entropy_algorithm == 0) {
+        if (ens.entropy_algorithm == 0) {
             double res = ColorAlgorithm.transformResultToHeight(image_iterations[loc], max_iterations);
 
             int color2 = getPaletteColor(ens.entropy_offset + res + ens.entropy_palette_factor * Math.abs(sum2), escaped[loc]);
@@ -3422,17 +3364,16 @@ public abstract class ThreadDraw extends Thread {
             temp_red = (color2 >> 16) & 0xFF;
             temp_green = (color2 >> 8) & 0xFF;
             temp_blue = color2 & 0xFF;
-        }
-        else {
+        } else {
             double temp = Math.abs(sum2) * ens.entropy_palette_factor;
 
-            if(temp > 1) {
-                temp = (int)temp % 2 == 1 ? 1 - (temp - (int)temp) : (temp - (int)temp);
+            if (temp > 1) {
+                temp = (int) temp % 2 == 1 ? 1 - (temp - (int) temp) : (temp - (int) temp);
             }
 
-            int index = (int)(temp * (gradient.length - 1) + 0.5);
+            int index = (int) (temp * (gradient.length - 1) + 0.5);
             index = gradient.length - 1 - index;
-            
+
             int grad_color = getGradientColor(index + gradient_offset);
 
             temp_red = (grad_color >> 16) & 0xff;
@@ -3463,28 +3404,28 @@ public abstract class ThreadDraw extends Thread {
         double zx2 = 0;
         double zy2 = 0;
 
-        if((!ots.useTraps  || (ots.useTraps && !ots.trapIncludeNotEscaped)) && Math.abs(image_iterations[k0]) == ColorAlgorithm.MAXIMUM_ITERATIONS) {
+        if ((!ots.useTraps || (ots.useTraps && !ots.trapIncludeNotEscaped)) && !usesTrueColorIn && Math.abs(image_iterations[k0]) == ColorAlgorithm.MAXIMUM_ITERATIONS) {
             return getPaletteColor(image_iterations[k0], escaped[k0]);
         }
 
         double n0 = ColorAlgorithm.transformResultToHeight(image_iterations[k0], max_iterations);
 
-        if(i < image_size - 1) {
+        if (i < image_size - 1) {
             double nx = ColorAlgorithm.transformResultToHeight(image_iterations[kx], max_iterations);
             zx = sx * (nx - n0);
         }
 
-        if(j < image_size - 1) {
+        if (j < image_size - 1) {
             double ny = ColorAlgorithm.transformResultToHeight(image_iterations[ky], max_iterations);
             zy = sy * (ny - n0);
         }
 
-        if(i > 0) {
+        if (i > 0) {
             double nx2 = ColorAlgorithm.transformResultToHeight(image_iterations[kx2], max_iterations);
             zx2 = sx2 * (nx2 - n0);
         }
 
-        if(j > 0) {
+        if (j > 0) {
             double ny2 = ColorAlgorithm.transformResultToHeight(image_iterations[ky2], max_iterations);
             zy2 = sy2 * (ny2 - n0);
         }
@@ -3508,7 +3449,7 @@ public abstract class ThreadDraw extends Thread {
 
         int temp_red = 0, temp_green = 0, temp_blue = 0;
 
-        if(rps.rainbow_algorithm == 0) {
+        if (rps.rainbow_algorithm == 0) {
 
             int paletteLength = (!escaped[k0] && usePaletteForInColoring) ? palette_incoloring.getPaletteLength() : palette_outcoloring.getPaletteLength();
 
@@ -3517,15 +3458,14 @@ public abstract class ThreadDraw extends Thread {
             temp_red = (color2 >> 16) & 0xFF;
             temp_green = (color2 >> 8) & 0xFF;
             temp_blue = color2 & 0xFF;
-        }
-        else {
+        } else {
             hue *= 2 * rps.rainbow_palette_factor;
 
             hue = hue % 2.0;
 
-            int index = hue < 1 ? (int)(hue * (gradient.length - 1) + 0.5) : (int)((1 - (hue - 1)) * (gradient.length - 1) + 0.5);
+            int index = hue < 1 ? (int) (hue * (gradient.length - 1) + 0.5) : (int) ((1 - (hue - 1)) * (gradient.length - 1) + 0.5);
             index = gradient.length - 1 - index;
-            
+
             int grad_color = getGradientColor(index + gradient_offset);
 
             temp_red = (grad_color >> 16) & 0xff;
@@ -3559,22 +3499,22 @@ public abstract class ThreadDraw extends Thread {
 
         double n0 = ColorAlgorithm.transformResultToHeight(image_iterations[k0], max_iterations);
 
-        if(i < image_size - 1) {
+        if (i < image_size - 1) {
             double nx = ColorAlgorithm.transformResultToHeight(image_iterations[kx], max_iterations);
             zx = sx * (nx - n0);
         }
 
-        if(j < image_size - 1) {
+        if (j < image_size - 1) {
             double ny = ColorAlgorithm.transformResultToHeight(image_iterations[ky], max_iterations);
             zy = sy * (ny - n0);
         }
 
-        if(i > 0) {
+        if (i > 0) {
             double nx2 = ColorAlgorithm.transformResultToHeight(image_iterations[kx2], max_iterations);
             zx2 = sx2 * (nx2 - n0);
         }
 
-        if(j > 0) {
+        if (j > 0) {
             double ny2 = ColorAlgorithm.transformResultToHeight(image_iterations[ky2], max_iterations);
             zy2 = sy2 * (ny2 - n0);
         }
@@ -3587,15 +3527,15 @@ public abstract class ThreadDraw extends Thread {
 
         double coef = zz;
         coef = 1 - coef;
-        
+
         int r = (color >> 16) & 0xFF;
         int g = (color >> 8) & 0xFF;
         int b = color & 0xFF;
 
         int fc_red = (new_color >> 16) & 0xFF;
-        int fc_green = (new_color >> 8)& 0xFF;
+        int fc_green = (new_color >> 8) & 0xFF;
         int fc_blue = new_color & 0xFF;
-        
+
         return method.interpolate(fc_red, fc_green, fc_blue, r, g, b, coef);
 
     }
@@ -3622,22 +3562,22 @@ public abstract class ThreadDraw extends Thread {
 
         double n0 = ColorAlgorithm.transformResultToHeight(image_iterations[k0], max_iterations);
 
-        if(i < image_size - 1) {
+        if (i < image_size - 1) {
             double nx = ColorAlgorithm.transformResultToHeight(image_iterations[kx], max_iterations);
             zx = sx * (nx - n0);
         }
 
-        if(j < image_size - 1) {
+        if (j < image_size - 1) {
             double ny = ColorAlgorithm.transformResultToHeight(image_iterations[ky], max_iterations);
             zy = sy * (ny - n0);
         }
 
-        if(i > 0) {
+        if (i > 0) {
             double nx2 = ColorAlgorithm.transformResultToHeight(image_iterations[kx2], max_iterations);
             zx2 = sx2 * (nx2 - n0);
         }
 
-        if(j > 0) {
+        if (j > 0) {
             double ny2 = ColorAlgorithm.transformResultToHeight(image_iterations[ky2], max_iterations);
             zy2 = sy2 * (ny2 - n0);
         }
@@ -3655,13 +3595,13 @@ public abstract class ThreadDraw extends Thread {
         int b = color & 0xFF;
 
         int fc_red = (dem_color >> 16) & 0xFF;
-        int fc_green = (dem_color >> 8)& 0xFF;
+        int fc_green = (dem_color >> 8) & 0xFF;
         int fc_blue = dem_color & 0xFF;
 
-        if(fdes.inverse_fake_dem) {
+        if (fdes.inverse_fake_dem) {
             coef = 1 - coef;
         }
-        
+
         return method.interpolate(fc_red, fc_green, fc_blue, r, g, b, coef);
 
     }
@@ -3670,7 +3610,7 @@ public abstract class ThreadDraw extends Thread {
 
         double gradCorr, sizeCorr = 0, lightAngleRadians, lightx = 0, lighty = 0;
 
-        if(bms.bump_map) {
+        if (bms.bump_map) {
             gradCorr = Math.pow(2, (bms.bumpMappingStrength - DEFAULT_BUMP_MAPPING_STRENGTH) * 0.05);
             sizeCorr = image_size / Math.pow(2, (MAX_BUMP_MAPPING_DEPTH - bms.bumpMappingDepth) * 0.16);
             lightAngleRadians = Math.toRadians(bms.lightDirectionDegrees);
@@ -3681,63 +3621,62 @@ public abstract class ThreadDraw extends Thread {
         double gradx, grady, dotp, gradAbs, cosAngle, smoothGrad;
         int modified;
 
-        for(int y = FROMy; y < TOy; y++) {
-            for(int x = FROMx; x < TOx; x++) {
+        for (int y = FROMy; y < TOy; y++) {
+            for (int x = FROMx; x < TOx; x++) {
                 int index = y * image_size + x;
 
-                if(d3) {
-                    modified = (int)vert[x][y][0];
-                }
-                else {
+                if (d3) {
+                    modified = (int) vert[x][y][0];
+                } else {
                     modified = rgbs[index];
                 }
 
-                for(int i = 0; i < post_processing_order.length; i++) {
+                for (int i = 0; i < post_processing_order.length; i++) {
                     switch (post_processing_order[i]) {
                         case MainWindow.LIGHT:
-                            if(ls.lighting) {
+                            if (ls.lighting) {
                                 int original_color = modified;
                                 modified = light(image_iterations, original_color, y, x, image_size);
                                 modified = postProcessingSmoothing(modified, image_iterations, original_color, y, x, image_size, ls.l_noise_reducing_factor);
                             }
                             break;
                         case MainWindow.OFFSET_COLORING:
-                            if(ofs.offset_coloring && !domain_coloring) {
+                            if (ofs.offset_coloring && !domain_coloring) {
                                 int original_color = modified;
                                 modified = offsetColoring(image_iterations, y, x, image_size, original_color, escaped);
                                 modified = postProcessingSmoothing(modified, image_iterations, original_color, y, x, image_size, ofs.of_noise_reducing_factor);
                             }
                             break;
                         case MainWindow.ENTROPY_COLORING:
-                            if(ens.entropy_coloring && !domain_coloring) {
+                            if (ens.entropy_coloring && !domain_coloring) {
                                 int original_color = modified;
                                 modified = entropyColoring(image_iterations, y, x, image_size, original_color, escaped);
                                 modified = postProcessingSmoothing(modified, image_iterations, original_color, y, x, image_size, ens.en_noise_reducing_factor);
                             }
                             break;
                         case MainWindow.RAINBOW_PALETTE:
-                            if(rps.rainbow_palette && !domain_coloring) {
+                            if (rps.rainbow_palette && !domain_coloring) {
                                 int original_color = modified;
                                 modified = paletteRainbow(image_iterations, y, x, image_size, original_color, escaped);
                                 modified = postProcessingSmoothing(modified, image_iterations, original_color, y, x, image_size, rps.rp_noise_reducing_factor);
                             }
                             break;
                         case MainWindow.CONTOUR_COLORING:
-                            if(cns.contour_coloring && !domain_coloring) {
+                            if (cns.contour_coloring && !domain_coloring) {
                                 int original_color = modified;
                                 modified = contourColoring(image_iterations, y, x, image_size, original_color, escaped);
                                 modified = postProcessingSmoothing(modified, image_iterations, original_color, y, x, image_size, cns.cn_noise_reducing_factor);
                             }
                             break;
                         case MainWindow.GREYSCALE_COLORING:
-                            if(gss.greyscale_coloring && !domain_coloring) {
+                            if (gss.greyscale_coloring && !domain_coloring) {
                                 int original_color = modified;
                                 modified = greyscaleColoring(image_iterations, y, x, image_size, original_color, escaped);
                                 modified = postProcessingSmoothing(modified, image_iterations, original_color, y, x, image_size, gss.gs_noise_reducing_factor);
                             }
                             break;
                         case MainWindow.BUMP_MAPPING:
-                            if(bms.bump_map) {
+                            if (bms.bump_map) {
                                 gradx = getGradientX(image_iterations, index, image_size);
                                 grady = getGradientY(image_iterations, index, image_size);
 
@@ -3745,25 +3684,23 @@ public abstract class ThreadDraw extends Thread {
 
                                 int original_color = modified;
 
-                                if(bms.bumpProcessing == 3 || bms.bumpProcessing == 4 || bms.bumpProcessing == 5) {
-                                    if(dotp != 0) {
+                                if (bms.bumpProcessing == 3 || bms.bumpProcessing == 4 || bms.bumpProcessing == 5) {
+                                    if (dotp != 0) {
                                         gradAbs = Math.sqrt(gradx * gradx + grady * grady);
                                         cosAngle = dotp / gradAbs;
                                         smoothGrad = -2.3562 / (gradAbs * sizeCorr + 1.5) + 1.57;
 
                                         modified = changeBrightnessOfColorLabHsbHsl(modified, cosAngle * smoothGrad);
                                     }
-                                }
-                                else if(bms.bumpProcessing == 0) {
-                                    if(dotp != 0) {
+                                } else if (bms.bumpProcessing == 0) {
+                                    if (dotp != 0) {
                                         gradAbs = Math.sqrt(gradx * gradx + grady * grady);
                                         cosAngle = dotp / gradAbs;
                                         smoothGrad = -2.3562 / (gradAbs * sizeCorr + 1.5) + 1.57;
                                         //smoothGrad = Math.atan(gradAbs * sizeCorr);
                                         modified = changeBrightnessOfColorScaling(modified, cosAngle * smoothGrad);
                                     }
-                                }
-                                else if(dotp != 0 || (dotp == 0 && !isInt(image_iterations[index]))) {
+                                } else if (dotp != 0 || (dotp == 0 && !isInt(image_iterations[index]))) {
                                     gradAbs = Math.sqrt(gradx * gradx + grady * grady);
                                     cosAngle = dotp / gradAbs;
                                     smoothGrad = -2.3562 / (gradAbs * sizeCorr + 1.5) + 1.57;
@@ -3775,17 +3712,16 @@ public abstract class ThreadDraw extends Thread {
                             }
                             break;
                         case MainWindow.FAKE_DISTANCE_ESTIMATION:
-                            if(fdes.fake_de && !domain_coloring) {
+                            if (fdes.fake_de && !domain_coloring) {
                                 modified = pseudoDistanceEstimation(image_iterations, modified, y, x, image_size);
                             }
                             break;
                     }
                 }
 
-                if(d3) {
+                if (d3) {
                     vert[x][y][0] = modified;
-                }
-                else {
+                } else {
                     rgbs[index] = modified;
                 }
             }
@@ -3794,7 +3730,7 @@ public abstract class ThreadDraw extends Thread {
 
     private boolean isInt(double val) {
 
-        return (val - (int)val) == 0;
+        return (val - (int) val) == 0;
 
     }
 
@@ -3808,20 +3744,20 @@ public abstract class ThreadDraw extends Thread {
 
     private void colorCycling() {
 
-        if(!color_cycling) {
+        if (!color_cycling) {
             return;
         }
 
         ptr.setWholeImageDone(false);
 
         int image_size = image.getHeight();
-        
-        if(cycle_gradient) {
+
+        if (cycle_gradient) {
             gradient_offset++;
             gradient_offset = gradient_offset > Integer.MAX_VALUE - 1 ? 0 : gradient_offset;
         }
 
-        if(cycle_colors) {
+        if (cycle_colors) {
             color_cycling_location_outcoloring++;
 
             color_cycling_location_outcoloring = color_cycling_location_outcoloring > Integer.MAX_VALUE - 1 ? 0 : color_cycling_location_outcoloring;
@@ -3831,17 +3767,17 @@ public abstract class ThreadDraw extends Thread {
             color_cycling_location_incoloring = color_cycling_location_incoloring > Integer.MAX_VALUE - 1 ? 0 : color_cycling_location_incoloring;
         }
 
-        if(cycle_lights) {
-            if(bms.bump_map) {
+        if (cycle_lights) {
+            if (bms.bump_map) {
                 bms.lightDirectionDegrees++;
-                if(bms.lightDirectionDegrees == 360) {
+                if (bms.lightDirectionDegrees == 360) {
                     bms.lightDirectionDegrees = 0;
                 }
             }
 
-            if(ls.lighting) {
+            if (ls.lighting) {
                 ls.light_direction++;
-                if(ls.light_direction == 360) {
+                if (ls.light_direction == 360) {
                     ls.light_direction = 0;
                 }
 
@@ -3851,14 +3787,13 @@ public abstract class ThreadDraw extends Thread {
             }
         }
 
-        for(int y = FROMy; y < TOy; y++) {
-            for(int x = FROMx, loc = y * image_size + x; x < TOx; x++, loc++) {
-                if(domain_coloring) {
+        for (int y = FROMy; y < TOy; y++) {
+            for (int x = FROMx, loc = y * image_size + x; x < TOx; x++, loc++) {
+                if (domain_coloring) {
                     domain_color.setColorCyclingLocation(color_cycling_location_outcoloring);
                     domain_color.setGradientOffset(gradient_offset);
                     rgbs[loc] = domain_color.getDomainColor(domain_image_data[loc]);
-                }
-                else {
+                } else {
                     rgbs[loc] = getPaletteColor(image_iterations[loc], escaped[loc]);
                 }
             }
@@ -3867,43 +3802,38 @@ public abstract class ThreadDraw extends Thread {
         postProcess(image_size);
 
         try {
-            if(color_cycling_filters_sync.await() == 0) {
+            if (color_cycling_filters_sync.await() == 0) {
                 applyFiltersNoProgress();
 
                 ptr.setWholeImageDone(true);
 
                 ptr.getMainPanel().repaint();
-                
-                if(cycle_colors) {
+
+                if (cycle_colors) {
                     ptr.updatePalettePreview(color_cycling_location_outcoloring, color_cycling_location_incoloring);
                 }
-                
-                if(cycle_gradient) {
+
+                if (cycle_gradient) {
                     ptr.updateGradientPreview(gradient_offset);
                 }
                 //progress.setForeground(new Color(palette.getPaletteColor(color_cycling_location)));
             }
-        }
-        catch(InterruptedException ex) {
+        } catch (InterruptedException ex) {
 
-        }
-        catch(BrokenBarrierException ex) {
+        } catch (BrokenBarrierException ex) {
 
         }
 
         try {
             sleep(color_cycling_speed + 35);
-        }
-        catch(InterruptedException ex) {
+        } catch (InterruptedException ex) {
         }
 
         try {
             color_cycling_restart_sync.await();
-        }
-        catch(InterruptedException ex) {
+        } catch (InterruptedException ex) {
 
-        }
-        catch(BrokenBarrierException ex) {
+        } catch (BrokenBarrierException ex) {
 
         }
 
@@ -3917,11 +3847,11 @@ public abstract class ThreadDraw extends Thread {
 
         draw3D(image_size, false);
 
-        if(drawing_done != 0) {
+        if (drawing_done != 0) {
             update(drawing_done);
         }
 
-        if(finalize_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
+        if (finalize_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
 
             applyFiltersNoProgress();
 
@@ -3940,11 +3870,11 @@ public abstract class ThreadDraw extends Thread {
 
         draw3D(image_size, true);
 
-        if(drawing_done != 0) {
+        if (drawing_done != 0) {
             update(drawing_done);
         }
 
-        if(finalize_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
+        if (finalize_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
 
             applyFilters();
 
@@ -3963,11 +3893,11 @@ public abstract class ThreadDraw extends Thread {
 
         changePalette(image_size);
 
-        if(drawing_done != 0) {
+        if (drawing_done != 0) {
             update(drawing_done);
         }
 
-        if(finalize_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
+        if (finalize_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
 
             applyFilters();
 
@@ -3984,33 +3914,30 @@ public abstract class ThreadDraw extends Thread {
 
         int pixel_percent = (image_size * image_size) / 100;
 
-        for(int y = FROMy; y < TOy; y++) {
-            for(int x = FROMx, loc = y * image_size + x; x < TOx; x++, loc++) {
-                if(domain_coloring) {
+        for (int y = FROMy; y < TOy; y++) {
+            for (int x = FROMx, loc = y * image_size + x; x < TOx; x++, loc++) {
+                if (domain_coloring) {
                     rgbs[loc] = domain_color.getDomainColor(domain_image_data[loc]);
-                }
-                else {
+                } else {
                     rgbs[loc] = getPaletteColor(image_iterations[loc], escaped[loc]);
                 }
 
                 drawing_done++;
             }
 
-            if(drawing_done / pixel_percent >= 1) {
+            if (drawing_done / pixel_percent >= 1) {
                 update(drawing_done);
                 drawing_done = 0;
             }
 
         }
 
-        if((ls.lighting || bms.bump_map || fdes.fake_de || rps.rainbow_palette || ens.entropy_coloring || ofs.offset_coloring || gss.greyscale_coloring || cns.contour_coloring) && !USE_DIRECT_COLOR) {
+        if ((ls.lighting || bms.bump_map || fdes.fake_de || rps.rainbow_palette || ens.entropy_coloring || ofs.offset_coloring || gss.greyscale_coloring || cns.contour_coloring) && !USE_DIRECT_COLOR) {
             try {
                 post_processing_sync.await();
-            }
-            catch(InterruptedException ex) {
+            } catch (InterruptedException ex) {
 
-            }
-            catch(BrokenBarrierException ex) {
+            } catch (BrokenBarrierException ex) {
 
             }
 
@@ -4023,18 +3950,17 @@ public abstract class ThreadDraw extends Thread {
 
         int image_size = image.getHeight();
 
-        if(filters[MainWindow.ANTIALIASING]) {
+        if (filters[MainWindow.ANTIALIASING]) {
             juliaMapAntialiased(image_size);
-        }
-        else {
+        } else {
             juliaMap(image_size);
         }
 
-        if(drawing_done != 0) {
+        if (drawing_done != 0) {
             update(drawing_done);
         }
 
-        if(finalize_sync.incrementAndGet() == ptr.getJuliaMapSlices()) {
+        if (finalize_sync.incrementAndGet() == ptr.getJuliaMapSlices()) {
 
             applyFilters();
 
@@ -4053,18 +3979,17 @@ public abstract class ThreadDraw extends Thread {
 
         int image_size = image.getHeight();
 
-        if(filters[MainWindow.ANTIALIASING]) {
+        if (filters[MainWindow.ANTIALIASING]) {
             juliaMapPolarAntialiased(image_size);
-        }
-        else {
+        } else {
             juliaMapPolar(image_size);
         }
 
-        if(drawing_done != 0) {
+        if (drawing_done != 0) {
             update(drawing_done);
         }
 
-        if(finalize_sync.incrementAndGet() == ptr.getJuliaMapSlices()) {
+        if (finalize_sync.incrementAndGet() == ptr.getJuliaMapSlices()) {
 
             applyFilters();
 
@@ -4096,8 +4021,8 @@ public abstract class ThreadDraw extends Thread {
         double temp_y0 = temp_ycenter_size;
         double temp_x0 = temp_xcenter_size;
 
-        for(int y = FROMy; y < TOy; y++, temp_y0 -= temp_size_image_size_y) {
-            for(int x = FROMx, loc = y * image_size + x; x < TOx; x++, temp_x0 += temp_size_image_size_x, loc++) {
+        for (int y = FROMy; y < TOy; y++, temp_y0 -= temp_size_image_size_y) {
+            for (int x = FROMx, loc = y * image_size + x; x < TOx; x++, temp_x0 += temp_size_image_size_x, loc++) {
 
                 image_iterations[loc] = iteration_algorithm.calculate(new Complex(temp_x0, temp_y0));
                 escaped[loc] = iteration_algorithm.escaped();
@@ -4107,7 +4032,7 @@ public abstract class ThreadDraw extends Thread {
 
             }
 
-            if(drawing_done / pixel_percent >= 1) {
+            if (drawing_done / pixel_percent >= 1) {
                 update(drawing_done);
                 drawing_done = 0;
             }
@@ -4139,11 +4064,11 @@ public abstract class ThreadDraw extends Thread {
 
         start = center - mulx * (TOx - FROMx) * 0.5;
 
-        for(int y = FROMy, y1 = 0; y < TOy; y++, y1++) {
+        for (int y = FROMy, y1 = 0; y < TOy; y++, y1++) {
             f = y1 * muly;
             sf = Math.sin(f);
             cf = Math.cos(f);
-            for(int x = FROMx, x1 = 0, loc = y * image_size + x; x < TOx; x++, loc++, x1++) {
+            for (int x = FROMx, x1 = 0, loc = y * image_size + x; x < TOx; x++, loc++, x1++) {
 
                 r = Math.exp(x1 * mulx + start);
 
@@ -4155,7 +4080,7 @@ public abstract class ThreadDraw extends Thread {
 
             }
 
-            if(drawing_done / pixel_percent >= 1) {
+            if (drawing_done / pixel_percent >= 1) {
                 update(drawing_done);
                 drawing_done = 0;
             }
@@ -4190,14 +4115,14 @@ public abstract class ThreadDraw extends Thread {
         int red, green, blue;
 
         Object[] ret = createAntialiasingSteps();
-        double[] antialiasing_x = (double[])(ret[0]);
-        double[] antialiasing_y = (double[])(ret[1]);
+        double[] antialiasing_x = (double[]) (ret[0]);
+        double[] antialiasing_y = (double[]) (ret[1]);
 
         int supersampling_num = (filters_options_vals[MainWindow.ANTIALIASING] == 0 ? 4 : 8 * filters_options_vals[MainWindow.ANTIALIASING]);
         double temp_samples = supersampling_num + 1;
 
-        for(int y = FROMy; y < TOy; y++, temp_y0 -= temp_size_image_size_y) {
-            for(int x = FROMx, loc = y * image_size + x; x < TOx; x++, temp_x0 += temp_size_image_size_x, loc++) {
+        for (int y = FROMy; y < TOy; y++, temp_y0 -= temp_size_image_size_y) {
+            for (int x = FROMx, loc = y * image_size + x; x < TOx; x++, temp_x0 += temp_size_image_size_x, loc++) {
 
                 image_iterations[loc] = iteration_algorithm.calculate(new Complex(temp_x0, temp_y0));
                 escaped[loc] = iteration_algorithm.escaped();
@@ -4208,7 +4133,7 @@ public abstract class ThreadDraw extends Thread {
                 blue = color & 0xff;
 
                 //Supersampling
-                for(int i = 0; i < supersampling_num; i++) {
+                for (int i = 0; i < supersampling_num; i++) {
                     temp_result = iteration_algorithm.calculate(new Complex(temp_x0 + antialiasing_x[i], temp_y0 + antialiasing_y[i]));
                     color = getFinalColor(temp_result, iteration_algorithm.escaped());
 
@@ -4217,12 +4142,12 @@ public abstract class ThreadDraw extends Thread {
                     blue += color & 0xff;
                 }
 
-                rgbs[loc] = 0xff000000 | (((int)(red / temp_samples + 0.5)) << 16) | (((int)(green / temp_samples + 0.5)) << 8) | ((int)(blue / temp_samples + 0.5));
+                rgbs[loc] = 0xff000000 | (((int) (red / temp_samples + 0.5)) << 16) | (((int) (green / temp_samples + 0.5)) << 8) | ((int) (blue / temp_samples + 0.5));
 
                 drawing_done++;
             }
 
-            if(drawing_done / pixel_percent >= 1) {
+            if (drawing_done / pixel_percent >= 1) {
                 update(drawing_done);
                 drawing_done = 0;
             }
@@ -4261,18 +4186,18 @@ public abstract class ThreadDraw extends Thread {
         int red, green, blue;
 
         Object[] ret = createPolarAntialiasingSteps();
-        double[] antialiasing_x = (double[])(ret[0]);
-        double[] antialiasing_y_sin = (double[])(ret[1]);
-        double[] antialiasing_y_cos = (double[])(ret[2]);
+        double[] antialiasing_x = (double[]) (ret[0]);
+        double[] antialiasing_y_sin = (double[]) (ret[1]);
+        double[] antialiasing_y_cos = (double[]) (ret[2]);
 
         int supersampling_num = (filters_options_vals[MainWindow.ANTIALIASING] == 0 ? 4 : 8 * filters_options_vals[MainWindow.ANTIALIASING]);
         double temp_samples = supersampling_num + 1;
 
-        for(int y = FROMy, y1 = 0; y < TOy; y++, y1++) {
+        for (int y = FROMy, y1 = 0; y < TOy; y++, y1++) {
             f = y1 * muly;
             sf = Math.sin(f);
             cf = Math.cos(f);
-            for(int x = FROMx, x1 = 0, loc = y * image_size + x; x < TOx; x++, loc++, x1++) {
+            for (int x = FROMx, x1 = 0, loc = y * image_size + x; x < TOx; x++, loc++, x1++) {
                 r = Math.exp(x1 * mulx + start);
 
                 image_iterations[loc] = iteration_algorithm.calculate(new Complex(xcenter + r * cf, ycenter + r * sf));
@@ -4284,7 +4209,7 @@ public abstract class ThreadDraw extends Thread {
                 blue = color & 0xff;
 
                 //Supersampling
-                for(int i = 0; i < supersampling_num; i++) {
+                for (int i = 0; i < supersampling_num; i++) {
                     sf2 = sf * antialiasing_y_cos[i] + cf * antialiasing_y_sin[i];
                     cf2 = cf * antialiasing_y_cos[i] - sf * antialiasing_y_sin[i];
 
@@ -4298,12 +4223,12 @@ public abstract class ThreadDraw extends Thread {
                     blue += color & 0xff;
                 }
 
-                rgbs[loc] = 0xff000000 | (((int)(red / temp_samples + 0.5)) << 16) | (((int)(green / temp_samples + 0.5)) << 8) | ((int)(blue / temp_samples + 0.5));
+                rgbs[loc] = 0xff000000 | (((int) (red / temp_samples + 0.5)) << 16) | (((int) (green / temp_samples + 0.5)) << 8) | ((int) (blue / temp_samples + 0.5));
 
                 drawing_done++;
             }
 
-            if(drawing_done / pixel_percent >= 1) {
+            if (drawing_done / pixel_percent >= 1) {
                 update(drawing_done);
                 drawing_done = 0;
             }
@@ -4319,11 +4244,11 @@ public abstract class ThreadDraw extends Thread {
         double min = -100;
         double range = max_scaling * d3_height_scale;
 
-        for(int x = FROMx; x < TOx; x++) {
-            for(int y = FROMy; y < TOy; y++) {
-                int r = ((int)vert[x][y][0] >> 16) & 0xff;
-                int g = ((int)vert[x][y][0] >> 8) & 0xff;
-                int b = (int)vert[x][y][0] & 0xff;
+        for (int x = FROMx; x < TOx; x++) {
+            for (int y = FROMy; y < TOy; y++) {
+                int r = ((int) vert[x][y][0] >> 16) & 0xff;
+                int g = ((int) vert[x][y][0] >> 8) & 0xff;
+                int b = (int) vert[x][y][0] & 0xff;
 
                 double coef = 0;
 
@@ -4336,65 +4261,56 @@ public abstract class ThreadDraw extends Thread {
                         break;
                     case 2:
                         double lim = 0.1;
-                        if((vert[x][y][1] - min) / range <= lim) {
+                        if ((vert[x][y][1] - min) / range <= lim) {
                             coef = -(1 - (vert[x][y][1] - min) / range * (1 / lim));
-                        }
-                        else if((vert[x][y][1] - min) / range >= (1 - lim)) {
+                        } else if ((vert[x][y][1] - min) / range >= (1 - lim)) {
                             coef = 1 - (1 - (vert[x][y][1] - min) / range) * (1 / lim);
-                        }
-                        else {
+                        } else {
                             coef = 0;
                         }
                         break;
                     case 3:
                         lim = 0.2;
-                        if((vert[x][y][1] - min) / range <= lim) {
+                        if ((vert[x][y][1] - min) / range <= lim) {
                             coef = -(1 - (vert[x][y][1] - min) / range * (1 / lim));
-                        }
-                        else if((vert[x][y][1] - min) / range >= (1 - lim)) {
+                        } else if ((vert[x][y][1] - min) / range >= (1 - lim)) {
                             coef = 1 - (1 - (vert[x][y][1] - min) / range) * (1 / lim);
-                        }
-                        else {
+                        } else {
                             coef = 0;
                         }
                         break;
                     case 4:
                         lim = 0.3;
-                        if((vert[x][y][1] - min) / range <= lim) {
+                        if ((vert[x][y][1] - min) / range <= lim) {
                             coef = -(1 - (vert[x][y][1] - min) / range * (1 / lim));
-                        }
-                        else if((vert[x][y][1] - min) / range >= (1 - lim)) {
+                        } else if ((vert[x][y][1] - min) / range >= (1 - lim)) {
                             coef = 1 - (1 - (vert[x][y][1] - min) / range) * (1 / lim);
-                        }
-                        else {
+                        } else {
                             coef = 0;
                         }
                         break;
                     case 5:
                         lim = 0.4;
-                        if((vert[x][y][1] - min) / range <= lim) {
+                        if ((vert[x][y][1] - min) / range <= lim) {
                             coef = -(1 - (vert[x][y][1] - min) / range * (1 / lim));
-                        }
-                        else if((vert[x][y][1] - min) / range >= (1 - lim)) {
+                        } else if ((vert[x][y][1] - min) / range >= (1 - lim)) {
                             coef = 1 - (1 - (vert[x][y][1] - min) / range) * (1 / lim);
-                        }
-                        else {
+                        } else {
                             coef = 0;
                         }
                         break;
                 }
 
-                if(shade_invert) {
+                if (shade_invert) {
                     coef *= -1;
                 }
 
-                if(shade_choice == 2) { //-1 to 0 only
-                    if(coef > 0) {
+                if (shade_choice == 2) { //-1 to 0 only
+                    if (coef > 0) {
                         coef = 0;
                     }
-                }
-                else if(shade_choice == 1) { //0 to 1 only
-                    if(coef < 0) {
+                } else if (shade_choice == 1) { //0 to 1 only
+                    if (coef < 0) {
                         coef = 0;
                     }
                 }
@@ -4402,15 +4318,14 @@ public abstract class ThreadDraw extends Thread {
                 int col = 0;
                 int col2 = 255 - col;
 
-                if(coef < 0) {
-                    r = (int)(col * Math.abs(coef) + r * (1 - Math.abs(coef)) + 0.5);
-                    g = (int)(col * Math.abs(coef) + g * (1 - Math.abs(coef)) + 0.5);
-                    b = (int)(col * Math.abs(coef) + b * (1 - Math.abs(coef)) + 0.5);
-                }
-                else {
-                    r = (int)(col2 * coef + r * (1 - coef) + 0.5);
-                    g = (int)(col2 * coef + g * (1 - coef) + 0.5);
-                    b = (int)(col2 * coef + b * (1 - coef) + 0.5);
+                if (coef < 0) {
+                    r = (int) (col * Math.abs(coef) + r * (1 - Math.abs(coef)) + 0.5);
+                    g = (int) (col * Math.abs(coef) + g * (1 - Math.abs(coef)) + 0.5);
+                    b = (int) (col * Math.abs(coef) + b * (1 - Math.abs(coef)) + 0.5);
+                } else {
+                    r = (int) (col2 * coef + r * (1 - coef) + 0.5);
+                    g = (int) (col2 * coef + g * (1 - coef) + 0.5);
+                    b = (int) (col2 * coef + b * (1 - coef) + 0.5);
                 }
 
                 vert[x][y][0] = 0xff000000 | (r << 16) | (g << 8) | b;
@@ -4429,13 +4344,11 @@ public abstract class ThreadDraw extends Thread {
         int x = index % size;
         double it = ColorAlgorithm.transformResultToHeight(image_iterations[index], max_iterations);
 
-        if(x == 0) {
+        if (x == 0) {
             return (ColorAlgorithm.transformResultToHeight(image_iterations[index + 1], max_iterations) - it) * 2;
-        }
-        else if(x == size - 1) {
+        } else if (x == size - 1) {
             return (it - ColorAlgorithm.transformResultToHeight(image_iterations[index - 1], max_iterations)) * 2;
-        }
-        else {
+        } else {
             double diffL = it - ColorAlgorithm.transformResultToHeight(image_iterations[index - 1], max_iterations);
             double diffR = it - ColorAlgorithm.transformResultToHeight(image_iterations[index + 1], max_iterations);
             return diffL * diffR >= 0 ? 0 : diffL - diffR;
@@ -4448,13 +4361,11 @@ public abstract class ThreadDraw extends Thread {
         int y = index / size;
         double it = ColorAlgorithm.transformResultToHeight(image_iterations[index], max_iterations);
 
-        if(y == 0) {
+        if (y == 0) {
             return (it - ColorAlgorithm.transformResultToHeight(image_iterations[index + size], max_iterations)) * 2;
-        }
-        else if(y == size - 1) {
+        } else if (y == size - 1) {
             return (ColorAlgorithm.transformResultToHeight(image_iterations[index - size], max_iterations) - it) * 2;
-        }
-        else {
+        } else {
             double diffU = it - ColorAlgorithm.transformResultToHeight(image_iterations[index - size], max_iterations);
             double diffD = it - ColorAlgorithm.transformResultToHeight(image_iterations[index + size], max_iterations);
             return diffD * diffU >= 0 ? 0 : diffD - diffU;
@@ -4494,28 +4405,25 @@ public abstract class ThreadDraw extends Thread {
         int g = (rgb >> 8) & 0xFF;
         int b = rgb & 0xFF;
 
-        if(delta > 0) {
+        if (delta > 0) {
             mul = (2 - mul) / 2;
-        }
-        else {
+        } else {
             mul = mul / 2;
         }
 
-        if(bms.bumpProcessing == 3) {
+        if (bms.bumpProcessing == 3) {
             double[] res = ColorSpaceConverter.RGBtoLAB(r, g, b);
             double val = 2 * mul * res[0];
             val = val > 100 ? 100 : val;
             int[] rgb2 = ColorSpaceConverter.LABtoRGB(val, res[1], res[2]);
             return 0xff000000 | (rgb2[0] << 16) | (rgb2[1] << 8) | rgb2[2];
-        }
-        else if(bms.bumpProcessing == 4) {
+        } else if (bms.bumpProcessing == 4) {
             double[] res = ColorSpaceConverter.RGBtoHSB(r, g, b);
             double val = 2 * mul * res[2];
             val = val > 1 ? 1 : val;
             int[] rgb2 = ColorSpaceConverter.HSBtoRGB(res[0], res[1], val);
             return 0xff000000 | (rgb2[0] << 16) | (rgb2[1] << 8) | rgb2[2];
-        }
-        else {
+        } else {
             double[] res = ColorSpaceConverter.RGBtoHSL(r, g, b);
             double val = 2 * mul * res[2];
             val = val > 1 ? 1 : val;
@@ -4529,19 +4437,18 @@ public abstract class ThreadDraw extends Thread {
 
         double mul = getBumpCoef(delta);
 
-        if(delta > 0) {
+        if (delta > 0) {
             rgb ^= 0xFFFFFF;
             int r = rgb & 0xFF0000;
             int g = rgb & 0x00FF00;
             int b = rgb & 0x0000FF;
-            int ret = (int)(r * mul + 0.5) & 0xFF0000 | (int)(g * mul + 0.5) & 0x00FF00 | (int)(b * mul + 0.5);
+            int ret = (int) (r * mul + 0.5) & 0xFF0000 | (int) (g * mul + 0.5) & 0x00FF00 | (int) (b * mul + 0.5);
             new_color = 0xff000000 | (ret ^ 0xFFFFFF);
-        }
-        else {
+        } else {
             int r = rgb & 0xFF0000;
             int g = rgb & 0x00FF00;
             int b = rgb & 0x0000FF;
-            new_color = 0xff000000 | (int)(r * mul + 0.5) & 0xFF0000 | (int)(g * mul + 0.5) & 0x00FF00 | (int)(b * mul + 0.5);
+            new_color = 0xff000000 | (int) (r * mul + 0.5) & 0xFF0000 | (int) (g * mul + 0.5) & 0x00FF00 | (int) (b * mul + 0.5);
         }
 
         return new_color;
@@ -4555,20 +4462,19 @@ public abstract class ThreadDraw extends Thread {
         int temp_green = 0;
         int temp_blue = 0;
 
-        if(delta > 0) {
-            int index = bms.bumpProcessing == 1 ? (int)((mul / 2) * (gradient.length - 1) + 0.5) : (int)((1 - mul) * (gradient.length - 1) + 0.5);
+        if (delta > 0) {
+            int index = bms.bumpProcessing == 1 ? (int) ((mul / 2) * (gradient.length - 1) + 0.5) : (int) ((1 - mul) * (gradient.length - 1) + 0.5);
             index = gradient.length - 1 - index;
 
             int grad_color = getGradientColor(index + gradient_offset);
-            
+
             temp_red = (grad_color >> 16) & 0xff;
             temp_green = (grad_color >> 8) & 0xff;
             temp_blue = grad_color & 0xff;
-        }
-        else {
-            int index = bms.bumpProcessing == 1 ? (int)(((2 - mul) / 2) * (gradient.length - 1) + 0.5) : (int)((1 - mul) * (gradient.length - 1) + 0.5);
+        } else {
+            int index = bms.bumpProcessing == 1 ? (int) (((2 - mul) / 2) * (gradient.length - 1) + 0.5) : (int) ((1 - mul) * (gradient.length - 1) + 0.5);
             index = gradient.length - 1 - index;
-            
+
             int grad_color = getGradientColor(index + gradient_offset);
 
             temp_red = (grad_color >> 16) & 0xff;
@@ -4609,18 +4515,18 @@ public abstract class ThreadDraw extends Thread {
         return color_cycling_location_incoloring;
 
     }
-    
+
     public int getGradientOffset() {
-        
+
         return gradient_offset;
-        
+
     }
 
     private void applyFilters() {
 
         int active_filters_count = 0;
-        for(int i = 0; i < filters.length; i++) {
-            if(filters[i]) {
+        for (int i = 0; i < filters.length; i++) {
+            if (filters[i]) {
                 active_filters_count++;
             }
         }
@@ -4628,7 +4534,7 @@ public abstract class ThreadDraw extends Thread {
         int old_max = progress.getMaximum();
         int cur_val = progress.getValue();
 
-        if(active_filters_count > 0) {
+        if (active_filters_count > 0) {
             progress.setMaximum(active_filters_count);
             progress.setValue(0);
             progress.setForeground(MainWindow.progress_filters_color);
@@ -4637,7 +4543,7 @@ public abstract class ThreadDraw extends Thread {
 
         ImageFilters.filter(image, filters, filters_options_vals, filters_options_extra_vals, filters_colors, filters_extra_colors, filters_order, progress);
 
-        if(active_filters_count > 0) {
+        if (active_filters_count > 0) {
             progress.setString(null);
             progress.setMaximum(old_max);
             progress.setValue(cur_val);
@@ -4675,18 +4581,18 @@ public abstract class ThreadDraw extends Thread {
 
         min = Double.MAX_VALUE;
         max = -Double.MIN_VALUE;
-        
-        for(int x = 0; x < detail; x++) {
-            for(int y = 0; y < detail; y++) {
-                if(!Double.isFinite(vert[x][y][1])) {
+
+        for (int x = 0; x < detail; x++) {
+            for (int y = 0; y < detail; y++) {
+                if (!Double.isFinite(vert[x][y][1])) {
                     continue;
                 }
 
-                if(vert[x][y][1] < min) {    
-                    min = vert[x][y][1];                                      
+                if (vert[x][y][1] < min) {
+                    min = vert[x][y][1];
                 }
 
-                if(vert[x][y][1] > max) {
+                if (vert[x][y][1] > max) {
                     max = vert[x][y][1];
                 }
             }
@@ -4696,15 +4602,15 @@ public abstract class ThreadDraw extends Thread {
 
     private void applyHeightFunction() {
 
-        for(int x = FROMx; x < TOx; x++) {
-            for(int y = FROMy; y < TOy; y++) {
-                vert[x][y][1] = (float)calculateHeight(vert[x][y][1]);
+        for (int x = FROMx; x < TOx; x++) {
+            for (int y = FROMy; y < TOy; y++) {
+                vert[x][y][1] = (float) calculateHeight(vert[x][y][1]);
             }
         }
     }
 
     private void applyPostHeightScaling() {
-        
+
         double local_max = max * (max_range / 100.0);
 
         double local_min = min + (max - min) * (min_range / 100.0);
@@ -4712,21 +4618,19 @@ public abstract class ThreadDraw extends Thread {
 
         double new_max = local_max - local_min;
 
-        for(int x = FROMx; x < TOx; x++) {
-            for(int y = FROMy; y < TOy; y++) {
+        for (int x = FROMx; x < TOx; x++) {
+            for (int y = FROMy; y < TOy; y++) {
                 float val = vert[x][y][1];
-                if(val <= local_max && val >= local_min) {
+                if (val <= local_max && val >= local_min) {
                     val -= local_min;
-                    vert[x][y][1] = (float)(val * (max_scaling / new_max));
-                }
-                else if(val > local_max) {
-                    vert[x][y][1] = (float)(max_scaling);
-                }
-                else if(!Double.isNaN(val) && !Double.isInfinite(val)) {
+                    vert[x][y][1] = (float) (val * (max_scaling / new_max));
+                } else if (val > local_max) {
+                    vert[x][y][1] = (float) (max_scaling);
+                } else if (!Double.isNaN(val) && !Double.isInfinite(val)) {
                     vert[x][y][1] = 0;
                 }
-                
-                vert[x][y][1] = (float)(d3_height_scale * vert[x][y][1] - 100);
+
+                vert[x][y][1] = (float) (d3_height_scale * vert[x][y][1] - 100);
             }
         }
 
@@ -4741,17 +4645,15 @@ public abstract class ThreadDraw extends Thread {
 
         double new_max = local_max - local_min;
 
-        for(int x = FROMx; x < TOx; x++) {
-            for(int y = FROMy; y < TOy; y++) {
+        for (int x = FROMx; x < TOx; x++) {
+            for (int y = FROMy; y < TOy; y++) {
                 float val = vert[x][y][1];
-                if(val <= local_max && val >= local_min) {
+                if (val <= local_max && val >= local_min) {
                     val -= local_min;
-                    vert[x][y][1] = (float)(val * (max_scaling / new_max));
-                }
-                else if(val > local_max) {
-                    vert[x][y][1] = (float)(max_scaling);
-                }
-                else if(!Double.isNaN(val) && !Double.isInfinite(val)) {
+                    vert[x][y][1] = (float) (val * (max_scaling / new_max));
+                } else if (val > local_max) {
+                    vert[x][y][1] = (float) (max_scaling);
+                } else if (!Double.isNaN(val) && !Double.isInfinite(val)) {
                     vert[x][y][1] = 0;
                 }
             }
@@ -4761,8 +4663,8 @@ public abstract class ThreadDraw extends Thread {
     private void gaussianHeightScalingInit() {
         temp_array = new float[detail][detail];
 
-        for(int x = 0; x < detail; x++) {
-            for(int y = 0; y < detail; y++) {
+        for (int x = 0; x < detail; x++) {
+            for (int y = 0; y < detail; y++) {
                 temp_array[x][y] = vert[x][y][1];
             }
         }
@@ -4776,7 +4678,7 @@ public abstract class ThreadDraw extends Thread {
 
     private void gaussianHeightScaling() {
 
-        int kernel_size = (int)(Math.sqrt(gaussian_kernel.length));
+        int kernel_size = (int) (Math.sqrt(gaussian_kernel.length));
         int kernel_size2 = kernel_size / 2;
 
         int startx = FROMx == 0 ? kernel_size2 : FROMx;
@@ -4784,17 +4686,17 @@ public abstract class ThreadDraw extends Thread {
         int endx = TOx == detail ? detail - kernel_size2 : TOx;
         int endy = TOy == detail ? detail - kernel_size2 : TOy;
 
-        for(int x = startx; x < endx; x++) {
-            for(int y = starty; y < endy; y++) {
+        for (int x = startx; x < endx; x++) {
+            for (int y = starty; y < endy; y++) {
                 double sum = 0;
 
-                for(int k = x - kernel_size2, p = 0; p < kernel_size; k++, p++) {
-                    for(int l = y - kernel_size2, t = 0; t < kernel_size; l++, t++) {
+                for (int k = x - kernel_size2, p = 0; p < kernel_size; k++, p++) {
+                    for (int l = y - kernel_size2, t = 0; t < kernel_size; l++, t++) {
                         sum += temp_array[k][l] * gaussian_kernel[p * kernel_size + t];
                     }
                 }
 
-                vert[x][y][1] = (float)sum;
+                vert[x][y][1] = (float) sum;
             }
         }
     }
@@ -4809,17 +4711,17 @@ public abstract class ThreadDraw extends Thread {
         double calculatedEuler = 1.0 / (2.0 * Math.PI * weight * weight);
 
         float temp;
-        for(int filterY = -kernelRadius; filterY <= kernelRadius; filterY++) {
-            for(int filterX = -kernelRadius; filterX <= kernelRadius; filterX++) {
+        for (int filterY = -kernelRadius; filterY <= kernelRadius; filterY++) {
+            for (int filterX = -kernelRadius; filterX <= kernelRadius; filterX++) {
                 distance = ((filterX * filterX) + (filterY * filterY)) / (2 * (weight * weight));
-                temp = gaussian_kernel[(filterY + kernelRadius) * length + filterX + kernelRadius] = (float)(calculatedEuler * Math.exp(-distance));
+                temp = gaussian_kernel[(filterY + kernelRadius) * length + filterX + kernelRadius] = (float) (calculatedEuler * Math.exp(-distance));
                 sumTotal += temp;
             }
         }
 
-        for(int y = 0; y < length; y++) {
-            for(int x = 0; x < length; x++) {
-                gaussian_kernel[y * length + x] = (float)(gaussian_kernel[y * length + x] * (1.0 / sumTotal));
+        for (int y = 0; y < length; y++) {
+            for (int x = 0; x < length; x++) {
+                gaussian_kernel[y * length + x] = (float) (gaussian_kernel[y * length + x] * (1.0 / sumTotal));
             }
         }
 
@@ -4827,9 +4729,9 @@ public abstract class ThreadDraw extends Thread {
 
     private void heightProcessing() {
 
-        if(gaussian_scaling) {
+        if (gaussian_scaling) {
 
-            if(gaussian_scaling_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
+            if (gaussian_scaling_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
 
                 gaussianHeightScalingInit();
 
@@ -4837,20 +4739,18 @@ public abstract class ThreadDraw extends Thread {
 
             try {
                 gaussian_scaling_sync2.await();
-            }
-            catch(InterruptedException ex) {
+            } catch (InterruptedException ex) {
 
-            }
-            catch(BrokenBarrierException ex) {
+            } catch (BrokenBarrierException ex) {
 
             }
 
             gaussianHeightScaling();
         }
 
-        if(height_algorithm > 2) {
+        if (height_algorithm > 2) {
 
-            if(height_scaling_sync3.incrementAndGet() == ptr.getNumberOfThreads()) {
+            if (height_scaling_sync3.incrementAndGet() == ptr.getNumberOfThreads()) {
 
                 findMinMaxHeight();
 
@@ -4858,11 +4758,9 @@ public abstract class ThreadDraw extends Thread {
 
             try {
                 height_scaling_sync4.await();
-            }
-            catch(InterruptedException ex) {
+            } catch (InterruptedException ex) {
 
-            }
-            catch(BrokenBarrierException ex) {
+            } catch (BrokenBarrierException ex) {
 
             }
 
@@ -4871,17 +4769,15 @@ public abstract class ThreadDraw extends Thread {
 
         try {
             height_function_sync.await();
-        }
-        catch(InterruptedException ex) {
+        } catch (InterruptedException ex) {
 
-        }
-        catch(BrokenBarrierException ex) {
+        } catch (BrokenBarrierException ex) {
 
         }
 
         applyHeightFunction();
 
-        if(height_scaling_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
+        if (height_scaling_sync.incrementAndGet() == ptr.getNumberOfThreads()) {
 
             findMinMaxHeight();
 
@@ -4889,24 +4785,20 @@ public abstract class ThreadDraw extends Thread {
 
         try {
             height_scaling_sync2.await();
-        }
-        catch(InterruptedException ex) {
+        } catch (InterruptedException ex) {
 
-        }
-        catch(BrokenBarrierException ex) {
+        } catch (BrokenBarrierException ex) {
 
         }
 
         applyPostHeightScaling();
 
-        if(shade_height) {
+        if (shade_height) {
             try {
                 shade_color_height_sync.await();
-            }
-            catch(InterruptedException ex) {
+            } catch (InterruptedException ex) {
 
-            }
-            catch(BrokenBarrierException ex) {
+            } catch (BrokenBarrierException ex) {
 
             }
 
@@ -4915,15 +4807,13 @@ public abstract class ThreadDraw extends Thread {
 
         try {
             calculate_vectors_sync.await();
-        }
-        catch(InterruptedException ex) {
+        } catch (InterruptedException ex) {
 
-        }
-        catch(BrokenBarrierException ex) {
+        } catch (BrokenBarrierException ex) {
 
         }
 
-        if(gaussian_scaling) {
+        if (gaussian_scaling) {
             gaussianHeightScalingEnd();
         }
 
@@ -4942,12 +4832,12 @@ public abstract class ThreadDraw extends Thread {
 
         double norm_0_0, norm_0_1, norm_0_2, norm_1_0, norm_1_1, norm_1_2;
 
-        for(int x = FROMx; x < TOx; x++) {
+        for (int x = FROMx; x < TOx; x++) {
 
             double c1 = dx * x - w2;
 
-            for(int y = FROMy; y < TOy; y++) {
-                if(x < n1 && y < n1) {
+            for (int y = FROMy; y < TOy; y++) {
+                if (x < n1 && y < n1) {
 
                     norm_0_0 = vert[x][y][1] - vert[x + 1][y][1];
                     norm_0_1 = dx;
@@ -4965,13 +4855,13 @@ public abstract class ThreadDraw extends Thread {
                     norm_1_1 /= mod;
                     norm_1_2 /= mod;
 
-                    Norm1z[x][y][0] = (float)(m20 * norm_0_0 + m21 * norm_0_1 + m22 * norm_0_2);
-                    Norm1z[x][y][1] = (float)(m20 * norm_1_0 + m21 * norm_1_1 + m22 * norm_1_2);
+                    Norm1z[x][y][0] = (float) (m20 * norm_0_0 + m21 * norm_0_1 + m22 * norm_0_2);
+                    Norm1z[x][y][1] = (float) (m20 * norm_1_0 + m21 * norm_1_1 + m22 * norm_1_2);
                 }
 
                 double c2 = dx * y - w2;
-                vert1[x][y][0] = (float)(m00 * c1 + m02 * c2);
-                vert1[x][y][1] = (float)(m10 * c1 + m11 * vert[x][y][1] + m12 * c2);
+                vert1[x][y][0] = (float) (m00 * c1 + m02 * c2);
+                vert1[x][y][1] = (float) (m10 * c1 + m11 * vert[x][y][1] + m12 * c2);
             }
         }
     }
@@ -4985,13 +4875,13 @@ public abstract class ThreadDraw extends Thread {
 
         int ib = 0, ie = detail, sti = 1, jb = 0, je = detail, stj = 1;
 
-        if(m20 < 0) {
+        if (m20 < 0) {
             ib = detail - 1;
             ie = -1;
             sti = -1;
         }
 
-        if(m22 < 0) {
+        if (m22 < 0) {
             jb = detail - 1;
             je = -1;
             stj = -1;
@@ -5000,7 +4890,7 @@ public abstract class ThreadDraw extends Thread {
         int old_max = progress.getMaximum();
         int cur_val = progress.getValue();
 
-        if(updateProgress) {
+        if (updateProgress) {
             progress.setMaximum(detail * detail);
             progress.setValue(0);
             progress.setString("3D Render: " + 0 + "%");
@@ -5012,67 +4902,65 @@ public abstract class ThreadDraw extends Thread {
         color_3d_blending = 1 - color_3d_blending;
 
         int count = 0;
-        for(int i = ib; i != ie; i += sti) {
-            for(int j = jb; j != je; j += stj) {
+        for (int i = ib; i != ie; i += sti) {
+            for (int j = jb; j != je; j += stj) {
 
                 count++;
 
-                red = ((((int)vert[i][j][0]) >> 16) & 0xff);
-                green = ((((int)vert[i][j][0]) >> 8) & 0xff);
-                blue = (((int)vert[i][j][0]) & 0xff);
+                red = ((((int) vert[i][j][0]) >> 16) & 0xff);
+                green = ((((int) vert[i][j][0]) >> 8) & 0xff);
+                blue = (((int) vert[i][j][0]) & 0xff);
 
-                if(Norm1z[i][j][0] > 0) {
-                    xPol[0] = w2 + (int)vert1[i][j][0];
-                    xPol[1] = w2 + (int)vert1[i + 1][j][0];
-                    xPol[2] = w2 + (int)vert1[i + 1][j + 1][0];
-                    yPol[0] = w2 - (int)vert1[i][j][1];
-                    yPol[1] = w2 - (int)vert1[i + 1][j][1];
-                    yPol[2] = w2 - (int)vert1[i + 1][j + 1][1];                                 
+                if (Norm1z[i][j][0] > 0) {
+                    xPol[0] = w2 + (int) vert1[i][j][0];
+                    xPol[1] = w2 + (int) vert1[i + 1][j][0];
+                    xPol[2] = w2 + (int) vert1[i + 1][j + 1][0];
+                    yPol[0] = w2 - (int) vert1[i][j][1];
+                    yPol[1] = w2 - (int) vert1[i + 1][j][1];
+                    yPol[2] = w2 - (int) vert1[i + 1][j + 1][1];
 
                     g.setColor(new Color(getModifiedColor(red, green, blue, Norm1z[i][j][0], d3_color_type, color_3d_blending, false)));
-                                       
-                    if(filters[MainWindow.ANTIALIASING]) {
+
+                    if (filters[MainWindow.ANTIALIASING]) {
                         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
                         g.fillPolygon(xPol, yPol, 3);
                         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                         g.fillPolygon(xPol, yPol, 3);
-                    }
-                    else {
+                    } else {
                         g.fillPolygon(xPol, yPol, 3);
                     }
 
                 }
 
-                if(Norm1z[i][j][1] > 0) {
-                    xPol[0] = w2 + (int)vert1[i][j][0];
-                    xPol[1] = w2 + (int)vert1[i][j + 1][0];
-                    xPol[2] = w2 + (int)vert1[i + 1][j + 1][0];
-                    yPol[0] = w2 - (int)vert1[i][j][1];
-                    yPol[1] = w2 - (int)vert1[i][j + 1][1];
-                    yPol[2] = w2 - (int)vert1[i + 1][j + 1][1];                  
+                if (Norm1z[i][j][1] > 0) {
+                    xPol[0] = w2 + (int) vert1[i][j][0];
+                    xPol[1] = w2 + (int) vert1[i][j + 1][0];
+                    xPol[2] = w2 + (int) vert1[i + 1][j + 1][0];
+                    yPol[0] = w2 - (int) vert1[i][j][1];
+                    yPol[1] = w2 - (int) vert1[i][j + 1][1];
+                    yPol[2] = w2 - (int) vert1[i + 1][j + 1][1];
 
                     g.setColor(new Color(getModifiedColor(red, green, blue, Norm1z[i][j][1], d3_color_type, color_3d_blending, false)));
 
-                    if(filters[MainWindow.ANTIALIASING]) {
+                    if (filters[MainWindow.ANTIALIASING]) {
                         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
                         g.fillPolygon(xPol, yPol, 3);
                         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                         g.fillPolygon(xPol, yPol, 3);
-                    }
-                    else {
+                    } else {
                         g.fillPolygon(xPol, yPol, 3);
                     }
 
                 }
             }
 
-            if(updateProgress) {
+            if (updateProgress) {
                 progress.setValue(count);
-                progress.setString("3D Render: " + (int)((double)count / progress.getMaximum() * 100) + "%");
+                progress.setString("3D Render: " + (int) ((double) count / progress.getMaximum() * 100) + "%");
             }
         }
 
-        if(updateProgress) {
+        if (updateProgress) {
             progress.setString(null);
             progress.setMaximum(old_max);
             progress.setValue(cur_val);
@@ -5081,14 +4969,12 @@ public abstract class ThreadDraw extends Thread {
     }
 
     protected void postProcessFastJulia(int image_size) {
-        if((ls.lighting || bms.bump_map || fdes.fake_de || rps.rainbow_palette || ens.entropy_coloring || ofs.offset_coloring || gss.greyscale_coloring || cns.contour_coloring) && !USE_DIRECT_COLOR) {
+        if ((ls.lighting || bms.bump_map || fdes.fake_de || rps.rainbow_palette || ens.entropy_coloring || ofs.offset_coloring || gss.greyscale_coloring || cns.contour_coloring) && !USE_DIRECT_COLOR) {
             try {
                 post_processing_sync.await();
-            }
-            catch(InterruptedException ex) {
+            } catch (InterruptedException ex) {
 
-            }
-            catch(BrokenBarrierException ex) {
+            } catch (BrokenBarrierException ex) {
 
             }
 
@@ -5097,14 +4983,12 @@ public abstract class ThreadDraw extends Thread {
     }
 
     protected void postProcess(int image_size) {
-        if((ls.lighting || bms.bump_map || fdes.fake_de || rps.rainbow_palette || ens.entropy_coloring || ofs.offset_coloring || gss.greyscale_coloring || cns.contour_coloring) && !USE_DIRECT_COLOR) {
+        if ((ls.lighting || bms.bump_map || fdes.fake_de || rps.rainbow_palette || ens.entropy_coloring || ofs.offset_coloring || gss.greyscale_coloring || cns.contour_coloring) && !USE_DIRECT_COLOR) {
             try {
                 post_processing_sync.await();
-            }
-            catch(InterruptedException ex) {
+            } catch (InterruptedException ex) {
 
-            }
-            catch(BrokenBarrierException ex) {
+            } catch (BrokenBarrierException ex) {
 
             }
 
@@ -5212,8 +5096,8 @@ public abstract class ThreadDraw extends Thread {
     private void domainColoringFactory(DomainColoringSettings ds, int interpolation) {
 
         this.ds = ds;
-        
-        if(ds.customDomainColoring) {
+
+        if (ds.customDomainColoring) {
             domain_color = new CustomDomainColoring(ds, palette_outcoloring, color_transfer_outcoloring, color_cycling_location_outcoloring, blending, gradient, interpolation, gradient_offset);
             return;
         }
@@ -5304,7 +5188,7 @@ public abstract class ThreadDraw extends Thread {
                 domain_color = new NormGridContoursIsoLinesDomainColoring(ds.domain_coloring_mode, palette_outcoloring, color_transfer_outcoloring, color_cycling_location_outcoloring, blending, interpolation);
                 break;
         }
-        
+
         domain_color.setGradientOffset(gradient_offset);
 
     }
@@ -5315,7 +5199,7 @@ public abstract class ThreadDraw extends Thread {
             case 0:
                 return color;
             case 1:
-                return algorithm_colors[((int)getId()) % algorithm_colors.length];
+                return algorithm_colors[((int) getId()) % algorithm_colors.length];
             case 2:
                 return SKIPPED_PIXELS_COLOR;
             case 3:
@@ -5350,7 +5234,7 @@ public abstract class ThreadDraw extends Thread {
         int kx = k0 + 1;
         int sx = 1;
 
-        if(j == image_size - 1) {
+        if (j == image_size - 1) {
             kx -= 2;
             sx = -1;
         }
@@ -5358,7 +5242,7 @@ public abstract class ThreadDraw extends Thread {
         int ky = k0 + image_size;
         int sy = 1;
 
-        if(i == image_size - 1) {
+        if (i == image_size - 1) {
             ky -= 2 * image_size;
             sy = -1;
         }
@@ -5386,10 +5270,9 @@ public abstract class ThreadDraw extends Thread {
         nz = nz / nlen;
 
         double lz = Math.sqrt(1 - ls.lightVector[0] * ls.lightVector[0] - ls.lightVector[1] * ls.lightVector[1]);
-        
+
         // Lambert's law.
         double cos_a = ls.lightVector[0] * nx - ls.lightVector[1] * ny + lz * nz;
-        
 
         // if lumen is negative it is behind, 
         // but I tweak it a bit for the sake of the looks:
@@ -5407,16 +5290,14 @@ public abstract class ThreadDraw extends Thread {
 
         double coef = 0;
 
-        if(ls.lightMode == 0) {
+        if (ls.lightMode == 0) {
             coef = (((d - ls.ambientlight) * cos_a + d) * cos_a + ls.ambientlight);
-        }
-        else if(ls.lightMode == 1) {
-            if(cos_a < 0) {
+        } else if (ls.lightMode == 1) {
+            if (cos_a < 0) {
                 cos_a = 0;
             }
             coef = (ls.ambientlight + ls.lightintensity * cos_a);
-        }
-        else if(ls.lightMode == 2) {
+        } else if (ls.lightMode == 2) {
             coef = (ls.ambientlight + ls.lightintensity * cos_a);
         }
 
@@ -5424,75 +5305,72 @@ public abstract class ThreadDraw extends Thread {
         // r = 2 n l - l; v = 0:0:1
         double spec_refl = 2 * cos_a * nz - lz;
 
-        if(ls.colorMode == 0) { //Lab         
+        if (ls.colorMode == 0) { //Lab         
             double[] res = ColorSpaceConverter.RGBtoLAB(r, g, b);
 
             double coef2 = 0;
-            if(spec_refl > 0) {
+            if (spec_refl > 0) {
                 coef2 = ls.specularintensity * Math.pow(spec_refl, ls.shininess);
             }
 
             int[] rgb = ColorSpaceConverter.LABtoRGB(res[0] * coef + coef2 * 100, res[1], res[2]);
             return 0xff000000 | (rgb[0] << 16) | (rgb[1] << 8) | rgb[2];
-        }
-        else if(ls.colorMode == 1) { //HSB
+        } else if (ls.colorMode == 1) { //HSB
             double[] res = ColorSpaceConverter.RGBtoHSB(r, g, b);
 
             double coef2 = 0;
-            if(spec_refl > 0) {
+            if (spec_refl > 0) {
                 coef2 = ls.specularintensity * Math.pow(spec_refl, ls.shininess);
             }
 
             double val = res[2] * coef + coef2;
 
-            if(val > 1) {
+            if (val > 1) {
                 val = 1;
             }
-            if(val < 0) {
+            if (val < 0) {
                 val = 0;
             }
 
             int[] rgb = ColorSpaceConverter.HSBtoRGB(res[0], res[1], val);
             return 0xff000000 | (rgb[0] << 16) | (rgb[1] << 8) | rgb[2];
-        }
-        else if(ls.colorMode == 2) { //HSL
+        } else if (ls.colorMode == 2) { //HSL
             double[] res = ColorSpaceConverter.RGBtoHSL(r, g, b);
 
             double coef2 = 0;
-            if(spec_refl > 0) {
+            if (spec_refl > 0) {
                 coef2 = ls.specularintensity * Math.pow(spec_refl, ls.shininess);
             }
 
             double val = res[2] * coef + coef2;
 
-            if(val > 1) {
+            if (val > 1) {
                 val = 1;
             }
-            if(val < 0) {
+            if (val < 0) {
                 val = 0;
             }
 
             int[] rgb = ColorSpaceConverter.HSLtoRGB(res[0], res[1], val);
             return 0xff000000 | (rgb[0] << 16) | (rgb[1] << 8) | rgb[2];
-        }
-        else if(ls.colorMode == 3) { //Blending
+        } else if (ls.colorMode == 3) { //Blending
             double coef2 = 0;
-            if(spec_refl > 0) {
+            if (spec_refl > 0) {
                 coef2 = ls.specularintensity * Math.pow(spec_refl, ls.shininess);
             }
 
             coef += coef2;
 
-            if(coef > 1) {
+            if (coef > 1) {
                 coef = 1;
             }
-            if(coef < 0) {
+            if (coef < 0) {
                 coef = 0;
             }
 
-            int index = (int)((1 - coef) * (gradient.length - 1) + 0.5);
+            int index = (int) ((1 - coef) * (gradient.length - 1) + 0.5);
             index = gradient.length - 1 - index;
-            
+
             int grad_color = getGradientColor(index + gradient_offset);
 
             int temp_red = (grad_color >> 16) & 0xff;
@@ -5500,36 +5378,35 @@ public abstract class ThreadDraw extends Thread {
             int temp_blue = grad_color & 0xff;
 
             return blending.blend(temp_red, temp_green, temp_blue, r, g, b, 1 - ls.light_blending);
-        }
-        else { //scaling
+        } else { //scaling
             double coef2 = 0;
-            if(spec_refl > 0) {
+            if (spec_refl > 0) {
                 coef2 = ls.specularintensity * Math.pow(spec_refl, ls.shininess);
             }
 
             coef += coef2;
 
-            r = (int)(r * coef + 0.5);
-            g = (int)(g * coef + 0.5);
-            b = (int)(b * coef + 0.5);
+            r = (int) (r * coef + 0.5);
+            g = (int) (g * coef + 0.5);
+            b = (int) (b * coef + 0.5);
 
-            if(r > 255) {
+            if (r > 255) {
                 r = 255;
             }
-            if(g > 255) {
+            if (g > 255) {
                 g = 255;
             }
-            if(b > 255) {
+            if (b > 255) {
                 b = 255;
             }
 
-            if(r < 0) {
+            if (r < 0) {
                 r = 0;
             }
-            if(g < 0) {
+            if (g < 0) {
                 g = 0;
             }
-            if(b < 0) {
+            if (b < 0) {
                 b = 0;
             }
 
@@ -5547,24 +5424,22 @@ public abstract class ThreadDraw extends Thread {
         int colB = grey;
 
         int length = 14;
-        for(int y = FROMy; y < TOy; y++) {
-            for(int x = FROMx, loc = y * image_size + x; x < TOx; x++, loc++) {
-                if(rgbs[loc] == 0x00ffffff) {
-                    if(x % length < length / 2) {
+        for (int y = FROMy; y < TOy; y++) {
+            for (int x = FROMx, loc = y * image_size + x; x < TOx; x++, loc++) {
+                if (rgbs[loc] == 0x00ffffff) {
+                    if (x % length < length / 2) {
                         rgbs[loc] = colA;
-                    }
-                    else {
+                    } else {
                         rgbs[loc] = colB;
                     }
 
                 }
             }
 
-            if(y % length < length / 2) {
+            if (y % length < length / 2) {
                 colA = white;
                 colB = grey;
-            }
-            else {
+            } else {
                 colB = white;
                 colA = grey;
             }
@@ -5573,10 +5448,10 @@ public abstract class ThreadDraw extends Thread {
 
     private float calaculateDomainColoringHeight(double res) {
 
-        if(Double.isInfinite(res)) {
+        if (Double.isInfinite(res)) {
             res = 1000000;
         }
-        return (float)(res > 1000000 ? 1000000 : res);
+        return (float) (res > 1000000 ? 1000000 : res);
 
     }
 
@@ -5591,7 +5466,7 @@ public abstract class ThreadDraw extends Thread {
             -y_antialiasing_size_x2, 0, y_antialiasing_size_x2, -y_antialiasing_size_x2, y_antialiasing_size_x2, -y_antialiasing_size_x2, 0, y_antialiasing_size_x2,
             -y_antialiasing_size, y_antialiasing_size, -y_antialiasing_size_x2, y_antialiasing_size_x2, -y_antialiasing_size_x2, y_antialiasing_size_x2, -y_antialiasing_size, y_antialiasing_size};
 
-        return new Object[] {antialiasing_x, antialiasing_y};
+        return new Object[]{antialiasing_x, antialiasing_y};
 
     }
 
@@ -5630,7 +5505,7 @@ public abstract class ThreadDraw extends Thread {
             cos_inv_y_antialiasing_size_x2, 1, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, 1, cos_y_antialiasing_size_x2,
             cos_inv_y_antialiasing_size, cos_y_antialiasing_size, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size_x2, cos_y_antialiasing_size_x2, cos_inv_y_antialiasing_size, cos_y_antialiasing_size};
 
-        return new Object[] {antialiasing_x, antialiasing_y_sin, antialiasing_y_cos};
+        return new Object[]{antialiasing_x, antialiasing_y_sin, antialiasing_y_cos};
     }
 
     public static String getDefaultInitialValue() {
@@ -5644,17 +5519,16 @@ public abstract class ThreadDraw extends Thread {
         return convergent_bailout;
 
     }
-    
+
     public static void setDomainImageData(int image_size, boolean mode) {
-        
-        if(mode && (domain_image_data == null || domain_image_data.length != image_size * image_size) ) {
+
+        if (mode && (domain_image_data == null || domain_image_data.length != image_size * image_size)) {
             domain_image_data = new Complex[image_size * image_size];
-        }
-        else if (!mode) {
+        } else if (!mode) {
             domain_image_data = null;
             System.gc();
         }
-        
+
     }
 
     public static void setArrays(int image_size, boolean usesDomainColoring) {
@@ -5674,8 +5548,8 @@ public abstract class ThreadDraw extends Thread {
         escaped = new boolean[image_size * image_size];
         image_iterations_fast_julia = new double[MainWindow.FAST_JULIA_IMAGE_SIZE * MainWindow.FAST_JULIA_IMAGE_SIZE];
         escaped_fast_julia = new boolean[MainWindow.FAST_JULIA_IMAGE_SIZE * MainWindow.FAST_JULIA_IMAGE_SIZE];
-        
-        if(usesDomainColoring) {
+
+        if (usesDomainColoring) {
             domain_image_data = new Complex[image_size * image_size];
         }
     }
@@ -5800,64 +5674,59 @@ public abstract class ThreadDraw extends Thread {
 
     private int getModifiedColor(int red, int green, int blue, double coef, int colorMethod, double colorBlending, boolean reverseBlending) {
 
-        if(colorMethod == 0) { //Lab
+        if (colorMethod == 0) { //Lab
             double[] res = ColorSpaceConverter.RGBtoLAB(red, green, blue);
             double val = 2 * coef * res[0];
             val = val > 100 ? 100 : val;
             int[] rgb = ColorSpaceConverter.LABtoRGB(val, res[1], res[2]);
             return 0xff000000 | (rgb[0] << 16) | (rgb[1] << 8) | rgb[2];
-        }
-        else if(colorMethod == 1) { //HSB
+        } else if (colorMethod == 1) { //HSB
             double[] res = ColorSpaceConverter.RGBtoHSB(red, green, blue);
             double val = 2 * coef * res[2];
             val = val > 1 ? 1 : val;
             int[] rgb = ColorSpaceConverter.HSBtoRGB(res[0], res[1], val);
             return 0xff000000 | (rgb[0] << 16) | (rgb[1] << 8) | rgb[2];
-        }
-        else if(colorMethod == 2) { //HSL
+        } else if (colorMethod == 2) { //HSL
             double[] res = ColorSpaceConverter.RGBtoHSL(red, green, blue);
             double val = 2 * coef * res[2];
             val = val > 1 ? 1 : val;
             int[] rgb = ColorSpaceConverter.HSLtoRGB(res[0], res[1], val);
             return 0xff000000 | (rgb[0] << 16) | (rgb[1] << 8) | rgb[2];
-        }
-        else if(colorMethod == 3) {// blend
-            int index = (int)(coef * (gradient.length - 1) + 0.5);
+        } else if (colorMethod == 3) {// blend
+            int index = (int) (coef * (gradient.length - 1) + 0.5);
 
-            if(reverseBlending) {
+            if (reverseBlending) {
                 index = gradient.length - 1 - index;
             }
 
             int grad_color = getGradientColor(index + gradient_offset);
-            
+
             int temp_red = (grad_color >> 16) & 0xff;
             int temp_green = (grad_color >> 8) & 0xff;
             int temp_blue = grad_color & 0xff;
 
             return blending.blend(temp_red, temp_green, temp_blue, red, green, blue, colorBlending);
-        }
-        else { //scale
-            red = (int)(2 * coef * red + 0.5);
-            green = (int)(2 * coef * green + 0.5);
-            blue = (int)(2 * coef * blue + 0.5);
+        } else { //scale
+            red = (int) (2 * coef * red + 0.5);
+            green = (int) (2 * coef * green + 0.5);
+            blue = (int) (2 * coef * blue + 0.5);
             red = red > 255 ? 255 : red;
             green = green > 255 ? 255 : green;
             blue = blue > 255 ? 255 : blue;
             return 0xff000000 | (red << 16) | (green << 8) | blue;
         }
     }
-    
+
     public double scaleDomainHeight(double norm) {
-        
-        if(ds.domainProcessingTransfer == 0) {
+
+        if (ds.domainProcessingTransfer == 0) {
             return norm * ds.domainProcessingHeightFactor;
-        }
-        else {
+        } else {
             return 1 / (norm * ds.domainProcessingHeightFactor);
-        }      
-        
+        }
+
     }
-    
+
     private void interpolationFactory(int color_interpolation) {
         switch (color_interpolation) {
             case MainWindow.INTERPOLATION_LINEAR:
@@ -5886,12 +5755,12 @@ public abstract class ThreadDraw extends Thread {
                 break;
         }
     }
-    
-    private void fractalFactory(int function, double xCenter, double yCenter, double size, int max_iterations, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_val, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, int plane_type, double[] rotation_vals, double[] rotation_center, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, double z_exponent, double[] z_exponent_complex, double[] coefficients, double[] coefficients_im, double[] z_exponent_nova, double[] relaxation, int nova_method, int bail_technique, String user_formula, String user_formula2, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, double coupling, String[] user_formula_coupled, int coupling_method, double coupling_amplitude, double coupling_frequency, int coupling_seed, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, GenericCaZbdZeSettings gcs, String[] lyapunovExpression, OrbitTrapSettings ots, boolean exterior_de, double exterior_de_factor, boolean inverse_dem, int escaping_smooth_algorithm, int converging_smooth_algorithm, StatisticsSettings sts, boolean useLyapunovExponent, String user_fz_formula, String user_dfz_formula, String user_ddfz_formula, double[] kleinianLine, double kleinianK, double kleinianM, double[] laguerre_deg, double[] durand_kernel_init_val, MagneticPendulumSettings mps, String lyapunovFunction, String lyapunovExponentFunction, int lyapunovVariableId, String user_relaxation_formula, String user_nova_addend_formula, GenericCpAZpBCSettings gcps, InertiaGravityFractalSettings igs, LambdaFnFnSettings lfns) {
-        
+
+    private void fractalFactory(int function, double xCenter, double yCenter, double size, int max_iterations, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_val, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, int plane_type, double[] rotation_vals, double[] rotation_center, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, double z_exponent, double[] z_exponent_complex, double[] coefficients, double[] coefficients_im, double[] z_exponent_nova, double[] relaxation, int nova_method, int bail_technique, String user_formula, String user_formula2, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, double coupling, String[] user_formula_coupled, int coupling_method, double coupling_amplitude, double coupling_frequency, int coupling_seed, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, GenericCaZbdZeSettings gcs, String[] lyapunovExpression, OrbitTrapSettings ots, boolean exterior_de, double exterior_de_factor, boolean inverse_dem, int escaping_smooth_algorithm, int converging_smooth_algorithm, StatisticsSettings sts, boolean useLyapunovExponent, String user_fz_formula, String user_dfz_formula, String user_ddfz_formula, double[] kleinianLine, double kleinianK, double kleinianM, double[] laguerre_deg, double[] durand_kernel_init_val, MagneticPendulumSettings mps, String lyapunovFunction, String lyapunovExponentFunction, int lyapunovVariableId, String user_relaxation_formula, String user_nova_addend_formula, GenericCpAZpBCSettings gcps, InertiaGravityFractalSettings igs, LambdaFnFnSettings lfns, double[] newton_hines_k, TrueColorSettings tcs, String lyapunovInitialValue) {
+
         switch (function) {
             case MainWindow.MANDELBROT:
-                fractal = new Mandelbrot(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, burning_ship, mandel_grass, mandel_grass_vals, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, exterior_de, exterior_de_factor, inverse_dem, escaping_smooth_algorithm, ots, sts);              
+                fractal = new Mandelbrot(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, burning_ship, mandel_grass, mandel_grass_vals, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, exterior_de, exterior_de_factor, inverse_dem, escaping_smooth_algorithm, ots, sts);
                 break;
             case MainWindow.MANDELBROTCUBED:
                 fractal = new MandelbrotCubed(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, burning_ship, mandel_grass, mandel_grass_vals, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, ots, sts);
@@ -6104,7 +5973,7 @@ public abstract class ThreadDraw extends Thread {
                 fractal = new SteffensenFormula(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, user_fz_formula, ots, sts);
                 break;
             case MainWindow.NOVA:
-                fractal = new Nova(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, z_exponent_nova, relaxation, nova_method, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                fractal = new Nova(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, z_exponent_nova, relaxation, nova_method, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts, newton_hines_k);
                 break;
             case MainWindow.EXP:
                 fractal = new Exp(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, ots, sts);
@@ -6275,34 +6144,30 @@ public abstract class ThreadDraw extends Thread {
                 fractal = new Formula46(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, ots, sts);
                 break;
             case MainWindow.USER_FORMULA:
-                if(bail_technique == 0) {
+                if (bail_technique == 0) {
                     fractal = new UserFormulaEscaping(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, user_formula, user_formula2, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, ots, sts);
-                }
-                else {
+                } else {
                     fractal = new UserFormulaConverging(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, user_formula, user_formula2, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
                 }
                 break;
             case MainWindow.USER_FORMULA_ITERATION_BASED:
-                if(bail_technique == 0) {
+                if (bail_technique == 0) {
                     fractal = new UserFormulaIterationBasedEscaping(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, user_formula_iteration_based, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, ots, sts);
-                }
-                else {
+                } else {
                     fractal = new UserFormulaIterationBasedConverging(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, user_formula_iteration_based, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
                 }
                 break;
             case MainWindow.USER_FORMULA_CONDITIONAL:
-                if(bail_technique == 0) {
+                if (bail_technique == 0) {
                     fractal = new UserFormulaConditionalEscaping(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, user_formula_conditions, user_formula_condition_formula, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, ots, sts);
-                }
-                else {
+                } else {
                     fractal = new UserFormulaConditionalConverging(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, user_formula_conditions, user_formula_condition_formula, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
                 }
                 break;
             case MainWindow.USER_FORMULA_COUPLED:
-                if(bail_technique == 0) {
+                if (bail_technique == 0) {
                     fractal = new UserFormulaCoupledEscaping(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, coupling, user_formula_coupled, coupling_method, coupling_amplitude, coupling_frequency, coupling_seed, ots, sts);
-                }
-                else {
+                } else {
                     fractal = new UserFormulaCoupledConverging(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, coupling, user_formula_coupled, coupling_method, coupling_amplitude, coupling_frequency, coupling_seed, ots, sts);
                 }
                 break;
@@ -6412,10 +6277,10 @@ public abstract class ThreadDraw extends Thread {
                 fractal = new DurandKernerPoly(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, coefficients, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts, durand_kernel_init_val, coefficients_im);
                 break;
             case MainWindow.MAGNETIC_PENDULUM:
-                fractal = new MagneticPendulum(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts, mps);               
+                fractal = new MagneticPendulum(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts, mps);
                 break;
             case MainWindow.LYAPUNOV:
-                fractal = new Lyapunov(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, ots, sts, lyapunovExpression, useLyapunovExponent, lyapunovFunction, lyapunovExponentFunction, lyapunovVariableId);
+                fractal = new Lyapunov(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, ots, sts, lyapunovExpression, useLyapunovExponent, lyapunovFunction, lyapunovExponentFunction, lyapunovVariableId, lyapunovInitialValue);
                 break;
             case MainWindow.BAIRSTOW3:
                 fractal = new Bairstow3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
@@ -6433,7 +6298,7 @@ public abstract class ThreadDraw extends Thread {
                 fractal = new BairstowPoly(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, coefficients, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
                 break;
             case MainWindow.USER_FORMULA_NOVA:
-                fractal = new UserFormulaNova(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, nova_method, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts, user_fz_formula, user_dfz_formula, user_ddfz_formula, user_relaxation_formula, user_nova_addend_formula, laguerre_deg);
+                fractal = new UserFormulaNova(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, nova_method, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts, user_fz_formula, user_dfz_formula, user_ddfz_formula, user_relaxation_formula, user_nova_addend_formula, laguerre_deg, newton_hines_k);
                 break;
             case MainWindow.GENERIC_CpAZpBC:
                 fractal = new GenericCpAZpBC(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, ots, sts, gcps);
@@ -6441,12 +6306,44 @@ public abstract class ThreadDraw extends Thread {
             case MainWindow.INERTIA_GRAVITY:
                 fractal = new InertiaGravityFractal(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, ots, sts, igs);
                 break;
+            case MainWindow.MANDEL_NEWTON:
+                fractal = new MandelNewton(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.LAMBERT_W_VARIATION:
+                fractal = new LambertWVariation(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.NEWTON_HINES3:
+                fractal = new NewtonHines3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.NEWTON_HINES4:
+                fractal = new NewtonHines4(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.NEWTON_HINESGENERALIZED3:
+                fractal = new NewtonHinesGeneralized3(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.NEWTON_HINESGENERALIZED8:
+                fractal = new NewtonHinesGeneralized8(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.NEWTON_HINESSIN:
+                fractal = new NewtonHinesSin(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.NEWTON_HINESCOS:
+                fractal = new NewtonHinesCos(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts);
+                break;
+            case MainWindow.NEWTON_HINESPOLY:
+                fractal = new NewtonHinesPoly(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, coefficients, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts, coefficients_im, newton_hines_k);
+                break;
+            case MainWindow.NEWTON_HINESFORMULA:
+                fractal = new NewtonHinesFormula(xCenter, yCenter, size, max_iterations, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, user_fz_formula, user_dfz_formula, ots, sts, newton_hines_k);
+                break;
         }
 
+        setTrueColoringOptions(tcs);
+
     }
-    
-    private void juliaFactory(int function, double xCenter, double yCenter, double size, int max_iterations, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, double z_exponent, double[] z_exponent_complex, double[] coefficients, double[] coefficients_im, double[] z_exponent_nova, double[] relaxation, int nova_method, int bail_technique, String user_formula, String user_formula2, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, double coupling, String[] user_formula_coupled, int coupling_method, double coupling_amplitude, double coupling_frequency, int coupling_seed, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, GenericCaZbdZeSettings gcs, String[] lyapunovExpression, OrbitTrapSettings ots, boolean exterior_de, double exterior_de_factor, boolean inverse_dem, int escaping_smooth_algorithm, int converging_smooth_algorithm, StatisticsSettings sts, boolean useLyapunovExponent, String lyapunovFunction, String lyapunovExponentFunction, int lyapunovVariableId, String user_fz_formula, String user_dfz_formula, String user_ddfz_formula, String user_relaxation_formula, String user_nova_addend_formula, double[] laguerre_deg, GenericCpAZpBCSettings gcps, LambdaFnFnSettings lfns, double xJuliaCenter, double yJuliaCenter) {
-        
+
+    private void juliaFactory(int function, double xCenter, double yCenter, double size, int max_iterations, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, double z_exponent, double[] z_exponent_complex, double[] coefficients, double[] coefficients_im, double[] z_exponent_nova, double[] relaxation, int nova_method, int bail_technique, String user_formula, String user_formula2, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, double coupling, String[] user_formula_coupled, int coupling_method, double coupling_amplitude, double coupling_frequency, int coupling_seed, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, GenericCaZbdZeSettings gcs, String[] lyapunovExpression, OrbitTrapSettings ots, boolean exterior_de, double exterior_de_factor, boolean inverse_dem, int escaping_smooth_algorithm, int converging_smooth_algorithm, StatisticsSettings sts, boolean useLyapunovExponent, String lyapunovFunction, String lyapunovExponentFunction, int lyapunovVariableId, String user_fz_formula, String user_dfz_formula, String user_ddfz_formula, String user_relaxation_formula, String user_nova_addend_formula, double[] laguerre_deg, GenericCpAZpBCSettings gcps, LambdaFnFnSettings lfns, double[] newton_hines_k, TrueColorSettings tcs, double xJuliaCenter, double yJuliaCenter) {
+
         switch (function) {
             case MainWindow.MANDELBROT:
                 fractal = new Mandelbrot(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, exterior_de, exterior_de_factor, inverse_dem, escaping_smooth_algorithm, ots, sts, xJuliaCenter, yJuliaCenter);
@@ -6524,7 +6421,7 @@ public abstract class ThreadDraw extends Thread {
                 fractal = new Phoenix(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, ots, sts, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.NOVA:
-                fractal = new Nova(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, z_exponent_nova, relaxation, nova_method, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts, xJuliaCenter, yJuliaCenter);
+                fractal = new Nova(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, z_exponent_nova, relaxation, nova_method, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts, newton_hines_k, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.EXP:
                 fractal = new Exp(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, ots, sts, xJuliaCenter, yJuliaCenter);
@@ -6695,34 +6592,30 @@ public abstract class ThreadDraw extends Thread {
                 fractal = new Formula46(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, ots, sts, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.USER_FORMULA:
-                if(bail_technique == 0) {
+                if (bail_technique == 0) {
                     fractal = new UserFormulaEscaping(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_formula, user_formula2, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, ots, sts, xJuliaCenter, yJuliaCenter);
-                }
-                else {
+                } else {
                     fractal = new UserFormulaConverging(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_formula, user_formula2, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts, xJuliaCenter, yJuliaCenter);
                 }
                 break;
             case MainWindow.USER_FORMULA_ITERATION_BASED:
-                if(bail_technique == 0) {
+                if (bail_technique == 0) {
                     fractal = new UserFormulaIterationBasedEscaping(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_formula_iteration_based, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, ots, sts, xJuliaCenter, yJuliaCenter);
-                }
-                else {
+                } else {
                     fractal = new UserFormulaIterationBasedConverging(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_formula_iteration_based, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts, xJuliaCenter, yJuliaCenter);
                 }
                 break;
             case MainWindow.USER_FORMULA_CONDITIONAL:
-                if(bail_technique == 0) {
+                if (bail_technique == 0) {
                     fractal = new UserFormulaConditionalEscaping(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_formula_conditions, user_formula_condition_formula, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, ots, sts, xJuliaCenter, yJuliaCenter);
-                }
-                else {
+                } else {
                     fractal = new UserFormulaConditionalConverging(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_formula_conditions, user_formula_condition_formula, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts, xJuliaCenter, yJuliaCenter);
                 }
                 break;
             case MainWindow.USER_FORMULA_COUPLED:
-                if(bail_technique == 0) {
+                if (bail_technique == 0) {
                     fractal = new UserFormulaCoupledEscaping(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, coupling, user_formula_coupled, coupling_method, coupling_amplitude, coupling_frequency, coupling_seed, ots, sts, xJuliaCenter, yJuliaCenter);
-                }
-                else {
+                } else {
                     fractal = new UserFormulaCoupledConverging(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, coupling, user_formula_coupled, coupling_method, coupling_amplitude, coupling_frequency, coupling_seed, ots, sts, xJuliaCenter, yJuliaCenter);
                 }
                 break;
@@ -6748,20 +6641,44 @@ public abstract class ThreadDraw extends Thread {
                 fractal = new Lyapunov(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, ots, sts, lyapunovExpression, useLyapunovExponent, lyapunovFunction, lyapunovExponentFunction, lyapunovVariableId, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.USER_FORMULA_NOVA:
-                fractal = new UserFormulaNova(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, nova_method, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts, user_fz_formula, user_dfz_formula, user_ddfz_formula, user_relaxation_formula, user_nova_addend_formula, laguerre_deg, xJuliaCenter, yJuliaCenter);
+                fractal = new UserFormulaNova(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, nova_method, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts, user_fz_formula, user_dfz_formula, user_ddfz_formula, user_relaxation_formula, user_nova_addend_formula, laguerre_deg, newton_hines_k, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.GENERIC_CpAZpBC:
                 fractal = new GenericCpAZpBC(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, ots, sts, gcps, xJuliaCenter, yJuliaCenter);
                 break;
+            case MainWindow.MANDEL_NEWTON:
+                fractal = new MandelNewton(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, periodicity_checking, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, escaping_smooth_algorithm, ots, sts, xJuliaCenter, yJuliaCenter);
+                break;
+            case MainWindow.LAMBERT_W_VARIATION:
+                fractal = new LambertWVariation(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, out_coloring_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, smoothing, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, converging_smooth_algorithm, ots, sts, xJuliaCenter, yJuliaCenter);
+                break;
 
         }
-        
+
+        setTrueColoringOptions(tcs);
+
     }
-    
+
     public static int getGradientColor(int index) {
-        
+
         return gradient[index % gradient.length];
-        
+
+    }
+
+    public void setTrueColoringOptions(TrueColorSettings tcs) {
+
+        fractal.setTrueColorAlgorithm(tcs);
+        usesTrueColorIn = tcs.trueColorIn;
+        TrueColorAlgorithm.palette_outcoloring = palette_outcoloring;
+        TrueColorAlgorithm.palette_incoloring = palette_incoloring;
+        TrueColorAlgorithm.color_transfer_outcoloring = color_transfer_outcoloring;
+        TrueColorAlgorithm.color_transfer_incoloring = color_transfer_incoloring;
+        TrueColorAlgorithm.usePaletteForInColoring = usePaletteForInColoring;
+        TrueColorAlgorithm.color_cycling_location_outcoloring = color_cycling_location_outcoloring;
+        TrueColorAlgorithm.color_cycling_location_incoloring = color_cycling_location_incoloring;
+        TrueColorAlgorithm.gradient = gradient;
+        TrueColorAlgorithm.gradient_offset = gradient_offset;
+
     }
 
 }

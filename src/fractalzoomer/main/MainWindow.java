@@ -95,9 +95,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.Timer;
@@ -523,11 +523,11 @@ public class MainWindow extends JFrame implements Constants {
                                 selectPointJulia(e);
                             }
                         } else //Polar
-                        if (s.fns.julia && first_seed) {
-                            selectPointJulia(e);
-                        } else {
-                            selectPointPolar(e);
-                        }
+                         if (s.fns.julia && first_seed) {
+                                selectPointJulia(e);
+                            } else {
+                                selectPointPolar(e);
+                            }
                     } else { // 3D
                         selectPoint3D(e);
                     }
@@ -748,7 +748,7 @@ public class MainWindow extends JFrame implements Constants {
                     scroll_pane.setCursor(rotate_cursor);
                 } else if (altKeyPressed && scroll_pane.getCursor().getType() != Cursor.HAND_CURSOR) {
                     scroll_pane.setCursor(new Cursor(Cursor.HAND_CURSOR));
-                } else if (scroll_pane.getCursor().getType() != Cursor.CROSSHAIR_CURSOR){
+                } else if (scroll_pane.getCursor().getType() != Cursor.CROSSHAIR_CURSOR) {
                     scroll_pane.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
                 }
 
@@ -1240,6 +1240,36 @@ public class MainWindow extends JFrame implements Constants {
             case BAIRSTOWPOLY:
                 temp += "   Bairstow " + s.poly;
                 break;
+            case NEWTON_HINES3:
+                temp += "   Newton-Hines p(z) = z^3 -1";
+                break;
+            case NEWTON_HINES4:
+                temp += "   Newton-Hines p(z) = z^4 -1";
+                break;
+            case NEWTON_HINESGENERALIZED3:
+                temp += "   Newton-Hines p(z) = z^3 -2z +2";
+                break;
+            case NEWTON_HINESGENERALIZED8:
+                temp += "   Newton-Hines p(z) = z^8 +15z^4 -16";
+                break;
+            case NEWTON_HINESSIN:
+                temp += "   Newton-Hines f(z) = sin(z)";
+                break;
+            case NEWTON_HINESCOS:
+                temp += "   Newton-Hines f(z) = cos(z)";
+                break;
+            case NEWTON_HINESPOLY:
+                temp += "   Newton-Hines " + s.poly;
+                break;
+            case NEWTON_HINESFORMULA:
+                temp += "   Newton-Hines Formula";
+                break;
+            case MANDEL_NEWTON:
+                temp += "   Mandel Newton Variation";
+                break;
+            case LAMBERT_W_VARIATION:
+                temp += "   Lambert W Variation";
+                break;
             case NOVA:
                 switch (s.fns.nova_method) {
 
@@ -1651,8 +1681,9 @@ public class MainWindow extends JFrame implements Constants {
 
         file_chooser.addChoosableFileFilter(new FileNameExtensionFilter("Fractal Zoomer Settings (*.fzs)", "fzs"));
 
-        Calendar calendar = new GregorianCalendar();
-        file_chooser.setSelectedFile(new File("fractal " + String.format("%02d", calendar.get(Calendar.DAY_OF_MONTH)) + "-" + String.format("%02d", calendar.get(Calendar.MONTH) + 1) + "-" + calendar.get(Calendar.YEAR) + " " + String.format("%02d", calendar.get(Calendar.HOUR_OF_DAY)) + ";" + String.format("%02d", calendar.get(Calendar.MINUTE)) + ";" + String.format("%02d", calendar.get(Calendar.SECOND)) + ".fzs"));
+        String name = "fractal " + DateTimeFormatter.ofPattern("yyyy-MM-dd HH;mm;ss").format(LocalDateTime.now()) + ".fzs";
+
+        file_chooser.setSelectedFile(new File(name));
 
         file_chooser.addPropertyChangeListener(JFileChooser.FILE_FILTER_CHANGED_PROPERTY, new PropertyChangeListener() {
 
@@ -1852,6 +1883,9 @@ public class MainWindow extends JFrame implements Constants {
             options_menu.getGradient().setEnabled(false);
             options_menu.getColorBlending().setEnabled(false);
 
+            options_menu.getOutTrueColoring().setEnabled(false);
+            options_menu.getInTrueColoring().setEnabled(false);
+
             infobar.getMaxIterationsColorPreview().setVisible(false);
             infobar.getMaxIterationsColorPreviewLabel().setVisible(false);
             infobar.getGradientPreviewLabel().setVisible(false);
@@ -1934,6 +1968,9 @@ public class MainWindow extends JFrame implements Constants {
             options_menu.getStatisticsColoring().setEnabled(false);
             options_menu.getFractalColor().setEnabled(false);
 
+            options_menu.getOutTrueColoring().setEnabled(false);
+            options_menu.getInTrueColoring().setEnabled(false);
+
             options_menu.getGreedyAlgorithm().setEnabled(false);
             options_menu.getPeriodicityChecking().setEnabled(false);
             options_menu.getBailout().setEnabled(false);
@@ -1967,10 +2004,15 @@ public class MainWindow extends JFrame implements Constants {
         tools_menu.getDomainColoring().setSelected(s.ds.domain_coloring);
         toolbar.getDomainColoringButton().setSelected(s.ds.domain_coloring);
 
-        if (s.ots.useTraps) {
+        if (s.ots.useTraps || s.fns.tcs.trueColorIn) {
             tools_menu.getColorCycling().setEnabled(false);
             toolbar.getColorCyclingButton().setEnabled(false);
             options_menu.getPeriodicityChecking().setEnabled(false);
+        }
+
+        if (s.fns.tcs.trueColorOut) {
+            tools_menu.getColorCycling().setEnabled(false);
+            toolbar.getColorCyclingButton().setEnabled(false);
         }
 
         filters_menu.setCheckedFilters(s.fs.filters);
@@ -2049,6 +2091,14 @@ public class MainWindow extends JFrame implements Constants {
             case PARHALLEYFORMULA:
             case LAGUERREFORMULA:
             case MAGNETIC_PENDULUM:
+            case LAMBERT_W_VARIATION:
+            case NEWTON_HINES3:
+            case NEWTON_HINES4:
+            case NEWTON_HINESGENERALIZED3:
+            case NEWTON_HINESGENERALIZED8:
+            case NEWTON_HINESSIN:
+            case NEWTON_HINESCOS:
+            case NEWTON_HINESFORMULA:
                 optionsEnableShortcut2();
                 break;
             case MANDELPOLY:
@@ -2063,6 +2113,7 @@ public class MainWindow extends JFrame implements Constants {
             case LAGUERREPOLY:
             case DURAND_KERNERPOLY:
             case BAIRSTOWPOLY:
+            case NEWTON_HINESPOLY:
                 if (s.fns.function == MANDELPOLY) {
                     optionsEnableShortcut();
                 } else {
@@ -2285,8 +2336,9 @@ public class MainWindow extends JFrame implements Constants {
 
         file_chooser.addChoosableFileFilter(new FileNameExtensionFilter("PNG (*.png)", "png"));
 
-        Calendar calendar = new GregorianCalendar();
-        file_chooser.setSelectedFile(new File("fractal " + String.format("%02d", calendar.get(Calendar.DAY_OF_MONTH)) + "-" + String.format("%02d", calendar.get(Calendar.MONTH) + 1) + "-" + calendar.get(Calendar.YEAR) + " " + String.format("%02d", calendar.get(Calendar.HOUR_OF_DAY)) + ";" + String.format("%02d", calendar.get(Calendar.MINUTE)) + ";" + String.format("%02d", calendar.get(Calendar.SECOND)) + ".png"));
+        String name = "fractal " + DateTimeFormatter.ofPattern("yyyy-MM-dd HH;mm;ss").format(LocalDateTime.now()) + ".png";
+
+        file_chooser.setSelectedFile(new File(name));
 
         file_chooser.addPropertyChangeListener(JFileChooser.FILE_FILTER_CHANGED_PROPERTY, new PropertyChangeListener() {
 
@@ -2376,8 +2428,8 @@ public class MainWindow extends JFrame implements Constants {
 
         file_chooser.addChoosableFileFilter(new FileNameExtensionFilter("PNG (*.png)", "png"));
 
-        Calendar calendar = new GregorianCalendar();
-        file_chooser.setSelectedFile(new File("fractal " + String.format("%02d", calendar.get(Calendar.DAY_OF_MONTH)) + "-" + String.format("%02d", calendar.get(Calendar.MONTH) + 1) + "-" + calendar.get(Calendar.YEAR) + " " + String.format("%02d", calendar.get(Calendar.HOUR_OF_DAY)) + ";" + String.format("%02d", calendar.get(Calendar.MINUTE)) + ";" + String.format("%02d", calendar.get(Calendar.SECOND)) + ".png"));
+        String name = "fractal " + DateTimeFormatter.ofPattern("yyyy-MM-dd HH;mm;ss").format(LocalDateTime.now()) + ".png";
+        file_chooser.setSelectedFile(new File(name));
 
         file_chooser.addPropertyChangeListener(JFileChooser.FILE_FILTER_CHANGED_PROPERTY, new PropertyChangeListener() {
 
@@ -2653,16 +2705,16 @@ public class MainWindow extends JFrame implements Constants {
         }
 
     }
-    
+
     public void setSkipBailoutIterations() {
-        
+
         resetOrbit();
         new SkipBailoutDialog(ptr, s);
-        
+
     }
-    
+
     public void setSkipBailoutIterationsPost() {
-        
+
         SkipBailoutCondition.SKIPPED_ITERATION_COUNT = s.fns.skip_bailout_iterations;
 
         setOptions(false);
@@ -2767,12 +2819,10 @@ public class MainWindow extends JFrame implements Constants {
             int[] res = PaletteMenu.choosePaletteFiler(ptr);
             if (res != null) {
                 ptr.setPalette(temp, res, outcoloring_mode ? 0 : 1);
+            } else if (s.ps.color_choice != temp) {
+                options_menu.getOutColoringPalette()[temp].setSelected(false);
             } else {
-                if (s.ps.color_choice != temp) {
-                    options_menu.getOutColoringPalette()[temp].setSelected(false);
-                } else {
-                    options_menu.getOutColoringPalette()[temp].setSelected(true);
-                }
+                options_menu.getOutColoringPalette()[temp].setSelected(true);
             }
         } else {
             resetOrbit();
@@ -2781,12 +2831,10 @@ public class MainWindow extends JFrame implements Constants {
             int[] res = PaletteMenu.choosePaletteFiler(ptr);
             if (res != null) {
                 ptr.setPalette(temp, res, outcoloring_mode ? 0 : 1);
+            } else if (s.ps2.color_choice != temp) {
+                options_menu.getInColoringPalette()[temp].setSelected(false);
             } else {
-                if (s.ps2.color_choice != temp) {
-                    options_menu.getInColoringPalette()[temp].setSelected(false);
-                } else {
-                    options_menu.getInColoringPalette()[temp].setSelected(true);
-                }
+                options_menu.getInColoringPalette()[temp].setSelected(true);
             }
         }
 
@@ -2884,7 +2932,7 @@ public class MainWindow extends JFrame implements Constants {
                     Arrays.fill(((DataBufferInt) image.getRaster().getDataBuffer()).getData(), Color.BLACK.getRGB());
                 }
 
-                if (s.ots.useTraps) {
+                if (s.ots.useTraps || s.fns.tcs.trueColorOut || s.fns.tcs.trueColorIn) {
                     if (julia_map) {
                         createThreadsJuliaMap();
                     } else if (s.d3s.d3) {
@@ -2960,7 +3008,7 @@ public class MainWindow extends JFrame implements Constants {
                 Arrays.fill(((DataBufferInt) image.getRaster().getDataBuffer()).getData(), Color.BLACK.getRGB());
             }
 
-            if (s.fs.filters[ANTIALIASING] || s.ots.useTraps || s.ds.domain_coloring) {
+            if (s.fs.filters[ANTIALIASING] || s.ots.useTraps || s.ds.domain_coloring || s.fns.tcs.trueColorOut || s.fns.tcs.trueColorIn) {
                 if (julia_map) {
                     createThreadsJuliaMap();
                 } else if (s.d3s.d3) {
@@ -3094,12 +3142,16 @@ public class MainWindow extends JFrame implements Constants {
         if (!options_menu.getPeriodicityChecking().isSelected()) {
             periodicity_checking = false;
             options_menu.getInColoringMenu().setEnabledAllButMaxIterations(true);
-            options_menu.getOrbitTraps().setEnabled(true);
+            if (!s.useDirectColor) {
+                options_menu.getOrbitTraps().setEnabled(true);
+                options_menu.getInTrueColoring().setEnabled(true);
+            }
             main_panel.repaint();
         } else {
             periodicity_checking = true;
             options_menu.getInColoringMenu().setEnabledAllButMaxIterations(false);
             options_menu.getOrbitTraps().setEnabled(false);
+            options_menu.getInTrueColoring().setEnabled(false);
             main_panel.repaint();
         }
 
@@ -4145,7 +4197,7 @@ public class MainWindow extends JFrame implements Constants {
             options_menu.getDirectColor().setEnabled(option);
         }
 
-        if (!s.ds.domain_coloring && !s.isConvergingType() && s.fns.function != KLEINIAN && s.fns.function != SIERPINSKI_GASKET && s.fns.function != INERTIA_GRAVITY && !s.ots.useTraps) {
+        if (!s.ds.domain_coloring && !s.isConvergingType() && s.fns.function != KLEINIAN && s.fns.function != SIERPINSKI_GASKET && s.fns.function != INERTIA_GRAVITY && !s.ots.useTraps && !s.fns.tcs.trueColorIn) {
             options_menu.getPeriodicityChecking().setEnabled(option);
         }
 
@@ -4158,7 +4210,7 @@ public class MainWindow extends JFrame implements Constants {
             toolbar.getJuliaButton().setEnabled(option);
         }
 
-        if (!zoom_window && !orbit && !color_cycling && !s.d3s.d3 && !s.ots.useTraps && !s.useDirectColor) {
+        if (!zoom_window && !orbit && !color_cycling && !s.d3s.d3 && !s.ots.useTraps && !s.useDirectColor && !s.fns.tcs.trueColorOut && !s.fns.tcs.trueColorIn) {
             tools_menu.getColorCycling().setEnabled(option);
             toolbar.getColorCyclingButton().setEnabled(option);
         }
@@ -4199,6 +4251,11 @@ public class MainWindow extends JFrame implements Constants {
                 options_menu.getInColoringPaletteMenu().setEnabled(option);
                 options_menu.getPaletteGradientMerging().setEnabled(option);
                 toolbar.getInCustomPaletteButton().setEnabled(option);
+                options_menu.getOutTrueColoring().setEnabled(option);
+
+                if (!periodicity_checking) {
+                    options_menu.getInTrueColoring().setEnabled(option);
+                }
             }
         }
 
@@ -4463,6 +4520,13 @@ public class MainWindow extends JFrame implements Constants {
             case BAIRSTOW4:
             case BAIRSTOWGENERALIZED3:
             case BAIRSTOWGENERALIZED8:
+            case LAMBERT_W_VARIATION:
+            case NEWTON_HINES3:
+            case NEWTON_HINES4:
+            case NEWTON_HINESGENERALIZED3:
+            case NEWTON_HINESGENERALIZED8:
+            case NEWTON_HINESSIN:
+            case NEWTON_HINESCOS:
                 optionsEnableShortcut2();
                 break;
             case MANDELPOLY:
@@ -4477,6 +4541,7 @@ public class MainWindow extends JFrame implements Constants {
             case LAGUERREPOLY:
             case DURAND_KERNERPOLY:
             case BAIRSTOWPOLY:
+            case NEWTON_HINESPOLY:
                 new PolynomialDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
                 return;
             case GENERIC_CaZbdZe:
@@ -4486,6 +4551,7 @@ public class MainWindow extends JFrame implements Constants {
                 new GenericCpAZpBCDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
                 return;
             case NEWTONFORMULA:
+            case NEWTON_HINESFORMULA:
                 new RootFindingTwoFunctionsDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
                 return;
             case HALLEYFORMULA:
@@ -4522,7 +4588,7 @@ public class MainWindow extends JFrame implements Constants {
             case USER_FORMULA_CONDITIONAL:
                 new UserFormulaConditionalDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
                 return;
-             case LAMBDA_FN_FN:
+            case LAMBDA_FN_FN:
                 new LambdaFnFnDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
                 return;
             case MANDELBROT:
@@ -4626,7 +4692,7 @@ public class MainWindow extends JFrame implements Constants {
             s.sts.statistic_type = STRIPE_AVERAGE;
         }
 
-        if (s.isRootFindingMethod()) {
+        if (s.isConvergingType()) {
             s.sts.statistic_type = COS_ARG_DIVIDE_INVERSE_NORM;
         } else if (s.sts.statistic_type == COS_ARG_DIVIDE_INVERSE_NORM && !s.isMagnetType()) {
             s.sts.statistic_type = STRIPE_AVERAGE;
@@ -5408,6 +5474,7 @@ public class MainWindow extends JFrame implements Constants {
                     && k != BAIRSTOW3 && k != BAIRSTOW4 && k != BAIRSTOWGENERALIZED3 && k != BAIRSTOWGENERALIZED8 && k != BAIRSTOWPOLY
                     && k != DURAND_KERNER3 && k != DURAND_KERNER4 && k != DURAND_KERNERGENERALIZED3 && k != DURAND_KERNERGENERALIZED8 && k != DURAND_KERNERPOLY
                     && k != LAGUERRE3 && k != LAGUERRE4 && k != LAGUERREGENERALIZED3 && k != LAGUERREGENERALIZED8 && k != LAGUERRESIN && k != LAGUERRECOS && k != LAGUERREPOLY && k != LAGUERREFORMULA
+                    && k != NEWTON_HINES3 && k != NEWTON_HINES4 && k != NEWTON_HINESGENERALIZED3 && k != NEWTON_HINESGENERALIZED8 && k != NEWTON_HINESSIN && k != NEWTON_HINESCOS && k != NEWTON_HINESPOLY && k != NEWTON_HINESFORMULA
                     && k != MULLER3 && k != MULLER4 && k != MULLERGENERALIZED3 && k != MULLERGENERALIZED8 && k != MULLERSIN && k != MULLERCOS && k != MULLERPOLY && k != MULLERFORMULA
                     && k != KLEINIAN && k != MAGNETIC_PENDULUM && k != INERTIA_GRAVITY && k != SIERPINSKI_GASKET && k != NEWTON3 && k != STEFFENSENPOLY && k != NEWTON4 && k != NEWTONGENERALIZED3 && k != NEWTONGENERALIZED8 && k != NEWTONSIN && k != NEWTONCOS && k != NEWTONPOLY
                     && k != HALLEY3 && k != HALLEY4 && k != HALLEYGENERALIZED3 && k != HALLEYGENERALIZED8 && k != HALLEYSIN && k != HALLEYCOS && k != HALLEYPOLY
@@ -5524,7 +5591,7 @@ public class MainWindow extends JFrame implements Constants {
         s.fns.in_coloring_algorithm = temp;
 
         if (s.fns.in_coloring_algorithm == MAX_ITERATIONS) {
-            if (!s.ds.domain_coloring && !s.isConvergingType() && s.fns.function != KLEINIAN && s.fns.function != SIERPINSKI_GASKET && s.fns.function != INERTIA_GRAVITY && !s.ots.useTraps) {
+            if (!s.ds.domain_coloring && !s.isConvergingType() && s.fns.function != KLEINIAN && s.fns.function != SIERPINSKI_GASKET && s.fns.function != INERTIA_GRAVITY && !s.ots.useTraps && !s.fns.tcs.trueColorIn) {
                 options_menu.getPeriodicityChecking().setEnabled(true);
             }
         } else if (s.fns.in_coloring_algorithm == USER_INCOLORING_ALGORITHM) {
@@ -6400,16 +6467,14 @@ public class MainWindow extends JFrame implements Constants {
             } else {
                 return;
             }
-        } else {
-            if (s.ps2.color_cycling_location > 0) {
-                s.ps2.color_cycling_location--;
+        } else if (s.ps2.color_cycling_location > 0) {
+            s.ps2.color_cycling_location--;
 
-                if (s.ps2.color_choice == CUSTOM_PALETTE_ID) {
-                    s.temp_color_cycling_location_second_palette = s.ps2.color_cycling_location;
-                }
-            } else {
-                return;
+            if (s.ps2.color_choice == CUSTOM_PALETTE_ID) {
+                s.temp_color_cycling_location_second_palette = s.ps2.color_cycling_location;
             }
+        } else {
+            return;
         }
 
         updateColorPalettesMenu();
@@ -6697,16 +6762,14 @@ public class MainWindow extends JFrame implements Constants {
                 setUndecorated(false);
                 setVisible(true);
             }
+        } else if (isVisible()) {
+            dispose();
+            setExtendedState(JFrame.MAXIMIZED_BOTH);
+            setUndecorated(true);
+            setVisible(true);
         } else {
-            if (isVisible()) {
-                dispose();
-                setExtendedState(JFrame.MAXIMIZED_BOTH);
-                setUndecorated(true);
-                setVisible(true);
-            } else {
-                setExtendedState(JFrame.MAXIMIZED_BOTH);
-                setUndecorated(true);
-            }
+            setExtendedState(JFrame.MAXIMIZED_BOTH);
+            setUndecorated(true);
         }
 
     }
@@ -6901,6 +6964,9 @@ public class MainWindow extends JFrame implements Constants {
             options_menu.getInColoringMenu().setEnabled(false);
             options_menu.getFractalColor().setEnabled(false);
             options_menu.getStatisticsColoring().setEnabled(false);
+
+            options_menu.getOutTrueColoring().setEnabled(false);
+            options_menu.getInTrueColoring().setEnabled(false);
 
             options_menu.getGreedyAlgorithm().setEnabled(false);
             options_menu.getPeriodicityChecking().setEnabled(false);
@@ -7260,6 +7326,14 @@ public class MainWindow extends JFrame implements Constants {
         fractal_functions[BAIRSTOWGENERALIZED3].setEnabled(option);
         fractal_functions[BAIRSTOWGENERALIZED8].setEnabled(option);
         fractal_functions[BAIRSTOWPOLY].setEnabled(option);
+        fractal_functions[NEWTON_HINES3].setEnabled(option);
+        fractal_functions[NEWTON_HINES4].setEnabled(option);
+        fractal_functions[NEWTON_HINESGENERALIZED3].setEnabled(option);
+        fractal_functions[NEWTON_HINESGENERALIZED8].setEnabled(option);
+        fractal_functions[NEWTON_HINESSIN].setEnabled(option);
+        fractal_functions[NEWTON_HINESCOS].setEnabled(option);
+        fractal_functions[NEWTON_HINESPOLY].setEnabled(option);
+        fractal_functions[NEWTON_HINESFORMULA].setEnabled(option);
     }
 
     public void optionsEnableShortcut() {
@@ -7484,7 +7558,8 @@ public class MainWindow extends JFrame implements Constants {
                 } else {
                     c = PresetPalette.getPalette(i, s.ps.color_cycling_location);
                 }
-            } else {// the remaining palettes
+            } else// the remaining palettes
+            {
                 if (i < CUSTOM_PALETTE_ID) {
                     c = CustomPalette.getPalette(CustomPaletteEditorFrame.editor_default_palettes[i], INTERPOLATION_LINEAR, COLOR_SPACE_RGB, false, 0, 0, PROCESSING_NONE); // 0 color cycling loc
                 } else if (i == CUSTOM_PALETTE_ID) {
@@ -7527,7 +7602,8 @@ public class MainWindow extends JFrame implements Constants {
                 } else {
                     c = PresetPalette.getPalette(i, s.ps2.color_cycling_location);
                 }
-            } else {// the remaining palettes 
+            } else// the remaining palettes 
+            {
                 if (i < CUSTOM_PALETTE_ID) {
                     c = CustomPalette.getPalette(CustomPaletteEditorFrame.editor_default_palettes[i], INTERPOLATION_LINEAR, COLOR_SPACE_RGB, false, 0, 0, PROCESSING_NONE); // 0 color cycling loc
                 } else if (i == CUSTOM_PALETTE_ID) {
@@ -8049,7 +8125,7 @@ public class MainWindow extends JFrame implements Constants {
 
         whole_image_done = false;
 
-        if (s.fs.filters[MainWindow.ANTIALIASING] || s.ds.domain_coloring || s.ots.useTraps) {
+        if (s.fs.filters[MainWindow.ANTIALIASING] || s.ds.domain_coloring || s.ots.useTraps || s.fns.tcs.trueColorOut || s.fns.tcs.trueColorIn) {
 
             if (s.d3s.d3) {
                 Arrays.fill(((DataBufferInt) image.getRaster().getDataBuffer()).getData(), Color.BLACK.getRGB());
@@ -8281,24 +8357,24 @@ public class MainWindow extends JFrame implements Constants {
 
         Object[] labels = {info_panel,
             variables,
-            supported_vars,
+            new JLabel(supported_vars),
             operations,
-            "+ - * / % ^ ( ) ,",
+            new JLabel("+ - * / % ^ ( ) ,"),
             constants,
-            "pi, e, phi, c10, alpha, delta",
+            new JLabel("pi, e, phi, c10, alpha, delta"),
             complex_numbers,
-            "a + bi",
+            new JLabel("a + bi"),
             trig,
-            "sin, cos, tan, cot, sec, csc, sinh, cosh, tanh, coth, sech, csch, asin, acos, atan, acot, asec,",
-            "acsc, asinh, acosh, atanh, acoth, asech, acsch, vsin, vcos, cvsin, cvcos, hvsin, hvcos, hcvsin,",
-            "hcvcos, exsec, excsc, avsin, avcos, acvsin, acvcos, ahvsin, ahvcos, ahcvsin, ahcvcos, aexsec, aexcsc",
+            new JLabel("sin, cos, tan, cot, sec, csc, sinh, cosh, tanh, coth, sech, csch, asin, acos, atan, acot, asec,"),
+            new JLabel("acsc, asinh, acosh, atanh, acoth, asech, acsch, vsin, vcos, cvsin, cvcos, hvsin, hvcos, hcvsin,"),
+            new JLabel("hcvcos, exsec, excsc, avsin, avcos, acvsin, acvcos, ahvsin, ahvcos, ahcvsin, ahcvcos, aexsec, aexcsc"),
             other,
-            "exp, log, log10, log2, sqrt, abs, absre, absim, conj, re, im, norm, arg, gamma, fact, erf, rzeta, gi, rec, flip, round,",
-            "ceil, floor, trunc, deta, snorm, f1, ... f60",
+            new JLabel("exp, log, log10, log2, sqrt, abs, absre, absim, conj, re, im, norm, arg, gamma, fact, erf, rzeta, gi, rec, flip, round,"),
+            new JLabel("ceil, floor, trunc, deta, snorm, f1, ... f60"),
             two_arg,
-            "logn, bipol, ibipol, inflect, foldu, foldd, foldl, foldr, foldi, foldo, shear, cmp, fuzz, normn, rot, dist, sdist, g1, ... g60",
+            new JLabel("logn, bipol, ibipol, inflect, foldu, foldd, foldl, foldr, foldi, foldo, shear, cmp, fuzz, normn, rot, dist, sdist, g1, ... g60"),
             multi_arg,
-            "m1, ... m60, k1, ... k60"
+            new JLabel("m1, ... m60, k1, ... k60")
         };
 
         return labels;
@@ -8655,8 +8731,11 @@ public class MainWindow extends JFrame implements Constants {
         } else {
             ThreadDraw.USE_DIRECT_COLOR = s.useDirectColor = true;
             s.ots.useTraps = false;
+            s.fns.tcs.trueColorOut = false;
+            s.fns.tcs.trueColorIn = false;
 
             options_menu.getProcessing().updateIcons(s);
+            options_menu.getColorsMenu().updateIcons(s);
 
             tools_menu.getColorCycling().setEnabled(false);
             toolbar.getColorCyclingButton().setEnabled(false);
@@ -8680,6 +8759,8 @@ public class MainWindow extends JFrame implements Constants {
             options_menu.getProcessing().setEnabled(false);
             options_menu.getGradient().setEnabled(false);
             options_menu.getColorBlending().setEnabled(false);
+            options_menu.getOutTrueColoring().setEnabled(false);
+            options_menu.getInTrueColoring().setEnabled(false);
 
             infobar.getMaxIterationsColorPreview().setVisible(false);
             infobar.getMaxIterationsColorPreviewLabel().setVisible(false);
@@ -8865,7 +8946,7 @@ public class MainWindow extends JFrame implements Constants {
 
         whole_image_done = false;
 
-        if (s.fs.filters[ANTIALIASING] || s.ots.useTraps) {
+        if (s.fs.filters[ANTIALIASING] || s.ots.useTraps || s.fns.tcs.trueColorOut || s.fns.tcs.trueColorIn) {
             if (julia_map) {
                 createThreadsJuliaMap();
             } else {
@@ -8975,6 +9056,57 @@ public class MainWindow extends JFrame implements Constants {
         options_menu.getInitialValue().setEnabled(false);
         options_menu.getBailout().setEnabled(false);
         options_menu.getBailoutConditionMenu().setEnabled(false);
+    }
+
+    public void setOutTrueColor() {
+        resetOrbit();
+        new OutTrueColorDialog(ptr, s);
+    }
+
+    public void setInTrueColor() {
+        resetOrbit();
+        new InTrueColorDialog(ptr, s);
+    }
+
+    public void setOutTrueColorModePost() {
+
+        options_menu.getColorsMenu().updateIcons(s);
+        
+        tools_menu.getColorCycling().setEnabled(false);
+        toolbar.getColorCyclingButton().setEnabled(false);
+
+        setOptions(false);
+
+        progress.setValue(0);
+
+        resetImage();
+
+        whole_image_done = false;
+
+        if (s.d3s.d3) {
+            Arrays.fill(((DataBufferInt) image.getRaster().getDataBuffer()).getData(), Color.BLACK.getRGB());
+        }
+
+        if (julia_map) {
+            createThreadsJuliaMap();
+        } else {
+            createThreads(false);
+        }
+
+        calculation_time = System.currentTimeMillis();
+
+        if (julia_map) {
+            startThreads(julia_grid_first_dimension);
+        } else {
+            startThreads(n);
+        }
+    }
+    
+    public void setInTrueColorModePost() {
+        
+        options_menu.getPeriodicityChecking().setEnabled(false);
+        setOutTrueColorModePost();
+        
     }
 
     public static void main(String[] args) throws InterruptedException, Exception {

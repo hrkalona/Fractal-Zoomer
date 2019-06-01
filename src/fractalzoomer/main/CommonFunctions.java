@@ -22,6 +22,7 @@ import fractalzoomer.core.Complex;
 import fractalzoomer.core.ThreadDraw;
 import fractalzoomer.core.domain_coloring.DomainColoring;
 import fractalzoomer.functions.root_finding_methods.durand_kerner.DurandKernerRootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.newton_hines.NewtonHinesRootFindingMethod;
 import fractalzoomer.gui.BailoutConditionsMenu;
 import fractalzoomer.gui.ColorBlendingMenu;
 import fractalzoomer.gui.ColorTransferMenu;
@@ -37,6 +38,7 @@ import fractalzoomer.palettes.CustomPalette;
 import fractalzoomer.palettes.PresetPalette;
 import fractalzoomer.parser.Parser;
 import fractalzoomer.parser.ParserException;
+import fractalzoomer.utils.ColorSpaceConverter;
 import fractalzoomer.utils.MathUtils;
 import java.awt.Color;
 import java.awt.Component;
@@ -243,23 +245,23 @@ public class CommonFunctions implements Constants {
 
         overview += "<b><font color='red'>Function:</font></b> " + FractalFunctionsMenu.functionNames[s.fns.function] + "<br>";
 
-        if (s.fns.function == MANDELPOLY || s.fns.function == NEWTONPOLY || s.fns.function == HALLEYPOLY || s.fns.function == SCHRODERPOLY || s.fns.function == HOUSEHOLDERPOLY || s.fns.function == SECANTPOLY || s.fns.function == STEFFENSENPOLY || s.fns.function == MULLERPOLY || s.fns.function == PARHALLEYPOLY || s.fns.function == LAGUERREPOLY || s.fns.function == DURAND_KERNERPOLY || s.fns.function == BAIRSTOWPOLY) {
+        if (s.fns.function == MANDELPOLY || s.fns.function == NEWTONPOLY || s.fns.function == HALLEYPOLY || s.fns.function == SCHRODERPOLY || s.fns.function == HOUSEHOLDERPOLY || s.fns.function == SECANTPOLY || s.fns.function == STEFFENSENPOLY || s.fns.function == MULLERPOLY || s.fns.function == PARHALLEYPOLY || s.fns.function == LAGUERREPOLY || s.fns.function == DURAND_KERNERPOLY || s.fns.function == BAIRSTOWPOLY || s.fns.function == NEWTON_HINESPOLY) {
             if (s.fns.function == MANDELPOLY) {
                 overview += tab + s.poly + " + c<br>";
             } else {
                 overview += tab + s.poly + "<br>";
             }
-        } else if (s.fns.function == NEWTON3 || s.fns.function == HALLEY3 || s.fns.function == HOUSEHOLDER3 || s.fns.function == SCHRODER3 || s.fns.function == SECANT3 || s.fns.function == STEFFENSEN3 || s.fns.function == MULLER3 || s.fns.function == PARHALLEY3 || s.fns.function == LAGUERRE3 || s.fns.function == DURAND_KERNER3 || s.fns.function == BAIRSTOW3) {
+        } else if (s.fns.function == NEWTON3 || s.fns.function == HALLEY3 || s.fns.function == HOUSEHOLDER3 || s.fns.function == SCHRODER3 || s.fns.function == SECANT3 || s.fns.function == STEFFENSEN3 || s.fns.function == MULLER3 || s.fns.function == PARHALLEY3 || s.fns.function == LAGUERRE3 || s.fns.function == DURAND_KERNER3 || s.fns.function == BAIRSTOW3 || s.fns.function == NEWTON_HINES3) {
             overview += tab + "p(z) = z^3 - 1" + "<br>";
-        } else if (s.fns.function == NEWTON4 || s.fns.function == HALLEY4 || s.fns.function == HOUSEHOLDER4 || s.fns.function == SCHRODER4 || s.fns.function == SECANT4 || s.fns.function == STEFFENSEN4 || s.fns.function == MULLER4 || s.fns.function == PARHALLEY4 || s.fns.function == LAGUERRE4 || s.fns.function == DURAND_KERNER4 | s.fns.function == BAIRSTOW4) {
+        } else if (s.fns.function == NEWTON4 || s.fns.function == HALLEY4 || s.fns.function == HOUSEHOLDER4 || s.fns.function == SCHRODER4 || s.fns.function == SECANT4 || s.fns.function == STEFFENSEN4 || s.fns.function == MULLER4 || s.fns.function == PARHALLEY4 || s.fns.function == LAGUERRE4 || s.fns.function == DURAND_KERNER4 | s.fns.function == BAIRSTOW4 || s.fns.function == NEWTON_HINES4) {
             overview += tab + "p(z) = z^4 - 1" + "<br>";
-        } else if (s.fns.function == NEWTONGENERALIZED3 || s.fns.function == HALLEYGENERALIZED3 || s.fns.function == HOUSEHOLDERGENERALIZED3 || s.fns.function == SCHRODERGENERALIZED3 || s.fns.function == SECANTGENERALIZED3 || s.fns.function == STEFFENSENGENERALIZED3 || s.fns.function == MULLERGENERALIZED3 || s.fns.function == PARHALLEYGENERALIZED3 || s.fns.function == LAGUERREGENERALIZED3 || s.fns.function == DURAND_KERNERGENERALIZED3 || s.fns.function == BAIRSTOWGENERALIZED3) {
+        } else if (s.fns.function == NEWTONGENERALIZED3 || s.fns.function == HALLEYGENERALIZED3 || s.fns.function == HOUSEHOLDERGENERALIZED3 || s.fns.function == SCHRODERGENERALIZED3 || s.fns.function == SECANTGENERALIZED3 || s.fns.function == STEFFENSENGENERALIZED3 || s.fns.function == MULLERGENERALIZED3 || s.fns.function == PARHALLEYGENERALIZED3 || s.fns.function == LAGUERREGENERALIZED3 || s.fns.function == DURAND_KERNERGENERALIZED3 || s.fns.function == BAIRSTOWGENERALIZED3 || s.fns.function == NEWTON_HINESGENERALIZED3) {
             overview += tab + "p(z) = z^3 - 2z + 2" + "<br>";
-        } else if (s.fns.function == NEWTONGENERALIZED8 || s.fns.function == HALLEYGENERALIZED8 || s.fns.function == HOUSEHOLDERGENERALIZED8 || s.fns.function == SCHRODERGENERALIZED8 || s.fns.function == SECANTGENERALIZED8 || s.fns.function == MULLERGENERALIZED8 || s.fns.function == PARHALLEYGENERALIZED8 || s.fns.function == LAGUERREGENERALIZED8 || s.fns.function == DURAND_KERNERGENERALIZED8 || s.fns.function == BAIRSTOWGENERALIZED8) {
+        } else if (s.fns.function == NEWTONGENERALIZED8 || s.fns.function == HALLEYGENERALIZED8 || s.fns.function == HOUSEHOLDERGENERALIZED8 || s.fns.function == SCHRODERGENERALIZED8 || s.fns.function == SECANTGENERALIZED8 || s.fns.function == MULLERGENERALIZED8 || s.fns.function == PARHALLEYGENERALIZED8 || s.fns.function == LAGUERREGENERALIZED8 || s.fns.function == DURAND_KERNERGENERALIZED8 || s.fns.function == BAIRSTOWGENERALIZED8 || s.fns.function == NEWTON_HINESGENERALIZED8) {
             overview += tab + "p(z) = z^8 + 15z^4 - 16" + "<br>";
-        } else if (s.fns.function == NEWTONCOS || s.fns.function == HALLEYCOS || s.fns.function == HOUSEHOLDERCOS || s.fns.function == SCHRODERCOS || s.fns.function == SECANTCOS || s.fns.function == MULLERCOS || s.fns.function == PARHALLEYCOS || s.fns.function == LAGUERRECOS) {
+        } else if (s.fns.function == NEWTONCOS || s.fns.function == HALLEYCOS || s.fns.function == HOUSEHOLDERCOS || s.fns.function == SCHRODERCOS || s.fns.function == SECANTCOS || s.fns.function == MULLERCOS || s.fns.function == PARHALLEYCOS || s.fns.function == LAGUERRECOS || s.fns.function == NEWTON_HINESCOS) {
             overview += tab + "f(z) = cos(z)" + "<br>";
-        } else if (s.fns.function == NEWTONSIN || s.fns.function == HALLEYSIN || s.fns.function == HOUSEHOLDERSIN || s.fns.function == SCHRODERSIN || s.fns.function == MULLERSIN || s.fns.function == PARHALLEYSIN || s.fns.function == LAGUERRESIN) {
+        } else if (s.fns.function == NEWTONSIN || s.fns.function == HALLEYSIN || s.fns.function == HOUSEHOLDERSIN || s.fns.function == SCHRODERSIN || s.fns.function == MULLERSIN || s.fns.function == PARHALLEYSIN || s.fns.function == LAGUERRESIN || s.fns.function == NEWTON_HINESSIN) {
             overview += tab + "f(z) = sin(z)" + "<br>";
         } else if (s.fns.function == MANDELBROTNTH) {
             overview += tab + "z = z^" + s.fns.z_exponent + " + c<br>";
@@ -271,13 +273,11 @@ public class CommonFunctions implements Constants {
             overview += tab + "z = cz(1 - z^2)" + "<br>";
         } else if (s.fns.function == LAMBDA3) {
             overview += tab + "z = cz(1 - z^3)" + "<br>";
-        } 
-        else if (s.fns.function == LAMBDA_FN_FN) {
+        } else if (s.fns.function == LAMBDA_FN_FN) {
             overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[" + s.fns.lfns.lambda_formula_conditions[0] + " > " + s.fns.lfns.lambda_formula_conditions[1] + "]</font> <font color='" + keyword_color + "'>then</font> z = c * (" + s.fns.lfns.lambda_formula_condition_formula[0] + ")<br>";
             overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[" + s.fns.lfns.lambda_formula_conditions[0] + " &#60; " + s.fns.lfns.lambda_formula_conditions[1] + "]</font> <font color='" + keyword_color + "'>then</font> z = c * (" + s.fns.lfns.lambda_formula_condition_formula[1] + ")<br>";
             overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[" + s.fns.lfns.lambda_formula_conditions[0] + " = " + s.fns.lfns.lambda_formula_conditions[1] + "]</font> <font color='" + keyword_color + "'>then</font> z = c * (" + s.fns.lfns.lambda_formula_condition_formula[2] + ")<br>";
-        }       
-        else if (s.fns.function == MAGNET1) {
+        } else if (s.fns.function == MAGNET1) {
             overview += tab + "z = ((z^2 + c - 1)/(2z + c - 2))^2" + "<br>";
         } else if (s.fns.function == MAGNET2) {
             overview += tab + "z = ((z^3 + 3(c - 1)z + (c - 1)(c - 2))/(3z^2 + 3(c - 2)z + (c - 1)(c - 2))))^2" + "<br>";
@@ -354,10 +354,16 @@ public class CommonFunctions implements Constants {
                 case NOVA_LAGUERRE:
                     overview += tab + "Laguerre Method<br>";
                     break;
+                case NOVA_NEWTON_HINES:
+                    overview += tab + "Newton-Hines Method<br>";
+                    break;
             }
 
             overview += tab + "p(z) = z^(" + Complex.toString2(s.fns.z_exponent_nova[0], s.fns.z_exponent_nova[1]) + ") - 1<br>";
             overview += tab + "Relaxation = " + Complex.toString2(s.fns.relaxation[0], s.fns.relaxation[1]) + "<br>";
+            if (s.fns.nova_method == NOVA_NEWTON_HINES) {
+                overview += tab + "k = " + Complex.toString2(s.fns.newton_hines_k[0], s.fns.newton_hines_k[1]) + "<br>";
+            }
         } else if (s.fns.function == NEWTONFORMULA) {
             overview += tab + "f(z) = " + s.fns.user_fz_formula + "<br>";
             overview += tab + "f '(z) = " + s.fns.user_dfz_formula + "<br>";
@@ -388,6 +394,10 @@ public class CommonFunctions implements Constants {
             overview += tab + "f '(z) = " + s.fns.user_dfz_formula + "<br>";
             overview += tab + "f ''(z) = " + s.fns.user_ddfz_formula + "<br>";
             overview += tab + "Degree = " + Complex.toString2(s.fns.laguerre_deg[0], s.fns.laguerre_deg[1]) + "<br>";
+        } else if (s.fns.function == NEWTON_HINESFORMULA) {
+            overview += tab + "f(z) = " + s.fns.user_fz_formula + "<br>";
+            overview += tab + "f '(z) = " + s.fns.user_dfz_formula + "<br>";
+            overview += tab + "k = " + Complex.toString2(s.fns.newton_hines_k[0], s.fns.newton_hines_k[1]) + "<br>";
         } else if (s.fns.function == USER_FORMULA) {
             overview += tab + "z = " + s.fns.user_formula + "<br>";
             overview += tab + "c = " + s.fns.user_formula2 + "<br>";
@@ -477,9 +487,8 @@ public class CommonFunctions implements Constants {
             overview += tab + "Gravity = " + Complex.toString2(s.fns.mps.gravity[0], s.fns.mps.gravity[1]) + "<br>";
             overview += tab + "Friction = " + Complex.toString2(s.fns.mps.friction[0], s.fns.mps.friction[1]) + "<br>";
             overview += tab + "Height = " + s.fns.mps.height + "<br>";
-            overview += tab + "Stepsize = " + s.fns.mps.stepsize + "<br>";
-        } 
-         else if (s.fns.function == INERTIA_GRAVITY) {
+            overview += tab + "Stepsize = " + Complex.toString2(s.fns.mps.stepsize, s.fns.mps.stepsize_im) + "<br>";
+        } else if (s.fns.function == INERTIA_GRAVITY) {
             for (int k = 0; k < s.fns.igs.bodyLocation.length; k++) {
                 if (s.fns.igs.bodyGravity[k][0] != 0 || s.fns.igs.bodyGravity[k][1] != 0) {
                     overview += tab + "Body = " + Complex.toString2(s.fns.igs.bodyLocation[k][0], s.fns.igs.bodyLocation[k][1]) + "<br>";
@@ -490,12 +499,11 @@ public class CommonFunctions implements Constants {
             overview += tab + "Initial Inertia = " + Complex.toString2(s.fns.igs.initial_inertia[0], s.fns.igs.initial_inertia[1]) + "<br>";
             overview += tab + "Timestep = " + Complex.toString2(s.fns.igs.time_step[0], s.fns.igs.time_step[1]) + "<br>";
             overview += tab + "Scaling Function = " + inertiaGravityPullFunction[s.fns.igs.pull_scaling_function] + "<br>";
-            
-            if(s.fns.igs.pull_scaling_function == PULL_EXP) {
+
+            if (s.fns.igs.pull_scaling_function == PULL_EXP) {
                 overview += tab + "Exponent = " + s.fns.igs.inertia_exponent + "<br>";
             }
-        }
-        else if (s.fns.function == LYAPUNOV) {
+        } else if (s.fns.function == LYAPUNOV) {
             overview += tab + "A = " + s.fns.lpns.lyapunovA + "<br>";
             overview += tab + "B = " + s.fns.lpns.lyapunovB + "<br>";
             overview += tab + "C = " + s.fns.lpns.lyapunovC + "<br>";
@@ -503,6 +511,9 @@ public class CommonFunctions implements Constants {
             overview += tab + "Original Expression: r = " + s.fns.lpns.lyapunovExpression + "<br>";
             overview += tab + "Final Expression: r = " + String.join("; ", s.fns.lpns.lyapunovFinalExpression) + "<br>";
             overview += tab + "Function = " + s.fns.lpns.lyapunovFunction + "<br>";
+            if(!s.fns.init_val) {
+                overview += tab + "Initial Value = " + s.fns.lpns.lyapunovInitialValue + "<br>";
+            }
             overview += tab + "Exponent = <font color='" + keyword_color + "'>average of sum</font>[<font color='" + condition_color + "'>log</font>(<font color='" + condition_color + "'>norm</font>(" + s.fns.lpns.lyapunovExponentFunction + "))]<br>";
         } else if (s.fns.function == USER_FORMULA_NOVA) {
             switch (s.fns.nova_method) {
@@ -554,6 +565,12 @@ public class CommonFunctions implements Constants {
                     overview += tab + "f ''(z) = " + s.fns.user_ddfz_formula + "<br>";
                     overview += tab + "Degree = " + Complex.toString2(s.fns.laguerre_deg[0], s.fns.laguerre_deg[1]) + "<br>";
                     break;
+                case NOVA_NEWTON_HINES:
+                    overview += tab + "Newton-Hines Method<br>";
+                    overview += tab + "f(z) = " + s.fns.user_fz_formula + "<br>";
+                    overview += tab + "f '(z) = " + s.fns.user_dfz_formula + "<br>";
+                    overview += tab + "k = " + Complex.toString2(s.fns.newton_hines_k[0], s.fns.newton_hines_k[1]) + "<br>";
+                    break;
             }
             overview += tab + "Relaxation = " + s.fns.user_relaxation_formula + "<br>";
             overview += tab + "Addend = " + s.fns.user_nova_addend_formula + "<br>";
@@ -563,6 +580,12 @@ public class CommonFunctions implements Constants {
             overview += tab + "a = " + DurandKernerRootFindingMethod.A + "<br>";
         } else if (s.fns.function == DURAND_KERNERPOLY) {
             overview += tab + "a = " + Complex.toString2(s.fns.durand_kerner_init_val[0], s.fns.durand_kerner_init_val[1]) + "<br>";
+        }
+
+        if (s.fns.function == NEWTON_HINES3 || s.fns.function == NEWTON_HINES4 || s.fns.function == NEWTON_HINESGENERALIZED3 || s.fns.function == NEWTON_HINESGENERALIZED8 || s.fns.function == NEWTON_HINESSIN || s.fns.function == NEWTON_HINESCOS) {
+            overview += tab + "k = " + NewtonHinesRootFindingMethod.K + "<br>";
+        } else if (s.fns.function == NEWTON_HINESPOLY) {
+            overview += tab + "k = " + Complex.toString2(s.fns.newton_hines_k[0], s.fns.newton_hines_k[1]) + "<br>";
         }
 
         if ((s.fns.function <= 9 || s.fns.function == MANDELPOLY || s.fns.function == MANDELBROTWTH) && s.fns.burning_ship) {
@@ -595,13 +618,11 @@ public class CommonFunctions implements Constants {
             overview += tab + "Amount = " + s.fns.plane_transform_amount + "<br>";
         } else if (s.fns.plane_type == SHEAR_PLANE) {
             overview += tab + "Scale Real = " + s.fns.plane_transform_scales[0] + "<br>";
-            overview += tab + "Scale Imaginary = " + s.fns.plane_transform_scales[1] + "<br>";       
-        } 
-        else if (s.fns.plane_type == SKEW_PLANE) {
+            overview += tab + "Scale Imaginary = " + s.fns.plane_transform_scales[1] + "<br>";
+        } else if (s.fns.plane_type == SKEW_PLANE) {
             overview += tab + "Angle = " + s.fns.plane_transform_angle + " degrees<br>";
             overview += tab + "Angle2 = " + s.fns.plane_transform_angle2 + " degrees<br>";
-        }
-        else if (s.fns.plane_type == RIPPLES_PLANE) {
+        } else if (s.fns.plane_type == RIPPLES_PLANE) {
             overview += tab + "Amplitude Real = " + s.fns.plane_transform_scales[0] + "<br>";
             overview += tab + "Amplitude Imaginary = " + s.fns.plane_transform_scales[1] + "<br>";
             overview += tab + "Wavelength Real = " + s.fns.plane_transform_wavelength[0] + "<br>";
@@ -759,7 +780,7 @@ public class CommonFunctions implements Constants {
             overview += "<br>";
 
             overview += "<b><font color='red'>Bailout:</font></b> " + s.fns.bailout + "<br><br>";
-            
+
             overview += "<b><font color='red'>Skip Bailout Condition Iterations:</font></b> " + s.fns.skip_bailout_iterations + "<br><br>";
 
             if (s.fns.function == MAGNET1 || s.fns.function == MAGNET2) {
@@ -789,7 +810,7 @@ public class CommonFunctions implements Constants {
         overview += "<b><font color='red'>Stretch Factor:</font></b> " + s.height_ratio + "<br><br>";
 
         if (!s.ds.domain_coloring) {
-            overview += "<b><font color='red'>Out Coloring Method:</font></b> " + OutColoringModesMenu.outColoringNames[s.fns.out_coloring_algorithm] + "<br>";
+            overview += "<b><font color='red'>Out Coloring Mode:</font></b> " + OutColoringModesMenu.outColoringNames[s.fns.out_coloring_algorithm] + "<br>";
 
             if (s.fns.out_coloring_algorithm == USER_OUTCOLORING_ALGORITHM) {
                 if (s.fns.user_out_coloring_algorithm == 0) {
@@ -802,7 +823,7 @@ public class CommonFunctions implements Constants {
             }
             overview += "<br>";
 
-            overview += "<b><font color='red'>In Coloring Method:</font></b> " + InColoringModesMenu.inColoringNames[s.fns.in_coloring_algorithm] + "<br>";
+            overview += "<b><font color='red'>In Coloring Mode:</font></b> " + InColoringModesMenu.inColoringNames[s.fns.in_coloring_algorithm] + "<br>";
             if (s.fns.in_coloring_algorithm == USER_INCOLORING_ALGORITHM) {
                 if (s.fns.user_in_coloring_algorithm == 0) {
                     overview += tab + "in = " + s.fns.incoloring_formula + "<br>";
@@ -827,14 +848,19 @@ public class CommonFunctions implements Constants {
                         overview += tab2 + "Stripe Denominator Factor = " + s.sts.StripeDenominatorFactor + "<br>";
                     }
                 } else {
-                    overview += tab + "User Statistical Formula: value = value + " + s.sts.user_statistic_formula + "<br>";
+                    overview += tab + "User Statistical Formula: " + s.sts.user_statistic_formula + "<br>";
+                    overview += tab + "Reduction Method = " + Constants.reductionMethod[s.sts.reductionFunction] + "<br>";
                     overview += tab + "value(0) = " + s.sts.user_statistic_init_value + "<br>";
-                    if (s.sts.useAverage) {
-                        overview += tab2 + "Using Average<br>";
+                    if (s.sts.useAverage && s.sts.reductionFunction == Constants.REDUCTION_SUM) {
+                        overview += tab + "Using Average<br>";
+                    }
+
+                    if (s.sts.useIterations && (s.sts.reductionFunction == Constants.REDUCTION_MAX || s.sts.reductionFunction == Constants.REDUCTION_MIN)) {
+                        overview += tab + "Using Similar Iterations<br>";
                     }
 
                     if (s.isMagnetType()) {
-                        overview += tab2 + (s.sts.statistic_escape_type == ESCAPING ? "Escaping" : "Converging") + "<br>";
+                        overview += tab + (s.sts.statistic_escape_type == ESCAPING ? "Escaping" : "Converging") + "<br>";
                     }
                 }
                 if (s.sts.statisticIncludeEscaped) {
@@ -882,6 +908,120 @@ public class CommonFunctions implements Constants {
         }
 
         if (!s.ds.domain_coloring && !s.useDirectColor) {
+
+            if (s.fns.tcs.trueColorOut) {
+                overview += "<b><font color='red'>Out True Coloring Mode:</font></b><br>";
+                if (s.fns.tcs.trueColorOutMode == 0) {
+                    overview += tab + "Preset = " + Constants.trueColorModes[s.fns.tcs.trueColorOutPreset] + "<br>";
+                } else {
+                    overview += tab + "Color Space = " + Constants.trueColorSpaces[s.fns.tcs.outTcColorSpace] + "<br>";
+                    switch (s.fns.tcs.outTcColorSpace) {
+                        case ColorSpaceConverter.RGB:
+                            overview += tab2 + "R = " + s.fns.tcs.outTcComponent1 + "<br>";
+                            overview += tab2 + "G = " + s.fns.tcs.outTcComponent2 + "<br>";
+                            overview += tab2 + "B = " + s.fns.tcs.outTcComponent3 + "<br>";
+                            break;
+                        case ColorSpaceConverter.XYZ:
+                            overview += tab2 + "X = " + s.fns.tcs.outTcComponent1 + "<br>";
+                            overview += tab2 + "Y = " + s.fns.tcs.outTcComponent2 + "<br>";
+                            overview += tab2 + "Z = " + s.fns.tcs.outTcComponent3 + "<br>";
+                            break;
+                        case ColorSpaceConverter.HSB:
+                            overview += tab2 + "H = " + s.fns.tcs.outTcComponent1 + "<br>";
+                            overview += tab2 + "S = " + s.fns.tcs.outTcComponent2 + "<br>";
+                            overview += tab2 + "B = " + s.fns.tcs.outTcComponent3 + "<br>";
+                            break;
+                        case ColorSpaceConverter.HSL:
+                            overview += tab2 + "H = " + s.fns.tcs.outTcComponent1 + "<br>";
+                            overview += tab2 + "S = " + s.fns.tcs.outTcComponent2 + "<br>";
+                            overview += tab2 + "L = " + s.fns.tcs.outTcComponent3 + "<br>";
+                            break;
+                        case ColorSpaceConverter.RYB:
+                            overview += tab2 + "R = " + s.fns.tcs.outTcComponent1 + "<br>";
+                            overview += tab2 + "Y = " + s.fns.tcs.outTcComponent2 + "<br>";
+                            overview += tab2 + "B = " + s.fns.tcs.outTcComponent3 + "<br>";
+                            break;
+                        case ColorSpaceConverter.LAB:
+                            overview += tab2 + "L = " + s.fns.tcs.outTcComponent1 + "<br>";
+                            overview += tab2 + "A = " + s.fns.tcs.outTcComponent2 + "<br>";
+                            overview += tab2 + "B = " + s.fns.tcs.outTcComponent3 + "<br>";
+                            break;
+                        case ColorSpaceConverter.LCH:
+                            overview += tab2 + "L = " + s.fns.tcs.outTcComponent1 + "<br>";
+                            overview += tab2 + "C = " + s.fns.tcs.outTcComponent2 + "<br>";
+                            overview += tab2 + "H = " + s.fns.tcs.outTcComponent3 + "<br>";
+                            break;
+                        case ColorSpaceConverter.DIRECT:
+                            overview += tab2 + "Direct = " + s.fns.tcs.outTcComponent1 + "<br>";
+                            break;
+                        case ColorSpaceConverter.PALETTE:
+                            overview += tab2 + "Palete = " + s.fns.tcs.outTcComponent1 + "<br>";
+                            break;
+                        case ColorSpaceConverter.GRADIENT:
+                            overview += tab2 + "Gradient = " + s.fns.tcs.outTcComponent1 + "<br>";
+                            break;
+                    }
+                }
+                
+                overview += "<br>";
+            }
+
+            if (s.fns.tcs.trueColorIn) {
+                overview += "<b><font color='red'>In True Coloring Mode:</font></b><br>";
+                if (s.fns.tcs.trueColorInMode == 0) {
+                    overview += tab + "Preset = " + Constants.trueColorModes[s.fns.tcs.trueColorInPreset] + "<br>";
+                } else {
+                    overview += tab + "Color Space = " + Constants.trueColorSpaces[s.fns.tcs.inTcColorSpace] + "<br>";
+                    switch (s.fns.tcs.inTcColorSpace) {
+                        case ColorSpaceConverter.RGB:
+                            overview += tab2 + "R = " + s.fns.tcs.inTcComponent1 + "<br>";
+                            overview += tab2 + "G = " + s.fns.tcs.inTcComponent2 + "<br>";
+                            overview += tab2 + "B = " + s.fns.tcs.inTcComponent3 + "<br>";
+                            break;
+                        case ColorSpaceConverter.XYZ:
+                            overview += tab2 + "X = " + s.fns.tcs.inTcComponent1 + "<br>";
+                            overview += tab2 + "Y = " + s.fns.tcs.inTcComponent2 + "<br>";
+                            overview += tab2 + "Z = " + s.fns.tcs.inTcComponent3 + "<br>";
+                            break;
+                        case ColorSpaceConverter.HSB:
+                            overview += tab2 + "H = " + s.fns.tcs.inTcComponent1 + "<br>";
+                            overview += tab2 + "S = " + s.fns.tcs.inTcComponent2 + "<br>";
+                            overview += tab2 + "B = " + s.fns.tcs.inTcComponent3 + "<br>";
+                            break;
+                        case ColorSpaceConverter.HSL:
+                            overview += tab2 + "H = " + s.fns.tcs.inTcComponent1 + "<br>";
+                            overview += tab2 + "S = " + s.fns.tcs.inTcComponent2 + "<br>";
+                            overview += tab2 + "L = " + s.fns.tcs.inTcComponent3 + "<br>";
+                            break;
+                        case ColorSpaceConverter.RYB:
+                            overview += tab2 + "R = " + s.fns.tcs.inTcComponent1 + "<br>";
+                            overview += tab2 + "Y = " + s.fns.tcs.inTcComponent2 + "<br>";
+                            overview += tab2 + "B = " + s.fns.tcs.inTcComponent3 + "<br>";
+                            break;
+                        case ColorSpaceConverter.LAB:
+                            overview += tab2 + "L = " + s.fns.tcs.inTcComponent1 + "<br>";
+                            overview += tab2 + "A = " + s.fns.tcs.inTcComponent2 + "<br>";
+                            overview += tab2 + "B = " + s.fns.tcs.inTcComponent3 + "<br>";
+                            break;
+                        case ColorSpaceConverter.LCH:
+                            overview += tab2 + "L = " + s.fns.tcs.inTcComponent1 + "<br>";
+                            overview += tab2 + "C = " + s.fns.tcs.inTcComponent2 + "<br>";
+                            overview += tab2 + "H = " + s.fns.tcs.inTcComponent3 + "<br>";
+                            break;
+                        case ColorSpaceConverter.DIRECT:
+                            overview += tab2 + "Direct = " + s.fns.tcs.inTcComponent1 + "<br>";
+                            break;
+                        case ColorSpaceConverter.PALETTE:
+                            overview += tab2 + "Palete = " + s.fns.tcs.inTcComponent1 + "<br>";
+                            break;
+                        case ColorSpaceConverter.GRADIENT:
+                            overview += tab2 + "Gradient = " + s.fns.tcs.inTcComponent1 + "<br>";
+                            break;
+                    }
+                }
+                
+                overview += "<br>";
+            }
 
             if (s.pbs.palette_gradient_merge) {
                 overview += "<b><font color='red'>Palette/Gradient Merging:</font></b><br>";

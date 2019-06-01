@@ -33,8 +33,9 @@ import javax.swing.KeyStroke;
  * @author kaloch
  */
 public class OptionsMenu extends JMenu {
-	private static final long serialVersionUID = -7875948962252862696L;
-	private MainWindow ptr;
+
+    private static final long serialVersionUID = -7875948962252862696L;
+    private MainWindow ptr;
     private ColorsMenu colors_menu;
     private JMenu iterations_menu;
     private BailoutConditionsMenu bailout_condition_menu;
@@ -132,7 +133,7 @@ public class OptionsMenu extends JMenu {
         overview_opt.setToolTipText("Creates a report of all the active fractal options.");
         toolbar_opt.setToolTipText("Activates the tool bar.");
         statusbar_opt.setToolTipText("Activates the status bar.");
-        infobar_opt.setToolTipText("Activates the information bar."); 
+        infobar_opt.setToolTipText("Activates the information bar.");
         fullscreen_opt.setToolTipText("Toggles the application from window mode to full screen.");
 
         size_of_image.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, ActionEvent.CTRL_MASK));
@@ -149,7 +150,7 @@ public class OptionsMenu extends JMenu {
         filters_options.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, ActionEvent.SHIFT_MASK));
         toolbar_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T, ActionEvent.ALT_MASK));
         statusbar_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.ALT_MASK));
-        infobar_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, ActionEvent.ALT_MASK)); 
+        infobar_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, ActionEvent.ALT_MASK));
         fullscreen_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F11, 0));
 
         overview_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.SHIFT_MASK));
@@ -303,7 +304,7 @@ public class OptionsMenu extends JMenu {
 
             }
         });
-        
+
         fullscreen_opt.addActionListener(new ActionListener() {
 
             @Override
@@ -318,7 +319,7 @@ public class OptionsMenu extends JMenu {
         window_menu.add(infobar_opt);
         window_menu.add(statusbar_opt);
         window_menu.add(fullscreen_opt);
-        
+
         toolbar_opt.setSelected(true);
         infobar_opt.setSelected(true);
         statusbar_opt.setSelected(true);
@@ -355,7 +356,7 @@ public class OptionsMenu extends JMenu {
         addSeparator();
         add(size_of_image);
         addSeparator();
-        add(height_ratio_number); 
+        add(height_ratio_number);
         addSeparator();
         add(change_zooming_factor);
         addSeparator();
@@ -399,17 +400,17 @@ public class OptionsMenu extends JMenu {
         return colors_menu.getInColoringPalette();
 
     }
-    
+
     public JMenuItem getEntropyColoring() {
 
         return colors_menu.getEntropyColoring();
 
     }
-    
+
     public JMenuItem getGreyScaleColoring() {
-        
+
         return colors_menu.getGreyScaleColoring();
-        
+
     }
 
     public JMenuItem getOffsetColoring() {
@@ -435,11 +436,11 @@ public class OptionsMenu extends JMenu {
         return colors_menu.getFakeDistanceEstimation();
 
     }
-    
+
     public JMenuItem getSmoothing() {
-        
+
         return colors_menu.getSmoothing();
-        
+
     }
 
     public JMenuItem getDistanceEstimation() {
@@ -681,7 +682,7 @@ public class OptionsMenu extends JMenu {
         return infobar_opt;
 
     }
-    
+
     public JCheckBoxMenuItem getFullscreen() {
 
         return fullscreen_opt;
@@ -695,115 +696,123 @@ public class OptionsMenu extends JMenu {
     }
 
     public OptimizationsMenu getOptimizationsMenu() {
-        
+
         return optimizations_menu;
-        
+
     }
-    
+
     public ToolsOptionsMenu getToolsOptionsMenu() {
-        
+
         return tools_options_menu;
-        
+
     }
-    
+
     public JMenuItem getRandomPalette() {
-        
+
         return colors_menu.getRandomPalette();
-        
+
     }
-    
+
     public OutColoringPaletteMenu getOutColoringPaletteMenu() {
-        
+
         return colors_menu.getOutColoringPaletteMenu();
-        
+
     }
-    
+
     public InColoringPaletteMenu getInColoringPaletteMenu() {
-        
+
         return colors_menu.getInColoringPaletteMenu();
-        
+
     }
-     
+
     public ProcessingMenu getProcessing() {
-        
+
         return colors_menu.getProcessing();
-        
+
     }
-    
+
     public JMenuItem getLight() {
-        
+
         return colors_menu.getLight();
-        
+
     }
-    
+
     public ColorBlendingMenu getColorBlending() {
-        
+
         return colors_menu.getColorBlending();
-        
+
     }
 
     public JRadioButtonMenuItem[] getBlendingModes() {
-        
+
         return colors_menu.getBlendingModes();
-        
+
     }
-    
+
     public JRadioButtonMenuItem[] getInColoringTranferFunctions() {
-        
+
         return colors_menu.getInColoringTranferFunctions();
-        
+
     }
-    
+
     public JRadioButtonMenuItem[] getOutColoringTranferFunctions() {
-        
+
         return colors_menu.getOutColoringTranferFunctions();
-        
+
     }
-    
+
     public JMenuItem getGradient() {
-        
+
         return colors_menu.getGradient();
-        
+
     }
-    
+
     public JMenuItem getOrbitTraps() {
-        
+
         return colors_menu.getOrbitTraps();
-        
+
     }
-    
+
     public JCheckBoxMenuItem getDirectColor() {
-        
+
         return colors_menu.getDirectColor();
-        
+
     }
-    
+
     public JMenuItem getContourColoring() {
-        
+
         return colors_menu.getContourColoring();
-        
+
     }
-    
+
     public JMenuItem getProcessingOrder() {
-        
+
         return colors_menu.getProcessingOrder();
-        
+
     }
-    
-     public JCheckBoxMenuItem getUsePaletteForInColoring() {
-        
+
+    public JCheckBoxMenuItem getUsePaletteForInColoring() {
+
         return colors_menu.getUsePaletteForInColoring();
-        
+
     }
-     
-     public JMenuItem getPaletteGradientMerging() {
+
+    public JMenuItem getPaletteGradientMerging() {
         return colors_menu.getPaletteGradientMerging();
     }
-     
-     public JMenuItem getStatisticsColoring() {
-        
+
+    public JMenuItem getStatisticsColoring() {
+
         return colors_menu.getStatisticsColoring();
-        
+
+    }
+
+    public JMenuItem getOutTrueColoring() {
+        return colors_menu.getOutTrueColoring();
+    }
+
+    public JMenuItem getInTrueColoring() {
+        return colors_menu.getInTrueColoring();
     }
 
 }

@@ -18,6 +18,8 @@ package fractalzoomer.gui;
 
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
@@ -27,6 +29,7 @@ import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JTextField;
 import static javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE;
@@ -65,13 +68,43 @@ public class NovaDialog extends JDialog {
 
         JTextField field_imaginary2 = new JTextField();
         field_imaginary2.setText("" + s.fns.relaxation[1]);
+        
+        JTextField field_realk = new JTextField(20);
+        field_realk.setText("" + s.fns.newton_hines_k[0]);
 
-        String[] method = {"Newton", "Halley", "Schroder", "Householder", "Secant", "Steffensen", "Muller", "Parhalley", "Laguerre"};
+        JTextField field_imaginaryk = new JTextField(20);
+        field_imaginaryk.setText("" + s.fns.newton_hines_k[1]);
+
+        JPanel k_panel = new JPanel();
+        k_panel.add(new JLabel("k = "));
+        k_panel.add(new JLabel("Real:"));
+        k_panel.add(field_realk);
+        k_panel.add(new JLabel(" Imaginary:"));
+        k_panel.add(field_imaginaryk);
+
+        String[] method = {"Newton", "Halley", "Schroder", "Householder", "Secant", "Steffensen", "Muller", "Parhalley", "Laguerre", "Newton-Hines"};
 
         JComboBox method_choice = new JComboBox(method);
         method_choice.setSelectedIndex(s.fns.nova_method);
         method_choice.setToolTipText("Selects the root finding method for the Nova function.");
         method_choice.setFocusable(false);
+        
+        method_choice.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (method_choice.getSelectedIndex() != MainWindow.NOVA_NEWTON_HINES) {
+                    k_panel.setVisible(false);
+                } else {
+                    k_panel.setVisible(true);
+                }
+                
+                pack();
+            }
+        });
+        
+        if (method_choice.getSelectedIndex() != MainWindow.NOVA_NEWTON_HINES) {
+            k_panel.setVisible(false);
+        }
 
         Object[] message2 = {
             " ",
@@ -86,7 +119,8 @@ public class NovaDialog extends JDialog {
             "Set the real and imaginary part of the relaxation.",
             "Real:", field_real2,
             "Imaginary:", field_imaginary2,
-            " ",};
+            " ",
+             k_panel};
 
         optionPane = new JOptionPane(message2, JOptionPane.QUESTION_MESSAGE, JOptionPane.OK_CANCEL_OPTION, null, null, null);
 
@@ -130,6 +164,17 @@ public class NovaDialog extends JDialog {
                         double temp4 = Double.parseDouble(field_imaginary.getText());
                         double temp5 = Double.parseDouble(field_real2.getText());
                         double temp6 = Double.parseDouble(field_imaginary2.getText());
+                        
+                        double temp8 = 0, temp9 = 0;
+                        if (method_choice.getSelectedIndex() == MainWindow.NOVA_NEWTON_HINES) {
+                            temp8 = Double.parseDouble(field_realk.getText());
+                            temp9 = Double.parseDouble(field_imaginaryk.getText());
+                        }
+                        
+                        if (method_choice.getSelectedIndex() == MainWindow.NOVA_NEWTON_HINES) {
+                            s.fns.newton_hines_k[0] = temp8;
+                            s.fns.newton_hines_k[1] = temp9;
+                        }
 
                         s.fns.z_exponent_nova[0] = temp3 == 0.0 ? 0.0 : temp3;
                         s.fns.z_exponent_nova[1] = temp4 == 0.0 ? 0.0 : temp4;

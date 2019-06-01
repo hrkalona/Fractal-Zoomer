@@ -32,10 +32,6 @@ public class UserBailoutCondition extends BailoutCondition {
     private ExpressionNode[] expr;
     private Parser[] parser;
     private int bailout_test_comparison;
-    private Complex cbound;
-    private Complex c_max_iterations;
-    private Complex c_center;
-    private Complex c_size;
     private Complex[] globalVars;
 
     public UserBailoutCondition(double bound, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, int max_iterations, double xCenter, double yCenter, double size, double[] point, Complex[] globalVars) {
@@ -55,7 +51,7 @@ public class UserBailoutCondition extends BailoutCondition {
         
         this.bailout_test_comparison = bailout_test_comparison;
         
-        cbound = new Complex(bound, 0);
+        Complex cbound = new Complex(bound, 0);
                      
         if(parser[0].foundBail()) {
             parser[0].setBailvalue(cbound);
@@ -65,7 +61,7 @@ public class UserBailoutCondition extends BailoutCondition {
             parser[1].setBailvalue(cbound);
         }
         
-        c_max_iterations = new Complex(max_iterations, 0);
+        Complex c_max_iterations = new Complex(max_iterations, 0);
                     
         if(parser[0].foundMaxn()) {
             parser[0].setMaxnvalue(c_max_iterations);
@@ -75,7 +71,7 @@ public class UserBailoutCondition extends BailoutCondition {
             parser[1].setMaxnvalue(c_max_iterations);
         }
         
-        c_center = new Complex(xCenter, yCenter);
+        Complex c_center = new Complex(xCenter, yCenter);
         
         if(parser[0].foundCenter()) {
             parser[0].setCentervalue(c_center);
@@ -85,7 +81,7 @@ public class UserBailoutCondition extends BailoutCondition {
             parser[1].setCentervalue(c_center);
         }
         
-        c_size = new Complex(size, 0);
+        Complex c_size = new Complex(size, 0);
         
         if(parser[0].foundSize()) {
             parser[0].setSizevalue(c_size);

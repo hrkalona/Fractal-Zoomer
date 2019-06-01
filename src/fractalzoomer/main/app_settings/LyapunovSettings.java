@@ -31,9 +31,14 @@ public class LyapunovSettings {
     public String lyapunovExpression;
     public String lyapunovFunction;
     public String lyapunovExponentFunction;
+    public String lyapunovInitialValue;
     public String[] lyapunovFinalExpression;
     public boolean useLyapunovExponent;
     public int lyapunovVariableId;
+    public static final String DEFAULT_LYAPUNOV_FUNCTION = "r * z * (1 - z)";
+    public static final String DEFAULT_LYAPUNOV_EXPONENT_FUNCTION = "r * (1 - 2 * z)";
+    public static final String DEFAULT_LYAPUNOV_FUNCTION_TRIMMED = DEFAULT_LYAPUNOV_FUNCTION.replaceAll("\\s+", "");
+    public static final String DEFAULT_LYAPUNOV_EXPONENT_FUNCTION_TRIMMED = DEFAULT_LYAPUNOV_EXPONENT_FUNCTION.replaceAll("\\s+", "");
     
     public LyapunovSettings() {
         lyapunovA = "re(c)";
@@ -45,9 +50,10 @@ public class LyapunovSettings {
         lyapunovFinalExpression[0] = lyapunovA;
         lyapunovFinalExpression[1] = lyapunovB;
         useLyapunovExponent = true;
-        lyapunovFunction = "r * z * (1 - z)";
-        lyapunovExponentFunction = "r * (1 - 2 * z)";
+        lyapunovFunction = DEFAULT_LYAPUNOV_FUNCTION;
+        lyapunovExponentFunction = DEFAULT_LYAPUNOV_EXPONENT_FUNCTION;
         lyapunovVariableId = 0;
+        lyapunovInitialValue = "0.5";
     }
     
     public static String[] getTokens(String input) {

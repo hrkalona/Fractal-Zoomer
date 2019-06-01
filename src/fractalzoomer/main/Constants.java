@@ -23,14 +23,14 @@ import java.awt.Color;
  * @author hrkalona2
  */
 public interface Constants {
-    public static final int VERSION = 1073;
+    public static final int VERSION = 1074;
     public static final int FAST_JULIA_IMAGE_SIZE = 252;
     public static final int TOTAL_PALETTES = 36;
     public static final int TOTAL_INCOLORING_ALGORITHMS = 11;
     public static final int TOTAL_OUTCOLORING_ALGORITHMS = 25;
     public static final int TOTAL_BAILOUT_CONDITIONS = 11;
     public static final int TOTAL_PLANES = 64;
-    public static final int TOTAL_FUNCTIONS = 177;
+    public static final int TOTAL_FUNCTIONS = 187;
     public static final int TOTAL_FILTERS = 35;
     public static final int TOTAL_COLOR_TRANSFER_FILTERS = 7;
     public static final int TOTAL_COLOR_BLENDING = 30;
@@ -55,9 +55,12 @@ public interface Constants {
     public static final String[] colorMethod = {"Lab", "HSB", "HSL", "Blending", "RGB Scaling"};
     public static final String[] lightTransfer = {"x * factor", "sqrt(x * factor)", "(x * factor)^2"};
     public static final String[] lightModes = {"Mode 1", "Mode 2", "Mode 3"};
-    public static final String[] statisticalColoringName = {"Stripe Average", "Curvature Average", "Triange Inequality Average", "cos(density * arg(z)) / norm(z) Average", "cos(density * (arg(z - p) + pi)) / (factor + 1 / norm(z - p))"};
+    public static final String[] statisticalColoringName = {"Stripe Average", "Curvature Average", "Triange Inequality Average", "cos(density * arg(z)) / norm(z) Average", "cos(density * (arg(z - p) + pi)) / (factor + 1 / norm(z - p))", "Atom Domain (bof60/bof61)"};
     public static final String[] domainProcessingTransferNames = {"x * factor", "1 / (x * factor)"};
     public static final String[] inertiaGravityPullFunction = {"Exponential", "Linear", "Oddball"};
+    public static final String[] reductionMethod = {"sum", "min", "max", "assign"};
+    public static final String[] trueColorModes = {"Xaos true color 1", "Xaos true color 2", "Xaos true color 3", "Xaos true color 4", "Xaos true color 5", "Xaos true color 6", "Xaos true color 7", "Xaos true color 8", "Xaos true color 9", "Xaos true color 10"};
+    public static final String[] trueColorSpaces = {"RGB", "XYZ", "HSB", "HSL", "RYB", "LAB", "LCH", "Palette", "Gradient", "Direct"};
     /**
      * ** FUNCTION ***
      */
@@ -238,6 +241,16 @@ public interface Constants {
     public static final int GENERIC_CpAZpBC = 174;
     public static final int INERTIA_GRAVITY = 175;
     public static final int LAMBDA_FN_FN = 176;
+    public static final int MANDEL_NEWTON = 177;
+    public static final int LAMBERT_W_VARIATION = 178;
+    public static final int NEWTON_HINES3 = 179;
+    public static final int NEWTON_HINES4 = 180;
+    public static final int NEWTON_HINESGENERALIZED3 = 181;
+    public static final int NEWTON_HINESGENERALIZED8 = 182;
+    public static final int NEWTON_HINESSIN = 183;
+    public static final int NEWTON_HINESCOS = 184;
+    public static final int NEWTON_HINESPOLY = 185;
+    public static final int NEWTON_HINESFORMULA = 186;
     /**
      * ***************
      */
@@ -254,6 +267,7 @@ public interface Constants {
     public static final int NOVA_MULLER = 6;
     public static final int NOVA_PARHALLEY = 7;
     public static final int NOVA_LAGUERRE = 8;
+    public static final int NOVA_NEWTON_HINES = 9;
     /**
      * *******************
      */
@@ -267,6 +281,11 @@ public interface Constants {
     /**
      * *******************
      */
+    
+    public static final int REDUCTION_SUM = 0;
+    public static final int REDUCTION_MIN = 1;
+    public static final int REDUCTION_MAX = 2;
+    public static final int REDUCTION_ASSIGN = 3;
 
     /**
      * ** OUT COLORING MODE ***
@@ -615,6 +634,7 @@ public interface Constants {
     public static final int TRIANGLE_INEQUALITY_AVERAGE = 2;
     public static final int COS_ARG_DIVIDE_NORM_AVERAGE = 3;
     public static final int COS_ARG_DIVIDE_INVERSE_NORM = 4;
+    public static final int ATOM_DOMAIN_BOF60_BOF61 = 5;
     
     /**
      * **************************************

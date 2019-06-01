@@ -100,25 +100,38 @@ public class UserFormulaNovaDialog extends JDialog {
         p1.add(field_relaxation);
         p1.add(new JLabel(" Addend = "));
         p1.add(field_addend);
-
-        JPanel degree_panel = new JPanel();
-
+    
         JTextField field_real8 = new JTextField(20);
         field_real8.setText("" + s.fns.laguerre_deg[0]);
 
         JTextField field_imaginary8 = new JTextField(20);
         field_imaginary8.setText("" + s.fns.laguerre_deg[1]);
 
+        JPanel degree_panel = new JPanel();
         degree_panel.add(new JLabel("Degree = "));
         degree_panel.add(new JLabel("Real:"));
         degree_panel.add(field_real8);
         degree_panel.add(new JLabel(" Imaginary:"));
         degree_panel.add(field_imaginary8);
+        
+        
+        JTextField field_realk = new JTextField(20);
+        field_realk.setText("" + s.fns.newton_hines_k[0]);
+
+        JTextField field_imaginaryk = new JTextField(20);
+        field_imaginaryk.setText("" + s.fns.newton_hines_k[1]);
+
+        JPanel k_panel = new JPanel();
+        k_panel.add(new JLabel("k = "));
+        k_panel.add(new JLabel("Real:"));
+        k_panel.add(field_realk);
+        k_panel.add(new JLabel(" Imaginary:"));
+        k_panel.add(field_imaginaryk);
 
         JLabel root = new JLabel("Root Finding Method:");
         root.setFont(new Font("Arial", Font.BOLD, 11));
 
-        String[] method = {"Newton", "Halley", "Schroder", "Householder", "Secant", "Steffensen", "Muller", "Parhalley", "Laguerre"};
+        String[] method = {"Newton", "Halley", "Schroder", "Householder", "Secant", "Steffensen", "Muller", "Parhalley", "Laguerre", "Newton-Hines"};
 
         JComboBox method_choice = new JComboBox(method);
         method_choice.setSelectedIndex(s.fns.nova_method);
@@ -132,6 +145,12 @@ public class UserFormulaNovaDialog extends JDialog {
                     degree_panel.setVisible(false);
                 } else {
                     degree_panel.setVisible(true);
+                }
+                
+                if (method_choice.getSelectedIndex() != MainWindow.NOVA_NEWTON_HINES) {
+                    k_panel.setVisible(false);
+                } else {
+                    k_panel.setVisible(true);
                 }
 
                 if (!(method_choice.getSelectedIndex() == MainWindow.NOVA_HALLEY
@@ -149,7 +168,8 @@ public class UserFormulaNovaDialog extends JDialog {
                         || method_choice.getSelectedIndex() == MainWindow.NOVA_SCHRODER
                         || method_choice.getSelectedIndex() == MainWindow.NOVA_HOUSEHOLDER
                         || method_choice.getSelectedIndex() == MainWindow.NOVA_PARHALLEY
-                        || method_choice.getSelectedIndex() == MainWindow.NOVA_LAGUERRE)) {
+                        || method_choice.getSelectedIndex() == MainWindow.NOVA_LAGUERRE
+                        || method_choice.getSelectedIndex() == MainWindow.NOVA_NEWTON_HINES)) {
                     formula_dfz_panel9.setVisible(false);
                 } else {
                     formula_dfz_panel9.setVisible(true);
@@ -165,6 +185,10 @@ public class UserFormulaNovaDialog extends JDialog {
         if (method_choice.getSelectedIndex() != MainWindow.NOVA_LAGUERRE) {
             degree_panel.setVisible(false);
         }
+        
+        if (method_choice.getSelectedIndex() != MainWindow.NOVA_NEWTON_HINES) {
+            k_panel.setVisible(false);
+        }
 
         if (!(method_choice.getSelectedIndex() == MainWindow.NOVA_HALLEY
                 || method_choice.getSelectedIndex() == MainWindow.NOVA_SCHRODER
@@ -179,7 +203,8 @@ public class UserFormulaNovaDialog extends JDialog {
                 || method_choice.getSelectedIndex() == MainWindow.NOVA_SCHRODER
                 || method_choice.getSelectedIndex() == MainWindow.NOVA_HOUSEHOLDER
                 || method_choice.getSelectedIndex() == MainWindow.NOVA_PARHALLEY
-                || method_choice.getSelectedIndex() == MainWindow.NOVA_LAGUERRE)) {
+                || method_choice.getSelectedIndex() == MainWindow.NOVA_LAGUERRE
+                || method_choice.getSelectedIndex() == MainWindow.NOVA_NEWTON_HINES)) {
             formula_dfz_panel9.setVisible(false);
         }
 
@@ -193,7 +218,8 @@ public class UserFormulaNovaDialog extends JDialog {
             formula_dfz_panel9,
             formula_ddfz_panel9,
             p1,
-            degree_panel,};
+            degree_panel,
+            k_panel};
 
         optionPane = new JOptionPane(message3, JOptionPane.QUESTION_MESSAGE, JOptionPane.OK_CANCEL_OPTION, null, null, null);
 
@@ -244,7 +270,8 @@ public class UserFormulaNovaDialog extends JDialog {
                                 || method_choice.getSelectedIndex() == MainWindow.NOVA_SCHRODER
                                 || method_choice.getSelectedIndex() == MainWindow.NOVA_HOUSEHOLDER
                                 || method_choice.getSelectedIndex() == MainWindow.NOVA_PARHALLEY
-                                || method_choice.getSelectedIndex() == MainWindow.NOVA_LAGUERRE) {
+                                || method_choice.getSelectedIndex() == MainWindow.NOVA_LAGUERRE
+                                || method_choice.getSelectedIndex() == MainWindow.NOVA_NEWTON_HINES) {
                             s.parser.parse(field_dfz_formula9.getText());
 
                             if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR()) {
@@ -293,10 +320,21 @@ public class UserFormulaNovaDialog extends JDialog {
                             temp5 = Double.parseDouble(field_real8.getText());
                             temp6 = Double.parseDouble(field_imaginary8.getText());
                         }
+                        
+                        double temp7 = 0, temp8 = 0;
+                        if (method_choice.getSelectedIndex() == MainWindow.NOVA_NEWTON_HINES) {
+                            temp7 = Double.parseDouble(field_realk.getText());
+                            temp8 = Double.parseDouble(field_imaginaryk.getText());
+                        }
 
                         if (method_choice.getSelectedIndex() == MainWindow.NOVA_LAGUERRE) {
                             s.fns.laguerre_deg[0] = temp5;
                             s.fns.laguerre_deg[1] = temp6;
+                        }
+                        
+                        if (method_choice.getSelectedIndex() == MainWindow.NOVA_NEWTON_HINES) {
+                            s.fns.newton_hines_k[0] = temp7;
+                            s.fns.newton_hines_k[1] = temp8;
                         }
 
                         if (method_choice.getSelectedIndex() == MainWindow.NOVA_NEWTON
@@ -304,7 +342,8 @@ public class UserFormulaNovaDialog extends JDialog {
                                 || method_choice.getSelectedIndex() == MainWindow.NOVA_SCHRODER
                                 || method_choice.getSelectedIndex() == MainWindow.NOVA_HOUSEHOLDER
                                 || method_choice.getSelectedIndex() == MainWindow.NOVA_PARHALLEY
-                                || method_choice.getSelectedIndex() == MainWindow.NOVA_LAGUERRE) {
+                                || method_choice.getSelectedIndex() == MainWindow.NOVA_LAGUERRE
+                                || method_choice.getSelectedIndex() == MainWindow.NOVA_NEWTON_HINES) {
                             s.fns.user_dfz_formula = field_dfz_formula9.getText();
                         }
 
@@ -325,6 +364,10 @@ public class UserFormulaNovaDialog extends JDialog {
                         ptra.setUserFormulaOptions(true);
                     } catch (ParserException ex) {
                         JOptionPane.showMessageDialog(ptra, ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                    catch (Exception ex) {
+                        JOptionPane.showMessageDialog(ptra, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
 

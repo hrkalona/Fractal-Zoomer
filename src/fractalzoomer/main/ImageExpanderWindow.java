@@ -48,8 +48,8 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.Timer;
@@ -586,8 +586,8 @@ public class ImageExpanderWindow extends JFrame implements Constants {
 
     public void writeImageToDisk() {
         try {
-            Calendar calendar = new GregorianCalendar();
-            File file = new File("fractal " + String.format("%02d", calendar.get(Calendar.DAY_OF_MONTH)) + "-" + String.format("%02d", calendar.get(Calendar.MONTH) + 1) + "-" + calendar.get(Calendar.YEAR) + " " + String.format("%02d", calendar.get(Calendar.HOUR_OF_DAY)) + ";" + String.format("%02d", calendar.get(Calendar.MINUTE)) + ";" + String.format("%02d", calendar.get(Calendar.SECOND)) + ".png");
+            String name = "fractal " + DateTimeFormatter.ofPattern("yyyy-MM-dd HH;mm;ss").format(LocalDateTime.now()) + ".png";
+            File file = new File(name);
             ImageIO.write(image, "png", file);
         }
         catch(IOException ex) {

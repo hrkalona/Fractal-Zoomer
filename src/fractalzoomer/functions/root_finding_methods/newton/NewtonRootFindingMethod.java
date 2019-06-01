@@ -55,4 +55,12 @@ public abstract class NewtonRootFindingMethod extends RootFindingMethods {
         return z;
         
     }
+    
+    public static Complex NewtonMethod(Complex z, Complex fz, Complex dfz) {
+        
+        z.sub_mutable(((fz).divide_mutable(dfz)));
+        
+        return z;
+        
+    }
 }

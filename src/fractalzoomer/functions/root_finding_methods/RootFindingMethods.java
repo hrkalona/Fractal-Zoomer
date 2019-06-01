@@ -17,6 +17,7 @@
 package fractalzoomer.functions.root_finding_methods;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.fractal_options.iteration_statistics.AtomDomain;
 import fractalzoomer.fractal_options.iteration_statistics.CosArgDivideInverseNorm;
 import fractalzoomer.fractal_options.iteration_statistics.UserStatisticColoringRootFindingMethod;
 import fractalzoomer.functions.Fractal;
@@ -35,6 +36,7 @@ import fractalzoomer.in_coloring_algorithms.ZMag;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
 import fractalzoomer.main.app_settings.StatisticsSettings;
+import fractalzoomer.main.app_settings.TrueColorSettings;
 import fractalzoomer.out_coloring_algorithms.BinaryDecomposition;
 import fractalzoomer.out_coloring_algorithms.BinaryDecomposition2;
 import fractalzoomer.out_coloring_algorithms.ColorDecompositionRootFindingMethod;
@@ -48,6 +50,7 @@ import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeColorDecompositionR
 import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeRootFindingMethod;
 import fractalzoomer.out_coloring_algorithms.UserConditionalOutColorAlgorithmRootFindingMethod;
 import fractalzoomer.out_coloring_algorithms.UserOutColorAlgorithmRootFindingMethod;
+import fractalzoomer.true_coloring_algorithms.*;
 import fractalzoomer.utils.ColorAlgorithm;
 
 import java.util.ArrayList;
@@ -100,30 +103,39 @@ public abstract class RootFindingMethods extends Fractal {
 
             if (iterations > 0 && (temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
                 escaped = true;
+
+                if (outTrueColorAlgorithm != null) {
+                    setTrueColorOut(complex[0], zold, zold2, iterations, pixel, start);
+                }
+
                 Object[] object = {iterations, complex[0], temp, zold, zold2, pixel, start};
                 iterationData = object;
                 double out = out_color_algorithm.getResult(object);
-                
+
                 out = getFinalValueOut(out);
-                
+
                 return out;
             }
             zold2.assign(zold);
             zold.assign(complex[0]);
             function(complex);
-            
-            if(statistic != null) {
+
+            if (statistic != null) {
                 statistic.insert(complex[0], zold, zold2, iterations, pixel, start);
             }
 
         }
 
+        if (inTrueColorAlgorithm != null) {
+            setTrueColorIn(complex[0], zold, zold2, iterations, pixel, start);
+        }
+
         Object[] object = {complex[0], zold, zold2, pixel, start};
         iterationData = object;
         double in = in_color_algorithm.getResult(object);
-        
+
         in = getFinalValueIn(in);
-        
+
         return in;
 
     }
@@ -290,54 +302,79 @@ public abstract class RootFindingMethods extends Fractal {
         }
 
     }
-    
+
     @Override
     public double getFractal3DHeight(double value) {
-        
-        if(escaped) {           
-            double res = out_color_algorithm.getResult3D(iterationData);           
+
+        if (escaped) {
+            double res = out_color_algorithm.getResult3D(iterationData);
 
             res = getFinalValueOut(res);
-            
+
             return ColorAlgorithm.transformResultToHeight(res, max_iterations);
         }
-        
+
         return ColorAlgorithm.transformResultToHeight(value, max_iterations);
-        
+
     }
-    
+
     @Override
     public double getJulia3DHeight(double value) {
-        
-         return 0;
-         
+
+        return 0;
+
     }
-    
+
     @Override
     public int type() {
-        
+
         return MainWindow.CONVERGING;
-        
+
     }
-    
+
     @Override
     protected void StatisticFactory(StatisticsSettings sts, double[] plane_transform_center) {
-        
+
         statisticIncludeEscaped = sts.statisticIncludeEscaped;
         statisticIncludeNotEscaped = sts.statisticIncludeNotEscaped;
-        
-        if(sts.statisticGroup == 1) {
-            statistic = new UserStatisticColoringRootFindingMethod(sts.statistic_intensity, sts.user_statistic_formula, xCenter, yCenter, max_iterations, size, convergent_bailout, plane_transform_center, globalVars, sts.useAverage, sts.user_statistic_init_value);
+
+        if (sts.statisticGroup == 1) {
+            statistic = new UserStatisticColoringRootFindingMethod(sts.statistic_intensity, sts.user_statistic_formula, xCenter, yCenter, max_iterations, size, convergent_bailout, plane_transform_center, globalVars, sts.useAverage, sts.user_statistic_init_value, sts.reductionFunction, sts.useIterations, sts.useSmoothing);
             return;
         }
-        
+
         switch (sts.statistic_type) {
 
             case MainWindow.COS_ARG_DIVIDE_INVERSE_NORM:
                 statistic = new CosArgDivideInverseNorm(sts.statistic_intensity, sts.cosArgInvStripeDensity, sts.StripeDenominatorFactor);
                 break;
-            
+            case MainWindow.ATOM_DOMAIN_BOF60_BOF61:
+                statistic = new AtomDomain(sts.showAtomDomains, sts.statistic_intensity);
+                break;
+
         }
+    }
+
+    @Override
+    public void setTrueColorAlgorithm(TrueColorSettings tcs) {
+
+        if (tcs.trueColorOut) {
+
+            if (tcs.trueColorOutMode == 0) {
+                super.setTrueColorAlgorithm(tcs);
+            } else {
+                outTrueColorAlgorithm = new UserTrueColorAlgorithm(tcs.outTcComponent1, tcs.outTcComponent2, tcs.outTcComponent3, tcs.outTcColorSpace, convergent_bailout, max_iterations, xCenter, yCenter, size, point, globalVars);
+            }
+        }
+
+        if (tcs.trueColorIn) {
+            if (tcs.trueColorInMode == 0) {
+                super.setTrueColorAlgorithm(tcs);
+            } else {
+                inTrueColorAlgorithm = new UserTrueColorAlgorithm(tcs.inTcComponent1, tcs.inTcComponent2, tcs.inTcComponent3, tcs.inTcColorSpace, convergent_bailout, max_iterations, xCenter, yCenter, size, point, globalVars);
+            }
+        }
+
     }
 
 }

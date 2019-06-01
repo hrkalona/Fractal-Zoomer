@@ -93,8 +93,8 @@ public class UserFormulaIterationBasedConverging extends ExtendedConvergentType 
         }
 
         point = new Complex(plane_transform_center[0], plane_transform_center[1]);
-        
-        if(sts.statistic) {
+
+        if (sts.statistic) {
             StatisticFactory(sts, plane_transform_center);
         }
 
@@ -136,8 +136,8 @@ public class UserFormulaIterationBasedConverging extends ExtendedConvergentType 
         }
 
         point = new Complex(plane_transform_center[0], plane_transform_center[1]);
-        
-        if(sts.statistic) {
+
+        if (sts.statistic) {
             StatisticFactory(sts, plane_transform_center);
         }
 
@@ -320,12 +320,17 @@ public class UserFormulaIterationBasedConverging extends ExtendedConvergentType 
 
             if (iterations > 0 && (temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
                 escaped = true;
+
+                if (outTrueColorAlgorithm != null) {
+                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start);
+                }
+
                 Object[] object = {iterations, complex[0], temp, zold, zold2, complex[1], start};
                 iterationData = object;
                 double out = out_color_algorithm.getResult(object);
-                
+
                 out = getFinalValueOut(out);
-                
+
                 return out;
             }
             zold2.assign(zold);
@@ -333,19 +338,23 @@ public class UserFormulaIterationBasedConverging extends ExtendedConvergentType 
             function(complex);
 
             setVariables(zold, zold2);
-            
-            if(statistic != null) {
+
+            if (statistic != null) {
                 statistic.insert(complex[0], zold, zold2, iterations, complex[1], start);
             }
 
         }
 
+        if (inTrueColorAlgorithm != null) {
+            setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start);
+        }
+
         Object[] object = {complex[0], zold, zold2, complex[1], start};
         iterationData = object;
         double in = in_color_algorithm.getResult(object);
-        
+
         in = getFinalValueIn(in);
-        
+
         return in;
 
     }
@@ -377,12 +386,17 @@ public class UserFormulaIterationBasedConverging extends ExtendedConvergentType 
 
             if (iterations > 0 && (temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
                 escaped = true;
+
+                if (outTrueColorAlgorithm != null) {
+                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start);
+                }
+
                 Object[] object = {iterations, complex[0], temp, zold, zold2, complex[1], start};
                 iterationData = object;
                 double out = out_color_algorithm.getResult(object);
-                
+
                 out = getFinalValueOut(out);
-                
+
                 return out;
             }
             zold2.assign(zold);
@@ -390,19 +404,23 @@ public class UserFormulaIterationBasedConverging extends ExtendedConvergentType 
             function(complex);
 
             setVariables(zold, zold2);
-            
-            if(statistic != null) {
+
+            if (statistic != null) {
                 statistic.insert(complex[0], zold, zold2, iterations, complex[1], start);
             }
 
         }
 
+        if (inTrueColorAlgorithm != null) {
+            setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start);
+        }
+
         Object[] object = {complex[0], zold, zold2, complex[1], start};
         iterationData = object;
         double in = in_color_algorithm.getResult(object);
-        
+
         in = getFinalValueIn(in);
-        
+
         return in;
 
     }
@@ -533,17 +551,17 @@ public class UserFormulaIterationBasedConverging extends ExtendedConvergentType 
     }
 
     private void setVariables(Complex zold, Complex zold2) {
-        
-        for(int i = 0; i < parser.length; i++) {
+
+        for (int i = 0; i < parser.length; i++) {
             if (parser[i].foundP()) {
                 parser[i].setPvalue(zold);
             }
-            
+
             if (parser[i].foundPP()) {
                 parser[i].setPPvalue(zold2);
             }
         }
-        
+
     }
 
     private void setInitVariables(Complex start, Complex zold, Complex zold2) {
@@ -551,20 +569,20 @@ public class UserFormulaIterationBasedConverging extends ExtendedConvergentType 
         Complex c_center = new Complex(xCenter, yCenter);
         Complex c_size = new Complex(size, 0);
         Complex c_isize = new Complex(ThreadDraw.IMAGE_SIZE, 0);
-        
-        for(int i = 0; i < parser.length; i++) {
+
+        for (int i = 0; i < parser.length; i++) {
             if (parser[i].foundS()) {
                 parser[i].setSvalue(start);
             }
-            
+
             if (parser[i].foundMaxn()) {
                 parser[i].setMaxnvalue(new Complex(max_iterations, 0));
             }
-            
+
             if (parser[i].foundP()) {
                 parser[i].setPvalue(zold);
             }
-            
+
             if (parser[i].foundPP()) {
                 parser[i].setPPvalue(zold2);
             }
@@ -572,34 +590,34 @@ public class UserFormulaIterationBasedConverging extends ExtendedConvergentType 
             if (parser[i].foundCenter()) {
                 parser[i].setCentervalue(c_center);
             }
-            
+
             if (parser[i].foundSize()) {
                 parser[i].setSizevalue(c_size);
             }
-            
+
             if (parser[i].foundISize()) {
                 parser[i].setISizevalue(c_isize);
             }
-            
+
             if (parser[i].foundPoint()) {
                 parser[i].setPointvalue(point);
             }
         }
-        
+
     }
-    
+
     @Override
     public double getFractal3DHeight(double value) {
-        
-        if(escaped) {           
+
+        if (escaped) {
             double res = out_color_algorithm.getResult3D(iterationData);
-            
+
             res = getFinalValueOut(res);
-            
+
             return ColorAlgorithm.transformResultToHeight(res, max_iterations);
         }
-        
+
         return ColorAlgorithm.transformResultToHeight(value, max_iterations);
-        
+
     }
 }

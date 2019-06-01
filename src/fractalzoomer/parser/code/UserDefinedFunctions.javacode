@@ -961,13 +961,13 @@ public class UserDefinedFunctions {
 	
 		if(img == null)
 			loadImage("image.png"); //set the path to your texture image
-		            
+		 
 		double re = (((z.arg() + Math.PI) / (2 * Math.PI))) % 1.0;
 
-                double factor = 10;
-                //double re = (factor * ((s.arg() + Math.PI) / (2 * Math.PI))) % 1.0; //alternative mapping
+		double factor = 10;
+		//double re = (factor * ((s.arg() + Math.PI) / (2 * Math.PI))) % 1.0; //alternative mapping
 
-		//double im = 1 - Math.log(z.norm()) / Math.log(bail.getRe())); //the original example used this line to map the im coordinate, it should be used only in mandelbrot set
+		//double im = 1 - Math.log(z.norm()) / Math.log(bail.getRe()); //the original example used this line to map the im coordinate, it should be used only in mandelbrot set
 		
 		double temp = p.norm_squared();
 		double temp2 = z.norm_squared();

@@ -26,6 +26,7 @@ import java.util.ArrayList;
  * @author hrkalona2
  */
 public abstract class DurandKernerRootFindingMethod extends RootFindingMethods {
+
     private Complex[] new_val;
     protected Complex[] fz;
     protected int degree;
@@ -39,46 +40,48 @@ public abstract class DurandKernerRootFindingMethod extends RootFindingMethods {
         this.degree = degree;
         new_val = new Complex[degree];
         fz = new Complex[degree];
-        
+
     }
 
     //orbit
     public DurandKernerRootFindingMethod(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int degree) {
 
         super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
-        a = A;     
+        a = A;
         this.degree = degree;
         new_val = new Complex[degree];
         fz = new Complex[degree];
-        
+
     }
 
     public Complex[] durandKernerMethod(Complex[] roots, Complex[] fz) {
-        
-        for(int i = 0; i < degree; i++) {         
+
+        for (int i = 0; i < degree; i++) {
             Complex denominator = new Complex(1, 0);
-            
-            for(int j = 0; j < degree; j++) {
-                if(j == i) continue;               
+
+            for (int j = 0; j < degree; j++) {
+                if (j == i) {
+                    continue;
+                }
                 denominator.times_mutable(roots[i].sub(roots[j]));
             }
-                    
+
             new_val[i] = roots[i].sub(fz[i].divide_mutable(denominator));
         }
-        
-        for(int i = 0; i < degree; i++) {
+
+        for (int i = 0; i < degree; i++) {
             roots[i] = new_val[i];
         }
-        
+
         return roots;
     }
-    
+
     @Override
     public double calculateFractalWithoutPeriodicity(Complex pixel) {
         int iterations = 0;
         double temp = 0;
-        
-        if(degree <= 0) {
+
+        if (degree <= 0) {
             return 0;
         }
 
@@ -87,10 +90,10 @@ public abstract class DurandKernerRootFindingMethod extends RootFindingMethods {
         }
 
         Complex[] complex = new Complex[degree];
-        
+
         complex[0] = new Complex(pixel);//z
-       
-        for(int i = 1; i < degree; i++) {
+
+        for (int i = 1; i < degree; i++) {
             complex[i] = complex[0].times(a.pow(i));//(a*i) * z
         }
 
@@ -106,6 +109,11 @@ public abstract class DurandKernerRootFindingMethod extends RootFindingMethods {
 
             if (iterations > 0 && (temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
                 escaped = true;
+
+                if (outTrueColorAlgorithm != null) {
+                    setTrueColorOut(complex[0], zold, zold2, iterations, pixel, start);
+                }
+
                 Object[] object = {iterations, complex[0], temp, zold, zold2, pixel, start};
                 iterationData = object;
                 double out = out_color_algorithm.getResult(object);
@@ -124,6 +132,10 @@ public abstract class DurandKernerRootFindingMethod extends RootFindingMethods {
 
         }
 
+        if (inTrueColorAlgorithm != null) {
+            setTrueColorIn(complex[0], zold, zold2, iterations, pixel, start);
+        }
+
         Object[] object = {complex[0], zold, zold2, pixel, start};
         iterationData = object;
         double in = in_color_algorithm.getResult(object);
@@ -137,15 +149,15 @@ public abstract class DurandKernerRootFindingMethod extends RootFindingMethods {
     @Override
     public void calculateFractalOrbit() {
         int iterations = 0;
-        
-        if(degree <= 0) {
+
+        if (degree <= 0) {
             return;
         }
 
         Complex[] complex = new Complex[degree];
         complex[0] = new Complex(pixel_orbit);//z
-        
-        for(int i = 1; i < degree; i++) {
+
+        for (int i = 1; i < degree; i++) {
             complex[i] = complex[0].times(a.pow(i));//(a*i) * z
         }
 
@@ -167,18 +179,18 @@ public abstract class DurandKernerRootFindingMethod extends RootFindingMethods {
     @Override
     public Complex iterateFractalDomain(Complex pixel) {
         int iterations = 0;
-        
-        if(degree <= 0) {
+
+        if (degree <= 0) {
             return new Complex();
         }
 
         Complex[] complex = new Complex[degree];
         complex[0] = new Complex(pixel);//z
-        
-        for(int i = 1; i < degree; i++) {
+
+        for (int i = 1; i < degree; i++) {
             complex[i] = complex[0].times(a.pow(i));//(a*i) * z
         }
-        
+
         for (; iterations < max_iterations; iterations++) {
 
             function(complex);
@@ -188,5 +200,5 @@ public abstract class DurandKernerRootFindingMethod extends RootFindingMethods {
         return complex[0];
 
     }
-    
+
 }

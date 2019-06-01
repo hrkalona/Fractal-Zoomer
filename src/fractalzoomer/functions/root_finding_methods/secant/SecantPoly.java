@@ -37,20 +37,19 @@ public class SecantPoly extends SecantRootFindingMethod {
         super(xCenter, yCenter, size, max_iterations, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, ots);
 
         usesComplexCoefficients = false;
-        for(int i = 0; i < coefficients_im.length; i++) {
-            if(coefficients_im[i] != 0) {
+        for (int i = 0; i < coefficients_im.length; i++) {
+            if (coefficients_im[i] != 0) {
                 usesComplexCoefficients = true;
                 break;
             }
         }
-        
-        if(usesComplexCoefficients) {
+
+        if (usesComplexCoefficients) {
             complex_coefficients = new Complex[coefficients.length];
-            for(int i = 0; i < complex_coefficients.length; i++) {
+            for (int i = 0; i < complex_coefficients.length; i++) {
                 complex_coefficients[i] = new Complex(coefficients[i], coefficients_im[i]);
             }
-        }
-        else {
+        } else {
             this.coefficients = coefficients;
         }
 
@@ -66,7 +65,7 @@ public class SecantPoly extends SecantRootFindingMethod {
 
         InColoringAlgorithmFactory(in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, plane_transform_center);
 
-        if(sts.statistic) {
+        if (sts.statistic) {
             StatisticFactory(sts, plane_transform_center);
         }
     }
@@ -77,20 +76,19 @@ public class SecantPoly extends SecantRootFindingMethod {
         super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
 
         usesComplexCoefficients = false;
-        for(int i = 0; i < coefficients_im.length; i++) {
-            if(coefficients_im[i] != 0) {
+        for (int i = 0; i < coefficients_im.length; i++) {
+            if (coefficients_im[i] != 0) {
                 usesComplexCoefficients = true;
                 break;
             }
         }
-        
-        if(usesComplexCoefficients) {
+
+        if (usesComplexCoefficients) {
             complex_coefficients = new Complex[coefficients.length];
-            for(int i = 0; i < complex_coefficients.length; i++) {
+            for (int i = 0; i < complex_coefficients.length; i++) {
                 complex_coefficients[i] = new Complex(coefficients[i], coefficients_im[i]);
             }
-        }
-        else {
+        } else {
             this.coefficients = coefficients;
         }
 
@@ -98,13 +96,12 @@ public class SecantPoly extends SecantRootFindingMethod {
 
     @Override
     protected void function(Complex[] complex) {
-        
+
         Complex fz1;
-        
-        if(usesComplexCoefficients) {
+
+        if (usesComplexCoefficients) {
             fz1 = complex[0].tenth().times_mutable(complex_coefficients[0]).plus_mutable(complex[0].ninth().times_mutable(complex_coefficients[1])).plus_mutable(complex[0].eighth().times_mutable(complex_coefficients[2])).plus_mutable(complex[0].seventh().times_mutable(complex_coefficients[3])).plus_mutable(complex[0].sixth().times_mutable(complex_coefficients[4])).plus_mutable(complex[0].fifth().times_mutable(complex_coefficients[5])).plus_mutable(complex[0].fourth().times_mutable(complex_coefficients[6])).plus_mutable(complex[0].cube().times_mutable(complex_coefficients[7])).plus_mutable(complex[0].square().times_mutable(complex_coefficients[8])).plus_mutable(complex[0].times(complex_coefficients[9])).plus_mutable(complex_coefficients[10]);
-        }
-        else {
+        } else {
             fz1 = complex[0].tenth().times_mutable(coefficients[0]).plus_mutable(complex[0].ninth().times_mutable(coefficients[1])).plus_mutable(complex[0].eighth().times_mutable(coefficients[2])).plus_mutable(complex[0].seventh().times_mutable(coefficients[3])).plus_mutable(complex[0].sixth().times_mutable(coefficients[4])).plus_mutable(complex[0].fifth().times_mutable(coefficients[5])).plus_mutable(complex[0].fourth().times_mutable(coefficients[6])).plus_mutable(complex[0].cube().times_mutable(coefficients[7])).plus_mutable(complex[0].square().times_mutable(coefficients[8])).plus_mutable(complex[0].times(coefficients[9])).plus_mutable(coefficients[10]);
         }
 
@@ -127,11 +124,10 @@ public class SecantPoly extends SecantRootFindingMethod {
         Complex[] complex = new Complex[3];
         complex[0] = new Complex(pixel);//z
         complex[1] = new Complex();
-               
-        if(usesComplexCoefficients) {
+
+        if (usesComplexCoefficients) {
             complex[2] = new Complex(complex_coefficients[10]);
-        }
-        else {
+        } else {
             complex[2] = new Complex(coefficients[10], 0);
         }
 
@@ -147,30 +143,39 @@ public class SecantPoly extends SecantRootFindingMethod {
 
             if (iterations > 0 && (temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
                 escaped = true;
+
+                if (outTrueColorAlgorithm != null) {
+                    setTrueColorOut(complex[0], zold, zold2, iterations, pixel, start);
+                }
+
                 Object[] object = {iterations, complex[0], temp, zold, zold2, pixel, start};
                 iterationData = object;
                 double out = out_color_algorithm.getResult(object);
-                
+
                 out = getFinalValueOut(out);
-                
+
                 return out;
             }
             zold2.assign(zold);
             zold.assign(complex[0]);
             function(complex);
-            
-            if(statistic != null) {
+
+            if (statistic != null) {
                 statistic.insert(complex[0], zold, zold2, iterations, pixel, start);
             }
 
         }
 
+        if (inTrueColorAlgorithm != null) {
+            setTrueColorIn(complex[0], zold, zold2, iterations, pixel, start);
+        }
+
         Object[] object = {complex[0], zold, zold2, pixel, start};
         iterationData = object;
         double in = in_color_algorithm.getResult(object);
-        
+
         in = getFinalValueIn(in);
-        
+
         return in;
 
     }
@@ -182,11 +187,10 @@ public class SecantPoly extends SecantRootFindingMethod {
         Complex[] complex = new Complex[3];
         complex[0] = new Complex(pixel_orbit);//z
         complex[1] = new Complex();
-        
-        if(usesComplexCoefficients) {
+
+        if (usesComplexCoefficients) {
             complex[2] = new Complex(complex_coefficients[10]);
-        }
-        else {
+        } else {
             complex[2] = new Complex(coefficients[10], 0);
         }
 
@@ -212,11 +216,10 @@ public class SecantPoly extends SecantRootFindingMethod {
         Complex[] complex = new Complex[3];
         complex[0] = new Complex(pixel);//z
         complex[1] = new Complex();
-        
-        if(usesComplexCoefficients) {
+
+        if (usesComplexCoefficients) {
             complex[2] = new Complex(complex_coefficients[10]);
-        }
-        else {
+        } else {
             complex[2] = new Complex(coefficients[10], 0);
         }
 

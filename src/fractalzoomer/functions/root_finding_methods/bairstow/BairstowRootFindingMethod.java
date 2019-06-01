@@ -26,7 +26,7 @@ import java.util.ArrayList;
  * @author hrkalona2
  */
 public abstract class BairstowRootFindingMethod extends RootFindingMethods {
-    
+
     protected double[] a;
     protected double[] b;
     protected double[] f;
@@ -46,9 +46,9 @@ public abstract class BairstowRootFindingMethod extends RootFindingMethods {
     }
 
     public Complex bairstowMethod(Complex z) {
-        
+
         double u = z.getRe();
-	double v = z.getIm();
+        double v = z.getIm();
 
         for (int i = n - 2; i >= 0; i--) {
             b[i] = a[i + 2] - u * b[i + 1] - v * b[i + 2];
@@ -74,8 +74,8 @@ public abstract class BairstowRootFindingMethod extends RootFindingMethods {
     public double calculateFractalWithoutPeriodicity(Complex pixel) {
         int iterations = 0;
         double temp = 0;
-        
-        if(n < 2) {
+
+        if (n < 2) {
             return 0;
         }
 
@@ -98,6 +98,11 @@ public abstract class BairstowRootFindingMethod extends RootFindingMethods {
 
             if (iterations > 0 && (temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
                 escaped = true;
+
+                if (outTrueColorAlgorithm != null) {
+                    setTrueColorOut(complex[0], zold, zold2, iterations, pixel, start);
+                }
+
                 Object[] object = {iterations, complex[0], temp, zold, zold2, pixel, start};
                 iterationData = object;
                 double out = out_color_algorithm.getResult(object);
@@ -116,6 +121,10 @@ public abstract class BairstowRootFindingMethod extends RootFindingMethods {
 
         }
 
+        if (inTrueColorAlgorithm != null) {
+            setTrueColorIn(complex[0], zold, zold2, iterations, pixel, start);
+        }
+
         Object[] object = {complex[0], zold, zold2, pixel, start};
         iterationData = object;
         double in = in_color_algorithm.getResult(object);
@@ -129,8 +138,8 @@ public abstract class BairstowRootFindingMethod extends RootFindingMethods {
     @Override
     public void calculateFractalOrbit() {
         int iterations = 0;
-        
-        if(n < 2) {
+
+        if (n < 2) {
             return;
         }
 
@@ -155,8 +164,8 @@ public abstract class BairstowRootFindingMethod extends RootFindingMethods {
     @Override
     public Complex iterateFractalDomain(Complex pixel) {
         int iterations = 0;
-        
-        if(n < 2) {
+
+        if (n < 2) {
             return new Complex();
         }
 

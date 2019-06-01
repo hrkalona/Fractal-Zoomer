@@ -40,7 +40,7 @@ import java.util.ArrayList;
  * @author hrkalona2
  */
 public class LambdaFnFn extends Julia {
-    
+
     private ExpressionNode[] expr;
     private Parser[] parser;
     private ExpressionNode[] expr2;
@@ -52,48 +52,42 @@ public class LambdaFnFn extends Julia {
 
         super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, ots);
 
-        if(perturbation) {
-            if(variable_perturbation) {
-                if(user_perturbation_algorithm == 0) {
+        if (perturbation) {
+            if (variable_perturbation) {
+                if (user_perturbation_algorithm == 0) {
                     pertur_val = new VariablePerturbation(perturbation_user_formula, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
-                }
-                else {
+                } else {
                     pertur_val = new VariableConditionalPerturbation(user_perturbation_conditions, user_perturbation_condition_formula, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
                 }
-            }
-            else {
+            } else {
                 pertur_val = new Perturbation(perturbation_vals[0], perturbation_vals[1]);
             }
-        }
-        else {
+        } else {
             pertur_val = new DefaultPerturbation();
         }
 
-        if(init_value) {
-            if(variable_init_value) {
-                if(user_initial_value_algorithm == 0) {
+        if (init_value) {
+            if (variable_init_value) {
+                if (user_initial_value_algorithm == 0) {
                     init_val = new VariableInitialValue(initial_value_user_formula, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
-                }
-                else {
+                } else {
                     init_val = new VariableConditionalInitialValue(user_initial_value_conditions, user_initial_value_condition_formula, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
                 }
-            }
-            else {
+            } else {
                 init_val = new InitialValue(initial_vals[0], initial_vals[1]);
             }
-        }
-        else {
+        } else {
             init_val = new DefaultInitialValue();
         }
 
         OutColoringAlgorithmFactory(out_coloring_algorithm, smoothing, escaping_smooth_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, plane_transform_center);
-        
+
         InColoringAlgorithmFactory(in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, plane_transform_center);
 
-        if(sts.statistic) {
+        if (sts.statistic) {
             StatisticFactory(sts, plane_transform_center);
         }
-        
+
         parser = new Parser[lfns.lambda_formula_conditions.length];
         expr = new ExpressionNode[lfns.lambda_formula_conditions.length];
 
@@ -118,13 +112,13 @@ public class LambdaFnFn extends Julia {
         super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, periodicity_checking, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, ots, xJuliaCenter, yJuliaCenter);
 
         OutColoringAlgorithmFactory(out_coloring_algorithm, smoothing, escaping_smooth_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, plane_transform_center);
-        
+
         InColoringAlgorithmFactory(in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, plane_transform_center);
 
-        if(sts.statistic) {
+        if (sts.statistic) {
             StatisticFactory(sts, plane_transform_center);
         }
-        
+
         parser = new Parser[lfns.lambda_formula_conditions.length];
         expr = new ExpressionNode[lfns.lambda_formula_conditions.length];
 
@@ -149,40 +143,34 @@ public class LambdaFnFn extends Julia {
 
         super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
 
-        if(perturbation) {
-            if(variable_perturbation) {
-                if(user_perturbation_algorithm == 0) {
+        if (perturbation) {
+            if (variable_perturbation) {
+                if (user_perturbation_algorithm == 0) {
                     pertur_val = new VariablePerturbation(perturbation_user_formula, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
-                }
-                else {
+                } else {
                     pertur_val = new VariableConditionalPerturbation(user_perturbation_conditions, user_perturbation_condition_formula, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
                 }
-            }
-            else {
+            } else {
                 pertur_val = new Perturbation(perturbation_vals[0], perturbation_vals[1]);
             }
-        }
-        else {
+        } else {
             pertur_val = new DefaultPerturbation();
         }
 
-        if(init_value) {
-            if(variable_init_value) {
-                if(user_initial_value_algorithm == 0) {
+        if (init_value) {
+            if (variable_init_value) {
+                if (user_initial_value_algorithm == 0) {
                     init_val = new VariableInitialValue(initial_value_user_formula, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
-                }
-                else {
+                } else {
                     init_val = new VariableConditionalInitialValue(user_initial_value_conditions, user_initial_value_condition_formula, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
                 }
-            }
-            else {
+            } else {
                 init_val = new InitialValue(initial_vals[0], initial_vals[1]);
             }
-        }
-        else {
+        } else {
             init_val = new DefaultInitialValue();
         }
-        
+
         parser = new Parser[lfns.lambda_formula_conditions.length];
         expr = new ExpressionNode[lfns.lambda_formula_conditions.length];
 
@@ -224,12 +212,12 @@ public class LambdaFnFn extends Julia {
         }
 
         point = new Complex(plane_transform_center[0], plane_transform_center[1]);
-        
+
     }
 
     @Override
     protected void function(Complex[] complex) {
-        
+
         /* LEFT */
         if (parser[0].foundN()) {
             parser[0].setNvalue(new Complex(iterations, 0));
@@ -333,7 +321,7 @@ public class LambdaFnFn extends Julia {
         }
 
     }
-    
+
     @Override
     public double calculateFractalWithoutPeriodicity(Complex pixel) {
 
@@ -363,11 +351,16 @@ public class LambdaFnFn extends Julia {
 
             if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
                 escaped = true;
+
+                if (outTrueColorAlgorithm != null) {
+                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start);
+                }
+
                 Object[] object = {iterations, complex[0], zold, zold2, complex[1], start};
                 double out = out_color_algorithm.getResult(object);
-                
+
                 out = getFinalValueOut(out);
-                
+
                 return out;
             }
             zold2.assign(zold);
@@ -375,18 +368,22 @@ public class LambdaFnFn extends Julia {
             function(complex);
 
             setVariables(zold, zold2);
-            
-            if(statistic != null) {
+
+            if (statistic != null) {
                 statistic.insert(complex[0], zold, zold2, iterations, complex[1], start);
             }
 
         }
 
+        if (inTrueColorAlgorithm != null) {
+            setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start);
+        }
+
         Object[] object = {complex[0], zold, zold2, complex[1], start};
         double in = in_color_algorithm.getResult(object);
-        
+
         in = getFinalValueIn(in);
-        
+
         return in;
 
     }
@@ -420,11 +417,16 @@ public class LambdaFnFn extends Julia {
 
             if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
                 escaped = true;
+
+                if (outTrueColorAlgorithm != null) {
+                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start);
+                }
+
                 Object[] object = {iterations, complex[0], zold, zold2, complex[1], start};
                 double out = out_color_algorithm.getResult(object);
-                
+
                 out = getFinalValueOut(out);
-                
+
                 return out;
             }
             zold2.assign(zold);
@@ -436,8 +438,8 @@ public class LambdaFnFn extends Julia {
             if (periodicityCheck(complex[0])) {
                 return ColorAlgorithm.MAXIMUM_ITERATIONS;
             }
-            
-            if(statistic != null) {
+
+            if (statistic != null) {
                 statistic.insert(complex[0], zold, zold2, iterations, complex[1], start);
             }
 
@@ -506,11 +508,16 @@ public class LambdaFnFn extends Julia {
         for (; iterations < max_iterations; iterations++) {
             if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
                 escaped = true;
+
+                if (outTrueColorAlgorithm != null) {
+                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start);
+                }
+
                 Object[] object = {iterations, complex[0], zold, zold2, complex[1], start};
                 double out = out_color_algorithm.getResult(object);
-                
+
                 out = getFinalValueOut(out);
-                
+
                 return out;
             }
             zold2.assign(zold);
@@ -522,8 +529,8 @@ public class LambdaFnFn extends Julia {
             if (periodicityCheck(complex[0])) {
                 return ColorAlgorithm.MAXIMUM_ITERATIONS;
             }
-            
-            if(statistic != null) {
+
+            if (statistic != null) {
                 statistic.insert(complex[0], zold, zold2, iterations, complex[1], start);
             }
         }
@@ -557,11 +564,16 @@ public class LambdaFnFn extends Julia {
 
             if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
                 escaped = true;
+
+                if (outTrueColorAlgorithm != null) {
+                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start);
+                }
+
                 Object[] object = {iterations, complex[0], zold, zold2, complex[1], start};
                 double out = out_color_algorithm.getResult(object);
-                
+
                 out = getFinalValueOut(out);
-                
+
                 return out;
             }
             zold2.assign(zold);
@@ -569,18 +581,22 @@ public class LambdaFnFn extends Julia {
             function(complex);
 
             setVariables(zold, zold2);
-            
-            if(statistic != null) {
+
+            if (statistic != null) {
                 statistic.insert(complex[0], zold, zold2, iterations, complex[1], start);
             }
 
         }
 
+        if (inTrueColorAlgorithm != null) {
+            setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start);
+        }
+
         Object[] object = {complex[0], zold, zold2, complex[1], start};
         double in = in_color_algorithm.getResult(object);
-        
+
         in = getFinalValueIn(in);
-        
+
         return in;
 
     }
@@ -889,5 +905,4 @@ public class LambdaFnFn extends Julia {
         }
     }
 
-    
 }

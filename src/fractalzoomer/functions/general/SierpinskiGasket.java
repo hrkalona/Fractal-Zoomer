@@ -37,7 +37,7 @@ public class SierpinskiGasket extends Fractal {
 
         InColoringAlgorithmFactory(in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, plane_transform_center);
 
-        if(sts.statistic) {
+        if (sts.statistic) {
             StatisticFactory(sts, plane_transform_center);
         }
     }
@@ -88,28 +88,37 @@ public class SierpinskiGasket extends Fractal {
 
             if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, pixel, start)) {
                 escaped = true;
+
+                if (outTrueColorAlgorithm != null) {
+                    setTrueColorOut(complex[0], zold, zold2, iterations, pixel, start);
+                }
+
                 Object[] object = {iterations, complex[0], zold, zold2, pixel, start};
                 double out = out_color_algorithm.getResult(object);
-                
+
                 out = getFinalValueOut(out);
-                
+
                 return out;
             }
             zold2.assign(zold);
             zold.assign(complex[0]);
             function(complex);
-            
-            if(statistic != null) {
+
+            if (statistic != null) {
                 statistic.insert(complex[0], zold, zold2, iterations, pixel, start);
             }
 
         }
 
+        if (inTrueColorAlgorithm != null) {
+            setTrueColorIn(complex[0], zold, zold2, iterations, pixel, start);
+        }
+
         Object[] object = {complex[0], zold, zold2, pixel, start};
         double in = in_color_algorithm.getResult(object);
-        
+
         in = getFinalValueIn(in);
-        
+
         return in;
 
     }
@@ -168,11 +177,11 @@ public class SierpinskiGasket extends Fractal {
         return null;
 
     }
-    
+
     @Override
     public double getJulia3DHeight(double value) {
-        
-         return 0;
-         
+
+        return 0;
+
     }
 }

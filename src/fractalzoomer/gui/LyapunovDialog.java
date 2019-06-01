@@ -79,6 +79,9 @@ public class LyapunovDialog extends JDialog {
         
         JTextField field_exponent_function = new JTextField(50);
         field_exponent_function.setText(s.fns.lpns.lyapunovExponentFunction);
+        
+        JTextField initial_value = new JTextField(50);
+        initial_value.setText(s.fns.lpns.lyapunovInitialValue);
 
         JPanel formula_panel_lyapunov = new JPanel();
         formula_panel_lyapunov.setLayout(new GridLayout(3, 2));
@@ -145,6 +148,12 @@ public class LyapunovDialog extends JDialog {
 
         formula_panel_lyapunov7.add(new JLabel("Function ="));
         formula_panel_lyapunov7.add(field_function);
+                     
+                
+        JPanel formula_panel_lyapunov9 = new JPanel();
+
+        formula_panel_lyapunov9.add(new JLabel("Initial Value ="));
+        formula_panel_lyapunov9.add(initial_value);
         
         JPanel formula_panel_lyapunov8 = new JPanel();
 
@@ -161,6 +170,7 @@ public class LyapunovDialog extends JDialog {
             formula_panel_lyapunov,
             formula_panel_lyapunov6,
             formula_panel_lyapunov7,
+            formula_panel_lyapunov9,
             formula_panel_lyapunov8};
 
         optionPane = new JOptionPane(message_lyap, JOptionPane.QUESTION_MESSAGE, JOptionPane.OK_CANCEL_OPTION, null, null, null);
@@ -271,7 +281,15 @@ public class LyapunovDialog extends JDialog {
                             return;
                         }
                         
-                        temp_bool = temp_bool | s.parser.foundC();                      
+                        temp_bool = temp_bool | s.parser.foundC();
+                        
+                        
+                        s.parser.parse(initial_value.getText());
+
+                        if (s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR()) {
+                            JOptionPane.showMessageDialog(ptra, "The variables: z, n, s, p, pp, bail, cbail, r cannot be used in the initial value formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                            return;
+                        }
                         
 
                         s.fns.lpns.lyapunovA = field_formula_a.getText();
@@ -284,6 +302,7 @@ public class LyapunovDialog extends JDialog {
                         s.fns.lpns.lyapunovFunction = field_function.getText();
                         s.fns.lpns.lyapunovExponentFunction = field_exponent_function.getText();
                         s.fns.lpns.lyapunovVariableId = variable_choice.getSelectedIndex();
+                        s.fns.lpns.lyapunovInitialValue = initial_value.getText();
 
                         s.userFormulaHasC = temp_bool;
 

@@ -96,10 +96,15 @@ public class MagneticPendulumDialog extends JDialog {
         pendulum_height.setText("" + s.fns.mps.height);
         magnet_p2.add(pendulum_height);
 
-        magnet_p2.add(new JLabel(" Stepsize: "));
-        JTextField pendulum_stepsize = new JTextField(10);
-        pendulum_stepsize.setText("" + s.fns.mps.stepsize);
-        magnet_p2.add(pendulum_stepsize);
+        magnet_p2.add(new JLabel(" Stepsize Re: "));
+        JTextField pendulum_stepsize_re = new JTextField(10);
+        pendulum_stepsize_re.setText("" + s.fns.mps.stepsize);
+        magnet_p2.add(pendulum_stepsize_re);
+        
+        magnet_p2.add(new JLabel(" Im: "));
+        JTextField pendulum_stepsize_im = new JTextField(10);
+        pendulum_stepsize_im.setText("" + s.fns.mps.stepsize_im);
+        magnet_p2.add(pendulum_stepsize_im);
 
         JPanel[] magnet_panels = new JPanel[s.fns.mps.magnetLocation.length];
         JTextField[] magnet_re = new JTextField[magnet_panels.length];
@@ -228,7 +233,8 @@ public class MagneticPendulumDialog extends JDialog {
                         temp_pendulum[0] = Double.parseDouble(pendulum_re.getText());
                         temp_pendulum[1] = Double.parseDouble(pendulum_im.getText());
                         double temp_height = Double.parseDouble(pendulum_height.getText());
-                        double temp_stepsize = Double.parseDouble(pendulum_stepsize.getText());
+                        double temp_stepsize = Double.parseDouble(pendulum_stepsize_re.getText());
+                        double temp_stepsize_im = Double.parseDouble(pendulum_stepsize_im.getText());
 
                         s.fns.mps.magnetLocation = temp_magnet;
                         s.fns.mps.magnetStrength = temp_magnet_strength;
@@ -237,6 +243,7 @@ public class MagneticPendulumDialog extends JDialog {
                         s.fns.mps.pendulum = temp_pendulum;
                         s.fns.mps.height = temp_height;
                         s.fns.mps.stepsize = temp_stepsize;
+                        s.fns.mps.stepsize_im = temp_stepsize_im;
                         s.fns.mps.magnetPendVariableId = variable_choice.getSelectedIndex();
                     } catch (Exception ex) {
                         JOptionPane.showMessageDialog(ptra, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);

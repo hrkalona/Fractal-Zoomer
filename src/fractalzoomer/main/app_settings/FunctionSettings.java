@@ -117,6 +117,8 @@ public class FunctionSettings implements Constants {
     public InertiaGravityFractalSettings igs;
     public LambdaFnFnSettings lfns;
     public int skip_bailout_iterations;
+    public double[] newton_hines_k;
+    public TrueColorSettings tcs;
     
     public FunctionSettings() {
         n_norm = 2;
@@ -330,11 +332,16 @@ public class FunctionSettings implements Constants {
         durand_kerner_init_val[0] = 0.4;
         durand_kerner_init_val[1] = 0.9;
         
+        newton_hines_k = new double[2];
+        newton_hines_k[0] = -0.5;
+        newton_hines_k[1] = 0;
+        
         mps = new MagneticPendulumSettings();
         lpns = new LyapunovSettings();
         gcps = new GenericCpAZpBCSettings();
         igs = new InertiaGravityFractalSettings();
         lfns = new LambdaFnFnSettings();
+        tcs = new TrueColorSettings();
         
     }
     

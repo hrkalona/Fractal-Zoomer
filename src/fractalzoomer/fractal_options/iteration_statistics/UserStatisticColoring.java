@@ -30,124 +30,173 @@ import fractalzoomer.parser.Parser;
  * @author hrkalona2
  */
 public class UserStatisticColoring extends GenericStatistic {
-    private Complex sum;
-    private Complex sum2;
+
+    private Complex val;
+    private Complex val2;
+    private int statisticIteration;
     private ExpressionNode expr;
     private Parser parser;
     private Complex[] globalVars;
     private double log_bailout_squared;
     private boolean useAverage;
     private PlanePointOption init_val;
-    
-    public UserStatisticColoring(double statistic_intensity, String user_statistic_formula, double xCenter, double yCenter, int max_iterations, double size, double bailout, double[] point, Complex[] globalVars, boolean useAverage, String user_statistic_init_value) {
+    private int reductionFunction;
+    private boolean useIterations;
+    private boolean useSmoothing;
+
+    public UserStatisticColoring(double statistic_intensity, String user_statistic_formula, double xCenter, double yCenter, int max_iterations, double size, double bailout, double[] point, Complex[] globalVars, boolean useAverage, String user_statistic_init_value, int reductionFunction, boolean useIterations, boolean useSmoothing) {
         super(statistic_intensity);
-        sum = new Complex();
-        sum2 = new Complex();
-        
+        val = new Complex();
+        val2 = new Complex();
+
         this.useAverage = useAverage;
-        
+        this.reductionFunction = reductionFunction;
+        this.useIterations = useIterations;
+        this.useSmoothing = useSmoothing;
+
         log_bailout_squared = Math.log(bailout * bailout);
-        
+
         this.globalVars = globalVars;
-        
+
         parser = new Parser();
-        expr = parser.parse(user_statistic_formula);  
-                
-        if(parser.foundBail()) {
+        expr = parser.parse(user_statistic_formula);
+
+        if (parser.foundBail()) {
             parser.setBailvalue(new Complex(bailout, 0));
         }
 
-        if(parser.foundMaxn()) {
+        if (parser.foundMaxn()) {
             parser.setMaxnvalue(new Complex(max_iterations, 0));
         }
-        
-        if(parser.foundCenter()) {
+
+        if (parser.foundCenter()) {
             parser.setCentervalue(new Complex(xCenter, yCenter));
         }
-        
-        if(parser.foundSize()) {
+
+        if (parser.foundSize()) {
             parser.setSizevalue(new Complex(size, 0));
         }
-        
+
         if (parser.foundISize()) {
             parser.setISizevalue(new Complex(ThreadDraw.IMAGE_SIZE, 0));
         }
 
-        if(parser.foundPoint()) {
+        if (parser.foundPoint()) {
             parser.setPointvalue(new Complex(point[0], point[1]));
         }
-        
+
         init_val = new VariableInitialValue(user_statistic_init_value, xCenter, yCenter, size, max_iterations, point, globalVars);
     }
 
     @Override
     public void insert(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start) {
- 
-        if(parser.foundN()) {
+
+        if (parser.foundN()) {
             parser.setNvalue(new Complex(iterations, 0));
         }
-        
-        if(parser.foundZ()) {
+
+        if (parser.foundZ()) {
             parser.setZvalue(z);
         }
-        
-        if(parser.foundC()) {
+
+        if (parser.foundC()) {
             parser.setCvalue(c);
         }
-        
-        if(parser.foundS()) {
+
+        if (parser.foundS()) {
             parser.setSvalue(start);
         }
-        
-        if(parser.foundP()) {
+
+        if (parser.foundP()) {
             parser.setPvalue(zold);
         }
-        
-        if(parser.foundPP()) {
+
+        if (parser.foundPP()) {
             parser.setPPvalue(zold2);
         }
 
-        for(int i = 0; i < Parser.EXTRA_VARS; i++) {
-            if(parser.foundVar(i)) {
+        for (int i = 0; i < Parser.EXTRA_VARS; i++) {
+            if (parser.foundVar(i)) {
                 parser.setVarsvalue(i, globalVars[i]);
             }
         }
-       
-        samples++;
-        sum2.assign(sum);
-        sum.plus_mutable(expr.getValue());
-              
-        z_val.assign(z);
-        zold_val.assign(zold);
+
+        switch (reductionFunction) {
+            case MainWindow.REDUCTION_SUM:
+                samples++;
+                val2.assign(val);
+                val.plus_mutable(expr.getValue());
+
+                z_val.assign(z);
+                zold_val.assign(zold);
+                break;
+            case MainWindow.REDUCTION_MIN:
+                Complex newVal = expr.getValue();
+                int res = newVal.compare(val);
+
+                if (res == 1) { //newVal < val
+                    val.assign(newVal);
+                    statisticIteration = iterations;
+                }
+                break;
+            case MainWindow.REDUCTION_MAX:
+                newVal = expr.getValue();
+                res = newVal.compare(val);
+
+                if (res == -1) { //newVal > val
+                    val.assign(newVal);
+                    statisticIteration = iterations;
+                }
+                break;
+            case MainWindow.REDUCTION_ASSIGN:
+                val.assign(expr.getValue());
+                break;
+        }
+
     }
 
     @Override
     public void initialize(Complex pixel) {
-        sum = new Complex(init_val.getValue(pixel));
-        sum2 = new Complex(sum);
+        val = new Complex(init_val.getValue(pixel));
+        val2 = new Complex(val);
         samples = 0;
+        statisticIteration = 0;
     }
 
     @Override
     public double getValue() {
-        if(samples < 1) {
+
+        if (reductionFunction == MainWindow.REDUCTION_MAX || reductionFunction == MainWindow.REDUCTION_MIN) {
+            return useIterations ? statisticIteration * statistic_intensity : val.getRe() * statistic_intensity;
+        }
+        else if(reductionFunction != MainWindow.REDUCTION_SUM) {
+            return val.getRe() * statistic_intensity;
+        }
+
+        if (samples < 1) {
             return 0;
         }
-        
-        double smoothing = OutColorAlgorithm.fractionalPartEscaping(z_val, zold_val, log_bailout_squared);
-        double sumRe = sum.getRe();
-        double sum2Re = sum2.getRe();
-        
-        if(useAverage) {
+    
+        double sumRe = val.getRe();
+        double sum2Re = val2.getRe();
+
+        if (useAverage) {
             sumRe = sumRe / samples;
             sum2Re = samples < 2 ? 0 : sum2Re / (samples - 1);
         }
         
-	return (sumRe + (sum2Re - sumRe) * smoothing) * statistic_intensity;
+        if(!useSmoothing) {
+            return sumRe * statistic_intensity;
+        }
+
+        double smoothing = OutColorAlgorithm.fractionalPartEscaping(z_val, zold_val, log_bailout_squared);
+        
+        return (sumRe + (sum2Re - sumRe) * smoothing) * statistic_intensity;
     }
-    
+
     @Override
     public int getType() {
         return MainWindow.ESCAPING;
     }
+
 }

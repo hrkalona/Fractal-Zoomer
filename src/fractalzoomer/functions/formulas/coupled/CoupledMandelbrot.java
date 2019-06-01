@@ -79,7 +79,7 @@ public class CoupledMandelbrot extends Julia {
 
         InColoringAlgorithmFactory(in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, plane_transform_center);
 
-        if(sts.statistic) {
+        if (sts.statistic) {
             StatisticFactory(sts, plane_transform_center);
         }
     }
@@ -94,7 +94,7 @@ public class CoupledMandelbrot extends Julia {
 
         InColoringAlgorithmFactory(in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, plane_transform_center);
 
-        if(sts.statistic) {
+        if (sts.statistic) {
             StatisticFactory(sts, plane_transform_center);
         }
     }
@@ -183,11 +183,16 @@ public class CoupledMandelbrot extends Julia {
         for (; iterations < max_iterations; iterations++) {
             if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
                 escaped = true;
+
+                if (outTrueColorAlgorithm != null) {
+                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start);
+                }
+
                 Object[] object = {iterations, complex[0], zold, zold2, complex[1], start};
                 double out = out_color_algorithm.getResult(object);
 
                 out = getFinalValueOut(out);
-                
+
                 return out;
             }
             zold2.assign(zold);
@@ -197,8 +202,8 @@ public class CoupledMandelbrot extends Julia {
             if (periodicityCheck(complex[0])) {
                 return ColorAlgorithm.MAXIMUM_ITERATIONS;
             }
-            
-            if(statistic != null) {
+
+            if (statistic != null) {
                 statistic.insert(complex[0], zold, zold2, iterations, complex[1], start);
             }
 
@@ -236,28 +241,37 @@ public class CoupledMandelbrot extends Julia {
 
             if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
                 escaped = true;
+
+                if (outTrueColorAlgorithm != null) {
+                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start);
+                }
+
                 Object[] object = {iterations, complex[0], zold, zold2, complex[1], start};
                 double out = out_color_algorithm.getResult(object);
-                
+
                 out = getFinalValueOut(out);
-                
+
                 return out;
             }
             zold2.assign(zold);
             zold.assign(complex[0]);
             function(complex);
-            
-            if(statistic != null) {
+
+            if (statistic != null) {
                 statistic.insert(complex[0], zold, zold2, iterations, complex[1], start);
             }
 
         }
 
+        if (inTrueColorAlgorithm != null) {
+            setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start);
+        }
+
         Object[] object = {complex[0], zold, zold2, complex[1], start};
         double in = in_color_algorithm.getResult(object);
-        
+
         in = getFinalValueIn(in);
-        
+
         return in;
 
     }
@@ -310,11 +324,16 @@ public class CoupledMandelbrot extends Julia {
         for (; iterations < max_iterations; iterations++) {
             if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
                 escaped = true;
+
+                if (outTrueColorAlgorithm != null) {
+                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start);
+                }
+
                 Object[] object = {iterations, complex[0], zold, zold2, complex[1], start};
                 double out = out_color_algorithm.getResult(object);
-                
+
                 out = getFinalValueOut(out);
-                
+
                 return out;
             }
             zold2.assign(zold);
@@ -324,8 +343,8 @@ public class CoupledMandelbrot extends Julia {
             if (periodicityCheck(complex[0])) {
                 return ColorAlgorithm.MAXIMUM_ITERATIONS;
             }
-            
-            if(statistic != null) {
+
+            if (statistic != null) {
                 statistic.insert(complex[0], zold, zold2, iterations, complex[1], start);
             }
         }
@@ -358,28 +377,37 @@ public class CoupledMandelbrot extends Julia {
 
             if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
                 escaped = true;
+
+                if (outTrueColorAlgorithm != null) {
+                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start);
+                }
+
                 Object[] object = {iterations, complex[0], zold, zold2, complex[1], start};
                 double out = out_color_algorithm.getResult(object);
-                
+
                 out = getFinalValueOut(out);
-                
+
                 return out;
             }
             zold2.assign(zold);
             zold.assign(complex[0]);
             function(complex);
-            
-            if(statistic != null) {
+
+            if (statistic != null) {
                 statistic.insert(complex[0], zold, zold2, iterations, complex[1], start);
             }
 
         }
 
+        if (inTrueColorAlgorithm != null) {
+            setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start);
+        }
+
         Object[] object = {complex[0], zold, zold2, complex[1], start};
         double in = in_color_algorithm.getResult(object);
-        
+
         in = getFinalValueIn(in);
-        
+
         return in;
 
     }

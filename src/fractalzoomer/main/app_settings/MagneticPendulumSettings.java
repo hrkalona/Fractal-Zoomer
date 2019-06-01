@@ -26,6 +26,7 @@ public class MagneticPendulumSettings {
     public double[][] magnetStrength;
     public double[] pendulum;
     public double stepsize;
+    public double stepsize_im;
     public double[] friction;
     public double[] gravity;
     public int magnetPendVariableId;
@@ -33,6 +34,7 @@ public class MagneticPendulumSettings {
     public MagneticPendulumSettings() {
         
         stepsize = 0.05;
+        stepsize_im = 0;
         
         friction = new double[2];
         friction[0] = 0.07;

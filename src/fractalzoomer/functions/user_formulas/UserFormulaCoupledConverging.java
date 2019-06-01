@@ -114,8 +114,8 @@ public class UserFormulaCoupledConverging extends ExtendedConvergentType {
         init_val2 = new VariableInitialValue(user_formula_coupled[2], xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
 
         point = new Complex(plane_transform_center[0], plane_transform_center[1]);
-        
-        if(sts.statistic) {
+
+        if (sts.statistic) {
             StatisticFactory(sts, plane_transform_center);
         }
 
@@ -169,8 +169,8 @@ public class UserFormulaCoupledConverging extends ExtendedConvergentType {
         init_val2 = new VariableInitialValue(user_formula_coupled[2], xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
 
         point = new Complex(plane_transform_center[0], plane_transform_center[1]);
-        
-        if(sts.statistic) {
+
+        if (sts.statistic) {
             StatisticFactory(sts, plane_transform_center);
         }
 
@@ -353,12 +353,17 @@ public class UserFormulaCoupledConverging extends ExtendedConvergentType {
 
             if (iterations > 0 && (temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
                 escaped = true;
+
+                if (outTrueColorAlgorithm != null) {
+                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start);
+                }
+
                 Object[] object = {iterations, complex[0], temp, zold, zold2, complex[1], start};
                 iterationData = object;
                 double out = out_color_algorithm.getResult(object);
-                
+
                 out = getFinalValueOut(out);
-                
+
                 return out;
             }
             zold2.assign(zold);
@@ -366,19 +371,23 @@ public class UserFormulaCoupledConverging extends ExtendedConvergentType {
             function(complex);
 
             setVariables(zold, zold2);
-            
-            if(statistic != null) {
+
+            if (statistic != null) {
                 statistic.insert(complex[0], zold, zold2, iterations, complex[1], start);
             }
 
         }
 
+        if (inTrueColorAlgorithm != null) {
+            setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start);
+        }
+
         Object[] object = {complex[0], zold, zold2, complex[1], start};
         iterationData = object;
         double in = in_color_algorithm.getResult(object);
-        
+
         in = getFinalValueIn(in);
-        
+
         return in;
 
     }
@@ -413,12 +422,17 @@ public class UserFormulaCoupledConverging extends ExtendedConvergentType {
 
             if (iterations > 0 && (temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
                 escaped = true;
+
+                if (outTrueColorAlgorithm != null) {
+                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start);
+                }
+
                 Object[] object = {iterations, complex[0], temp, zold, zold2, complex[1], start};
                 iterationData = object;
                 double out = out_color_algorithm.getResult(object);
-                
+
                 out = getFinalValueOut(out);
-                
+
                 return out;
             }
             zold2.assign(zold);
@@ -426,19 +440,23 @@ public class UserFormulaCoupledConverging extends ExtendedConvergentType {
             function(complex);
 
             setVariables(zold, zold2);
-            
-            if(statistic != null) {
+
+            if (statistic != null) {
                 statistic.insert(complex[0], zold, zold2, iterations, complex[1], start);
             }
 
         }
 
+        if (inTrueColorAlgorithm != null) {
+            setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start);
+        }
+
         Object[] object = {complex[0], zold, zold2, complex[1], start};
         iterationData = object;
         double in = in_color_algorithm.getResult(object);
-        
+
         in = getFinalValueIn(in);
-        
+
         return in;
 
     }
@@ -667,20 +685,20 @@ public class UserFormulaCoupledConverging extends ExtendedConvergentType {
             parser2.setPointvalue(point);
         }
     }
-    
+
     @Override
     public double getFractal3DHeight(double value) {
-        
-        if(escaped) {           
+
+        if (escaped) {
             double res = out_color_algorithm.getResult3D(iterationData);
-            
+
             res = getFinalValueOut(res);
-            
+
             return ColorAlgorithm.transformResultToHeight(res, max_iterations);
         }
-        
+
         return ColorAlgorithm.transformResultToHeight(value, max_iterations);
-        
+
     }
-    
+
 }

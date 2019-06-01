@@ -16,9 +16,12 @@
  */
 package fractalzoomer.gui;
 
+import static fractalzoomer.main.Constants.NEWTONFORMULA;
+import static fractalzoomer.main.Constants.NEWTON_HINESFORMULA;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
 import fractalzoomer.parser.ParserException;
+import java.awt.FlowLayout;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
@@ -46,8 +49,16 @@ public class RootFindingTwoFunctionsDialog extends JDialog {
         super();
         
         ptra = ptr;
+        
+        String title = "";
 
-        setTitle("Newton Formula");
+        if (s.fns.function == NEWTONFORMULA) {
+            title = "Newton Formula";
+        } else if (s.fns.function == NEWTON_HINESFORMULA) {
+            title = "Newton-Hines Formula";
+        }
+
+        setTitle(title);
         setModal(true);
         setIconImage(getIcon("/fractalzoomer/icons/mandel2.png").getImage());
 
@@ -75,9 +86,26 @@ public class RootFindingTwoFunctionsDialog extends JDialog {
 
         formula_dfz_panel.add(new JLabel("f '(z) ="));
         formula_dfz_panel.add(field_dfz_formula);
+        
+        JPanel k_panel = new JPanel();
+        JTextField k_real = new JTextField(30);
+        k_real.setText("" + s.fns.newton_hines_k[0]);
+        JTextField k_imag = new JTextField(30);
+        k_imag.setText("" + s.fns.newton_hines_k[1]);
+        k_panel.setLayout(new FlowLayout());
+        k_panel.add(new JLabel("Newton-Hines k,  Re: "));
+        k_panel.add(k_real);
+        k_panel.add(new JLabel(" Im: "));
+        k_panel.add(k_imag);
 
         JLabel imagelabel4 = new JLabel();
-        imagelabel4.setIcon(getIcon("/fractalzoomer/icons/newton.png"));
+        
+        if (s.fns.function == NEWTONFORMULA) {
+            imagelabel4.setIcon(getIcon("/fractalzoomer/icons/newton.png"));
+        } else if (s.fns.function == NEWTON_HINESFORMULA) {
+            imagelabel4.setIcon(getIcon("/fractalzoomer/icons/newton_hines.png"));
+        }
+
         JPanel imagepanel4 = new JPanel();
         imagepanel4.add(imagelabel4);
 
@@ -90,7 +118,9 @@ public class RootFindingTwoFunctionsDialog extends JDialog {
             " ",
             "Insert the function and its derivative.",
             formula_fz_panel,
-            formula_dfz_panel,};
+            formula_dfz_panel,
+            s.fns.function == NEWTON_HINESFORMULA ? " " : "",
+            s.fns.function == NEWTON_HINESFORMULA ? k_panel : ""};
 
         optionPane = new JOptionPane(message4, JOptionPane.QUESTION_MESSAGE, JOptionPane.OK_CANCEL_OPTION, null, null, null);
 
@@ -129,6 +159,9 @@ public class RootFindingTwoFunctionsDialog extends JDialog {
                     }
 
                     try {
+                        double temp_re2 = Double.parseDouble(k_real.getText());
+                        double temp_im2 = Double.parseDouble(k_imag.getText());
+                        
                         s.parser.parse(field_fz_formula.getText());
                         if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundC() || s.parser.foundR()) {
                             JOptionPane.showMessageDialog(ptra, "The variables: c, bail, cbail, r cannot be used in the f(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
@@ -144,8 +177,17 @@ public class RootFindingTwoFunctionsDialog extends JDialog {
 
                         s.fns.user_fz_formula = field_fz_formula.getText();
                         s.fns.user_dfz_formula = field_dfz_formula.getText();
+                        
+                        if(s.fns.function == NEWTON_HINESFORMULA) {
+                            s.fns.newton_hines_k[0] = temp_re2;
+                            s.fns.newton_hines_k[1] = temp_im2;
+                        }
                     } catch (ParserException ex) {
                         JOptionPane.showMessageDialog(ptra, ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                    catch (Exception ex) {
+                        JOptionPane.showMessageDialog(ptra, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
 

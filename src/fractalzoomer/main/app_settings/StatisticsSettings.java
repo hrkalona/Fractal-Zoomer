@@ -37,6 +37,10 @@ public class StatisticsSettings implements Constants {
     public boolean statisticIncludeEscaped;
     public boolean statisticIncludeNotEscaped;
     public String user_statistic_init_value;
+    public boolean showAtomDomains;
+    public int reductionFunction;
+    public boolean useIterations;
+    public boolean useSmoothing;
     
     public StatisticsSettings(StatisticsSettings copy) {
         statistic = copy.statistic;
@@ -53,6 +57,10 @@ public class StatisticsSettings implements Constants {
         statisticIncludeNotEscaped = copy.statisticIncludeNotEscaped;  
         statisticIncludeEscaped = copy.statisticIncludeEscaped;
         user_statistic_init_value = copy.user_statistic_init_value;
+        showAtomDomains = copy.showAtomDomains;
+        reductionFunction = copy.reductionFunction;
+        useIterations = copy.useIterations;
+        useSmoothing = copy.useSmoothing;
     }
     
     public StatisticsSettings() {
@@ -70,5 +78,9 @@ public class StatisticsSettings implements Constants {
         statistic_escape_type = ESCAPING;
         statisticIncludeNotEscaped = false;  
         statisticIncludeEscaped = true;
+        showAtomDomains = false;
+        reductionFunction = REDUCTION_SUM;
+        useIterations = false;
+        useSmoothing = true;
     }
 }

@@ -48,6 +48,8 @@ public class ColorsMenu extends JMenu {
     private ColorBlendingMenu color_blending_menu;
     private OutColoringPaletteMenu outcolor_palette_menu;
     private InColoringPaletteMenu incolor_palette_menu;
+    private JMenuItem out_true_color_opt;
+    private JMenuItem in_true_color_opt;
     
     public ColorsMenu(MainWindow ptr2, String name, PaletteSettings ps, PaletteSettings ps2, boolean smoothing, int out_coloring_algorithm, int in_coloring_algorithm, int color_blending, int temp_color_cycling_location, int temp_color_cycling_location2) {
 
@@ -72,6 +74,9 @@ public class ColorsMenu extends JMenu {
         in_coloring_mode_menu = new InColoringModesMenu(ptr, "In Coloring Mode", in_coloring_algorithm);
         
         direct_color_opt = new JCheckBoxMenuItem("Direct Color");
+        
+        out_true_color_opt = new JMenuItem("Out True Coloring Mode", getIcon("/fractalzoomer/icons/true_color_out.png"));
+        in_true_color_opt = new JMenuItem("In True Coloring Mode", getIcon("/fractalzoomer/icons/true_color_in.png"));
                
         processing = new ProcessingMenu(ptr, "Processing");      
         
@@ -84,12 +89,16 @@ public class ColorsMenu extends JMenu {
         gradient.setToolTipText("Sets the gradient for color blending.");
         direct_color_opt.setToolTipText("Enables the use of direct color, via the use of user code, in user out-coloring and in-coloring modes.");
         blend_palette_opt.setToolTipText("The coloring algorithm is mapped through the gradient and then it is merged with the palette.");        
+        out_true_color_opt.setToolTipText("Overrides the palette coloring for out coloring mode, and uses a direct color space coloring."); 
+        in_true_color_opt.setToolTipText("Overrides the palette coloring for in coloring mode, and uses a direct color space coloring.");        
                 
         fract_color.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T, 0));
         random_palette.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, ActionEvent.SHIFT_MASK));
         gradient.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_5, 0));
         direct_color_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_7, 0));
         blend_palette_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_0, 0));
+        out_true_color_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_3, ActionEvent.SHIFT_MASK));
+        in_true_color_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_3, ActionEvent.ALT_MASK));
 
         fract_color.addActionListener(new ActionListener() {
 
@@ -107,6 +116,26 @@ public class ColorsMenu extends JMenu {
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setDirectColor();
+
+            }
+        });
+        
+        out_true_color_opt.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setOutTrueColor();
+
+            }
+        });
+        
+        in_true_color_opt.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setInTrueColor();
 
             }
         });
@@ -145,6 +174,8 @@ public class ColorsMenu extends JMenu {
         
         add(out_coloring_mode_menu);
         add(in_coloring_mode_menu);
+        add(out_true_color_opt);
+        add(in_true_color_opt);
         add(direct_color_opt);
         addSeparator();
         add(processing);
@@ -359,6 +390,14 @@ public class ColorsMenu extends JMenu {
         
     }
     
+    public JMenuItem getOutTrueColoring() {
+        return out_true_color_opt;
+    }
+    
+    public JMenuItem getInTrueColoring() {
+        return in_true_color_opt;
+    }
+    
     public void updateIcons(Settings s) {
 
         if(s.pbs.palette_gradient_merge) {
@@ -366,6 +405,20 @@ public class ColorsMenu extends JMenu {
         }
         else {
             blend_palette_opt.setIcon(getIcon("/fractalzoomer/icons/palette_blending.png"));
+        }
+        
+        if(s.fns.tcs.trueColorOut) {
+            out_true_color_opt.setIcon(getIcon("/fractalzoomer/icons/true_color_out_enabled.png"));
+        }
+        else {
+            out_true_color_opt.setIcon(getIcon("/fractalzoomer/icons/true_color_out.png"));
+        }
+        
+        if(s.fns.tcs.trueColorIn) {
+            in_true_color_opt.setIcon(getIcon("/fractalzoomer/icons/true_color_in_enabled.png"));
+        }
+        else {
+            in_true_color_opt.setIcon(getIcon("/fractalzoomer/icons/true_color_in.png"));
         }
   
     }

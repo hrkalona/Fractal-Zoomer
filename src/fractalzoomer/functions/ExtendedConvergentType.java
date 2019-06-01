@@ -17,6 +17,7 @@
 package fractalzoomer.functions;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.fractal_options.iteration_statistics.AtomDomain;
 import fractalzoomer.fractal_options.iteration_statistics.CosArgDivideInverseNorm;
 import fractalzoomer.fractal_options.iteration_statistics.UserStatisticColoringRootFindingMethod;
 import fractalzoomer.in_coloring_algorithms.AtanReTimesImTimesAbsReTimesAbsIm;
@@ -34,6 +35,7 @@ import fractalzoomer.in_coloring_algorithms.ZMag;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
 import fractalzoomer.main.app_settings.StatisticsSettings;
+import fractalzoomer.main.app_settings.TrueColorSettings;
 import fractalzoomer.out_coloring_algorithms.Banded;
 import fractalzoomer.out_coloring_algorithms.BinaryDecomposition;
 import fractalzoomer.out_coloring_algorithms.BinaryDecomposition2;
@@ -67,6 +69,7 @@ import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeGridNova;
 import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeRootFindingMethod;
 import fractalzoomer.out_coloring_algorithms.UserConditionalOutColorAlgorithmRootFindingMethod;
 import fractalzoomer.out_coloring_algorithms.UserOutColorAlgorithmRootFindingMethod;
+import fractalzoomer.true_coloring_algorithms.UserTrueColorAlgorithm;
 import fractalzoomer.utils.ColorAlgorithm;
 import java.util.ArrayList;
 
@@ -294,7 +297,7 @@ public abstract class ExtendedConvergentType extends Julia {
         statisticIncludeNotEscaped = sts.statisticIncludeNotEscaped;
         
         if(sts.statisticGroup == 1) {
-            statistic = new UserStatisticColoringRootFindingMethod(sts.statistic_intensity, sts.user_statistic_formula, xCenter, yCenter, max_iterations, size, convergent_bailout, plane_transform_center, globalVars, sts.useAverage, sts.user_statistic_init_value);
+            statistic = new UserStatisticColoringRootFindingMethod(sts.statistic_intensity, sts.user_statistic_formula, xCenter, yCenter, max_iterations, size, convergent_bailout, plane_transform_center, globalVars, sts.useAverage, sts.user_statistic_init_value, sts.reductionFunction, sts.useIterations, sts.useSmoothing);
             return;
         }
         
@@ -303,8 +306,33 @@ public abstract class ExtendedConvergentType extends Julia {
             case MainWindow.COS_ARG_DIVIDE_INVERSE_NORM:
                 statistic = new CosArgDivideInverseNorm(sts.statistic_intensity, sts.cosArgInvStripeDensity, sts.StripeDenominatorFactor);
                 break;
+            case MainWindow.ATOM_DOMAIN_BOF60_BOF61:
+                statistic = new AtomDomain(sts.showAtomDomains, sts.statistic_intensity);
+                break;
             
         }
+    }
+    
+    @Override
+    public void setTrueColorAlgorithm(TrueColorSettings tcs) {
+
+        if (tcs.trueColorOut) {
+
+            if (tcs.trueColorOutMode == 0) {
+                super.setTrueColorAlgorithm(tcs);
+            } else {
+                outTrueColorAlgorithm = new UserTrueColorAlgorithm(tcs.outTcComponent1, tcs.outTcComponent2, tcs.outTcComponent3, tcs.outTcColorSpace, convergent_bailout, max_iterations, xCenter, yCenter, size, point, globalVars);
+            }
+        }
+
+        if (tcs.trueColorIn) {
+            if (tcs.trueColorInMode == 0) {
+                super.setTrueColorAlgorithm(tcs);
+            } else {
+                inTrueColorAlgorithm = new UserTrueColorAlgorithm(tcs.inTcComponent1, tcs.inTcComponent2, tcs.inTcComponent3, tcs.inTcColorSpace, convergent_bailout, max_iterations, xCenter, yCenter, size, point, globalVars);
+            }
+        }
+
     }
     
     @Override

@@ -19,6 +19,7 @@ package fractalzoomer.gui;
 import static fractalzoomer.main.Constants.BAIRSTOWPOLY;
 import static fractalzoomer.main.Constants.DURAND_KERNERPOLY;
 import static fractalzoomer.main.Constants.MANDELPOLY;
+import static fractalzoomer.main.Constants.NEWTON_HINESPOLY;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
 import java.awt.FlowLayout;
@@ -92,6 +93,18 @@ public class PolynomialDialog extends JDialog {
         init_val_panel.add(init_val_real);
         init_val_panel.add(new JLabel(" Im: "));
         init_val_panel.add(init_val_imag);
+        
+        
+        JPanel k_panel = new JPanel();
+        JTextField k_real = new JTextField(30);
+        k_real.setText("" + s.fns.newton_hines_k[0]);
+        JTextField k_imag = new JTextField(30);
+        k_imag.setText("" + s.fns.newton_hines_k[1]);
+        k_panel.setLayout(new FlowLayout());
+        k_panel.add(new JLabel("Newton-Hines k,  Re: "));
+        k_panel.add(k_real);
+        k_panel.add(new JLabel(" Im: "));
+        k_panel.add(k_imag);
 
         Object[] poly_poly = {
             " ",
@@ -109,7 +122,8 @@ public class PolynomialDialog extends JDialog {
             poly_panels[8],
             poly_panels[9],
             poly_panels[10],
-            " ", s.fns.function == DURAND_KERNERPOLY ? init_val_panel : ""};
+            " ", s.fns.function == DURAND_KERNERPOLY ? init_val_panel : "",
+            s.fns.function == NEWTON_HINESPOLY ? k_panel : ""};
 
         optionPane = new JOptionPane(poly_poly, JOptionPane.QUESTION_MESSAGE, JOptionPane.OK_CANCEL_OPTION, null, null, null);
 
@@ -158,6 +172,9 @@ public class PolynomialDialog extends JDialog {
 
                         double temp_re = Double.parseDouble(init_val_real.getText());
                         double temp_im = Double.parseDouble(init_val_imag.getText());
+                        
+                        double temp_re2 = Double.parseDouble(k_real.getText());
+                        double temp_im2 = Double.parseDouble(k_imag.getText());
 
                         boolean non_zero = false;
                         for (int l = 0; l < s.fns.coefficients.length; l++) {
@@ -185,6 +202,11 @@ public class PolynomialDialog extends JDialog {
                         if (s.fns.function == DURAND_KERNERPOLY) {
                             s.fns.durand_kerner_init_val[0] = temp_re;
                             s.fns.durand_kerner_init_val[1] = temp_im;
+                        }
+                        
+                        if(s.fns.function == NEWTON_HINESPOLY) {
+                            s.fns.newton_hines_k[0] = temp_re2;
+                            s.fns.newton_hines_k[1] = temp_im2;
                         }
 
                         if (s.fns.function == MANDELPOLY) {
