@@ -64,7 +64,6 @@ public class BailoutConditionDialog extends JDialog {
 
         JTextField field_condition = new JTextField(24);
         field_condition.setText(s.fns.bailout_test_user_formula);
-        field_condition.addAncestorListener(new RequestFocusListener());
 
         JTextField field_condition2 = new JTextField(24);
         field_condition2.setText(s.fns.bailout_test_user_formula2);

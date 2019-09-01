@@ -52,8 +52,6 @@ public class OffsetColoringDialog extends JDialog {
         JTextField offset_field = new JTextField();
         offset_field.setText("" + s.ofs.post_process_offset);
 
-        offset_field.addAncestorListener(new RequestFocusListener());
-
         final JCheckBox enable_offset_coloring = new JCheckBox("Offset Coloring");
         enable_offset_coloring.setSelected(s.ofs.offset_coloring);
         enable_offset_coloring.setFocusable(false);

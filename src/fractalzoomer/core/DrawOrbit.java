@@ -27,7 +27,6 @@ import fractalzoomer.functions.formulas.m_like_generalization.c_azb_dze.*;
 import fractalzoomer.functions.formulas.m_like_generalization.c_azb_dze_f_g.*;
 import fractalzoomer.functions.formulas.kaliset.*;
 import fractalzoomer.functions.formulas.m_like_generalization.*;
-import fractalzoomer.functions.general.FrothyBasin;
 import fractalzoomer.functions.root_finding_methods.halley.*;
 import fractalzoomer.functions.root_finding_methods.householder.*;
 import fractalzoomer.functions.lambda.*;

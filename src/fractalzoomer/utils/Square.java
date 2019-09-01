@@ -21,18 +21,18 @@ package fractalzoomer.utils;
  * @author hrkalona2
  */
 public class Square {
-    public int x1;
-    public int y1;
-    public int x2;
-    public int y2;
-    public int iteration;
+    public final int x1;
+    public final int y1;
+    public final int x2;
+    public final int y2;
+    public final int iteration;
     
-    public Square() {
-        x1 = 0;
-        x2 = 0;
-        y1 = 0;
-        y2 = 0;
-        iteration = 0;
+    public Square(int x1, int y1, int x2, int y2, int iteration) {
+        this.x1 = x1;
+        this.x2 = x2;
+        this.y1 = y1;
+        this.y2 = y2;
+        this.iteration = iteration;
     }
     
     @Override

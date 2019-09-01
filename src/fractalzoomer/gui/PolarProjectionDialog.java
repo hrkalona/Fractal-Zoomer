@@ -63,8 +63,6 @@ public class PolarProjectionDialog extends JDialog {
             field_real.setText("" + p.x);
         }
 
-        field_real.addAncestorListener(new RequestFocusListener());
-
         JTextField field_imaginary = new JTextField();
 
         if (p.y == 0) {

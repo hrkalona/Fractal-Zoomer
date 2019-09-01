@@ -35,7 +35,7 @@ public class InversedLambda2Plane extends Plane {
     @Override
     public Complex transform(Complex pixel) {
         
-        return pixel.square().reciprocal().r_sub(0.25);
+        return pixel.square().reciprocal_mutable().r_sub_mutable(0.25);
         
     }
     

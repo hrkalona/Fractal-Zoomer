@@ -18,8 +18,11 @@ package fractalzoomer.functions.general;
 
 import fractalzoomer.core.Complex;
 import fractalzoomer.functions.Fractal;
+import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
 import fractalzoomer.main.app_settings.StatisticsSettings;
+import fractalzoomer.out_coloring_algorithms.*;
+
 import java.util.ArrayList;
 
 /**
@@ -40,6 +43,13 @@ public class Kleinian extends Fractal {
 
         super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, false, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, ots);
 
+        u = kleinianLine[0];
+        v = kleinianLine[1];
+        K = kleinianK;
+        M = kleinianM;
+
+        t = new Complex(u, v);
+
         OutColoringAlgorithmFactory(out_coloring_algorithm, smoothing, escaping_smooth_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, plane_transform_center);
 
         InColoringAlgorithmFactory(in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, plane_transform_center);
@@ -48,12 +58,6 @@ public class Kleinian extends Fractal {
             StatisticFactory(sts, plane_transform_center);
         }
 
-        u = kleinianLine[0];
-        v = kleinianLine[1];
-        K = kleinianK;
-        M = kleinianM;
-
-        t = new Complex(u, v);
     }
 
     //orbit
@@ -96,10 +100,6 @@ public class Kleinian extends Fractal {
     public double calculateFractalWithoutPeriodicity(Complex pixel) {
         int iterations = 0;
 
-        if (trap != null) {
-            trap.initialize();
-        }
-
         Complex[] complex = new Complex[1];
         complex[0] = new Complex(pixel);//z
 
@@ -110,7 +110,7 @@ public class Kleinian extends Fractal {
         for (; iterations < max_iterations; iterations++) {
 
             if (trap != null) {
-                trap.check(complex[0]);
+                trap.check(complex[0], iterations);
             }
 
             if (complex[0].getIm() < 0.0 || complex[0].getIm() > u) {
@@ -226,6 +226,52 @@ public class Kleinian extends Fractal {
 
         return 0;
 
+    }
+
+    @Override
+    protected void OutColoringAlgorithmFactory(int out_coloring_algorithm, boolean smoothing, int converging_smooth_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, double[] plane_transform_center) {
+
+        super.OutColoringAlgorithmFactory(out_coloring_algorithm, smoothing, converging_smooth_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, plane_transform_center);
+
+        switch (out_coloring_algorithm) {
+
+            case MainWindow.ESCAPE_TIME:
+                if (smoothing) {
+                    out_color_algorithm = new SmoothEscapeTimeKleinian(u);
+                }
+                break;
+            case MainWindow.BINARY_DECOMPOSITION:
+                if (smoothing) {
+                    out_color_algorithm = new SmoothBinaryDecompositionKleinian(u);
+                }
+                break;
+            case MainWindow.BINARY_DECOMPOSITION2:
+                if (smoothing) {
+                    out_color_algorithm = new SmoothBinaryDecomposition2Kleinian(u);
+                }
+                break;
+            case MainWindow.BIOMORPH:
+                if (smoothing) {
+                    out_color_algorithm = new SmoothBiomorphsKleinian(u, bailout);
+                }
+                break;
+            case MainWindow.ESCAPE_TIME_GRID:
+                if (smoothing) {
+                    out_color_algorithm = new SmoothEscapeTimeGridKleinian(u, log_bailout_squared);
+                }
+                break;
+            case MainWindow.ESCAPE_TIME_FIELD_LINES:
+                if (smoothing) {
+                    out_color_algorithm = new SmoothEscapeTimeFieldLinesKleinian(u, log_bailout_squared);
+                }
+                break;
+            case MainWindow.ESCAPE_TIME_FIELD_LINES2:
+                if (smoothing) {
+                    out_color_algorithm = new SmoothEscapeTimeFieldLines2Kleinian(u, log_bailout_squared);
+                }
+                break;
+
+        }
     }
 
 }

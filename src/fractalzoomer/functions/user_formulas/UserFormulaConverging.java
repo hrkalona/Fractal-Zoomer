@@ -260,10 +260,6 @@ public class UserFormulaConverging extends ExtendedConvergentType {
         iterations = 0;
         double temp = 0;
 
-        if (trap != null) {
-            trap.initialize();
-        }
-
         Complex tempz = new Complex(pertur_val.getValue(init_val.getValue(pixel)));
 
         Complex[] complex = new Complex[2];
@@ -279,7 +275,7 @@ public class UserFormulaConverging extends ExtendedConvergentType {
         for (; iterations < max_iterations; iterations++) {
 
             if (trap != null) {
-                trap.check(complex[0]);
+                trap.check(complex[0], iterations);
             }
 
             if (iterations > 0 && (temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
@@ -328,10 +324,6 @@ public class UserFormulaConverging extends ExtendedConvergentType {
         iterations = 0;
         double temp = 0;
 
-        if (trap != null) {
-            trap.initialize();
-        }
-
         Complex[] complex = new Complex[2];
         complex[0] = new Complex(pixel);
         complex[1] = new Complex(seed);//c
@@ -345,7 +337,7 @@ public class UserFormulaConverging extends ExtendedConvergentType {
         for (; iterations < max_iterations; iterations++) {
 
             if (trap != null) {
-                trap.check(complex[0]);
+                trap.check(complex[0], iterations);
             }
 
             if (iterations > 0 && (temp = complex[0].distance_squared(zold)) <= convergent_bailout) {

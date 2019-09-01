@@ -395,10 +395,9 @@ public final class Complex {
      */
     public final Complex divide_i(double number) {
 
-        double temp2 = number;
-        double temp3 = temp2 * temp2;
+        double temp3 = number * number;
 
-        return new Complex((re + im * temp2) / temp3, (im - re * temp2) / temp3);
+        return new Complex((re + im * number) / temp3, (im - re * number) / temp3);
 
     }
 
@@ -407,11 +406,10 @@ public final class Complex {
      */
     public final Complex divide_i_mutable(double number) {
 
-        double temp2 = number;
-        double temp3 = temp2 * temp2;
+        double temp3 = number * number;
 
-        double temp4 = (re + im * temp2) / temp3;
-        im = (im - re * temp2) / temp3;
+        double temp4 = (re + im * number) / temp3;
+        im = (im - re * number) / temp3;
         re = temp4;
 
         return this;
@@ -1799,7 +1797,7 @@ public final class Complex {
     /*
      *  z = The closest Gaussian Integer to the Complex number
      */
-    public final Complex gaussian_integer_mutable() {;
+    public final Complex gaussian_integer_mutable() {
         
         re = (int) (re < 0 ? re - HALF : re + HALF);
         im = (int) (im < 0 ? im - HALF : im + HALF);

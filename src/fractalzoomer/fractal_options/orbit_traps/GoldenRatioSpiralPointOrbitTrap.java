@@ -33,22 +33,26 @@ public class GoldenRatioSpiralPointOrbitTrap extends OrbitTrap {
     }
 
     @Override
-    public void check(Complex val) {
+    public void check(Complex val, int iteration) {
 
-        Complex temp = val.sub(point);
-        double dist = Math.log(temp.norm())/(4 * Math.log(phi)) - (temp.arg())/(2 * Math.PI);
-        dist = 18 * Math.abs(dist - Math.round(dist));
-   
-        if(dist < trapWidth && dist < distance) {
-            distance = dist;
-            trapId = 0;
+        if(!trapped) {
+            Complex temp = val.sub(point);
+            double dist = Math.log(temp.norm()) / (4 * Math.log(phi)) - (temp.arg()) / (2 * Math.PI);
+            dist = 18 * Math.abs(dist - Math.round(dist));
+
+            if (dist < trapWidth && dist < distance) {
+                distance = dist;
+                trapId = 0;
+                setTrappedData(val, iteration);
+            }
         }
         
-        dist = val.distance(point);
+        double dist = val.distance(point);
 
         if(dist < trapLength && dist < distance) {
             distance = dist;
             trapId = 1;
+            setTrappedData(val, iteration);
         }
 
     }

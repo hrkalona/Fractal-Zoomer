@@ -172,7 +172,7 @@ public class GenericCaZbdZe extends Julia {
     @Override
     protected void function(Complex[] complex) {
 
-        complex[0] = (complex[0].pow(beta).times(alpha).plus(complex[0].pow(epsilon).times(delta))).times(complex[1]);
+        complex[0] = (complex[0].pow(beta).times_mutable(alpha).plus_mutable(complex[0].pow(epsilon).times_mutable(delta))).times_mutable(complex[1]);
         
     }
 

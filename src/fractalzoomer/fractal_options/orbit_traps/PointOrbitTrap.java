@@ -31,13 +31,14 @@ public class PointOrbitTrap extends OrbitTrap {
     }
 
     @Override
-    public void check(Complex val) {
+    public void check(Complex val, int iteration) {
 
         double dist = val.distance(point);
 
         if(dist < trapLength && dist < distance) {
             distance = dist;
             trapId = 0;
+            setTrappedData(val, iteration);
         }
 
     }

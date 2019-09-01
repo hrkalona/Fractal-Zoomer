@@ -16,34 +16,30 @@
  */
 package fractalzoomer.gui;
 
+import fractalzoomer.fractal_options.orbit_traps.ImageOrbitTrap;
 import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
+
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSlider;
-import javax.swing.JTextField;
+import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.io.File;
+import java.io.IOException;
+import javax.imageio.ImageIO;
+import javax.swing.*;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.plaf.basic.BasicFileChooserUI;
 
 public class OrbitTrapsFrame extends JFrame {
 	private static final long serialVersionUID = -4097447483434039100L;
@@ -56,6 +52,11 @@ public class OrbitTrapsFrame extends JFrame {
     private JTextField trap_length_field;
     private JSlider blend_opt;
     private JComboBox color_method_combo;
+    private JButton load_image_button;
+    private JTextField trap_threshold_field;
+    private JTextField trap_intensity_field;
+    private JPanel color_options_panel;
+    private BufferedImage image;
 
     public OrbitTrapsFrame(MainWindow ptra, OrbitTrapSettings ots) {
 
@@ -65,7 +66,7 @@ public class OrbitTrapsFrame extends JFrame {
 
         ptra2.setEnabled(false);
         int color_window_width = 700;
-        int color_window_height = 475;
+        int color_window_height = 525;
         setTitle("Orbit Traps");
         setSize(color_window_width, color_window_height);
         setIconImage(getIcon("/fractalzoomer/icons/orbit_traps.png").getImage());
@@ -83,7 +84,7 @@ public class OrbitTrapsFrame extends JFrame {
         });
 
         JPanel options_panel = new JPanel();
-        options_panel.setPreferredSize(new Dimension(600, 330));
+        options_panel.setPreferredSize(new Dimension(600, 380));
         options_panel.setBackground(MainWindow.bg_color);
         options_panel.setLayout(new FlowLayout());
 
@@ -111,8 +112,21 @@ public class OrbitTrapsFrame extends JFrame {
 
         });
 
+
+        load_image_button = new JButton();
+        load_image_button.setIcon(getIcon("/fractalzoomer/icons/load_image.png"));
+        load_image_button.setFocusable(false);
+        load_image_button.setToolTipText("Loads an image to be used as a pattern, with the Image based Trap");
+        load_image_button.setPreferredSize(new Dimension(30, 30));
+
+        load_image_button.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                loadPatternImage(this_frame);
+            }
+        });
+
         trap_norm_field = new JTextField(10);
-        trap_norm_field.addAncestorListener(new RequestFocusListener());
         trap_norm_field.setText("" + ots.trapNorm);
         
         lines_function_combo = new JComboBox(MainWindow.orbitTrapLineTypes);
@@ -125,6 +139,7 @@ public class OrbitTrapsFrame extends JFrame {
 
         p1.add(new JLabel("Shape: "));
         p1.add(orbit_traps_combo);
+        p1.add(load_image_button);
         p1.add(new JLabel("  Norm: "));
         p1.add(trap_norm_field);
         p1.add(new JLabel("  Lines: "));
@@ -150,10 +165,10 @@ public class OrbitTrapsFrame extends JFrame {
         trap_width_field = new JTextField(10);
         trap_width_field.setText("" + ots.trapWidth);
         
-        final JTextField trap_threshold_field = new JTextField(10);
+        trap_threshold_field = new JTextField(10);
         trap_threshold_field.setText("" + ots.trapMaxDistance);
         
-        final JTextField trap_intensity_field = new JTextField(10);
+        trap_intensity_field = new JTextField(10);
         trap_intensity_field.setText("" + ots.trapIntensity);
 
         JPanel p3 = new JPanel();
@@ -359,19 +374,31 @@ public class OrbitTrapsFrame extends JFrame {
         p6.add(new JLabel("  Interpolation: "));
         p6.add(interpolation_opt);
         
-        JPanel color_options_panel = new JPanel();
-        color_options_panel.setPreferredSize(new Dimension(580, 110));
-        color_options_panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Trap Options", TitledBorder.DEFAULT_POSITION, TitledBorder.DEFAULT_POSITION));
-        color_options_panel.setLayout(new GridLayout(2, 1));
+        JPanel p7 = new JPanel();
+        p7.setBackground(MainWindow.bg_color);
+        
+        JComboBox colors = new JComboBox(new String[] {"Per Trap", "Random", "Hue/Arg HSB", "Hue/Arg LCH"});
+        colors.setFocusable(false);
+        colors.setSelectedIndex(ots.trapColorFillingMethod);
+        colors.setToolTipText("Sets the trap color filling method.");
+
+        p7.add(new JLabel("Color Filling Method: "));
+        p7.add(colors);
+              
+        color_options_panel = new JPanel();
+        color_options_panel.setPreferredSize(new Dimension(580, 160));
+        color_options_panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Color Options", TitledBorder.DEFAULT_POSITION, TitledBorder.DEFAULT_POSITION));
+        color_options_panel.setLayout(new GridLayout(3, 1));
         color_options_panel.setBackground(MainWindow.bg_color);
         
         JPanel trap_options_panel = new JPanel();
         trap_options_panel.setPreferredSize(new Dimension(580, 170));
-        trap_options_panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Color Options", TitledBorder.DEFAULT_POSITION, TitledBorder.DEFAULT_POSITION));
+        trap_options_panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Trap Options", TitledBorder.DEFAULT_POSITION, TitledBorder.DEFAULT_POSITION));
         trap_options_panel.setLayout(new GridLayout(4, 1));
         trap_options_panel.setBackground(MainWindow.bg_color);
         
         color_options_panel.add(p4);
+        color_options_panel.add(p7);
         color_options_panel.add(p6);
 
         trap_options_panel.add(p1);
@@ -444,6 +471,12 @@ public class OrbitTrapsFrame extends JFrame {
                 ots.trapColorInterpolation = interpolation_opt.getValue() / 100.0;
                 ots.trapIncludeEscaped = include_escaped_opt.isSelected();
                 ots.trapIncludeNotEscaped = include_notescaped_opt.isSelected();
+                ots.trapColorFillingMethod = colors.getSelectedIndex();
+
+                if(image != null) {
+                    ots.trapImage = image;
+                    ImageOrbitTrap.image = ots.trapImage;
+                }
 
                 ptra2.setOrbitTrapSettings();
                 ptra2.setEnabled(true);
@@ -476,7 +509,7 @@ public class OrbitTrapsFrame extends JFrame {
 
         RoundedPanel round_panel = new RoundedPanel(true, true, true, 15);
         round_panel.setBackground(MainWindow.bg_color);
-        round_panel.setPreferredSize(new Dimension(630, 390));
+        round_panel.setPreferredSize(new Dimension(630, 440));
         round_panel.setLayout(new GridBagLayout());
 
         GridBagConstraints con = new GridBagConstraints();
@@ -520,7 +553,18 @@ public class OrbitTrapsFrame extends JFrame {
 
         int index = orbit_traps_combo.getSelectedIndex();
 
-        if (index == MainWindow.POINT_N_NORM_TRAP || index == MainWindow.N_NORM_TRAP || index == MainWindow.N_NORM_CROSS_TRAP || index == MainWindow.N_NORM_POINT_TRAP || index == MainWindow.N_NORM_POINT_N_NORM_TRAP || index == MainWindow.GOLDEN_RATIO_SPIRAL_POINT_N_NORM_TRAP || index == MainWindow.GOLDEN_RATIO_SPIRAL_N_NORM_TRAP) {
+        if(index != MainWindow.IMAGE_TRAP) {
+            trap_threshold_field.setEnabled(true);
+            trap_intensity_field.setEnabled(true);
+            setComponentState(color_options_panel ,true);
+        }
+        else {
+            trap_threshold_field.setEnabled(false);
+            trap_intensity_field.setEnabled(false);
+            setComponentState(color_options_panel ,false);
+        }
+
+        if (index == MainWindow.POINT_N_NORM_TRAP || index == MainWindow.N_NORM_TRAP || index == MainWindow.N_NORM_CROSS_TRAP || index == MainWindow.N_NORM_POINT_TRAP || index == MainWindow.N_NORM_POINT_N_NORM_TRAP || index == MainWindow.GOLDEN_RATIO_SPIRAL_POINT_N_NORM_TRAP || index == MainWindow.GOLDEN_RATIO_SPIRAL_N_NORM_TRAP || index == MainWindow.STALKS_POINT_N_NORM_TRAP || index == MainWindow.STALKS_N_NORM_TRAP) {
             trap_norm_field.setEnabled(true);
         } else {
             trap_norm_field.setEnabled(false);
@@ -532,21 +576,70 @@ public class OrbitTrapsFrame extends JFrame {
             trap_width_field.setEnabled(true);
         }
         
-        if (index == MainWindow.GOLDEN_RATIO_SPIRAL_TRAP) {
+        if (index == MainWindow.GOLDEN_RATIO_SPIRAL_TRAP || index == MainWindow.STALKS_TRAP) {
             trap_length_field.setEnabled(false);
         } else {
             trap_length_field.setEnabled(true);
         }
         
-        if(index == MainWindow.CROSS_TRAP || index ==  MainWindow.RE_TRAP || index ==  MainWindow.IM_TRAP || index ==  MainWindow.CIRCLE_CROSS_TRAP || index ==  MainWindow.SQUARE_CROSS_TRAP || index ==  MainWindow.RHOMBUS_CROSS_TRAP || index ==  MainWindow.N_NORM_CROSS_TRAP || index == MainWindow.GOLDEN_RATIO_SPIRAL_CROSS_TRAP) {
+        if(index == MainWindow.CROSS_TRAP || index ==  MainWindow.RE_TRAP || index ==  MainWindow.IM_TRAP || index ==  MainWindow.CIRCLE_CROSS_TRAP || index ==  MainWindow.SQUARE_CROSS_TRAP || index ==  MainWindow.RHOMBUS_CROSS_TRAP || index ==  MainWindow.N_NORM_CROSS_TRAP || index == MainWindow.GOLDEN_RATIO_SPIRAL_CROSS_TRAP || index == MainWindow.STALKS_CROSS_TRAP) {
             lines_function_combo.setEnabled(true);
         }
         else {
             lines_function_combo.setEnabled(false);
         }
         
-        blend_opt.setEnabled(color_method_combo.getSelectedIndex() == 3);
+        blend_opt.setEnabled(color_method_combo.getSelectedIndex() == 3 && index != MainWindow.IMAGE_TRAP);
 
+        load_image_button.setEnabled(index == MainWindow.IMAGE_TRAP);
+
+    }
+
+    private void loadPatternImage(Component parent) {
+
+        JFileChooser file_chooser = new JFileChooser(".");
+
+        file_chooser.setAcceptAllFileFilterUsed(false);
+        file_chooser.setDialogType(JFileChooser.OPEN_DIALOG);
+
+        FileFilter imageFilter = new FileNameExtensionFilter(
+                "Image Files", ImageIO.getReaderFileSuffixes());
+
+        file_chooser.addChoosableFileFilter(imageFilter);
+
+        file_chooser.addPropertyChangeListener(JFileChooser.FILE_FILTER_CHANGED_PROPERTY, new PropertyChangeListener() {
+
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                String file_name = ((BasicFileChooserUI) file_chooser.getUI()).getFileName();
+                file_chooser.setSelectedFile(new File(file_name));
+            }
+        });
+
+        int returnVal = file_chooser.showDialog(parent, "Load Pattern Image");
+
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            String path = file_chooser.getSelectedFile().getPath();
+
+            if(path != null && !path.isEmpty()) {
+                try {
+                    image = ImageIO.read(new File(path));
+                } catch (IOException ex) {
+                    JOptionPane.showMessageDialog(this_frame, "Error while loading the " + path + " file.", "Error!", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        }
+    }
+
+    private void setComponentState(Component component, boolean state) {
+        component.setEnabled(state);
+        if (component instanceof JComponent) {
+            JComponent a = (JComponent) component;
+            Component comp[] = a.getComponents();
+            for (int i = 0; i < comp.length; i++) {
+                setComponentState(comp[i], state);
+            }
+        }
     }
 
 }

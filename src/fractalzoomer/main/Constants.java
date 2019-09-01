@@ -23,7 +23,7 @@ import java.awt.Color;
  * @author hrkalona2
  */
 public interface Constants {
-    public static final int VERSION = 1074;
+    public static final int VERSION = 1075;
     public static final int FAST_JULIA_IMAGE_SIZE = 252;
     public static final int TOTAL_PALETTES = 36;
     public static final int TOTAL_INCOLORING_ALGORITHMS = 11;
@@ -48,10 +48,10 @@ public interface Constants {
     public static final String[] domainColors = {"Argument", "Norm", "Re", "Im"};
     public static final String[] domainContours = {"Norm", "Iso-Argument", "Norm, Iso-Argument", "Grid", "Grid, Norm", "Grid, Iso-Argument", "Grid, Norm, Iso-Argument", "Grid Lines", "Circles Lines", "Iso-Arg Lines", "Grid Lines, Circles Lines", "Circles Lines, Iso-Arg Lines"};
     public static final String[] argumentLinesDistance = {"2 * pi", "pi", "pi / 2", "pi / 4", "pi / 6", "pi / 8", "pi / 10", "pi / 12", "pi / 14", "pi / 16"};
-    public static final String[] orbitTrapsNames = {"Point", "Point Square", "Point Rhombus", "Point N-Norm", "Cross", "Re", "Im", "Circle", "Square", "Rhombus", "N-Norm", "Circle/Cross", "Square/Cross", "Rhombus/Cross", "N-Norm/Cross", "Circle/Point", "Square/Point", "Rhombus/Point", "N-Norm/Point", "N-Norm/Point N-Norm", "Golden Ratio Spiral", "Golden Ratio Spiral/Point", "Golden Ratio Spiral/Point N-Norm", "Golden Ratio Spiral/Cross", "Golden Ratio Spiral/Circle", "Golden Ratio Spiral/Square", "Golden Ratio Spiral/Rhombus", "Golden Ratio Spiral/N-Norm"};
+    public static final String[] orbitTrapsNames = {"Point", "Point Square", "Point Rhombus", "Point N-Norm", "Cross", "Re", "Im", "Circle", "Square", "Rhombus", "N-Norm", "Circle/Cross", "Square/Cross", "Rhombus/Cross", "N-Norm/Cross", "Circle/Point", "Square/Point", "Rhombus/Point", "N-Norm/Point", "N-Norm/Point N-Norm", "Golden Ratio Spiral", "Golden Ratio Spiral/Point", "Golden Ratio Spiral/Point N-Norm", "Golden Ratio Spiral/Cross", "Golden Ratio Spiral/Circle", "Golden Ratio Spiral/Square", "Golden Ratio Spiral/Rhombus", "Golden Ratio Spiral/N-Norm", "Stalks", "Stalks/Point", "Stalks/Point N-Norm", "Stalks/Cross", "Stalks/Circle", "Stalks/Square", "Stalks/Rhombus", "Stalks/N-Norm", "Image Based"};
     public static final String[] orbitTrapLineTypes = {"Line", "Sin", "Cos", "Tan", "Sinh", "Cosh", "Tanh", "Asin", "Acos", "Atan", "Square", "Cube", "Sqrt", "Cbrt", "Exp", "Log", "Abs" };
     public static final String[] contourColorAlgorithmNames = {"Non-smooth Transitions", "Smooth Transitions"};
-    public static final String[] circleAndGridFadeNames = {"Square Root", "Cube Root", "Fourth Root"};
+    public static final String[] circleAndGridFadeNames = {"Square Root", "Cube Root", "Fourth Root", "Linear", "Saturate"};
     public static final String[] colorMethod = {"Lab", "HSB", "HSL", "Blending", "RGB Scaling"};
     public static final String[] lightTransfer = {"x * factor", "sqrt(x * factor)", "(x * factor)^2"};
     public static final String[] lightModes = {"Mode 1", "Mode 2", "Mode 3"};
@@ -61,6 +61,8 @@ public interface Constants {
     public static final String[] reductionMethod = {"sum", "min", "max", "assign"};
     public static final String[] trueColorModes = {"Xaos true color 1", "Xaos true color 2", "Xaos true color 3", "Xaos true color 4", "Xaos true color 5", "Xaos true color 6", "Xaos true color 7", "Xaos true color 8", "Xaos true color 9", "Xaos true color 10"};
     public static final String[] trueColorSpaces = {"RGB", "XYZ", "HSB", "HSL", "RYB", "LAB", "LCH", "Palette", "Gradient", "Direct"};
+    public static final String[] derivativeMethod = {"Provided", "Numerical", "Numerical Symmetric"};
+    public static final String[] gridAlgorithms = {"sin", "mod"};
     /**
      * ** FUNCTION ***
      */
@@ -671,6 +673,27 @@ public interface Constants {
     public static final int GOLDEN_RATIO_SPIRAL_SQUARE_TRAP = 25;
     public static final int GOLDEN_RATIO_SPIRAL_RHOMBUS_TRAP = 26;
     public static final int GOLDEN_RATIO_SPIRAL_N_NORM_TRAP = 27;
+    public static final int STALKS_TRAP = 28;
+    public static final int STALKS_POINT_TRAP = 29;
+    public static final int STALKS_POINT_N_NORM_TRAP = 30;
+    public static final int STALKS_CROSS_TRAP = 31;
+    public static final int STALKS_CIRCLE_TRAP = 32;
+    public static final int STALKS_SQUARE_TRAP = 33;
+    public static final int STALKS_RHOMBUS_TRAP = 34;
+    public static final int STALKS_N_NORM_TRAP = 35;
+    public static final int IMAGE_TRAP = 36;
+
+
+
+
+
+
+    public static final int TRAP_COLOR_PER_TRAP = 0;
+    public static final int TRAP_COLOR_RANDOM = 1;
+    public static final int TRAP_COLOR_ARG_HUE_HSB = 2;
+    public static final int TRAP_COLOR_ARG_HUE_LCH = 3;
+    
+    
      /**
      * **************************************
      */

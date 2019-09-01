@@ -79,10 +79,6 @@ public abstract class BairstowRootFindingMethod extends RootFindingMethods {
             return 0;
         }
 
-        if (trap != null) {
-            trap.initialize();
-        }
-
         Complex[] complex = new Complex[1];
         complex[0] = new Complex(-2 * pixel.getRe(), pixel.getRe() * pixel.getRe() + pixel.getIm() * pixel.getAbsIm());//z = -2s + (s^2 + t|t|)i
 
@@ -93,7 +89,7 @@ public abstract class BairstowRootFindingMethod extends RootFindingMethods {
         for (; iterations < max_iterations; iterations++) {
 
             if (trap != null) {
-                trap.check(complex[0]);
+                trap.check(complex[0], iterations);
             }
 
             if (iterations > 0 && (temp = complex[0].distance_squared(zold)) <= convergent_bailout) {

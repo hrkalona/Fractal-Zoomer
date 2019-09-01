@@ -48,7 +48,6 @@ public class BoundariesDialog extends JDialog {
         setIconImage(getIcon("/fractalzoomer/icons/mandel2.png").getImage());
 
         JTextField field = new JTextField();
-        field.addAncestorListener(new RequestFocusListener());
         field.setText("" + boundaries_num);
 
         String[] method = {"Power of two", "Increment of one"};

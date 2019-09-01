@@ -202,10 +202,6 @@ public class Phoenix extends Julia {
     public double calculateFractalWithoutPeriodicity(Complex pixel) {
         int iterations = 0;
 
-        if (trap != null) {
-            trap.initialize();
-        }
-
         Complex temp_z = new Complex(pertur_val.getValue(init_val.getValue(pixel)));
 
         Complex[] complex = new Complex[3];
@@ -220,7 +216,7 @@ public class Phoenix extends Julia {
         for (; iterations < max_iterations; iterations++) {
 
             if (trap != null) {
-                trap.check(complex[0]);
+                trap.check(complex[0], iterations);
             }
 
             if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
@@ -317,10 +313,6 @@ public class Phoenix extends Julia {
     public double calculateJuliaWithoutPeriodicity(Complex pixel) {
         int iterations = 0;
 
-        if (trap != null) {
-            trap.initialize();
-        }
-
         Complex[] complex = new Complex[3];
         complex[0] = new Complex(pixel);//z
         complex[1] = new Complex(seed);//c
@@ -333,7 +325,7 @@ public class Phoenix extends Julia {
         for (; iterations < max_iterations; iterations++) {
 
             if (trap != null) {
-                trap.check(complex[0]);
+                trap.check(complex[0], iterations);
             }
 
             if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {

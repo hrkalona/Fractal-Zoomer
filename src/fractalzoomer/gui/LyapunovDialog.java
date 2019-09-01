@@ -60,7 +60,6 @@ public class LyapunovDialog extends JDialog {
 
         JTextField field_formula_a = new JTextField(25);
         field_formula_a.setText(s.fns.lpns.lyapunovA);
-        field_formula_a.addAncestorListener(new RequestFocusListener());
 
         JTextField field_formula_b = new JTextField(25);
         field_formula_b.setText(s.fns.lpns.lyapunovB);

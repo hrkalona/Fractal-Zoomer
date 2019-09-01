@@ -17,7 +17,6 @@
 package fractalzoomer.functions.formulas.general.newtonvariant;
 
 import fractalzoomer.core.Complex;
-import fractalzoomer.fractal_options.initial_value.DefaultInitialValue;
 import fractalzoomer.fractal_options.initial_value.InitialValue;
 import fractalzoomer.fractal_options.initial_value.VariableConditionalInitialValue;
 import fractalzoomer.fractal_options.initial_value.VariableInitialValue;

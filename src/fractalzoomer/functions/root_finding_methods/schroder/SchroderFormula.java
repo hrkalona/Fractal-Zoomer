@@ -17,6 +17,7 @@
 package fractalzoomer.functions.root_finding_methods.schroder;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.core.Derivative;
 import fractalzoomer.core.ThreadDraw;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
@@ -115,37 +116,74 @@ public class SchroderFormula extends SchroderRootFindingMethod {
 
         Complex fz = expr.getValue();
 
-        if (parser2.foundZ()) {
-            parser2.setZvalue(complex[0]);
-        }
+        Complex dfz;
+        Complex ddfz;
 
-        if (parser2.foundN()) {
-            parser2.setNvalue(new Complex(iterations, 0));
-        }
-
-        for (int i = 0; i < Parser.EXTRA_VARS; i++) {
-            if (parser2.foundVar(i)) {
-                parser2.setVarsvalue(i, globalVars[i]);
+        if (Derivative.DERIVATIVE_METHOD == Derivative.NUMERICAL_SYMMETRICAL) {
+            if (parser.foundZ()) {
+                parser.setZvalue(complex[0].plus(Derivative.DZ));
             }
-        }
 
-        Complex dfz = expr2.getValue();
+            Complex fzdz = expr.getValue();
 
-        if (parser3.foundZ()) {
-            parser3.setZvalue(complex[0]);
-        }
-
-        if (parser3.foundN()) {
-            parser3.setNvalue(new Complex(iterations, 0));
-        }
-
-        for (int i = 0; i < Parser.EXTRA_VARS; i++) {
-            if (parser3.foundVar(i)) {
-                parser3.setVarsvalue(i, globalVars[i]);
+            if (parser.foundZ()) {
+                parser.setZvalue(complex[0].sub(Derivative.DZ));
             }
-        }
 
-        Complex ddfz = expr3.getValue();
+            Complex fzmdz = expr.getValue();
+
+            dfz = Derivative.numericalDerivativeSymmetricFirstOrder(fzdz, fzmdz);
+
+            ddfz = Derivative.numericalDerivativeSymmetricSecondOrder(fz, fzdz, fzmdz);
+        } else if (Derivative.DERIVATIVE_METHOD == Derivative.NUMERICAL) {
+            if (parser.foundZ()) {
+                parser.setZvalue(complex[0].plus(Derivative.DZ));
+            }
+
+            Complex fzdz = expr.getValue();
+
+            dfz = Derivative.numericalDerivativeFirstOrder(fz, fzdz);
+
+            if (parser.foundZ()) {
+                parser.setZvalue(complex[0].plus(Derivative.DZ_2));
+            }
+
+            Complex fz2dz = expr.getValue();
+
+            ddfz = Derivative.numericalDerivativeSecondOrder(fz, fzdz, fz2dz);
+        } else {
+            if (parser2.foundZ()) {
+                parser2.setZvalue(complex[0]);
+            }
+
+            if (parser2.foundN()) {
+                parser2.setNvalue(new Complex(iterations, 0));
+            }
+
+            for (int i = 0; i < Parser.EXTRA_VARS; i++) {
+                if (parser2.foundVar(i)) {
+                    parser2.setVarsvalue(i, globalVars[i]);
+                }
+            }
+
+            dfz = expr2.getValue();
+
+            if (parser3.foundZ()) {
+                parser3.setZvalue(complex[0]);
+            }
+
+            if (parser3.foundN()) {
+                parser3.setNvalue(new Complex(iterations, 0));
+            }
+
+            for (int i = 0; i < Parser.EXTRA_VARS; i++) {
+                if (parser3.foundVar(i)) {
+                    parser3.setVarsvalue(i, globalVars[i]);
+                }
+            }
+
+            ddfz = expr3.getValue();
+        }
 
         schroderMethod(complex[0], fz, dfz, ddfz);
     }
@@ -154,10 +192,6 @@ public class SchroderFormula extends SchroderRootFindingMethod {
     public double calculateFractalWithoutPeriodicity(Complex pixel) {
         iterations = 0;
         double temp = 0;
-
-        if (trap != null) {
-            trap.initialize();
-        }
 
         Complex[] complex = new Complex[1];
         complex[0] = new Complex(pixel);//z
@@ -171,7 +205,7 @@ public class SchroderFormula extends SchroderRootFindingMethod {
         for (; iterations < max_iterations; iterations++) {
 
             if (trap != null) {
-                trap.check(complex[0]);
+                trap.check(complex[0], iterations);
             }
 
             if (iterations > 0 && (temp = complex[0].distance_squared(zold)) <= convergent_bailout) {

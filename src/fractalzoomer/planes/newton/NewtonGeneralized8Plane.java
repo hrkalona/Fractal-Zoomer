@@ -38,10 +38,10 @@ public class NewtonGeneralized8Plane extends Plane {
         Complex temp = pixel;
         
         for(int iterations = 0; iterations < 5; iterations++) {
-            Complex fz = temp.eighth().plus(temp.fourth().times(15)).sub(16);
-            Complex dfz = temp.seventh().times(8).plus(temp.cube().times(60));
+            Complex fz = temp.eighth().plus_mutable(temp.fourth().times_mutable(15)).sub_mutable(16);
+            Complex dfz = temp.seventh().times_mutable(8).plus_mutable(temp.cube().times_mutable(60));
             
-            temp = temp.sub(fz.divide(dfz));
+            temp.sub_mutable(fz.divide_mutable(dfz));
         }
 
         return temp;

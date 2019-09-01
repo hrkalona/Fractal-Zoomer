@@ -35,27 +35,32 @@ public class GoldenRatioSpiralCrossOrbitTrap extends OrbitTrap {
     }
 
     @Override
-    public void check(Complex val) {
-        
-        Complex temp = val.sub(point);
-        double dist = Math.log(temp.norm())/(4 * Math.log(phi)) - (temp.arg())/(2 * Math.PI);
-        dist = 18 * Math.abs(dist - Math.round(dist));
-   
-        if(dist < trapWidth && dist < distance) {
-            distance = dist;
-            trapId = 0;
+    public void check(Complex val, int iteration) {
+
+        if(!trapped) {
+            Complex temp = val.sub(point);
+            double dist = Math.log(temp.norm()) / (4 * Math.log(phi)) - (temp.arg()) / (2 * Math.PI);
+            dist = 18 * Math.abs(dist - Math.round(dist));
+
+            if (dist < trapWidth && dist < distance) {
+                distance = dist;
+                trapId = 0;
+                setTrappedData(val, iteration);
+            }
         }
         
-        dist = Math.abs(val.getRe() - applyLineFunction(lineType, val.getIm()) - point.getRe());     
+        double dist = Math.abs(val.getRe() - applyLineFunction(lineType, val.getIm()) - point.getRe());
         if(dist < trapWidth && Math.abs(val.getIm() - point.getIm()) < trapLength && dist < distance) {
             distance = dist;
             trapId = 1;
+            setTrappedData(val, iteration);
         }
 
         dist = Math.abs(val.getIm() - applyLineFunction(lineType, val.getRe()) - point.getIm());
         if(dist < trapWidth && Math.abs(val.getRe() - point.getRe()) < trapLength && dist < distance) {
             distance = dist;
             trapId = 2;
+            iterations = iteration;
         }
 
     }

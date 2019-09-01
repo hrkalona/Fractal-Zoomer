@@ -26,7 +26,7 @@ public class RhombusPointOrbitTrap extends OrbitTrap {
     }
 
     @Override
-    public void check(Complex val) {
+    public void check(Complex val, int iteration) {
 
         Complex diff = val.sub(point);
         
@@ -35,6 +35,7 @@ public class RhombusPointOrbitTrap extends OrbitTrap {
         if(dist < trapWidth && dist < distance) {
             distance = dist;
             trapId = 0;
+            setTrappedData(val, iteration);
         }
         
         dist = val.distance(point);
@@ -42,6 +43,7 @@ public class RhombusPointOrbitTrap extends OrbitTrap {
         if(dist < trapLength && dist < distance) {
             distance = dist;
             trapId = 1;
+            setTrappedData(val, iteration);
         }
 
     }

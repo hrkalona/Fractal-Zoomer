@@ -33,13 +33,14 @@ public class ImOrbitTrap extends OrbitTrap {
     }
 
     @Override
-    public void check(Complex val) {
+    public void check(Complex val, int iteration) {
 
         double dist = Math.abs(val.getRe() - applyLineFunction(lineType, val.getIm()) - point.getRe());
         
         if(dist < trapWidth && Math.abs(val.getIm() - point.getIm()) < trapLength && dist < distance) {
             distance = dist;
             trapId = 0;
+            setTrappedData(val, iteration);
         }
 
     }

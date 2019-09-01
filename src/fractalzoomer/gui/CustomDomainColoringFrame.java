@@ -100,7 +100,7 @@ public class CustomDomainColoringFrame extends JFrame {
         this_frame = this;
 
         ptra2.setEnabled(false);
-        int custom_palette_window_width = 860;
+        int custom_palette_window_width = 890;
         int custom_palette_window_height = 630;
         setTitle("Custom Domain Coloring");
         setIconImage(getIcon("/fractalzoomer/icons/domain_coloring.png").getImage());
@@ -120,7 +120,7 @@ public class CustomDomainColoringFrame extends JFrame {
 
         JPanel domain_coloring_panel = new JPanel();
 
-        domain_coloring_panel.setPreferredSize(new Dimension(760, 495));
+        domain_coloring_panel.setPreferredSize(new Dimension(790, 495));
         domain_coloring_panel.setLayout(new FlowLayout());
         domain_coloring_panel.setBackground(MainWindow.bg_color);
 
@@ -129,7 +129,6 @@ public class CustomDomainColoringFrame extends JFrame {
         general_settings_panel.setBackground(MainWindow.bg_color);
 
         final JTextField log_base_textfield = new JTextField(10);
-        log_base_textfield.addAncestorListener(new RequestFocusListener());
         log_base_textfield.setText("" + ds.logBase);
 
         final JTextField grid_spacing_textfield = new JTextField(10);
@@ -142,6 +141,12 @@ public class CustomDomainColoringFrame extends JFrame {
         iso_lines_distance_opt.setSelectedIndex(ds.iso_distance);
         iso_lines_distance_opt.setFocusable(false);
         iso_lines_distance_opt.setToolTipText("Sets the iso-argument distance.");
+
+
+        final JComboBox gridAlgorithm_opt = new JComboBox(Constants.gridAlgorithms);
+        gridAlgorithm_opt.setSelectedIndex(ds.gridAlgorithm);
+        gridAlgorithm_opt.setFocusable(false);
+        gridAlgorithm_opt.setToolTipText("Sets the grid algorithm.");
 
         DefaultListModel<String> m = new DefaultListModel<>();
         for(int i = 0; i < ds.domainOrder.length; i++) {
@@ -238,7 +243,9 @@ public class CustomDomainColoringFrame extends JFrame {
         p2.setBackground(MainWindow.bg_color);
         
         p2.add(new JLabel("Iso-Arg Line Distance: "));
-        p2.add(iso_lines_distance_opt);         
+        p2.add(iso_lines_distance_opt);
+        p2.add(new JLabel(" Grid Algorithm: "));
+        p2.add(gridAlgorithm_opt);
         p2.add(new JLabel("  Order: "));
         p2.add(scroll_pane);
    
@@ -405,8 +412,28 @@ public class CustomDomainColoringFrame extends JFrame {
         grid_fade_combo.setSelectedIndex(ds.gridFadeFunction);
         grid_fade_combo.setFocusable(false);
         grid_fade_combo.setToolTipText("Sets the fading option for grid.");
-        
-        grid_panel.add(new JLabel("Fading: "));
+
+
+        final JSlider grid_lines_factor_opt = new JSlider(JSlider.HORIZONTAL, 0, 100, 0);
+        grid_lines_factor_opt.setValue((int)(100 * ds.gridWidth));
+        grid_lines_factor_opt.setBackground(MainWindow.bg_color);
+        grid_lines_factor_opt.setToolTipText("Sets the grid lines width factor.");
+        grid_lines_factor_opt.setFocusable(false);
+        grid_lines_factor_opt.setPaintLabels(true);
+
+        Hashtable<Integer, JLabel> table3 = new Hashtable<Integer, JLabel>();
+        table3.put(0, new JLabel("0"));
+        table3.put(25, new JLabel("25"));
+        table3.put(50, new JLabel("50"));
+        table3.put(75, new JLabel("75"));
+        table3.put(100, new JLabel("100"));
+
+        grid_lines_factor_opt.setLabelTable(table3);
+
+
+        grid_panel.add(new JLabel("Width: "));
+        grid_panel.add(grid_lines_factor_opt);
+        grid_panel.add(new JLabel(" Fading: "));
         grid_panel.add(grid_fade_combo);
         grid_panel.add(new JLabel(" Strength: "));
         grid_panel.add(grid_coef_opt);
@@ -435,7 +462,7 @@ public class CustomDomainColoringFrame extends JFrame {
         circles_coef_opt.setBackground(MainWindow.bg_color);
         circles_coef_opt.setMajorTickSpacing(25);
         circles_coef_opt.setMinorTickSpacing(1);
-        circles_coef_opt.setToolTipText("Sets the circles strentgh percentage.");
+        circles_coef_opt.setToolTipText("Sets the circles strength percentage.");
         circles_coef_opt.setFocusable(false);
         circles_coef_opt.setPaintLabels(true);
 
@@ -483,8 +510,28 @@ public class CustomDomainColoringFrame extends JFrame {
         circle_fade_combo.setSelectedIndex(ds.circleFadeFunction);
         circle_fade_combo.setFocusable(false);
         circle_fade_combo.setToolTipText("Sets the fading option for circles.");
-        
-        circles_panel.add(new JLabel("Fading: "));
+
+
+        final JSlider circle_lines_factor_opt = new JSlider(JSlider.HORIZONTAL, 0, 100, 0);
+        circle_lines_factor_opt.setValue((int)(100 * ds.circleWidth));
+        circle_lines_factor_opt.setBackground(MainWindow.bg_color);
+        circle_lines_factor_opt.setToolTipText("Sets the circle lines width factor.");
+        circle_lines_factor_opt.setFocusable(false);
+        circle_lines_factor_opt.setPaintLabels(true);
+
+        table3 = new Hashtable<Integer, JLabel>();
+        table3.put(0, new JLabel("0"));
+        table3.put(25, new JLabel("25"));
+        table3.put(50, new JLabel("50"));
+        table3.put(75, new JLabel("75"));
+        table3.put(100, new JLabel("100"));
+
+        circle_lines_factor_opt.setLabelTable(table3);
+
+
+        circles_panel.add(new JLabel("Width: "));
+        circles_panel.add(circle_lines_factor_opt);
+        circles_panel.add(new JLabel(" Fading: "));
         circles_panel.add(circle_fade_combo);
         circles_panel.add(new JLabel(" Strength: "));
         circles_panel.add(circles_coef_opt);
@@ -515,7 +562,7 @@ public class CustomDomainColoringFrame extends JFrame {
         iso_lines_factor_opt.setFocusable(false);
         iso_lines_factor_opt.setPaintLabels(true);
 
-        Hashtable<Integer, JLabel> table3 = new Hashtable<Integer, JLabel>();
+        table3 = new Hashtable<Integer, JLabel>();
         table3.put(0, new JLabel("0"));
         table3.put(25, new JLabel("25"));
         table3.put(50, new JLabel("50"));
@@ -594,7 +641,7 @@ public class CustomDomainColoringFrame extends JFrame {
         JPanel p4 = new JPanel();
         p4.setLayout(new GridLayout(1, 1));
         p4.setBackground(MainWindow.bg_color);
-        p4.setPreferredSize(new Dimension(760, 120));
+        p4.setPreferredSize(new Dimension(790, 120));
         
         p4.add(general_settings_panel);
 
@@ -603,7 +650,7 @@ public class CustomDomainColoringFrame extends JFrame {
         JPanel p3 = new JPanel();
         p3.setLayout(new GridLayout(5, 1));
         p3.setBackground(MainWindow.bg_color);
-        p3.setPreferredSize(new Dimension(760, 360));
+        p3.setPreferredSize(new Dimension(790, 360));
         
         p3.add(color_panel);
         p3.add(contours_panel);
@@ -688,6 +735,11 @@ public class CustomDomainColoringFrame extends JFrame {
                 ds.gridFadeFunction = grid_fade_combo.getSelectedIndex();
                 
                 ds.contourMethod = domain_contours_colord_method_combo.getSelectedIndex();
+
+                ds.circleWidth = circle_lines_factor_opt.getValue() / 100.0;
+                ds.gridWidth = grid_lines_factor_opt.getValue() / 100.0;
+
+                ds.gridAlgorithm = gridAlgorithm_opt.getSelectedIndex();
                 
                 ptra2.setEnabled(true);
                 dispose();
@@ -715,7 +767,7 @@ public class CustomDomainColoringFrame extends JFrame {
 
         RoundedPanel round_panel = new RoundedPanel(true, true, true, 15);
         round_panel.setBackground(MainWindow.bg_color);
-        round_panel.setPreferredSize(new Dimension(800, 550));
+        round_panel.setPreferredSize(new Dimension(830, 550));
         round_panel.setLayout(new GridBagLayout());
 
         GridBagConstraints con = new GridBagConstraints();

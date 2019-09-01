@@ -71,8 +71,6 @@ public class RotationDialog extends JDialog {
         final JTextField field_rotation = new JTextField();
         field_rotation.setText("" + s.fns.rotation);
 
-        field_rotation.addAncestorListener(new RequestFocusListener());
-
         rotation_slid.addChangeListener(new ChangeListener() {
 
             @Override

@@ -91,7 +91,6 @@ public class InTrueColorDialog extends JDialog {
 
         JTextField field_c1 = new JTextField(MainWindow.runsOnWindows ? 50 : 45);//48
         field_c1.setText(s.fns.tcs.inTcComponent1);
-        field_c1.addAncestorListener(new RequestFocusListener());
 
         JTextField field_c2 = new JTextField(MainWindow.runsOnWindows ? 50 : 45);//48
         field_c2.setText(s.fns.tcs.inTcComponent2);

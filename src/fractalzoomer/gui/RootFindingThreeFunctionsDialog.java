@@ -16,6 +16,8 @@
  */
 package fractalzoomer.gui;
 
+import fractalzoomer.core.Derivative;
+import fractalzoomer.main.Constants;
 import static fractalzoomer.main.Constants.HALLEYFORMULA;
 import static fractalzoomer.main.Constants.HOUSEHOLDERFORMULA;
 import static fractalzoomer.main.Constants.PARHALLEYFORMULA;
@@ -23,11 +25,14 @@ import static fractalzoomer.main.Constants.SCHRODERFORMULA;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
 import fractalzoomer.parser.ParserException;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import javax.swing.ImageIcon;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -79,7 +84,6 @@ public class RootFindingThreeFunctionsDialog extends JDialog {
 
         JTextField field_fz_formula2 = new JTextField(50);
         field_fz_formula2.setText(f1);
-        field_fz_formula2.addAncestorListener(new RequestFocusListener());
 
         JTextField field_dfz_formula2 = new JTextField(50);
         field_dfz_formula2.setText(f2);
@@ -116,6 +120,29 @@ public class RootFindingThreeFunctionsDialog extends JDialog {
 
         JPanel imagepanel41 = new JPanel();
         imagepanel41.add(imagelabel41);
+        
+        JPanel derivativePanel = new JPanel();
+        
+        JComboBox derivative_choice = new JComboBox(Constants.derivativeMethod);
+        derivative_choice.setSelectedIndex(s.fns.derivative_method);
+        derivative_choice.setToolTipText("Selects the derivative method.");
+        derivative_choice.setFocusable(false);
+        
+        derivativePanel.add(new JLabel("Derivative: "));
+        derivativePanel.add(derivative_choice);
+        
+        formula_dfz_panel2.setVisible(s.fns.derivative_method == Derivative.DISABLED);
+        formula_ddfz_panel2.setVisible(s.fns.derivative_method == Derivative.DISABLED);
+        
+        derivative_choice.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                formula_dfz_panel2.setVisible(derivative_choice.getSelectedIndex() == Derivative.DISABLED);
+                formula_ddfz_panel2.setVisible(derivative_choice.getSelectedIndex() == Derivative.DISABLED);
+                pack();
+            }
+            
+        });
 
         Object[] labels41 = ptra.createUserFormulaLabels("z, s, p, pp, n, maxn, center, size, sizei, v1 - v30, point");
 
@@ -124,7 +151,8 @@ public class RootFindingThreeFunctionsDialog extends JDialog {
             " ",
             imagepanel41,
             " ",
-            "Insert the function and its derivatives.",
+            derivativePanel,
+            "Insert the function and its derivatives (if required).",
             formula_fz_panel2,
             formula_dfz_panel2,
             formula_ddfz_panel2,};
@@ -189,6 +217,9 @@ public class RootFindingThreeFunctionsDialog extends JDialog {
                         s.fns.user_fz_formula = field_fz_formula2.getText();
                         s.fns.user_dfz_formula = field_dfz_formula2.getText();
                         s.fns.user_ddfz_formula = field_ddfz_formula2.getText();
+                        
+                        s.fns.derivative_method = derivative_choice.getSelectedIndex();
+                        Derivative.DERIVATIVE_METHOD = s.fns.derivative_method;
                     } catch (ParserException ex) {
                         JOptionPane.showMessageDialog(ptra, ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                         return;

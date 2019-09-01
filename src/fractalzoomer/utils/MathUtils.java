@@ -188,29 +188,5 @@ public static class BezierSpline
 
 		return x;
 	}
-        
-        /*public static void main(String[] args) {
-            
-            Point2D.Double[] knots = new Point2D.Double[3];
-            
-  
-            knots[0] = new Point2D.Double(0, 0);
-            knots[1] = new Point2D.Double(1, 75);
-            knots[2] = new Point2D.Double(2, 143);
-            Point2D.Double[][] controlPoints = BezierSpline.GetCurveControlPoints(knots);
-            
-            /*System.out.println("P0: " +  knots[0].x + " " +  knots[0].y);
-            System.out.println("P1: " +  controlPoints[0][0].x + " " +  controlPoints[0][0].y);
-            System.out.println("P2: " +  controlPoints[1][0].x + " " +  controlPoints[1][0].y);
-            System.out.println("P3: " +  knots[1].x + " " +  knots[1].y);
-            
-            for(int i = 0; i < knots.length; i++) {
-                System.out.println("P" + (i) + ": " +  knots[i].x + " " +  knots[i].y / 255);
-                if(i < controlPoints.length) {
-                    System.out.println("C" + (i) + "0: " +  controlPoints[0][i].x + " " +  controlPoints[0][i].y / 255);
-                    System.out.println("C" + (i) + "1: " +  controlPoints[1][i].x + " " +  controlPoints[1][i].y / 255);
-                }
-            }
-        }*/
 }
 }

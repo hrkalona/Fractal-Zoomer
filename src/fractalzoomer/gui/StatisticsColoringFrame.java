@@ -122,7 +122,6 @@ public class StatisticsColoringFrame extends JFrame {
         statistics.setSelected(sts.statistic);
 
         JTextField intensity = new JTextField(10);
-        intensity.addAncestorListener(new RequestFocusListener());
         intensity.setText("" + sts.statistic_intensity);
         panel2.add(statistics);
         panel2.add(new JLabel(" Intensity: "));
@@ -193,7 +192,7 @@ public class StatisticsColoringFrame extends JFrame {
         panel24.setLayout(new FlowLayout());
         panel24.setBackground(MainWindow.bg_color);
         
-        panel24.add(new JLabel("value(0) = "));
+        panel24.add(new JLabel("Initial value = "));
         panel24.add(field_formula_init);
 
         JCheckBox average = new JCheckBox("Average Sum");

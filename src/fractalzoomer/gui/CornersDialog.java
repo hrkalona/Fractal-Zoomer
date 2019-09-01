@@ -64,7 +64,6 @@ public class CornersDialog extends JDialog {
         double[] corners = MathUtils.convertFromCenterSizeToCorners(tempx, tempy, tempSize);
 
         JTextField corner1_real = new JTextField(20);
-        corner1_real.addAncestorListener(new RequestFocusListener());
         corner1_real.setText("" + corners[0]);
 
         JTextField corner1_imag = new JTextField(20);

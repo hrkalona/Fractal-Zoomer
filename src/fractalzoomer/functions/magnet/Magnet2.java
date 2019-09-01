@@ -173,9 +173,9 @@ public class Magnet2 extends MagnetType {
         Complex temp4 = complex[1].sub(2);
         Complex temp2 = temp3.times(temp4);
 
-        Complex temp = (complex[0].cube().plus(temp3.times(3).times(complex[0]))).plus(temp2);
-        complex[0] = temp.divide(((complex[0].square().times(3).plus(temp4.times(3).times(complex[0]))).plus(temp2)).plus(1));
-        complex[0] = complex[0].square();
+        Complex temp = (complex[0].cube().plus(temp3.times_mutable(3).times_mutable(complex[0]))).plus_mutable(temp2);
+        complex[0] = temp.divide_mutable(((complex[0].square().times_mutable(3).plus_mutable(temp4.times_mutable(3).times_mutable(complex[0]))).plus_mutable(temp2)).plus_mutable(1));
+        complex[0].square_mutable();
 
     }
   

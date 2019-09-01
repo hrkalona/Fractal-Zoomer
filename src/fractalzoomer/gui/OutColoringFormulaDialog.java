@@ -63,7 +63,6 @@ public class OutColoringFormulaDialog extends JDialog {
 
         JTextField field_formula = new JTextField(MainWindow.runsOnWindows ? 50 : 45);//48
         field_formula.setText(s.fns.outcoloring_formula);
-        field_formula.addAncestorListener(new RequestFocusListener());
 
         JPanel formula_panel = new JPanel();
         formula_panel.setLayout(new FlowLayout());
@@ -78,7 +77,6 @@ public class OutColoringFormulaDialog extends JDialog {
 
         JTextField field_condition = new JTextField(24);
         field_condition.setText(s.fns.user_outcoloring_conditions[0]);
-        field_condition.addAncestorListener(new RequestFocusListener());
 
         JTextField field_condition2 = new JTextField(24);
         field_condition2.setText(s.fns.user_outcoloring_conditions[1]);

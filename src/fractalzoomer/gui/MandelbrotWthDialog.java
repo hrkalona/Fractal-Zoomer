@@ -54,7 +54,6 @@ public class MandelbrotWthDialog extends JDialog {
 
         JTextField field_real = new JTextField();
         field_real.setText("" + s.fns.z_exponent_complex[0]);
-        field_real.addAncestorListener(new RequestFocusListener());
 
         JTextField field_imaginary = new JTextField();
         field_imaginary.setText("" + s.fns.z_exponent_complex[1]);

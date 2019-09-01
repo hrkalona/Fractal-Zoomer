@@ -167,10 +167,6 @@ public class MagneticPendulum extends Fractal {
     public double calculateFractalWithoutPeriodicity(Complex pixel) {
         int iterations = 0;
 
-        if (trap != null) {
-            trap.initialize();
-        }
-
         Complex[] complex = new Complex[5];
         complex[0] = new Complex(pixel);//z
         complex[1] = new Complex();//vel
@@ -185,7 +181,7 @@ public class MagneticPendulum extends Fractal {
         for (; iterations < max_iterations; iterations++) {
 
             if (trap != null) {
-                trap.check(complex[0]);
+                trap.check(complex[0], iterations);
             }
 
             zold2.assign(zold);

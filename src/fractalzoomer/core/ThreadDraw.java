@@ -29,7 +29,6 @@ import fractalzoomer.functions.formulas.m_like_generalization.c_azb_dze_f_g.*;
 import fractalzoomer.functions.formulas.kaliset.*;
 import fractalzoomer.functions.formulas.m_like_generalization.*;
 import fractalzoomer.functions.formulas.m_like_generalization.c_azb_dze.*;
-import fractalzoomer.functions.general.FrothyBasin;
 import fractalzoomer.functions.root_finding_methods.halley.*;
 import fractalzoomer.functions.root_finding_methods.householder.*;
 import fractalzoomer.functions.lambda.*;
@@ -41,7 +40,6 @@ import fractalzoomer.functions.general.*;
 import fractalzoomer.functions.root_finding_methods.schroder.*;
 import fractalzoomer.functions.formulas.general.mathtype.*;
 import fractalzoomer.functions.formulas.general.newtonvariant.*;
-import fractalzoomer.functions.formulas.m_like_generalization.c_azb_dze.GenericCaZbdZe;
 import fractalzoomer.functions.formulas.m_like_generalization.zab_zde_fg.Formula40;
 import fractalzoomer.functions.formulas.m_like_generalization.zab_zde_fg.Formula41;
 import fractalzoomer.functions.root_finding_methods.bairstow.*;
@@ -59,10 +57,8 @@ import fractalzoomer.main.app_settings.*;
 import fractalzoomer.palettes.PaletteColor;
 import fractalzoomer.palettes.transfer_functions.*;
 import fractalzoomer.true_coloring_algorithms.TrueColorAlgorithm;
-import fractalzoomer.utils.ColorAlgorithm;
-import fractalzoomer.utils.ColorGenerator;
-import fractalzoomer.utils.ColorSpaceConverter;
-import fractalzoomer.utils.MathUtils;
+import fractalzoomer.utils.*;
+
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -1809,6 +1805,14 @@ public abstract class ThreadDraw extends Thread {
 
         OrbitTrap trap = fractal.getOrbitTrap();
 
+        if (trap.hasColor()) {
+            int color = trap.getColor();
+            if (((color >> 24) & 0xFF) == 0) {
+                return originalColor;
+            }
+            return color;
+        }
+
         double distance = trap.getDistance();
 
         if ((ots.trapMaxDistance != 0 && distance > ots.trapMaxDistance) || distance == Double.MAX_VALUE) {
@@ -1828,18 +1832,45 @@ public abstract class ThreadDraw extends Thread {
         int green = (trapColor >> 8) & 0xFF;
         int blue = trapColor & 0xFF;
 
-        int trapRed = ots.trapColor1.getRed();
-        int trapGreen = ots.trapColor1.getGreen();
-        int trapBlue = ots.trapColor1.getBlue();
+        int trapRed;
+        int trapGreen;
+        int trapBlue;
 
-        if (trap.getTrapId() == 1) {
-            trapRed = ots.trapColor2.getRed();
-            trapGreen = ots.trapColor2.getGreen();
-            trapBlue = ots.trapColor2.getBlue();
-        } else if (trap.getTrapId() == 2) {
-            trapRed = ots.trapColor3.getRed();
-            trapGreen = ots.trapColor3.getGreen();
-            trapBlue = ots.trapColor3.getBlue();
+        if (ots.trapColorFillingMethod == MainWindow.TRAP_COLOR_RANDOM) {
+            int color = algorithm_colors[trap.getIteration() % algorithm_colors.length];
+
+            trapRed = (color >> 16) & 0xFF;
+            trapGreen = (color >> 8) & 0xFF;
+            trapBlue = color & 0xFF;
+        }
+        else if (ots.trapColorFillingMethod == MainWindow.TRAP_COLOR_ARG_HUE_HSB) {
+            int color = Color.HSBtoRGB((float) ((trap.getTrappedPoint().arg() + Math.PI) / (2 * Math.PI)), 1, 1);
+
+            trapRed = (color >> 16) & 0xFF;
+            trapGreen = (color >> 8) & 0xFF;
+            trapBlue = color & 0xFF;
+        }
+        else if (ots.trapColorFillingMethod == MainWindow.TRAP_COLOR_ARG_HUE_LCH) {
+            int[] rgb = ColorSpaceConverter.LCHtoRGB(50, 100, 360 * ((trap.getTrappedPoint().arg() + Math.PI) / (2 * Math.PI)));
+
+            trapRed = rgb[0];
+            trapGreen = rgb[1];
+            trapBlue = rgb[2];
+        }
+        else {
+            trapRed = ots.trapColor1.getRed();
+            trapGreen = ots.trapColor1.getGreen();
+            trapBlue = ots.trapColor1.getBlue();
+
+            if (trap.getTrapId() == 1) {
+                trapRed = ots.trapColor2.getRed();
+                trapGreen = ots.trapColor2.getGreen();
+                trapBlue = ots.trapColor2.getBlue();
+            } else if (trap.getTrapId() == 2) {
+                trapRed = ots.trapColor3.getRed();
+                trapGreen = ots.trapColor3.getGreen();
+                trapBlue = ots.trapColor3.getBlue();
+            }
         }
 
         return method.interpolate(red, green, blue, trapRed, trapGreen, trapBlue, ots.trapColorInterpolation);

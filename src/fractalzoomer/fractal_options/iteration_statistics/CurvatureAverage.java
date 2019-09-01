@@ -41,9 +41,9 @@ public class CurvatureAverage extends GenericStatistic {
         z_val.assign(z);
         zold_val.assign(zold);       
         
-	Complex a = z.sub(zold);
-	Complex b = zold.sub(zold2);
-	Complex d = a.divide(b);
+        Complex a = z.sub(zold);
+        Complex b = zold.sub(zold2);
+        Complex d = a.divide_mutable(b);
         double temp = Math.atan(d.getIm() / d.getRe());
         
         if(!Double.isNaN(temp)) {
@@ -68,8 +68,8 @@ public class CurvatureAverage extends GenericStatistic {
         
         double smoothing = OutColorAlgorithm.fractionalPartEscaping(z_val, zold_val, log_bailout_squared);
         sum = sum / samples;
-	sum2 = samples < 2 ? 0 : sum2 / (samples - 1);
-	return (sum + (sum2 - sum) * smoothing) * statistic_intensity;
+        sum2 = samples < 2 ? 0 : sum2 / (samples - 1);
+        return (sum + (sum2 - sum) * smoothing) * statistic_intensity;
     }
     
     @Override

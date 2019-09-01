@@ -54,6 +54,10 @@ public class DomainColoringSettings {
     public int contourMethod;
     public double domainProcessingHeightFactor;
     public int domainProcessingTransfer;
+    public double circleWidth;
+    public double gridWidth;
+    public int gridAlgorithm;
+
 
     public DomainColoringSettings(DomainColoringSettings copy ) {
         domain_coloring = copy.domain_coloring;
@@ -96,6 +100,10 @@ public class DomainColoringSettings {
         
         domainProcessingHeightFactor = copy.domainProcessingHeightFactor;
         domainProcessingTransfer = copy.domainProcessingTransfer;
+        
+        circleWidth = copy.circleWidth;
+        gridWidth = copy.gridWidth;
+        gridAlgorithm = copy.gridAlgorithm;
     }
     
     public DomainColoringSettings() {
@@ -119,6 +127,9 @@ public class DomainColoringSettings {
         gridColor = Color.BLACK;
         circlesColor = Color.WHITE;
         isoLinesColor = Color.WHITE;
+        
+        circleWidth = 1;
+        gridWidth = 1;
  
         contourBlending = 0.5;
         
@@ -143,6 +154,8 @@ public class DomainColoringSettings {
         
         domainProcessingHeightFactor = 10;
         domainProcessingTransfer = 1;
+        
+        gridAlgorithm = 0;
         
     }
     

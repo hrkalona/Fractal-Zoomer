@@ -54,7 +54,6 @@ public class UserFormulaDialog extends JDialog {
 
         JTextField field_formula = new JTextField(50);
         field_formula.setText(s.fns.user_formula);
-        field_formula.addAncestorListener(new RequestFocusListener());
 
         JTextField field_formula2 = new JTextField(50);
         field_formula2.setText(s.fns.user_formula2);

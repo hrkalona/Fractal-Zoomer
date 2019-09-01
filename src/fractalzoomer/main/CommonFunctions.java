@@ -19,6 +19,7 @@ package fractalzoomer.main;
 import fractalzoomer.main.app_settings.Settings;
 import fractalzoomer.app_updater.AppUpdater;
 import fractalzoomer.core.Complex;
+import fractalzoomer.core.Derivative;
 import fractalzoomer.core.ThreadDraw;
 import fractalzoomer.core.domain_coloring.DomainColoring;
 import fractalzoomer.functions.root_finding_methods.durand_kerner.DurandKernerRootFindingMethod;
@@ -127,7 +128,7 @@ public class CommonFunctions implements Constants {
                         InputStream src = getClass().getResourceAsStream("/fractalzoomer/lib/tools.jar");
                         Files.copy(src, filePath);
                     } catch (Exception ex) {
-                        return new Object[]{1, "Unable to copy tools.jar to " + path + ".\nMake sure you have administrative rights.\nThe application will not be able to compile and use User Code."};
+                        return new Object[]{1, "Unable to copy tools.jar to " + path + "\nMake sure you run this application as an Administrator.\nThe application will not be able to compile and use User Code."};
                     }
                 }
             }
@@ -157,7 +158,7 @@ public class CommonFunctions implements Constants {
                         InputStream src = getClass().getResourceAsStream("/fractalzoomer/lib/tools.jar");
                         Files.copy(src, filePath);
                     } catch (Exception ex) {
-                        JOptionPane.showMessageDialog(parent, "Unable to copy tools.jar to " + path + ".\nMake sure you have administrative rights.\nThe application will not be able to compile and use User Code.", "Warning!", JOptionPane.WARNING_MESSAGE);
+                        JOptionPane.showMessageDialog(parent, "Unable to copy tools.jar to " + path + "\nMake sure you run this application as an Administrator.\nThe application will not be able to compile and use User Code.", "Warning!", JOptionPane.WARNING_MESSAGE);
                         return false;
                     }
                 }
@@ -211,7 +212,7 @@ public class CommonFunctions implements Constants {
 
     }
 
-    public void overview(Settings s) {
+    public void overview(Settings s, boolean periodicity_checking) {
 
         //JTextArea textArea = new JTextArea(32, 55); // 60
         JEditorPane textArea = new JEditorPane();
@@ -366,19 +367,28 @@ public class CommonFunctions implements Constants {
             }
         } else if (s.fns.function == NEWTONFORMULA) {
             overview += tab + "f(z) = " + s.fns.user_fz_formula + "<br>";
-            overview += tab + "f '(z) = " + s.fns.user_dfz_formula + "<br>";
+            if (s.fns.derivative_method == Derivative.DISABLED) {
+                overview += tab + "f '(z) = " + s.fns.user_dfz_formula + "<br>";
+            }
         } else if (s.fns.function == HALLEYFORMULA) {
             overview += tab + "f(z) = " + s.fns.user_fz_formula + "<br>";
-            overview += tab + "f '(z) = " + s.fns.user_dfz_formula + "<br>";
-            overview += tab + "f ''(z) = " + s.fns.user_ddfz_formula + "<br>";
+
+            if (s.fns.derivative_method == Derivative.DISABLED) {
+                overview += tab + "f '(z) = " + s.fns.user_dfz_formula + "<br>";
+                overview += tab + "f ''(z) = " + s.fns.user_ddfz_formula + "<br>";
+            }
         } else if (s.fns.function == SCHRODERFORMULA) {
             overview += tab + "f(z) = " + s.fns.user_fz_formula + "<br>";
-            overview += tab + "f '(z) = " + s.fns.user_dfz_formula + "<br>";
-            overview += tab + "f ''(z) = " + s.fns.user_ddfz_formula + "<br>";
+            if (s.fns.derivative_method == Derivative.DISABLED) {
+                overview += tab + "f '(z) = " + s.fns.user_dfz_formula + "<br>";
+                overview += tab + "f ''(z) = " + s.fns.user_ddfz_formula + "<br>";
+            }
         } else if (s.fns.function == HOUSEHOLDERFORMULA) {
             overview += tab + "f(z) = " + s.fns.user_fz_formula + "<br>";
-            overview += tab + "f '(z) = " + s.fns.user_dfz_formula + "<br>";
-            overview += tab + "f ''(z) = " + s.fns.user_ddfz_formula + "<br>";
+            if (s.fns.derivative_method == Derivative.DISABLED) {
+                overview += tab + "f '(z) = " + s.fns.user_dfz_formula + "<br>";
+                overview += tab + "f ''(z) = " + s.fns.user_ddfz_formula + "<br>";
+            }
         } else if (s.fns.function == SECANTFORMULA) {
             overview += tab + "f(z) = " + s.fns.user_fz_formula + "<br>";
         } else if (s.fns.function == STEFFENSENFORMULA) {
@@ -387,16 +397,22 @@ public class CommonFunctions implements Constants {
             overview += tab + "f(z) = " + s.fns.user_fz_formula + "<br>";
         } else if (s.fns.function == PARHALLEYFORMULA) {
             overview += tab + "f(z) = " + s.fns.user_fz_formula + "<br>";
-            overview += tab + "f '(z) = " + s.fns.user_dfz_formula + "<br>";
-            overview += tab + "f ''(z) = " + s.fns.user_ddfz_formula + "<br>";
+            if (s.fns.derivative_method == Derivative.DISABLED) {
+                overview += tab + "f '(z) = " + s.fns.user_dfz_formula + "<br>";
+                overview += tab + "f ''(z) = " + s.fns.user_ddfz_formula + "<br>";
+            }
         } else if (s.fns.function == LAGUERREFORMULA) {
             overview += tab + "f(z) = " + s.fns.user_fz_formula + "<br>";
-            overview += tab + "f '(z) = " + s.fns.user_dfz_formula + "<br>";
-            overview += tab + "f ''(z) = " + s.fns.user_ddfz_formula + "<br>";
+            if (s.fns.derivative_method == Derivative.DISABLED) {
+                overview += tab + "f '(z) = " + s.fns.user_dfz_formula + "<br>";
+                overview += tab + "f ''(z) = " + s.fns.user_ddfz_formula + "<br>";
+            }
             overview += tab + "Degree = " + Complex.toString2(s.fns.laguerre_deg[0], s.fns.laguerre_deg[1]) + "<br>";
         } else if (s.fns.function == NEWTON_HINESFORMULA) {
             overview += tab + "f(z) = " + s.fns.user_fz_formula + "<br>";
-            overview += tab + "f '(z) = " + s.fns.user_dfz_formula + "<br>";
+            if (s.fns.derivative_method == Derivative.DISABLED) {
+                overview += tab + "f '(z) = " + s.fns.user_dfz_formula + "<br>";
+            }
             overview += tab + "k = " + Complex.toString2(s.fns.newton_hines_k[0], s.fns.newton_hines_k[1]) + "<br>";
         } else if (s.fns.function == USER_FORMULA) {
             overview += tab + "z = " + s.fns.user_formula + "<br>";
@@ -511,7 +527,7 @@ public class CommonFunctions implements Constants {
             overview += tab + "Original Expression: r = " + s.fns.lpns.lyapunovExpression + "<br>";
             overview += tab + "Final Expression: r = " + String.join("; ", s.fns.lpns.lyapunovFinalExpression) + "<br>";
             overview += tab + "Function = " + s.fns.lpns.lyapunovFunction + "<br>";
-            if(!s.fns.init_val) {
+            if (!s.fns.init_val) {
                 overview += tab + "Initial Value = " + s.fns.lpns.lyapunovInitialValue + "<br>";
             }
             overview += tab + "Exponent = <font color='" + keyword_color + "'>average of sum</font>[<font color='" + condition_color + "'>log</font>(<font color='" + condition_color + "'>norm</font>(" + s.fns.lpns.lyapunovExponentFunction + "))]<br>";
@@ -520,25 +536,33 @@ public class CommonFunctions implements Constants {
                 case NOVA_NEWTON:
                     overview += tab + "Newton Method<br>";
                     overview += tab + "f(z) = " + s.fns.user_fz_formula + "<br>";
-                    overview += tab + "f '(z) = " + s.fns.user_dfz_formula + "<br>";
+                    if (s.fns.derivative_method == Derivative.DISABLED) {
+                        overview += tab + "f '(z) = " + s.fns.user_dfz_formula + "<br>";
+                    }
                     break;
                 case NOVA_HALLEY:
                     overview += tab + "Halley Method<br>";
                     overview += tab + "f(z) = " + s.fns.user_fz_formula + "<br>";
-                    overview += tab + "f '(z) = " + s.fns.user_dfz_formula + "<br>";
-                    overview += tab + "f ''(z) = " + s.fns.user_ddfz_formula + "<br>";
+                    if (s.fns.derivative_method == Derivative.DISABLED) {
+                        overview += tab + "f '(z) = " + s.fns.user_dfz_formula + "<br>";
+                        overview += tab + "f ''(z) = " + s.fns.user_ddfz_formula + "<br>";
+                    }
                     break;
                 case NOVA_SCHRODER:
                     overview += tab + "Schroder Method<br>";
                     overview += tab + "f(z) = " + s.fns.user_fz_formula + "<br>";
-                    overview += tab + "f '(z) = " + s.fns.user_dfz_formula + "<br>";
-                    overview += tab + "f ''(z) = " + s.fns.user_ddfz_formula + "<br>";
+                    if (s.fns.derivative_method == Derivative.DISABLED) {
+                        overview += tab + "f '(z) = " + s.fns.user_dfz_formula + "<br>";
+                        overview += tab + "f ''(z) = " + s.fns.user_ddfz_formula + "<br>";
+                    }
                     break;
                 case NOVA_HOUSEHOLDER:
                     overview += tab + "Householder Method<br>";
                     overview += tab + "f(z) = " + s.fns.user_fz_formula + "<br>";
-                    overview += tab + "f '(z) = " + s.fns.user_dfz_formula + "<br>";
-                    overview += tab + "f ''(z) = " + s.fns.user_ddfz_formula + "<br>";
+                    if (s.fns.derivative_method == Derivative.DISABLED) {
+                        overview += tab + "f '(z) = " + s.fns.user_dfz_formula + "<br>";
+                        overview += tab + "f ''(z) = " + s.fns.user_ddfz_formula + "<br>";
+                    }
                     break;
                 case NOVA_SECANT:
                     overview += tab + "Secant Method<br>";
@@ -555,20 +579,26 @@ public class CommonFunctions implements Constants {
                 case NOVA_PARHALLEY:
                     overview += tab + "Parhalley Method<br>";
                     overview += tab + "f(z) = " + s.fns.user_fz_formula + "<br>";
-                    overview += tab + "f '(z) = " + s.fns.user_dfz_formula + "<br>";
-                    overview += tab + "f ''(z) = " + s.fns.user_ddfz_formula + "<br>";
+                    if (s.fns.derivative_method == Derivative.DISABLED) {
+                        overview += tab + "f '(z) = " + s.fns.user_dfz_formula + "<br>";
+                        overview += tab + "f ''(z) = " + s.fns.user_ddfz_formula + "<br>";
+                    }
                     break;
                 case NOVA_LAGUERRE:
                     overview += tab + "Laguerre Method<br>";
                     overview += tab + "f(z) = " + s.fns.user_fz_formula + "<br>";
-                    overview += tab + "f '(z) = " + s.fns.user_dfz_formula + "<br>";
-                    overview += tab + "f ''(z) = " + s.fns.user_ddfz_formula + "<br>";
+                    if (s.fns.derivative_method == Derivative.DISABLED) {
+                        overview += tab + "f '(z) = " + s.fns.user_dfz_formula + "<br>";
+                        overview += tab + "f ''(z) = " + s.fns.user_ddfz_formula + "<br>";
+                    }
                     overview += tab + "Degree = " + Complex.toString2(s.fns.laguerre_deg[0], s.fns.laguerre_deg[1]) + "<br>";
                     break;
                 case NOVA_NEWTON_HINES:
                     overview += tab + "Newton-Hines Method<br>";
                     overview += tab + "f(z) = " + s.fns.user_fz_formula + "<br>";
-                    overview += tab + "f '(z) = " + s.fns.user_dfz_formula + "<br>";
+                    if (s.fns.derivative_method == Derivative.DISABLED) {
+                        overview += tab + "f '(z) = " + s.fns.user_dfz_formula + "<br>";
+                    }
                     overview += tab + "k = " + Complex.toString2(s.fns.newton_hines_k[0], s.fns.newton_hines_k[1]) + "<br>";
                     break;
             }
@@ -841,7 +871,7 @@ public class CommonFunctions implements Constants {
                     overview += tab + "Algorithm = " + Constants.statisticalColoringName[s.sts.statistic_type] + "<br>";
                     if (s.sts.statistic_type == Constants.STRIPE_AVERAGE) {
                         overview += tab2 + "Stripe Density = " + s.sts.stripeAvgStripeDensity + "<br>";
-                    } else if (s.sts.statistic_type == Constants.COS_ARG_DIVIDE_NORM_AVERAGE || s.sts.statistic_type == Constants.COS_ARG_DIVIDE_NORM_AVERAGE) {
+                    } else if (s.sts.statistic_type == Constants.COS_ARG_DIVIDE_NORM_AVERAGE) {
                         overview += tab2 + "Stripe Density = " + s.sts.cosArgStripeDensity + "<br>";
                     } else if (s.sts.statistic_type == Constants.COS_ARG_DIVIDE_INVERSE_NORM) {
                         overview += tab2 + "Stripe Density = " + s.sts.cosArgInvStripeDensity + "<br>";
@@ -850,7 +880,7 @@ public class CommonFunctions implements Constants {
                 } else {
                     overview += tab + "User Statistical Formula: " + s.sts.user_statistic_formula + "<br>";
                     overview += tab + "Reduction Method = " + Constants.reductionMethod[s.sts.reductionFunction] + "<br>";
-                    overview += tab + "value(0) = " + s.sts.user_statistic_init_value + "<br>";
+                    overview += tab + "Initial value = " + s.sts.user_statistic_init_value + "<br>";
                     if (s.sts.useAverage && s.sts.reductionFunction == Constants.REDUCTION_SUM) {
                         overview += tab + "Using Average<br>";
                     }
@@ -962,7 +992,7 @@ public class CommonFunctions implements Constants {
                             break;
                     }
                 }
-                
+
                 overview += "<br>";
             }
 
@@ -1019,7 +1049,7 @@ public class CommonFunctions implements Constants {
                             break;
                     }
                 }
-                
+
                 overview += "<br>";
             }
 
@@ -1044,12 +1074,12 @@ public class CommonFunctions implements Constants {
                 }
             }
 
-            if (s.ots.useTraps) {
+            if (!periodicity_checking && s.ots.useTraps) {
                 overview += "<b><font color='red'>Orbit Traps:</font></b><br>";
                 overview += tab + "Shape = " + Constants.orbitTrapsNames[s.ots.trapType] + "<br>";
                 overview += tab + "Center = " + Complex.toString2(s.ots.trapPoint[0], s.ots.trapPoint[1]) + "<br>";
 
-                if (s.ots.trapType != Constants.GOLDEN_RATIO_SPIRAL_TRAP) {
+                if (s.ots.trapType != Constants.GOLDEN_RATIO_SPIRAL_TRAP && s.ots.trapType != Constants.STALKS_TRAP) {
                     overview += tab + "Length = " + s.ots.trapLength + "<br>";
                 }
 
@@ -1057,23 +1087,27 @@ public class CommonFunctions implements Constants {
                     overview += tab + "Width = " + s.ots.trapWidth + "<br>";
                 }
 
-                if (s.ots.trapType == Constants.POINT_N_NORM_TRAP || s.ots.trapType == Constants.N_NORM_TRAP || s.ots.trapType == Constants.N_NORM_CROSS_TRAP || s.ots.trapType == Constants.N_NORM_POINT_TRAP || s.ots.trapType == Constants.N_NORM_POINT_N_NORM_TRAP || s.ots.trapType == Constants.GOLDEN_RATIO_SPIRAL_POINT_N_NORM_TRAP || s.ots.trapType == Constants.GOLDEN_RATIO_SPIRAL_N_NORM_TRAP) {
+                if (s.ots.trapType == Constants.POINT_N_NORM_TRAP || s.ots.trapType == Constants.N_NORM_TRAP || s.ots.trapType == Constants.N_NORM_CROSS_TRAP || s.ots.trapType == Constants.N_NORM_POINT_TRAP || s.ots.trapType == Constants.N_NORM_POINT_N_NORM_TRAP || s.ots.trapType == Constants.GOLDEN_RATIO_SPIRAL_POINT_N_NORM_TRAP || s.ots.trapType == Constants.GOLDEN_RATIO_SPIRAL_N_NORM_TRAP || s.ots.trapType == Constants.STALKS_POINT_N_NORM_TRAP || s.ots.trapType == Constants.STALKS_N_NORM_TRAP) {
                     overview += tab + "Norm = " + s.ots.trapNorm + "<br>";
                 }
 
-                if (s.ots.trapType == Constants.CROSS_TRAP || s.ots.trapType == Constants.RE_TRAP || s.ots.trapType == Constants.IM_TRAP || s.ots.trapType == Constants.CIRCLE_CROSS_TRAP || s.ots.trapType == Constants.SQUARE_CROSS_TRAP || s.ots.trapType == Constants.RHOMBUS_CROSS_TRAP || s.ots.trapType == Constants.N_NORM_CROSS_TRAP || s.ots.trapType == Constants.GOLDEN_RATIO_SPIRAL_CROSS_TRAP) {
+                if (s.ots.trapType == Constants.CROSS_TRAP || s.ots.trapType == Constants.RE_TRAP || s.ots.trapType == Constants.IM_TRAP || s.ots.trapType == Constants.CIRCLE_CROSS_TRAP || s.ots.trapType == Constants.SQUARE_CROSS_TRAP || s.ots.trapType == Constants.RHOMBUS_CROSS_TRAP || s.ots.trapType == Constants.N_NORM_CROSS_TRAP || s.ots.trapType == Constants.GOLDEN_RATIO_SPIRAL_CROSS_TRAP || s.ots.trapType == Constants.STALKS_CROSS_TRAP) {
                     overview += tab + "Line Function = " + Constants.orbitTrapLineTypes[s.ots.lineType] + "<br>";
                 }
-                overview += tab + "Trap Color Method = " + Constants.colorMethod[s.ots.trapColorMethod] + "<br>";
 
-                if (s.ots.trapColorMethod == 3) {
-                    overview += tab2 + "Trap Blending = " + s.ots.trapBlending + "<br>";
+                if(s.ots.trapType != Constants.IMAGE_TRAP) {
+                    overview += tab + "Trap Color Method = " + Constants.colorMethod[s.ots.trapColorMethod] + "<br>";
+
+                    if (s.ots.trapColorMethod == 3) {
+                        overview += tab2 + "Trap Blending = " + s.ots.trapBlending + "<br>";
+                    }
+
+                    if (s.ots.trapMaxDistance != 0) {
+                        overview += tab + "Max Distance = " + s.ots.trapMaxDistance + "<br>";
+                    }
+                    overview += tab + "Interpolation percent = " + s.ots.trapColorInterpolation + "<br>";
                 }
 
-                if (s.ots.trapMaxDistance != 0) {
-                    overview += tab + "Max Distance = " + s.ots.trapMaxDistance + "<br>";
-                }
-                overview += tab + "Interpolation percent = " + s.ots.trapColorInterpolation + "<br>";
                 if (s.ots.trapIncludeEscaped) {
                     overview += tab + "Includes escaped points.<br>";
                 }
@@ -1081,7 +1115,11 @@ public class CommonFunctions implements Constants {
                     overview += tab + "Includes not escaped points.<br>";
                 }
 
-                overview += tab + "Intesity = " + s.ots.trapIntensity + "<br><br>";
+                if(s.ots.trapType != Constants.IMAGE_TRAP) {
+                    overview += tab + "Intesity = " + s.ots.trapIntensity + "<br>";
+                }
+
+                overview += "<br>";
             }
         }
 
@@ -1228,13 +1266,15 @@ public class CommonFunctions implements Constants {
                         case MainWindow.GRID:
                             if (s.ds.drawGrid) {
                                 overview += tab + "Grid<br>";
+                                overview += tab2 + "Width = " + s.ds.gridWidth + "<br>";
                                 overview += tab2 + "Strength = " + s.ds.gridBlending + "<br>";
-                                overview += tab2 + "Fading = " + Constants.circleAndGridFadeNames[s.ds.gridFadeFunction] + "<br>";
+                                overview += tab2 + "Fading = " + Constants.circleAndGridFadeNames[s.ds.gridFadeFunction] + "<br>";       
                             }
                             break;
                         case MainWindow.CIRCLES:
                             if (s.ds.drawCircles) {
                                 overview += tab + "Circles<br>";
+                                overview += tab2 + "Width = " + s.ds.circleWidth + "<br>";
                                 overview += tab2 + "Strength = " + s.ds.circlesBlending + "<br>";
                                 overview += tab2 + "Fading = " + Constants.circleAndGridFadeNames[s.ds.circleFadeFunction] + "<br>";
                             }
@@ -1249,9 +1289,10 @@ public class CommonFunctions implements Constants {
                     }
                 }
 
-                overview += tab + "Interpolation = " + color_interp_str[s.color_smoothing_method] + "<br>";
+                overview += tab + "Interpolation = " + Constants.color_interp_str[s.color_smoothing_method] + "<br>";
                 overview += tab + "Circle Log Base = " + s.ds.logBase + "<br>";
                 overview += tab + "Grid Spacing = " + s.ds.gridFactor + "<br>";
+                overview += tab + "Grid Algorithm = " + Constants.gridAlgorithms[s.ds.gridAlgorithm] + "<br>";
                 overview += tab + "Norm Type = " + s.ds.normType + "<br>";
                 overview += tab + "Iso-Argument Line Distance = " + Constants.argumentLinesDistance[s.ds.iso_distance] + "<br>";
                 overview += tab + "Processing Transfer Function = " + Constants.domainProcessingTransferNames[s.ds.domainProcessingTransfer] + "<br>";
@@ -1382,6 +1423,7 @@ public class CommonFunctions implements Constants {
 
     public static BufferedImage getOutColoringPalettePreview(Settings s, int color_cycling_location, int width, int height) {
 
+        boolean isSmooth = false;
         Color[] c = null;
         if (s.ds.domain_coloring && s.ds.domain_coloring_mode == 0) {
             c = new Color[width];
@@ -1390,6 +1432,7 @@ public class CommonFunctions implements Constants {
                 double h = ((double) i) / (c.length - 1);
                 c[i] = new Color(DomainColoring.HSBcolor(h, color_cycling_location));
             }
+            isSmooth = true;
         } else if (s.ds.domain_coloring && s.ds.domain_coloring_mode == 2) {
             c = new Color[width];
 
@@ -1397,7 +1440,27 @@ public class CommonFunctions implements Constants {
                 double h = ((double) i) / (c.length - 1);
                 c[i] = new Color(DomainColoring.LCHcolor(h, color_cycling_location));
             }
-        } else if (s.ps.color_choice == DIRECT_PALETTE_ID) {
+            isSmooth = true;
+        }
+        else if (s.ds.domain_coloring && s.ds.domain_coloring_mode == 3) {
+            c = new Color[width];
+
+            for (int i = 0; i < c.length; i++) {
+                double h = ((double) i) / (c.length - 1);
+                c[i] = new Color(DomainColoring.Cubehelix1(h, color_cycling_location));
+            }
+            isSmooth = true;
+        }
+        else if (s.ds.domain_coloring && s.ds.domain_coloring_mode == 4) {
+            c = new Color[width];
+
+            for (int i = 0; i < c.length; i++) {
+                double h = ((double) i) / (c.length - 1);
+                c[i] = new Color(DomainColoring.Cubehelix3(h, color_cycling_location));
+            }
+            isSmooth = true;
+        }
+        else if (s.ps.color_choice == DIRECT_PALETTE_ID) {
             c = PresetPalette.getPalette(s.ps.direct_palette, color_cycling_location);
         } else if (s.ps.color_choice < CUSTOM_PALETTE_ID) {
             c = PresetPalette.getPalette(s.ps.color_choice, color_cycling_location);
@@ -1412,7 +1475,7 @@ public class CommonFunctions implements Constants {
         BufferedImage palette_preview = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g = palette_preview.createGraphics();
         for (int j = 0; j < c.length; j++) {
-            if (s.fns.smoothing) {
+            if (s.fns.smoothing || isSmooth) {
                 GradientPaint gp = new GradientPaint(j * palette_preview.getWidth() / c.length, 0, c[j], (j + 1) * palette_preview.getWidth() / c.length, 0, c[(j + 1) % c.length]);
                 g.setPaint(gp);
                 g.fill(new Rectangle2D.Double(j * palette_preview.getWidth() / c.length, 0, (j + 1) * palette_preview.getWidth() / c.length - j * palette_preview.getWidth() / c.length, palette_preview.getHeight()));

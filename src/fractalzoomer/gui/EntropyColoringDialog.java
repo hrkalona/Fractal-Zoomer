@@ -56,8 +56,6 @@ public class EntropyColoringDialog extends JDialog {
         JTextField entropy_factor_field = new JTextField();
         entropy_factor_field.setText("" + s.ens.entropy_palette_factor);
 
-        entropy_factor_field.addAncestorListener(new RequestFocusListener());
-
         final JCheckBox enable_entropy_coloring = new JCheckBox("Entropy Coloring");
         enable_entropy_coloring.setSelected(s.ens.entropy_coloring);
         enable_entropy_coloring.setFocusable(false);

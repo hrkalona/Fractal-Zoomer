@@ -19,14 +19,13 @@ package fractalzoomer.gui;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
 import fractalzoomer.parser.ParserException;
-import java.awt.Font;
+
 import java.awt.GridLayout;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import javax.swing.ImageIcon;
-import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -60,7 +59,6 @@ public class LambdaFnFnDialog extends JDialog {
 
         JTextField field_condition = new JTextField(24);
         field_condition.setText(s.fns.lfns.lambda_formula_conditions[0]);
-        field_condition.addAncestorListener(new RequestFocusListener());
 
         JTextField field_condition2 = new JTextField(24);
         field_condition2.setText(s.fns.lfns.lambda_formula_conditions[1]);

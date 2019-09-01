@@ -32,7 +32,7 @@ public class PointNNormOrbitTrap extends OrbitTrap {
     }
 
     @Override
-    public void check(Complex val) {
+    public void check(Complex val, int iteration) {
         
         Complex diff = val.sub(point);
         
@@ -41,6 +41,7 @@ public class PointNNormOrbitTrap extends OrbitTrap {
         if(dist < trapLength && dist < distance) {
             distance = dist;
             trapId = 0;
+            setTrappedData(val, iteration);
         }
     }
     

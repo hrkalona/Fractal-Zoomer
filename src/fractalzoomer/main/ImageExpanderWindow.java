@@ -620,7 +620,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
     private void overview() {
 
         try {
-            common.overview(s);
+            common.overview(s, periodicity_checking);
         }
         catch(Exception ex) {
         }

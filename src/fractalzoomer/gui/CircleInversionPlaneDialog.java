@@ -54,7 +54,6 @@ public class CircleInversionPlaneDialog extends JDialog {
         setIconImage(getIcon("/fractalzoomer/icons/mandel2.png").getImage());
 
         final JTextField field_real = new JTextField();
-        field_real.addAncestorListener(new RequestFocusListener());
 
         if (s.fns.plane_transform_center[0] == 0) {
             field_real.setText("" + 0.0);

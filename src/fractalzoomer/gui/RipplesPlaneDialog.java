@@ -53,8 +53,6 @@ public class RipplesPlaneDialog extends JDialog {
         JTextField field_scale_real = new JTextField();
         field_scale_real.setText("" + s.fns.plane_transform_scales[0]);
 
-        field_scale_real.addAncestorListener(new RequestFocusListener());
-
         JTextField field_scale_imaginary = new JTextField();
         field_scale_imaginary.setText("" + s.fns.plane_transform_scales[1]);
 

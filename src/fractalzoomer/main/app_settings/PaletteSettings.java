@@ -48,5 +48,6 @@ public class PaletteSettings implements Constants {
         
         direct_palette = new int[1];
         direct_palette[0] = 0xffffffff;
+
     }
 }

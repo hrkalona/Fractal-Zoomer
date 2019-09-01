@@ -56,8 +56,6 @@ public class PaletteGradientMergingDialog extends JDialog {
         JTextField palette_blend_factor_field = new JTextField();
         palette_blend_factor_field.setText("" + s.pbs.gradient_intensity);
 
-        palette_blend_factor_field.addAncestorListener(new RequestFocusListener());
-
         JTextField palette_offset_field = new JTextField();
         palette_offset_field.setText("" + s.pbs.gradient_offset);
 

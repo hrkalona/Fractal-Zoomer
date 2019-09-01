@@ -55,7 +55,6 @@ public class UserFormulaIterationBasedDialog extends JDialog {
 
         JTextField field_formula_it_based1 = new JTextField(50);
         field_formula_it_based1.setText(s.fns.user_formula_iteration_based[0]);
-        field_formula_it_based1.addAncestorListener(new RequestFocusListener());
 
         JTextField field_formula_it_based2 = new JTextField(50);
         field_formula_it_based2.setText(s.fns.user_formula_iteration_based[1]);

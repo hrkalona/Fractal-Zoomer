@@ -100,9 +100,7 @@ public class BoundaryTracing2Draw extends ThreadDraw {
         
         int loc = (y - FROMy) * (TOx - FROMx) + (x - FROMx);
         if(!added[loc]) {
-            Pixel pixel = new Pixel();
-            pixel.x = x;
-            pixel.y = y;
+            Pixel pixel = new Pixel(x, y);
             pixels.enqueue(pixel); 
             
             added[loc] = true;
@@ -118,7 +116,7 @@ public class BoundaryTracing2Draw extends ThreadDraw {
         for(y = FROMy + 1; y < TOy - 1; y++) {          
             for(x = FROMx + 1, loc = y * image_size + x; x < TOx - 1; x++, loc++) {
                 if(rgbs[loc] == notCalculated) {
-                    rgbs[loc] = getColorForSkippedPixels(rgbs[loc - 1], 0 + randomNumber);
+                    rgbs[loc] = getColorForSkippedPixels(rgbs[loc - 1], randomNumber);
                     image_iterations[loc] = image_iterations[loc - 1];
                     drawing_done++;
                 }

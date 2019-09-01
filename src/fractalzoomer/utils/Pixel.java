@@ -21,12 +21,12 @@ package fractalzoomer.utils;
  * @author hrkalona2
  */
 public class Pixel {
-    public int x;
-    public int y;
+    public final int x;
+    public final int y;
     
-    public Pixel() {
-        x = 0;
-        y = 0;
+    public Pixel(int x, int y) {
+        this.x = x;
+        this.y = y;
     }
     
 }

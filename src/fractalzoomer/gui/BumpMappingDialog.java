@@ -104,8 +104,6 @@ public class BumpMappingDialog extends JDialog {
         JTextField bump_transfer_factor_field = new JTextField(20);
         bump_transfer_factor_field.setText("" + s.bms.bump_transfer_factor);
 
-        bump_transfer_factor_field.addAncestorListener(new RequestFocusListener());
-
         JPanel panel = new JPanel();
         panel.add(bump_transfer_functions_opt);
         panel.add(bump_transfer_factor_field);

@@ -29,25 +29,28 @@ public class CircleCrossOrbitTrap extends OrbitTrap {
     }
 
     @Override
-    public void check(Complex val) {
+    public void check(Complex val, int iteration) {
 
         double dist = Math.abs(val.distance(point) - trapLength);
 
         if(dist < trapWidth && dist < distance) {
             distance = dist;
             trapId = 0;
+            setTrappedData(val, iteration);
         }
         
         dist = Math.abs(val.getRe() - applyLineFunction(lineType, val.getIm()) - point.getRe());
         if(dist < trapWidth && Math.abs(val.getIm() - point.getIm()) < trapLength && dist < distance) {
             distance = dist;
             trapId = 1;
+            setTrappedData(val, iteration);
         }
 
         dist = Math.abs(val.getIm() - applyLineFunction(lineType, val.getRe()) - point.getIm());
         if(dist < trapWidth && Math.abs(val.getRe() - point.getRe()) < trapLength && dist < distance) {
             distance = dist;
             trapId = 2;
+            setTrappedData(val, iteration);
         }
 
     }

@@ -190,10 +190,6 @@ public abstract class MagnetType extends Julia {
         Boolean temp1, temp2;
         double temp4;
 
-        if (trap != null) {
-            trap.initialize();
-        }
-
         converged = false;
 
         Complex tempz = new Complex(pertur_val.getValue(init_val.getValue(pixel)));
@@ -209,7 +205,7 @@ public abstract class MagnetType extends Julia {
         for (; iterations < max_iterations; iterations++) {
 
             if (trap != null) {
-                trap.check(complex[0]);
+                trap.check(complex[0], iterations);
             }
 
             temp1 = (temp4 = complex[0].distance_squared(1)) <= convergent_bailout;
@@ -319,10 +315,6 @@ public abstract class MagnetType extends Julia {
 
         converged = false;
 
-        if (trap != null) {
-            trap.initialize();
-        }
-
         Complex[] complex = new Complex[2];
         complex[0] = new Complex(pixel);//z
         complex[1] = new Complex(seed);//c
@@ -334,7 +326,7 @@ public abstract class MagnetType extends Julia {
         for (; iterations < max_iterations; iterations++) {
 
             if (trap != null) {
-                trap.check(complex[0]);
+                trap.check(complex[0], iterations);
             }
 
             temp1 = (temp4 = complex[0].distance_squared(1)) <= convergent_bailout;
@@ -606,7 +598,7 @@ public abstract class MagnetType extends Julia {
                 statistic = new CosArgDivideNormAverage(sts.statistic_intensity, sts.cosArgStripeDensity, log_bailout_squared);
                 break;
             case MainWindow.COS_ARG_DIVIDE_INVERSE_NORM:
-                statistic = new CosArgDivideInverseNorm(sts.statistic_intensity, sts.cosArgStripeDensity, sts.StripeDenominatorFactor);
+                statistic = new CosArgDivideInverseNorm(sts.statistic_intensity, sts.cosArgInvStripeDensity, sts.StripeDenominatorFactor);
                 break;
             case MainWindow.ATOM_DOMAIN_BOF60_BOF61:
                 statistic = new AtomDomain(sts.showAtomDomains, sts.statistic_intensity);

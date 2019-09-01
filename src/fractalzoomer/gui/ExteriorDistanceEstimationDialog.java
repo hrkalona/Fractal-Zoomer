@@ -51,8 +51,6 @@ public class ExteriorDistanceEstimationDialog extends JDialog {
         JTextField dem_factor = new JTextField();
         dem_factor.setText("" + s.exterior_de_factor);
 
-        dem_factor.addAncestorListener(new RequestFocusListener());
-
         final JCheckBox enable_dem = new JCheckBox("Distance Estimation");
         enable_dem.setSelected(s.exterior_de);
         enable_dem.setFocusable(false);

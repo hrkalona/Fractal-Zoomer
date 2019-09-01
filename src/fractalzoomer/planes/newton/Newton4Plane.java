@@ -38,10 +38,10 @@ public class Newton4Plane extends Plane {
         Complex temp = pixel;
         
         for(int iterations = 0; iterations < 5; iterations++) {
-            Complex fz = temp.fourth().sub(1);
-            Complex dfz = temp.cube().times(4);
+            Complex fz = temp.fourth().sub_mutable(1);
+            Complex dfz = temp.cube().times_mutable(4);
             
-            temp = temp.sub(fz.divide(dfz));
+            temp.sub_mutable(fz.divide_mutable(dfz));
         }
 
         return temp;

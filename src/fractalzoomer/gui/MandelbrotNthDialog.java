@@ -54,7 +54,6 @@ public class MandelbrotNthDialog extends JDialog {
 
         JTextField field = new JTextField();
         field.setText("" + s.fns.z_exponent);
-        field.addAncestorListener(new RequestFocusListener());
 
         Object[] message = {
             " ",

@@ -63,8 +63,8 @@ public class StripeAverage extends GenericStatistic {
         
         double smoothing = OutColorAlgorithm.fractionalPartEscaping(z_val, zold_val, log_bailout_squared);
         sum = sum / samples;
-	sum2 = samples < 2 ? 0 : sum2 / (samples - 1);
-	return (sum + (sum2 - sum) * smoothing) * statistic_intensity;
+        sum2 = samples < 2 ? 0 : sum2 / (samples - 1);
+        return (sum + (sum2 - sum) * smoothing) * statistic_intensity;
     }
     
     @Override

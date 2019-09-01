@@ -56,8 +56,6 @@ public class RainbowPaletteDialog extends JDialog {
         JTextField rainbow_palette_factor_field = new JTextField();
         rainbow_palette_factor_field.setText("" + s.rps.rainbow_palette_factor);
 
-        rainbow_palette_factor_field.addAncestorListener(new RequestFocusListener());
-
         final JCheckBox enable_rainbow_palette = new JCheckBox("Rainbow Palette");
         enable_rainbow_palette.setSelected(s.rps.rainbow_palette);
         enable_rainbow_palette.setFocusable(false);

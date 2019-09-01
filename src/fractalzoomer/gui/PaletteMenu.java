@@ -335,7 +335,6 @@ public class PaletteMenu extends JMenu {
         
         if(!rgbs.isEmpty()) {
             rgbs = importDialog(rgbs, parent);
-            System.out.println(rgbs);
             palette = rgbs.stream().mapToInt(Integer::valueOf).toArray();
         }
 
@@ -361,6 +360,7 @@ public class PaletteMenu extends JMenu {
         return colors;
   
     }
+
     public static int[] choosePaletteFiler(Component parent) {
 
         JFileChooser file_chooser = new JFileChooser(".");

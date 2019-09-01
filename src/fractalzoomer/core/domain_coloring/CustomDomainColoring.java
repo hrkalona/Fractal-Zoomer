@@ -73,6 +73,11 @@ public class CustomDomainColoring extends DomainColoring {
         circleFadeFunction = ds.circleFadeFunction;
         gridFadeFunction = ds.gridFadeFunction;
         max_norm_re_im_value = ds.max_norm_re_im_value;
+        
+        circleWidth = ds.circleWidth;
+        gridWidth = ds.gridWidth;
+
+        gridAlgorithm = ds.gridAlgorithm;
 
         switch (ds.iso_distance) {
             case 0: //2pi

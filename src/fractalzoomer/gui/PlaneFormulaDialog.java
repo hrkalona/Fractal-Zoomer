@@ -63,7 +63,6 @@ public class PlaneFormulaDialog extends JDialog {
 
         JTextField field_formula = new JTextField(runsOnWindows ? 45 : 40);
         field_formula.setText(s.fns.user_plane);
-        field_formula.addAncestorListener(new RequestFocusListener());
 
         JPanel formula_panel = new JPanel();
 
@@ -77,7 +76,6 @@ public class PlaneFormulaDialog extends JDialog {
 
         JTextField field_condition = new JTextField(24);
         field_condition.setText(s.fns.user_plane_conditions[0]);
-        field_condition.addAncestorListener(new RequestFocusListener());
 
         JTextField field_condition2 = new JTextField(24);
         field_condition2.setText(s.fns.user_plane_conditions[1]);

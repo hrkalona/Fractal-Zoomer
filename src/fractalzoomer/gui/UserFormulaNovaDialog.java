@@ -16,6 +16,8 @@
  */
 package fractalzoomer.gui;
 
+import fractalzoomer.core.Derivative;
+import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
 import fractalzoomer.parser.ParserException;
@@ -67,7 +69,6 @@ public class UserFormulaNovaDialog extends JDialog {
 
         JTextField field_fz_formula9 = new JTextField(50);
         field_fz_formula9.setText(f1);
-        field_fz_formula9.addAncestorListener(new RequestFocusListener());
 
         JTextField field_dfz_formula9 = new JTextField(50);
         field_dfz_formula9.setText(f2);
@@ -137,6 +138,48 @@ public class UserFormulaNovaDialog extends JDialog {
         method_choice.setSelectedIndex(s.fns.nova_method);
         method_choice.setToolTipText("Selects the root finding method for the Nova function.");
         method_choice.setFocusable(false);
+        
+        JPanel derivativePanel = new JPanel();
+        
+        JComboBox derivative_choice = new JComboBox(Constants.derivativeMethod);
+        derivative_choice.setSelectedIndex(s.fns.derivative_method);
+        derivative_choice.setToolTipText("Selects the derivative method.");
+        derivative_choice.setFocusable(false);
+        
+        derivativePanel.add(new JLabel("Derivative: "));
+        derivativePanel.add(derivative_choice);
+        
+        derivativePanel.setVisible(s.fns.nova_method != MainWindow.NOVA_SECANT && s.fns.nova_method != MainWindow.NOVA_STEFFENSEN && s.fns.nova_method != MainWindow.NOVA_MULLER);
+        
+        formula_dfz_panel9.setVisible(s.fns.derivative_method == Derivative.DISABLED);
+        formula_ddfz_panel9.setVisible(s.fns.derivative_method == Derivative.DISABLED);
+        
+        derivative_choice.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                
+                if (method_choice.getSelectedIndex() == MainWindow.NOVA_HALLEY
+                        || method_choice.getSelectedIndex() == MainWindow.NOVA_SCHRODER
+                        || method_choice.getSelectedIndex() == MainWindow.NOVA_HOUSEHOLDER
+                        || method_choice.getSelectedIndex() == MainWindow.NOVA_PARHALLEY
+                        || method_choice.getSelectedIndex() == MainWindow.NOVA_LAGUERRE) {
+                    formula_ddfz_panel9.setVisible(derivative_choice.getSelectedIndex() == Derivative.DISABLED);
+                }                
+                
+                if (method_choice.getSelectedIndex() == MainWindow.NOVA_NEWTON
+                        || method_choice.getSelectedIndex() == MainWindow.NOVA_HALLEY
+                        || method_choice.getSelectedIndex() == MainWindow.NOVA_SCHRODER
+                        || method_choice.getSelectedIndex() == MainWindow.NOVA_HOUSEHOLDER
+                        || method_choice.getSelectedIndex() == MainWindow.NOVA_PARHALLEY
+                        || method_choice.getSelectedIndex() == MainWindow.NOVA_LAGUERRE
+                        || method_choice.getSelectedIndex() == MainWindow.NOVA_NEWTON_HINES) {
+                    formula_dfz_panel9.setVisible(derivative_choice.getSelectedIndex() == Derivative.DISABLED);
+                }
+                  
+                pack();
+            }
+            
+        });
 
         method_choice.addActionListener(new ActionListener() {
             @Override
@@ -159,7 +202,7 @@ public class UserFormulaNovaDialog extends JDialog {
                         || method_choice.getSelectedIndex() == MainWindow.NOVA_PARHALLEY
                         || method_choice.getSelectedIndex() == MainWindow.NOVA_LAGUERRE)) {
                     formula_ddfz_panel9.setVisible(false);
-                } else {
+                } else if(derivative_choice.getSelectedIndex() == Derivative.DISABLED) {
                     formula_ddfz_panel9.setVisible(true);
                 }
 
@@ -171,15 +214,17 @@ public class UserFormulaNovaDialog extends JDialog {
                         || method_choice.getSelectedIndex() == MainWindow.NOVA_LAGUERRE
                         || method_choice.getSelectedIndex() == MainWindow.NOVA_NEWTON_HINES)) {
                     formula_dfz_panel9.setVisible(false);
-                } else {
+                } else if(derivative_choice.getSelectedIndex() == Derivative.DISABLED) {
                     formula_dfz_panel9.setVisible(true);
                 }
+                
+                derivativePanel.setVisible(method_choice.getSelectedIndex() != MainWindow.NOVA_SECANT && method_choice.getSelectedIndex() != MainWindow.NOVA_STEFFENSEN && method_choice.getSelectedIndex() != MainWindow.NOVA_MULLER);
 
                 pack();
             }
 
-        });
-
+        });    
+        
         Object[] labels3 = ptr.createUserFormulaLabels("z, c, s, p, pp, n, maxn, center, size, sizei, v1 - v30, point");
 
         if (method_choice.getSelectedIndex() != MainWindow.NOVA_LAGUERRE) {
@@ -213,6 +258,7 @@ public class UserFormulaNovaDialog extends JDialog {
             root,
             method_choice,
             " ",
+            derivativePanel,
             "Insert the function, and its derivatives (if required).",
             formula_fz_panel9,
             formula_dfz_panel9,
@@ -360,6 +406,9 @@ public class UserFormulaNovaDialog extends JDialog {
                         s.userFormulaHasC = temp_bool;
                         s.fns.user_relaxation_formula = field_relaxation.getText();
                         s.fns.user_nova_addend_formula = field_addend.getText();
+                        
+                        s.fns.derivative_method = derivative_choice.getSelectedIndex();
+                        Derivative.DERIVATIVE_METHOD = s.fns.derivative_method;
 
                         ptra.setUserFormulaOptions(true);
                     } catch (ParserException ex) {

@@ -64,7 +64,6 @@ public class UserFormulaCoupledDialog extends JDialog {
 
         JTextField field_formula_coupled = new JTextField(50);
         field_formula_coupled.setText(s.fns.user_formula_coupled[0]);
-        field_formula_coupled.addAncestorListener(new RequestFocusListener());
 
         JTextField field_formula_coupled2 = new JTextField(50);
         field_formula_coupled2.setText(s.fns.user_formula_coupled[1]);

@@ -16,6 +16,7 @@
  */
 package fractalzoomer.main.app_settings;
 
+import fractalzoomer.core.Derivative;
 import fractalzoomer.main.Constants;
 
 
@@ -119,6 +120,7 @@ public class FunctionSettings implements Constants {
     public int skip_bailout_iterations;
     public double[] newton_hines_k;
     public TrueColorSettings tcs;
+    public int derivative_method;
     
     public FunctionSettings() {
         n_norm = 2;
@@ -342,6 +344,8 @@ public class FunctionSettings implements Constants {
         igs = new InertiaGravityFractalSettings();
         lfns = new LambdaFnFnSettings();
         tcs = new TrueColorSettings();
+        
+        derivative_method = Derivative.DISABLED;
         
     }
     

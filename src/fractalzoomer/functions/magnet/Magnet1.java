@@ -170,7 +170,7 @@ public class Magnet1 extends MagnetType {
     @Override
     protected void function(Complex[] complex) {
 
-        complex[0] = (complex[0].square().plus(complex[1].sub(1))).divide(complex[0].times(2).plus(complex[1].sub(2))).square();
+        complex[0] = (complex[0].square().plus_mutable(complex[1].sub(1))).divide_mutable(complex[0].times(2).plus_mutable(complex[1].sub(2))).square_mutable();
 
     }
   

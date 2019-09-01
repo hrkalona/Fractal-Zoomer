@@ -69,7 +69,6 @@ public class InitialValueDialog extends JDialog {
 
         JTextField field_real = new JTextField(45);
         field_real.setText("" + s.fns.initial_vals[0]);
-        field_real.addAncestorListener(new RequestFocusListener());
 
         JTextField field_imaginary = new JTextField(45);
         field_imaginary.setText("" + s.fns.initial_vals[1]);
@@ -118,7 +117,6 @@ public class InitialValueDialog extends JDialog {
 
         JTextField field_condition = new JTextField(24);
         field_condition.setText(s.fns.user_initial_value_conditions[0]);
-        field_condition.addAncestorListener(new RequestFocusListener());
 
         JTextField field_condition2 = new JTextField(24);
         field_condition2.setText(s.fns.user_initial_value_conditions[1]);

@@ -145,7 +145,7 @@ public class Formula46 extends Julia {
     @Override
     protected void function(Complex[] complex) {
 
-        complex[0] = (complex[1].times(new Complex(-0.4, 0.2)).times(complex[0].square())).plus((new Complex(0, -0.275).divide(complex[1])).times(complex[0])).plus(complex[1]);
+        complex[0] = (complex[1].times(new Complex(-0.4, 0.2)).times_mutable(complex[0].square())).plus_mutable((new Complex(0, -0.275).divide_mutable(complex[1])).times_mutable(complex[0])).plus_mutable(complex[1]);
 
     }
 

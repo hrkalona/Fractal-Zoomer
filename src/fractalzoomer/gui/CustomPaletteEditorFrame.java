@@ -20,12 +20,8 @@ import fractalzoomer.main.MainWindow;
 import fractalzoomer.palettes.CustomPalette;
 import fractalzoomer.settings.SettingsPalette;
 import fractalzoomer.settings.SettingsPalette1062;
-import fractalzoomer.utils.ColorBrewerPalette;
-import fractalzoomer.utils.ColorGenerator;
-import fractalzoomer.utils.ColorSpaceConverter;
-import fractalzoomer.utils.GoogleMaterialDesignPalette;
-import fractalzoomer.utils.MixedGoogleColorBrewerPalette;
-import fractalzoomer.utils.PixelColor;
+import fractalzoomer.utils.*;
+
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
@@ -66,6 +62,7 @@ import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import javax.swing.BorderFactory;
@@ -143,9 +140,12 @@ public class CustomPaletteEditorFrame extends JFrame {
     private static int random_palette_algorithm;
     private static boolean equal_hues;
     private static Random generator;
+
+    private static JsonPalettesContainer extraPalettes;
     
     static {
         generator = new Random(System.currentTimeMillis());
+        extraPalettes = new JsonPalettesContainer();
     }
 
     public static final int[][][] editor_default_palettes = {{{12, 0, 10, 20}, {12, 50, 100, 240}, {12, 20, 3, 26}, {12, 230, 60, 20}, {12, 25, 10, 9}, {12, 230, 170, 0}, {12, 20, 40, 10}, {12, 0, 100, 0}, {12, 5, 10, 10}, {12, 210, 70, 30}, {12, 90, 0, 50}, {12, 180, 90, 120}, {12, 0, 20, 40}, {12, 30, 70, 200}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}},
@@ -959,7 +959,7 @@ public class CustomPaletteEditorFrame extends JFrame {
 
         color_interp_panel.add(combo_box_color_interp);
 
-        String[] random_palette_alg_str = {"Golden Ratio", "Waves", "Distance", "Triad", "Tetrad", "Google Material", "ColorBrewer 1", "ColorBrewer 2", "Google-ColorBrewer"};
+        String[] random_palette_alg_str = {"Golden Ratio", "Waves", "Distance", "Triad", "Tetrad", "Google Material", "ColorBrewer 1", "ColorBrewer 2", "Google-ColorBrewer", "Cubehelix"};
 
         combo_box_random_palette_alg = new JComboBox(random_palette_alg_str);
         combo_box_random_palette_alg.setSelectedIndex(random_palette_algorithm);
@@ -1178,6 +1178,7 @@ public class CustomPaletteEditorFrame extends JFrame {
             public void actionPerformed(ActionEvent e) {
 
                 blockUpdate = true;
+
                 for (int m = 0; m < labels.length; m++) {
                     temp_custom_palette[m][0] = default_editor_palette[m][0];
                     temp_custom_palette[m][1] = default_editor_palette[m][1];
@@ -1707,7 +1708,7 @@ public class CustomPaletteEditorFrame extends JFrame {
 
         setJMenuBar(menubar);
 
-        check_box_preview_smooth_color = new JCheckBox("Smooth Preview");
+        check_box_preview_smooth_color = new JCheckBox("Smoothing");
         check_box_preview_smooth_color.setSelected(smoothing);
         check_box_preview_smooth_color.setFocusable(false);
         check_box_preview_smooth_color.setToolTipText("Previews the palette for color smoothing.");
@@ -1744,10 +1745,71 @@ public class CustomPaletteEditorFrame extends JFrame {
         p1.add(combo_box_random_palette_alg);
         p1.add(same_hues);
 
-        tools.add(Box.createRigidArea(new Dimension(160, 10)));
-        tools.add(new JLabel("Random Palette: "));
+        tools.add(Box.createRigidArea(new Dimension(10, 10)));
+
+        tools.add(new JLabel("Preset: "));
+
+        JComboBox extra_presets_box = new JComboBox(extraPalettes.getNames());
+        extra_presets_box.setToolTipText("Loads additional presets to the editor.");
+
+        tools.add(extra_presets_box);
+
+        extra_presets_box.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                blockUpdate = true;
+
+                ArrayList<ArrayList<Integer>> palette = extraPalettes.getPalette(extra_presets_box.getSelectedIndex(), labels.length);
+
+                for (int m = 0; m < labels.length; m++) {
+                    if(m < palette.size()) {
+                        ArrayList<Integer> rgb = palette.get(m);
+                        if (rgb.size() == 3) {
+                            temp_custom_palette[m][0] = 16;
+                            temp_custom_palette[m][1] = rgb.get(0);
+                            temp_custom_palette[m][2] = rgb.get(1);
+                            temp_custom_palette[m][3] = rgb.get(2);
+
+                        }
+                    }
+                    else {
+                        temp_custom_palette[m][0] = 0;
+                        temp_custom_palette[m][1] = 0;
+                        temp_custom_palette[m][2] = 0;
+                        temp_custom_palette[m][3] = 0;
+                    }
+
+                    labels[m].setBackground(new Color(temp_custom_palette[m][1], temp_custom_palette[m][2], temp_custom_palette[m][3]));
+                    textfields[m].setText("" + temp_custom_palette[m][0]);
+                }
+
+                blockUpdate = false;
+
+                try {
+                    Color[] c = CustomPalette.getPalette(temp_custom_palette, combo_box_color_interp.getSelectedIndex(), combo_box_color_space.getSelectedIndex(), check_box_reveres_palette.isSelected(), temp_color_cycling_location, (scale_factor_palette_slid.getValue() - scale_factor_palette_slid.getMaximum() / 2) / (scale_factor_palette_slid.getMaximum() / 2.0), combo_box_processing.getSelectedIndex());
+
+                    paintGradientAndGraph(c);
+                } catch (ArithmeticException ex) {
+                    length_label.setText("0");
+                    Graphics2D g = colors.createGraphics();
+                    g.setColor(Color.LIGHT_GRAY);
+                    g.fillRect(0, 0, colors.getWidth(), colors.getHeight());
+                    gradient.repaint();
+
+                    Graphics2D g2 = colors2.createGraphics();
+                    g2.setColor(Color.WHITE);
+                    g2.fillRect(0, 0, colors2.getWidth(), colors2.getHeight());
+                    graph.repaint();
+                }
+            }
+        });
+
+        tools.add(Box.createRigidArea(new Dimension(10, 10)));
+
+
+        tools.add(new JLabel("Random: "));
         tools.add(p1);
-        tools.add(Box.createRigidArea(new Dimension(20, 10)));
+        tools.add(Box.createRigidArea(new Dimension(10, 10)));
         tools.add(check_box_preview_smooth_color);
 
         graph = new JLabel(new ImageIcon(colors2));
@@ -2341,6 +2403,45 @@ public class CustomPaletteEditorFrame extends JFrame {
                     palette[m][3] = col[m].getBlue();
                 }
 
+            }
+
+            c = CustomPalette.getPalette(palette, color_interpolation, color_space, reverse_palette, color_cycling, processing_val, processing_alg);
+        }
+        else if (random_palette_alg == 9) {
+
+            double start = generator.nextDouble() * 9;
+            double rotation = generator.nextDouble() * 10 - 5;
+
+            double gamma = 0;
+
+            if(generator.nextDouble() <= 0.2) {
+                gamma = 1;
+            }
+            else {
+                gamma = 0.1 + generator.nextDouble() * 0.9;
+            }
+
+            double min_sat = 0;
+            double max_sat = 0;
+
+            if(generator.nextDouble() <= 0.5) {
+                double a = generator.nextDouble() * 3;
+                double b = generator.nextDouble() * 3;
+                min_sat = Math.min(a, b);
+                max_sat = Math.max(a, b);
+            }
+            else {
+                min_sat = max_sat = generator.nextDouble() * 3;
+            }
+
+            ArrayList<int[]> colors = Cubehelix.makePalette(start, rotation, gamma, Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE, min_sat, max_sat, 0.0, 1.0, palette.length, false );
+
+            for (int m = 0; m < colors.size(); m++) {
+                    palette[m][0] = same_hues ? hues : generator.nextInt(12) + 7;
+                    int [] res =  colors.get(m);
+                    palette[m][1] = res[0];
+                    palette[m][2] = res[1];
+                    palette[m][3] = res[2];
             }
 
             c = CustomPalette.getPalette(palette, color_interpolation, color_space, reverse_palette, color_cycling, processing_val, processing_alg);

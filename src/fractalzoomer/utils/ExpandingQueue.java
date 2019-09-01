@@ -17,7 +17,6 @@
 package fractalzoomer.utils;
 
 import java.util.Arrays;
-import java.util.NoSuchElementException;
 
 /**
  *
@@ -65,9 +64,9 @@ public class ExpandingQueue<Item> {
     }
 
     public void enqueue(Item item) {
-        if (item == null) {
+        /*if (item == null) {
             throw new NullPointerException("Item must not be null");
-        }
+        }*/
 
         int locationInQueue = tail % initialAllocation;
 
@@ -92,9 +91,9 @@ public class ExpandingQueue<Item> {
     }
 
     public Item dequeue() {
-        if (isEmpty()) {
+        /*if (isEmpty()) {
             throw new NoSuchElementException("There is nothing in the queue");
-        }
+        }*/
 
         int locationInQueue = head % initialAllocation;
 

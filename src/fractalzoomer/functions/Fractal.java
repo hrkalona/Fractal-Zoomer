@@ -16,173 +16,26 @@
  */
 package fractalzoomer.functions;
 
-import fractalzoomer.planes.math.AbsPlane;
-import fractalzoomer.bailout_conditions.BailoutCondition;
-import fractalzoomer.bailout_conditions.CircleBailoutCondition;
-import fractalzoomer.bailout_conditions.CrossBailoutCondition;
-import fractalzoomer.bailout_conditions.FieldLinesBailoutCondition;
+import fractalzoomer.bailout_conditions.*;
 import fractalzoomer.core.Complex;
-import fractalzoomer.planes.math.trigonometric.CosPlane;
-import fractalzoomer.planes.math.trigonometric.CoshPlane;
-import fractalzoomer.planes.math.trigonometric.CotPlane;
-import fractalzoomer.planes.math.trigonometric.CothPlane;
-import fractalzoomer.planes.math.ExpPlane;
-import fractalzoomer.bailout_conditions.HalfplaneBailoutCondition;
-import fractalzoomer.bailout_conditions.ImaginaryStripBailoutCondition;
-import fractalzoomer.bailout_conditions.NNormBailoutCondition;
-import fractalzoomer.bailout_conditions.RealPlusImaginarySquaredBailoutCondition;
-import fractalzoomer.bailout_conditions.RhombusBailoutCondition;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.fractal_options.Rotation;
-import fractalzoomer.out_coloring_algorithms.OutColorAlgorithm;
-import fractalzoomer.in_coloring_algorithms.InColorAlgorithm;
-import fractalzoomer.planes.general.InversedLambdaPlane;
-import fractalzoomer.planes.general.InversedMuPlane;
-import fractalzoomer.planes.general.InversedMu2Plane;
-import fractalzoomer.planes.general.InversedMu3Plane;
-import fractalzoomer.planes.general.InversedMu4Plane;
-import fractalzoomer.planes.math.LogPlane;
-import fractalzoomer.planes.general.LambdaPlane;
-import fractalzoomer.planes.general.MuSquaredPlane;
 import fractalzoomer.planes.Plane;
-import fractalzoomer.planes.general.MuPlane;
-import fractalzoomer.bailout_conditions.RealStripBailoutCondition;
-import fractalzoomer.bailout_conditions.SkipBailoutCondition;
-import fractalzoomer.bailout_conditions.SquareBailoutCondition;
-import fractalzoomer.bailout_conditions.UserBailoutCondition;
-import fractalzoomer.fractal_options.orbit_traps.CircleOrbitTrap;
-import fractalzoomer.fractal_options.orbit_traps.CrossOrbitTrap;
-import fractalzoomer.fractal_options.orbit_traps.OrbitTrap;
 import fractalzoomer.fractal_options.PlanePointOption;
-import fractalzoomer.fractal_options.iteration_statistics.AtomDomain;
-import fractalzoomer.fractal_options.iteration_statistics.CosArgDivideNormAverage;
-import fractalzoomer.fractal_options.iteration_statistics.CurvatureAverage;
-import fractalzoomer.fractal_options.iteration_statistics.GenericStatistic;
-import fractalzoomer.fractal_options.iteration_statistics.StripeAverage;
-import fractalzoomer.fractal_options.iteration_statistics.UserStatisticColoring;
-import fractalzoomer.fractal_options.orbit_traps.CircleCrossOrbitTrap;
-import fractalzoomer.fractal_options.orbit_traps.CirclePointOrbitTrap;
-import fractalzoomer.fractal_options.orbit_traps.GoldenRatioSpiralCircleOrbitTrap;
-import fractalzoomer.fractal_options.orbit_traps.GoldenRatioSpiralCrossOrbitTrap;
-import fractalzoomer.fractal_options.orbit_traps.GoldenRatioSpiralNNormOrbitTrap;
-import fractalzoomer.fractal_options.orbit_traps.GoldenRatioSpiralOrbitTrap;
-import fractalzoomer.fractal_options.orbit_traps.GoldenRatioSpiralPointNNormOrbitTrap;
-import fractalzoomer.fractal_options.orbit_traps.GoldenRatioSpiralPointOrbitTrap;
-import fractalzoomer.fractal_options.orbit_traps.GoldenRatioSpiralRhombusOrbitTrap;
-import fractalzoomer.fractal_options.orbit_traps.GoldenRatioSpiralSquareOrbitTrap;
-import fractalzoomer.fractal_options.orbit_traps.ImOrbitTrap;
-import fractalzoomer.fractal_options.orbit_traps.NNormCrossOrbitTrap;
-import fractalzoomer.fractal_options.orbit_traps.NNormOrbitTrap;
-import fractalzoomer.fractal_options.orbit_traps.NNormPointNNormOrbitTrap;
-import fractalzoomer.fractal_options.orbit_traps.NNormPointOrbitTrap;
-import fractalzoomer.fractal_options.orbit_traps.PointNNormOrbitTrap;
-import fractalzoomer.fractal_options.orbit_traps.PointOrbitTrap;
-import fractalzoomer.fractal_options.orbit_traps.PointRhombusOrbitTrap;
-import fractalzoomer.fractal_options.orbit_traps.PointSquareOrbitTrap;
-import fractalzoomer.fractal_options.orbit_traps.ReOrbitTrap;
-import fractalzoomer.fractal_options.orbit_traps.RhombusCrossOrbitTrap;
-import fractalzoomer.fractal_options.orbit_traps.RhombusOrbitTrap;
-import fractalzoomer.fractal_options.orbit_traps.RhombusPointOrbitTrap;
-import fractalzoomer.fractal_options.orbit_traps.SquareCrossOrbitTrap;
-import fractalzoomer.fractal_options.orbit_traps.SquareOrbitTrap;
-import fractalzoomer.fractal_options.orbit_traps.SquarePointOrbitTrap;
-import fractalzoomer.in_coloring_algorithms.AtanReTimesImTimesAbsReTimesAbsIm;
-import fractalzoomer.in_coloring_algorithms.CosMag;
-import fractalzoomer.in_coloring_algorithms.DecompositionLike;
-import fractalzoomer.in_coloring_algorithms.MagTimesCosReSquared;
-import fractalzoomer.in_coloring_algorithms.MaximumIterations;
-import fractalzoomer.in_coloring_algorithms.ReDivideIm;
-import fractalzoomer.in_coloring_algorithms.SinReSquaredMinusImSquared;
-import fractalzoomer.in_coloring_algorithms.Squares;
-import fractalzoomer.in_coloring_algorithms.Squares2;
-import fractalzoomer.in_coloring_algorithms.UserConditionalInColorAlgorithm;
-import fractalzoomer.in_coloring_algorithms.UserInColorAlgorithm;
-import fractalzoomer.in_coloring_algorithms.ZMag;
-import fractalzoomer.main.app_settings.OrbitTrapSettings;
-import fractalzoomer.main.app_settings.StatisticsSettings;
-import fractalzoomer.main.app_settings.TrueColorSettings;
-import fractalzoomer.out_coloring_algorithms.Banded;
-import fractalzoomer.out_coloring_algorithms.BinaryDecomposition;
-import fractalzoomer.out_coloring_algorithms.BinaryDecomposition2;
-import fractalzoomer.out_coloring_algorithms.Biomorphs;
-import fractalzoomer.out_coloring_algorithms.ColorDecomposition;
-import fractalzoomer.out_coloring_algorithms.EscapeTime;
-import fractalzoomer.out_coloring_algorithms.EscapeTimeAlgorithm1;
-import fractalzoomer.out_coloring_algorithms.EscapeTimeAlgorithm2;
-import fractalzoomer.out_coloring_algorithms.EscapeTimeColorDecomposition;
-import fractalzoomer.out_coloring_algorithms.EscapeTimeEscapeRadius;
-import fractalzoomer.out_coloring_algorithms.EscapeTimeFieldLines;
-import fractalzoomer.out_coloring_algorithms.EscapeTimeFieldLines2;
-import fractalzoomer.out_coloring_algorithms.EscapeTimeGaussianInteger;
-import fractalzoomer.out_coloring_algorithms.EscapeTimeGaussianInteger2;
-import fractalzoomer.out_coloring_algorithms.EscapeTimeGaussianInteger3;
-import fractalzoomer.out_coloring_algorithms.EscapeTimeGaussianInteger4;
-import fractalzoomer.out_coloring_algorithms.EscapeTimeGaussianInteger5;
-import fractalzoomer.out_coloring_algorithms.EscapeTimeGrid;
-import fractalzoomer.out_coloring_algorithms.EscapeTimePlusIm;
-import fractalzoomer.out_coloring_algorithms.EscapeTimePlusRe;
-import fractalzoomer.out_coloring_algorithms.EscapeTimePlusReDivideIm;
-import fractalzoomer.out_coloring_algorithms.EscapeTimePlusRePlusImPlusReDivideIm;
-import fractalzoomer.out_coloring_algorithms.SmoothBinaryDecomposition;
-import fractalzoomer.out_coloring_algorithms.SmoothBinaryDecomposition2;
-import fractalzoomer.out_coloring_algorithms.SmoothBiomorphs;
-import fractalzoomer.out_coloring_algorithms.SmoothEscapeTime;
-import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeFieldLines;
-import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeFieldLines2;
-import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeGrid;
-import fractalzoomer.out_coloring_algorithms.UserConditionalOutColorAlgorithm;
-import fractalzoomer.out_coloring_algorithms.UserOutColorAlgorithm;
+import fractalzoomer.fractal_options.iteration_statistics.*;
+import fractalzoomer.fractal_options.orbit_traps.*;
+import fractalzoomer.in_coloring_algorithms.*;
+import fractalzoomer.main.app_settings.*;
+import fractalzoomer.out_coloring_algorithms.*;
 import fractalzoomer.parser.Parser;
-import fractalzoomer.planes.user_plane.UserPlane;
-import fractalzoomer.planes.user_plane.UserPlaneConditional;
-import fractalzoomer.planes.distort.KaleidoscopePlane;
-import fractalzoomer.planes.distort.PinchPlane;
-import fractalzoomer.planes.distort.RipplesPlane;
-import fractalzoomer.planes.fold.FoldInPlane;
-import fractalzoomer.planes.fold.FoldOutPlane;
-import fractalzoomer.planes.fold.FoldRightPlane;
-import fractalzoomer.planes.fold.FoldUpPlane;
-import fractalzoomer.planes.general.BipolarPlane;
-import fractalzoomer.planes.general.InversedBipolarPlane;
-import fractalzoomer.planes.general.InversedLambda2Plane;
-import fractalzoomer.planes.general.MuSquaredImaginaryPlane;
-import fractalzoomer.planes.math.FactorialPlane;
-import fractalzoomer.planes.math.GammaFunctionPlane;
-import fractalzoomer.planes.math.inverse_trigonometric.ACosPlane;
-import fractalzoomer.planes.math.inverse_trigonometric.ACoshPlane;
-import fractalzoomer.planes.math.inverse_trigonometric.ACotPlane;
-import fractalzoomer.planes.math.inverse_trigonometric.ACothPlane;
-import fractalzoomer.planes.math.inverse_trigonometric.ACscPlane;
-import fractalzoomer.planes.math.inverse_trigonometric.ACschPlane;
-import fractalzoomer.planes.math.inverse_trigonometric.ASecPlane;
-import fractalzoomer.planes.math.inverse_trigonometric.ASechPlane;
-import fractalzoomer.planes.math.inverse_trigonometric.ASinPlane;
-import fractalzoomer.planes.math.inverse_trigonometric.ASinhPlane;
-import fractalzoomer.planes.math.inverse_trigonometric.ATanPlane;
-import fractalzoomer.planes.math.inverse_trigonometric.ATanhPlane;
-import fractalzoomer.planes.math.trigonometric.CscPlane;
-import fractalzoomer.planes.math.trigonometric.CschPlane;
-import fractalzoomer.planes.math.trigonometric.SecPlane;
-import fractalzoomer.planes.math.trigonometric.SechPlane;
-import fractalzoomer.planes.math.SqrtPlane;
-import fractalzoomer.planes.math.trigonometric.TanPlane;
-import fractalzoomer.planes.math.trigonometric.SinhPlane;
-import fractalzoomer.planes.math.trigonometric.SinPlane;
-import fractalzoomer.planes.math.trigonometric.TanhPlane;
-import fractalzoomer.planes.newton.Newton3Plane;
-import fractalzoomer.planes.newton.Newton4Plane;
-import fractalzoomer.planes.newton.NewtonGeneralized3Plane;
-import fractalzoomer.planes.newton.NewtonGeneralized8Plane;
-import fractalzoomer.planes.distort.ShearPlane;
-import fractalzoomer.planes.distort.SkewPlane;
-import fractalzoomer.planes.distort.TwirlPlane;
-import fractalzoomer.planes.fold.FoldDownPlane;
-import fractalzoomer.planes.fold.FoldLeftPlane;
-import fractalzoomer.planes.general.CircleInversionPlane;
-import fractalzoomer.planes.general.InflectionPlane;
-import fractalzoomer.planes.general.MuVariationPlane;
-import fractalzoomer.planes.math.ErfPlane;
-import fractalzoomer.planes.math.RiemannZetaPlane;
+import fractalzoomer.planes.user_plane.*;
+import fractalzoomer.planes.fold.*;
+import fractalzoomer.planes.general.*;
+import fractalzoomer.planes.math.*;
+import fractalzoomer.planes.math.trigonometric.*;
+import fractalzoomer.planes.math.inverse_trigonometric.*;
+import fractalzoomer.planes.newton.*;
+import fractalzoomer.planes.distort.*;
 import fractalzoomer.true_coloring_algorithms.*;
 import fractalzoomer.utils.ColorAlgorithm;
 import java.util.ArrayList;
@@ -243,7 +96,7 @@ public abstract class Fractal {
 
         globalVars = createGlobalVars();
 
-        if (ots.useTraps) {
+        if (!periodicity_checking && ots.useTraps) {
             TrapFactory(ots);
             trapIntesity = ots.trapIntensity;
             trapIncludeEscaped = ots.trapIncludeEscaped;
@@ -327,6 +180,10 @@ public abstract class Fractal {
             statistic.initialize(transformed);
         }
 
+        if (trap != null) {
+            trap.initialize(transformed);
+        }
+
         return periodicity_checking ? calculateFractalWithPeriodicity(transformed) : calculateFractalWithoutPeriodicity(transformed);
 
     }
@@ -407,10 +264,6 @@ public abstract class Fractal {
 
         int iterations = 0;
 
-        if (trap != null) {
-            trap.initialize();
-        }
-
         Complex tempz = new Complex(pertur_val.getValue(init_val.getValue(pixel)));
 
         Complex[] complex = new Complex[2];
@@ -424,7 +277,7 @@ public abstract class Fractal {
         for (; iterations < max_iterations; iterations++) {
 
             if (trap != null) {
-                trap.check(complex[0]);
+                trap.check(complex[0], iterations);
             }
 
             if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
@@ -1095,8 +948,8 @@ public abstract class Fractal {
     }
 
     protected double getTrap(double result) {
-
-        if (Math.abs(result) == ColorAlgorithm.MAXIMUM_ITERATIONS) {
+ 
+        if (trap.hasColor() || Math.abs(result) == ColorAlgorithm.MAXIMUM_ITERATIONS) {
             return result;
         }
 
@@ -1108,7 +961,7 @@ public abstract class Fractal {
 
         double maxVal = trap.getMaxValue();
         distance = maxVal - distance;
-        distance = distance * (1 / maxVal);
+        distance /= maxVal;
         distance = (-Math.cos(Math.PI * distance) * 0.5 + 0.5) * trapIntesity;
 
         return result < 0 ? result - distance : result + distance;
@@ -1229,6 +1082,33 @@ public abstract class Fractal {
                 break;
             case MainWindow.GOLDEN_RATIO_SPIRAL_N_NORM_TRAP:
                 trap = new GoldenRatioSpiralNNormOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.trapNorm);
+                break;              
+            case MainWindow.STALKS_TRAP:
+                trap = new StalksOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapWidth);
+                break;
+            case MainWindow.STALKS_POINT_TRAP:
+                trap = new StalksPointOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth);
+                break;
+            case MainWindow.STALKS_POINT_N_NORM_TRAP:
+                trap = new StalksPointNNormOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.trapNorm);
+                break;
+            case MainWindow.STALKS_CROSS_TRAP:
+                trap = new StalksCrossOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.lineType);
+                break;
+            case MainWindow.STALKS_CIRCLE_TRAP:
+                trap = new StalksCircleOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth);
+                break;
+            case MainWindow.STALKS_SQUARE_TRAP:
+                trap = new StalksSquareOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth);
+                break;
+            case MainWindow.STALKS_RHOMBUS_TRAP:
+                trap = new StalksRhombusOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth);
+                break;
+            case MainWindow.STALKS_N_NORM_TRAP:
+                trap = new StalksNNormOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.trapNorm);
+                break;
+            case MainWindow.IMAGE_TRAP:
+                trap = new ImageOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth);
                 break;
 
         }

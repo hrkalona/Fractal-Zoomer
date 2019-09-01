@@ -69,7 +69,6 @@ public class RootFindingOneFunctionDialog extends JDialog {
 
         JTextField field_fz_formula5 = new JTextField(50);
         field_fz_formula5.setText(f1);
-        field_fz_formula5.addAncestorListener(new RequestFocusListener());
 
         JPanel formula_fz_panel5 = new JPanel();
 

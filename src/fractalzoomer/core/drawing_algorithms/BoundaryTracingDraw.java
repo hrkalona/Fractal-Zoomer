@@ -265,7 +265,7 @@ public class BoundaryTracingDraw extends ThreadDraw {
 
                 curDir = dirRight;
 
-                skippedColor = getColorForSkippedPixels(startColor, 0 + randomNumber);
+                skippedColor = getColorForSkippedPixels(startColor, randomNumber);
 
                 do {                                                 // 2nd cycle
                     for (Dir = curDir + 3; Dir < curDir + 7; Dir++) {
@@ -475,7 +475,7 @@ public class BoundaryTracingDraw extends ThreadDraw {
 
                 curDir = dirRight;
 
-                skippedColor = getColorForSkippedPixels(startColor, 0 + randomNumber);
+                skippedColor = getColorForSkippedPixels(startColor, randomNumber);
 
                 do {                                                 // 2nd cycle
                     for (Dir = curDir + 3; Dir < curDir + 7; Dir++) {
@@ -671,7 +671,7 @@ public class BoundaryTracingDraw extends ThreadDraw {
 
                 curDir = dirRight;
 
-                skippedColor = getColorForSkippedPixels(startColor, 0 + randomNumber);
+                skippedColor = getColorForSkippedPixels(startColor, randomNumber);
 
                 do {                                                 // 2nd cycle
                     for (Dir = curDir + 3; Dir < curDir + 7; Dir++) {
@@ -894,7 +894,7 @@ public class BoundaryTracingDraw extends ThreadDraw {
 
                 curDir = dirRight;
 
-                skippedColor = getColorForSkippedPixels(startColor, 0 + randomNumber);
+                skippedColor = getColorForSkippedPixels(startColor, randomNumber);
 
                 do {                                                 // 2nd cycle
                     for (Dir = curDir + 3; Dir < curDir + 7; Dir++) {
@@ -1126,7 +1126,7 @@ public class BoundaryTracingDraw extends ThreadDraw {
 
                 curDir = dirRight;
 
-                skippedColor = getColorForSkippedPixels(startColor, 0 + randomNumber);
+                skippedColor = getColorForSkippedPixels(startColor, randomNumber);
 
                 do {                                                 // 2nd cycle
                     for (Dir = curDir + 3; Dir < curDir + 7; Dir++) {
@@ -1341,7 +1341,7 @@ public class BoundaryTracingDraw extends ThreadDraw {
 
                 curDir = dirRight;
 
-                skippedColor = getColorForSkippedPixels(startColor, 0 + randomNumber);
+                skippedColor = getColorForSkippedPixels(startColor, randomNumber);
 
                 do {                                                 // 2nd cycle
                     for (Dir = curDir + 3; Dir < curDir + 7; Dir++) {
@@ -1538,7 +1538,7 @@ public class BoundaryTracingDraw extends ThreadDraw {
 
                 curDir = dirRight;
 
-                skippedColor = getColorForSkippedPixels(startColor, 0 + randomNumber);
+                skippedColor = getColorForSkippedPixels(startColor, randomNumber);
 
                 do {                                                 // 2nd cycle
                     for (Dir = curDir + 3; Dir < curDir + 7; Dir++) {
@@ -1689,7 +1689,7 @@ public class BoundaryTracingDraw extends ThreadDraw {
 
                 curDir = dirRight;
 
-                skippedColor = getColorForSkippedPixels(startColor, 0 + randomNumber);
+                skippedColor = getColorForSkippedPixels(startColor, randomNumber);
 
                 do {                                                 // 2nd cycle
                     for (Dir = curDir + 3; Dir < curDir + 7; Dir++) {

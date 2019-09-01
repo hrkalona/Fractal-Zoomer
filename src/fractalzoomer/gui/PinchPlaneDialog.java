@@ -56,8 +56,6 @@ public class PinchPlaneDialog extends JDialog {
         JTextField field_rotation = new JTextField();
         field_rotation.setText("" + s.fns.plane_transform_angle);
 
-        field_rotation.addAncestorListener(new RequestFocusListener());
-
         final JTextField field_real = new JTextField();
 
         if (s.fns.plane_transform_center[0] == 0) {

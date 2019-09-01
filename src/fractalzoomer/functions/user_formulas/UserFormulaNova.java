@@ -17,6 +17,7 @@
 package fractalzoomer.functions.user_formulas;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.core.Derivative;
 import fractalzoomer.core.ThreadDraw;
 import fractalzoomer.fractal_options.initial_value.DefaultInitialValue;
 import fractalzoomer.fractal_options.initial_value.InitialValue;
@@ -369,49 +370,92 @@ public class UserFormulaNova extends ExtendedConvergentType {
 
         Complex fz = expr.getValue();
 
+        Complex fzdz = null;
+        Complex fzmdz = null;
+
         //-----------------------------------
         if (nova_method != MainWindow.NOVA_SECANT && nova_method != MainWindow.NOVA_MULLER) {
-            if (parser2.foundZ()) {
-                parser2.setZvalue(complex[0]);
-            }
 
-            if (parser2.foundN()) {
-                parser2.setNvalue(new Complex(iterations, 0));
-            }
-
-            if (parser2.foundC()) {
-                parser2.setCvalue(complex[1]);
-            }
-
-            for (int i = 0; i < Parser.EXTRA_VARS; i++) {
-                if (parser2.foundVar(i)) {
-                    parser2.setVarsvalue(i, globalVars[i]);
+            if (Derivative.DERIVATIVE_METHOD == Derivative.NUMERICAL_SYMMETRICAL) {
+                if (parser.foundZ()) {
+                    parser.setZvalue(complex[0].plus(Derivative.DZ));
                 }
-            }
 
-            dfz = expr2.getValue();
+                fzdz = expr.getValue();
+
+                if (parser.foundZ()) {
+                    parser.setZvalue(complex[0].sub(Derivative.DZ));
+                }
+
+                fzmdz = expr.getValue();
+
+                dfz = Derivative.numericalDerivativeSymmetricFirstOrder(fzdz, fzmdz);
+            } else if (Derivative.DERIVATIVE_METHOD == Derivative.NUMERICAL) {
+                if (parser.foundZ()) {
+                    parser.setZvalue(complex[0].plus(Derivative.DZ));
+                }
+
+                fzdz = expr.getValue();
+
+                dfz = Derivative.numericalDerivativeFirstOrder(fz, fzdz);
+
+            } else {
+                if (parser2.foundZ()) {
+                    parser2.setZvalue(complex[0]);
+                }
+
+                if (parser2.foundN()) {
+                    parser2.setNvalue(new Complex(iterations, 0));
+                }
+
+                if (parser2.foundC()) {
+                    parser2.setCvalue(complex[1]);
+                }
+
+                for (int i = 0; i < Parser.EXTRA_VARS; i++) {
+                    if (parser2.foundVar(i)) {
+                        parser2.setVarsvalue(i, globalVars[i]);
+                    }
+                }
+
+                dfz = expr2.getValue();
+            }
         }
 
         if (nova_method == MainWindow.NOVA_HALLEY || nova_method == MainWindow.NOVA_SCHRODER || nova_method == MainWindow.NOVA_HOUSEHOLDER || nova_method == MainWindow.NOVA_PARHALLEY || nova_method == MainWindow.NOVA_LAGUERRE) {
-            if (parser3.foundZ()) {
-                parser3.setZvalue(complex[0]);
-            }
 
-            if (parser3.foundN()) {
-                parser3.setNvalue(new Complex(iterations, 0));
-            }
-
-            if (parser3.foundC()) {
-                parser3.setCvalue(complex[1]);
-            }
-
-            for (int i = 0; i < Parser.EXTRA_VARS; i++) {
-                if (parser3.foundVar(i)) {
-                    parser3.setVarsvalue(i, globalVars[i]);
+            if (Derivative.DERIVATIVE_METHOD == Derivative.NUMERICAL_SYMMETRICAL) {
+                ddfz = Derivative.numericalDerivativeSymmetricSecondOrder(fz, fzdz, fzmdz);
+            } else if (Derivative.DERIVATIVE_METHOD == Derivative.NUMERICAL) {
+                if (parser.foundZ()) {
+                    parser.setZvalue(complex[0].plus(Derivative.DZ_2));
                 }
-            }
 
-            ddfz = expr3.getValue();
+                Complex fz2dz = expr.getValue();
+
+                ddfz = Derivative.numericalDerivativeSecondOrder(fz, fzdz, fz2dz);
+
+            } else {
+                if (parser3.foundZ()) {
+                    parser3.setZvalue(complex[0]);
+                }
+
+                if (parser3.foundN()) {
+                    parser3.setNvalue(new Complex(iterations, 0));
+                }
+
+                if (parser3.foundC()) {
+                    parser3.setCvalue(complex[1]);
+                }
+
+                for (int i = 0; i < Parser.EXTRA_VARS; i++) {
+                    if (parser3.foundVar(i)) {
+                        parser3.setVarsvalue(i, globalVars[i]);
+                    }
+                }
+
+                ddfz = expr3.getValue();
+            }
         }
 
         if (nova_method == MainWindow.NOVA_STEFFENSEN) {
@@ -513,10 +557,6 @@ public class UserFormulaNova extends ExtendedConvergentType {
         iterations = 0;
         double temp = 0;
 
-        if (trap != null) {
-            trap.initialize();
-        }
-
         Complex tempz = new Complex(pertur_val.getValue(init_val.getValue(pixel)));
 
         Complex[] complex = new Complex[6];
@@ -536,7 +576,7 @@ public class UserFormulaNova extends ExtendedConvergentType {
         for (; iterations < max_iterations; iterations++) {
 
             if (trap != null) {
-                trap.check(complex[0]);
+                trap.check(complex[0], iterations);
             }
 
             if (iterations > 0 && (temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
@@ -585,10 +625,6 @@ public class UserFormulaNova extends ExtendedConvergentType {
         iterations = 0;
         double temp = 0;
 
-        if (trap != null) {
-            trap.initialize();
-        }
-
         Complex[] complex = new Complex[6];
         complex[0] = new Complex(pixel);
         complex[1] = new Complex(seed);//c
@@ -606,7 +642,7 @@ public class UserFormulaNova extends ExtendedConvergentType {
         for (; iterations < max_iterations; iterations++) {
 
             if (trap != null) {
-                trap.check(complex[0]);
+                trap.check(complex[0], iterations);
             }
 
             if (iterations > 0 && (temp = complex[0].distance_squared(zold)) <= convergent_bailout) {

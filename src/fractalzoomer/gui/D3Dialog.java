@@ -62,7 +62,6 @@ public class D3Dialog extends JDialog {
         setIconImage(getIcon("/fractalzoomer/icons/mandel2.png").getImage());
 
         JTextField field = new JTextField();
-        field.addAncestorListener(new RequestFocusListener());
         field.setText("" + s.d3s.detail);
 
         JTextField size_opt = new JTextField();

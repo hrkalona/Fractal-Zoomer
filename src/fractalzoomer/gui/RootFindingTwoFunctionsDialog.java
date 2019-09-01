@@ -16,17 +16,22 @@
  */
 package fractalzoomer.gui;
 
+import fractalzoomer.core.Derivative;
+import fractalzoomer.main.Constants;
 import static fractalzoomer.main.Constants.NEWTONFORMULA;
 import static fractalzoomer.main.Constants.NEWTON_HINESFORMULA;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
 import fractalzoomer.parser.ParserException;
 import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import javax.swing.ImageIcon;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -72,7 +77,6 @@ public class RootFindingTwoFunctionsDialog extends JDialog {
 
         JTextField field_fz_formula = new JTextField(50);
         field_fz_formula.setText(f1);
-        field_fz_formula.addAncestorListener(new RequestFocusListener());
 
         JTextField field_dfz_formula = new JTextField(50);
         field_dfz_formula.setText(f2);
@@ -108,6 +112,27 @@ public class RootFindingTwoFunctionsDialog extends JDialog {
 
         JPanel imagepanel4 = new JPanel();
         imagepanel4.add(imagelabel4);
+        
+        JPanel derivativePanel = new JPanel();
+        
+        JComboBox derivative_choice = new JComboBox(Constants.derivativeMethod);
+        derivative_choice.setSelectedIndex(s.fns.derivative_method);
+        derivative_choice.setToolTipText("Selects the derivative method.");
+        derivative_choice.setFocusable(false);
+        
+        derivativePanel.add(new JLabel("Derivative: "));
+        derivativePanel.add(derivative_choice);
+        
+        formula_dfz_panel.setVisible(s.fns.derivative_method == Derivative.DISABLED);
+        
+        derivative_choice.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                formula_dfz_panel.setVisible(derivative_choice.getSelectedIndex() == Derivative.DISABLED);
+                pack();
+            }
+            
+        });
 
         Object[] labels4 = ptra.createUserFormulaLabels("z, s, p, pp, n, maxn, center, size, sizei, v1 - v30, point");
 
@@ -116,7 +141,8 @@ public class RootFindingTwoFunctionsDialog extends JDialog {
             " ",
             imagepanel4,
             " ",
-            "Insert the function and its derivative.",
+            derivativePanel,
+            "Insert the function and its derivative (if required).",
             formula_fz_panel,
             formula_dfz_panel,
             s.fns.function == NEWTON_HINESFORMULA ? " " : "",
@@ -177,6 +203,9 @@ public class RootFindingTwoFunctionsDialog extends JDialog {
 
                         s.fns.user_fz_formula = field_fz_formula.getText();
                         s.fns.user_dfz_formula = field_dfz_formula.getText();
+                        
+                        s.fns.derivative_method = derivative_choice.getSelectedIndex();
+                        Derivative.DERIVATIVE_METHOD = s.fns.derivative_method;
                         
                         if(s.fns.function == NEWTON_HINESFORMULA) {
                             s.fns.newton_hines_k[0] = temp_re2;

@@ -33,13 +33,14 @@ public class ReOrbitTrap extends OrbitTrap {
     }
 
     @Override
-    public void check(Complex val) {
+    public void check(Complex val, int iteration) {
         
         double dist = Math.abs(val.getIm() - applyLineFunction(lineType, val.getRe()) - point.getIm());
         
         if(dist < trapWidth && Math.abs(val.getRe() - point.getRe()) < trapLength && dist < distance) {
             distance = dist;
             trapId = 0;
+            setTrappedData(val, iteration);
         }
 
     }

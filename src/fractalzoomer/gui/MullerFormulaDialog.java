@@ -62,7 +62,6 @@ public class MullerFormulaDialog extends JDialog {
 
         JTextField field_fz_formula7 = new JTextField(50);
         field_fz_formula7.setText(f1);
-        field_fz_formula7.addAncestorListener(new RequestFocusListener());
 
         JPanel formula_fz_panel7 = new JPanel();
 

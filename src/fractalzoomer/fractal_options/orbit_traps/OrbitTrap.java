@@ -28,6 +28,10 @@ public abstract class OrbitTrap {
     protected double trapLength;
     protected double trapWidth;
     protected int trapId;
+    protected Complex pixel;
+    protected int iterations;
+    protected Complex trappedPoint;
+    protected boolean trapped;
     
     public OrbitTrap(double pointRe, double pointIm, double trapLength, double trapWidth) {
         
@@ -37,14 +41,18 @@ public abstract class OrbitTrap {
         
     }
     
-    public void initialize() {
+    public void initialize(Complex pixel) {
         
         distance = Double.MAX_VALUE;
         trapId = -1;
+        this.pixel = new Complex(pixel);
+        iterations = 0;
+        trappedPoint = new Complex();
+        trapped = false;
         
     }
     
-    public abstract void check(Complex val);
+    public abstract void check(Complex val, int iteration);
     
     public double getDistance() {
         
@@ -53,6 +61,30 @@ public abstract class OrbitTrap {
     }
     
     public abstract double getMaxValue();
+    
+    public int getColor() {
+        
+        return 0;
+        
+    }
+    
+    public boolean hasColor() {
+        
+        return false;
+        
+    }
+    
+    public int getIteration() {
+        
+        return iterations;
+        
+    }
+    
+    public Complex getTrappedPoint() {
+        
+        return trappedPoint;
+        
+    }
     
     public double applyLineFunction(int type, double value) {
 
@@ -100,6 +132,20 @@ public abstract class OrbitTrap {
         
         return trapId;
                 
+    }
+
+    protected void setTrappedData(Complex val, int iteration) {
+
+        iterations = iteration;
+        trappedPoint = new Complex(val);
+        trapped = true;
+
+    }
+
+    public boolean isTrapped() {
+
+        return trapped;
+
     }
     
 }

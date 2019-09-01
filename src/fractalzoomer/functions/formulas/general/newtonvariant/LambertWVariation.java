@@ -168,8 +168,8 @@ public class LambertWVariation extends ExtendedConvergentType {
         Complex zsqr = complex[0].square();
         Complex epzsqr = new Complex(Math.E, 0).pow(zsqr);
 
-        Complex fz = complex[0].times(epzsqr).sub(complex[1]);
-        Complex dfz = epzsqr.times(zsqr.times(2).plus(1));
+        Complex fz = complex[0].times(epzsqr).sub_mutable(complex[1]);
+        Complex dfz = epzsqr.times(zsqr.times(2).plus_mutable(1));
 
         NewtonRootFindingMethod.NewtonMethod(complex[0], fz, dfz);
 
@@ -179,10 +179,6 @@ public class LambertWVariation extends ExtendedConvergentType {
     public double calculateFractalWithoutPeriodicity(Complex pixel) {
         int iterations = 0;
         double temp = 0;
-
-        if (trap != null) {
-            trap.initialize();
-        }
 
         Complex tempz = new Complex(pertur_val.getValue(init_val.getValue(pixel)));
 
@@ -197,7 +193,7 @@ public class LambertWVariation extends ExtendedConvergentType {
         for (; iterations < max_iterations; iterations++) {
 
             if (trap != null) {
-                trap.check(complex[0]);
+                trap.check(complex[0], iterations);
             }
 
             if (iterations > 0 && (temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
@@ -242,10 +238,6 @@ public class LambertWVariation extends ExtendedConvergentType {
         int iterations = 0;
         double temp = 0;
 
-        if (trap != null) {
-            trap.initialize();
-        }
-
         Complex[] complex = new Complex[2];
         complex[0] = new Complex(pixel);
         complex[1] = new Complex(seed);//c
@@ -257,7 +249,7 @@ public class LambertWVariation extends ExtendedConvergentType {
         for (; iterations < max_iterations; iterations++) {
 
             if (trap != null) {
-                trap.check(complex[0]);
+                trap.check(complex[0], iterations);
             }
 
             if (iterations > 0 && (temp = complex[0].distance_squared(zold)) <= convergent_bailout) {

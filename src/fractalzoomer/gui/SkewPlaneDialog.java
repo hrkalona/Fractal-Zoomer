@@ -18,16 +18,12 @@ package fractalzoomer.gui;
 
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
-import fractalzoomer.utils.MathUtils;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.geom.Point2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import javax.swing.ImageIcon;
-import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.JRadioButtonMenuItem;
@@ -55,8 +51,6 @@ public class SkewPlaneDialog extends JDialog {
 
         JTextField field_rotation = new JTextField();
         field_rotation.setText("" + s.fns.plane_transform_angle);
-
-        field_rotation.addAncestorListener(new RequestFocusListener());
         
         JTextField field_rotation2 = new JTextField();
         field_rotation2.setText("" + s.fns.plane_transform_angle2);

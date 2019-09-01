@@ -56,8 +56,6 @@ public class KaleidoscopePlaneDialog extends JDialog {
         JTextField field_rotation = new JTextField();
         field_rotation.setText("" + s.fns.plane_transform_angle);
 
-        field_rotation.addAncestorListener(new RequestFocusListener());
-
         JTextField field_rotation2 = new JTextField();
         field_rotation2.setText("" + s.fns.plane_transform_angle2);
 

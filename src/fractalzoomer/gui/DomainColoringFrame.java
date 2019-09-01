@@ -95,7 +95,6 @@ public class DomainColoringFrame extends JFrame {
         domain_coloring_panel.setBackground(MainWindow.bg_color);
 
         final JTextField iterations_textfield = new JTextField(10);
-        iterations_textfield.addAncestorListener(new RequestFocusListener());
         iterations_textfield.setText("" + s.max_iterations);
 
         JPanel settings_panel = new JPanel();
@@ -103,7 +102,7 @@ public class DomainColoringFrame extends JFrame {
         settings_panel.setBackground(MainWindow.bg_color);
         settings_panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Settings", TitledBorder.DEFAULT_POSITION, TitledBorder.DEFAULT_POSITION));
 
-        String[] color_modes = {"HSB", "Current Palette", "LCH"};
+        String[] color_modes = {"HSB", "Current Palette", "LCH", "Cubehelix", "Cubehelix3"};
         final JComboBox use_palette_dc = new JComboBox(color_modes);
         use_palette_dc.setSelectedIndex(s.ds.domain_coloring_mode);
         use_palette_dc.setBackground(MainWindow.bg_color);

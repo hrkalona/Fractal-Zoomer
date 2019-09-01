@@ -1,3 +1,14 @@
+Version 1.0.7.5
+    -Added numerical derivatives for all of the user root finding formulas and user nova formula.
+    -Added stalks as an orbit trap.
+    -Added an image pattern orbit trap.
+    -Added new trap coloring methods, which use the trapped iteration or the trapped point.
+    -Added a width option for grid and circles, and added more fading options, in domain coloring.
+    -Added a new grid generating algorithm in domain coloring.
+    -Added a new random palette generation algorithm (Cubehelix).
+    -Added more preset palettes into the custom palette editor.
+    -Refactored the code and fixed some bugs.
+
 Version 1.0.7.4
     -Added the Newton-Hines root finding method.
     -Added a Newton/Mandelbrot variation function.

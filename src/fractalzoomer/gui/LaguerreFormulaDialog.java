@@ -63,7 +63,6 @@ public class LaguerreFormulaDialog extends JDialog {
 
         JTextField field_fz_formula9 = new JTextField(50);
         field_fz_formula9.setText(f1);
-        field_fz_formula9.addAncestorListener(new RequestFocusListener());
 
         JTextField field_dfz_formula9 = new JTextField(50);
         field_dfz_formula9.setText(f2);

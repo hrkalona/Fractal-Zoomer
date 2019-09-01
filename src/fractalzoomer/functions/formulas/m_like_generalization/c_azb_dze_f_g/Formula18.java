@@ -145,7 +145,7 @@ public class Formula18 extends Julia {
     @Override
     protected void function(Complex[] complex) {
 
-        complex[0] = (((complex[0].cube()).sub(complex[0].fourth()).times_mutable(complex[1])).plus_mutable(1)).fifth_mutable();
+        complex[0] = (((complex[0].cube()).sub_mutable(complex[0].fourth()).times_mutable(complex[1])).plus_mutable(1)).fifth_mutable();
 
     }
 

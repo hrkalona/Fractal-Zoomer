@@ -18,7 +18,9 @@ package fractalzoomer.main.app_settings;
 
 import fractalzoomer.bailout_conditions.SkipBailoutCondition;
 import fractalzoomer.core.Complex;
+import fractalzoomer.core.Derivative;
 import fractalzoomer.core.ThreadDraw;
+import fractalzoomer.fractal_options.orbit_traps.ImageOrbitTrap;
 import fractalzoomer.main.Constants;
 import fractalzoomer.palettes.CustomPalette;
 import fractalzoomer.palettes.PresetPalette;
@@ -246,6 +248,10 @@ public class Settings implements Constants {
             } else if (version == 1074) {
                 xJuliaCenter = ((SettingsJulia1074) settings).getXJuliaCenter();
                 yJuliaCenter = ((SettingsJulia1074) settings).getYJuliaCenter();
+            }
+            else if (version == 1075) {
+                xJuliaCenter = ((SettingsJulia1075) settings).getXJuliaCenter();
+                yJuliaCenter = ((SettingsJulia1075) settings).getYJuliaCenter();
             }
 
             fns.julia = true;
@@ -959,6 +965,23 @@ public class Settings implements Constants {
             sts.useIterations = ((SettingsFractals1074) settings).getUseIterations();
             sts.useSmoothing = ((SettingsFractals1074) settings).getUseSmoothing();
         }
+        
+        if(version < 1075) {
+            fns.derivative_method = defaults.fns.derivative_method;
+            ots.trapColorFillingMethod = defaults.ots.trapColorFillingMethod;
+            ds.gridAlgorithm = defaults.ds.gridAlgorithm;
+            ds.circleWidth = defaults.ds.circleWidth;
+            ds.gridWidth = defaults.ds.gridWidth;
+            ots.trapImage = defaults.ots.trapImage;
+        }
+        else {
+            fns.derivative_method = ((SettingsFractals1075) settings).getDerivativeMethod();
+            ots.trapColorFillingMethod = ((SettingsFractals1075) settings).getTrapColorFillingMethod();
+            ds.gridAlgorithm = ((SettingsFractals1075) settings).getGridAlgorithm();
+            ds.circleWidth = ((SettingsFractals1075) settings).getCircleWidth();
+            ds.gridWidth = ((SettingsFractals1075) settings).getGridWidth();
+            ots.trapImage = ((SettingsFractals1075) settings).getTrapImage();
+        }
 
         if (fns.plane_type == USER_PLANE) {
             if (version < 1058) {
@@ -1505,9 +1528,9 @@ public class Settings implements Constants {
             file_temp = new ObjectOutputStream(new FileOutputStream(filename));
             SettingsFractals settings;
             if (fns.julia) {
-                settings = new SettingsJulia1074(this);
+                settings = new SettingsJulia1075(this);
             } else {
-                settings = new SettingsFractals1074(this);
+                settings = new SettingsFractals1075(this);
             }
             file_temp.writeObject(settings);
             file_temp.flush();
@@ -2103,8 +2126,8 @@ public class Settings implements Constants {
     public boolean functionSupportsC() {
 
         return !isRootFindingMethod() && fns.function != KLEINIAN && fns.function != SIERPINSKI_GASKET && fns.function != INERTIA_GRAVITY
-                && (fns.function != USER_FORMULA_NOVA || (fns.function == USER_FORMULA_NOVA && userFormulaHasC == true)) && (fns.function != USER_FORMULA || (fns.function == USER_FORMULA && userFormulaHasC == true)) && (fns.function != USER_FORMULA_ITERATION_BASED || (fns.function == USER_FORMULA_ITERATION_BASED && userFormulaHasC == true)) && (fns.function != USER_FORMULA_CONDITIONAL || (fns.function == USER_FORMULA_CONDITIONAL && userFormulaHasC == true)) && (fns.function != USER_FORMULA_COUPLED || (fns.function == USER_FORMULA_COUPLED && userFormulaHasC == true))
-                && (fns.function != LYAPUNOV || (fns.function == LYAPUNOV && userFormulaHasC == true));
+                && (fns.function != USER_FORMULA_NOVA || (fns.function == USER_FORMULA_NOVA && userFormulaHasC)) && (fns.function != USER_FORMULA || (fns.function == USER_FORMULA && userFormulaHasC)) && (fns.function != USER_FORMULA_ITERATION_BASED || (fns.function == USER_FORMULA_ITERATION_BASED && userFormulaHasC)) && (fns.function != USER_FORMULA_CONDITIONAL || (fns.function == USER_FORMULA_CONDITIONAL && userFormulaHasC)) && (fns.function != USER_FORMULA_COUPLED || (fns.function == USER_FORMULA_COUPLED && userFormulaHasC))
+                && (fns.function != LYAPUNOV || (fns.function == LYAPUNOV && userFormulaHasC));
 
     }
 
@@ -2131,6 +2154,10 @@ public class Settings implements Constants {
         ThreadDraw.COLOR_SMOOTHING_METHOD = color_smoothing_method;
 
         SkipBailoutCondition.SKIPPED_ITERATION_COUNT = fns.skip_bailout_iterations;
+        
+        Derivative.DERIVATIVE_METHOD = fns.derivative_method;
+
+        ImageOrbitTrap.image = ots.trapImage;
 
     }
 

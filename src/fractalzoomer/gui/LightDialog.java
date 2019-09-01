@@ -114,7 +114,6 @@ public class LightDialog extends JDialog {
         p2.setLayout(new GridLayout(2, 4));
 
         JTextField light_intensity_field = new JTextField();
-        light_intensity_field.addAncestorListener(new RequestFocusListener());
         light_intensity_field.setText("" + s.ls.lightintensity);
 
         JTextField ambient_light_field = new JTextField();

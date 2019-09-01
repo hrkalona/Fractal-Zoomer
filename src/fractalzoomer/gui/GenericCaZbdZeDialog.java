@@ -57,7 +57,6 @@ public class GenericCaZbdZeDialog extends JDialog {
         JLabel alpha_label = new JLabel();
         alpha_label.setIcon(getIcon("/fractalzoomer/icons/alpha.png"));
         JTextField alpha_filed = new JTextField(30);
-        alpha_filed.addAncestorListener(new RequestFocusListener());
         alpha_filed.setText("" + s.fns.gcs.alpha);
         alpha_panel.setLayout(new FlowLayout());
         alpha_panel.add(alpha_label);

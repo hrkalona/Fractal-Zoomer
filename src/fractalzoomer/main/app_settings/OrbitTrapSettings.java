@@ -18,6 +18,7 @@ package fractalzoomer.main.app_settings;
 
 import fractalzoomer.main.Constants;
 import java.awt.Color;
+import java.awt.image.BufferedImage;
 
 /**
  *
@@ -41,6 +42,8 @@ public class OrbitTrapSettings {
     public double trapColorInterpolation;
     public boolean trapIncludeNotEscaped;
     public boolean trapIncludeEscaped;
+    public int trapColorFillingMethod;
+    public BufferedImage trapImage;
     
     public OrbitTrapSettings() {
         
@@ -64,6 +67,8 @@ public class OrbitTrapSettings {
         trapColorInterpolation = 0;
         trapIncludeNotEscaped = true;
         trapIncludeEscaped = true;
+
+        trapColorFillingMethod = Constants.TRAP_COLOR_PER_TRAP;
         
     }
     

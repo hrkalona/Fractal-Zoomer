@@ -116,10 +116,6 @@ public class SteffensenFormula extends SteffensenRootFindingMethod {
         iterations = 0;
         double temp = 0;
 
-        if (trap != null) {
-            trap.initialize();
-        }
-
         Complex[] complex = new Complex[1];
         complex[0] = new Complex(pixel);//z
 
@@ -132,7 +128,7 @@ public class SteffensenFormula extends SteffensenRootFindingMethod {
         for (; iterations < max_iterations; iterations++) {
 
             if (trap != null) {
-                trap.check(complex[0]);
+                trap.check(complex[0], iterations);
             }
 
             if (iterations > 0 && (temp = complex[0].distance_squared(zold)) <= convergent_bailout) {

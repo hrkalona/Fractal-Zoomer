@@ -49,12 +49,12 @@ public class TriangleInequalityAverage extends GenericStatistic {
         }
 
         double mp = temp.norm();
-	double m = Math.abs(mp - mc);
-	double M = mp + mc;
+        double m = Math.abs(mp - mc);
+        double M = mp + mc;
         
         samples++;
         sum2 = sum;
-	sum += (z.norm() - m) / (M - m);    
+	sum += (z.norm() - m) / (M - m);
     }
 
     @Override

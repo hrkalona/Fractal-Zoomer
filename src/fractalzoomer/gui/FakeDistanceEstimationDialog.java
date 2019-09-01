@@ -51,8 +51,6 @@ public class FakeDistanceEstimationDialog extends JDialog {
         JTextField fake_de_factor_field = new JTextField();
         fake_de_factor_field.setText("" + s.fdes.fake_de_factor);
 
-        fake_de_factor_field.addAncestorListener(new RequestFocusListener());
-
         final JCheckBox enable_fake_de = new JCheckBox("Fake Distance Estimation");
         enable_fake_de.setSelected(s.fdes.fake_de);
         enable_fake_de.setFocusable(false);

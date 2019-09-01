@@ -273,10 +273,6 @@ public class UserFormulaIterationBasedEscaping extends Julia {
 
         iterations = 0;
 
-        if (trap != null) {
-            trap.initialize();
-        }
-
         Complex tempz = new Complex(pertur_val.getValue(init_val.getValue(pixel)));
 
         Complex[] complex = new Complex[2];
@@ -292,7 +288,7 @@ public class UserFormulaIterationBasedEscaping extends Julia {
         for (; iterations < max_iterations; iterations++) {
 
             if (trap != null) {
-                trap.check(complex[0]);
+                trap.check(complex[0], iterations);
             }
 
             if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
@@ -488,10 +484,6 @@ public class UserFormulaIterationBasedEscaping extends Julia {
     public double calculateJuliaWithoutPeriodicity(Complex pixel) {
         iterations = 0;
 
-        if (trap != null) {
-            trap.initialize();
-        }
-
         Complex[] complex = new Complex[2];
         complex[0] = new Complex(pixel);//z
         complex[1] = new Complex(seed);//c
@@ -505,7 +497,7 @@ public class UserFormulaIterationBasedEscaping extends Julia {
         for (; iterations < max_iterations; iterations++) {
 
             if (trap != null) {
-                trap.check(complex[0]);
+                trap.check(complex[0], iterations);
             }
 
             if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {

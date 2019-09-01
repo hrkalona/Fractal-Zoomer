@@ -170,12 +170,7 @@ public class DivideAndConquerDraw extends ThreadDraw {
 
         ExpandingQueue<Square> squares = new ExpandingQueue(INIT_QUEUE_SIZE);
 
-        Square square = new Square();
-        square.x1 = FROMx;
-        square.y1 = FROMy;
-        square.x2 = TOx;
-        square.y2 = TOy;
-        square.iteration = randomNumber;
+        Square square = new Square(FROMx, FROMy, TOx, TOy, randomNumber);
 
         squares.enqueue(square);
 
@@ -284,39 +279,19 @@ public class DivideAndConquerDraw extends ThreadDraw {
                         }
                     }
 
-                    Square square1 = new Square();
-                    square1.x1 = slice_FROMx;
-                    square1.y1 = slice_FROMy;
-                    square1.x2 = halfX;
-                    square1.y2 = halfY;
-                    square1.iteration = currentSquare.iteration + 1;
+                    Square square1 = new Square(slice_FROMx, slice_FROMy, halfX, halfY,  currentSquare.iteration + 1);
 
                     squares.enqueue(square1);
 
-                    Square square2 = new Square();
-                    square2.x1 = halfX;
-                    square2.y1 = slice_FROMy;
-                    square2.x2 = slice_TOx;
-                    square2.y2 = halfY;
-                    square2.iteration = currentSquare.iteration + 1;
+                    Square square2 = new Square(halfX, slice_FROMy, slice_TOx, halfY, currentSquare.iteration + 1);
 
                     squares.enqueue(square2);
 
-                    Square square3 = new Square();
-                    square3.x1 = slice_FROMx;
-                    square3.y1 = halfY;
-                    square3.x2 = halfX;
-                    square3.y2 = slice_TOy;
-                    square3.iteration = currentSquare.iteration + 1;
+                    Square square3 = new Square(slice_FROMx, halfY, halfX, slice_TOy, currentSquare.iteration + 1);
 
                     squares.enqueue(square3);
 
-                    Square square4 = new Square();
-                    square4.x1 = halfX;
-                    square4.y1 = halfY;
-                    square4.x2 = slice_TOx;
-                    square4.y2 = slice_TOy;
-                    square4.iteration = currentSquare.iteration + 1;
+                    Square square4 = new Square(halfX, halfY, slice_TOx, slice_TOy, currentSquare.iteration + 1);
 
                     squares.enqueue(square4);
                 } else {
@@ -476,12 +451,7 @@ public class DivideAndConquerDraw extends ThreadDraw {
 
         ExpandingQueue<Square> squares = new ExpandingQueue(INIT_QUEUE_SIZE);
 
-        Square square = new Square();
-        square.x1 = FROMx;
-        square.y1 = FROMy;
-        square.x2 = TOx;
-        square.y2 = TOy;
-        square.iteration = randomNumber;
+        Square square = new Square(FROMx, FROMy, TOx, TOy, randomNumber);
 
         squares.enqueue(square);
 
@@ -602,39 +572,19 @@ public class DivideAndConquerDraw extends ThreadDraw {
                         }
                     }
 
-                    Square square1 = new Square();
-                    square1.x1 = slice_FROMx;
-                    square1.y1 = slice_FROMy;
-                    square1.x2 = halfX;
-                    square1.y2 = halfY;
-                    square1.iteration = currentSquare.iteration + 1;
+                    Square square1 = new Square(slice_FROMx, slice_FROMy, halfX, halfY, currentSquare.iteration + 1);
 
                     squares.enqueue(square1);
 
-                    Square square2 = new Square();
-                    square2.x1 = halfX;
-                    square2.y1 = slice_FROMy;
-                    square2.x2 = slice_TOx;
-                    square2.y2 = halfY;
-                    square2.iteration = currentSquare.iteration + 1;
+                    Square square2 = new Square(halfX, slice_FROMy, slice_TOx, halfY, currentSquare.iteration + 1);
 
                     squares.enqueue(square2);
 
-                    Square square3 = new Square();
-                    square3.x1 = slice_FROMx;
-                    square3.y1 = halfY;
-                    square3.x2 = halfX;
-                    square3.y2 = slice_TOy;
-                    square3.iteration = currentSquare.iteration + 1;
+                    Square square3 = new Square(slice_FROMx, halfY, halfX, slice_TOy, currentSquare.iteration + 1);
 
                     squares.enqueue(square3);
 
-                    Square square4 = new Square();
-                    square4.x1 = halfX;
-                    square4.y1 = halfY;
-                    square4.x2 = slice_TOx;
-                    square4.y2 = slice_TOy;
-                    square4.iteration = currentSquare.iteration + 1;
+                    Square square4 = new Square(halfX, halfY, slice_TOx, slice_TOy, currentSquare.iteration + 1);
 
                     squares.enqueue(square4);
                 } else {
@@ -902,12 +852,7 @@ public class DivideAndConquerDraw extends ThreadDraw {
 
         ExpandingQueue<Square> squares = new ExpandingQueue(INIT_QUEUE_SIZE);
 
-        Square square = new Square();
-        square.x1 = FROMx;
-        square.y1 = FROMy;
-        square.x2 = TOx;
-        square.y2 = TOy;
-        square.iteration = randomNumber;
+        Square square = new Square(FROMx, FROMy, TOx, TOy, randomNumber);
 
         squares.enqueue(square);
 
@@ -1072,39 +1017,19 @@ public class DivideAndConquerDraw extends ThreadDraw {
                         }
                     }
 
-                    Square square1 = new Square();
-                    square1.x1 = slice_FROMx;
-                    square1.y1 = slice_FROMy;
-                    square1.x2 = halfX;
-                    square1.y2 = halfY;
-                    square1.iteration = currentSquare.iteration + 1;
+                    Square square1 = new Square(slice_FROMx, slice_FROMy, halfX, halfY, currentSquare.iteration + 1);
 
                     squares.enqueue(square1);
 
-                    Square square2 = new Square();
-                    square2.x1 = halfX;
-                    square2.y1 = slice_FROMy;
-                    square2.x2 = slice_TOx;
-                    square2.y2 = halfY;
-                    square2.iteration = currentSquare.iteration + 1;
+                    Square square2 = new Square(halfX, slice_FROMy, slice_TOx, halfY, currentSquare.iteration + 1);
 
                     squares.enqueue(square2);
 
-                    Square square3 = new Square();
-                    square3.x1 = slice_FROMx;
-                    square3.y1 = halfY;
-                    square3.x2 = halfX;
-                    square3.y2 = slice_TOy;
-                    square3.iteration = currentSquare.iteration + 1;
+                    Square square3 = new Square(slice_FROMx, halfY, halfX, slice_TOy, currentSquare.iteration + 1);
 
                     squares.enqueue(square3);
 
-                    Square square4 = new Square();
-                    square4.x1 = halfX;
-                    square4.y1 = halfY;
-                    square4.x2 = slice_TOx;
-                    square4.y2 = slice_TOy;
-                    square4.iteration = currentSquare.iteration + 1;
+                    Square square4 = new Square(halfX, halfY, slice_TOx, slice_TOy, currentSquare.iteration + 1);
 
                     squares.enqueue(square4);
                 } else {
@@ -1356,12 +1281,7 @@ public class DivideAndConquerDraw extends ThreadDraw {
 
         ExpandingQueue<Square> squares = new ExpandingQueue(INIT_QUEUE_SIZE);
 
-        Square square = new Square();
-        square.x1 = FROMx;
-        square.y1 = FROMy;
-        square.x2 = TOx;
-        square.y2 = TOy;
-        square.iteration = randomNumber;
+        Square square = new Square(FROMx, FROMy, TOx, TOy, randomNumber);
 
         squares.enqueue(square);
 
@@ -1510,39 +1430,19 @@ public class DivideAndConquerDraw extends ThreadDraw {
                         }
                     }
 
-                    Square square1 = new Square();
-                    square1.x1 = slice_FROMx;
-                    square1.y1 = slice_FROMy;
-                    square1.x2 = halfX;
-                    square1.y2 = halfY;
-                    square1.iteration = currentSquare.iteration + 1;
+                    Square square1 = new Square(slice_FROMx, slice_FROMy, halfX, halfY, currentSquare.iteration + 1);
 
                     squares.enqueue(square1);
 
-                    Square square2 = new Square();
-                    square2.x1 = halfX;
-                    square2.y1 = slice_FROMy;
-                    square2.x2 = slice_TOx;
-                    square2.y2 = halfY;
-                    square2.iteration = currentSquare.iteration + 1;
+                    Square square2 = new Square(halfX, slice_FROMy, slice_TOx, halfY, currentSquare.iteration + 1);
 
                     squares.enqueue(square2);
 
-                    Square square3 = new Square();
-                    square3.x1 = slice_FROMx;
-                    square3.y1 = halfY;
-                    square3.x2 = halfX;
-                    square3.y2 = slice_TOy;
-                    square3.iteration = currentSquare.iteration + 1;
+                    Square square3 = new Square(slice_FROMx, halfY, halfX, slice_TOy, currentSquare.iteration + 1);
 
                     squares.enqueue(square3);
 
-                    Square square4 = new Square();
-                    square4.x1 = halfX;
-                    square4.y1 = halfY;
-                    square4.x2 = slice_TOx;
-                    square4.y2 = slice_TOy;
-                    square4.iteration = currentSquare.iteration + 1;
+                    Square square4 = new Square(halfX, halfY, slice_TOx, slice_TOy, currentSquare.iteration + 1);
 
                     squares.enqueue(square4);
                 } else {
@@ -1679,12 +1579,7 @@ public class DivideAndConquerDraw extends ThreadDraw {
 
         ExpandingQueue<Square> squares = new ExpandingQueue(INIT_QUEUE_SIZE);
 
-        Square square = new Square();
-        square.x1 = FROMx;
-        square.y1 = FROMy;
-        square.x2 = TOx;
-        square.y2 = TOy;
-        square.iteration = randomNumber;
+        Square square = new Square(FROMx, FROMy, TOx, TOy, randomNumber);
 
         squares.enqueue(square);
 
@@ -1789,39 +1684,19 @@ public class DivideAndConquerDraw extends ThreadDraw {
                         }
                     }
 
-                    Square square1 = new Square();
-                    square1.x1 = slice_FROMx;
-                    square1.y1 = slice_FROMy;
-                    square1.x2 = halfX;
-                    square1.y2 = halfY;
-                    square1.iteration = currentSquare.iteration + 1;
+                    Square square1 = new Square(slice_FROMx, slice_FROMy, halfX, halfY, currentSquare.iteration + 1);
 
                     squares.enqueue(square1);
 
-                    Square square2 = new Square();
-                    square2.x1 = halfX;
-                    square2.y1 = slice_FROMy;
-                    square2.x2 = slice_TOx;
-                    square2.y2 = halfY;
-                    square2.iteration = currentSquare.iteration + 1;
+                    Square square2 = new Square(halfX, slice_FROMy, slice_TOx, halfY, currentSquare.iteration + 1);
 
                     squares.enqueue(square2);
 
-                    Square square3 = new Square();
-                    square3.x1 = slice_FROMx;
-                    square3.y1 = halfY;
-                    square3.x2 = halfX;
-                    square3.y2 = slice_TOy;
-                    square3.iteration = currentSquare.iteration + 1;
+                    Square square3 = new Square(slice_FROMx, halfY, halfX, slice_TOy, currentSquare.iteration + 1);
 
                     squares.enqueue(square3);
 
-                    Square square4 = new Square();
-                    square4.x1 = halfX;
-                    square4.y1 = halfY;
-                    square4.x2 = slice_TOx;
-                    square4.y2 = slice_TOy;
-                    square4.iteration = currentSquare.iteration + 1;
+                    Square square4 = new Square(halfX, halfY, slice_TOx, slice_TOy, currentSquare.iteration + 1);
 
                     squares.enqueue(square4);
                 } else {
@@ -1958,12 +1833,7 @@ public class DivideAndConquerDraw extends ThreadDraw {
 
         ExpandingQueue<Square> squares = new ExpandingQueue(INIT_QUEUE_SIZE);
 
-        Square square = new Square();
-        square.x1 = FROMx;
-        square.y1 = FROMy;
-        square.x2 = TOx;
-        square.y2 = TOy;
-        square.iteration = randomNumber;
+        Square square = new Square(FROMx, FROMy, TOx, TOy, randomNumber);
 
         squares.enqueue(square);
 
@@ -2080,39 +1950,19 @@ public class DivideAndConquerDraw extends ThreadDraw {
                         }
                     }
 
-                    Square square1 = new Square();
-                    square1.x1 = slice_FROMx;
-                    square1.y1 = slice_FROMy;
-                    square1.x2 = halfX;
-                    square1.y2 = halfY;
-                    square1.iteration = currentSquare.iteration + 1;
+                    Square square1 = new Square(slice_FROMx, slice_FROMy, halfX, halfY, currentSquare.iteration + 1);
 
                     squares.enqueue(square1);
 
-                    Square square2 = new Square();
-                    square2.x1 = halfX;
-                    square2.y1 = slice_FROMy;
-                    square2.x2 = slice_TOx;
-                    square2.y2 = halfY;
-                    square2.iteration = currentSquare.iteration + 1;
+                    Square square2 = new Square(halfX, slice_FROMy, slice_TOx, halfY, currentSquare.iteration + 1);
 
                     squares.enqueue(square2);
 
-                    Square square3 = new Square();
-                    square3.x1 = slice_FROMx;
-                    square3.y1 = halfY;
-                    square3.x2 = halfX;
-                    square3.y2 = slice_TOy;
-                    square3.iteration = currentSquare.iteration + 1;
+                    Square square3 = new Square(slice_FROMx, halfY, halfX, slice_TOy, currentSquare.iteration + 1);
 
                     squares.enqueue(square3);
 
-                    Square square4 = new Square();
-                    square4.x1 = halfX;
-                    square4.y1 = halfY;
-                    square4.x2 = slice_TOx;
-                    square4.y2 = slice_TOy;
-                    square4.iteration = currentSquare.iteration + 1;
+                    Square square4 = new Square(halfX, halfY, slice_TOx, slice_TOy, currentSquare.iteration + 1);
 
                     squares.enqueue(square4);
                 } else {
@@ -2316,12 +2166,7 @@ public class DivideAndConquerDraw extends ThreadDraw {
 
         ExpandingQueue<Square> squares = new ExpandingQueue(INIT_QUEUE_SIZE);
 
-        Square square = new Square();
-        square.x1 = FROMx;
-        square.y1 = FROMy;
-        square.x2 = TOx;
-        square.y2 = TOy;
-        square.iteration = randomNumber;
+        Square square = new Square(FROMx, FROMy, TOx, TOy, randomNumber);
 
         squares.enqueue(square);
 
@@ -2464,39 +2309,19 @@ public class DivideAndConquerDraw extends ThreadDraw {
                         }
                     }
 
-                    Square square1 = new Square();
-                    square1.x1 = slice_FROMx;
-                    square1.y1 = slice_FROMy;
-                    square1.x2 = halfX;
-                    square1.y2 = halfY;
-                    square1.iteration = currentSquare.iteration + 1;
+                    Square square1 = new Square(slice_FROMx, slice_FROMy, halfX, halfY, currentSquare.iteration + 1);
 
                     squares.enqueue(square1);
 
-                    Square square2 = new Square();
-                    square2.x1 = halfX;
-                    square2.y1 = slice_FROMy;
-                    square2.x2 = slice_TOx;
-                    square2.y2 = halfY;
-                    square2.iteration = currentSquare.iteration + 1;
+                    Square square2 = new Square(halfX, slice_FROMy, slice_TOx, halfY, currentSquare.iteration + 1);
 
                     squares.enqueue(square2);
 
-                    Square square3 = new Square();
-                    square3.x1 = slice_FROMx;
-                    square3.y1 = halfY;
-                    square3.x2 = halfX;
-                    square3.y2 = slice_TOy;
-                    square3.iteration = currentSquare.iteration + 1;
+                    Square square3 = new Square(slice_FROMx, halfY, halfX, slice_TOy, currentSquare.iteration + 1);
 
                     squares.enqueue(square3);
 
-                    Square square4 = new Square();
-                    square4.x1 = halfX;
-                    square4.y1 = halfY;
-                    square4.x2 = slice_TOx;
-                    square4.y2 = slice_TOy;
-                    square4.iteration = currentSquare.iteration + 1;
+                    Square square4 = new Square(halfX, halfY, slice_TOx, slice_TOy, currentSquare.iteration + 1);
 
                     squares.enqueue(square4);
                 } else {
@@ -2754,12 +2579,7 @@ public class DivideAndConquerDraw extends ThreadDraw {
 
         ExpandingQueue<Square> squares = new ExpandingQueue(INIT_QUEUE_SIZE);
 
-        Square square = new Square();
-        square.x1 = FROMx;
-        square.y1 = FROMy;
-        square.x2 = TOx;
-        square.y2 = TOy;
-        square.iteration = randomNumber;
+        Square square = new Square(FROMx, FROMy, TOx, TOy, randomNumber);
 
         squares.enqueue(square);
 
@@ -2920,39 +2740,19 @@ public class DivideAndConquerDraw extends ThreadDraw {
                         }
                     }
 
-                    Square square1 = new Square();
-                    square1.x1 = slice_FROMx;
-                    square1.y1 = slice_FROMy;
-                    square1.x2 = halfX;
-                    square1.y2 = halfY;
-                    square1.iteration = currentSquare.iteration + 1;
+                    Square square1 = new Square(slice_FROMx, slice_FROMy, halfX, halfY, currentSquare.iteration + 1);
 
                     squares.enqueue(square1);
 
-                    Square square2 = new Square();
-                    square2.x1 = halfX;
-                    square2.y1 = slice_FROMy;
-                    square2.x2 = slice_TOx;
-                    square2.y2 = halfY;
-                    square2.iteration = currentSquare.iteration + 1;
+                    Square square2 = new Square(halfX, slice_FROMy, slice_TOx, halfY, currentSquare.iteration + 1);
 
                     squares.enqueue(square2);
 
-                    Square square3 = new Square();
-                    square3.x1 = slice_FROMx;
-                    square3.y1 = halfY;
-                    square3.x2 = halfX;
-                    square3.y2 = slice_TOy;
-                    square3.iteration = currentSquare.iteration + 1;
+                    Square square3 = new Square(slice_FROMx, halfY, halfX, slice_TOy, currentSquare.iteration + 1);
 
                     squares.enqueue(square3);
 
-                    Square square4 = new Square();
-                    square4.x1 = halfX;
-                    square4.y1 = halfY;
-                    square4.x2 = slice_TOx;
-                    square4.y2 = slice_TOy;
-                    square4.iteration = currentSquare.iteration + 1;
+                    Square square4 = new Square(halfX, halfY, slice_TOx, slice_TOy, currentSquare.iteration + 1);
 
                     squares.enqueue(square4);
                 } else {

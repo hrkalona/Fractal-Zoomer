@@ -42,7 +42,7 @@ public abstract class Julia extends Fractal {
 
         super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, ots);
 
-        if (apply_plane_on_julia_seed) {;
+        if (apply_plane_on_julia_seed) {
             seed = plane.transform(new Complex(xJuliaCenter, yJuliaCenter));
         } else {
             seed = new Complex(xJuliaCenter, yJuliaCenter);
@@ -96,6 +96,10 @@ public abstract class Julia extends Fractal {
 
         if (statistic != null) {
             statistic.initialize(transformed);
+        }
+
+        if (trap != null) {
+            trap.initialize(transformed);
         }
 
         return periodicity_checking ? calculateJuliaWithPeriodicity(transformed) : calculateJuliaWithoutPeriodicity(transformed);
@@ -155,10 +159,6 @@ public abstract class Julia extends Fractal {
     protected double calculateJuliaWithoutPeriodicity(Complex pixel) {
         int iterations = 0;
 
-        if (trap != null) {
-            trap.initialize();
-        }
-
         Complex[] complex = new Complex[2];
         complex[0] = new Complex(pixel);//z
         complex[1] = new Complex(seed);//c
@@ -170,7 +170,7 @@ public abstract class Julia extends Fractal {
         for (; iterations < max_iterations; iterations++) {
 
             if (trap != null) {
-                trap.check(complex[0]);
+                trap.check(complex[0], iterations);
             }
 
             if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {

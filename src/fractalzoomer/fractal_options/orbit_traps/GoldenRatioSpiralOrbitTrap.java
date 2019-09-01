@@ -33,7 +33,11 @@ public class GoldenRatioSpiralOrbitTrap extends OrbitTrap {
     }
 
     @Override
-    public void check(Complex val) {
+    public void check(Complex val, int iteration) {
+
+        if(trapped) {
+            return;
+        }
             
         Complex temp = val.sub(point);
         double dist = Math.log(temp.norm())/(4 * Math.log(phi)) - (temp.arg())/(2 * Math.PI);
@@ -42,6 +46,7 @@ public class GoldenRatioSpiralOrbitTrap extends OrbitTrap {
         if(dist < trapWidth && dist < distance) {
             distance = dist;
             trapId = 0;
+            setTrappedData(val, iteration);
         }
 
     }
@@ -49,6 +54,15 @@ public class GoldenRatioSpiralOrbitTrap extends OrbitTrap {
     @Override
     public double getMaxValue() {
         return trapWidth;
+    }
+
+    @Override
+    public void initialize(Complex pixel) {
+
+        super.initialize(pixel);
+
+        trapped = false;
+
     }
     
 }

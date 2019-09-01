@@ -50,7 +50,6 @@ public class FoldInOutPlaneDialog extends JDialog {
 
         JTextField field_radius = new JTextField();
         field_radius.setText("" + s.fns.plane_transform_radius);
-        field_radius.addAncestorListener(new RequestFocusListener());
 
         Object[] message = {
             " ",

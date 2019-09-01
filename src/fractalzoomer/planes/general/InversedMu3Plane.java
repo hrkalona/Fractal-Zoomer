@@ -35,7 +35,7 @@ public class InversedMu3Plane extends Plane {
     @Override
     public Complex transform(Complex pixel) {
 
-        return pixel.reciprocal().sub(1.401155189);
+        return pixel.reciprocal().sub_mutable(1.401155189);
 
     }
 }

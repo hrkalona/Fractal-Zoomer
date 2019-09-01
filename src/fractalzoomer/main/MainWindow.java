@@ -2314,7 +2314,7 @@ public class MainWindow extends JFrame implements Constants {
             } catch (IOException ex) {
                 JOptionPane.showMessageDialog(scroll_pane, "Error while loading the " + filename + " file.", "Error!", JOptionPane.ERROR_MESSAGE);
             } catch (ClassNotFoundException ex) {
-                JOptionPane.showMessageDialog(scroll_pane, "Error while loading the " + filename + " file.", "Error!", JOptionPane.ERROR_MESSAGE);;
+                JOptionPane.showMessageDialog(scroll_pane, "Error while loading the " + filename + " file.", "Error!", JOptionPane.ERROR_MESSAGE);
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(scroll_pane, "Error while loading the " + filename + " file.\nThe application will terminate.", "Error!", JOptionPane.ERROR_MESSAGE);
                 savePreferences();
@@ -7497,7 +7497,7 @@ public class MainWindow extends JFrame implements Constants {
 
         resetOrbit();
         try {
-            common.overview(s);
+            common.overview(s, periodicity_checking);
         } catch (Exception ex) {
         }
 
@@ -8031,7 +8031,7 @@ public class MainWindow extends JFrame implements Constants {
                         try {
                             int temp = Integer.parseInt(tokenizer.nextToken());
 
-                            if (temp >= 0 && temp <= 8) {
+                            if (temp >= 0 && temp <= 9) {
                                 CustomPaletteEditorFrame.setRandomPaletteAlgorithm(temp);
                             }
                         } catch (Exception ex) {
