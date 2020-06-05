@@ -1,4 +1,5 @@
 import fractalzoomer.core.Complex;
+import fractalzoomer.core.Derivative;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.*;
@@ -49,9 +50,14 @@ public class UserDefinedFunctions {
 	}
 	
 	public static Complex f3(Complex z) {
-	
-		return new Complex();
-		
+
+		Complex fz = z.cube().sub(1);
+		Complex fzdz = (z.plus(Derivative.DZ)).cube().sub(1);
+		Complex fzmdz = (z.sub(Derivative.DZ)).cube().sub(1);
+		Complex dfz = Derivative.numericalCentralDerivativeFirstOrder(fzdz, fzmdz); //Calculate the numerical first order derivative
+
+		return z.sub(fz.divide(dfz));
+
 	}
 	
 	public static Complex f4(Complex z) {

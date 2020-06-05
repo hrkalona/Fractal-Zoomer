@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 hrkalona2
+ * Copyright (C) 2020 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,7 +42,7 @@ public class ColorCyclingDialog extends JDialog {
 
     public ColorCyclingDialog(MainWindow ptr, boolean cycle_colors, boolean cycle_gradient, boolean cycle_lights, int color_cycling_speed) {
 
-        super();
+        super(ptr);
         
         ptra = ptr;
 

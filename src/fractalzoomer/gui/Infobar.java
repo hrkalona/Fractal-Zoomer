@@ -1,5 +1,5 @@
 /*
- * Fractal Zoomer, Copyright (C) 2019 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2020 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -365,7 +365,7 @@ public class Infobar extends JToolBar {
 
         ButtonGroup palettes_group = new ButtonGroup();
         
-        JMenu paletteLegacyFractintMenu = new JMenu("Legacy FractInt Maps");
+        JMenu paletteLegacyFractintMenu = new JMenu("Legacy/FractInt Maps");
         paletteLegacyFractintMenu.setIcon(getIcon("/fractalzoomer/icons/palette.png"));
 
         for (i = 0; i < palette.length; i++) {
@@ -540,6 +540,7 @@ public class Infobar extends JToolBar {
         palette[33].setToolTipText("A legacy FractInt palette.");
         palette[34].setToolTipText("A legacy FractInt palette.");
         palette[35].setToolTipText("A legacy FractInt palette.");
+        palette[36].setToolTipText("A palette from QFractal.");
         
         palette[color_choice].setSelected(true);
         popup.show(e.getComponent(), e.getX(), e.getY());

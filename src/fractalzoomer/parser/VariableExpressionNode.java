@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2019 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2020 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +30,8 @@ public class VariableExpressionNode implements ExpressionNode
   private Complex value;
   /** indicates if the value has been set */
   private boolean valueSet;
+  /*The hash of the name, for optimization */
+  private int hash;
 
   /**
    * Construct with the name of the variable.
@@ -42,6 +44,7 @@ public class VariableExpressionNode implements ExpressionNode
     this.name = name;
     valueSet = false;
     value = new Complex();
+    hash = name.hashCode();
   }
 
   /**
@@ -50,6 +53,14 @@ public class VariableExpressionNode implements ExpressionNode
   public String getName()
   {
     return name;
+  }
+
+  /**
+   * @return the hash of the variable
+   */
+  public int getHash()
+  {
+    return hash;
   }
 
   /**

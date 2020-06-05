@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2019 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2020 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -29,6 +29,7 @@ import fractalzoomer.functions.ExtendedConvergentType;
 import fractalzoomer.functions.root_finding_methods.halley.HalleyRootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.householder.HouseholderRootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.laguerre.LaguerreRootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.midpoint.MidpointRootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.muller.MullerRootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.newton.NewtonRootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.newton_hines.NewtonHinesRootFindingMethod;
@@ -36,6 +37,11 @@ import fractalzoomer.functions.root_finding_methods.parhalley.ParhalleyRootFindi
 import fractalzoomer.functions.root_finding_methods.schroder.SchroderRootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.secant.SecantRootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.steffensen.SteffensenRootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.stirling.StirlingRootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.super_halley.SuperHalleyRootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.traub_ostrowski.TraubOstrowskiRootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.whittaker.WhittakerRootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.whittaker_double_convex.WhittakerDoubleConvexRootFindingMethod;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
 import fractalzoomer.main.app_settings.StatisticsSettings;
@@ -59,6 +65,10 @@ public class Nova extends ExtendedConvergentType {
         super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, false, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, ots);
 
         convergent_bailout = 1E-10;
+        
+        if(nova_method == MainWindow.NOVA_TRAUB_OSTROWSKI) {
+            convergent_bailout = 1E-8;
+        }
 
         this.nova_method = nova_method;
 
@@ -120,6 +130,10 @@ public class Nova extends ExtendedConvergentType {
         super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, false, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, ots, xJuliaCenter, yJuliaCenter);
 
         convergent_bailout = 1E-10;
+        
+        if(nova_method == MainWindow.NOVA_TRAUB_OSTROWSKI) {
+            convergent_bailout = 1E-8;
+        }
 
         this.nova_method = nova_method;
 
@@ -132,7 +146,7 @@ public class Nova extends ExtendedConvergentType {
         switch (out_coloring_algorithm) {
 
             case MainWindow.BINARY_DECOMPOSITION:
-                if (nova_method == MainWindow.NOVA_HALLEY || nova_method == MainWindow.NOVA_HOUSEHOLDER) {
+                if (nova_method == MainWindow.NOVA_HALLEY || nova_method == MainWindow.NOVA_HOUSEHOLDER || nova_method == MainWindow.NOVA_WHITTAKER || nova_method == MainWindow.NOVA_WHITTAKER_DOUBLE_CONVEX || nova_method == MainWindow.NOVA_SUPER_HALLEY) {
                     convergent_bailout = 1E-4;
                 } else if (nova_method == MainWindow.NOVA_NEWTON || nova_method == MainWindow.NOVA_STEFFENSEN) {
                     convergent_bailout = 1E-9;
@@ -141,7 +155,7 @@ public class Nova extends ExtendedConvergentType {
                 }
                 break;
             case MainWindow.BINARY_DECOMPOSITION2:
-                if (nova_method == MainWindow.NOVA_HALLEY || nova_method == MainWindow.NOVA_HOUSEHOLDER) {
+                if (nova_method == MainWindow.NOVA_HALLEY || nova_method == MainWindow.NOVA_HOUSEHOLDER || nova_method == MainWindow.NOVA_WHITTAKER || nova_method == MainWindow.NOVA_WHITTAKER_DOUBLE_CONVEX || nova_method == MainWindow.NOVA_SUPER_HALLEY) {
                     convergent_bailout = 1E-4;
                 } else if (nova_method == MainWindow.NOVA_NEWTON || nova_method == MainWindow.NOVA_STEFFENSEN) {
                     convergent_bailout = 1E-9;
@@ -150,7 +164,7 @@ public class Nova extends ExtendedConvergentType {
                 }
                 break;
             case MainWindow.BANDED:
-                if (nova_method == MainWindow.NOVA_HALLEY || nova_method == MainWindow.NOVA_HOUSEHOLDER) {
+                if (nova_method == MainWindow.NOVA_HALLEY || nova_method == MainWindow.NOVA_HOUSEHOLDER || nova_method == MainWindow.NOVA_WHITTAKER || nova_method == MainWindow.NOVA_WHITTAKER_DOUBLE_CONVEX || nova_method == MainWindow.NOVA_SUPER_HALLEY) {
                     convergent_bailout = 1E-4;
                 } else if (nova_method == MainWindow.NOVA_NEWTON || nova_method == MainWindow.NOVA_STEFFENSEN) {
                     convergent_bailout = 1E-9;
@@ -237,6 +251,7 @@ public class Nova extends ExtendedConvergentType {
         Complex dfz = null;
         Complex ddfz = null;
         Complex ffz = null;
+        Complex combined_dfz = null;
 
         if (z_exponent.getIm() == 0) {
             if (z_exponent.getRe() == 2) {
@@ -264,7 +279,7 @@ public class Nova extends ExtendedConvergentType {
             fz = complex[0].pow(z_exponent).sub_mutable(1);
         }
 
-        if (nova_method != MainWindow.NOVA_SECANT && nova_method != MainWindow.NOVA_MULLER) {
+        if (nova_method != MainWindow.NOVA_SECANT && nova_method != MainWindow.NOVA_STEFFENSEN && nova_method != MainWindow.NOVA_MULLER) {
             if (z_exponent.getIm() == 0) {
                 if (z_exponent.getRe() == 2) {
                     dfz = complex[0].times(2);
@@ -292,7 +307,7 @@ public class Nova extends ExtendedConvergentType {
             }
         }
 
-        if (nova_method == MainWindow.NOVA_HALLEY || nova_method == MainWindow.NOVA_SCHRODER || nova_method == MainWindow.NOVA_HOUSEHOLDER || nova_method == MainWindow.NOVA_PARHALLEY || nova_method == MainWindow.NOVA_LAGUERRE) {
+        if (nova_method == MainWindow.NOVA_HALLEY || nova_method == MainWindow.NOVA_SCHRODER || nova_method == MainWindow.NOVA_HOUSEHOLDER || nova_method == MainWindow.NOVA_PARHALLEY || nova_method == MainWindow.NOVA_LAGUERRE || nova_method == MainWindow.NOVA_WHITTAKER || nova_method == MainWindow.NOVA_WHITTAKER_DOUBLE_CONVEX || nova_method == MainWindow.NOVA_SUPER_HALLEY) {
             if (z_exponent.getIm() == 0) {
                 if (z_exponent.getRe() == 2) {
                     ddfz = new Complex(2, 0);
@@ -320,10 +335,17 @@ public class Nova extends ExtendedConvergentType {
             }
         }
 
-        if (nova_method == MainWindow.NOVA_STEFFENSEN) {
+        if (nova_method == MainWindow.NOVA_STEFFENSEN || nova_method == MainWindow.NOVA_TRAUB_OSTROWSKI) {
 
-            Complex temp = complex[0].plus(fz);
-
+            Complex temp;
+            
+            if(nova_method == MainWindow.NOVA_STEFFENSEN) {
+                temp = SteffensenRootFindingMethod.getFunctionArgument(complex[0], fz);
+            }
+            else {
+                temp = TraubOstrowskiRootFindingMethod.getFunctionArgument(complex[0], fz, dfz);
+            }
+            
             if (z_exponent.getIm() == 0) {
                 if (z_exponent.getRe() == 2) {
                     ffz = temp.square_mutable().sub_mutable(1);
@@ -348,6 +370,42 @@ public class Nova extends ExtendedConvergentType {
                 }
             } else {
                 ffz = temp.pow(z_exponent).sub_mutable(1);
+            }
+        }
+        else if (nova_method == MainWindow.NOVA_MIDPOINT || nova_method == MainWindow.NOVA_STIRLING) {
+            Complex temp;
+            
+            if(nova_method == MainWindow.NOVA_MIDPOINT) {
+                temp = MidpointRootFindingMethod.getDerivativeArgument(complex[0], fz, dfz);
+            }
+            else {
+                temp = StirlingRootFindingMethod.getDerivativeArgument(complex[0], fz);
+            }
+            
+            if (z_exponent.getIm() == 0) {
+                if (z_exponent.getRe() == 2) {
+                    combined_dfz = temp.times(2);
+                } else if (z_exponent.getRe() == 3) {
+                    combined_dfz = temp.square().times_mutable(3);
+                } else if (z_exponent.getRe() == 4) {
+                    combined_dfz = temp.cube().times_mutable(4);
+                } else if (z_exponent.getRe() == 5) {
+                    combined_dfz = temp.fourth().times_mutable(5);
+                } else if (z_exponent.getRe() == 6) {
+                    combined_dfz = temp.fifth().times_mutable(6);
+                } else if (z_exponent.getRe() == 7) {
+                    combined_dfz = temp.sixth().times_mutable(7);
+                } else if (z_exponent.getRe() == 8) {
+                    combined_dfz = temp.seventh().times_mutable(8);
+                } else if (z_exponent.getRe() == 9) {
+                    combined_dfz = temp.eighth().times_mutable(9);
+                } else if (z_exponent.getRe() == 10) {
+                    combined_dfz = temp.ninth().times_mutable(10);
+                } else {
+                    combined_dfz = temp.pow(z_exponent.getRe() - 1).times_mutable(z_exponent.getRe());
+                }
+            } else {
+                combined_dfz = temp.pow(z_exponent.sub(1)).times_mutable(z_exponent);
             }
         }
 
@@ -383,6 +441,24 @@ public class Nova extends ExtendedConvergentType {
             case MainWindow.NOVA_NEWTON_HINES:
                 NewtonHinesRootFindingMethod.newtonHinesMethod(complex[0], fz, dfz, newtonHinesK, relaxation).plus_mutable(complex[1]);
                 break;
+            case MainWindow.NOVA_WHITTAKER:
+                WhittakerRootFindingMethod.whittakerMethod(complex[0], fz, dfz, ddfz, relaxation).plus_mutable(complex[1]);
+                break;
+            case MainWindow.NOVA_WHITTAKER_DOUBLE_CONVEX:
+                WhittakerDoubleConvexRootFindingMethod.whittakerDoubleConvexMethod(complex[0], fz, dfz, ddfz, relaxation).plus_mutable(complex[1]);
+                break;
+            case MainWindow.NOVA_SUPER_HALLEY:
+                SuperHalleyRootFindingMethod.superHalleyMethod(complex[0], fz, dfz, ddfz, relaxation).plus_mutable(complex[1]);
+                break;
+            case MainWindow.NOVA_MIDPOINT:
+                MidpointRootFindingMethod.midpointMethod(complex[0], fz, combined_dfz, relaxation).plus_mutable(complex[1]);
+                break;
+            case MainWindow.NOVA_TRAUB_OSTROWSKI:
+                TraubOstrowskiRootFindingMethod.traubOstrowskiMethod(complex[0], fz, dfz, ffz, relaxation).plus_mutable(complex[1]);
+                break;
+            case MainWindow.NOVA_STIRLING:
+                StirlingRootFindingMethod.stirlingMethod(complex[0], fz, combined_dfz, relaxation).plus_mutable(complex[1]);
+                break;              
 
         }
 

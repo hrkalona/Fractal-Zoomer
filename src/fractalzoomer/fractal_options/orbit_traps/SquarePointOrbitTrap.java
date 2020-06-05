@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 hrkalona
+ * Copyright (C) 2020 hrkalona
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,9 +20,9 @@ import fractalzoomer.core.Complex;
 
 public class SquarePointOrbitTrap extends OrbitTrap {
 
-    public SquarePointOrbitTrap(double pointRe, double pointIm, double trapLength, double trapWidth) {
+    public SquarePointOrbitTrap(double pointRe, double pointIm, double trapLength, double trapWidth, boolean countTrapIterations) {
 
-        super(pointRe, pointIm, trapLength, trapWidth);
+        super(pointRe, pointIm, trapLength, trapWidth, countTrapIterations);
  
     }
 

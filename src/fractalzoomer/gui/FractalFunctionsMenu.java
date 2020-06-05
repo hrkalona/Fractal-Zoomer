@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2019 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2020 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,6 +50,10 @@ public class FractalFunctionsMenu extends JMenu {
     private JMenu durand_kerner_type_functions;
     private JMenu bairstow_type_functions;
     private JMenu newton_hines_type_functions;
+    private JMenu root_finding_functions2;
+    private JMenu whittaker_type_functions;
+    private JMenu whittaker_double_convex_type_functions;
+    private JMenu super_halley_type_functions;
     private JMenu lambda_type_functions;
     private JMenu barnsley_type_functions;
     private JMenu szegedi_butterfly_type_functions;
@@ -260,6 +264,30 @@ public class FractalFunctionsMenu extends JMenu {
         functionNames[MainWindow.NEWTON_HINESCOS] = "Newton-Hines Cos";
         functionNames[MainWindow.NEWTON_HINESPOLY] = "Newton-Hines Polynomial";
         functionNames[MainWindow.NEWTON_HINESFORMULA] = "Newton-Hines Formula";
+        functionNames[MainWindow.WHITTAKER3] = "Whittaker 3";
+        functionNames[MainWindow.WHITTAKER4] = "Whittaker 4";
+        functionNames[MainWindow.WHITTAKERGENERALIZED3] = "Whittaker Generalized 3";
+        functionNames[MainWindow.WHITTAKERGENERALIZED8] = "Whittaker Generalized 8";
+        functionNames[MainWindow.WHITTAKERSIN] = "Whittaker Sin";
+        functionNames[MainWindow.WHITTAKERCOS] = "Whittaker Cos";
+        functionNames[MainWindow.WHITTAKERPOLY] = "Whittaker Polynomial";
+        functionNames[MainWindow.WHITTAKERFORMULA] = "Whittaker Formula";
+        functionNames[MainWindow.WHITTAKERDOUBLECONVEX3] = "Whittaker Double Convex 3";
+        functionNames[MainWindow.WHITTAKERDOUBLECONVEX4] = "Whittaker Double Convex 4";
+        functionNames[MainWindow.WHITTAKERDOUBLECONVEXGENERALIZED3] = "Whittaker Double Convex Generalized 3";
+        functionNames[MainWindow.WHITTAKERDOUBLECONVEXGENERALIZED8] = "Whittaker Double Convex Generalized 8";
+        functionNames[MainWindow.WHITTAKERDOUBLECONVEXSIN] = "Whittaker Double Convex Sin";
+        functionNames[MainWindow.WHITTAKERDOUBLECONVEXCOS] = "Whittaker Double Convex Cos";
+        functionNames[MainWindow.WHITTAKERDOUBLECONVEXPOLY] = "Whittaker Double Convex Polynomial";
+        functionNames[MainWindow.WHITTAKERDOUBLECONVEXFORMULA] = "Whittaker Double Convex Formula";
+        functionNames[MainWindow.SUPERHALLEY3] = "Super Halley 3";
+        functionNames[MainWindow.SUPERHALLEY4] = "Super Halley 4";
+        functionNames[MainWindow.SUPERHALLEYGENERALIZED3] = "Super Halley Generalized 3";
+        functionNames[MainWindow.SUPERHALLEYGENERALIZED8] = "Super Halley Generalized 8";
+        functionNames[MainWindow.SUPERHALLEYSIN] = "Super Halley Sin";
+        functionNames[MainWindow.SUPERHALLEYCOS] = "Super Halley Cos";
+        functionNames[MainWindow.SUPERHALLEYPOLY] = "Super Halley Polynomial";
+        functionNames[MainWindow.SUPERHALLEYFORMULA] = "Super Halley Formula";
  
     }
 
@@ -287,6 +315,11 @@ public class FractalFunctionsMenu extends JMenu {
         durand_kerner_type_functions = new JMenu("Durand/Kerner Method");
         bairstow_type_functions = new JMenu("Bairstow Method");
         newton_hines_type_functions = new JMenu("Newton-Hines Method");
+        
+        root_finding_functions2 = new JMenu("Root Finding Methods (2)");
+        whittaker_type_functions = new JMenu("Whittaker Method");
+        whittaker_double_convex_type_functions = new JMenu("Whittaker Double Convex Method");
+        super_halley_type_functions = new JMenu("Super Halley Method");
 
         barnsley_type_functions = new JMenu("Barnsley Type");
         
@@ -1172,8 +1205,16 @@ public class FractalFunctionsMenu extends JMenu {
         root_finding_functions.add(bairstow_type_functions);
         root_finding_functions.addSeparator();
         root_finding_functions.add(newton_hines_type_functions);
+        
+        
+        root_finding_functions2.add(whittaker_type_functions);
+        root_finding_functions2.addSeparator();
+        root_finding_functions2.add(whittaker_double_convex_type_functions);
+        root_finding_functions2.addSeparator();
+        root_finding_functions2.add(super_halley_type_functions);
 
         add(root_finding_functions);
+        add(root_finding_functions2);
         addSeparator();
 
         fractal_functions[MainWindow.BARNSLEY1] = new JRadioButtonMenuItem(functionNames[MainWindow.BARNSLEY1]);
@@ -2785,6 +2826,319 @@ public class FractalFunctionsMenu extends JMenu {
         });
         newton_hines_type_functions.add(fractal_functions[MainWindow.NEWTON_HINESFORMULA]);
         functions_button_group.add(fractal_functions[MainWindow.NEWTON_HINESFORMULA]);
+        
+        
+        fractal_functions[MainWindow.WHITTAKER3] = new JRadioButtonMenuItem(functionNames[MainWindow.WHITTAKER3]);
+        fractal_functions[MainWindow.WHITTAKER3].addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFunction(MainWindow.WHITTAKER3);
+
+            }
+        });
+        whittaker_type_functions.add(fractal_functions[MainWindow.WHITTAKER3]);
+        functions_button_group.add(fractal_functions[MainWindow.WHITTAKER3]);
+
+        fractal_functions[MainWindow.WHITTAKER4] = new JRadioButtonMenuItem(functionNames[MainWindow.WHITTAKER4]);
+        fractal_functions[MainWindow.WHITTAKER4].addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFunction(MainWindow.WHITTAKER4);
+
+            }
+        });
+        whittaker_type_functions.add(fractal_functions[MainWindow.WHITTAKER4]);
+        functions_button_group.add(fractal_functions[MainWindow.WHITTAKER4]);
+
+        fractal_functions[MainWindow.WHITTAKERGENERALIZED3] = new JRadioButtonMenuItem(functionNames[MainWindow.WHITTAKERGENERALIZED3]);
+        fractal_functions[MainWindow.WHITTAKERGENERALIZED3].addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFunction(MainWindow.WHITTAKERGENERALIZED3);
+
+            }
+        });
+        whittaker_type_functions.add(fractal_functions[MainWindow.WHITTAKERGENERALIZED3]);
+        functions_button_group.add(fractal_functions[MainWindow.WHITTAKERGENERALIZED3]);
+
+        fractal_functions[MainWindow.WHITTAKERGENERALIZED8] = new JRadioButtonMenuItem(functionNames[MainWindow.WHITTAKERGENERALIZED8]);
+        fractal_functions[MainWindow.WHITTAKERGENERALIZED8].addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFunction(MainWindow.WHITTAKERGENERALIZED8);
+
+            }
+        });
+        whittaker_type_functions.add(fractal_functions[MainWindow.WHITTAKERGENERALIZED8]);
+        functions_button_group.add(fractal_functions[MainWindow.WHITTAKERGENERALIZED8]);
+
+        fractal_functions[MainWindow.WHITTAKERSIN] = new JRadioButtonMenuItem(functionNames[MainWindow.WHITTAKERSIN]);
+        fractal_functions[MainWindow.WHITTAKERSIN].addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFunction(MainWindow.WHITTAKERSIN);
+
+            }
+        });
+        whittaker_type_functions.add(fractal_functions[MainWindow.WHITTAKERSIN]);
+        functions_button_group.add(fractal_functions[MainWindow.WHITTAKERSIN]);
+
+        fractal_functions[MainWindow.WHITTAKERCOS] = new JRadioButtonMenuItem(functionNames[MainWindow.WHITTAKERCOS]);
+        fractal_functions[MainWindow.WHITTAKERCOS].addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFunction(MainWindow.WHITTAKERCOS);
+
+            }
+        });
+        whittaker_type_functions.add(fractal_functions[MainWindow.WHITTAKERCOS]);
+        functions_button_group.add(fractal_functions[MainWindow.WHITTAKERCOS]);
+
+        fractal_functions[MainWindow.WHITTAKERPOLY] = new JRadioButtonMenuItem(functionNames[MainWindow.WHITTAKERPOLY]);
+        fractal_functions[MainWindow.WHITTAKERPOLY].addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFunction(MainWindow.WHITTAKERPOLY);
+
+            }
+        });
+        whittaker_type_functions.add(fractal_functions[MainWindow.WHITTAKERPOLY]);
+        functions_button_group.add(fractal_functions[MainWindow.WHITTAKERPOLY]);
+
+        fractal_functions[MainWindow.WHITTAKERFORMULA] = new JRadioButtonMenuItem(functionNames[MainWindow.WHITTAKERFORMULA]);
+        fractal_functions[MainWindow.WHITTAKERFORMULA].addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFunction(MainWindow.WHITTAKERFORMULA);
+
+            }
+        });
+        whittaker_type_functions.add(fractal_functions[MainWindow.WHITTAKERFORMULA]);
+        functions_button_group.add(fractal_functions[MainWindow.WHITTAKERFORMULA]);
+        
+        fractal_functions[MainWindow.WHITTAKERDOUBLECONVEX3] = new JRadioButtonMenuItem(functionNames[MainWindow.WHITTAKERDOUBLECONVEX3]);
+        fractal_functions[MainWindow.WHITTAKERDOUBLECONVEX3].addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFunction(MainWindow.WHITTAKERDOUBLECONVEX3);
+
+            }
+        });
+        whittaker_double_convex_type_functions.add(fractal_functions[MainWindow.WHITTAKERDOUBLECONVEX3]);
+        functions_button_group.add(fractal_functions[MainWindow.WHITTAKERDOUBLECONVEX3]);
+
+        fractal_functions[MainWindow.WHITTAKERDOUBLECONVEX4] = new JRadioButtonMenuItem(functionNames[MainWindow.WHITTAKERDOUBLECONVEX4]);
+        fractal_functions[MainWindow.WHITTAKERDOUBLECONVEX4].addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFunction(MainWindow.WHITTAKERDOUBLECONVEX4);
+
+            }
+        });
+        whittaker_double_convex_type_functions.add(fractal_functions[MainWindow.WHITTAKERDOUBLECONVEX4]);
+        functions_button_group.add(fractal_functions[MainWindow.WHITTAKERDOUBLECONVEX4]);
+
+        fractal_functions[MainWindow.WHITTAKERDOUBLECONVEXGENERALIZED3] = new JRadioButtonMenuItem(functionNames[MainWindow.WHITTAKERDOUBLECONVEXGENERALIZED3]);
+        fractal_functions[MainWindow.WHITTAKERDOUBLECONVEXGENERALIZED3].addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFunction(MainWindow.WHITTAKERDOUBLECONVEXGENERALIZED3);
+
+            }
+        });
+        whittaker_double_convex_type_functions.add(fractal_functions[MainWindow.WHITTAKERDOUBLECONVEXGENERALIZED3]);
+        functions_button_group.add(fractal_functions[MainWindow.WHITTAKERDOUBLECONVEXGENERALIZED3]);
+
+        fractal_functions[MainWindow.WHITTAKERDOUBLECONVEXGENERALIZED8] = new JRadioButtonMenuItem(functionNames[MainWindow.WHITTAKERDOUBLECONVEXGENERALIZED8]);
+        fractal_functions[MainWindow.WHITTAKERDOUBLECONVEXGENERALIZED8].addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFunction(MainWindow.WHITTAKERDOUBLECONVEXGENERALIZED8);
+
+            }
+        });
+        whittaker_double_convex_type_functions.add(fractal_functions[MainWindow.WHITTAKERDOUBLECONVEXGENERALIZED8]);
+        functions_button_group.add(fractal_functions[MainWindow.WHITTAKERDOUBLECONVEXGENERALIZED8]);
+
+        fractal_functions[MainWindow.WHITTAKERDOUBLECONVEXSIN] = new JRadioButtonMenuItem(functionNames[MainWindow.WHITTAKERDOUBLECONVEXSIN]);
+        fractal_functions[MainWindow.WHITTAKERDOUBLECONVEXSIN].addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFunction(MainWindow.WHITTAKERDOUBLECONVEXSIN);
+
+            }
+        });
+        whittaker_double_convex_type_functions.add(fractal_functions[MainWindow.WHITTAKERDOUBLECONVEXSIN]);
+        functions_button_group.add(fractal_functions[MainWindow.WHITTAKERDOUBLECONVEXSIN]);
+
+        fractal_functions[MainWindow.WHITTAKERDOUBLECONVEXCOS] = new JRadioButtonMenuItem(functionNames[MainWindow.WHITTAKERDOUBLECONVEXCOS]);
+        fractal_functions[MainWindow.WHITTAKERDOUBLECONVEXCOS].addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFunction(MainWindow.WHITTAKERDOUBLECONVEXCOS);
+
+            }
+        });
+        whittaker_double_convex_type_functions.add(fractal_functions[MainWindow.WHITTAKERDOUBLECONVEXCOS]);
+        functions_button_group.add(fractal_functions[MainWindow.WHITTAKERDOUBLECONVEXCOS]);
+
+        fractal_functions[MainWindow.WHITTAKERDOUBLECONVEXPOLY] = new JRadioButtonMenuItem(functionNames[MainWindow.WHITTAKERDOUBLECONVEXPOLY]);
+        fractal_functions[MainWindow.WHITTAKERDOUBLECONVEXPOLY].addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFunction(MainWindow.WHITTAKERDOUBLECONVEXPOLY);
+
+            }
+        });
+        whittaker_double_convex_type_functions.add(fractal_functions[MainWindow.WHITTAKERDOUBLECONVEXPOLY]);
+        functions_button_group.add(fractal_functions[MainWindow.WHITTAKERDOUBLECONVEXPOLY]);
+
+        fractal_functions[MainWindow.WHITTAKERDOUBLECONVEXFORMULA] = new JRadioButtonMenuItem(functionNames[MainWindow.WHITTAKERDOUBLECONVEXFORMULA]);
+        fractal_functions[MainWindow.WHITTAKERDOUBLECONVEXFORMULA].addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFunction(MainWindow.WHITTAKERDOUBLECONVEXFORMULA);
+
+            }
+        });
+        whittaker_double_convex_type_functions.add(fractal_functions[MainWindow.WHITTAKERDOUBLECONVEXFORMULA]);
+        functions_button_group.add(fractal_functions[MainWindow.WHITTAKERDOUBLECONVEXFORMULA]);
+        
+        fractal_functions[MainWindow.SUPERHALLEY3] = new JRadioButtonMenuItem(functionNames[MainWindow.SUPERHALLEY3]);
+        fractal_functions[MainWindow.SUPERHALLEY3].addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFunction(MainWindow.SUPERHALLEY3);
+
+            }
+        });
+        super_halley_type_functions.add(fractal_functions[MainWindow.SUPERHALLEY3]);
+        functions_button_group.add(fractal_functions[MainWindow.SUPERHALLEY3]);
+
+        fractal_functions[MainWindow.SUPERHALLEY4] = new JRadioButtonMenuItem(functionNames[MainWindow.SUPERHALLEY4]);
+        fractal_functions[MainWindow.SUPERHALLEY4].addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFunction(MainWindow.SUPERHALLEY4);
+
+            }
+        });
+        super_halley_type_functions.add(fractal_functions[MainWindow.SUPERHALLEY4]);
+        functions_button_group.add(fractal_functions[MainWindow.SUPERHALLEY4]);
+
+        fractal_functions[MainWindow.SUPERHALLEYGENERALIZED3] = new JRadioButtonMenuItem(functionNames[MainWindow.SUPERHALLEYGENERALIZED3]);
+        fractal_functions[MainWindow.SUPERHALLEYGENERALIZED3].addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFunction(MainWindow.SUPERHALLEYGENERALIZED3);
+
+            }
+        });
+        super_halley_type_functions.add(fractal_functions[MainWindow.SUPERHALLEYGENERALIZED3]);
+        functions_button_group.add(fractal_functions[MainWindow.SUPERHALLEYGENERALIZED3]);
+
+        fractal_functions[MainWindow.SUPERHALLEYGENERALIZED8] = new JRadioButtonMenuItem(functionNames[MainWindow.SUPERHALLEYGENERALIZED8]);
+        fractal_functions[MainWindow.SUPERHALLEYGENERALIZED8].addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFunction(MainWindow.SUPERHALLEYGENERALIZED8);
+
+            }
+        });
+        super_halley_type_functions.add(fractal_functions[MainWindow.SUPERHALLEYGENERALIZED8]);
+        functions_button_group.add(fractal_functions[MainWindow.SUPERHALLEYGENERALIZED8]);
+
+        fractal_functions[MainWindow.SUPERHALLEYSIN] = new JRadioButtonMenuItem(functionNames[MainWindow.SUPERHALLEYSIN]);
+        fractal_functions[MainWindow.SUPERHALLEYSIN].addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFunction(MainWindow.SUPERHALLEYSIN);
+
+            }
+        });
+        super_halley_type_functions.add(fractal_functions[MainWindow.SUPERHALLEYSIN]);
+        functions_button_group.add(fractal_functions[MainWindow.SUPERHALLEYSIN]);
+
+        fractal_functions[MainWindow.SUPERHALLEYCOS] = new JRadioButtonMenuItem(functionNames[MainWindow.SUPERHALLEYCOS]);
+        fractal_functions[MainWindow.SUPERHALLEYCOS].addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFunction(MainWindow.SUPERHALLEYCOS);
+
+            }
+        });
+        super_halley_type_functions.add(fractal_functions[MainWindow.SUPERHALLEYCOS]);
+        functions_button_group.add(fractal_functions[MainWindow.SUPERHALLEYCOS]);
+
+        fractal_functions[MainWindow.SUPERHALLEYPOLY] = new JRadioButtonMenuItem(functionNames[MainWindow.SUPERHALLEYPOLY]);
+        fractal_functions[MainWindow.SUPERHALLEYPOLY].addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFunction(MainWindow.SUPERHALLEYPOLY);
+
+            }
+        });
+        super_halley_type_functions.add(fractal_functions[MainWindow.SUPERHALLEYPOLY]);
+        functions_button_group.add(fractal_functions[MainWindow.SUPERHALLEYPOLY]);
+
+        fractal_functions[MainWindow.SUPERHALLEYFORMULA] = new JRadioButtonMenuItem(functionNames[MainWindow.SUPERHALLEYFORMULA]);
+        fractal_functions[MainWindow.SUPERHALLEYFORMULA].addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFunction(MainWindow.SUPERHALLEYFORMULA);
+
+            }
+        });
+        super_halley_type_functions.add(fractal_functions[MainWindow.SUPERHALLEYFORMULA]);
+        functions_button_group.add(fractal_functions[MainWindow.SUPERHALLEYFORMULA]);
 
         burning_ship_opt.addActionListener(new ActionListener() {
 

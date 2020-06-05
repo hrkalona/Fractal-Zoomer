@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2019 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2020 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@ public class SetVariable implements ExpressionNodeVisitor
 
   private String name;
   private Complex value;
+  private int hash;
 
   /**
    * Construct the visitor with the name and the value of the variable to set
@@ -41,6 +42,11 @@ public class SetVariable implements ExpressionNodeVisitor
     super();
     this.name = name;
     this.value = value;
+    hash = name.hashCode();
+  }
+
+  public void setValue(Complex value) {
+    this.value = value;
   }
 
   /**
@@ -50,7 +56,8 @@ public class SetVariable implements ExpressionNodeVisitor
   @Override
   public void visit(VariableExpressionNode node)
   {
-    if (node.getName().equals(name))
+    //if (node.getName().equals(name))
+    if(node.getHash() == hash)
       node.setValue(new Complex(value));
   }
 
@@ -111,6 +118,11 @@ public class SetVariable implements ExpressionNodeVisitor
   /** Do nothing */
   @Override
   public void visit(NoArgumentExpressionNode node)
+  {}
+
+  /** Do nothing */
+  @Override
+  public void visit(FunctionDerivative2ArgumentsExpressionNode node)
   {}
 
 }

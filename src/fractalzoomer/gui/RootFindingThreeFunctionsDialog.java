@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 hrkalona2
+ * Copyright (C) 2020 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,6 +22,9 @@ import static fractalzoomer.main.Constants.HALLEYFORMULA;
 import static fractalzoomer.main.Constants.HOUSEHOLDERFORMULA;
 import static fractalzoomer.main.Constants.PARHALLEYFORMULA;
 import static fractalzoomer.main.Constants.SCHRODERFORMULA;
+import static fractalzoomer.main.Constants.SUPERHALLEYFORMULA;
+import static fractalzoomer.main.Constants.WHITTAKERDOUBLECONVEXFORMULA;
+import static fractalzoomer.main.Constants.WHITTAKERFORMULA;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
 import fractalzoomer.parser.ParserException;
@@ -52,7 +55,7 @@ public class RootFindingThreeFunctionsDialog extends JDialog {
 
     public RootFindingThreeFunctionsDialog(MainWindow ptr, Settings s, int oldSelected, JRadioButtonMenuItem[] fractal_functions, boolean wasMagnetType, boolean wasConvergingType, boolean wasSimpleType, boolean wasMagneticPendulumType) {
 
-        super();
+        super(ptr);
         
         ptra = ptr;
 
@@ -66,6 +69,15 @@ public class RootFindingThreeFunctionsDialog extends JDialog {
             title = "Householder Formula";
         } else if (s.fns.function == PARHALLEYFORMULA) {
             title = "Parhalley Formula";
+        }
+        else if (s.fns.function == WHITTAKERFORMULA) {
+            title = "Whittaker Formula";
+        }
+        else if (s.fns.function == WHITTAKERDOUBLECONVEXFORMULA) {
+            title = "Whittaker Double Convex Formula";
+        }
+        else if (s.fns.function == SUPERHALLEYFORMULA) {
+            title = "Super Halley Formula";
         }
 
         setTitle(title);
@@ -116,6 +128,15 @@ public class RootFindingThreeFunctionsDialog extends JDialog {
             imagelabel41.setIcon(getIcon("/fractalzoomer/icons/householder.png"));
         } else if (s.fns.function == PARHALLEYFORMULA) {
             imagelabel41.setIcon(getIcon("/fractalzoomer/icons/parhalley.png"));
+        }
+        else if (s.fns.function == WHITTAKERFORMULA) {
+            imagelabel41.setIcon(getIcon("/fractalzoomer/icons/whittaker.png"));
+        }
+        else if (s.fns.function == WHITTAKERDOUBLECONVEXFORMULA) {
+            imagelabel41.setIcon(getIcon("/fractalzoomer/icons/whittaker_double_convex.png"));
+        }
+        else if (s.fns.function == SUPERHALLEYFORMULA) {
+            imagelabel41.setIcon(getIcon("/fractalzoomer/icons/super_halley.png"));
         }
 
         JPanel imagepanel41 = new JPanel();

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 hrkalona
+ * Copyright (C) 2020 hrkalona
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,37 +22,84 @@ package fractalzoomer.core;
  */
 public class Derivative {
     public static final int DISABLED = 0;
-    public static final int NUMERICAL = 1;
-    public static final int NUMERICAL_SYMMETRICAL = 2;
+    public static final int NUMERICAL_FORWARD = 1;
+    public static final int NUMERICAL_CENTRAL = 2;
+    public static final int NUMERICAL_BACKWARD = 3;
 
-    public static final Complex DZ = new Complex(1e-4, 1e-4);
+    public static final Complex DZ = new Complex(1e-4 * 0.5, 1e-4 * 0.5);
     public static final Complex DZ_2 = DZ.times(2);
+    public static final Complex DZ_3 = DZ.times(3);
+
+    public static final Complex DZ_1_2 = DZ.times(0.5);
+    public static final Complex DZ_3_2 = DZ.times(1.5);
+
     public static final Complex INV_DZ = DZ.r_divide(1);
     public static final Complex INV_DZ_2 = DZ_2.r_divide(1);
     public static final Complex INV_DZ_SQUARED = DZ.square().r_divide(1);
+    public static final Complex INV_DZ_CUBED = DZ.cube().r_divide(1);
+
     public static int DERIVATIVE_METHOD;
 
-    public static Complex numericalDerivativeFirstOrder(Complex fz, Complex fzdz) {
+    //Parameters: f(z), f(z + dz)
+    public static Complex numericalForwardDerivativeFirstOrder(Complex fz, Complex fzdz) {
 
         return fzdz.sub(fz).times_mutable(INV_DZ);
 
     }
 
-    public static Complex numericalDerivativeSymmetricFirstOrder(Complex fzdz, Complex fzmdz) {
+    //Parameters: f(z + dz), f(z - dz)
+    public static Complex numericalCentralDerivativeFirstOrder(Complex fzdz, Complex fzmdz) {
 
         return fzdz.sub(fzmdz).times_mutable(INV_DZ_2);
 
     }
 
-    public static Complex numericalDerivativeSecondOrder(Complex fz, Complex fzdz, Complex fz2dz) {
+    //Parameters: f(z), f(z - dz)
+    public static Complex numericalBackwardDerivativeFirstOrder(Complex fz, Complex fzmdz) {
+
+        return fz.sub(fzmdz).times_mutable(INV_DZ);
+
+    }
+
+    //Parameters: f(z), f(z + dz), f(z + 2 * dz)
+    public static Complex numericalForwardDerivativeSecondOrder(Complex fz, Complex fzdz, Complex fz2dz) {
 
         return fz.sub(fzdz.times(2)).plus_mutable(fz2dz).times_mutable(INV_DZ_SQUARED);
 
     }
 
-    public static Complex numericalDerivativeSymmetricSecondOrder(Complex fz, Complex fzdz, Complex fzmdz) {
+    //Parameters: f(z), f(z + dz), f(z - dz)
+    public static Complex numericalCentralDerivativeSecondOrder(Complex fz, Complex fzdz, Complex fzmdz) {
 
         return fzdz.sub(fz.times(2)).plus_mutable(fzmdz).times_mutable(INV_DZ_SQUARED);
+
+    }
+
+    //Parameters: f(z), f(z - dz), f(z - 2 * dz)
+    public static Complex numericalBackwardDerivativeSecondOrder(Complex fz, Complex fzmdz, Complex fzm2dz) {
+
+        return fz.sub(fzmdz.times(2)).plus_mutable(fzm2dz).times_mutable(INV_DZ_SQUARED);
+
+    }
+
+    //Parameters: f(z), f(z + dz), f(z + 2 * dz), f(z + 3 * dz)
+    public static Complex numericalForwardDerivativeThirdOrder(Complex fz, Complex fzdz, Complex fz2dz, Complex fz3dz) {
+
+        return fz3dz.sub(fz2dz.times(3)).plus_mutable(fzdz.times(3)).sub_mutable(fz).times_mutable(INV_DZ_CUBED);
+
+    }
+
+    //Parameters: f(z), f(z - dz), f(z - 2 * dz), f(z - 3 * dz)
+    public static Complex numericalBackwardDerivativeThirdOrder(Complex fz, Complex fzmdz, Complex fzm2dz, Complex fzm3dz) {
+
+        return fz.sub(fzmdz.times(3)).plus_mutable(fzm2dz.times(3)).sub_mutable(fzm3dz).times_mutable(INV_DZ_CUBED);
+
+    }
+
+    //Parameters: f(z + 1.5 * dz), f(z + 0.5 * dz), f(z - 0.5 * dz), f(z - 1.5 * dz)
+    public static Complex numericalCentralDerivativeThirdOrder(Complex fz3_2dz, Complex fz1_2dz, Complex fzm1_2dz, Complex fzm3_2dz) {
+
+        return fz3_2dz.sub(fz1_2dz.times(3)).plus_mutable(fzm1_2dz.times(3)).sub_mutable(fzm3_2dz).times_mutable(INV_DZ_CUBED);
 
     }
 }

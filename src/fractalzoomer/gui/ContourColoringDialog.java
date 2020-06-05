@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 hrkalona2
+ * Copyright (C) 2020 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,7 +50,7 @@ public class ContourColoringDialog extends JDialog {
 
     public ContourColoringDialog(MainWindow ptr, Settings s, boolean greedy_algorithm, boolean julia_map) {
 
-        super();
+        super(ptr);
         
         ptra = ptr;
 
@@ -156,7 +156,7 @@ public class ContourColoringDialog extends JDialog {
                         double temp2 = Double.parseDouble(noise_factor_field.getText());
 
                         if (temp2 <= 0) {
-                            JOptionPane.showMessageDialog(ptra, "The noise reduction factor must be greater that 0.", "Error!", JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.showMessageDialog(ptra, "The noise reduction factor must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
                             return;
                         }
 

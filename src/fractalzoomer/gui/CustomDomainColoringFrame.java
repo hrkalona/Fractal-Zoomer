@@ -1,5 +1,5 @@
 /*
- * Fractal Zoomer, Copyright (C) 2019 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2020 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -101,7 +101,7 @@ public class CustomDomainColoringFrame extends JFrame {
 
         ptra2.setEnabled(false);
         int custom_palette_window_width = 890;
-        int custom_palette_window_height = 630;
+        int custom_palette_window_height = 660;
         setTitle("Custom Domain Coloring");
         setIconImage(getIcon("/fractalzoomer/icons/domain_coloring.png").getImage());
         setSize(custom_palette_window_width, custom_palette_window_height);
@@ -120,7 +120,7 @@ public class CustomDomainColoringFrame extends JFrame {
 
         JPanel domain_coloring_panel = new JPanel();
 
-        domain_coloring_panel.setPreferredSize(new Dimension(790, 495));
+        domain_coloring_panel.setPreferredSize(new Dimension(790, 525));
         domain_coloring_panel.setLayout(new FlowLayout());
         domain_coloring_panel.setBackground(MainWindow.bg_color);
 
@@ -147,6 +147,11 @@ public class CustomDomainColoringFrame extends JFrame {
         gridAlgorithm_opt.setSelectedIndex(ds.gridAlgorithm);
         gridAlgorithm_opt.setFocusable(false);
         gridAlgorithm_opt.setToolTipText("Sets the grid algorithm.");
+        
+        final JComboBox combineAlgorithm_opt = new JComboBox(Constants.combineAlgorithms);
+        combineAlgorithm_opt.setSelectedIndex(ds.combineType);
+        combineAlgorithm_opt.setFocusable(false);
+        combineAlgorithm_opt.setToolTipText("Sets the combining algorithm.");
 
         DefaultListModel<String> m = new DefaultListModel<>();
         for(int i = 0; i < ds.domainOrder.length; i++) {
@@ -248,10 +253,18 @@ public class CustomDomainColoringFrame extends JFrame {
         p2.add(gridAlgorithm_opt);
         p2.add(new JLabel("  Order: "));
         p2.add(scroll_pane);
+        
+        JPanel p7 = new JPanel();
+        p7.setLayout(new FlowLayout());
+        p7.setBackground(MainWindow.bg_color);
+        p7.setPreferredSize(new Dimension(300, 30));
    
+        p7.add(new JLabel("Combine Algorithm: "));
+        p7.add(combineAlgorithm_opt);
         
         general_settings_panel.add(p1);       
         general_settings_panel.add(p2);
+        general_settings_panel.add(p7);
 
         general_settings_panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "General Settings", TitledBorder.DEFAULT_POSITION, TitledBorder.DEFAULT_POSITION));
 
@@ -641,7 +654,7 @@ public class CustomDomainColoringFrame extends JFrame {
         JPanel p4 = new JPanel();
         p4.setLayout(new GridLayout(1, 1));
         p4.setBackground(MainWindow.bg_color);
-        p4.setPreferredSize(new Dimension(790, 120));
+        p4.setPreferredSize(new Dimension(790, 150));
         
         p4.add(general_settings_panel);
 
@@ -741,6 +754,8 @@ public class CustomDomainColoringFrame extends JFrame {
 
                 ds.gridAlgorithm = gridAlgorithm_opt.getSelectedIndex();
                 
+                ds.combineType = combineAlgorithm_opt.getSelectedIndex();
+                
                 ptra2.setEnabled(true);
                 dispose();
 
@@ -767,7 +782,7 @@ public class CustomDomainColoringFrame extends JFrame {
 
         RoundedPanel round_panel = new RoundedPanel(true, true, true, 15);
         round_panel.setBackground(MainWindow.bg_color);
-        round_panel.setPreferredSize(new Dimension(830, 550));
+        round_panel.setPreferredSize(new Dimension(830, 580));
         round_panel.setLayout(new GridBagLayout());
 
         GridBagConstraints con = new GridBagConstraints();

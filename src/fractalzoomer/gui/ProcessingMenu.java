@@ -1,5 +1,5 @@
 /*
- * Fractal Zoomer, Copyright (C) 2019 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2020 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,6 +45,7 @@ public class ProcessingMenu extends JMenu {
     private JMenuItem orbit_traps_opt;
     private JMenuItem contour_coloring_opt;
     private JMenuItem statistics_coloring_opt;
+    private JMenuItem histogram_coloring_opt;
     private JMenuItem order_opt;
     
     public ProcessingMenu(MainWindow ptr2, String name) {
@@ -67,7 +68,8 @@ public class ProcessingMenu extends JMenu {
         light_opt = new JMenuItem("Light", getIcon("/fractalzoomer/icons/light.png"));
         order_opt = new JMenuItem("Processing Order", getIcon("/fractalzoomer/icons/list.png"));
         statistics_coloring_opt = new JMenuItem("Statistical Coloring", getIcon("/fractalzoomer/icons/statistics_coloring.png"));
-        
+        histogram_coloring_opt = new JMenuItem("Histogram Coloring", getIcon("/fractalzoomer/icons/histogram.png"));
+                
         smoothing_opt.setToolTipText("Smooths the image's color transitions.");
         exterior_de_opt.setToolTipText("<html>Sets some points near the boundary of<br>the set to the maximum iterations value.</html>");
         bump_map_opt.setToolTipText("Emulates a light source to create a pseudo 3d image.");
@@ -81,7 +83,8 @@ public class ProcessingMenu extends JMenu {
         order_opt.setToolTipText("Changes the application order of the processing algorithms.");
         light_opt.setToolTipText("Emulates a light source to create a pseudo 3d image.");
         statistics_coloring_opt.setToolTipText("Enables the use of statistical coloring algorithms, that work along with out-coloring modes.");
-        
+        histogram_coloring_opt.setToolTipText("Calulates the histogram of the iterations and re-scales the palette accordingly.");
+                
         smoothing_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, 0));
         exterior_de_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, 0));
         bump_map_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, 0));
@@ -95,6 +98,7 @@ public class ProcessingMenu extends JMenu {
         light_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, 0));
         order_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_9, 0));
         statistics_coloring_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_1, 0));
+        histogram_coloring_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_4, ActionEvent.SHIFT_MASK));
         
         contour_coloring_opt.addActionListener(new ActionListener() {
 
@@ -202,8 +206,19 @@ public class ProcessingMenu extends JMenu {
             }
         });
         
+        histogram_coloring_opt.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setHistogramColoring();
+
+            }
+        });
+        
         add(smoothing_opt);
         add(statistics_coloring_opt);
+        add(histogram_coloring_opt);
         add(exterior_de_opt);
         add(fake_de_opt);
         add(entropy_coloring_opt);
@@ -290,6 +305,12 @@ public class ProcessingMenu extends JMenu {
         
     }
     
+    public JMenuItem getHistogramColoring() {
+        
+        return histogram_coloring_opt;
+        
+    }
+    
     public JMenuItem getProcessingOrder() {
         
         return order_opt;
@@ -303,6 +324,13 @@ public class ProcessingMenu extends JMenu {
         }
         else {
             smoothing_opt.setIcon(getIcon("/fractalzoomer/icons/smoothing.png"));
+        }
+        
+        if(s.hss.histogramColoring) {
+            histogram_coloring_opt.setIcon(getIcon("/fractalzoomer/icons/histogram_enabled.png"));
+        }
+        else {
+            histogram_coloring_opt.setIcon(getIcon("/fractalzoomer/icons/histogram.png"));
         }
         
         if(s.bms.bump_map) {

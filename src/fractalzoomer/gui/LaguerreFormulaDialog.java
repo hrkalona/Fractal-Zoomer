@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 hrkalona2
+ * Copyright (C) 2020 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,14 +16,19 @@
  */
 package fractalzoomer.gui;
 
+import fractalzoomer.core.Derivative;
+import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
 import fractalzoomer.parser.ParserException;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import javax.swing.ImageIcon;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -43,7 +48,7 @@ public class LaguerreFormulaDialog extends JDialog {
 
     public LaguerreFormulaDialog(MainWindow ptr, Settings s, int oldSelected, JRadioButtonMenuItem[] fractal_functions, boolean wasMagnetType, boolean wasConvergingType, boolean wasSimpleType, boolean wasMagneticPendulumType) {
 
-        super();
+        super(ptr);
         
         ptra = ptr;
 
@@ -103,6 +108,29 @@ public class LaguerreFormulaDialog extends JDialog {
         degree_panel.add(field_real8);
         degree_panel.add(new JLabel(" Imaginary:"));
         degree_panel.add(field_imaginary8);
+        
+        JPanel derivativePanel = new JPanel();
+        
+        JComboBox derivative_choice = new JComboBox(Constants.derivativeMethod);
+        derivative_choice.setSelectedIndex(s.fns.derivative_method);
+        derivative_choice.setToolTipText("Selects the derivative method.");
+        derivative_choice.setFocusable(false);
+        
+        derivativePanel.add(new JLabel("Derivative: "));
+        derivativePanel.add(derivative_choice);
+        
+        formula_dfz_panel9.setVisible(s.fns.derivative_method == Derivative.DISABLED);
+        formula_ddfz_panel9.setVisible(s.fns.derivative_method == Derivative.DISABLED);
+        
+        derivative_choice.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                formula_dfz_panel9.setVisible(derivative_choice.getSelectedIndex() == Derivative.DISABLED);
+                formula_ddfz_panel9.setVisible(derivative_choice.getSelectedIndex() == Derivative.DISABLED);
+                pack();
+            }
+            
+        });
 
         Object[] labels91 = ptra.createUserFormulaLabels("z, s, p, pp, n, maxn, center, size, sizei, v1 - v30, point");
 
@@ -111,7 +139,8 @@ public class LaguerreFormulaDialog extends JDialog {
             " ",
             imagepanel91,
             " ",
-            "Insert the function, its derivatives and the degree.",
+            derivativePanel,
+            "Insert the function, its derivatives (if required) and the degree.",
             formula_fz_panel9,
             formula_dfz_panel9,
             formula_ddfz_panel9,
@@ -182,6 +211,9 @@ public class LaguerreFormulaDialog extends JDialog {
                         s.fns.user_ddfz_formula = field_ddfz_formula9.getText();
                         s.fns.laguerre_deg[0] = temp5;
                         s.fns.laguerre_deg[1] = temp6;
+                        
+                        s.fns.derivative_method = derivative_choice.getSelectedIndex();
+                        Derivative.DERIVATIVE_METHOD = s.fns.derivative_method;
                     } catch (ParserException ex) {
                         JOptionPane.showMessageDialog(ptra, ex.getMessage(), "Error!", JOptionPane.ERROR_MESSAGE);
                         return;

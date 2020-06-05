@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 hrkalona
+ * Copyright (C) 2020 hrkalona
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -66,7 +66,7 @@ public class OrbitTrapsFrame extends JFrame {
 
         ptra2.setEnabled(false);
         int color_window_width = 700;
-        int color_window_height = 525;
+        int color_window_height = 580;
         setTitle("Orbit Traps");
         setSize(color_window_width, color_window_height);
         setIconImage(getIcon("/fractalzoomer/icons/orbit_traps.png").getImage());
@@ -84,7 +84,7 @@ public class OrbitTrapsFrame extends JFrame {
         });
 
         JPanel options_panel = new JPanel();
-        options_panel.setPreferredSize(new Dimension(600, 380));
+        options_panel.setPreferredSize(new Dimension(600, 435));
         options_panel.setBackground(MainWindow.bg_color);
         options_panel.setLayout(new FlowLayout());
 
@@ -222,13 +222,41 @@ public class OrbitTrapsFrame extends JFrame {
         include_notescaped_opt.setBackground(MainWindow.bg_color);
         include_notescaped_opt.setSelected(ots.trapIncludeNotEscaped);
         
+        
+        final JCheckBox trap_iterations_opt = new JCheckBox("Trap Iterations");
+        trap_iterations_opt.setFocusable(false);
+        trap_iterations_opt.setToolTipText("Counts the iterations for the orbit getting trapped.");
+        trap_iterations_opt.setBackground(MainWindow.bg_color);
+        trap_iterations_opt.setSelected(ots.countTrapIterations);
+        
         JPanel p5 = new JPanel();
         p5.setBackground(MainWindow.bg_color);
         
-        p5.add(new JLabel("Intensity: "));
-        p5.add(trap_intensity_field);
+       
         p5.add(include_escaped_opt);
         p5.add(include_notescaped_opt);
+        p5.add(trap_iterations_opt);
+        
+        
+        JPanel p9 = new JPanel();
+        p9.setBackground(MainWindow.bg_color);
+        
+        JComboBox heightFunction = new JComboBox(Constants.trapHeightAlgorithms);
+        heightFunction.setFocusable(false);
+        heightFunction.setSelectedIndex(ots.trapHeightFunction);
+        heightFunction.setToolTipText("Sets the trap height function.");
+        
+        final JCheckBox invert_height_opt = new JCheckBox("Invert Height");
+        invert_height_opt.setFocusable(false);
+        invert_height_opt.setToolTipText("Inverts the height function.");
+        invert_height_opt.setBackground(MainWindow.bg_color);
+        invert_height_opt.setSelected(ots.invertTrapHeight);
+        
+        p9.add(new JLabel("Intensity: "));
+        p9.add(trap_intensity_field);
+        p9.add(new JLabel("  Height Function: "));
+        p9.add(heightFunction);
+        p9.add(invert_height_opt);
         
         final JLabel trap1_color_label = new JLabel();
 
@@ -377,34 +405,112 @@ public class OrbitTrapsFrame extends JFrame {
         JPanel p7 = new JPanel();
         p7.setBackground(MainWindow.bg_color);
         
-        JComboBox colors = new JComboBox(new String[] {"Per Trap", "Random", "Hue/Arg HSB", "Hue/Arg LCH"});
+        JComboBox colors = new JComboBox(new String[] {"Per Trap", "Random", "Hue/Arg HSB", "Hue/Arg LCH", "Random HSB", "Random Palette", "Arg Palette"});
         colors.setFocusable(false);
         colors.setSelectedIndex(ots.trapColorFillingMethod);
         colors.setToolTipText("Sets the trap color filling method.");
 
         p7.add(new JLabel("Color Filling Method: "));
         p7.add(colors);
+        
+        
+        JPanel p8 = new JPanel();
+        p8.setBackground(MainWindow.bg_color);
+
+        final JCheckBox trap_cellular_opt = new JCheckBox("Cell Structure");
+        trap_cellular_opt.setFocusable(false);
+        trap_cellular_opt.setToolTipText("Creates a cellular structure around each area.");
+        trap_cellular_opt.setBackground(MainWindow.bg_color);
+        trap_cellular_opt.setSelected(ots.trapCellularStructure);
+        
+        
+        final JLabel cellular_color_label = new JLabel();
+
+        cellular_color_label.setPreferredSize(new Dimension(22, 22));
+        cellular_color_label.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
+        cellular_color_label.setBackground(ots.trapCellularColor);
+        cellular_color_label.setOpaque(true);
+        cellular_color_label.setToolTipText("Changes the cellular border color.");
+
+        cellular_color_label.addMouseListener(new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+
+                if(!cellular_color_label.isEnabled()) {
+                    return;
+                }
+
+                new ColorChooserFrame(this_frame, "Cellular Border Color", cellular_color_label, -1);
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+
+            }
+
+        });
+        
+        final JCheckBox invert_trap_cellular_opt = new JCheckBox("Invert Coloring");
+        invert_trap_cellular_opt.setFocusable(false);
+        invert_trap_cellular_opt.setToolTipText("Inverts the cellular coloring.");
+        invert_trap_cellular_opt.setBackground(MainWindow.bg_color);
+        invert_trap_cellular_opt.setSelected(ots.trapCellularInverseColor);
+        
+        
+        JSlider cellular_size_opt = new JSlider(JSlider.HORIZONTAL, 0, 100, 0);
+        cellular_size_opt.setValue((int) (100 * ots.trapCellularSize));
+        cellular_size_opt.setBackground(MainWindow.bg_color);
+        cellular_size_opt.setMajorTickSpacing(25);
+        cellular_size_opt.setMinorTickSpacing(1);
+        cellular_size_opt.setToolTipText("Sets the trap cellular size.");
+        cellular_size_opt.setFocusable(false);
+        cellular_size_opt.setPaintLabels(true);
+        
+        p8.add(trap_cellular_opt);
+        p8.add(invert_trap_cellular_opt);
+        p8.add(new JLabel("  Color: "));
+        p8.add(cellular_color_label);
+        p8.add(new JLabel("  Size: "));
+        p8.add(cellular_size_opt);
+        
               
         color_options_panel = new JPanel();
-        color_options_panel.setPreferredSize(new Dimension(580, 160));
+        color_options_panel.setPreferredSize(new Dimension(580, 190));
         color_options_panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Color Options", TitledBorder.DEFAULT_POSITION, TitledBorder.DEFAULT_POSITION));
-        color_options_panel.setLayout(new GridLayout(3, 1));
+        color_options_panel.setLayout(new GridLayout(4, 1));
         color_options_panel.setBackground(MainWindow.bg_color);
         
         JPanel trap_options_panel = new JPanel();
-        trap_options_panel.setPreferredSize(new Dimension(580, 170));
+        trap_options_panel.setPreferredSize(new Dimension(580, 195));
         trap_options_panel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), "Trap Options", TitledBorder.DEFAULT_POSITION, TitledBorder.DEFAULT_POSITION));
-        trap_options_panel.setLayout(new GridLayout(4, 1));
+        trap_options_panel.setLayout(new GridLayout(5, 1));
         trap_options_panel.setBackground(MainWindow.bg_color);
         
         color_options_panel.add(p4);
         color_options_panel.add(p7);
         color_options_panel.add(p6);
+        color_options_panel.add(p8);
 
         trap_options_panel.add(p1);
         trap_options_panel.add(p2);
         trap_options_panel.add(p3);
         trap_options_panel.add(p5);
+        trap_options_panel.add(p9);
         
         options_panel.add(trap_options_panel);
         options_panel.add(color_options_panel);
@@ -472,6 +578,14 @@ public class OrbitTrapsFrame extends JFrame {
                 ots.trapIncludeEscaped = include_escaped_opt.isSelected();
                 ots.trapIncludeNotEscaped = include_notescaped_opt.isSelected();
                 ots.trapColorFillingMethod = colors.getSelectedIndex();
+                
+                ots.trapCellularInverseColor = invert_trap_cellular_opt.isSelected();
+                ots.trapCellularStructure = trap_cellular_opt.isSelected();
+                ots.trapCellularColor = cellular_color_label.getBackground();
+                ots.trapCellularSize = cellular_size_opt.getValue() / 100.0;
+                ots.countTrapIterations = trap_iterations_opt.isSelected();
+                ots.trapHeightFunction = heightFunction.getSelectedIndex();
+                ots.invertTrapHeight = invert_height_opt.isSelected();
 
                 if(image != null) {
                     ots.trapImage = image;
@@ -509,7 +623,7 @@ public class OrbitTrapsFrame extends JFrame {
 
         RoundedPanel round_panel = new RoundedPanel(true, true, true, 15);
         round_panel.setBackground(MainWindow.bg_color);
-        round_panel.setPreferredSize(new Dimension(630, 440));
+        round_panel.setPreferredSize(new Dimension(630, 495));
         round_panel.setLayout(new GridBagLayout());
 
         GridBagConstraints con = new GridBagConstraints();
@@ -564,19 +678,19 @@ public class OrbitTrapsFrame extends JFrame {
             setComponentState(color_options_panel ,false);
         }
 
-        if (index == MainWindow.POINT_N_NORM_TRAP || index == MainWindow.N_NORM_TRAP || index == MainWindow.N_NORM_CROSS_TRAP || index == MainWindow.N_NORM_POINT_TRAP || index == MainWindow.N_NORM_POINT_N_NORM_TRAP || index == MainWindow.GOLDEN_RATIO_SPIRAL_POINT_N_NORM_TRAP || index == MainWindow.GOLDEN_RATIO_SPIRAL_N_NORM_TRAP || index == MainWindow.STALKS_POINT_N_NORM_TRAP || index == MainWindow.STALKS_N_NORM_TRAP) {
+        if (index == MainWindow.NNORM_ATOM_DOMAIN_TRAP || index == MainWindow.POINT_N_NORM_TRAP || index == MainWindow.N_NORM_TRAP || index == MainWindow.N_NORM_CROSS_TRAP || index == MainWindow.N_NORM_POINT_TRAP || index == MainWindow.N_NORM_POINT_N_NORM_TRAP || index == MainWindow.GOLDEN_RATIO_SPIRAL_POINT_N_NORM_TRAP || index == MainWindow.GOLDEN_RATIO_SPIRAL_N_NORM_TRAP || index == MainWindow.STALKS_POINT_N_NORM_TRAP || index == MainWindow.STALKS_N_NORM_TRAP) {
             trap_norm_field.setEnabled(true);
         } else {
             trap_norm_field.setEnabled(false);
         }
 
-        if (index == MainWindow.POINT_RHOMBUS_TRAP || index == MainWindow.POINT_SQUARE_TRAP || index == MainWindow.POINT_TRAP || index == MainWindow.POINT_N_NORM_TRAP) {
+        if (index == MainWindow.ATOM_DOMAIN_TRAP || index == MainWindow.SQUARE_ATOM_DOMAIN_TRAP || index == MainWindow.RHOMBUS_ATOM_DOMAIN_TRAP || index == MainWindow.NNORM_ATOM_DOMAIN_TRAP || index == MainWindow.POINT_RHOMBUS_TRAP || index == MainWindow.POINT_SQUARE_TRAP || index == MainWindow.POINT_TRAP || index == MainWindow.POINT_N_NORM_TRAP) {
             trap_width_field.setEnabled(false);
         } else {
             trap_width_field.setEnabled(true);
         }
         
-        if (index == MainWindow.GOLDEN_RATIO_SPIRAL_TRAP || index == MainWindow.STALKS_TRAP) {
+        if (index == MainWindow.ATOM_DOMAIN_TRAP || index == MainWindow.SQUARE_ATOM_DOMAIN_TRAP || index == MainWindow.RHOMBUS_ATOM_DOMAIN_TRAP || index == MainWindow.NNORM_ATOM_DOMAIN_TRAP ||  index == MainWindow.GOLDEN_RATIO_SPIRAL_TRAP || index == MainWindow.STALKS_TRAP) {
             trap_length_field.setEnabled(false);
         } else {
             trap_length_field.setEnabled(true);

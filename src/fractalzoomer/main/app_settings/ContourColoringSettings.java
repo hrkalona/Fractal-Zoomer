@@ -1,5 +1,5 @@
 /*
- * Fractal Zoomer, Copyright (C) 2019 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2020 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@ public class ContourColoringSettings {
     public double cn_blending;
     public int contour_algorithm;
     public int contourColorMethod;
+    public double min_contour;
  
     public ContourColoringSettings() {
         contour_coloring = false;
@@ -33,5 +34,6 @@ public class ContourColoringSettings {
         cn_blending = 0.7;
         contour_algorithm = 0;
         contourColorMethod = 3;
+        min_contour = 0.06;
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Fractal Zoomer, Copyright (C) 2019 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2020 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,18 +23,20 @@ import java.awt.Color;
  * @author hrkalona2
  */
 public interface Constants {
-    public static final int VERSION = 1075;
+    public static final int VERSION = 1076;
     public static final int FAST_JULIA_IMAGE_SIZE = 252;
-    public static final int TOTAL_PALETTES = 36;
+    public static final int TOTAL_PALETTES = 37;
     public static final int TOTAL_INCOLORING_ALGORITHMS = 11;
     public static final int TOTAL_OUTCOLORING_ALGORITHMS = 25;
     public static final int TOTAL_BAILOUT_CONDITIONS = 11;
     public static final int TOTAL_PLANES = 64;
-    public static final int TOTAL_FUNCTIONS = 187;
+    public static final int TOTAL_FUNCTIONS = 211;
     public static final int TOTAL_FILTERS = 35;
     public static final int TOTAL_COLOR_TRANSFER_FILTERS = 7;
     public static final int TOTAL_COLOR_BLENDING = 30;
     public static final int TOTAL_POST_PROCESS_ALGORITHMS = 8;
+
+    public static final int MAX_ITERATIONS_NUMBER = 100000;
     
     public static final String[] domainAlgNames = {"Black Grid, White Circles log2", "White Grid, Black Circles log2", "Black Grid", "White Grid", "Black Grid, Bright Contours log2", "White Grid, Dark Contours log2", "Norm, Black Grid, White Circles log2", "Norm, White Grid, Black Circles log2", "Norm, Black Grid", "Norm, White Grid", "Norm, Black Grid, Bright Contours log2", "Norm, White Grid, Dark Contours log2", "White Circles log2", "Black Circles log2", "Bright Contours log2", "Dark Contours log2", "Norm, White Circles log2", "Norm, Black Circles log2", "Norm, Bright Contours log2", "Norm, Dark Contours log2",
     "Black Grid, Contours log2, Iso-Argument lines", "Norm, Black Grid, Contours log2, Iso-Argument lines", "Black Grid, Iso-Argument Contours", "Norm, Black Grid, Iso-Argument Contours", "Iso-Argument Contours, Contours log2", "Norm, Iso-Argument Contours, Contours log2",
@@ -48,9 +50,9 @@ public interface Constants {
     public static final String[] domainColors = {"Argument", "Norm", "Re", "Im"};
     public static final String[] domainContours = {"Norm", "Iso-Argument", "Norm, Iso-Argument", "Grid", "Grid, Norm", "Grid, Iso-Argument", "Grid, Norm, Iso-Argument", "Grid Lines", "Circles Lines", "Iso-Arg Lines", "Grid Lines, Circles Lines", "Circles Lines, Iso-Arg Lines"};
     public static final String[] argumentLinesDistance = {"2 * pi", "pi", "pi / 2", "pi / 4", "pi / 6", "pi / 8", "pi / 10", "pi / 12", "pi / 14", "pi / 16"};
-    public static final String[] orbitTrapsNames = {"Point", "Point Square", "Point Rhombus", "Point N-Norm", "Cross", "Re", "Im", "Circle", "Square", "Rhombus", "N-Norm", "Circle/Cross", "Square/Cross", "Rhombus/Cross", "N-Norm/Cross", "Circle/Point", "Square/Point", "Rhombus/Point", "N-Norm/Point", "N-Norm/Point N-Norm", "Golden Ratio Spiral", "Golden Ratio Spiral/Point", "Golden Ratio Spiral/Point N-Norm", "Golden Ratio Spiral/Cross", "Golden Ratio Spiral/Circle", "Golden Ratio Spiral/Square", "Golden Ratio Spiral/Rhombus", "Golden Ratio Spiral/N-Norm", "Stalks", "Stalks/Point", "Stalks/Point N-Norm", "Stalks/Cross", "Stalks/Circle", "Stalks/Square", "Stalks/Rhombus", "Stalks/N-Norm", "Image Based"};
+    public static final String[] orbitTrapsNames = {"Point", "Point Square", "Point Rhombus", "Point N-Norm", "Cross", "Re", "Im", "Circle", "Square", "Rhombus", "N-Norm", "Circle/Cross", "Square/Cross", "Rhombus/Cross", "N-Norm/Cross", "Circle/Point", "Square/Point", "Rhombus/Point", "N-Norm/Point", "N-Norm/Point N-Norm", "Golden Ratio Spiral", "Golden Ratio Spiral/Point", "Golden Ratio Spiral/Point N-Norm", "Golden Ratio Spiral/Cross", "Golden Ratio Spiral/Circle", "Golden Ratio Spiral/Square", "Golden Ratio Spiral/Rhombus", "Golden Ratio Spiral/N-Norm", "Stalks", "Stalks/Point", "Stalks/Point N-Norm", "Stalks/Cross", "Stalks/Circle", "Stalks/Square", "Stalks/Rhombus", "Stalks/N-Norm", "Image Based", "Atom Domain Circle", "Atom Domain Square", "Atom Domain Rhombus", "Atom Domain N-Norm"};
     public static final String[] orbitTrapLineTypes = {"Line", "Sin", "Cos", "Tan", "Sinh", "Cosh", "Tanh", "Asin", "Acos", "Atan", "Square", "Cube", "Sqrt", "Cbrt", "Exp", "Log", "Abs" };
-    public static final String[] contourColorAlgorithmNames = {"Non-smooth Transitions", "Smooth Transitions"};
+    public static final String[] contourColorAlgorithmNames = {"Non-smooth Transitions", "Smooth Transitions", "Boundaries", "Boundaries/Non-Smooth Colors"};
     public static final String[] circleAndGridFadeNames = {"Square Root", "Cube Root", "Fourth Root", "Linear", "Saturate"};
     public static final String[] colorMethod = {"Lab", "HSB", "HSL", "Blending", "RGB Scaling"};
     public static final String[] lightTransfer = {"x * factor", "sqrt(x * factor)", "(x * factor)^2"};
@@ -61,8 +63,10 @@ public interface Constants {
     public static final String[] reductionMethod = {"sum", "min", "max", "assign"};
     public static final String[] trueColorModes = {"Xaos true color 1", "Xaos true color 2", "Xaos true color 3", "Xaos true color 4", "Xaos true color 5", "Xaos true color 6", "Xaos true color 7", "Xaos true color 8", "Xaos true color 9", "Xaos true color 10"};
     public static final String[] trueColorSpaces = {"RGB", "XYZ", "HSB", "HSL", "RYB", "LAB", "LCH", "Palette", "Gradient", "Direct"};
-    public static final String[] derivativeMethod = {"Provided", "Numerical", "Numerical Symmetric"};
+    public static final String[] derivativeMethod = {"Provided", "Numerical Forward", "Numerical Central", "Numerical Backward"};
     public static final String[] gridAlgorithms = {"sin", "mod"};
+    public static final String[] combineAlgorithms = {"Multiply", "Average"};
+    public static final String[] trapHeightAlgorithms = {"Linear", "Cosine", "Sqrt", "Exponential"};
     /**
      * ** FUNCTION ***
      */
@@ -253,6 +257,30 @@ public interface Constants {
     public static final int NEWTON_HINESCOS = 184;
     public static final int NEWTON_HINESPOLY = 185;
     public static final int NEWTON_HINESFORMULA = 186;
+    public static final int WHITTAKER3 = 187;
+    public static final int WHITTAKER4 = 188;
+    public static final int WHITTAKERGENERALIZED3 = 189;
+    public static final int WHITTAKERGENERALIZED8 = 190;
+    public static final int WHITTAKERSIN = 191;
+    public static final int WHITTAKERCOS = 192;
+    public static final int WHITTAKERPOLY = 193;
+    public static final int WHITTAKERFORMULA = 194;
+    public static final int WHITTAKERDOUBLECONVEX3 = 195;
+    public static final int WHITTAKERDOUBLECONVEX4 = 196;
+    public static final int WHITTAKERDOUBLECONVEXGENERALIZED3 = 197;
+    public static final int WHITTAKERDOUBLECONVEXGENERALIZED8 = 198;
+    public static final int WHITTAKERDOUBLECONVEXSIN = 199;
+    public static final int WHITTAKERDOUBLECONVEXCOS = 200;
+    public static final int WHITTAKERDOUBLECONVEXPOLY = 201;
+    public static final int WHITTAKERDOUBLECONVEXFORMULA = 202;
+    public static final int SUPERHALLEY3 = 203;
+    public static final int SUPERHALLEY4 = 204;
+    public static final int SUPERHALLEYGENERALIZED3 = 205;
+    public static final int SUPERHALLEYGENERALIZED8 = 206;
+    public static final int SUPERHALLEYSIN = 207;
+    public static final int SUPERHALLEYCOS = 208;
+    public static final int SUPERHALLEYPOLY = 209;
+    public static final int SUPERHALLEYFORMULA = 210;
     /**
      * ***************
      */
@@ -270,6 +298,12 @@ public interface Constants {
     public static final int NOVA_PARHALLEY = 7;
     public static final int NOVA_LAGUERRE = 8;
     public static final int NOVA_NEWTON_HINES = 9;
+    public static final int NOVA_WHITTAKER = 10;
+    public static final int NOVA_WHITTAKER_DOUBLE_CONVEX = 11;
+    public static final int NOVA_SUPER_HALLEY = 12;
+    public static final int NOVA_MIDPOINT = 13;
+    public static final int NOVA_TRAUB_OSTROWSKI = 14;
+    public static final int NOVA_STIRLING = 15;
     /**
      * *******************
      */
@@ -518,7 +552,7 @@ public interface Constants {
      * ** PALETTE PROCESSING ***
      */
     public static final int PROCESSING_NONE = 0;
-    public static final int PROCESSING_HISTOGRAM = 1;
+    public static final int PROCESSING_HISTOGRAM_BRIGHTNESS = 1;
     public static final int PROCESSING_BRIGHTNESS1 = 2;
     public static final int PROCESSING_BRIGHTNESS2 = 3;
     public static final int PROCESSING_HUE1 = 4;
@@ -537,6 +571,7 @@ public interface Constants {
     public static final int PROCESSING_HSB2 = 17;
     public static final int PROCESSING_RYB1 = 18;
     public static final int PROCESSING_RYB2 = 19;
+    public static final int PROCESSING_HISTOGRAM_LIGHTNESS_LAB = 20;
     /**
      * *************************
      */
@@ -682,6 +717,10 @@ public interface Constants {
     public static final int STALKS_RHOMBUS_TRAP = 34;
     public static final int STALKS_N_NORM_TRAP = 35;
     public static final int IMAGE_TRAP = 36;
+    public static final int ATOM_DOMAIN_TRAP = 37;
+    public static final int SQUARE_ATOM_DOMAIN_TRAP = 38;
+    public static final int RHOMBUS_ATOM_DOMAIN_TRAP = 39;
+    public static final int NNORM_ATOM_DOMAIN_TRAP = 40;
 
 
 
@@ -692,6 +731,9 @@ public interface Constants {
     public static final int TRAP_COLOR_RANDOM = 1;
     public static final int TRAP_COLOR_ARG_HUE_HSB = 2;
     public static final int TRAP_COLOR_ARG_HUE_LCH = 3;
+    public static final int TRAP_COLOR_RANDOM_HSB = 4;
+    public static final int TRAP_COLOR_RANDOM_PALETTE = 5;
+    public static final int TRAP_COLOR_ARG_PALETTE = 6;
     
     
      /**

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 hrkalona2
+ * Copyright (C) 2020 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -53,8 +53,11 @@ public class Lyapunov extends Julia {
     private int samples;
     private int lyapunovVariableId;
     private boolean usingDefaultFunctions;
+    private int initializationIterations;
+    private boolean calculateExponent;
+    private boolean skipBailoutCheck;
 
-    public Lyapunov(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_value, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, OrbitTrapSettings ots, StatisticsSettings sts, String[] lyapunov_expression, boolean useLyapunovExponent, String lyapunovFunction, String lyapunovExponentFunction, int lyapunovVariableId, String lyapunovInitialValue) {
+    public Lyapunov(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_value, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, OrbitTrapSettings ots, StatisticsSettings sts, String[] lyapunov_expression, boolean useLyapunovExponent, String lyapunovFunction, String lyapunovExponentFunction, int lyapunovVariableId, String lyapunovInitialValue, int initializationIterations, boolean skipBailoutCheck) {
 
         super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, ots);
 
@@ -97,6 +100,9 @@ public class Lyapunov extends Julia {
         this.useLyapunovExponent = useLyapunovExponent;
         this.lyapunovVariableId = lyapunovVariableId;
 
+        this.initializationIterations = initializationIterations;
+        this.skipBailoutCheck = skipBailoutCheck;
+
         parser = new Parser[lyapunov_expression.length];
         expr = new ExpressionNode[lyapunov_expression.length];
 
@@ -119,7 +125,7 @@ public class Lyapunov extends Julia {
 
     }
 
-    public Lyapunov(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, OrbitTrapSettings ots, StatisticsSettings sts, String[] lyapunov_expression, boolean useLyapunovExponent, String lyapunovFunction, String lyapunovExponentFunction, int lyapunovVariableId, double xJuliaCenter, double yJuliaCenter) {
+    public Lyapunov(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, OrbitTrapSettings ots, StatisticsSettings sts, String[] lyapunov_expression, boolean useLyapunovExponent, String lyapunovFunction, String lyapunovExponentFunction, int lyapunovVariableId, int initializationIterations, boolean skipBailoutCheck, double xJuliaCenter, double yJuliaCenter) {
 
         super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, periodicity_checking, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, ots, xJuliaCenter, yJuliaCenter);
 
@@ -133,6 +139,9 @@ public class Lyapunov extends Julia {
 
         this.useLyapunovExponent = useLyapunovExponent;
         this.lyapunovVariableId = lyapunovVariableId;
+
+        this.initializationIterations = initializationIterations;
+        this.skipBailoutCheck = skipBailoutCheck;
 
         parser = new Parser[lyapunov_expression.length];
         expr = new ExpressionNode[lyapunov_expression.length];
@@ -157,7 +166,7 @@ public class Lyapunov extends Julia {
     }
 
     //orbit
-    public Lyapunov(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_value, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, String[] lyapunov_expression, String lyapunovFunction, String lyapunovExponentFunction, String lyapunovInitialValue) {
+    public Lyapunov(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_value, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, String[] lyapunov_expression, String lyapunovFunction, String lyapunovExponentFunction, String lyapunovInitialValue, int initializationIterations) {
 
         super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
 
@@ -209,9 +218,11 @@ public class Lyapunov extends Julia {
 
         point = new Complex(plane_transform_center[0], plane_transform_center[1]);
 
+        this.initializationIterations = initializationIterations;
+
     }
 
-    public Lyapunov(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, String[] lyapunov_expression, String lyapunovFunction, String lyapunovExponentFunction, double xJuliaCenter, double yJuliaCenter) {
+    public Lyapunov(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, String[] lyapunov_expression, String lyapunovFunction, String lyapunovExponentFunction, int initializationIterations, double xJuliaCenter, double yJuliaCenter) {
 
         super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
 
@@ -234,6 +245,8 @@ public class Lyapunov extends Julia {
         }
 
         point = new Complex(plane_transform_center[0], plane_transform_center[1]);
+
+        this.initializationIterations = initializationIterations;
 
     }
 
@@ -269,8 +282,14 @@ public class Lyapunov extends Julia {
         double calculatedExponent = 0;
 
         if (usingDefaultFunctions) {
-            complex[0] = complex[0].times(step).times_mutable(complex[0].r_sub(1));
-            calculatedExponent = (complex[0].times(2).r_sub_mutable(1)).times_mutable(step).norm();
+            Complex rz = complex[0].times(step);
+            Complex f = rz.times(complex[0].r_sub(1));
+
+            if(calculateExponent) {
+                calculatedExponent = step.sub_mutable(rz.times_mutable(2)).norm();
+            }
+
+            complex[0] = f;
         } else {
             if (function_parser.foundR()) {
                 function_parser.setRvalue(step);
@@ -294,34 +313,38 @@ public class Lyapunov extends Julia {
                 }
             }
 
-            complex[0] = function_expr.getValue();
+            Complex f = function_expr.getValue();
 
-            if (exponent_parser.foundR()) {
-                exponent_parser.setRvalue(step);
-            }
-
-            if (exponent_parser.foundN()) {
-                exponent_parser.setNvalue(new Complex(iterations, 0));
-            }
-
-            if (exponent_parser.foundZ()) {
-                exponent_parser.setZvalue(complex[0]);
-            }
-
-            if (exponent_parser.foundC()) {
-                exponent_parser.setCvalue(complex[1]);
-            }
-
-            for (int i = 0; i < Parser.EXTRA_VARS; i++) {
-                if (exponent_parser.foundVar(i)) {
-                    exponent_parser.setVarsvalue(i, globalVars[i]);
+            if(calculateExponent) {
+                if (exponent_parser.foundR()) {
+                    exponent_parser.setRvalue(step);
                 }
+
+                if (exponent_parser.foundN()) {
+                    exponent_parser.setNvalue(new Complex(iterations, 0));
+                }
+
+                if (exponent_parser.foundZ()) {
+                    exponent_parser.setZvalue(complex[0]);
+                }
+
+                if (exponent_parser.foundC()) {
+                    exponent_parser.setCvalue(complex[1]);
+                }
+
+                for (int i = 0; i < Parser.EXTRA_VARS; i++) {
+                    if (exponent_parser.foundVar(i)) {
+                        exponent_parser.setVarsvalue(i, globalVars[i]);
+                    }
+                }
+
+                calculatedExponent = exponent_expr.getValue().norm();
             }
 
-            calculatedExponent = exponent_expr.getValue().norm();
+            complex[0] = f;
         }
 
-        if (calculatedExponent > 0) {
+        if (calculateExponent && calculatedExponent > 1E-13) {
             sum += Math.log(calculatedExponent);
             samples++;
         }
@@ -347,13 +370,30 @@ public class Lyapunov extends Julia {
 
         setInitVariables(start, zold, zold2);
 
+        calculateExponent = false;
+        for(int initialIteration = 0; initialIteration < initializationIterations; initialIteration++) {
+            if (trap != null) {
+                trap.check(complex[0], iterations);
+            }
+
+            zold2.assign(zold);
+            zold.assign(complex[0]);
+            function(complex);
+            setVariables(zold, zold2);
+
+            if (statistic != null) {
+                statistic.insert(complex[0], zold, zold2, iterations, complex[1], start);
+            }
+        }
+        calculateExponent = true;
+
         for (; iterations < max_iterations; iterations++) {
 
             if (trap != null) {
                 trap.check(complex[0], iterations);
             }
 
-            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
+            if (!skipBailoutCheck && bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
                 escaped = true;
 
                 if (outTrueColorAlgorithm != null) {
@@ -432,9 +472,22 @@ public class Lyapunov extends Julia {
 
         setInitVariables(start, zold, zold2);
 
+        calculateExponent = false;
+        for(int initialIteration = 0; initialIteration < initializationIterations; initialIteration++) {
+            zold2.assign(zold);
+            zold.assign(complex[0]);
+            function(complex);
+            setVariables(zold, zold2);
+
+            if (statistic != null) {
+                statistic.insert(complex[0], zold, zold2, iterations, complex[1], start);
+            }
+        }
+        calculateExponent = true;
+
         for (; iterations < max_iterations; iterations++) {
 
-            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
+            if (!skipBailoutCheck && bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
                 escaped = true;
 
                 if (outTrueColorAlgorithm != null) {
@@ -484,6 +537,14 @@ public class Lyapunov extends Julia {
 
         setInitVariables(start, zold, zold2);
 
+        calculateExponent = false;
+        for(int initialIteration = 0; initialIteration < initializationIterations; initialIteration++) {
+            zold2.assign(zold);
+            zold.assign(complex[0]);
+            function(complex);
+            setVariables(zold, zold2);
+        }
+
         for (; iterations < max_iterations; iterations++) {
             zold2.assign(zold);
             zold.assign(complex[0]);
@@ -526,8 +587,21 @@ public class Lyapunov extends Julia {
 
         setInitVariables(start, zold, zold2);
 
+        calculateExponent = false;
+        for(int initialIteration = 0; initialIteration < initializationIterations; initialIteration++) {
+            zold2.assign(zold);
+            zold.assign(complex[0]);
+            function(complex);
+            setVariables(zold, zold2);
+
+            if (statistic != null) {
+                statistic.insert(complex[0], zold, zold2, iterations, complex[1], start);
+            }
+        }
+        calculateExponent = true;
+
         for (; iterations < max_iterations; iterations++) {
-            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
+            if (!skipBailoutCheck && bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
                 escaped = true;
 
                 if (outTrueColorAlgorithm != null) {
@@ -575,13 +649,30 @@ public class Lyapunov extends Julia {
 
         setInitVariables(start, zold, zold2);
 
+        calculateExponent = false;
+        for(int initialIteration = 0; initialIteration < initializationIterations; initialIteration++) {
+            if (trap != null) {
+                trap.check(complex[0], iterations);
+            }
+
+            zold2.assign(zold);
+            zold.assign(complex[0]);
+            function(complex);
+            setVariables(zold, zold2);
+
+            if (statistic != null) {
+                statistic.insert(complex[0], zold, zold2, iterations, complex[1], start);
+            }
+        }
+        calculateExponent = true;
+
         for (; iterations < max_iterations; iterations++) {
 
             if (trap != null) {
                 trap.check(complex[0], iterations);
             }
 
-            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
+            if (!skipBailoutCheck && bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
                 escaped = true;
 
                 if (outTrueColorAlgorithm != null) {
@@ -649,6 +740,14 @@ public class Lyapunov extends Julia {
 
         setInitVariables(start, zold, zold2);
 
+        calculateExponent = false;
+        for(int initialIteration = 0; initialIteration < initializationIterations; initialIteration++) {
+            zold2.assign(zold);
+            zold.assign(complex[0]);
+            function(complex);
+            setVariables(zold, zold2);
+        }
+
         for (; iterations < max_iterations; iterations++) {
             zold2.assign(zold);
             zold.assign(complex[0]);
@@ -684,6 +783,14 @@ public class Lyapunov extends Julia {
 
         setInitVariables(start, zold, zold2);
 
+        calculateExponent = false;
+        for(int initialIteration = 0; initialIteration < initializationIterations; initialIteration++) {
+            zold2.assign(zold);
+            zold.assign(complex[0]);
+            function(complex);
+            setVariables(zold, zold2);
+        }
+
         for (; iterations < max_iterations; iterations++) {
 
             zold2.assign(zold);
@@ -711,6 +818,14 @@ public class Lyapunov extends Julia {
         Complex start = new Complex(complex[0]);
 
         setInitVariables(start, zold, zold2);
+
+        calculateExponent = false;
+        for(int initialIteration = 0; initialIteration < initializationIterations; initialIteration++) {
+            zold2.assign(zold);
+            zold.assign(complex[0]);
+            function(complex);
+            setVariables(zold, zold2);
+        }
 
         for (; iterations < max_iterations; iterations++) {
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 hrkalona2
+ * Copyright (C) 2020 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -53,7 +53,7 @@ public class PerturbationDialog extends JDialog {
 
     public PerturbationDialog(MainWindow ptr, Settings s, JCheckBoxMenuItem perturbation_opt) {
         
-        super();
+        super(ptr);
 
         ptra = ptr;
 
@@ -74,7 +74,7 @@ public class PerturbationDialog extends JDialog {
         field_imaginary.setText("" + s.fns.perturbation_vals[1]);
 
         JTabbedPane tabbedPane = new JTabbedPane();
-        tabbedPane.setPreferredSize(new Dimension((runsOnWindows ? 550 : 630) + 50, 595));
+        tabbedPane.setPreferredSize(new Dimension((runsOnWindows ? 550 : 630) + 50, 605));
         tabbedPane.setFocusable(false);
 
         JPanel panel11 = new JPanel();

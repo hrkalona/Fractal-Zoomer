@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2019 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2020 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -52,6 +52,8 @@ public interface ExpressionNode
   public static final int FUNCTION_USER_MULTI_ARG_2_NODE = 12;
   /** Node id for the no argument */
   public static final int NO_ARGUMENT_NODE = 13;
+  /** Node id for derivative function nodes with 2 arguments */
+  public static final int FUNCTION_DERIVATIVE_2_ARG_NODE = 14;
 
   /**
    * Returns the type of the node.ExpressionNode

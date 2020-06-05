@@ -1,5 +1,5 @@
 /*
- * Fractal Zoomer, Copyright (C) 2019 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2020 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -281,10 +281,13 @@ public class Function2ArgumentsExpressionNode implements ExpressionNode {
      *
      * If the function is not found this method throws an error.
      *
-     * @param str the name of the function
+     * @param stringInput the name of the function
      * @return the id of the function
      */
-    public static int stringToFunction(String str) {
+    public static int stringToFunction(String stringInput) {
+        
+        String str = stringInput.toLowerCase();
+        
         if (str.equals("bipol")) {
             return Function2ArgumentsExpressionNode.TO_BIPOLAR;
         }
@@ -375,7 +378,7 @@ public class Function2ArgumentsExpressionNode implements ExpressionNode {
         
         if (str.equals("sdist")) {
             return Function2ArgumentsExpressionNode.SDIST;
-        } 
+        }
 
         throw new ParserException("Unexpected Function " + str + " found.");
     }

@@ -1,5 +1,5 @@
 /*
- * Fractal Zoomer, Copyright (C) 2019 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2020 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,8 @@
  */
 package fractalzoomer.core.interpolation;
 
+import java.awt.*;
+
 /**
  *
  * @author hrkalona2
@@ -29,5 +31,13 @@ public abstract class InterpolationMethod {
     public abstract int interpolate(int r1, int g1, int b1, int r2, int g2, int b2, double coef);
     public abstract double interpolate(double a, double b, double coef);
     public abstract int interpolate(int a, int b, double coef);
+
+
+    public Color interpolate(Color c1, Color c2, double coef) {
+
+        return new Color(interpolate(c1.getRed(), c1.getGreen(), c1.getBlue(), c2.getRed(), c2.getGreen(), c2.getBlue(), coef));
+
+    }
+
     public abstract double getCoef(double coef);
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 hrkalona2
+ * Copyright (C) 2020 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,7 +40,7 @@ public class JuliaMapDialog extends JDialog {
 
     public JuliaMapDialog(MainWindow ptr, int julia_grid_first_dimension, JButton julia_map_button, JCheckBoxMenuItem julia_map_opt, boolean mode) {
 
-        super();
+        super(ptr);
         
         ptra = ptr;
 

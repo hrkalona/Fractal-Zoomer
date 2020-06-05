@@ -1,5 +1,5 @@
 /*
- * Fractal Zoomer, Copyright (C) 2019 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2020 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,6 +44,13 @@ public class OrbitTrapSettings {
     public boolean trapIncludeEscaped;
     public int trapColorFillingMethod;
     public BufferedImage trapImage;
+    public boolean trapCellularStructure;
+    public boolean trapCellularInverseColor;
+    public Color trapCellularColor;
+    public boolean countTrapIterations;
+    public double trapCellularSize;
+    public boolean invertTrapHeight;
+    public int trapHeightFunction;
     
     public OrbitTrapSettings() {
         
@@ -69,6 +76,15 @@ public class OrbitTrapSettings {
         trapIncludeEscaped = true;
 
         trapColorFillingMethod = Constants.TRAP_COLOR_PER_TRAP;
+        
+        trapCellularStructure = false;
+        trapCellularInverseColor = false;
+        trapCellularColor = Color.WHITE;
+        countTrapIterations = false;
+        trapCellularSize = 0.05;
+        
+        invertTrapHeight = false;
+        trapHeightFunction = 1;
         
     }
     

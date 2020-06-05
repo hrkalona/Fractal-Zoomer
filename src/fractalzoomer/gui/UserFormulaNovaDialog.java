@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 hrkalona2
+ * Copyright (C) 2020 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,7 +49,7 @@ public class UserFormulaNovaDialog extends JDialog {
 
     public UserFormulaNovaDialog(MainWindow ptr, Settings s, int oldSelected, JRadioButtonMenuItem[] fractal_functions, boolean wasMagnetType, boolean wasConvergingType, boolean wasSimpleType, boolean wasMagneticPendulumType) {
 
-        super();
+        super(ptr);
 
         ptra = ptr;
 
@@ -132,7 +132,7 @@ public class UserFormulaNovaDialog extends JDialog {
         JLabel root = new JLabel("Root Finding Method:");
         root.setFont(new Font("Arial", Font.BOLD, 11));
 
-        String[] method = {"Newton", "Halley", "Schroder", "Householder", "Secant", "Steffensen", "Muller", "Parhalley", "Laguerre", "Newton-Hines"};
+        String[] method = {"Newton", "Halley", "Schroder", "Householder", "Secant", "Steffensen", "Muller", "Parhalley", "Laguerre", "Newton-Hines", "Whittaker", "Whittaker Double Convex", "Super Halley",  "Midpoint", "Traub-Ostrowski", "Stirling"};
 
         JComboBox method_choice = new JComboBox(method);
         method_choice.setSelectedIndex(s.fns.nova_method);
@@ -162,7 +162,10 @@ public class UserFormulaNovaDialog extends JDialog {
                         || method_choice.getSelectedIndex() == MainWindow.NOVA_SCHRODER
                         || method_choice.getSelectedIndex() == MainWindow.NOVA_HOUSEHOLDER
                         || method_choice.getSelectedIndex() == MainWindow.NOVA_PARHALLEY
-                        || method_choice.getSelectedIndex() == MainWindow.NOVA_LAGUERRE) {
+                        || method_choice.getSelectedIndex() == MainWindow.NOVA_LAGUERRE
+                        || method_choice.getSelectedIndex() == MainWindow.NOVA_WHITTAKER
+                        || method_choice.getSelectedIndex() == MainWindow.NOVA_WHITTAKER_DOUBLE_CONVEX
+                        || method_choice.getSelectedIndex() == MainWindow.NOVA_SUPER_HALLEY) {
                     formula_ddfz_panel9.setVisible(derivative_choice.getSelectedIndex() == Derivative.DISABLED);
                 }                
                 
@@ -172,7 +175,13 @@ public class UserFormulaNovaDialog extends JDialog {
                         || method_choice.getSelectedIndex() == MainWindow.NOVA_HOUSEHOLDER
                         || method_choice.getSelectedIndex() == MainWindow.NOVA_PARHALLEY
                         || method_choice.getSelectedIndex() == MainWindow.NOVA_LAGUERRE
-                        || method_choice.getSelectedIndex() == MainWindow.NOVA_NEWTON_HINES) {
+                        || method_choice.getSelectedIndex() == MainWindow.NOVA_NEWTON_HINES
+                        || method_choice.getSelectedIndex() == MainWindow.NOVA_WHITTAKER
+                        || method_choice.getSelectedIndex() == MainWindow.NOVA_WHITTAKER_DOUBLE_CONVEX
+                        || method_choice.getSelectedIndex() == MainWindow.NOVA_SUPER_HALLEY
+                        || method_choice.getSelectedIndex() == MainWindow.NOVA_MIDPOINT
+                        || method_choice.getSelectedIndex() == MainWindow.NOVA_TRAUB_OSTROWSKI
+                        || method_choice.getSelectedIndex() == MainWindow.NOVA_STIRLING) {
                     formula_dfz_panel9.setVisible(derivative_choice.getSelectedIndex() == Derivative.DISABLED);
                 }
                   
@@ -200,7 +209,10 @@ public class UserFormulaNovaDialog extends JDialog {
                         || method_choice.getSelectedIndex() == MainWindow.NOVA_SCHRODER
                         || method_choice.getSelectedIndex() == MainWindow.NOVA_HOUSEHOLDER
                         || method_choice.getSelectedIndex() == MainWindow.NOVA_PARHALLEY
-                        || method_choice.getSelectedIndex() == MainWindow.NOVA_LAGUERRE)) {
+                        || method_choice.getSelectedIndex() == MainWindow.NOVA_LAGUERRE
+                        || method_choice.getSelectedIndex() == MainWindow.NOVA_WHITTAKER
+                        || method_choice.getSelectedIndex() == MainWindow.NOVA_WHITTAKER_DOUBLE_CONVEX
+                        || method_choice.getSelectedIndex() == MainWindow.NOVA_SUPER_HALLEY)) {
                     formula_ddfz_panel9.setVisible(false);
                 } else if(derivative_choice.getSelectedIndex() == Derivative.DISABLED) {
                     formula_ddfz_panel9.setVisible(true);
@@ -212,7 +224,13 @@ public class UserFormulaNovaDialog extends JDialog {
                         || method_choice.getSelectedIndex() == MainWindow.NOVA_HOUSEHOLDER
                         || method_choice.getSelectedIndex() == MainWindow.NOVA_PARHALLEY
                         || method_choice.getSelectedIndex() == MainWindow.NOVA_LAGUERRE
-                        || method_choice.getSelectedIndex() == MainWindow.NOVA_NEWTON_HINES)) {
+                        || method_choice.getSelectedIndex() == MainWindow.NOVA_NEWTON_HINES
+                        || method_choice.getSelectedIndex() == MainWindow.NOVA_WHITTAKER
+                        || method_choice.getSelectedIndex() == MainWindow.NOVA_WHITTAKER_DOUBLE_CONVEX
+                        || method_choice.getSelectedIndex() == MainWindow.NOVA_SUPER_HALLEY
+                        || method_choice.getSelectedIndex() == MainWindow.NOVA_MIDPOINT
+                        || method_choice.getSelectedIndex() == MainWindow.NOVA_TRAUB_OSTROWSKI
+                        || method_choice.getSelectedIndex() == MainWindow.NOVA_STIRLING)) {
                     formula_dfz_panel9.setVisible(false);
                 } else if(derivative_choice.getSelectedIndex() == Derivative.DISABLED) {
                     formula_dfz_panel9.setVisible(true);
@@ -239,7 +257,10 @@ public class UserFormulaNovaDialog extends JDialog {
                 || method_choice.getSelectedIndex() == MainWindow.NOVA_SCHRODER
                 || method_choice.getSelectedIndex() == MainWindow.NOVA_HOUSEHOLDER
                 || method_choice.getSelectedIndex() == MainWindow.NOVA_PARHALLEY
-                || method_choice.getSelectedIndex() == MainWindow.NOVA_LAGUERRE)) {
+                || method_choice.getSelectedIndex() == MainWindow.NOVA_LAGUERRE
+                || method_choice.getSelectedIndex() == MainWindow.NOVA_WHITTAKER
+                || method_choice.getSelectedIndex() == MainWindow.NOVA_WHITTAKER_DOUBLE_CONVEX
+                || method_choice.getSelectedIndex() == MainWindow.NOVA_SUPER_HALLEY)) {
             formula_ddfz_panel9.setVisible(false);
         }
 
@@ -249,7 +270,13 @@ public class UserFormulaNovaDialog extends JDialog {
                 || method_choice.getSelectedIndex() == MainWindow.NOVA_HOUSEHOLDER
                 || method_choice.getSelectedIndex() == MainWindow.NOVA_PARHALLEY
                 || method_choice.getSelectedIndex() == MainWindow.NOVA_LAGUERRE
-                || method_choice.getSelectedIndex() == MainWindow.NOVA_NEWTON_HINES)) {
+                || method_choice.getSelectedIndex() == MainWindow.NOVA_NEWTON_HINES
+                || method_choice.getSelectedIndex() == MainWindow.NOVA_WHITTAKER
+                || method_choice.getSelectedIndex() == MainWindow.NOVA_WHITTAKER_DOUBLE_CONVEX
+                || method_choice.getSelectedIndex() == MainWindow.NOVA_SUPER_HALLEY
+                || method_choice.getSelectedIndex() == MainWindow.NOVA_MIDPOINT
+                || method_choice.getSelectedIndex() == MainWindow.NOVA_TRAUB_OSTROWSKI
+                || method_choice.getSelectedIndex() == MainWindow.NOVA_STIRLING)) {
             formula_dfz_panel9.setVisible(false);
         }
 
@@ -317,7 +344,13 @@ public class UserFormulaNovaDialog extends JDialog {
                                 || method_choice.getSelectedIndex() == MainWindow.NOVA_HOUSEHOLDER
                                 || method_choice.getSelectedIndex() == MainWindow.NOVA_PARHALLEY
                                 || method_choice.getSelectedIndex() == MainWindow.NOVA_LAGUERRE
-                                || method_choice.getSelectedIndex() == MainWindow.NOVA_NEWTON_HINES) {
+                                || method_choice.getSelectedIndex() == MainWindow.NOVA_NEWTON_HINES
+                                || method_choice.getSelectedIndex() == MainWindow.NOVA_WHITTAKER
+                                || method_choice.getSelectedIndex() == MainWindow.NOVA_WHITTAKER_DOUBLE_CONVEX
+                                || method_choice.getSelectedIndex() == MainWindow.NOVA_SUPER_HALLEY
+                                || method_choice.getSelectedIndex() == MainWindow.NOVA_MIDPOINT
+                                || method_choice.getSelectedIndex() == MainWindow.NOVA_TRAUB_OSTROWSKI
+                                || method_choice.getSelectedIndex() == MainWindow.NOVA_STIRLING) {
                             s.parser.parse(field_dfz_formula9.getText());
 
                             if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR()) {
@@ -332,7 +365,10 @@ public class UserFormulaNovaDialog extends JDialog {
                                 || method_choice.getSelectedIndex() == MainWindow.NOVA_SCHRODER
                                 || method_choice.getSelectedIndex() == MainWindow.NOVA_HOUSEHOLDER
                                 || method_choice.getSelectedIndex() == MainWindow.NOVA_PARHALLEY
-                                || method_choice.getSelectedIndex() == MainWindow.NOVA_LAGUERRE) {
+                                || method_choice.getSelectedIndex() == MainWindow.NOVA_LAGUERRE
+                                || method_choice.getSelectedIndex() == MainWindow.NOVA_WHITTAKER
+                                || method_choice.getSelectedIndex() == MainWindow.NOVA_WHITTAKER_DOUBLE_CONVEX
+                                || method_choice.getSelectedIndex() == MainWindow.NOVA_SUPER_HALLEY) {
                             s.parser.parse(field_ddfz_formula9.getText());
 
                             if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR()) {
@@ -389,7 +425,13 @@ public class UserFormulaNovaDialog extends JDialog {
                                 || method_choice.getSelectedIndex() == MainWindow.NOVA_HOUSEHOLDER
                                 || method_choice.getSelectedIndex() == MainWindow.NOVA_PARHALLEY
                                 || method_choice.getSelectedIndex() == MainWindow.NOVA_LAGUERRE
-                                || method_choice.getSelectedIndex() == MainWindow.NOVA_NEWTON_HINES) {
+                                || method_choice.getSelectedIndex() == MainWindow.NOVA_NEWTON_HINES
+                                || method_choice.getSelectedIndex() == MainWindow.NOVA_WHITTAKER
+                                || method_choice.getSelectedIndex() == MainWindow.NOVA_WHITTAKER_DOUBLE_CONVEX
+                                || method_choice.getSelectedIndex() == MainWindow.NOVA_SUPER_HALLEY
+                                || method_choice.getSelectedIndex() == MainWindow.NOVA_MIDPOINT
+                                || method_choice.getSelectedIndex() == MainWindow.NOVA_TRAUB_OSTROWSKI
+                                || method_choice.getSelectedIndex() == MainWindow.NOVA_STIRLING) {
                             s.fns.user_dfz_formula = field_dfz_formula9.getText();
                         }
 
@@ -397,7 +439,10 @@ public class UserFormulaNovaDialog extends JDialog {
                                 || method_choice.getSelectedIndex() == MainWindow.NOVA_SCHRODER
                                 || method_choice.getSelectedIndex() == MainWindow.NOVA_HOUSEHOLDER
                                 || method_choice.getSelectedIndex() == MainWindow.NOVA_PARHALLEY
-                                || method_choice.getSelectedIndex() == MainWindow.NOVA_LAGUERRE) {
+                                || method_choice.getSelectedIndex() == MainWindow.NOVA_LAGUERRE
+                                || method_choice.getSelectedIndex() == MainWindow.NOVA_WHITTAKER
+                                || method_choice.getSelectedIndex() == MainWindow.NOVA_WHITTAKER_DOUBLE_CONVEX
+                                || method_choice.getSelectedIndex() == MainWindow.NOVA_SUPER_HALLEY) {
                             s.fns.user_ddfz_formula = field_ddfz_formula9.getText();
                         }                     
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 hrkalona2
+ * Copyright (C) 2020 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,9 +26,9 @@ public class GoldenRatioSpiralNNormOrbitTrap extends OrbitTrap {
     private double phi;
     private double n_norm;
 
-    public GoldenRatioSpiralNNormOrbitTrap(double pointRe, double pointIm, double trapLength, double trapWidth, double n_norm) {
+    public GoldenRatioSpiralNNormOrbitTrap(double pointRe, double pointIm, double trapLength, double trapWidth, double n_norm, boolean countTrapIterations) {
 
-        super(pointRe, pointIm, trapLength, trapWidth);
+        super(pointRe, pointIm, trapLength, trapWidth, countTrapIterations);
         phi = 0.5 * (1 + Math.sqrt(5));
         this.n_norm = n_norm;
 

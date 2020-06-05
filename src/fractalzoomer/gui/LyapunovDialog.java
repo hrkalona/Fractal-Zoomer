@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 hrkalona2
+ * Copyright (C) 2020 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,7 +50,7 @@ public class LyapunovDialog extends JDialog {
 
     public LyapunovDialog(MainWindow ptr, Settings s, int oldSelected, JRadioButtonMenuItem[] fractal_functions, boolean wasMagnetType, boolean wasConvergingType, boolean wasSimpleType, boolean wasMagneticPendulumType) {
 
-        super();
+        super(ptr);
         
         ptra = ptr;
 
@@ -83,7 +83,10 @@ public class LyapunovDialog extends JDialog {
         initial_value.setText(s.fns.lpns.lyapunovInitialValue);
 
         JPanel formula_panel_lyapunov = new JPanel();
-        formula_panel_lyapunov.setLayout(new GridLayout(3, 2));
+        formula_panel_lyapunov.setLayout(new GridLayout(2, 2));
+        
+        JPanel formula_panel_lyapunov10 = new JPanel();
+        formula_panel_lyapunov10.setLayout(new GridLayout(2, 2));
         
         JPanel formula_panel_lyapunov2 = new JPanel();
 
@@ -129,14 +132,32 @@ public class LyapunovDialog extends JDialog {
         
         JPanel variable_panel = new JPanel();
         variable_panel.add(new JLabel("Expose exponent to variable: "));
-        variable_panel.add(variable_choice);
+        variable_panel.add(variable_choice);        
         
-        formula_panel_lyapunov.add(checkbox_panel);
-        formula_panel_lyapunov.add(variable_panel);
+        final JCheckBox skipBailout = new JCheckBox("Skip Bailout");
+        skipBailout.setToolTipText("Disables the bailout condition check.");
+        skipBailout.setSelected(s.fns.lpns.lyapunovskipBailoutCheck);
+        skipBailout.setFocusable(false);
+        
+        JPanel bailout_panel = new JPanel();
+        bailout_panel.add(skipBailout);
+        
+        JTextField initial_iterations = new JTextField(25);
+        initial_iterations.setText("" + s.fns.lpns.lyapunovInitializationIteratons);
+        
+        JPanel iterations_panel = new JPanel();
+        iterations_panel.add(new JLabel("Initial Iterations ="));
+        iterations_panel.add(initial_iterations);
+        
         formula_panel_lyapunov.add(formula_panel_lyapunov2);
         formula_panel_lyapunov.add(formula_panel_lyapunov3);
         formula_panel_lyapunov.add(formula_panel_lyapunov4);
         formula_panel_lyapunov.add(formula_panel_lyapunov5);
+        
+        formula_panel_lyapunov10.add(iterations_panel);
+        formula_panel_lyapunov10.add(variable_panel); 
+        formula_panel_lyapunov10.add(bailout_panel);
+        formula_panel_lyapunov10.add(checkbox_panel);             
         
         JPanel formula_panel_lyapunov6 = new JPanel();
 
@@ -170,7 +191,8 @@ public class LyapunovDialog extends JDialog {
             formula_panel_lyapunov6,
             formula_panel_lyapunov7,
             formula_panel_lyapunov9,
-            formula_panel_lyapunov8};
+            formula_panel_lyapunov8,
+            formula_panel_lyapunov10};
 
         optionPane = new JOptionPane(message_lyap, JOptionPane.QUESTION_MESSAGE, JOptionPane.OK_CANCEL_OPTION, null, null, null);
 
@@ -290,6 +312,21 @@ public class LyapunovDialog extends JDialog {
                             return;
                         }
                         
+                        int temp;
+                        try {
+                            temp = Integer.parseInt(initial_iterations.getText());
+                        } catch (Exception ex) {
+                            JOptionPane.showMessageDialog(ptra, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
+                            return;
+                        }
+                        
+                        if (temp < 0) {
+                            JOptionPane.showMessageDialog(ptra, "Initial iterations number must be greater than -1.", "Error!", JOptionPane.ERROR_MESSAGE);
+                            return;
+                        } else if (temp > MainWindow.MAX_ITERATIONS_NUMBER) {
+                            JOptionPane.showMessageDialog(ptra, "Initial iterations number must be less than 100001.", "Error!", JOptionPane.ERROR_MESSAGE);
+                            return;
+                        }
 
                         s.fns.lpns.lyapunovA = field_formula_a.getText();
                         s.fns.lpns.lyapunovB = field_formula_b.getText();
@@ -302,6 +339,8 @@ public class LyapunovDialog extends JDialog {
                         s.fns.lpns.lyapunovExponentFunction = field_exponent_function.getText();
                         s.fns.lpns.lyapunovVariableId = variable_choice.getSelectedIndex();
                         s.fns.lpns.lyapunovInitialValue = initial_value.getText();
+                        s.fns.lpns.lyapunovskipBailoutCheck = skipBailout.isSelected();
+                        s.fns.lpns.lyapunovInitializationIteratons = temp;
 
                         s.userFormulaHasC = temp_bool;
 

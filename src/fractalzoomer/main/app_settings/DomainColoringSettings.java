@@ -1,5 +1,5 @@
 /*
- * Fractal Zoomer, Copyright (C) 2019 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2020 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -57,6 +57,7 @@ public class DomainColoringSettings {
     public double circleWidth;
     public double gridWidth;
     public int gridAlgorithm;
+    public int combineType;
 
 
     public DomainColoringSettings(DomainColoringSettings copy ) {
@@ -104,6 +105,8 @@ public class DomainColoringSettings {
         circleWidth = copy.circleWidth;
         gridWidth = copy.gridWidth;
         gridAlgorithm = copy.gridAlgorithm;
+        
+        combineType = copy.combineType;
     }
     
     public DomainColoringSettings() {
@@ -156,6 +159,7 @@ public class DomainColoringSettings {
         domainProcessingTransfer = 1;
         
         gridAlgorithm = 0;
+        combineType = 0;
         
     }
     

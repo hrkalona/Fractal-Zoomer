@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 hrkalona
+ * Copyright (C) 2020 hrkalona
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -415,7 +415,7 @@ public class FiltersOptionsFrame extends JFrame {
 
         panels[MainWindow.HISTOGRAM_EQUALIZATION] = new JPanel();
         panels[MainWindow.HISTOGRAM_EQUALIZATION].setBackground(MainWindow.bg_color);
-        String[] histogram_str = {"Brightness", "GIMP levels", "Red", "Green", "Blue", "Hue", "Saturation"};
+        String[] histogram_str = {"Brightness", "GIMP levels", "Red", "Green", "Blue", "Hue", "Saturation", "Lightness (Lab)"};
 
         components_filters[MainWindow.HISTOGRAM_EQUALIZATION] = new JComboBox(histogram_str);
         ((JComboBox)components_filters[MainWindow.HISTOGRAM_EQUALIZATION]).setSelectedIndex(filters_options_vals[MainWindow.HISTOGRAM_EQUALIZATION]);
@@ -647,7 +647,7 @@ public class FiltersOptionsFrame extends JFrame {
 
         panels[MainWindow.GRAYSCALE] = new JPanel();
         panels[MainWindow.GRAYSCALE].setBackground(MainWindow.bg_color);
-        String[] grayscale_str = {"Luminance NTSC", "Luminance HDTV", "Average", "Lightness"};
+        String[] grayscale_str = {"Luminance NTSC", "Luminance HDTV", "Average", "Lightness", "Lightness Lab"};
 
         components_filters[MainWindow.GRAYSCALE] = new JComboBox(grayscale_str);
         ((JComboBox)components_filters[MainWindow.GRAYSCALE]).setSelectedIndex(filters_options_vals[MainWindow.GRAYSCALE]);

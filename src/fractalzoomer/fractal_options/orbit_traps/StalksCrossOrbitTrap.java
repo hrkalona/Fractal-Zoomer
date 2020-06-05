@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 hrkalona
+ * Copyright (C) 2020 hrkalona
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,9 +28,9 @@ public class StalksCrossOrbitTrap extends OrbitTrap {
     private double cnorm;
     private int lineType;
     
-    public StalksCrossOrbitTrap(double pointRe, double pointIm, double trapLength, double trapWidth, int lineType) {
+    public StalksCrossOrbitTrap(double pointRe, double pointIm, double trapLength, double trapWidth, int lineType, boolean countTrapIterations) {
         
-        super(pointRe, pointIm, trapLength, trapWidth);
+        super(pointRe, pointIm, trapLength, trapWidth, countTrapIterations);
         this.lineType = lineType;
         
     }

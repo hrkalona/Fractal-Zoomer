@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2019 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2020 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -51,6 +51,8 @@ public class Token
   public static final int COMMA = 14;
   /** Token id for function names with user multiple arguments (20)*/
   public static final int FUNCTION_USER_MULTI_2_ARGUMENTS = 15;
+  /** Token id for function derivative names with 2 arguments*/
+  public static final int FUNCTION_DERIVATIVE_2ARGUMENTS = 16;
 
   /** the token identifier */
   public final int token;

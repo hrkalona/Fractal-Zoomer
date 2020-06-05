@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 hrkalona
+ * Copyright (C) 2020 hrkalona
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,9 +28,9 @@ public class StalksPointNNormOrbitTrap extends OrbitTrap {
     private double cnorm;
     private double n_norm;
     
-    public StalksPointNNormOrbitTrap(double pointRe, double pointIm, double trapLength, double trapWidth, double n_norm) {
+    public StalksPointNNormOrbitTrap(double pointRe, double pointIm, double trapLength, double trapWidth, double n_norm, boolean countTrapIterations) {
         
-        super(pointRe, pointIm, trapLength, trapWidth);
+        super(pointRe, pointIm, trapLength, trapWidth, countTrapIterations);
         this.n_norm = n_norm;
         
     }

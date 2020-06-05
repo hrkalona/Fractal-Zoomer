@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 hrkalona2
+ * Copyright (C) 2020 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -39,7 +39,7 @@ public class IterationDialog extends JDialog {
 
     public IterationDialog(MainWindow ptr, Settings s) {
         
-        super();
+        super(ptr);
 
         ptra = ptr;
 
@@ -97,7 +97,7 @@ public class IterationDialog extends JDialog {
                         if (temp < 1) {
                             JOptionPane.showMessageDialog(ptra, "Maximum iterations number must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
                             return;
-                        } else if (temp > 100000) {
+                        } else if (temp >  MainWindow.MAX_ITERATIONS_NUMBER) {
                             JOptionPane.showMessageDialog(ptra, "Maximum iterations number must be less than 100001.", "Error!", JOptionPane.ERROR_MESSAGE);
                             return;
                         }

@@ -1,5 +1,5 @@
 /*
- * Fractal Zoomer, Copyright (C) 2019 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2020 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,6 +40,9 @@ public class D3Settings {
     public int shade_choice;
     public int shade_algorithm;
     public boolean shade_invert;
+    public boolean histogram_equalization;
+    public int histogram_granularity;
+    public double histogram_density;
     
     public D3Settings() {
         
@@ -69,6 +72,10 @@ public class D3Settings {
 
         d3 = false;
         detail = 400;
+
+        histogram_equalization = false;
+        histogram_granularity = 10;
+        histogram_density = 3;
         
     }
 }

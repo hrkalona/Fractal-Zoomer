@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2019 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2020 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -115,30 +115,7 @@ public class NewtonHinesFormula extends NewtonHinesRootFindingMethod {
 
         Complex dfz;
 
-        if (Derivative.DERIVATIVE_METHOD == Derivative.NUMERICAL_SYMMETRICAL) {
-            if (parser.foundZ()) {
-                parser.setZvalue(complex[0].plus(Derivative.DZ));
-            }
-
-            Complex fzdz = expr.getValue();
-
-            if (parser.foundZ()) {
-                parser.setZvalue(complex[0].sub(Derivative.DZ));
-            }
-
-            Complex fzmdz = expr.getValue();
-
-            dfz = Derivative.numericalDerivativeSymmetricFirstOrder(fzdz, fzmdz);
-        } else if (Derivative.DERIVATIVE_METHOD == Derivative.NUMERICAL) {
-            if (parser.foundZ()) {
-                parser.setZvalue(complex[0].plus(Derivative.DZ));
-            }
-
-            Complex fzdz = expr.getValue();
-
-            dfz = Derivative.numericalDerivativeFirstOrder(fz, fzdz);
-
-        } else {
+        if(Derivative.DERIVATIVE_METHOD == Derivative.DISABLED) {
             if (parser2.foundZ()) {
                 parser2.setZvalue(complex[0]);
             }
@@ -154,6 +131,38 @@ public class NewtonHinesFormula extends NewtonHinesRootFindingMethod {
             }
 
             dfz = expr2.getValue();
+        }
+        else if (Derivative.DERIVATIVE_METHOD == Derivative.NUMERICAL_CENTRAL) {
+            if (parser.foundZ()) {
+                parser.setZvalue(complex[0].plus(Derivative.DZ));
+            }
+
+            Complex fzdz = expr.getValue();
+
+            if (parser.foundZ()) {
+                parser.setZvalue(complex[0].sub(Derivative.DZ));
+            }
+
+            Complex fzmdz = expr.getValue();
+
+            dfz = Derivative.numericalCentralDerivativeFirstOrder(fzdz, fzmdz);
+        } else if (Derivative.DERIVATIVE_METHOD == Derivative.NUMERICAL_FORWARD) {
+            if (parser.foundZ()) {
+                parser.setZvalue(complex[0].plus(Derivative.DZ));
+            }
+
+            Complex fzdz = expr.getValue();
+
+            dfz = Derivative.numericalForwardDerivativeFirstOrder(fz, fzdz);
+
+        } else {
+            if (parser.foundZ()) {
+                parser.setZvalue(complex[0].sub(Derivative.DZ));
+            }
+
+            Complex fzmdz = expr.getValue();
+            
+            dfz = Derivative.numericalBackwardDerivativeFirstOrder(fz, fzmdz);
         }
 
         newtonHinesMethod(complex[0], fz, dfz);

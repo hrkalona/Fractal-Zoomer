@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 hrkalona2
+ * Copyright (C) 2020 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,7 +40,6 @@ import javax.swing.JSlider;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
-import static javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE;
 
 /**
  *
@@ -53,7 +52,7 @@ public class D3Dialog extends JDialog {
 
     public D3Dialog(MainWindow ptr, Settings s, JButton d3_button, JCheckBoxMenuItem d3_opt, boolean mode) {
 
-        super();
+        super(ptr);
         
         ptra = ptr;
 
@@ -95,7 +94,7 @@ public class D3Dialog extends JDialog {
         temp_p3.add(scale_max_val_opt);
         temp_p3.add(scale_range);
 
-        String[] height_options = {"log(x + 1)", "log(log(x + 1) + 1)", "1 / (x + 1)", "e^(-x + 5)", "150 - e^(-x + 5)", "150 / (1 + e^(-3*x+3))"};
+        String[] height_options = {"log(x + 1)", "log(log(x + 1) + 1)", "1 / (x + 1)", "e^(-x + 5)", "150 - e^(-x + 5)", "150 / (1 + e^(-3*x+3))", "1 / (log(x + 1) + 1)"};
 
         JComboBox height_algorithm_opt = new JComboBox(height_options);
         height_algorithm_opt.setSelectedIndex(s.d3s.height_algorithm);
@@ -132,6 +131,12 @@ public class D3Dialog extends JDialog {
             }
 
         });
+
+
+        final JCheckBox histogram_opt = new JCheckBox("Histogram Equalization");
+        histogram_opt.setSelected(s.d3s.histogram_equalization);
+        histogram_opt.setFocusable(false);
+        histogram_opt.setToolTipText("Enables the histogram equalization.");
 
         JSlider color_blend = new JSlider(JSlider.HORIZONTAL, 0, 100, ((int) (s.d3s.color_3d_blending * 100)));
         color_blend.setPreferredSize(new Dimension(270, 35));
@@ -248,10 +253,40 @@ public class D3Dialog extends JDialog {
         temp_p.add(field3);
         temp_p.add(kernels_size_opt);
 
+
+        final JTextField field_granularity = new JTextField();
+        field_granularity.setText("" + s.d3s.histogram_granularity);
+        field_granularity.setEnabled(s.d3s.histogram_equalization);
+
+        final JTextField field_density = new JTextField();
+        field_density.setText("" + s.d3s.histogram_density);
+        field_density.setEnabled(s.d3s.histogram_equalization);
+
+        JPanel temp_p4 = new JPanel();
+        temp_p4.setLayout(new GridLayout(2, 2));
+        temp_p4.add(new JLabel("Bin Granularity:", SwingConstants.HORIZONTAL));
+        temp_p4.add(new JLabel("Density:", SwingConstants.HORIZONTAL));
+        temp_p4.add(field_granularity);
+        temp_p4.add(field_density);
+
+        histogram_opt.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (histogram_opt.isSelected()) {
+                    field_granularity.setEnabled(true);
+                    field_density.setEnabled(true);
+                } else {
+                    field_granularity.setEnabled(false);
+                    field_density.setEnabled(false);
+                }
+            }
+
+        });
+
         Object[] message3 = {
             "Set the 3D detail level and size.",
             temp_p2,
-            " ",
             "Set the scale of the height.",
             "Scale:",
             field2,
@@ -264,6 +299,9 @@ public class D3Dialog extends JDialog {
             "Select the gaussian normalization weight and radius.",
             gaussian_scaling_opt,
             temp_p,
+            "Select histogram height equalization parameters.",
+            histogram_opt,
+            temp_p4,
             " ",
             tabbedPane,};
 
@@ -310,6 +348,8 @@ public class D3Dialog extends JDialog {
                         double temp2 = Double.parseDouble(field2.getText());
                         double temp3 = Double.parseDouble(field3.getText());
                         double temp4 = Double.parseDouble(size_opt.getText());
+                        int temp5 = Integer.parseInt(field_granularity.getText());
+                        double temp6 = Double.parseDouble(field_density.getText());
 
                         if (temp < 10) {
                             JOptionPane.showMessageDialog(ptra, "The 3D detail level must be greater than 9.", "Error!", JOptionPane.ERROR_MESSAGE);
@@ -334,6 +374,21 @@ public class D3Dialog extends JDialog {
                             return;
                         }
 
+                        if(temp5 < 1) {
+                            JOptionPane.showMessageDialog(ptra, "The histogram bin granularity must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
+                            return;
+                        }
+
+                        if(temp5 > 50) {
+                            JOptionPane.showMessageDialog(ptra, "The histogram bin granularity must be lower than 51.", "Error!", JOptionPane.ERROR_MESSAGE);
+                            return;
+                        }
+
+                        if (temp6 <= 0) {
+                            JOptionPane.showMessageDialog(ptra, "The histogram density must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
+                            return;
+                        }
+
                         s.d3s.detail = temp;
                         s.d3s.d3_height_scale = temp2;
                         s.d3s.d3_size_scale = temp4;
@@ -354,8 +409,10 @@ public class D3Dialog extends JDialog {
                         //d3_draw_method = draw_choice.getSelectedIndex();
                         s.d3s.color_3d_blending = color_blend.getValue() / 100.0;
 
-                        s.d3s.fiX = 0.64;
-                        s.d3s.fiY = 0.82;
+                        s.d3s.histogram_equalization = histogram_opt.isSelected();
+                        s.d3s.histogram_granularity = temp5;
+                        s.d3s.histogram_density = temp6;
+
                     } catch (Exception ex) {
                         JOptionPane.showMessageDialog(ptra, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
                         return;
@@ -363,6 +420,8 @@ public class D3Dialog extends JDialog {
 
                     dispose();
                     if (mode) {
+                        s.d3s.fiX = 0.64;
+                        s.d3s.fiY = 0.82;
                         ptra.set3DOptionPost();
                     } else {
                         ptra.set3DDetailsPost();

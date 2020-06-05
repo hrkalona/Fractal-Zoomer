@@ -1,5 +1,5 @@
 /*
- * Fractal Zoomer, Copyright (C) 2019 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2020 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -280,6 +280,8 @@ public class UserFormulasHelpDialog {
                 + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>rot</b></font>: a function that rotates in degrees about point zero.<br>"
                 + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>dist</b></font>: distance function.<br>"
                 + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>sdist</b></font>: distance squared function.<br>"
+                + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>f'</b></font>: first derivative function (argument 1: the argument which is differentiated, argument 2: the variable of the differentiation).<br>"
+                + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>f''</b></font>: second derivative function (argument 1: the argument which is differentiated, argument 2: the variable of the differentiation).<br>"
                 + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>g1</b></font>: user function g1 which can be changed in UserDefinedFunctions.java (Compilation is required).<br>"
                 + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>g2</b></font>: user function g2 which can be changed in UserDefinedFunctions.java (Compilation is required).<br>"
                 + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>g3</b></font>: user function g3 which can be changed in UserDefinedFunctions.java (Compilation is required).<br>"

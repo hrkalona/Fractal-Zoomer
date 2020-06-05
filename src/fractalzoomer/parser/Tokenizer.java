@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2019 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2020 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -99,12 +99,13 @@ public class Tokenizer
     tokenizer.add("[*/%]", Token.MULTDIVREM);
     tokenizer.add("\\^", Token.RAISED);
 
-    tokenizer.add("(" + FunctionExpressionNode.getAllFunctions() + ")(?!\\w)", Token.FUNCTION);
-    tokenizer.add("(" + Function2ArgumentsExpressionNode.getAllFunctions() + ")(?!\\w)", Token.FUNCTION_2ARGUMENTS);
-    tokenizer.add("(" + FunctionUser1ArgumentExpressionNode.getAllFunctions() + ")(?!\\w)", Token.FUNCTION_USER_ONE_ARGUMENT);
-    tokenizer.add("(" + FunctionUser2ArgumentExpressionNode.getAllFunctions() + ")(?!\\w)", Token.FUNCTION_USER_TWO_ARGUMENTS);
-    tokenizer.add("(" + FunctionUserMultiArgumentExpressionNode.getAllFunctions() + ")(?!\\w)", Token.FUNCTION_USER_MULTI_ARGUMENTS);
-    tokenizer.add("(" + FunctionUserMultiArgument2ExpressionNode.getAllFunctions() + ")(?!\\w)", Token.FUNCTION_USER_MULTI_2_ARGUMENTS);
+    tokenizer.add("(?i)(" + FunctionExpressionNode.getAllFunctions() + ")(?!\\w)", Token.FUNCTION);
+    tokenizer.add("(?i)(" + Function2ArgumentsExpressionNode.getAllFunctions() + ")(?!\\w)", Token.FUNCTION_2ARGUMENTS);
+    tokenizer.add("(?i)(" + FunctionDerivative2ArgumentsExpressionNode.getAllFunctions() + ")(?!\\w)", Token.FUNCTION_DERIVATIVE_2ARGUMENTS);
+    tokenizer.add("(?i)(" + FunctionUser1ArgumentExpressionNode.getAllFunctions() + ")(?!\\w)", Token.FUNCTION_USER_ONE_ARGUMENT);
+    tokenizer.add("(?i)(" + FunctionUser2ArgumentExpressionNode.getAllFunctions() + ")(?!\\w)", Token.FUNCTION_USER_TWO_ARGUMENTS);
+    tokenizer.add("(?i)(" + FunctionUserMultiArgumentExpressionNode.getAllFunctions() + ")(?!\\w)", Token.FUNCTION_USER_MULTI_ARGUMENTS);
+    tokenizer.add("(?i)(" + FunctionUserMultiArgument2ExpressionNode.getAllFunctions() + ")(?!\\w)", Token.FUNCTION_USER_MULTI_2_ARGUMENTS);
 
     tokenizer.add("\\(", Token.OPEN_BRACKET);
     tokenizer.add(",", Token.COMMA);

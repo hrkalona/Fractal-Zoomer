@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2019 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2020 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -58,6 +58,7 @@ factor_op -> RAISED signed_factor
 factor_op -> EPSILON
 argument -> FUNCTION function_argument
 argument -> FUNCTION_2ARG function_argument2
+argument -> FUNCTION_DERIVATIVE_2_ARG function_argument2
 argument -> FUNCTION_USER_1_ARG function_argument
 argument -> FUNCTION_USER_2_ARG function_argument2
 argument -> FUNCTION_USER_MULTI_ARG function_max_multi_arg
@@ -453,7 +454,19 @@ public class Parser {
             nextToken();
             ExpressionNode expr[] = functionArgument2();
             return new Function2ArgumentsExpressionNode(function, expr[0], expr[1]);
-        } // argument -> FUNCTION_USER_1_ARG function_argument
+        } // argument -> FUNCTION_DERIVATIVE_2_ARG function_argument2
+        else if(lookahead.token == Token.FUNCTION_DERIVATIVE_2ARGUMENTS) {
+            int function = FunctionDerivative2ArgumentsExpressionNode.stringToFunction(lookahead.sequence);
+
+            nextToken();
+            ExpressionNode expr[] = functionArgument2();
+
+            if(!(expr[1] instanceof VariableExpressionNode)) {
+                throw new ParserException("The second argument of a derivative function must be a variable.", lookahead);
+            }
+
+            return new FunctionDerivative2ArgumentsExpressionNode(function, expr[0], expr[1]);
+        }// argument -> FUNCTION_USER_1_ARG function_argument
         else if(lookahead.token == Token.FUNCTION_USER_ONE_ARGUMENT) {
             int function = FunctionUser1ArgumentExpressionNode.stringToFunction(lookahead.sequence);
 

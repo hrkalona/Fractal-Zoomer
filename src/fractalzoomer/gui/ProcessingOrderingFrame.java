@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 kaloch
+ * Copyright (C) 2020 kaloch
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -228,13 +228,13 @@ public class ProcessingOrderingFrame extends JFrame {
         JPanel p2 = new JPanel();
         p2.setLayout(new FlowLayout(FlowLayout.LEFT));
         p2.setBackground(MainWindow.bg_color);
-        p2.add(new JLabel("Smoothing, Distance Estimation, Orbit Traps, and Statistical Coloring"));
+        p2.add(new JLabel("Smoothing, Distance Estimation, Orbit Traps, Statistical Coloring,"));
         text.add(p2);
         
         JPanel p4 = new JPanel();
         p4.setLayout(new FlowLayout(FlowLayout.LEFT));
         p4.setBackground(MainWindow.bg_color);
-        p4.add(new JLabel("are always performed first."));
+        p4.add(new JLabel("and Histogram Coloring are always performed first."));
         text.add(p4);
         
         JLabel color = new JLabel();

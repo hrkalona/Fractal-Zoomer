@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 hrkalona
+ * Copyright (C) 2020 hrkalona
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -52,7 +52,7 @@ public class InTrueColorDialog extends JDialog {
 
     public InTrueColorDialog(MainWindow ptr, Settings s) {
 
-        super();
+        super(ptr);
 
         ptra = ptr;
 

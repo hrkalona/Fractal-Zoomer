@@ -1,5 +1,5 @@
 /*
- * Fractal Zoomer, Copyright (C) 2019 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2020 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -79,6 +79,7 @@ public class PaletteMenu extends JMenu {
         paletteNames[15] = "Hot Cold 2";
         paletteNames[16] = "Fire";
         paletteNames[17] = "Jet";
+        
         paletteNames[MainWindow.CUSTOM_PALETTE_ID] = "Custom Palette";
         paletteNames[MainWindow.DIRECT_PALETTE_ID] = "Direct Palette";
         
@@ -99,6 +100,7 @@ public class PaletteMenu extends JMenu {
         paletteNames[33] = "Wizzl014";
         paletteNames[34] = "Wizzl017";
         paletteNames[35] = "Wizzl018";
+        paletteNames[36] = "Q Fractal";
     }
 
     public PaletteMenu(MainWindow ptr2, String name, int color_choice, boolean smoothing, int[][] custom_palette, int color_interpolation, int color_space, boolean reversed_palette, int color_cycling_location, double scale_factor_palette_val, int processing_alg, final boolean outcoloring_mode, int temp_color_cycling_location) {
@@ -109,7 +111,7 @@ public class PaletteMenu extends JMenu {
 
         setIcon(getIcon("/fractalzoomer/icons/palette.png"));
         
-        paletteLegacyFractintMenu = new JMenu("Legacy FractInt Maps");
+        paletteLegacyFractintMenu = new JMenu("Legacy/FractInt Maps");
         paletteLegacyFractintMenu.setIcon(getIcon("/fractalzoomer/icons/palette.png"));
         
         palette = new JRadioButtonMenuItem[paletteNames.length];
@@ -280,6 +282,11 @@ public class PaletteMenu extends JMenu {
         palette[29].setToolTipText("A legacy FractInt palette.");
         palette[30].setToolTipText("A legacy FractInt palette.");
         palette[31].setToolTipText("A legacy FractInt palette.");
+        palette[32].setToolTipText("A legacy FractInt palette.");
+        palette[33].setToolTipText("A legacy FractInt palette.");
+        palette[34].setToolTipText("A legacy FractInt palette.");
+        palette[35].setToolTipText("A legacy FractInt palette.");
+        palette[36].setToolTipText("A palette from QFractal.");
     }
 
     private ImageIcon getIcon(String path) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 hrkalona2
+ * Copyright (C) 2020 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,6 +35,8 @@ public class LyapunovSettings {
     public String[] lyapunovFinalExpression;
     public boolean useLyapunovExponent;
     public int lyapunovVariableId;
+    public int lyapunovInitializationIteratons;
+    public boolean lyapunovskipBailoutCheck;
     public static final String DEFAULT_LYAPUNOV_FUNCTION = "r * z * (1 - z)";
     public static final String DEFAULT_LYAPUNOV_EXPONENT_FUNCTION = "r * (1 - 2 * z)";
     public static final String DEFAULT_LYAPUNOV_FUNCTION_TRIMMED = DEFAULT_LYAPUNOV_FUNCTION.replaceAll("\\s+", "");
@@ -54,6 +56,8 @@ public class LyapunovSettings {
         lyapunovExponentFunction = DEFAULT_LYAPUNOV_EXPONENT_FUNCTION;
         lyapunovVariableId = 0;
         lyapunovInitialValue = "0.5";
+        lyapunovInitializationIteratons = 0;
+        lyapunovskipBailoutCheck = false;
     }
     
     public static String[] getTokens(String input) {

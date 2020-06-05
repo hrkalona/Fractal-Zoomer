@@ -1,5 +1,5 @@
 /*
- * Fractal Zoomer, Copyright (C) 2019 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2020 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -76,10 +76,12 @@ public class FunctionUser2ArgumentExpressionNode implements ExpressionNode {
      *
      * If the function is not found this method throws an error.
      *
-     * @param str the name of the function
+     * @param stringInput the name of the function
      * @return the id of the function
      */
-    public static int stringToFunction(String str) {
+    public static int stringToFunction(String stringInput) {
+        
+        String str = stringInput.toLowerCase();
 
         for(int i = 0; i < G_FUNCS; i++) {
             if(str.equals(FUNC_NAME + (i + 1))) {

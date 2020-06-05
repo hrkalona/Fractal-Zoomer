@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 hrkalona2
+ * Copyright (C) 2020 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,7 +45,7 @@ public class NovaDialog extends JDialog {
 
     public NovaDialog(MainWindow ptr, Settings s, int oldSelected, JRadioButtonMenuItem[] fractal_functions, boolean wasMagnetType, boolean wasConvergingType, boolean wasSimpleType, boolean wasMagneticPendulumType) {
 
-        super();
+        super(ptr);
         
         ptra = ptr;
 
@@ -81,7 +81,7 @@ public class NovaDialog extends JDialog {
         k_panel.add(new JLabel(" Imaginary:"));
         k_panel.add(field_imaginaryk);
 
-        String[] method = {"Newton", "Halley", "Schroder", "Householder", "Secant", "Steffensen", "Muller", "Parhalley", "Laguerre", "Newton-Hines"};
+        String[] method = {"Newton", "Halley", "Schroder", "Householder", "Secant", "Steffensen", "Muller", "Parhalley", "Laguerre", "Newton-Hines", "Whittaker", "Whittaker Double Convex", "Super Halley", "Midpoint", "Traub-Ostrowski", "Stirling"};
 
         JComboBox method_choice = new JComboBox(method);
         method_choice.setSelectedIndex(s.fns.nova_method);

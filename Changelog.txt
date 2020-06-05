@@ -1,3 +1,16 @@
+Version 1.0.7.6
+    -Added Histogram Iteration Coloring.
+    -Added 3 new Root Finding Methods.
+    -Added Atom Domains as an orbit trap.
+    -Added Cellular Coloring for orbit traps, and some extra options.
+    -Added more options for Lyapunov function.
+    -Custom palette editor now supports copying and swapping colors.
+    -Added first and second derivative functions to user formulas.
+    -User formula function names are now case insensitive.
+    -Updated the template for UserDefinedFunctions to provide a derivative example.
+    -Greedy Drawing Algorithms are now toggled off by default, as they confuse new users.
+    -Refactored the code and fixed some bugs.
+
 Version 1.0.7.5
     -Added numerical derivatives for all of the user root finding formulas and user nova formula.
     -Added stalks as an orbit trap.

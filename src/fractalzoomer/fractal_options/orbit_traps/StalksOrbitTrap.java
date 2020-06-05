@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 hrkalona
+ * Copyright (C) 2020 hrkalona
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,8 +27,8 @@ public class StalksOrbitTrap extends OrbitTrap {
     private double stalksradiuslow;
     private double cnorm;
     
-    public StalksOrbitTrap(double pointRe, double pointIm, double trapWidth) {
-        super(pointRe, pointIm, 0.0, trapWidth);
+    public StalksOrbitTrap(double pointRe, double pointIm, double trapWidth, boolean countTrapIterations) {
+        super(pointRe, pointIm, 0.0, trapWidth, countTrapIterations);
     }
 
     @Override

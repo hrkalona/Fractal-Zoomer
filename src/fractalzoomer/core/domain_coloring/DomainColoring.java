@@ -1,5 +1,5 @@
 /*
- * Fractal Zoomer, Copyright (C) 2019 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2020 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -76,6 +76,8 @@ public abstract class DomainColoring {
     
     protected int[] gradient;
     protected int gradient_offset;
+    
+    protected int combineType;
 
     protected double isoLinesBlendingFactor;
 
@@ -112,6 +114,8 @@ public abstract class DomainColoring {
         gridWidth = 1;
         
         gridAlgorithm = 0;
+        
+        combineType = 0;
 
         this.blending = blending;
 
@@ -278,7 +282,7 @@ public abstract class DomainColoring {
             coef2 = 1;
         }
         
-        return coef * coef2;
+        return combine(coef, coef2);
         
     }
 
@@ -409,7 +413,7 @@ public abstract class DomainColoring {
 
         iso = iso / iso_distance;
 
-        mod = iso * mod;
+        mod = combine(iso, mod);
      
         return applyContour(red, green, blue, mod);
 
@@ -431,7 +435,7 @@ public abstract class DomainColoring {
 
         mod2 = mod2 < 0 ? 1 + mod2 : mod2;
 
-        mod = mod * mod2;
+        mod = combine(mod, mod2);
 
         return applyContour(red, green, blue, mod);
 
@@ -453,8 +457,6 @@ public abstract class DomainColoring {
 
         mod2 = mod2 < 0 ? 1 + mod2 : mod2;
 
-        mod = mod * mod2;
-
         double mod3 = (Math.log(norm) / logBaseFinal) % 1.0;
 
         mod3 = mod3 < 0 ? 1 + mod3 : mod3;
@@ -463,7 +465,7 @@ public abstract class DomainColoring {
             mod3 = 0;
         }
 
-        mod = mod * mod3;
+        mod = combine(mod, mod2, mod3);
 
         return applyContour(red, green, blue, mod);
 
@@ -485,8 +487,6 @@ public abstract class DomainColoring {
 
         mod2 = mod2 < 0 ? 1 + mod2 : mod2;
 
-        mod = mod * mod2;
-
         arg = (arg / Math.PI * 0.5);
 
         arg = arg < 0 ? arg + 1 : arg;
@@ -495,7 +495,7 @@ public abstract class DomainColoring {
 
         iso = iso / iso_distance;
 
-        mod = mod * iso;
+        mod = combine(mod, mod2, iso);
 
         return applyContour(red, green, blue, mod);
 
@@ -517,8 +517,6 @@ public abstract class DomainColoring {
 
         mod2 = mod2 < 0 ? 1 + mod2 : mod2;
 
-        mod = mod * mod2;
-
         double mod3 = (Math.log(norm) / logBaseFinal) % 1.0;
 
         mod3 = mod3 < 0 ? 1 + mod3 : mod3;
@@ -526,8 +524,6 @@ public abstract class DomainColoring {
         if (Double.isNaN(mod3) || Double.isInfinite(mod3)) {
             mod3 = 0;
         }
-
-        mod = mod * mod3;
 
         arg = (arg / Math.PI * 0.5);
 
@@ -537,7 +533,7 @@ public abstract class DomainColoring {
 
         iso = iso / iso_distance;
 
-        mod = mod * iso;
+        mod = combine(mod, mod2, mod3, iso);
 
         return applyContour(red, green, blue, mod);
 
@@ -630,7 +626,7 @@ public abstract class DomainColoring {
 
         double mod2 = 1 - circlefade(s);
         
-        mod = mod * mod2;
+        mod = combine(mod, mod2);
 
         return applyContour(red, green, blue, mod);
 
@@ -665,10 +661,46 @@ public abstract class DomainColoring {
             mod2 = (iso - (iso_distance - factor)) / (iso_distance - (iso_distance - factor));
         }
         
-        mod = mod * mod2;
+        mod = combine(mod, mod2);
 
         return applyContour(red, green, blue, mod);
 
+    }
+    
+    private double combine(double c1, double c2) {
+        
+        switch(combineType) {
+            case 0:
+                return c1 * c2;
+            case 1:
+                return (c1 + c2) * 0.5;
+        }
+            
+        return 0;
+    }
+    
+    private double combine(double c1, double c2, double c3) {
+        
+        switch(combineType) {
+            case 0:
+                return c1 * c2 * c3;
+            case 1:
+                return (c1 + c2 + c3) / 3.0;
+        }
+            
+        return 0;
+    }
+    
+    private double combine(double c1, double c2, double c3, double c4) {
+        
+        switch(combineType) {
+            case 0:
+                return c1 * c2 * c3 * c4;
+            case 1:
+                return (c1 + c2 + c3 + c4) * 0.25;
+        }
+            
+        return 0;
     }
     
     private double circlefade(double value) {

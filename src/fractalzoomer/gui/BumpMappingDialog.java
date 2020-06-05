@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 hrkalona2
+ * Copyright (C) 2020 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -51,7 +51,7 @@ public class BumpMappingDialog extends JDialog {
 
     public BumpMappingDialog(MainWindow ptr, Settings s, boolean greedy_algorithm, boolean julia_map) {
 
-        super();
+        super(ptr);
         
         ptra = ptr;
 
@@ -203,12 +203,12 @@ public class BumpMappingDialog extends JDialog {
                         double temp2 = Double.parseDouble(bump_transfer_factor_field.getText());
 
                         if (temp <= 0) {
-                            JOptionPane.showMessageDialog(ptra, "The noise reduction factor must be greater that 0.", "Error!", JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.showMessageDialog(ptra, "The noise reduction factor must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
                             return;
                         }
 
                         if (temp2 <= 0) {
-                            JOptionPane.showMessageDialog(ptra, "The transfer factor must be greater that 0.", "Error!", JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.showMessageDialog(ptra, "The transfer factor must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
                             return;
                         }
 

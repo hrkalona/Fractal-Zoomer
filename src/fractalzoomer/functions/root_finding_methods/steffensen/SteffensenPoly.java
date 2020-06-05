@@ -1,5 +1,5 @@
 /*
- * Fractal Zoomer, Copyright (C) 2019 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2020 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -109,12 +109,12 @@ public class SteffensenPoly extends SteffensenRootFindingMethod {
         
         if(usesComplexCoefficients) {
             fz = complex[0].tenth().times_mutable(complex_coefficients[0]).plus_mutable(complex[0].ninth().times_mutable(complex_coefficients[1])).plus_mutable(complex[0].eighth().times_mutable(complex_coefficients[2])).plus_mutable(complex[0].seventh().times_mutable(complex_coefficients[3])).plus_mutable(complex[0].sixth().times_mutable(complex_coefficients[4])).plus_mutable(complex[0].fifth().times_mutable(complex_coefficients[5])).plus_mutable(complex[0].fourth().times_mutable(complex_coefficients[6])).plus_mutable(complex[0].cube().times_mutable(complex_coefficients[7])).plus_mutable(complex[0].square().times_mutable(complex_coefficients[8])).plus_mutable(complex[0].times(complex_coefficients[9])).plus_mutable(complex_coefficients[10]);
-            Complex temp = complex[0].plus(fz);  
+            Complex temp = getFunctionArgument(complex[0], fz);  
             ffz = temp.tenth().times_mutable(complex_coefficients[0]).plus_mutable(temp.ninth().times_mutable(complex_coefficients[1])).plus_mutable(temp.eighth().times_mutable(complex_coefficients[2])).plus_mutable(temp.seventh().times_mutable(complex_coefficients[3])).plus_mutable(temp.sixth().times_mutable(complex_coefficients[4])).plus_mutable(temp.fifth().times_mutable(complex_coefficients[5])).plus_mutable(temp.fourth().times_mutable(complex_coefficients[6])).plus_mutable(temp.cube().times_mutable(complex_coefficients[7])).plus_mutable(temp.square().times_mutable(complex_coefficients[8])).plus_mutable(temp.times(complex_coefficients[9])).plus_mutable(complex_coefficients[10]);      
         }
         else {
             fz = complex[0].tenth().times_mutable(coefficients[0]).plus_mutable(complex[0].ninth().times_mutable(coefficients[1])).plus_mutable(complex[0].eighth().times_mutable(coefficients[2])).plus_mutable(complex[0].seventh().times_mutable(coefficients[3])).plus_mutable(complex[0].sixth().times_mutable(coefficients[4])).plus_mutable(complex[0].fifth().times_mutable(coefficients[5])).plus_mutable(complex[0].fourth().times_mutable(coefficients[6])).plus_mutable(complex[0].cube().times_mutable(coefficients[7])).plus_mutable(complex[0].square().times_mutable(coefficients[8])).plus_mutable(complex[0].times(coefficients[9])).plus_mutable(coefficients[10]);
-            Complex temp = complex[0].plus(fz);  
+            Complex temp = getFunctionArgument(complex[0], fz);  
             ffz = temp.tenth().times_mutable(coefficients[0]).plus_mutable(temp.ninth().times_mutable(coefficients[1])).plus_mutable(temp.eighth().times_mutable(coefficients[2])).plus_mutable(temp.seventh().times_mutable(coefficients[3])).plus_mutable(temp.sixth().times_mutable(coefficients[4])).plus_mutable(temp.fifth().times_mutable(coefficients[5])).plus_mutable(temp.fourth().times_mutable(coefficients[6])).plus_mutable(temp.cube().times_mutable(coefficients[7])).plus_mutable(temp.square().times_mutable(coefficients[8])).plus_mutable(temp.times(coefficients[9])).plus_mutable(coefficients[10]);      
         }
         

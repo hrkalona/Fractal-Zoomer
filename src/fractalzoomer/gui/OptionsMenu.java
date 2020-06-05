@@ -1,5 +1,5 @@
 /*
- * Fractal Zoomer, Copyright (C) 2019 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2020 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -735,6 +735,12 @@ public class OptionsMenu extends JMenu {
 
         return colors_menu.getLight();
 
+    }
+    
+    public JMenuItem getHistogramColoring() {
+        
+        return colors_menu.getHistogramColoring();
+        
     }
 
     public ColorBlendingMenu getColorBlending() {

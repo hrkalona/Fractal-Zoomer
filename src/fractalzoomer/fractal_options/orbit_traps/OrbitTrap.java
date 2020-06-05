@@ -1,5 +1,5 @@
 /*
- * Fractal Zoomer, Copyright (C) 2019 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2020 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,14 +30,17 @@ public abstract class OrbitTrap {
     protected int trapId;
     protected Complex pixel;
     protected int iterations;
+    protected int extraIterations;
     protected Complex trappedPoint;
     protected boolean trapped;
+    protected boolean countTrapIterations;
     
-    public OrbitTrap(double pointRe, double pointIm, double trapLength, double trapWidth) {
+    public OrbitTrap(double pointRe, double pointIm, double trapLength, double trapWidth, boolean countTrapIterations) {
         
         point = new Complex(pointRe, pointIm);
         this.trapLength = trapLength;
         this.trapWidth = trapWidth;
+        this.countTrapIterations = countTrapIterations;
         
     }
     
@@ -47,6 +50,7 @@ public abstract class OrbitTrap {
         trapId = -1;
         this.pixel = new Complex(pixel);
         iterations = 0;
+        extraIterations = 0;
         trappedPoint = new Complex();
         trapped = false;
         
@@ -76,7 +80,7 @@ public abstract class OrbitTrap {
     
     public int getIteration() {
         
-        return iterations;
+        return iterations + extraIterations;
         
     }
     
@@ -139,7 +143,17 @@ public abstract class OrbitTrap {
         iterations = iteration;
         trappedPoint = new Complex(val);
         trapped = true;
+        
+        if(countTrapIterations) {
+            extraIterations++;
+        }
 
+    }
+    
+    protected void countExtraIterations() {
+        if(countTrapIterations) {
+            extraIterations++;
+        }
     }
 
     public boolean isTrapped() {

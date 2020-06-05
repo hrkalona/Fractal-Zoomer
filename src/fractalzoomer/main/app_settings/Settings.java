@@ -1,5 +1,5 @@
 /*
- * Fractal Zoomer, Copyright (C) 2019 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2020 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -81,6 +81,7 @@ public class Settings implements Constants {
     public LightSettings ls;
     public PaletteGradientMergingSettings pbs;
     public StatisticsSettings sts;
+    public HistogramColoringSettings hss;
     public boolean usePaletteForInColoring;
     public int[] post_processing_order;
     public String poly;
@@ -123,6 +124,7 @@ public class Settings implements Constants {
         ls = new LightSettings();
         pbs = new PaletteGradientMergingSettings();
         sts = new StatisticsSettings();
+        hss = new HistogramColoringSettings();
 
         ps = new PaletteSettings();
         ps2 = new PaletteSettings();
@@ -252,6 +254,10 @@ public class Settings implements Constants {
             else if (version == 1075) {
                 xJuliaCenter = ((SettingsJulia1075) settings).getXJuliaCenter();
                 yJuliaCenter = ((SettingsJulia1075) settings).getYJuliaCenter();
+            }
+            else if (version == 1076) {
+                xJuliaCenter = ((SettingsJulia1076) settings).getXJuliaCenter();
+                yJuliaCenter = ((SettingsJulia1076) settings).getYJuliaCenter();
             }
 
             fns.julia = true;
@@ -980,7 +986,49 @@ public class Settings implements Constants {
             ds.gridAlgorithm = ((SettingsFractals1075) settings).getGridAlgorithm();
             ds.circleWidth = ((SettingsFractals1075) settings).getCircleWidth();
             ds.gridWidth = ((SettingsFractals1075) settings).getGridWidth();
-            ots.trapImage = ((SettingsFractals1075) settings).getTrapImage();
+            
+            if(ots.trapType == IMAGE_TRAP) {
+                ots.trapImage = ((SettingsFractals1075) settings).getTrapImage();
+            }
+        }
+        
+        if(version < 1076) {
+            hss.histogramColoring = defaults.hss.histogramColoring;
+            hss.histogramDensity = defaults.hss.histogramDensity;
+            hss.hs_noise_reducing_factor = defaults.hss.hs_noise_reducing_factor;
+            hss.histogramBinGranularity = defaults.hss.histogramBinGranularity;
+            hss.hs_blending = defaults.hss.hs_blending;
+            hss.histogramScaleMin = defaults.hss.histogramScaleMin;
+            hss.histogramScaleMax = defaults.hss.histogramScaleMax;
+            fns.lpns.lyapunovInitializationIteratons = defaults.fns.lpns.lyapunovInitializationIteratons;
+            fns.lpns.lyapunovskipBailoutCheck = defaults.fns.lpns.lyapunovskipBailoutCheck;
+            ots.trapCellularStructure = defaults.ots.trapCellularStructure;
+            ots.trapCellularInverseColor = defaults.ots.trapCellularInverseColor;
+            ots.trapCellularColor = defaults.ots.trapCellularColor;
+            ots.countTrapIterations = defaults.ots.countTrapIterations;
+            ots.trapCellularSize = defaults.ots.trapCellularSize;
+            ds.combineType = defaults.ds.combineType;
+            ots.trapHeightFunction = defaults.ots.trapHeightFunction;
+            ots.invertTrapHeight = defaults.ots.invertTrapHeight;
+        }
+        else {
+            hss.histogramColoring = ((SettingsFractals1076) settings).getHistogramColoring();
+            hss.histogramDensity = ((SettingsFractals1076) settings).getHistogramDensity();
+            hss.hs_noise_reducing_factor = ((SettingsFractals1076) settings).getHsNoiseReducingFactor();
+            hss.histogramBinGranularity = ((SettingsFractals1076) settings).getHistogramBinGranularity();
+            hss.hs_blending = ((SettingsFractals1076) settings).getHsBlending();
+            hss.histogramScaleMin = ((SettingsFractals1076) settings).getHistogramScaleMin();
+            hss.histogramScaleMax = ((SettingsFractals1076) settings).getHistogramScaleMax();
+            fns.lpns.lyapunovInitializationIteratons = ((SettingsFractals1076) settings).getLyapunovInitializationIteratons();
+            fns.lpns.lyapunovskipBailoutCheck = ((SettingsFractals1076) settings).getLyapunovskipBailoutCheck();
+            ots.trapCellularStructure = ((SettingsFractals1076) settings).getTrapCellularStructure();
+            ots.trapCellularInverseColor = ((SettingsFractals1076) settings).getTrapCellularInverseColor();
+            ots.trapCellularColor = ((SettingsFractals1076) settings).getTrapCellularColor();
+            ots.countTrapIterations = ((SettingsFractals1076) settings).getCountTrapIterations();
+            ots.trapCellularSize = ((SettingsFractals1076) settings).getTrapCellularSize();
+            ds.combineType = ((SettingsFractals1076) settings).getCombineType();
+            ots.trapHeightFunction = ((SettingsFractals1076) settings).getTrapHeightFunction();
+            ots.invertTrapHeight = ((SettingsFractals1076) settings).getInvertTrapHeight();
         }
 
         if (fns.plane_type == USER_PLANE) {
@@ -1151,6 +1199,9 @@ public class Settings implements Constants {
             case DURAND_KERNERPOLY:
             case BAIRSTOWPOLY:
             case NEWTON_HINESPOLY:
+            case WHITTAKERPOLY:
+            case WHITTAKERDOUBLECONVEXPOLY:
+            case SUPERHALLEYPOLY:
                 fns.coefficients = settings.getCoefficients();
 
                 if (version < 1072) {
@@ -1244,49 +1295,35 @@ public class Settings implements Constants {
                 fns.gcs.epsilon = ((SettingsFractals1072) settings).getEpsilon();
                 break;
             case NEWTONFORMULA:
-                fns.user_fz_formula = ((SettingsFractals1058) settings).getUserFzFormula();
-                fns.user_dfz_formula = ((SettingsFractals1058) settings).getUserDfzFormula();
-                break;
-            case HALLEYFORMULA:
-                fns.user_fz_formula = ((SettingsFractals1058) settings).getUserFzFormula();
-                fns.user_dfz_formula = ((SettingsFractals1058) settings).getUserDfzFormula();
-                fns.user_ddfz_formula = ((SettingsFractals1058) settings).getUserDdfzFormula();
-                break;
-            case SCHRODERFORMULA:
-                fns.user_fz_formula = ((SettingsFractals1058) settings).getUserFzFormula();
-                fns.user_dfz_formula = ((SettingsFractals1058) settings).getUserDfzFormula();
-                fns.user_ddfz_formula = ((SettingsFractals1058) settings).getUserDdfzFormula();
-                break;
-            case HOUSEHOLDERFORMULA:
-                fns.user_fz_formula = ((SettingsFractals1058) settings).getUserFzFormula();
-                fns.user_dfz_formula = ((SettingsFractals1058) settings).getUserDfzFormula();
-                fns.user_ddfz_formula = ((SettingsFractals1058) settings).getUserDdfzFormula();
-                break;
-            case SECANTFORMULA:
-                fns.user_fz_formula = ((SettingsFractals1058) settings).getUserFzFormula();
-                break;
-            case STEFFENSENFORMULA:
-                fns.user_fz_formula = ((SettingsFractals1058) settings).getUserFzFormula();
-                break;
-            case MULLERFORMULA:
-                fns.user_fz_formula = ((SettingsFractals1058) settings).getUserFzFormula();
-                break;
-            case PARHALLEYFORMULA:
-                fns.user_fz_formula = ((SettingsFractals1058) settings).getUserFzFormula();
-                fns.user_dfz_formula = ((SettingsFractals1058) settings).getUserDfzFormula();
-                fns.user_ddfz_formula = ((SettingsFractals1058) settings).getUserDdfzFormula();
-                break;
-            case LAGUERREFORMULA:
-                fns.user_fz_formula = ((SettingsFractals1058) settings).getUserFzFormula();
-                fns.user_dfz_formula = ((SettingsFractals1058) settings).getUserDfzFormula();
-                fns.user_ddfz_formula = ((SettingsFractals1058) settings).getUserDdfzFormula();
-                fns.laguerre_deg = ((SettingsFractals1067) settings).getLaguerreDeg();
-                break;
             case NEWTON_HINESFORMULA:
                 fns.user_fz_formula = ((SettingsFractals1058) settings).getUserFzFormula();
                 fns.user_dfz_formula = ((SettingsFractals1058) settings).getUserDfzFormula();
-                fns.newton_hines_k = ((SettingsFractals1074) settings).getNewtonHinesK();
+                
+                if(fns.function == NEWTON_HINESFORMULA) {
+                    fns.newton_hines_k = ((SettingsFractals1074) settings).getNewtonHinesK();
+                }
                 break;
+            case HALLEYFORMULA:
+            case SCHRODERFORMULA:   
+            case HOUSEHOLDERFORMULA:
+            case PARHALLEYFORMULA:
+            case LAGUERREFORMULA:
+            case WHITTAKERFORMULA:
+            case WHITTAKERDOUBLECONVEXFORMULA:
+            case SUPERHALLEYFORMULA:
+                fns.user_fz_formula = ((SettingsFractals1058) settings).getUserFzFormula();
+                fns.user_dfz_formula = ((SettingsFractals1058) settings).getUserDfzFormula();
+                fns.user_ddfz_formula = ((SettingsFractals1058) settings).getUserDdfzFormula();
+                
+                if(fns.function == LAGUERREFORMULA) {
+                    fns.laguerre_deg = ((SettingsFractals1067) settings).getLaguerreDeg();
+                }
+                break;
+            case SECANTFORMULA:
+            case STEFFENSENFORMULA:
+            case MULLERFORMULA:
+                fns.user_fz_formula = ((SettingsFractals1058) settings).getUserFzFormula();
+                break;                     
             case NOVA:
                 fns.z_exponent_nova = settings.getZExponentNova();
                 fns.relaxation = settings.getRelaxation();
@@ -1323,6 +1360,10 @@ public class Settings implements Constants {
 
                 switch (fns.nova_method) {
                     case NOVA_NEWTON:
+                    case NOVA_NEWTON_HINES:
+                    case NOVA_MIDPOINT:
+                    case NOVA_TRAUB_OSTROWSKI:
+                    case NOVA_STIRLING:
                         fns.user_fz_formula = ((SettingsFractals1058) settings).getUserFzFormula();
                         fns.user_dfz_formula = ((SettingsFractals1058) settings).getUserDfzFormula();
 
@@ -1331,36 +1372,19 @@ public class Settings implements Constants {
 
                         parser.parse(fns.user_dfz_formula);
                         temp_bool = temp_bool | parser.foundC();
+                        
+                        if(fns.nova_method == NOVA_NEWTON_HINES) {
+                            fns.newton_hines_k = ((SettingsFractals1074) settings).getNewtonHinesK();
+                        }
                         break;
                     case NOVA_HALLEY:
-                        fns.user_fz_formula = ((SettingsFractals1058) settings).getUserFzFormula();
-                        fns.user_dfz_formula = ((SettingsFractals1058) settings).getUserDfzFormula();
-                        fns.user_ddfz_formula = ((SettingsFractals1058) settings).getUserDdfzFormula();
-
-                        parser.parse(fns.user_fz_formula);
-                        temp_bool = temp_bool | parser.foundC();
-
-                        parser.parse(fns.user_dfz_formula);
-                        temp_bool = temp_bool | parser.foundC();
-
-                        parser.parse(fns.user_ddfz_formula);
-                        temp_bool = temp_bool | parser.foundC();
-                        break;
+                    case NOVA_PARHALLEY:
                     case NOVA_SCHRODER:
-                        fns.user_fz_formula = ((SettingsFractals1058) settings).getUserFzFormula();
-                        fns.user_dfz_formula = ((SettingsFractals1058) settings).getUserDfzFormula();
-                        fns.user_ddfz_formula = ((SettingsFractals1058) settings).getUserDdfzFormula();
-
-                        parser.parse(fns.user_fz_formula);
-                        temp_bool = temp_bool | parser.foundC();
-
-                        parser.parse(fns.user_dfz_formula);
-                        temp_bool = temp_bool | parser.foundC();
-
-                        parser.parse(fns.user_ddfz_formula);
-                        temp_bool = temp_bool | parser.foundC();
-                        break;
                     case NOVA_HOUSEHOLDER:
+                    case NOVA_LAGUERRE:
+                    case NOVA_WHITTAKER:
+                    case NOVA_WHITTAKER_DOUBLE_CONVEX:
+                    case NOVA_SUPER_HALLEY:
                         fns.user_fz_formula = ((SettingsFractals1058) settings).getUserFzFormula();
                         fns.user_dfz_formula = ((SettingsFractals1058) settings).getUserDfzFormula();
                         fns.user_ddfz_formula = ((SettingsFractals1058) settings).getUserDdfzFormula();
@@ -1373,65 +1397,19 @@ public class Settings implements Constants {
 
                         parser.parse(fns.user_ddfz_formula);
                         temp_bool = temp_bool | parser.foundC();
-                        break;
+                        
+                        if(fns.nova_method == NOVA_LAGUERRE) {
+                            fns.laguerre_deg = ((SettingsFractals1067) settings).getLaguerreDeg();
+                        }
+                        break;                   
                     case NOVA_SECANT:
-                        fns.user_fz_formula = ((SettingsFractals1058) settings).getUserFzFormula();
-
-                        parser.parse(fns.user_fz_formula);
-                        temp_bool = temp_bool | parser.foundC();
-                        break;
                     case NOVA_STEFFENSEN:
-                        fns.user_fz_formula = ((SettingsFractals1058) settings).getUserFzFormula();
-
-                        parser.parse(fns.user_fz_formula);
-                        temp_bool = temp_bool | parser.foundC();
-                        break;
                     case NOVA_MULLER:
                         fns.user_fz_formula = ((SettingsFractals1058) settings).getUserFzFormula();
 
                         parser.parse(fns.user_fz_formula);
                         temp_bool = temp_bool | parser.foundC();
-                        break;
-                    case NOVA_PARHALLEY:
-                        fns.user_fz_formula = ((SettingsFractals1058) settings).getUserFzFormula();
-                        fns.user_dfz_formula = ((SettingsFractals1058) settings).getUserDfzFormula();
-                        fns.user_ddfz_formula = ((SettingsFractals1058) settings).getUserDdfzFormula();
-
-                        parser.parse(fns.user_fz_formula);
-                        temp_bool = temp_bool | parser.foundC();
-
-                        parser.parse(fns.user_dfz_formula);
-                        temp_bool = temp_bool | parser.foundC();
-
-                        parser.parse(fns.user_ddfz_formula);
-                        temp_bool = temp_bool | parser.foundC();
-                        break;
-                    case NOVA_LAGUERRE:
-                        fns.user_fz_formula = ((SettingsFractals1058) settings).getUserFzFormula();
-                        fns.user_dfz_formula = ((SettingsFractals1058) settings).getUserDfzFormula();
-                        fns.user_ddfz_formula = ((SettingsFractals1058) settings).getUserDdfzFormula();
-                        fns.laguerre_deg = ((SettingsFractals1067) settings).getLaguerreDeg();
-
-                        parser.parse(fns.user_fz_formula);
-                        temp_bool = temp_bool | parser.foundC();
-
-                        parser.parse(fns.user_dfz_formula);
-                        temp_bool = temp_bool | parser.foundC();
-
-                        parser.parse(fns.user_ddfz_formula);
-                        temp_bool = temp_bool | parser.foundC();
-                        break;
-                    case NOVA_NEWTON_HINES:
-                        fns.user_fz_formula = ((SettingsFractals1058) settings).getUserFzFormula();
-                        fns.user_dfz_formula = ((SettingsFractals1058) settings).getUserDfzFormula();
-
-                        parser.parse(fns.user_fz_formula);
-                        temp_bool = temp_bool | parser.foundC();
-
-                        parser.parse(fns.user_dfz_formula);
-                        temp_bool = temp_bool | parser.foundC();
-                        fns.newton_hines_k = ((SettingsFractals1074) settings).getNewtonHinesK();
-                        break;
+                        break;                                                       
 
                 }
 
@@ -1528,9 +1506,9 @@ public class Settings implements Constants {
             file_temp = new ObjectOutputStream(new FileOutputStream(filename));
             SettingsFractals settings;
             if (fns.julia) {
-                settings = new SettingsJulia1075(this);
+                settings = new SettingsJulia1076(this);
             } else {
-                settings = new SettingsFractals1075(this);
+                settings = new SettingsFractals1076(this);
             }
             file_temp.writeObject(settings);
             file_temp.flush();
@@ -1859,6 +1837,30 @@ public class Settings implements Constants {
             case NEWTON_HINESCOS:
             case NEWTON_HINESPOLY:
             case NEWTON_HINESFORMULA:
+            case WHITTAKER3:
+            case WHITTAKER4:
+            case WHITTAKERGENERALIZED3:
+            case WHITTAKERGENERALIZED8:
+            case WHITTAKERSIN:
+            case WHITTAKERCOS:
+            case WHITTAKERPOLY:
+            case WHITTAKERFORMULA:
+            case WHITTAKERDOUBLECONVEX3:
+            case WHITTAKERDOUBLECONVEX4:
+            case WHITTAKERDOUBLECONVEXGENERALIZED3:
+            case WHITTAKERDOUBLECONVEXGENERALIZED8:
+            case WHITTAKERDOUBLECONVEXSIN:
+            case WHITTAKERDOUBLECONVEXCOS:
+            case WHITTAKERDOUBLECONVEXPOLY:
+            case WHITTAKERDOUBLECONVEXFORMULA:
+            case SUPERHALLEY3:
+            case SUPERHALLEY4:
+            case SUPERHALLEYGENERALIZED3:
+            case SUPERHALLEYGENERALIZED8:
+            case SUPERHALLEYSIN:
+            case SUPERHALLEYCOS:
+            case SUPERHALLEYPOLY:
+            case SUPERHALLEYFORMULA:
                 xCenter = 0;
                 yCenter = 0;
                 size = 6;
@@ -2119,6 +2121,9 @@ public class Settings implements Constants {
                 || fns.function == DURAND_KERNER3 || fns.function == DURAND_KERNER4 || fns.function == DURAND_KERNERGENERALIZED3 || fns.function == DURAND_KERNERGENERALIZED8 || fns.function == DURAND_KERNERPOLY
                 || fns.function == BAIRSTOW3 || fns.function == BAIRSTOW4 || fns.function == BAIRSTOWGENERALIZED3 || fns.function == BAIRSTOWGENERALIZED8 || fns.function == BAIRSTOWPOLY
                 || fns.function == MAGNETIC_PENDULUM
+                || fns.function == WHITTAKER3 || fns.function == WHITTAKER4 || fns.function == WHITTAKERGENERALIZED3 || fns.function == WHITTAKERGENERALIZED8 || fns.function == WHITTAKERSIN || fns.function == WHITTAKERCOS || fns.function == WHITTAKERPOLY || fns.function == WHITTAKERFORMULA
+                || fns.function == WHITTAKERDOUBLECONVEX3 || fns.function == WHITTAKERDOUBLECONVEX4 || fns.function == WHITTAKERDOUBLECONVEXGENERALIZED3 || fns.function == WHITTAKERDOUBLECONVEXGENERALIZED8 || fns.function == WHITTAKERDOUBLECONVEXSIN || fns.function == WHITTAKERDOUBLECONVEXCOS || fns.function == WHITTAKERDOUBLECONVEXPOLY || fns.function == WHITTAKERDOUBLECONVEXFORMULA
+                || fns.function == SUPERHALLEY3 || fns.function == SUPERHALLEY4 || fns.function == SUPERHALLEYGENERALIZED3 || fns.function == SUPERHALLEYGENERALIZED8 || fns.function == SUPERHALLEYSIN || fns.function == SUPERHALLEYCOS || fns.function == SUPERHALLEYPOLY || fns.function == SUPERHALLEYFORMULA
                 || fns.function == NEWTON_HINES3 || fns.function == NEWTON_HINES4 || fns.function == NEWTON_HINESGENERALIZED3 || fns.function == NEWTON_HINESGENERALIZED8 || fns.function == NEWTON_HINESSIN || fns.function == NEWTON_HINESCOS || fns.function == NEWTON_HINESPOLY || fns.function == NEWTON_HINESFORMULA;
 
     }

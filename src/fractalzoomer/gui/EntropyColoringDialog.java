@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 hrkalona2
+ * Copyright (C) 2020 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,7 +45,7 @@ public class EntropyColoringDialog extends JDialog {
 
     public EntropyColoringDialog(MainWindow ptr, Settings s, boolean greedy_algorithm, boolean julia_map) {
 
-        super();
+        super(ptr);
         
         ptra = ptr;
 
@@ -160,7 +160,7 @@ public class EntropyColoringDialog extends JDialog {
                         }
 
                         if (temp2 <= 0) {
-                            JOptionPane.showMessageDialog(ptra, "The noise reduction factor must be greater that 0.", "Error!", JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.showMessageDialog(ptra, "The noise reduction factor must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
                             return;
                         }
 

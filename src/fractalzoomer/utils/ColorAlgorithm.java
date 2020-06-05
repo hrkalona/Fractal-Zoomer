@@ -1,5 +1,5 @@
 /*
- * Fractal Zoomer, Copyright (C) 2019 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2020 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@ public class ColorAlgorithm {
     public static boolean InNotUsingIncrement = true;
     public static boolean GlobalIncrementBypass = false;
 
-    public static double getResultWithoutIncrement(double result) {
+    private static double getResultWithoutIncrement(double result) {
 
         if(OutNotUsingIncrement && InNotUsingIncrement && !GlobalIncrementBypass) {
             return Math.abs(result);

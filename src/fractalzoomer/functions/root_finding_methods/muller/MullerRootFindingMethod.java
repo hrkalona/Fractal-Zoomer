@@ -1,5 +1,5 @@
 /*
- * Fractal Zoomer, Copyright (C) 2019 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2020 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -49,8 +49,9 @@ public abstract class MullerRootFindingMethod extends RootFindingMethods {
         Complex rkp1 = rk.plus(1);
         Complex rksqr = rk.square();
         Complex ck = fz.times(rkp1);
-        Complex bk = fz.times(rk.times(2).plus_mutable(1)).sub(fz1.times(rkp1.square())).plus(fz2.times(rksqr));
-        Complex ak = fz.times(rk).sub(fz1.times(rkp1.times(rk))).plus(fz2.times(rksqr));       
+        Complex fz2rksqr = fz2.times(rksqr);
+        Complex bk = fz.times(rk.times(2).plus_mutable(1)).sub(fz1.times(rkp1.square())).plus(fz2rksqr);
+        Complex ak = fz.times(rk).sub(fz1.times(rkp1.times(rk))).plus(fz2rksqr);
         
         Complex ck2 = ck.times(2);
         Complex temp = (bk.square().sub(ak.times(ck).times_mutable(4))).sqrt();

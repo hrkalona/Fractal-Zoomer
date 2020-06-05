@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 hrkalona2
+ * Copyright (C) 2020 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import javax.swing.ImageIcon;
 import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import static javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE;
@@ -35,12 +36,12 @@ import static javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE;
  */
 public class ThreadsDialog extends JDialog {
 
-    private Component ptra;
+    private JFrame ptra;
     private JOptionPane optionPane;
 
-    public ThreadsDialog(Component ptr, int n) {
+    public ThreadsDialog(JFrame ptr, int n) {
 
-        super();
+        super(ptr);
 
         ptra = ptr;
 

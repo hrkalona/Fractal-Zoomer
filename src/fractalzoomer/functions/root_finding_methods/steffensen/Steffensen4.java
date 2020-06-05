@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2019 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2020 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -68,7 +68,7 @@ public class Steffensen4 extends SteffensenRootFindingMethod {
 
         Complex fz = complex[0].fourth().sub_mutable(1);
 
-        Complex temp = complex[0].plus(fz);
+        Complex temp = getFunctionArgument(complex[0], fz);
 
         Complex ffz = temp.fourth_mutable().sub_mutable(1);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 hrkalona
+ * Copyright (C) 2020 hrkalona
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -52,6 +52,7 @@ import fractalzoomer.filters_utils.image.SwizzleFilter;
 import fractalzoomer.filters_utils.image.TemperatureFilter;
 import fractalzoomer.filters_utils.image.WeaveFilter;
 import fractalzoomer.main.MainWindow;
+import fractalzoomer.utils.ColorSpaceConverter;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
@@ -77,10 +78,10 @@ public class ImageFilters {
 
         int image_size = image.getHeight();
 
-        int algorithm = (int)(((int)(((int)(filter_value % 100000.0)) % 1000.0)) % 10.0);
+        int algorithm = (int) (((int) (((int) (filter_value % 100000.0)) % 1000.0)) % 10.0);
 
-        if(algorithm == 2) {
-            int kernelWidth = (int)Math.sqrt((double)EMBOSS.length);
+        if (algorithm == 2) {
+            int kernelWidth = (int) Math.sqrt((double) EMBOSS.length);
             int kernelHeight = kernelWidth;
             int xOffset = (kernelWidth - 1) / 2;
             int yOffset = xOffset;
@@ -98,13 +99,11 @@ public class ImageFilters {
             kernel = null;
             cop = null;
             newSource = null;
-        }
-        else if(algorithm == 3) {
+        } else if (algorithm == 3) {
             BumpFilter f = new BumpFilter();
 
             f.filter(image, image);
-        }
-        else {
+        } else {
             /*int[] raster = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
 
              for(int i = image_size - 1; i >= 0; i--) {
@@ -133,27 +132,26 @@ public class ImageFilters {
              }
              }*/
 
-            double direction = (((int)(((int)(((int)(filter_value % 100000.0)) % 1000.0)) / 10.0)) / 80.0 * 360) * Math.PI / 180.0;
-            double elevation = (((int)(((int)(filter_value % 100000.0)) / 1000.0)) / 80.0 * 90) * Math.PI / 180.0;
-            double bump_height = ((int)(filter_value / 100000.0)) / 80.0;
+            double direction = (((int) (((int) (((int) (filter_value % 100000.0)) % 1000.0)) / 10.0)) / 80.0 * 360) * Math.PI / 180.0;
+            double elevation = (((int) (((int) (filter_value % 100000.0)) / 1000.0)) / 80.0 * 90) * Math.PI / 180.0;
+            double bump_height = ((int) (filter_value / 100000.0)) / 80.0;
 
             EmbossFilter f = new EmbossFilter();
 
-            f.setAzimuth((float)direction);
-            f.setElevation((float)elevation);
-            f.setBumpHeight((float)bump_height);
+            f.setAzimuth((float) direction);
+            f.setElevation((float) elevation);
+            f.setBumpHeight((float) bump_height);
 
-            if(algorithm == 0) {
+            if (algorithm == 0) {
                 f.setEmboss(false);
-            }
-            else {
+            } else {
                 f.setEmboss(true);
             }
 
             f.filter(image, image);
         }
 
-        if(image_size > IMAGE_SIZE_LIMIT) {
+        if (image_size > IMAGE_SIZE_LIMIT) {
             System.gc();
         }
 
@@ -165,28 +163,27 @@ public class ImageFilters {
          1.0f, -8.0f,  1.0f,
          1.0f,   1.0f,  1.0f};*/
 
-        /*float[] EDGES = {-7.0f,   -7.0f,  -7.0f,
+ /*float[] EDGES = {-7.0f,   -7.0f,  -7.0f,
          -7.0f, 56.0f,  -7.0f,
          -7.0f,   -7.0f,  -7.0f};*/
 
-        /*float[] EDGES = {-1.0f, -1.0f, -2.0f, -1.0f, -1.0f,
+ /*float[] EDGES = {-1.0f, -1.0f, -2.0f, -1.0f, -1.0f,
          -1.0f, -2.0f, -4.0f, -2.0f, -1.0f,
          -2.0f, -4.0f, 44.0f, -4.0f, -2.0f,
          -1.0f, -2.0f, -4.0f, -2.0f, -1.0f,
          -1.0f, -1.0f, -2.0f, -1.0f, -1.0f};*/
-        int sensitivity = (int)(filter_value / 100.0);
-        int thickness = (int)(filter_value % 100.0);
+        int sensitivity = (int) (filter_value / 100.0);
+        int thickness = (int) (filter_value % 100.0);
 
         float[] EDGES = null;
 
-        if(thickness == 1) {
+        if (thickness == 1) {
             EDGES = thick_edges;
-        }
-        else {
+        } else {
             EDGES = thin_edges;
         }
 
-        int kernelWidth = (int)Math.sqrt((double)EDGES.length);
+        int kernelWidth = (int) Math.sqrt((double) EDGES.length);
 
         int image_size = image.getHeight();
 
@@ -195,21 +192,21 @@ public class ImageFilters {
         BufferedImage newSource = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_RGB);
         BufferedImage newSource2 = new BufferedImage(image_size, image_size, BufferedImage.TYPE_INT_RGB);
 
-        System.arraycopy(((DataBufferInt)image.getRaster().getDataBuffer()).getData(), 0, ((DataBufferInt)newSource.getRaster().getDataBuffer()).getData(), 0, image_size * image_size);
+        System.arraycopy(((DataBufferInt) image.getRaster().getDataBuffer()).getData(), 0, ((DataBufferInt) newSource.getRaster().getDataBuffer()).getData(), 0, image_size * image_size);
 
         cop.filter(newSource, newSource2);
 
-        int[] raster = ((DataBufferInt)newSource2.getRaster().getDataBuffer()).getData();
-        int[] rgbs = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
+        int[] raster = ((DataBufferInt) newSource2.getRaster().getDataBuffer()).getData();
+        int[] rgbs = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 
         int condition = image_size * image_size;
 
-        for(int p = 0; p < condition; p++) {
+        for (int p = 0; p < condition; p++) {
 
             int r = (raster[p] >> 16) & 0xff;
             int g = (raster[p] >> 8) & 0xff;
             int b = raster[p] & 0xff;
-            if(r <= sensitivity && g <= sensitivity && b <= sensitivity) {//(0xff000000 | raster[p]) == black
+            if (r <= sensitivity && g <= sensitivity && b <= sensitivity) {//(0xff000000 | raster[p]) == black
                 rgbs[p] = filter_color.getRGB();
             }
         }
@@ -219,7 +216,7 @@ public class ImageFilters {
         newSource = null;
         newSource2 = null;
 
-        if(image_size > IMAGE_SIZE_LIMIT) {
+        if (image_size > IMAGE_SIZE_LIMIT) {
             System.gc();
         }
 
@@ -231,14 +228,13 @@ public class ImageFilters {
 
         float[] SHARPNESS = null;
 
-        if(filter_value == 0) {
+        if (filter_value == 0) {
             SHARPNESS = sharpness_low;
-        }
-        else {
+        } else {
             SHARPNESS = sharpness_high;
         }
 
-        int kernelWidth = (int)Math.sqrt((double)SHARPNESS.length);
+        int kernelWidth = (int) Math.sqrt((double) SHARPNESS.length);
         int kernelHeight = kernelWidth;
         int xOffset = (kernelWidth - 1) / 2;
         int yOffset = xOffset;
@@ -257,16 +253,16 @@ public class ImageFilters {
         cop = null;
         newSource = null;
 
-        if(image_size > IMAGE_SIZE_LIMIT) {
+        if (image_size > IMAGE_SIZE_LIMIT) {
             System.gc();
         }
     }
 
     private static void filterBlurring(BufferedImage image, int filter_value) { //OLD antialiasing method (blurring)
 
-        int alg = ((int)(filter_value / 1000.0));
+        int alg = ((int) (filter_value / 1000.0));
 
-        if(alg >= 0 && alg < 6) {
+        if (alg >= 0 && alg < 6) {
             /*     float b = 0.05f;
              float a = 1.0f - (8.0f * b);
         
@@ -285,7 +281,7 @@ public class ImageFilters {
              c, b, a, b, c,
              c, b, b, b, c,
              c, c, c, c, c};*/
-            /*  float d = 1.0f / 3096.0f;
+ /*  float d = 1.0f / 3096.0f;
              float c = 12.0f * d;
              float b = 12.0f * c;
              float a = 1.0f - (24.0f * d + 16.0f * c + 8.0f * b);
@@ -298,7 +294,7 @@ public class ImageFilters {
              d, c, c, c, c, c, d,
              d, d, d, d, d, d, d};*/
 
-            /*if(blurring == 1) {
+ /*if(blurring == 1) {
              float[] MOTION_BLUR = {0.2f,  0.0f,  0.0f, 0.0f,  0.0f,
              0.0f,   0.2f,  0.0f, 0.0f,  0.0f,
              0.0f,   0.0f,  0.2f, 0.0f,  0.0f,
@@ -310,7 +306,7 @@ public class ImageFilters {
             //else {
             float[] blur = null;
 
-            if(alg == 0) {
+            if (alg == 0) {
                 float e = 1.0f / 37184.0f;
                 float d = 12.0f * e;
                 float c = 12.0f * d;
@@ -328,17 +324,16 @@ public class ImageFilters {
                     e, e, e, e, e, e, e, e, e};
 
                 blur = NORMAL_BLUR;
-            }
-            else {
+            } else {
                 int radius = alg;
-                double weight = ((int)(filter_value % 1000.0)) / 100.0 * 40;
-                
+                double weight = ((int) (filter_value % 1000.0)) / 100.0 * 40;
+
                 int kernelSize = (radius - 1) * 2 + 3;
                 //double weight = 0.3* ((kernelSize - 1) * 0.5 - 1) + 0.8;
                 blur = createGaussianKernel(kernelSize, weight);
             }
 
-                // }
+            // }
             /*float h = 1.0f / 64260344.0f;
              float g = 12.0f * h;
              float f = 12.0f * g;
@@ -364,7 +359,7 @@ public class ImageFilters {
              h, g, g, g, g, g, g, g, g, g, g, g, g, g, h,
              h, h, h, h, h, h, h, h, h, h, h, h, h, h, h};*/
             //resize the picture to cover the image edges
-            int kernelWidth = (int)Math.sqrt((double)blur.length);
+            int kernelWidth = (int) Math.sqrt((double) blur.length);
             int kernelHeight = kernelWidth;
             int xOffset = (kernelWidth - 1) / 2;
             int yOffset = xOffset;
@@ -385,33 +380,29 @@ public class ImageFilters {
             kernel = null;
             cop = null;
             newSource = null;
-        }
-        else if(alg == 6) {
+        } else if (alg == 6) {
             MaximumFilter f = new MaximumFilter();
 
             f.filter(image, image);
-        }
-        else if(alg == 7) {
+        } else if (alg == 7) {
             MedianFilter f = new MedianFilter();
 
             f.filter(image, image);
-        }
-        else if(alg == 8) {
+        } else if (alg == 8) {
             MinimumFilter f = new MinimumFilter();
 
             f.filter(image, image);
-        }
-        else if(alg == 9) {
-            double weight = ((int)(filter_value % 1000.0));
+        } else if (alg == 9) {
+            double weight = ((int) (filter_value % 1000.0));
 
             HighPassFilter f = new HighPassFilter();
 
-            f.setRadius((float)weight);
+            f.setRadius((float) weight);
 
             f.filter(image, image);
         }
 
-        if(image.getHeight() > IMAGE_SIZE_LIMIT) {
+        if (image.getHeight() > IMAGE_SIZE_LIMIT) {
             System.gc();
         }
 
@@ -421,18 +412,17 @@ public class ImageFilters {
 
         int image_size = image.getHeight();
 
-        int[] raster = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
+        int[] raster = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 
         int condition = image_size * image_size;
 
         int r, g, b;
 
-        for(int p = 0; p < condition; p++) {
+        for (int p = 0; p < condition; p++) {
 
-            if(filter_value == 0) {
+            if (filter_value == 0) {
                 raster[p] = ~(raster[p] & 0x00ffffff);
-            }
-            else if(filter_value == 1) { // Brightness
+            } else if (filter_value == 1) { // Brightness
                 r = (raster[p] >> 16) & 0xff;
                 g = (raster[p] >> 8) & 0xff;
                 b = raster[p] & 0xff;
@@ -442,8 +432,7 @@ public class ImageFilters {
                 Color.RGBtoHSB(r, g, b, res);
 
                 raster[p] = Color.HSBtoRGB(res[0], res[1], 1.0f - res[2]);
-            }
-            else if(filter_value == 2) { // Hue
+            } else if (filter_value == 2) { // Hue
                 r = (raster[p] >> 16) & 0xff;
                 g = (raster[p] >> 8) & 0xff;
                 b = raster[p] & 0xff;
@@ -453,8 +442,7 @@ public class ImageFilters {
                 Color.RGBtoHSB(r, g, b, res);
 
                 raster[p] = Color.HSBtoRGB(1.0f - res[0], res[1], res[2]);
-            }
-            else if(filter_value == 3) { // Saturation
+            } else if (filter_value == 3) { // Saturation
                 r = (raster[p] >> 16) & 0xff;
                 g = (raster[p] >> 8) & 0xff;
                 b = raster[p] & 0xff;
@@ -464,26 +452,23 @@ public class ImageFilters {
                 Color.RGBtoHSB(r, g, b, res);
 
                 raster[p] = Color.HSBtoRGB(res[0], 1.0f - res[1], res[2]);
-            }
-            else if(filter_value == 4) { // Red
+            } else if (filter_value == 4) { // Red
                 r = (raster[p] >> 16) & 0xff;
                 g = (raster[p] >> 8) & 0xff;
                 b = raster[p] & 0xff;
-                
+
                 raster[p] = 0xff000000 | (255 - r) << 16 | g << 8 | b;
-            }
-            else if(filter_value == 5) { // Green
+            } else if (filter_value == 5) { // Green
                 r = (raster[p] >> 16) & 0xff;
                 g = (raster[p] >> 8) & 0xff;
                 b = raster[p] & 0xff;
-                
+
                 raster[p] = 0xff000000 | r << 16 | (255 - g) << 8 | b;
-            }
-            else if(filter_value == 6) { // Blue
+            } else if (filter_value == 6) { // Blue
                 r = (raster[p] >> 16) & 0xff;
                 g = (raster[p] >> 8) & 0xff;
                 b = raster[p] & 0xff;
-                
+
                 raster[p] = 0xff000000 | r << 16 | g << 8 | (255 - b);
             }
 
@@ -495,13 +480,11 @@ public class ImageFilters {
 
         int mask = 0;
 
-        if(filter_value == 0) {
+        if (filter_value == 0) {
             mask = 0xff00ffff;  //RED
-        }
-        else if(filter_value == 1) {
+        } else if (filter_value == 1) {
             mask = 0xffff00ff;  //GREEN
-        }
-        else {
+        } else {
             mask = 0xffffff00;  //BLUE
         }
 
@@ -509,8 +492,8 @@ public class ImageFilters {
         f.setMask(mask);
 
         f.filter(image, image);
-        
-        if(image.getHeight() > IMAGE_SIZE_LIMIT) {
+
+        if (image.getHeight() > IMAGE_SIZE_LIMIT) {
             System.gc();
         }
 
@@ -521,8 +504,8 @@ public class ImageFilters {
         GrayFilter f = new GrayFilter();
 
         f.filter(image, image);
-        
-        if(image.getHeight() > IMAGE_SIZE_LIMIT) {
+
+        if (image.getHeight() > IMAGE_SIZE_LIMIT) {
             System.gc();
         }
 
@@ -532,29 +515,25 @@ public class ImageFilters {
 
         int image_size = image.getHeight();
 
-        int[] raster = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
+        int[] raster = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
         int r, g, b;
 
         int condition = image_size * image_size;
 
-        for(int p = 0; p < condition; p++) {
+        for (int p = 0; p < condition; p++) {
             r = (raster[p] >> 16) & 0xff;
             g = (raster[p] >> 8) & 0xff;
             b = raster[p] & 0xff;
 
-            if(filter_value == 0) {
+            if (filter_value == 0) {
                 raster[p] = 0xff000000 | (r << 16) | (b << 8) | g;
-            }
-            else if(filter_value == 1) {
+            } else if (filter_value == 1) {
                 raster[p] = 0xff000000 | (g << 16) | (r << 8) | b;
-            }
-            else if(filter_value == 2) {
+            } else if (filter_value == 2) {
                 raster[p] = 0xff000000 | (g << 16) | (b << 8) | r;
-            }
-            else if(filter_value == 3) {
+            } else if (filter_value == 3) {
                 raster[p] = 0xff000000 | (b << 16) | (g << 8) | r;
-            }
-            else {
+            } else {
                 raster[p] = 0xff000000 | (b << 16) | (r << 8) | g;
             }
         }
@@ -563,16 +542,16 @@ public class ImageFilters {
 
     private static void filterContrastBrightness(BufferedImage image, int filter_value) {
 
-        double contrast = (((int)(filter_value / 1000.0)) / 100.0) * 2.0;
-        double brightness = (((int)(filter_value % 1000.0)) / 100.0) * 2.0;
+        double contrast = (((int) (filter_value / 1000.0)) / 100.0) * 2.0;
+        double brightness = (((int) (filter_value % 1000.0)) / 100.0) * 2.0;
 
         ContrastFilter f = new ContrastFilter();
-        f.setContrast((float)contrast);
-        f.setBrightness((float)brightness);
+        f.setContrast((float) contrast);
+        f.setBrightness((float) brightness);
 
         f.filter(image, image);
-        
-        if(image.getHeight() > IMAGE_SIZE_LIMIT) {
+
+        if (image.getHeight() > IMAGE_SIZE_LIMIT) {
             System.gc();
         }
 
@@ -582,11 +561,11 @@ public class ImageFilters {
 
         TemperatureFilter f = new TemperatureFilter();
 
-        f.setTemperature((float)filter_value);
+        f.setTemperature((float) filter_value);
 
         f.filter(image, image);
-        
-        if(image.getHeight() > IMAGE_SIZE_LIMIT) {
+
+        if (image.getHeight() > IMAGE_SIZE_LIMIT) {
             System.gc();
         }
 
@@ -596,30 +575,30 @@ public class ImageFilters {
 
         int image_size = image.getHeight();
 
-        int[] raster = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
+        int[] raster = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 
         int r, g, b, rgb;
 
         int condition = image_size * image_size;
 
-        for(int p = 0; p < condition; p++) {
+        for (int p = 0; p < condition; p++) {
             r = (raster[p] >> 16) & 0xff;
             g = (raster[p] >> 8) & 0xff;
             b = raster[p] & 0xff;
 
-            if(filter_value == 0) {
+            if (filter_value == 0) {
                 rgb = (r * 612 + g * 1202 + b * 233) >> 11;	// NTSC luma
                 //rgb = (int)(r * 0.299F + g * 0.587F + b * 0.114F);	// NTSC luma
-            }
-            else if(filter_value == 1) {
+            } else if (filter_value == 1) {
                 rgb = (r * 435 + g * 1464 + b * 147) >> 11;	// HDTV luma
                 //rgb = (int)(r * 0.2126F + g * 0.7152F + b * 0.0722F);	// HDTV luma
-            }
-            else if(filter_value == 2) {
-                rgb = (int)((r + g + b) / 3.0 + 0.5);	// simple average
-            }
-            else {
-                rgb = (int)((Math.max(Math.max(r, g), b) + Math.min(Math.min(r, g), b)) / 2.0 + 0.5);
+            } else if (filter_value == 2) {
+                rgb = (int) ((r + g + b) / 3.0 + 0.5);	// simple average  
+            } else if (filter_value == 3) {
+                rgb = (int) ((Math.max(Math.max(r, g), b) + Math.min(Math.min(r, g), b)) / 2.0 + 0.5);
+            } else {
+                double[] lab = ColorSpaceConverter.RGBtoLAB(r, g, b);
+                rgb = (int) ((lab[0] / 100.0) * 255 + 0.5);
             }
 
             raster[p] = 0xff000000 | (rgb << 16) | (rgb << 8) | rgb;
@@ -631,7 +610,7 @@ public class ImageFilters {
 
         int image_size = image.getHeight();
 
-        int[] raster = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
+        int[] raster = ((DataBufferInt) image.getRaster().getDataBuffer()).getData();
 
         int condition = image_size * image_size;
 
@@ -677,7 +656,7 @@ public class ImageFilters {
         
         
          }*/
-        if(filter_value == 1) { //gimp levels
+        if (filter_value == 1) { //gimp levels
 
             int hist[][] = new int[3][256];
 
@@ -686,7 +665,7 @@ public class ImageFilters {
             int low = 0, high = 0;
 
             // Fill the histogram by counting the number of pixels with each value
-            for(int p = 0; p < condition; p++) {
+            for (int p = 0; p < condition; p++) {
                 hist[0][(raster[p] >> 16) & 0xff]++;
                 hist[1][(raster[p] >> 8) & 0xff]++;
                 hist[2][raster[p] & 0xff]++;
@@ -694,13 +673,13 @@ public class ImageFilters {
 
             count = image_size * image_size;
             // Fore each channel
-            for(c = 0; c < hist.length; c++) {
+            for (c = 0; c < hist.length; c++) {
                 // Determine the low input value
                 next_percentage = hist[c][0] / count;
-                for(i = 0; i < 255; i++) {
+                for (i = 0; i < 255; i++) {
                     percentage = next_percentage;
                     next_percentage += hist[c][i + 1] / count;
-                    if(Math.abs(percentage - 0.006) < Math.abs(next_percentage - 0.006)) {
+                    if (Math.abs(percentage - 0.006) < Math.abs(next_percentage - 0.006)) {
                         //low = i;//i+1; This is a deviation from the way The GIMP does it
                         low = i + 1;
                         // that prevents any change in the image if it's
@@ -710,10 +689,10 @@ public class ImageFilters {
                 }
                 // Determine the high input value
                 next_percentage = hist[c][255] / count;
-                for(i = 255; i > 0; i--) {
+                for (i = 255; i > 0; i--) {
                     percentage = next_percentage;
                     next_percentage += hist[c][i - 1] / count;
-                    if(Math.abs(percentage - 0.006) < Math.abs(next_percentage - 0.006)) {
+                    if (Math.abs(percentage - 0.006) < Math.abs(next_percentage - 0.006)) {
                         //high = i;//i-1; This is a deviation from the way The GIMP does it
                         high = i - 1;
                         // that prevents any change in the image if it's
@@ -725,18 +704,18 @@ public class ImageFilters {
                 // Turn the histogram into a look up table to stretch the values
                 mult = 255.0 / (high - low);
 
-                for(i = 0; i < low; i++) {
+                for (i = 0; i < low; i++) {
                     hist[c][i] = 0;
                 }
 
-                for(i = 255; i > high; i--) {
+                for (i = 255; i > high; i--) {
                     hist[c][i] = 255;
                 }
 
                 double base = 0.0;
 
-                for(i = low; i <= high; i++) {
-                    hist[c][i] = (int)(base + 0.5);
+                for (i = low; i <= high; i++) {
+                    hist[c][i] = (int) (base + 0.5);
                     base += mult;
                 }
             }
@@ -744,15 +723,14 @@ public class ImageFilters {
             // Now apply the changes (stretch the values)
             int r, g, b;
 
-            for(int p = 0; p < condition; p++) {
+            for (int p = 0; p < condition; p++) {
                 r = hist[0][(raster[p] >> 16) & 0xff];
                 g = hist[1][(raster[p] >> 8) & 0xff];
                 b = hist[2][raster[p] & 0xff];
 
                 raster[p] = 0xff000000 | (r << 16) | (g << 8) | b;
             }
-        }
-        else if(filter_value == 0) { //brightness
+        } else if (filter_value == 0 || filter_value == 5 || filter_value == 6 || filter_value == 7) { //brightness, hue ,saturation, lightness
             int hist[] = new int[1025];
 
             int i;
@@ -764,26 +742,40 @@ public class ImageFilters {
             int r, g, b;
 
             // Fill the histogram by counting the number of pixels with each value
-            for(int p = 0; p < condition; p++) {
+            for (int p = 0; p < condition; p++) {
                 r = (raster[p] >> 16) & 0xff;
                 g = (raster[p] >> 8) & 0xff;
                 b = raster[p] & 0xff;
 
-                float res[] = new float[3];
+                if (filter_value == 0) {
+                    float res[] = new float[3];
 
-                Color.RGBtoHSB(r, g, b, res);
+                    Color.RGBtoHSB(r, g, b, res);
+                    hist[(int) (res[2] * hist_len + 0.5)]++;
+                } else if (filter_value == 5) {
+                    float res[] = new float[3];
 
-                hist[(int)(res[2] * hist_len + 0.5)]++;
+                    Color.RGBtoHSB(r, g, b, res);
+                    hist[(int) (res[0] * hist_len + 0.5)]++;
+                } else if (filter_value == 6) {
+                    float res[] = new float[3];
+
+                    Color.RGBtoHSB(r, g, b, res);
+                    hist[(int) (res[1] * hist_len + 0.5)]++;
+                } else {
+                    double[] res = ColorSpaceConverter.RGBtoLAB(r, g, b);
+                    hist[(int) (res[0] / 100.0 * hist_len + 0.5)]++;
+                }
             }
 
             count = image_size * image_size;
 
             // Determine the low input value
             next_percentage = hist[0] / count;
-            for(i = 0; i < hist_len; i++) {
+            for (i = 0; i < hist_len; i++) {
                 percentage = next_percentage;
                 next_percentage += hist[i + 1] / count;
-                if(Math.abs(percentage - 0.006) < Math.abs(next_percentage - 0.006)) {
+                if (Math.abs(percentage - 0.006) < Math.abs(next_percentage - 0.006)) {
                     //low = i;//i+1; This is a deviation from the way The GIMP does it
                     low = i + 1;
                     // that prevents any change in the image if it's
@@ -793,10 +785,10 @@ public class ImageFilters {
             }
             // Determine the high input value
             next_percentage = hist[hist_len] / count;
-            for(i = hist_len; i > 0; i--) {
+            for (i = hist_len; i > 0; i--) {
                 percentage = next_percentage;
                 next_percentage += hist[i - 1] / count;
-                if(Math.abs(percentage - 0.006) < Math.abs(next_percentage - 0.006)) {
+                if (Math.abs(percentage - 0.006) < Math.abs(next_percentage - 0.006)) {
                     //high = i;//i-1; This is a deviation from the way The GIMP does it
                     high = i - 1;
                     // that prevents any change in the image if it's
@@ -806,40 +798,56 @@ public class ImageFilters {
             }
 
             // Turn the histogram into a look up table to stretch the values
-            mult = ((double)hist_len) / (high - low);
+            mult = ((double) hist_len) / (high - low);
 
-            for(i = 0; i < low; i++) {
+            for (i = 0; i < low; i++) {
                 hist[i] = 0;
             }
 
-            for(i = hist_len; i > high; i--) {
+            for (i = hist_len; i > high; i--) {
                 hist[i] = hist_len;
             }
 
             double base = 0.0;
 
-            for(i = low; i <= high; i++) {
-                hist[i] = (int)(base + 0.5);
+            for (i = low; i <= high; i++) {
+                hist[i] = (int) (base + 0.5);
                 base += mult;
             }
 
             // Now apply the changes (stretch the values)
-            for(int p = 0; p < condition; p++) {
+            for (int p = 0; p < condition; p++) {
                 r = (raster[p] >> 16) & 0xff;
                 g = (raster[p] >> 8) & 0xff;
                 b = raster[p] & 0xff;
 
-                float res[] = new float[3];
+                if (filter_value == 0) {
+                    float res[] = new float[3];
 
-                Color.RGBtoHSB(r, g, b, res);
+                    Color.RGBtoHSB(r, g, b, res);
+                    double temp = hist[(int) (res[2] * hist_len + 0.5)] / ((double) hist_len);
+                    raster[p] = Color.HSBtoRGB(res[0], res[1], (float) temp);
+                } else if (filter_value == 5) {
+                    float res[] = new float[3];
 
-                double temp = hist[(int)(res[2] * hist_len + 0.5)] / ((double)hist_len);
+                    Color.RGBtoHSB(r, g, b, res);
+                    double temp = hist[(int) (res[0] * hist_len + 0.5)] / ((double) hist_len);
+                    raster[p] = Color.HSBtoRGB((float) temp, res[1], res[2]);
+                } else if (filter_value == 6) {
+                    float res[] = new float[3];
 
-                raster[p] = Color.HSBtoRGB(res[0], res[1], (float)temp);
+                    Color.RGBtoHSB(r, g, b, res);
+                    double temp = hist[(int) (res[1] * hist_len + 0.5)] / ((double) hist_len);
+                    raster[p] = Color.HSBtoRGB(res[0], (float) temp, res[2]);
+                } else {
+                    double[] res = ColorSpaceConverter.RGBtoLAB(r, g, b);
+                    double temp = hist[(int) (res[0] / 100.0 * hist_len + 0.5)] / ((double) hist_len);
+                    int[] col = ColorSpaceConverter.LABtoRGB(temp * 100, res[1], res[2]);
+                    raster[p] = 0xFF000000 | col[0] << 16 | col[1] << 8 | col[2];
+                }
             }
 
-        }
-        else if(filter_value == 2 || filter_value == 3 || filter_value == 4) { //red, green, blue
+        } else if (filter_value == 2 || filter_value == 3 || filter_value == 4) { //red, green, blue
             int hist[] = new int[256];
 
             int i;
@@ -847,14 +855,12 @@ public class ImageFilters {
             int low = 0, high = 0;
 
             // Fill the histogram by counting the number of pixels with each value
-            for(int p = 0; p < condition; p++) {
-                if(filter_value == 2) {
+            for (int p = 0; p < condition; p++) {
+                if (filter_value == 2) {
                     hist[(raster[p] >> 16) & 0xff]++;
-                }
-                else if(filter_value == 3) {
+                } else if (filter_value == 3) {
                     hist[(raster[p] >> 8) & 0xff]++;
-                }
-                else {
+                } else {
                     hist[raster[p] & 0xff]++;
                 }
             }
@@ -862,10 +868,10 @@ public class ImageFilters {
             count = image_size * image_size;
             // Determine the low input value
             next_percentage = hist[0] / count;
-            for(i = 0; i < 255; i++) {
+            for (i = 0; i < 255; i++) {
                 percentage = next_percentage;
                 next_percentage += hist[i + 1] / count;
-                if(Math.abs(percentage - 0.006) < Math.abs(next_percentage - 0.006)) {
+                if (Math.abs(percentage - 0.006) < Math.abs(next_percentage - 0.006)) {
                     //low = i;//i+1; This is a deviation from the way The GIMP does it
                     low = i + 1;
                     // that prevents any change in the image if it's
@@ -875,10 +881,10 @@ public class ImageFilters {
             }
             // Determine the high input value
             next_percentage = hist[255] / count;
-            for(i = 255; i > 0; i--) {
+            for (i = 255; i > 0; i--) {
                 percentage = next_percentage;
                 next_percentage += hist[i - 1] / count;
-                if(Math.abs(percentage - 0.006) < Math.abs(next_percentage - 0.006)) {
+                if (Math.abs(percentage - 0.006) < Math.abs(next_percentage - 0.006)) {
                     //high = i;//i-1; This is a deviation from the way The GIMP does it
                     high = i - 1;
                     // that prevents any change in the image if it's
@@ -890,37 +896,35 @@ public class ImageFilters {
             // Turn the histogram into a look up table to stretch the values
             mult = 255.0 / (high - low);
 
-            for(i = 0; i < low; i++) {
+            for (i = 0; i < low; i++) {
                 hist[i] = 0;
             }
 
-            for(i = 255; i > high; i--) {
+            for (i = 255; i > high; i--) {
                 hist[i] = 255;
             }
 
             double base = 0.0;
 
-            for(i = low; i <= high; i++) {
-                hist[i] = (int)(base + 0.5);
+            for (i = low; i <= high; i++) {
+                hist[i] = (int) (base + 0.5);
                 base += mult;
             }
 
             // Now apply the changes (stretch the values)
             int r, g, b;
 
-            for(int p = 0; p < condition; p++) {
+            for (int p = 0; p < condition; p++) {
 
-                if(filter_value == 2) {
+                if (filter_value == 2) {
                     r = hist[(raster[p] >> 16) & 0xff];
                     g = (raster[p] >> 8) & 0xff;
                     b = raster[p] & 0xff;
-                }
-                else if(filter_value == 3) {
+                } else if (filter_value == 3) {
                     r = (raster[p] >> 16) & 0xff;
                     g = hist[(raster[p] >> 8) & 0xff];
                     b = raster[p] & 0xff;
-                }
-                else {
+                } else {
                     r = (raster[p] >> 16) & 0xff;
                     g = (raster[p] >> 8) & 0xff;
                     b = hist[raster[p] & 0xff];
@@ -929,182 +933,8 @@ public class ImageFilters {
                 raster[p] = 0xff000000 | (r << 16) | (g << 8) | b;
             }
         }
-        else if(filter_value == 5) { //Hue
-            int hist[] = new int[1025];
 
-            int i;
-            double mult, count, percentage, next_percentage;
-            int low = 0, high = 0;
-
-            int hist_len = hist.length - 1;
-
-            int r, g, b;
-
-            // Fill the histogram by counting the number of pixels with each value
-            for(int p = 0; p < condition; p++) {
-                r = (raster[p] >> 16) & 0xff;
-                g = (raster[p] >> 8) & 0xff;
-                b = raster[p] & 0xff;
-
-                float res[] = new float[3];
-
-                Color.RGBtoHSB(r, g, b, res);
-
-                hist[(int)(res[0] * hist_len + 0.5)]++;
-            }
-
-            count = image_size * image_size;
-
-            // Determine the low input value
-            next_percentage = hist[0] / count;
-            for(i = 0; i < hist_len; i++) {
-                percentage = next_percentage;
-                next_percentage += hist[i + 1] / count;
-                if(Math.abs(percentage - 0.006) < Math.abs(next_percentage - 0.006)) {
-                    //low = i;//i+1; This is a deviation from the way The GIMP does it
-                    low = i + 1;
-                    // that prevents any change in the image if it's
-                    // already optimal
-                    break;
-                }
-            }
-            // Determine the high input value
-            next_percentage = hist[hist_len] / count;
-            for(i = hist_len; i > 0; i--) {
-                percentage = next_percentage;
-                next_percentage += hist[i - 1] / count;
-                if(Math.abs(percentage - 0.006) < Math.abs(next_percentage - 0.006)) {
-                    //high = i;//i-1; This is a deviation from the way The GIMP does it
-                    high = i - 1;
-                    // that prevents any change in the image if it's
-                    // already optimal
-                    break;
-                }
-            }
-
-            // Turn the histogram into a look up table to stretch the values
-            mult = ((double)hist_len) / (high - low);
-
-            for(i = 0; i < low; i++) {
-                hist[i] = 0;
-            }
-
-            for(i = hist_len; i > high; i--) {
-                hist[i] = hist_len;
-            }
-
-            double base = 0.0;
-
-            for(i = low; i <= high; i++) {
-                hist[i] = (int)(base + 0.5);
-                base += mult;
-            }
-
-            // Now apply the changes (stretch the values)
-            for(int p = 0; p < condition; p++) {
-                r = (raster[p] >> 16) & 0xff;
-                g = (raster[p] >> 8) & 0xff;
-                b = raster[p] & 0xff;
-
-                float res[] = new float[3];
-
-                Color.RGBtoHSB(r, g, b, res);
-
-                double temp = hist[(int)(res[0] * hist_len + 0.5)] / ((double)hist_len);
-
-                raster[p] = Color.HSBtoRGB((float)temp, res[1], res[2]);
-            }
-
-        }
-        else if(filter_value == 6) { //Saturation
-            int hist[] = new int[1025];
-
-            int i;
-            double mult, count, percentage, next_percentage;
-            int low = 0, high = 0;
-
-            int hist_len = hist.length - 1;
-
-            int r, g, b;
-
-            // Fill the histogram by counting the number of pixels with each value
-            for(int p = 0; p < condition; p++) {
-                r = (raster[p] >> 16) & 0xff;
-                g = (raster[p] >> 8) & 0xff;
-                b = raster[p] & 0xff;
-
-                float res[] = new float[3];
-
-                Color.RGBtoHSB(r, g, b, res);
-
-                hist[(int)(res[1] * hist_len + 0.5)]++;
-            }
-
-            count = image_size * image_size;
-
-            // Determine the low input value
-            next_percentage = hist[0] / count;
-            for(i = 0; i < hist_len; i++) {
-                percentage = next_percentage;
-                next_percentage += hist[i + 1] / count;
-                if(Math.abs(percentage - 0.006) < Math.abs(next_percentage - 0.006)) {
-                    //low = i;//i+1; This is a deviation from the way The GIMP does it
-                    low = i + 1;
-                    // that prevents any change in the image if it's
-                    // already optimal
-                    break;
-                }
-            }
-            // Determine the high input value
-            next_percentage = hist[hist_len] / count;
-            for(i = hist_len; i > 0; i--) {
-                percentage = next_percentage;
-                next_percentage += hist[i - 1] / count;
-                if(Math.abs(percentage - 0.006) < Math.abs(next_percentage - 0.006)) {
-                    //high = i;//i-1; This is a deviation from the way The GIMP does it
-                    high = i - 1;
-                    // that prevents any change in the image if it's
-                    // already optimal
-                    break;
-                }
-            }
-
-            // Turn the histogram into a look up table to stretch the values
-            mult = ((double)hist_len) / (high - low);
-
-            for(i = 0; i < low; i++) {
-                hist[i] = 0;
-            }
-
-            for(i = hist_len; i > high; i--) {
-                hist[i] = hist_len;
-            }
-
-            double base = 0.0;
-
-            for(i = low; i <= high; i++) {
-                hist[i] = (int)(base + 0.5);
-                base += mult;
-            }
-
-            // Now apply the changes (stretch the values)
-            for(int p = 0; p < condition; p++) {
-                r = (raster[p] >> 16) & 0xff;
-                g = (raster[p] >> 8) & 0xff;
-                b = raster[p] & 0xff;
-
-                float res[] = new float[3];
-
-                Color.RGBtoHSB(r, g, b, res);
-
-                double temp = hist[(int)(res[1] * hist_len + 0.5)] / ((double)hist_len);
-
-                raster[p] = Color.HSBtoRGB(res[0], (float)temp, res[2]);
-            }
-
-        }
-        
-        if(image.getHeight() > IMAGE_SIZE_LIMIT) {
+        if (image.getHeight() > IMAGE_SIZE_LIMIT) {
             System.gc();
         }
 
@@ -1119,9 +949,9 @@ public class ImageFilters {
             0, 0, 0, 0, 0
         };
 
-        for(int j = 0; j < 12; j++) {
+        for (int j = 0; j < 12; j++) {
 
-            if(((filter_value >> j) & 0x1) == 1) {
+            if (((filter_value >> j) & 0x1) == 1) {
                 matrix[j + 6 + j / 4] = 1;
             }
 
@@ -1131,8 +961,8 @@ public class ImageFilters {
         f.setMatrix(matrix);
 
         f.filter(image, image);
-        
-        if(image.getHeight() > IMAGE_SIZE_LIMIT) {
+
+        if (image.getHeight() > IMAGE_SIZE_LIMIT) {
             System.gc();
         }
 
@@ -1140,31 +970,31 @@ public class ImageFilters {
 
     private static void filterColorChannelAdjusting(BufferedImage image, int filter_value) {
 
-        double rFactor = 2 * ((int)(filter_value / 1000000.0)) / 100.0;
-        double gFactor = 2 * ((int)(((int)(filter_value % 1000000.0)) / 1000)) / 100.0;
-        double bFactor = 2 * ((int)(((int)(filter_value % 1000000.0)) % 1000)) / 100.0;
+        double rFactor = 2 * ((int) (filter_value / 1000000.0)) / 100.0;
+        double gFactor = 2 * ((int) (((int) (filter_value % 1000000.0)) / 1000)) / 100.0;
+        double bFactor = 2 * ((int) (((int) (filter_value % 1000000.0)) % 1000)) / 100.0;
 
         RGBAdjustFilter f = new RGBAdjustFilter();
 
-        f.setRFactor((float)rFactor - 1);
-        f.setGFactor((float)gFactor - 1);
-        f.setBFactor((float)bFactor - 1);
+        f.setRFactor((float) rFactor - 1);
+        f.setGFactor((float) gFactor - 1);
+        f.setBFactor((float) bFactor - 1);
 
         f.filter(image, image);
-        
-        if(image.getHeight() > IMAGE_SIZE_LIMIT) {
+
+        if (image.getHeight() > IMAGE_SIZE_LIMIT) {
             System.gc();
         }
     }
 
     private static void filterDither(BufferedImage image, int filter_value) {
 
-        int levels = (int)(((int)(((int)(filter_value % 100000.0)) % 10000.0)) % 1000.0);
-        int dither_mat_number = (int)(((int)(((int)(filter_value % 100000.0)) % 10000.0)) / 1000.0);
-        int diffusion = (int)(((int)(filter_value % 100000.0)) / 10000.0);
-        int serpentine = ((int)(filter_value / 100000.0));
+        int levels = (int) (((int) (((int) (filter_value % 100000.0)) % 10000.0)) % 1000.0);
+        int dither_mat_number = (int) (((int) (((int) (filter_value % 100000.0)) % 10000.0)) / 1000.0);
+        int diffusion = (int) (((int) (filter_value % 100000.0)) / 10000.0);
+        int serpentine = ((int) (filter_value / 100000.0));
 
-        if(diffusion == 0) {
+        if (diffusion == 0) {
             DitherFilter f = new DitherFilter();
 
             switch (dither_mat_number) {
@@ -1203,22 +1033,20 @@ public class ImageFilters {
             f.setLevels(levels);
 
             f.filter(image, image);
-        }
-        else {
+        } else {
             DiffusionFilter f = new DiffusionFilter();
 
-            if(serpentine == 1) {
+            if (serpentine == 1) {
                 f.setSerpentine(true);
-            }
-            else {
+            } else {
                 f.setSerpentine(false);
             }
 
             f.setLevels(levels);
             f.filter(image, image);
         }
-        
-        if(image.getHeight() > IMAGE_SIZE_LIMIT) {
+
+        if (image.getHeight() > IMAGE_SIZE_LIMIT) {
             System.gc();
         }
 
@@ -1226,18 +1054,18 @@ public class ImageFilters {
 
     private static void filterHSBcolorChannelAdjusting(BufferedImage image, int filter_value) {
 
-        double hFactor = 2 * ((((int)(filter_value / 1000000.0)) / 100.0) - 0.5);
-        double sFactor = 2 * ((((int)(((int)(filter_value % 1000000.0)) / 1000)) / 100.0) - 0.5);
-        double bFactor = 2 * ((((int)(((int)(filter_value % 1000000.0)) % 1000)) / 100.0) - 0.5);
+        double hFactor = 2 * ((((int) (filter_value / 1000000.0)) / 100.0) - 0.5);
+        double sFactor = 2 * ((((int) (((int) (filter_value % 1000000.0)) / 1000)) / 100.0) - 0.5);
+        double bFactor = 2 * ((((int) (((int) (filter_value % 1000000.0)) % 1000)) / 100.0) - 0.5);
 
         HSBAdjustFilter f = new HSBAdjustFilter();
-        f.setHFactor((float)hFactor);
-        f.setSFactor((float)sFactor);
-        f.setBFactor((float)bFactor);
+        f.setHFactor((float) hFactor);
+        f.setSFactor((float) sFactor);
+        f.setBFactor((float) bFactor);
 
         f.filter(image, image);
-        
-        if(image.getHeight() > IMAGE_SIZE_LIMIT) {
+
+        if (image.getHeight() > IMAGE_SIZE_LIMIT) {
             System.gc();
         }
     }
@@ -1250,8 +1078,8 @@ public class ImageFilters {
         f.setNumLevels(numLevels);
 
         f.filter(image, image);
-        
-        if(image.getHeight() > IMAGE_SIZE_LIMIT) {
+
+        if (image.getHeight() > IMAGE_SIZE_LIMIT) {
             System.gc();
         }
 
@@ -1262,8 +1090,8 @@ public class ImageFilters {
         SolarizeFilter f = new SolarizeFilter();
 
         f.filter(image, image);
-        
-        if(image.getHeight() > IMAGE_SIZE_LIMIT) {
+
+        if (image.getHeight() > IMAGE_SIZE_LIMIT) {
             System.gc();
         }
 
@@ -1271,16 +1099,16 @@ public class ImageFilters {
 
     private static void filterGain(BufferedImage image, int filter_value) {
 
-        double gain = (((int)(filter_value / 1000.0)) / 100.0);
-        double bias = (((int)(filter_value % 1000.0)) / 100.0);
+        double gain = (((int) (filter_value / 1000.0)) / 100.0);
+        double bias = (((int) (filter_value % 1000.0)) / 100.0);
 
         GainFilter f = new GainFilter();
-        f.setGain((float)gain);
-        f.setBias((float)bias);
+        f.setGain((float) gain);
+        f.setBias((float) bias);
 
         f.filter(image, image);
-        
-        if(image.getHeight() > IMAGE_SIZE_LIMIT) {
+
+        if (image.getHeight() > IMAGE_SIZE_LIMIT) {
             System.gc();
         }
 
@@ -1291,11 +1119,11 @@ public class ImageFilters {
         double gamma = filter_value / 100.0 * 3.0;
 
         GammaFilter f = new GammaFilter();
-        f.setGamma((float)gamma);
+        f.setGamma((float) gamma);
 
         f.filter(image, image);
-        
-        if(image.getHeight() > IMAGE_SIZE_LIMIT) {
+
+        if (image.getHeight() > IMAGE_SIZE_LIMIT) {
             System.gc();
         }
 
@@ -1306,11 +1134,11 @@ public class ImageFilters {
         double exposure = filter_value / 100.0 * 5.0;
 
         ExposureFilter f = new ExposureFilter();
-        f.setExposure((float)exposure);
+        f.setExposure((float) exposure);
 
         f.filter(image, image);
-        
-        if(image.getHeight() > IMAGE_SIZE_LIMIT) {
+
+        if (image.getHeight() > IMAGE_SIZE_LIMIT) {
             System.gc();
         }
 
@@ -1318,38 +1146,36 @@ public class ImageFilters {
 
     private static void filterCrystallize(BufferedImage image, int filter_value, int filter_value2, Color filter_color) {
 
-        double size = (((int)(((int)(((int)(((int)(filter_value % 10000000.0)) % 1000000.0)) % 10000.0)) % 100.0)) / 80.0) * 100;
-        double randomness = ((int)(((int)(((int)(((int)(filter_value % 10000000.0)) % 1000000.0)) % 10000.0)) / 100.0)) / 80.0;
-        double edge_size = ((int)(((int)(((int)(filter_value % 10000000.0)) % 1000000.0)) / 10000.0)) / 80.0;
-        int shape = ((int)(((int)(filter_value % 10000000.0)) / 1000000.0));
-        int fade_edges = (int)(filter_value / 10000000.0);
+        double size = (((int) (((int) (((int) (((int) (filter_value % 10000000.0)) % 1000000.0)) % 10000.0)) % 100.0)) / 80.0) * 100;
+        double randomness = ((int) (((int) (((int) (((int) (filter_value % 10000000.0)) % 1000000.0)) % 10000.0)) / 100.0)) / 80.0;
+        double edge_size = ((int) (((int) (((int) (filter_value % 10000000.0)) % 1000000.0)) / 10000.0)) / 80.0;
+        int shape = ((int) (((int) (filter_value % 10000000.0)) / 1000000.0));
+        int fade_edges = (int) (filter_value / 10000000.0);
         int original = filter_value2;
 
         CrystallizeFilter f = new CrystallizeFilter();
 
-        if(fade_edges == 1) {
+        if (fade_edges == 1) {
             f.setFadeEdges(true);
-        }
-        else {
+        } else {
             f.setFadeEdges(false);
         }
-        
-        if(original == 1) {
+
+        if (original == 1) {
             f.setUseOriginalColor(true);
-        }
-        else {
+        } else {
             f.setUseOriginalColor(false);
         }
 
         f.setGridType(shape);
-        f.setEdgeThickness((float)edge_size);
-        f.setRandomness((float)randomness);
-        f.setScale((float)size);
+        f.setEdgeThickness((float) edge_size);
+        f.setRandomness((float) randomness);
+        f.setScale((float) size);
         f.setEdgeColor(filter_color.getRGB());
 
         f.filter(image, image);
 
-        if(image.getHeight() > IMAGE_SIZE_LIMIT) {
+        if (image.getHeight() > IMAGE_SIZE_LIMIT) {
             System.gc();
         }
     }
@@ -1358,21 +1184,21 @@ public class ImageFilters {
 
         MarbleTexFilter f = new MarbleTexFilter();
 
-        double turbulence_factor = ((int)(filter_value / 10000000.0)) / 80.0;
-        double turbulence = ((int)(((int)(filter_value % 10000000.0)) / 1000000.0)) / 8.0 * 8;
-        double stretch = ((int)(((int)(((int)(filter_value % 10000000.0)) % 1000000.0)) / 10000.0)) / 80.0 * 50;
-        double angle = ((int)(((int)(((int)(((int)(filter_value % 10000000.0)) % 1000000.0)) % 10000.0)) / 100.0)) / 80.0 * 360;
-        double scale = ((int)(((int)(((int)(((int)(filter_value % 10000000.0)) % 1000000.0)) % 10000.0)) % 100.0)) / 80.0 * 300;
+        double turbulence_factor = ((int) (filter_value / 10000000.0)) / 80.0;
+        double turbulence = ((int) (((int) (filter_value % 10000000.0)) / 1000000.0)) / 8.0 * 8;
+        double stretch = ((int) (((int) (((int) (filter_value % 10000000.0)) % 1000000.0)) / 10000.0)) / 80.0 * 50;
+        double angle = ((int) (((int) (((int) (((int) (filter_value % 10000000.0)) % 1000000.0)) % 10000.0)) / 100.0)) / 80.0 * 360;
+        double scale = ((int) (((int) (((int) (((int) (filter_value % 10000000.0)) % 1000000.0)) % 10000.0)) % 100.0)) / 80.0 * 300;
 
-        f.setTurbulenceFactor((float)turbulence_factor);
-        f.setTurbulence((float)turbulence);
-        f.setStretch((float)stretch);
-        f.setAngle((float)Math.toRadians(angle));
-        f.setScale((float)scale);
+        f.setTurbulenceFactor((float) turbulence_factor);
+        f.setTurbulence((float) turbulence);
+        f.setStretch((float) stretch);
+        f.setAngle((float) Math.toRadians(angle));
+        f.setScale((float) scale);
 
         f.filter(image, image);
-        
-        if(image.getHeight() > IMAGE_SIZE_LIMIT) {
+
+        if (image.getHeight() > IMAGE_SIZE_LIMIT) {
             System.gc();
         }
 
@@ -1382,38 +1208,36 @@ public class ImageFilters {
 
         PointillizeFilter f = new PointillizeFilter();
 
-        int fill = (int)(filter_value / 1000000000.0);
-        int shape = (int)(((int)(filter_value % 1000000000.0)) / 100000000.0);
-        double point_size = ((int)(((int)(((int)(filter_value % 1000000000.0)) % 100000000.0)) / 1000000.0)) / 80.0;
-        double fuzziness = ((int)(((int)(((int)(((int)(filter_value % 1000000000.0)) % 100000000.0)) % 1000000.0)) / 10000.0)) / 80.0;
-        double randomness = ((int)(((int)(((int)(((int)(((int)(filter_value % 1000000000.0)) % 100000000.0)) % 1000000.0)) % 10000.0)) / 100.0)) / 80.0;
-        double grid_size = ((int)(((int)(((int)(((int)(((int)(filter_value % 1000000000.0)) % 100000000.0)) % 1000000.0)) % 10000.0)) % 100.0)) / 80.0 * 100;
+        int fill = (int) (filter_value / 1000000000.0);
+        int shape = (int) (((int) (filter_value % 1000000000.0)) / 100000000.0);
+        double point_size = ((int) (((int) (((int) (filter_value % 1000000000.0)) % 100000000.0)) / 1000000.0)) / 80.0;
+        double fuzziness = ((int) (((int) (((int) (((int) (filter_value % 1000000000.0)) % 100000000.0)) % 1000000.0)) / 10000.0)) / 80.0;
+        double randomness = ((int) (((int) (((int) (((int) (((int) (filter_value % 1000000000.0)) % 100000000.0)) % 1000000.0)) % 10000.0)) / 100.0)) / 80.0;
+        double grid_size = ((int) (((int) (((int) (((int) (((int) (filter_value % 1000000000.0)) % 100000000.0)) % 1000000.0)) % 10000.0)) % 100.0)) / 80.0 * 100;
         int original = filter_value2;
-                
-        if(fill == 1) {
+
+        if (fill == 1) {
             f.setFadeEdges(true);
-        }
-        else {
+        } else {
             f.setFadeEdges(false);
         }
-        
-        if(original == 1) {
+
+        if (original == 1) {
             f.setUseOriginalColor(true);
-        }
-        else {
+        } else {
             f.setUseOriginalColor(false);
         }
 
-        f.setScale((float)grid_size);
-        f.setFuzziness((float)fuzziness);
+        f.setScale((float) grid_size);
+        f.setFuzziness((float) fuzziness);
         f.setEdgeColor(filter_color.getRGB());
-        f.setRandomness((float)randomness);
+        f.setRandomness((float) randomness);
         f.setGridType(shape);
-        f.setEdgeThickness((float)point_size);
+        f.setEdgeThickness((float) point_size);
 
         f.filter(image, image);
-        
-        if(image.getHeight() > IMAGE_SIZE_LIMIT) {
+
+        if (image.getHeight() > IMAGE_SIZE_LIMIT) {
             System.gc();
         }
 
@@ -1423,15 +1247,15 @@ public class ImageFilters {
 
         OilFilter f = new OilFilter();
 
-        int levels = (int)(filter_value / 100.0);
-        int range = (int)(filter_value % 100.0);
+        int levels = (int) (filter_value / 100.0);
+        int range = (int) (filter_value % 100.0);
 
         f.setRange(range);
         f.setLevels(levels);
 
         f.filter(image, image);
-        
-        if(image.getHeight() > IMAGE_SIZE_LIMIT) {
+
+        if (image.getHeight() > IMAGE_SIZE_LIMIT) {
             System.gc();
         }
 
@@ -1441,40 +1265,38 @@ public class ImageFilters {
 
         WeaveFilter f = new WeaveFilter();
 
-        double x_width = ((int)(((int)(((int)(((int)(((int)(filter_value % 1000000000.0)) % 100000000.0)) % 1000000.0)) % 10000.0)) % 100.0)) / 80.0 * 256;
-        double y_width = ((int)(((int)(((int)(((int)(((int)(filter_value % 1000000000.0)) % 100000000.0)) % 1000000.0)) % 10000.0)) / 100.0)) / 80.0 * 256;
-        double x_gap = ((int)(((int)(((int)(((int)(filter_value % 1000000000.0)) % 100000000.0)) % 1000000.0)) / 10000.0)) / 80.0 * 256;
-        double y_gap = ((int)(((int)(((int)(filter_value % 1000000000.0)) % 100000000.0)) / 1000000.0)) / 80.0 * 256;
+        double x_width = ((int) (((int) (((int) (((int) (((int) (filter_value % 1000000000.0)) % 100000000.0)) % 1000000.0)) % 10000.0)) % 100.0)) / 80.0 * 256;
+        double y_width = ((int) (((int) (((int) (((int) (((int) (filter_value % 1000000000.0)) % 100000000.0)) % 1000000.0)) % 10000.0)) / 100.0)) / 80.0 * 256;
+        double x_gap = ((int) (((int) (((int) (((int) (filter_value % 1000000000.0)) % 100000000.0)) % 1000000.0)) / 10000.0)) / 80.0 * 256;
+        double y_gap = ((int) (((int) (((int) (filter_value % 1000000000.0)) % 100000000.0)) / 1000000.0)) / 80.0 * 256;
 
-        int round_threads = (int)(((int)(filter_value % 1000000000.0)) / 100000000.0);
-        int shade_crossings = (int)(filter_value / 1000000000.0);
+        int round_threads = (int) (((int) (filter_value % 1000000000.0)) / 100000000.0);
+        int shade_crossings = (int) (filter_value / 1000000000.0);
 
-        if(round_threads == 1) {
+        if (round_threads == 1) {
             f.setRoundThreads(true);
-        }
-        else {
+        } else {
             f.setRoundThreads(false);
         }
 
-        if(shade_crossings == 1) {
+        if (shade_crossings == 1) {
             f.setShadeCrossings(true);
-        }
-        else {
+        } else {
             f.setShadeCrossings(false);
         }
 
-        f.setXWidth((float)x_width);
-        f.setYWidth((float)y_width);
-        f.setXGap((float)x_gap);
-        f.setYGap((float)y_gap);
+        f.setXWidth((float) x_width);
+        f.setYWidth((float) y_width);
+        f.setXGap((float) x_gap);
+        f.setYGap((float) y_gap);
 
         f.setColor(filter_color.getRGB());
 
         f.setUseImageColors(true);
 
         f.filter(image, image);
-        
-        if(image.getHeight() > IMAGE_SIZE_LIMIT) {
+
+        if (image.getHeight() > IMAGE_SIZE_LIMIT) {
             System.gc();
         }
 
@@ -1484,20 +1306,20 @@ public class ImageFilters {
 
         SparkleFilter f = new SparkleFilter();
 
-        double rays = (int)(((int)(((int)(filter_value % 1000000.0)) % 10000.0)) % 100.0) / 80.0 * 300;
-        double radius = (int)(((int)(((int)(filter_value % 1000000.0)) % 10000.0)) / 100.0) / 80.0 * 300;
-        double shine = (int)(((int)(filter_value % 1000000.0)) / 10000.0) / 80.0 * 100;
-        double randomness = (int)(filter_value / 1000000.0) / 80.0 * 50;
+        double rays = (int) (((int) (((int) (filter_value % 1000000.0)) % 10000.0)) % 100.0) / 80.0 * 300;
+        double radius = (int) (((int) (((int) (filter_value % 1000000.0)) % 10000.0)) / 100.0) / 80.0 * 300;
+        double shine = (int) (((int) (filter_value % 1000000.0)) / 10000.0) / 80.0 * 100;
+        double randomness = (int) (filter_value / 1000000.0) / 80.0 * 50;
 
-        f.setRays((int)rays);
-        f.setRadius((int)radius);
-        f.setAmount((int)shine);
-        f.setRandomness((int)randomness);
+        f.setRays((int) rays);
+        f.setRadius((int) radius);
+        f.setAmount((int) shine);
+        f.setRandomness((int) randomness);
         f.setColor(filter_color.getRGB());
 
         f.filter(image, image);
-        
-        if(image.getHeight() > IMAGE_SIZE_LIMIT) {
+
+        if (image.getHeight() > IMAGE_SIZE_LIMIT) {
             System.gc();
         }
 
@@ -1505,17 +1327,17 @@ public class ImageFilters {
 
     private static void filterGlow(BufferedImage image, int filter_value) {
 
-        double softness = ((int)(filter_value / 1000.0));
-        double amount = ((int)(filter_value % 1000.0)) / 100.0;
+        double softness = ((int) (filter_value / 1000.0));
+        double amount = ((int) (filter_value % 1000.0)) / 100.0;
 
         GlowFilter f = new GlowFilter();
 
-        f.setAmount((float)amount);
-        f.setRadius((float)softness);
+        f.setAmount((float) amount);
+        f.setRadius((float) softness);
 
         f.filter(image, image);
-        
-        if(image.getHeight() > IMAGE_SIZE_LIMIT) {
+
+        if (image.getHeight() > IMAGE_SIZE_LIMIT) {
             System.gc();
         }
 
@@ -1525,25 +1347,24 @@ public class ImageFilters {
 
         NoiseFilter f = new NoiseFilter();
 
-        double density = ((int)(((int)(((int)(filter_value % 10000000.0)) % 1000000.0)) / 1000.0)) / 100.0;
-        int amount = (int)(((int)(((int)(filter_value % 10000000.0)) % 1000000.0)) / 1000.0);
-        int distribution = (int)(((int)(filter_value % 10000000.0)) / 1000000.0);
-        int monochrome = (int)(filter_value / 10000000.0);
+        double density = ((int) (((int) (((int) (filter_value % 10000000.0)) % 1000000.0)) / 1000.0)) / 100.0;
+        int amount = (int) (((int) (((int) (filter_value % 10000000.0)) % 1000000.0)) / 1000.0);
+        int distribution = (int) (((int) (filter_value % 10000000.0)) / 1000000.0);
+        int monochrome = (int) (filter_value / 10000000.0);
 
-        if(monochrome == 1) {
+        if (monochrome == 1) {
             f.setMonochrome(true);
-        }
-        else {
+        } else {
             f.setMonochrome(false);
         }
 
         f.setDistribution(distribution);
         f.setAmount(amount);
-        f.setDensity((float)density);
+        f.setDensity((float) density);
 
         f.filter(image, image);
-        
-        if(image.getHeight() > IMAGE_SIZE_LIMIT) {
+
+        if (image.getHeight() > IMAGE_SIZE_LIMIT) {
             System.gc();
         }
 
@@ -1554,84 +1375,84 @@ public class ImageFilters {
         double scale = filter_value / 100.0 * 5;
 
         RescaleFilter f = new RescaleFilter();
-        f.setScale((float)scale);
+        f.setScale((float) scale);
 
         f.filter(image, image);
-        
-        if(image.getHeight() > IMAGE_SIZE_LIMIT) {
+
+        if (image.getHeight() > IMAGE_SIZE_LIMIT) {
             System.gc();
         }
 
     }
-    
+
     private static void filterMirror(BufferedImage image, int filter_value) {
-        
-        int opacity = (int)(filter_value / 1000000.0);
-        int mirrory = (int)(((int)(filter_value % 1000000.0)) / 1000.0);
-        int gap = (int)(((int)(filter_value % 1000000.0)) % 1000.0);
-        
+
+        int opacity = (int) (filter_value / 1000000.0);
+        int mirrory = (int) (((int) (filter_value % 1000000.0)) / 1000.0);
+        int gap = (int) (((int) (filter_value % 1000000.0)) % 1000.0);
+
         MirrorFilter f = new MirrorFilter();
-        
+
         f.setOpacity(opacity / 100.0f);
         f.setGap(gap / 100.0f);
         f.setCentreY(mirrory / 100.0f);
-        
+
         f.filter(image, image);
-        
-        if(image.getHeight() > IMAGE_SIZE_LIMIT) {
+
+        if (image.getHeight() > IMAGE_SIZE_LIMIT) {
             System.gc();
         }
-        
+
     }
 
     private static void filterLightEffects(BufferedImage image, int filter_value, int filter_value2, int filter_value3, Color filter_color, Color filter_color2, Color filter_color3) {
 
         LightFilter f = new LightFilter();
 
-        int light_type = (int)(filter_value / 100000000.0);
-        double direction = (int)(((int)(filter_value % 100000000.0)) / 1000000.0) / 80.0 * 360.0 * Math.PI / 180.0;
-        double elevation = (int)(((int)(((int)(filter_value % 100000000.0)) % 1000000.0)) / 10000.0) / 80.0 * Math.PI / 2;
-        double distance = (int)(((int)(((int)(((int)(filter_value % 100000000.0)) % 1000000.0)) % 10000.0)) / 100) / 80.0 * 1000;
-        double intensity = (int)(((int)(((int)(((int)(filter_value % 100000000.0)) % 1000000.0)) % 10000.0)) % 100) / 80.0;
+        int light_type = (int) (filter_value / 100000000.0);
+        double direction = (int) (((int) (filter_value % 100000000.0)) / 1000000.0) / 80.0 * 360.0 * Math.PI / 180.0;
+        double elevation = (int) (((int) (((int) (filter_value % 100000000.0)) % 1000000.0)) / 10000.0) / 80.0 * Math.PI / 2;
+        double distance = (int) (((int) (((int) (((int) (filter_value % 100000000.0)) % 1000000.0)) % 10000.0)) / 100) / 80.0 * 1000;
+        double intensity = (int) (((int) (((int) (((int) (filter_value % 100000000.0)) % 1000000.0)) % 10000.0)) % 100) / 80.0;
 
-        double x = (int)(filter_value2 / 1000000.0) / 80.0;
-        double y = (int)(((int)(filter_value2 % 1000000.0)) / 10000.0) / 80.0;
-        double cone_angle = (int)(((int)(((int)(filter_value2 % 1000000.0)) % 10000.0)) / 100.0) / 80.0 * Math.PI / 2;
-        double focus = (int)(((int)(((int)(filter_value2 % 1000000.0)) % 10000.0)) % 100.0) / 80.0;
+        double x = (int) (filter_value2 / 1000000.0) / 80.0;
+        double y = (int) (((int) (filter_value2 % 1000000.0)) / 10000.0) / 80.0;
+        double cone_angle = (int) (((int) (((int) (filter_value2 % 1000000.0)) % 10000.0)) / 100.0) / 80.0 * Math.PI / 2;
+        double focus = (int) (((int) (((int) (filter_value2 % 1000000.0)) % 10000.0)) % 100.0) / 80.0;
 
-        int source = (int)(filter_value3 / 10000000.0);
-        double shininess = 10 - (int)(((int)(filter_value3 % 10000000.0)) / 100000.0) / 80.0 * 10.0;
-        int bump_shape = (int)(((int)(((int)(filter_value3 % 10000000.0)) % 100000.0)) / 10000.0);
-        double bump_height = (int)(((int)(((int)(((int)(filter_value3 % 10000000.0)) % 100000.0)) % 10000.0)) / 100.0) / 80.0 * 10 - 5;
-        double bump_softness = (int)(((int)(((int)(((int)(filter_value3 % 10000000.0)) % 100000.0)) % 10000.0)) % 100.0) / 80.0 * 100.0;
+        int source = (int) (filter_value3 / 10000000.0);
+        double shininess = 10 - (int) (((int) (filter_value3 % 10000000.0)) / 100000.0) / 80.0 * 10.0;
+        int bump_shape = (int) (((int) (((int) (filter_value3 % 10000000.0)) % 100000.0)) / 10000.0);
+        double bump_height = (int) (((int) (((int) (((int) (filter_value3 % 10000000.0)) % 100000.0)) % 10000.0)) / 100.0) / 80.0 * 10 - 5;
+        double bump_softness = (int) (((int) (((int) (((int) (filter_value3 % 10000000.0)) % 100000.0)) % 10000.0)) % 100.0) / 80.0 * 100.0;
 
         f.removeAllLights();
 
         Light l1 = f.addLight(light_type);
-        l1.setFocus((float)focus);
-        l1.setConeAngle((float)cone_angle);
-        l1.setElevation((float)elevation);
-        l1.setDistance((float)distance);
-        l1.setIntensity((float)intensity);
-        l1.setAzimuth((float)direction);
+        l1.setFocus((float) focus);
+        l1.setConeAngle((float) cone_angle);
+        l1.setElevation((float) elevation);
+        l1.setDistance((float) distance);
+        l1.setIntensity((float) intensity);
+        l1.setAzimuth((float) direction);
         l1.setColor(filter_color.getRGB());
-        l1.setCentreX((float)x);
-        l1.setCentreY((float)y);
+        l1.setCentreX((float) x);
+        l1.setCentreY((float) y);
 
         Material m = f.getMaterial();
-        m.setShininess((float)shininess);
+        m.setShininess((float) shininess);
         m.setDiffuseColor(filter_color2.getRGB());
         m.setSpecularColor(filter_color3.getRGB());
 
         f.setBumpShape(bump_shape);
-        f.setBumpHeight((float)bump_height);
-        f.setBumpSoftness((float)bump_softness);
+        f.setBumpHeight((float) bump_height);
+        f.setBumpSoftness((float) bump_softness);
 
         f.setColorSource(source);
 
         f.filter(image, image);
-        
-        if(image.getHeight() > IMAGE_SIZE_LIMIT) {
+
+        if (image.getHeight() > IMAGE_SIZE_LIMIT) {
             System.gc();
         }
 
@@ -1645,9 +1466,9 @@ public class ImageFilters {
         int intoGreen = filter_color.getGreen();
         int intoBlue = filter_color.getBlue();
 
-        int blueGreen = (int)(((int)(filter_value % 1000000.0)) % 1000.0);
-        int redBlue = (int)(((int)(filter_value % 1000000.0)) / 1000.0);
-        int greenRed = (int)(filter_value / 1000000.0);
+        int blueGreen = (int) (((int) (filter_value % 1000000.0)) % 1000.0);
+        int redBlue = (int) (((int) (filter_value % 1000000.0)) / 1000.0);
+        int greenRed = (int) (filter_value / 1000000.0);
 
         f.setBlueGreen(blueGreen);
         f.setRedBlue(redBlue);
@@ -1657,24 +1478,24 @@ public class ImageFilters {
         f.setIntoB(intoBlue);
 
         f.filter(image, image);
-        
-        if(image.getHeight() > IMAGE_SIZE_LIMIT) {
+
+        if (image.getHeight() > IMAGE_SIZE_LIMIT) {
             System.gc();
         }
 
     }
 
     private static void filterEdgeDetection2(BufferedImage image, int filter_value) {
-        int horizontal = (int)(filter_value / 10.0);
-        int vertical = (int)(filter_value % 10.0);
+        int horizontal = (int) (filter_value / 10.0);
+        int vertical = (int) (filter_value % 10.0);
 
         EdgeFilter f = new EdgeFilter();
         f.setHorizontalAlgorithm(horizontal);
         f.setVerticalAlgorithm(vertical);
 
         f.filter(image, image);
-        
-        if(image.getHeight() > IMAGE_SIZE_LIMIT) {
+
+        if (image.getHeight() > IMAGE_SIZE_LIMIT) {
             System.gc();
         }
     }
@@ -1689,17 +1510,17 @@ public class ImageFilters {
         double calculatedEuler = 1.0 / (2.0 * Math.PI * weight * weight);
 
         float temp;
-        for(int filterY = -kernelRadius; filterY <= kernelRadius; filterY++) {
-            for(int filterX = -kernelRadius; filterX <= kernelRadius; filterX++) {
+        for (int filterY = -kernelRadius; filterY <= kernelRadius; filterY++) {
+            for (int filterX = -kernelRadius; filterX <= kernelRadius; filterX++) {
                 distance = ((filterX * filterX) + (filterY * filterY)) / (2 * (weight * weight));
-                temp = gaussian_kernel[(filterY + kernelRadius) * length + filterX + kernelRadius] = (float)(calculatedEuler * Math.exp(-distance));
+                temp = gaussian_kernel[(filterY + kernelRadius) * length + filterX + kernelRadius] = (float) (calculatedEuler * Math.exp(-distance));
                 sumTotal += temp;
             }
         }
 
-        for(int y = 0; y < length; y++) {
-            for(int x = 0; x < length; x++) {
-                gaussian_kernel[y * length + x] = (float)(gaussian_kernel[y * length + x] * (1.0 / sumTotal));
+        for (int y = 0; y < length; y++) {
+            for (int x = 0; x < length; x++) {
+                gaussian_kernel[y * length + x] = (float) (gaussian_kernel[y * length + x] * (1.0 / sumTotal));
             }
         }
 
@@ -1717,314 +1538,314 @@ public class ImageFilters {
     public static void filter(BufferedImage image, boolean[] filters, int[] filters_options_vals, int[][] filters_options_extra_vals, Color[] filters_colors, Color[][] filters_extra_colors, int[] filters_order, JProgressBar progressbar) {
 
         int active = 0;
-        if(filters[MainWindow.ANTIALIASING] && progressbar != null) {
+        if (filters[MainWindow.ANTIALIASING] && progressbar != null) {
             active++;
             setProgress(progressbar, active);
         }
 
-        for(int i = 0; i < filters_order.length; i++) {
+        for (int i = 0; i < filters_order.length; i++) {
             switch (filters_order[i]) {
                 case MainWindow.CRYSTALLIZE:
-                    if(filters[MainWindow.CRYSTALLIZE]) {
+                    if (filters[MainWindow.CRYSTALLIZE]) {
                         ImageFilters.filterCrystallize(image, filters_options_vals[MainWindow.CRYSTALLIZE], filters_options_extra_vals[0][MainWindow.CRYSTALLIZE], filters_colors[MainWindow.CRYSTALLIZE]);
-                        if(progressbar != null) {
+                        if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
                         }
                     }
                     break;
                 case MainWindow.POINTILLIZE:
-                    if(filters[MainWindow.POINTILLIZE]) {
+                    if (filters[MainWindow.POINTILLIZE]) {
                         ImageFilters.filterPointillize(image, filters_options_vals[MainWindow.POINTILLIZE], filters_options_extra_vals[0][MainWindow.POINTILLIZE], filters_colors[MainWindow.POINTILLIZE]);
-                        if(progressbar != null) {
+                        if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
                         }
                     }
                     break;
                 case MainWindow.LIGHT_EFFECTS:
-                    if(filters[MainWindow.LIGHT_EFFECTS]) {
+                    if (filters[MainWindow.LIGHT_EFFECTS]) {
                         ImageFilters.filterLightEffects(image, filters_options_vals[MainWindow.LIGHT_EFFECTS], filters_options_extra_vals[0][MainWindow.LIGHT_EFFECTS], filters_options_extra_vals[1][MainWindow.LIGHT_EFFECTS], filters_colors[MainWindow.LIGHT_EFFECTS], filters_extra_colors[0][MainWindow.LIGHT_EFFECTS], filters_extra_colors[1][MainWindow.LIGHT_EFFECTS]);
-                        if(progressbar != null) {
+                        if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
                         }
                     }
                     break;
                 case MainWindow.OIL:
-                    if(filters[MainWindow.OIL]) {
+                    if (filters[MainWindow.OIL]) {
                         ImageFilters.filterOil(image, filters_options_vals[MainWindow.OIL]);
-                        if(progressbar != null) {
+                        if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
                         }
                     }
                     break;
                 case MainWindow.MARBLE:
-                    if(filters[MainWindow.MARBLE]) {
+                    if (filters[MainWindow.MARBLE]) {
                         ImageFilters.filterMarble(image, filters_options_vals[MainWindow.MARBLE]);
-                        if(progressbar != null) {
+                        if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
                         }
                     }
                     break;
                 case MainWindow.WEAVE:
-                    if(filters[MainWindow.WEAVE]) {
+                    if (filters[MainWindow.WEAVE]) {
                         ImageFilters.filterWeave(image, filters_options_vals[MainWindow.WEAVE], filters_colors[MainWindow.WEAVE]);
-                        if(progressbar != null) {
+                        if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
                         }
                     }
                     break;
                 case MainWindow.SPARKLE:
-                    if(filters[MainWindow.SPARKLE]) {
+                    if (filters[MainWindow.SPARKLE]) {
                         ImageFilters.filterSparkle(image, filters_options_vals[MainWindow.SPARKLE], filters_colors[MainWindow.SPARKLE]);
-                        if(progressbar != null) {
+                        if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
                         }
                     }
                     break;
                 case MainWindow.COLOR_CHANNEL_SWAPPING:
-                    if(filters[MainWindow.COLOR_CHANNEL_SWAPPING]) {
+                    if (filters[MainWindow.COLOR_CHANNEL_SWAPPING]) {
                         ImageFilters.filterColorChannelSwapping(image, filters_options_vals[MainWindow.COLOR_CHANNEL_SWAPPING]);
-                        if(progressbar != null) {
+                        if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
                         }
                     }
                     break;
                 case MainWindow.COLOR_CHANNEL_SWIZZLING:
-                    if(filters[MainWindow.COLOR_CHANNEL_SWIZZLING]) {
+                    if (filters[MainWindow.COLOR_CHANNEL_SWIZZLING]) {
                         ImageFilters.filterColorChannelSwizzling(image, filters_options_vals[MainWindow.COLOR_CHANNEL_SWIZZLING]);
-                        if(progressbar != null) {
+                        if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
                         }
                     }
                     break;
                 case MainWindow.COLOR_CHANNEL_MIXING:
-                    if(filters[MainWindow.COLOR_CHANNEL_MIXING]) {
+                    if (filters[MainWindow.COLOR_CHANNEL_MIXING]) {
                         ImageFilters.filterColorChannelMixing(image, filters_options_vals[MainWindow.COLOR_CHANNEL_MIXING], filters_colors[MainWindow.COLOR_CHANNEL_MIXING]);
-                        if(progressbar != null) {
+                        if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
                         }
                     }
                     break;
                 case MainWindow.COLOR_CHANNEL_ADJUSTING:
-                    if(filters[MainWindow.COLOR_CHANNEL_ADJUSTING]) {
+                    if (filters[MainWindow.COLOR_CHANNEL_ADJUSTING]) {
                         ImageFilters.filterColorChannelAdjusting(image, filters_options_vals[MainWindow.COLOR_CHANNEL_ADJUSTING]);
-                        if(progressbar != null) {
+                        if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
                         }
                     }
                     break;
                 case MainWindow.COLOR_CHANNEL_HSB_ADJUSTING:
-                    if(filters[MainWindow.COLOR_CHANNEL_HSB_ADJUSTING]) {
+                    if (filters[MainWindow.COLOR_CHANNEL_HSB_ADJUSTING]) {
                         ImageFilters.filterHSBcolorChannelAdjusting(image, filters_options_vals[MainWindow.COLOR_CHANNEL_HSB_ADJUSTING]);
-                        if(progressbar != null) {
+                        if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
                         }
                     }
                     break;
                 case MainWindow.COLOR_CHANNEL_SCALING:
-                    if(filters[MainWindow.COLOR_CHANNEL_SCALING]) {
+                    if (filters[MainWindow.COLOR_CHANNEL_SCALING]) {
                         ImageFilters.filterColorChannelScaling(image, filters_options_vals[MainWindow.COLOR_CHANNEL_SCALING]);
-                        if(progressbar != null) {
+                        if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
                         }
                     }
                     break;
                 case MainWindow.GRAYSCALE:
-                    if(filters[MainWindow.GRAYSCALE]) {
+                    if (filters[MainWindow.GRAYSCALE]) {
                         ImageFilters.filterGrayscale(image, filters_options_vals[MainWindow.GRAYSCALE]);
-                        if(progressbar != null) {
+                        if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
                         }
                     }
                     break;
                 case MainWindow.POSTERIZE:
-                    if(filters[MainWindow.POSTERIZE]) {
+                    if (filters[MainWindow.POSTERIZE]) {
                         ImageFilters.filterPosterize(image, filters_options_vals[MainWindow.POSTERIZE]);
-                        if(progressbar != null) {
+                        if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
                         }
                     }
                     break;
                 case MainWindow.DITHER:
-                    if(filters[MainWindow.DITHER]) {
+                    if (filters[MainWindow.DITHER]) {
                         ImageFilters.filterDither(image, filters_options_vals[MainWindow.DITHER]);
-                        if(progressbar != null) {
+                        if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
                         }
                     }
                     break;
                 case MainWindow.INVERT_COLORS:
-                    if(filters[MainWindow.INVERT_COLORS]) {
+                    if (filters[MainWindow.INVERT_COLORS]) {
                         ImageFilters.filterInvertColors(image, filters_options_vals[MainWindow.INVERT_COLORS]);
-                        if(progressbar != null) {
+                        if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
                         }
                     }
                     break;
                 case MainWindow.SOLARIZE:
-                    if(filters[MainWindow.SOLARIZE]) {
+                    if (filters[MainWindow.SOLARIZE]) {
                         ImageFilters.filterSolarize(image);
-                        if(progressbar != null) {
+                        if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
                         }
                     }
                     break;
                 case MainWindow.COLOR_TEMPERATURE:
-                    if(filters[MainWindow.COLOR_TEMPERATURE]) {
+                    if (filters[MainWindow.COLOR_TEMPERATURE]) {
                         ImageFilters.filterColorTemperature(image, filters_options_vals[MainWindow.COLOR_TEMPERATURE]);
-                        if(progressbar != null) {
+                        if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
                         }
                     }
                     break;
                 case MainWindow.CONTRAST_BRIGHTNESS:
-                    if(filters[MainWindow.CONTRAST_BRIGHTNESS]) {
+                    if (filters[MainWindow.CONTRAST_BRIGHTNESS]) {
                         ImageFilters.filterContrastBrightness(image, filters_options_vals[MainWindow.CONTRAST_BRIGHTNESS]);
-                        if(progressbar != null) {
+                        if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
                         }
                     }
                     break;
                 case MainWindow.GAIN:
-                    if(filters[MainWindow.GAIN]) {
+                    if (filters[MainWindow.GAIN]) {
                         ImageFilters.filterGain(image, filters_options_vals[MainWindow.GAIN]);
-                        if(progressbar != null) {
+                        if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
                         }
                     }
                     break;
                 case MainWindow.GAMMA:
-                    if(filters[MainWindow.GAMMA]) {
+                    if (filters[MainWindow.GAMMA]) {
                         ImageFilters.filterGamma(image, filters_options_vals[MainWindow.GAMMA]);
-                        if(progressbar != null) {
+                        if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
                         }
                     }
                     break;
                 case MainWindow.EXPOSURE:
-                    if(filters[MainWindow.EXPOSURE]) {
+                    if (filters[MainWindow.EXPOSURE]) {
                         ImageFilters.filterExposure(image, filters_options_vals[MainWindow.EXPOSURE]);
-                        if(progressbar != null) {
+                        if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
                         }
                     }
                     break;
                 case MainWindow.HISTOGRAM_EQUALIZATION:
-                    if(filters[MainWindow.HISTOGRAM_EQUALIZATION]) {
+                    if (filters[MainWindow.HISTOGRAM_EQUALIZATION]) {
                         ImageFilters.filterHistogramEqualization(image, filters_options_vals[MainWindow.HISTOGRAM_EQUALIZATION]);
-                        if(progressbar != null) {
+                        if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
                         }
                     }
                     break;
                 case MainWindow.COLOR_CHANNEL_MASKING:
-                    if(filters[MainWindow.COLOR_CHANNEL_MASKING]) {
+                    if (filters[MainWindow.COLOR_CHANNEL_MASKING]) {
                         ImageFilters.filterMaskColors(image, filters_options_vals[MainWindow.COLOR_CHANNEL_MASKING]);
-                        if(progressbar != null) {
+                        if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
                         }
                     }
                     break;
                 case MainWindow.NOISE:
-                    if(filters[MainWindow.NOISE]) {
+                    if (filters[MainWindow.NOISE]) {
                         ImageFilters.filterNoise(image, filters_options_vals[MainWindow.NOISE]);
-                        if(progressbar != null) {
+                        if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
                         }
                     }
                     break;
                 case MainWindow.SHARPNESS:
-                    if(filters[MainWindow.SHARPNESS]) {
+                    if (filters[MainWindow.SHARPNESS]) {
                         ImageFilters.filterSharpness(image, filters_options_vals[MainWindow.SHARPNESS]);
-                        if(progressbar != null) {
+                        if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
                         }
                     }
                     break;
                 case MainWindow.BLURRING:
-                    if(filters[MainWindow.BLURRING]) {
+                    if (filters[MainWindow.BLURRING]) {
                         ImageFilters.filterBlurring(image, filters_options_vals[MainWindow.BLURRING]);
-                        if(progressbar != null) {
+                        if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
                         }
                     }
                     break;
                 case MainWindow.GLOW:
-                    if(filters[MainWindow.GLOW]) {
+                    if (filters[MainWindow.GLOW]) {
                         ImageFilters.filterGlow(image, filters_options_vals[MainWindow.GLOW]);
-                        if(progressbar != null) {
+                        if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
                         }
                     }
                     break;
                 case MainWindow.EMBOSS:
-                    if(filters[MainWindow.EMBOSS]) {
+                    if (filters[MainWindow.EMBOSS]) {
                         ImageFilters.filterEmboss(image, filters_options_vals[MainWindow.EMBOSS]);
-                        if(progressbar != null) {
+                        if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
                         }
                     }
                     break;
                 case MainWindow.EDGE_DETECTION:
-                    if(filters[MainWindow.EDGE_DETECTION]) {
+                    if (filters[MainWindow.EDGE_DETECTION]) {
                         ImageFilters.filterEdgeDetection(image, filters_options_vals[MainWindow.EDGE_DETECTION], filters_colors[MainWindow.EDGE_DETECTION]);
-                        if(progressbar != null) {
+                        if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
                         }
                     }
                     break;
                 case MainWindow.EDGE_DETECTION2:
-                    if(filters[MainWindow.EDGE_DETECTION2]) {
+                    if (filters[MainWindow.EDGE_DETECTION2]) {
                         ImageFilters.filterEdgeDetection2(image, filters_options_vals[MainWindow.EDGE_DETECTION2]);
-                        if(progressbar != null) {
+                        if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
                         }
                     }
                     break;
                 case MainWindow.FADE_OUT:
-                    if(filters[MainWindow.FADE_OUT]) {
+                    if (filters[MainWindow.FADE_OUT]) {
                         ImageFilters.filterFadeOut(image);
-                        if(progressbar != null) {
+                        if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
                         }
                     }
                     break;
                 case MainWindow.MIRROR:
-                    if(filters[MainWindow.MIRROR]) {
+                    if (filters[MainWindow.MIRROR]) {
                         ImageFilters.filterMirror(image, filters_options_vals[MainWindow.MIRROR]);
-                        if(progressbar != null) {
+                        if (progressbar != null) {
                             active++;
                             setProgress(progressbar, active);
                         }

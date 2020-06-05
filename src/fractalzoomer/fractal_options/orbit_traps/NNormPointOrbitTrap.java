@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 hrkalona
+ * Copyright (C) 2020 hrkalona
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,9 +21,9 @@ import fractalzoomer.core.Complex;
 public class NNormPointOrbitTrap extends OrbitTrap {
     private double n_norm;
 
-    public NNormPointOrbitTrap(double pointRe, double pointIm, double trapLength, double trapWidth, double n_norm) {
+    public NNormPointOrbitTrap(double pointRe, double pointIm, double trapLength, double trapWidth, double n_norm, boolean countTrapIterations) {
 
-        super(pointRe, pointIm, trapLength, trapWidth);
+        super(pointRe, pointIm, trapLength, trapWidth, countTrapIterations);
         this.n_norm = n_norm;
         
     }

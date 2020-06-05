@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2019 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2020 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -74,6 +74,8 @@ public abstract class Fractal {
     protected GenericStatistic statistic;
     protected double log_bailout_squared;
     private double trapIntesity;
+    private boolean invertTrapHeight;
+    private int trapHeightFunction;
     private boolean trapIncludeNotEscaped;
     private boolean trapIncludeEscaped;
     protected boolean statisticIncludeEscaped;
@@ -99,6 +101,8 @@ public abstract class Fractal {
         if (!periodicity_checking && ots.useTraps) {
             TrapFactory(ots);
             trapIntesity = ots.trapIntensity;
+            invertTrapHeight = ots.invertTrapHeight;
+            trapHeightFunction = ots.trapHeightFunction;
             trapIncludeEscaped = ots.trapIncludeEscaped;
             trapIncludeNotEscaped = ots.trapIncludeNotEscaped;
         }
@@ -949,10 +953,10 @@ public abstract class Fractal {
 
     protected double getTrap(double result) {
  
-        if (trap.hasColor() || Math.abs(result) == ColorAlgorithm.MAXIMUM_ITERATIONS) {
+        if (trapIntesity == 0 || trap.hasColor()) {
             return result;
         }
-
+        
         double distance = trap.getDistance();
 
         if (distance == Double.MAX_VALUE) {
@@ -962,8 +966,34 @@ public abstract class Fractal {
         double maxVal = trap.getMaxValue();
         distance = maxVal - distance;
         distance /= maxVal;
-        distance = (-Math.cos(Math.PI * distance) * 0.5 + 0.5) * trapIntesity;
+        
+        //Function
+        switch(trapHeightFunction) {
+            case 1:
+                distance = (-Math.cos(Math.PI * distance) * 0.5 + 0.5);
+                break;
+            case 2:
+                distance = Math.sqrt(distance);
+                break;
+            case 3:
+                distance = (Math.exp(distance) - 1) / (Math.E - 1);
+                break;
+            case 0:
+            default:
+                break;
+        }
+        
+        distance = invertTrapHeight ? 1 - distance : distance;
+        distance *= trapIntesity;
+        
+        if (Math.abs(result) == ColorAlgorithm.MAXIMUM_ITERATIONS) {
+            if (trapIncludeNotEscaped) {
+                result = max_iterations + distance;
+            }
 
+            return result;
+        }
+        
         return result < 0 ? result - distance : result + distance;
 
     }
@@ -999,116 +1029,128 @@ public abstract class Fractal {
     private void TrapFactory(OrbitTrapSettings ots) {
 
         switch (ots.trapType) {
-            case MainWindow.POINT_TRAP:
-                trap = new PointOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength);
+            case MainWindow.POINT_TRAP:        
+                trap = new PointOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.countTrapIterations);
                 break;
             case MainWindow.POINT_SQUARE_TRAP:
-                trap = new PointSquareOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength);
+                trap = new PointSquareOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.countTrapIterations);
                 break;
             case MainWindow.POINT_RHOMBUS_TRAP:
-                trap = new PointRhombusOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength);
+                trap = new PointRhombusOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.countTrapIterations);
                 break;
             case MainWindow.CROSS_TRAP:
-                trap = new CrossOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.lineType);
+                trap = new CrossOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.lineType, ots.countTrapIterations);
                 break;
             case MainWindow.CIRCLE_TRAP:
-                trap = new CircleOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth);
+                trap = new CircleOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.countTrapIterations);
                 break;
             case MainWindow.SQUARE_TRAP:
-                trap = new SquareOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth);
+                trap = new SquareOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.countTrapIterations);
                 break;
             case MainWindow.RHOMBUS_TRAP:
-                trap = new RhombusOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth);
+                trap = new RhombusOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.countTrapIterations);
                 break;
             case MainWindow.POINT_N_NORM_TRAP:
-                trap = new PointNNormOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapNorm);
+                trap = new PointNNormOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapNorm, ots.countTrapIterations);
                 break;
             case MainWindow.N_NORM_TRAP:
-                trap = new NNormOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.trapNorm);
+                trap = new NNormOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.trapNorm, ots.countTrapIterations);
                 break;
             case MainWindow.RE_TRAP:
-                trap = new ReOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.lineType);
+                trap = new ReOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.lineType, ots.countTrapIterations);
                 break;
             case MainWindow.IM_TRAP:
-                trap = new ImOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.lineType);
+                trap = new ImOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.lineType, ots.countTrapIterations);
                 break;
             case MainWindow.CIRCLE_CROSS_TRAP:
-                trap = new CircleCrossOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.lineType);
+                trap = new CircleCrossOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.lineType, ots.countTrapIterations);
                 break;
             case MainWindow.SQUARE_CROSS_TRAP:
-                trap = new SquareCrossOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.lineType);
+                trap = new SquareCrossOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.lineType, ots.countTrapIterations);
                 break;
             case MainWindow.RHOMBUS_CROSS_TRAP:
-                trap = new RhombusCrossOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.lineType);
+                trap = new RhombusCrossOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.lineType, ots.countTrapIterations);
                 break;
             case MainWindow.N_NORM_CROSS_TRAP:
-                trap = new NNormCrossOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.trapNorm, ots.lineType);
+                trap = new NNormCrossOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.trapNorm, ots.lineType, ots.countTrapIterations);
                 break;
             case MainWindow.CIRCLE_POINT_TRAP:
-                trap = new CirclePointOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth);
+                trap = new CirclePointOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.countTrapIterations);
                 break;
             case MainWindow.SQUARE_POINT_TRAP:
-                trap = new SquarePointOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth);
+                trap = new SquarePointOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.countTrapIterations);
                 break;
             case MainWindow.RHOMBUS_POINT_TRAP:
-                trap = new RhombusPointOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth);
+                trap = new RhombusPointOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.countTrapIterations);
                 break;
             case MainWindow.N_NORM_POINT_TRAP:
-                trap = new NNormPointOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.trapNorm);
+                trap = new NNormPointOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.trapNorm, ots.countTrapIterations);
                 break;
             case MainWindow.N_NORM_POINT_N_NORM_TRAP:
-                trap = new NNormPointNNormOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.trapNorm);
+                trap = new NNormPointNNormOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.trapNorm, ots.countTrapIterations);
                 break;
             case MainWindow.GOLDEN_RATIO_SPIRAL_TRAP:
-                trap = new GoldenRatioSpiralOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapWidth);
+                trap = new GoldenRatioSpiralOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapWidth, ots.countTrapIterations);
                 break;
             case MainWindow.GOLDEN_RATIO_SPIRAL_POINT_TRAP:
-                trap = new GoldenRatioSpiralPointOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth);
+                trap = new GoldenRatioSpiralPointOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.countTrapIterations);
                 break;
             case MainWindow.GOLDEN_RATIO_SPIRAL_POINT_N_NORM_TRAP:
-                trap = new GoldenRatioSpiralPointNNormOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.trapNorm);
+                trap = new GoldenRatioSpiralPointNNormOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.trapNorm, ots.countTrapIterations);
                 break;
             case MainWindow.GOLDEN_RATIO_SPIRAL_CROSS_TRAP:
-                trap = new GoldenRatioSpiralCrossOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.lineType);
+                trap = new GoldenRatioSpiralCrossOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.lineType, ots.countTrapIterations);
                 break;
             case MainWindow.GOLDEN_RATIO_SPIRAL_CIRCLE_TRAP:
-                trap = new GoldenRatioSpiralCircleOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth);
+                trap = new GoldenRatioSpiralCircleOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.countTrapIterations);
                 break;
             case MainWindow.GOLDEN_RATIO_SPIRAL_SQUARE_TRAP:
-                trap = new GoldenRatioSpiralSquareOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth);
+                trap = new GoldenRatioSpiralSquareOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.countTrapIterations);
                 break;
             case MainWindow.GOLDEN_RATIO_SPIRAL_RHOMBUS_TRAP:
-                trap = new GoldenRatioSpiralRhombusOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth);
+                trap = new GoldenRatioSpiralRhombusOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.countTrapIterations);
                 break;
             case MainWindow.GOLDEN_RATIO_SPIRAL_N_NORM_TRAP:
-                trap = new GoldenRatioSpiralNNormOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.trapNorm);
+                trap = new GoldenRatioSpiralNNormOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.trapNorm, ots.countTrapIterations);
                 break;              
             case MainWindow.STALKS_TRAP:
-                trap = new StalksOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapWidth);
+                trap = new StalksOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapWidth, ots.countTrapIterations);
                 break;
             case MainWindow.STALKS_POINT_TRAP:
-                trap = new StalksPointOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth);
+                trap = new StalksPointOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.countTrapIterations);
                 break;
             case MainWindow.STALKS_POINT_N_NORM_TRAP:
-                trap = new StalksPointNNormOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.trapNorm);
+                trap = new StalksPointNNormOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.trapNorm, ots.countTrapIterations);
                 break;
             case MainWindow.STALKS_CROSS_TRAP:
-                trap = new StalksCrossOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.lineType);
+                trap = new StalksCrossOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.lineType, ots.countTrapIterations);
                 break;
             case MainWindow.STALKS_CIRCLE_TRAP:
-                trap = new StalksCircleOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth);
+                trap = new StalksCircleOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.countTrapIterations);
                 break;
             case MainWindow.STALKS_SQUARE_TRAP:
-                trap = new StalksSquareOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth);
+                trap = new StalksSquareOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.countTrapIterations);
                 break;
             case MainWindow.STALKS_RHOMBUS_TRAP:
-                trap = new StalksRhombusOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth);
+                trap = new StalksRhombusOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.countTrapIterations);
                 break;
             case MainWindow.STALKS_N_NORM_TRAP:
-                trap = new StalksNNormOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.trapNorm);
+                trap = new StalksNNormOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth, ots.trapNorm, ots.countTrapIterations);
                 break;
             case MainWindow.IMAGE_TRAP:
                 trap = new ImageOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapLength, ots.trapWidth);
+                break;             
+            case MainWindow.ATOM_DOMAIN_TRAP:
+                trap = new AtomDomainOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.countTrapIterations);
+                break;
+            case MainWindow.SQUARE_ATOM_DOMAIN_TRAP:
+                trap = new SquareAtomDomainOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.countTrapIterations);
+                break;
+            case MainWindow.RHOMBUS_ATOM_DOMAIN_TRAP:
+                trap = new RhombusAtomDomainOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.countTrapIterations);
+                break;
+            case MainWindow.NNORM_ATOM_DOMAIN_TRAP:
+                trap = new NNormAtomDomainOrbitTrap(ots.trapPoint[0], ots.trapPoint[1], ots.trapNorm, ots.countTrapIterations);
                 break;
 
         }

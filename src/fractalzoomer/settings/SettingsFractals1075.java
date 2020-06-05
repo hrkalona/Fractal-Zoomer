@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 BITSKO
+ * Copyright (C) 2020 hrkalona
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,7 @@
  */
 package fractalzoomer.settings;
 
+import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
 import java.awt.image.BufferedImage;
 import java.io.Serializable;
@@ -40,7 +41,7 @@ public class SettingsFractals1075 extends SettingsFractals1074 implements Serial
         
         super(s);
         
-        if(s.ots.trapImage != null) {
+        if(s.ots.trapType == MainWindow.IMAGE_TRAP && s.ots.trapImage != null) {
             trapImageWidth = s.ots.trapImage.getWidth();
             trapImageHeight = s.ots.trapImage.getHeight();
             trapImageData = s.ots.trapImage.getRGB(0, 0, trapImageWidth, trapImageHeight, null, 0, trapImageWidth);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 hrkalona2
+ * Copyright (C) 2020 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,9 +25,9 @@ import fractalzoomer.core.Complex;
 public class GoldenRatioSpiralOrbitTrap extends OrbitTrap {
     private double phi;
 
-    public GoldenRatioSpiralOrbitTrap(double pointRe, double pointIm, double trapWidth) {
+    public GoldenRatioSpiralOrbitTrap(double pointRe, double pointIm, double trapWidth, boolean countTrapIterations) {
 
-        super(pointRe, pointIm, 0, trapWidth);
+        super(pointRe, pointIm, 0, trapWidth, countTrapIterations);
         phi = 0.5 * (1 + Math.sqrt(5));
 
     }

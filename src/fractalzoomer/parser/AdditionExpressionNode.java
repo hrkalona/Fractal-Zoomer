@@ -1,5 +1,5 @@
 /* 
- * Fractal Zoomer, Copyright (C) 2019 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2020 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -95,6 +95,8 @@ public class AdditionExpressionNode extends SequenceExpressionNode
   public void accept(ExpressionNodeVisitor visitor)
   {
     visitor.visit(this);
+
+    firstNode.accept(visitor);
     for (int i = 0; i < termCount; i++)
     {
       terms[i].expression.accept(visitor);

@@ -1,5 +1,5 @@
 /*
- * Fractal Zoomer, Copyright (C) 2019 hrkalona2
+ * Fractal Zoomer, Copyright (C) 2020 hrkalona2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -89,7 +89,7 @@ public class StatisticsColoringFrame extends JFrame {
 
         ptra2.setEnabled(false);
         int custom_palette_window_width = (MainWindow.runsOnWindows ? 680 : 780) + 50;
-        int custom_palette_window_height = 690;
+        int custom_palette_window_height = 700;
         setTitle("Statistical Coloring");
         setIconImage(getIcon("/fractalzoomer/icons/statistics_coloring.png").getImage());
 
@@ -114,7 +114,7 @@ public class StatisticsColoringFrame extends JFrame {
         JPanel panel3 = new JPanel();
         panel3.setLayout(new FlowLayout());
         panel3.setBackground(MainWindow.bg_color);
-        panel3.setPreferredSize(new Dimension((MainWindow.runsOnWindows ? 580 : 680) + 50, 550));
+        panel3.setPreferredSize(new Dimension((MainWindow.runsOnWindows ? 580 : 680) + 50, 560));
 
         JCheckBox statistics = new JCheckBox("Statistical Coloring");
         statistics.setFocusable(false);
@@ -143,7 +143,7 @@ public class StatisticsColoringFrame extends JFrame {
         panel2.add(include_notescaped_opt);
 
         JTabbedPane tabbedPane = new JTabbedPane();
-        tabbedPane.setPreferredSize(new Dimension((MainWindow.runsOnWindows ? 560 : 660) + 50, 500));
+        tabbedPane.setPreferredSize(new Dimension((MainWindow.runsOnWindows ? 560 : 660) + 50, 510));
         tabbedPane.setFocusable(false);
 
         final JPanel panel = new JPanel();
@@ -579,7 +579,7 @@ public class StatisticsColoringFrame extends JFrame {
 
         RoundedPanel round_panel = new RoundedPanel(true, true, true, 15);
         round_panel.setBackground(MainWindow.bg_color);
-        round_panel.setPreferredSize(new Dimension((MainWindow.runsOnWindows ? 610 : 710) + 50, 610));
+        round_panel.setPreferredSize(new Dimension((MainWindow.runsOnWindows ? 610 : 710) + 50, 620));
         round_panel.setLayout(new GridBagLayout());
 
         GridBagConstraints con = new GridBagConstraints();
