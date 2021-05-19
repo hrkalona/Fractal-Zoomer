@@ -16,7 +16,7 @@ limitations under the License.
 
 package fractalzoomer.filters_utils.image;
 
-import java.awt.image.*;
+import java.awt.image.BufferedImage;
 
 /**
  * A filter which adds Gaussian blur to an image, producing a glowing effect.

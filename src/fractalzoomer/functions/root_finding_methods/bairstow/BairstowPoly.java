@@ -20,6 +20,7 @@ import fractalzoomer.core.Complex;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
 import fractalzoomer.main.app_settings.StatisticsSettings;
+
 import java.util.ArrayList;
 
 /**
@@ -91,23 +92,23 @@ public class BairstowPoly extends BairstowRootFindingMethod {
         }
         
     }
-    
+
     private static int getDeg(double[] coefficients) {
        int deg = 0;
-        
+
         for(int i = 0; i < coefficients.length; i++) {
             if(coefficients[i] != 0) {
                 deg = coefficients.length - i - 1;
                 break;
             }
         }
-        
+
         return deg;
     }
 
 
     @Override
-    protected void function(Complex[] complex) {
+    public void function(Complex[] complex) {
         bairstowMethod(complex[0]);
     }
     

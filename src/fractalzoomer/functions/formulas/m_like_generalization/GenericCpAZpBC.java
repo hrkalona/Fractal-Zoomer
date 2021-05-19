@@ -29,6 +29,7 @@ import fractalzoomer.functions.Julia;
 import fractalzoomer.main.app_settings.GenericCpAZpBCSettings;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
 import fractalzoomer.main.app_settings.StatisticsSettings;
+
 import java.util.ArrayList;
 
 /**
@@ -157,7 +158,7 @@ public class GenericCpAZpBC extends Julia {
     }
 
     @Override
-    protected void function(Complex[] complex) {
+    public void function(Complex[] complex) {
 
         complex[0] = complex[1].pow(alpha2).times_mutable(complex[0].pow(beta2)).plus_mutable(complex[1]);
 

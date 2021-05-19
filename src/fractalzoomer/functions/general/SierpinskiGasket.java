@@ -18,6 +18,7 @@ package fractalzoomer.functions.general;
 
 import fractalzoomer.core.Complex;
 import fractalzoomer.functions.Fractal;
+import fractalzoomer.functions.FractalWithoutConstant;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
 import fractalzoomer.main.app_settings.StatisticsSettings;
 
@@ -27,7 +28,7 @@ import java.util.ArrayList;
  *
  * @author hrkalona2
  */
-public class SierpinskiGasket extends Fractal {
+public class SierpinskiGasket extends FractalWithoutConstant {
 
     public SierpinskiGasket(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, OrbitTrapSettings ots, StatisticsSettings sts) {
 
@@ -50,7 +51,7 @@ public class SierpinskiGasket extends Fractal {
     }
 
     @Override
-    protected void function(Complex[] complex) {
+    public void function(Complex[] complex) {
 
         double temp = complex[0].getIm();
         double temp2 = complex[0].getRe();
@@ -66,118 +67,16 @@ public class SierpinskiGasket extends Fractal {
     }
 
     @Override
-    public double calculateFractalWithoutPeriodicity(Complex pixel) {
-        int iterations = 0;
+    public Complex[] initialize(Complex pixel) {
 
         Complex[] complex = new Complex[1];
         complex[0] = new Complex(pixel);//z
 
-        Complex zold = new Complex();
-        Complex zold2 = new Complex();
-        Complex start = new Complex(complex[0]);
+        zold = new Complex();
+        zold2 = new Complex();
+        start = new Complex(complex[0]);
 
-        for (; iterations < max_iterations; iterations++) {
-
-            if (trap != null) {
-                trap.check(complex[0], iterations);
-            }
-
-            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, pixel, start)) {
-                escaped = true;
-
-                if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(complex[0], zold, zold2, iterations, pixel, start);
-                }
-
-                Object[] object = {iterations, complex[0], zold, zold2, pixel, start};
-                double out = out_color_algorithm.getResult(object);
-
-                out = getFinalValueOut(out);
-
-                return out;
-            }
-            zold2.assign(zold);
-            zold.assign(complex[0]);
-            function(complex);
-
-            if (statistic != null) {
-                statistic.insert(complex[0], zold, zold2, iterations, pixel, start);
-            }
-
-        }
-
-        if (inTrueColorAlgorithm != null) {
-            setTrueColorIn(complex[0], zold, zold2, iterations, pixel, start);
-        }
-
-        Object[] object = {complex[0], zold, zold2, pixel, start};
-        double in = in_color_algorithm.getResult(object);
-
-        in = getFinalValueIn(in);
-
-        return in;
-
-    }
-
-    @Override
-    public void calculateFractalOrbit() {
-        int iterations = 0;
-
-        Complex[] complex = new Complex[1];
-        complex[0] = new Complex(pixel_orbit);//z
-
-        Complex temp = null;
-
-        for (; iterations < max_iterations; iterations++) {
-            function(complex);
-            temp = rotation.rotateInverse(complex[0]);
-
-            if (Double.isNaN(temp.getRe()) || Double.isNaN(temp.getIm()) || Double.isInfinite(temp.getRe()) || Double.isInfinite(temp.getIm())) {
-                break;
-            }
-
-            complex_orbit.add(temp);
-        }
-
-    }
-
-    @Override
-    public Complex iterateFractalDomain(Complex pixel) {
-        int iterations = 0;
-
-        Complex[] complex = new Complex[1];
-        complex[0] = new Complex(pixel);//z
-
-        for (; iterations < max_iterations; iterations++) {
-
-            function(complex);
-
-        }
-
-        return complex[0];
-
-    }
-
-    @Override
-    public double calculateJulia(Complex pixel) {
-        return 0;
-    }
-
-    @Override
-    public void calculateJuliaOrbit() {
-    }
-
-    @Override
-    public Complex calculateJuliaDomain(Complex pixel) {
-
-        return null;
-
-    }
-
-    @Override
-    public double getJulia3DHeight(double value) {
-
-        return 0;
+        return complex;
 
     }
 }

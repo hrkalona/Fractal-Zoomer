@@ -21,9 +21,10 @@ import fractalzoomer.core.ThreadDraw;
 import fractalzoomer.main.ImageExpanderWindow;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.*;
-import fractalzoomer.utils.Pixel;
 import fractalzoomer.utils.ExpandingQueue;
-import java.awt.Color;
+import fractalzoomer.utils.Pixel;
+
+import java.awt.*;
 import java.awt.image.BufferedImage;
 
 /**
@@ -33,7 +34,7 @@ import java.awt.image.BufferedImage;
 public class BoundaryTracing2Draw extends ThreadDraw {
     private boolean[] added;
     private ExpandingQueue<Pixel> pixels;
-    private static final int INIT_QUEUE_SIZE = 6000;
+    private static final int INIT_QUEUE_SIZE = 200;
 
     public BoundaryTracing2Draw(int FROMx, int TOx, int FROMy, int TOy, double xCenter, double yCenter, double size, int max_iterations, FunctionSettings fns, D3Settings d3s, MainWindow ptr, Color fractal_color, Color dem_color, BufferedImage image, FiltersSettings fs, boolean periodicity_checking, int color_cycling_location, int color_cycling_location2, boolean exterior_de, double exterior_de_factor, double height_ratio, BumpMapSettings bms, boolean polar_projection, double circle_period, FakeDistanceEstimationSettings fdes, RainbowPaletteSettings rps, DomainColoringSettings ds, boolean inverse_dem, boolean quickDraw, double color_intensity, int transfer_function, double color_intensity2, int transfer_function2, boolean usePaletteForInColoring, EntropyColoringSettings ens, OffsetColoringSettings ofs, GreyscaleColoringSettings gss, int color_blending, OrbitTrapSettings ots, ContourColoringSettings cns, int[] post_processing_order, LightSettings ls, PaletteGradientMergingSettings pbs, StatisticsSettings sts, int gradient_offset, HistogramColoringSettings hss) {
         super(FROMx, TOx, FROMy, TOy, xCenter, yCenter, size, max_iterations, fns, d3s, ptr, fractal_color, dem_color, image, fs, periodicity_checking, color_cycling_location, color_cycling_location2, exterior_de, exterior_de_factor, height_ratio, bms, polar_projection, circle_period, fdes, rps, ds, inverse_dem, quickDraw, color_intensity, transfer_function, color_intensity2, transfer_function2, usePaletteForInColoring, ens, ofs, gss, color_blending, ots, cns, post_processing_order, ls, pbs, sts, gradient_offset, hss);
@@ -164,7 +165,7 @@ public class BoundaryTracing2Draw extends ThreadDraw {
                 break;
             }
 
-            currentPixel = pixels.dequeue();
+            currentPixel = pixels.last();
 
             x = currentPixel.x;
             y = currentPixel.y;

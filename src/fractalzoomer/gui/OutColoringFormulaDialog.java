@@ -19,23 +19,13 @@ package fractalzoomer.gui;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
 import fractalzoomer.parser.ParserException;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.GridLayout;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import javax.swing.ImageIcon;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JRadioButtonMenuItem;
-import javax.swing.JTabbedPane;
-import javax.swing.JTextField;
-import javax.swing.SwingConstants;
-import static javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE;
 
 /**
  *
@@ -170,8 +160,8 @@ public class OutColoringFormulaDialog extends JDialog {
                         if (tabbedPane.getSelectedIndex() == 0) {
                             s.parser.parse(field_formula.getText());
                             
-                            if(s.parser.foundR()) {
-                                JOptionPane.showMessageDialog(ptra, "The variable: r cannot be used in the out formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                            if(s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                                JOptionPane.showMessageDialog(ptra, "The variables: r, stat, trap cannot be used in the out formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                                 return;
                             }
 
@@ -187,8 +177,8 @@ public class OutColoringFormulaDialog extends JDialog {
                         } else {
                             s.parser.parse(field_condition.getText());
                             
-                            if(s.parser.foundR()) {
-                                JOptionPane.showMessageDialog(ptra, "The variable: r cannot be used in the left condition formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                            if(s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                                JOptionPane.showMessageDialog(ptra, "The variables: r, stat, trap cannot be used in the left condition formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                                 return;
                             }
 
@@ -204,8 +194,8 @@ public class OutColoringFormulaDialog extends JDialog {
 
                             s.parser.parse(field_condition2.getText());
                             
-                            if(s.parser.foundR()) {
-                                JOptionPane.showMessageDialog(ptra, "The variable: r cannot be used in the right condition formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                            if(s.parser.foundR()|| s.parser.foundStat() || s.parser.foundTrap()) {
+                                JOptionPane.showMessageDialog(ptra, "The variables: r, stat, trap cannot be used in the right condition formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                                 return;
                             }
 
@@ -221,8 +211,8 @@ public class OutColoringFormulaDialog extends JDialog {
 
                             s.parser.parse(field_formula_cond1.getText());
                             
-                            if(s.parser.foundR()) {
-                                JOptionPane.showMessageDialog(ptra, "The variable: r cannot be used in the left > right out formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                            if(s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                                JOptionPane.showMessageDialog(ptra, "The variables: r, stat, trap cannot be used in the left > right out formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                                 return;
                             }
 
@@ -238,8 +228,8 @@ public class OutColoringFormulaDialog extends JDialog {
 
                             s.parser.parse(field_formula_cond2.getText());
                             
-                            if(s.parser.foundR()) {
-                                JOptionPane.showMessageDialog(ptra, "The variable: r cannot be used in the left < right out formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                            if(s.parser.foundR()|| s.parser.foundStat() || s.parser.foundTrap()) {
+                                JOptionPane.showMessageDialog(ptra, "The variables: r, stat, trap cannot be used in the left < right out formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                                 return;
                             }
 
@@ -255,8 +245,8 @@ public class OutColoringFormulaDialog extends JDialog {
 
                             s.parser.parse(field_formula_cond3.getText());
                             
-                            if(s.parser.foundR()) {
-                                JOptionPane.showMessageDialog(ptra, "The variable: r cannot be used in the left = right out formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                            if(s.parser.foundR()|| s.parser.foundStat() || s.parser.foundTrap()) {
+                                JOptionPane.showMessageDialog(ptra, "The variables: r, stat, trap cannot be used in the left = right out formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                                 return;
                             }
 

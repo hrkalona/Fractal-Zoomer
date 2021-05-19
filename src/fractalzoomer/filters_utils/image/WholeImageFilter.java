@@ -17,7 +17,8 @@ limitations under the License.
 package fractalzoomer.filters_utils.image;
 
 import java.awt.*;
-import java.awt.image.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
 
 /**
  * A filter which acts as a superclass for filters which need to have the whole image in memory

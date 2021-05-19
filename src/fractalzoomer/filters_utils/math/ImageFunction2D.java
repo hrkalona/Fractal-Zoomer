@@ -16,9 +16,13 @@ limitations under the License.
 
 package fractalzoomer.filters_utils.math;
 
+import fractalzoomer.filters_utils.image.ImageMath;
+import fractalzoomer.filters_utils.image.PixelUtils;
+
 import java.awt.*;
-import java.awt.image.*;
-import fractalzoomer.filters_utils.image.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.ImageObserver;
+import java.awt.image.PixelGrabber;
 
 public class ImageFunction2D implements Function2D {
 

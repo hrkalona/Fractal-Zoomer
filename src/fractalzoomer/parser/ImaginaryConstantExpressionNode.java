@@ -28,17 +28,6 @@ public class ImaginaryConstantExpressionNode implements ExpressionNode
   private Complex value;
 
   /**
-   * Construct with the fixed value.
-   * 
-   * @param value
-   *          the value of the constant
-   */
-  public ImaginaryConstantExpressionNode(Complex value)
-  {
-    this.value = value;
-  }
-
-  /**
    * Convenience constructor that takes a string and converts it to a double
    * before storing the value.
    * 
@@ -65,7 +54,7 @@ public class ImaginaryConstantExpressionNode implements ExpressionNode
   }
 
   /**
-   * Returns the type of the node, in this case ExpressionNode.CONSTANT_NODE
+   * Returns the type of the node, in this case ExpressionNode.IMAGINARY_CONSTANT_NODE
    */
   @Override
   public int getType()

@@ -17,8 +17,6 @@
 package fractalzoomer.out_coloring_algorithms;
 
 import fractalzoomer.core.Complex;
-import static fractalzoomer.utils.ColorAlgorithm.INCREMENT;
-import static fractalzoomer.utils.ColorAlgorithm.OutNotUsingIncrement;
 
 /**
  *

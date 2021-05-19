@@ -17,7 +17,7 @@
 
 package fractalzoomer.utils;
 
-import java.awt.Color;
+import java.awt.*;
 
 // --------------------------------------------------------
 // convert an image to a different color space

@@ -21,23 +21,15 @@ import fractalzoomer.main.app_settings.LyapunovSettings;
 import fractalzoomer.main.app_settings.Settings;
 import fractalzoomer.parser.Parser;
 import fractalzoomer.parser.ParserException;
-import java.awt.GridLayout;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.ImageIcon;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JRadioButtonMenuItem;
-import javax.swing.JTextField;
-import static javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE;
 
 /**
  *
@@ -235,29 +227,29 @@ public class LyapunovDialog extends JDialog {
                         
                         s.parser.parse(field_formula_a.getText());
 
-                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR()) {
-                            JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r cannot be used in the A formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                            JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r, stat, trap cannot be used in the A formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                             return;
                         }
 
                         s.parser.parse(field_formula_b.getText());
 
-                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR()) {
-                            JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r cannot be used in the B formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                            JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r, stat, trap cannot be used in the B formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                             return;
                         }
 
                         s.parser.parse(field_formula_c.getText());
 
-                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR()) {
-                            JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r cannot be used in the C formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                            JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r, stat, trap cannot be used in the C formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                             return;
                         }
 
                         s.parser.parse(field_formula_d.getText());
 
-                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR()) {
-                            JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r cannot be used in the D formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                            JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r, stat, trap cannot be used in the D formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                             return;
                         }
 
@@ -278,8 +270,8 @@ public class LyapunovDialog extends JDialog {
                         for (String subExpression : subExpressions) {
                             s.parser.parse(subExpression);
 
-                            if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR()) {
-                                JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r cannot be used in the Expression formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                            if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                                JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r, stat, trap cannot be used in the Expression formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                                 return;
                             }
 
@@ -288,8 +280,8 @@ public class LyapunovDialog extends JDialog {
                         
                         s.parser.parse(field_function.getText());
 
-                        if (s.parser.foundBail() || s.parser.foundCbail()) {
-                            JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail cannot be used in the A formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundStat() || s.parser.foundTrap()) {
+                            JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, stat, trap cannot be used in the A formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                             return;
                         }
                         
@@ -297,8 +289,8 @@ public class LyapunovDialog extends JDialog {
                         
                         s.parser.parse(field_exponent_function.getText());
 
-                        if (s.parser.foundBail() || s.parser.foundCbail()) {
-                            JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail cannot be used in the A formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundStat() || s.parser.foundTrap()) {
+                            JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, stat, trap cannot be used in the A formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                             return;
                         }
                         
@@ -307,8 +299,8 @@ public class LyapunovDialog extends JDialog {
                         
                         s.parser.parse(initial_value.getText());
 
-                        if (s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR()) {
-                            JOptionPane.showMessageDialog(ptra, "The variables: z, n, s, p, pp, bail, cbail, r cannot be used in the initial value formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                        if (s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                            JOptionPane.showMessageDialog(ptra, "The variables: z, n, s, p, pp, bail, cbail, r, stat, trap cannot be used in the initial value formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                             return;
                         }
                         

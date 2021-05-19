@@ -16,7 +16,8 @@ limitations under the License.
 
 package fractalzoomer.filters_utils.image;
 
-import java.awt.image.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.WritableRaster;
 
 /**
  * An abstract superclass for point filters. The interface is the same as the old RGBImageFilter.

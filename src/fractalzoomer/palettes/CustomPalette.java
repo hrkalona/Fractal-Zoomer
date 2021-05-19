@@ -16,19 +16,12 @@
  */
 package fractalzoomer.palettes;
 
-import fractalzoomer.core.interpolation.AccelerationInterpolation;
-import fractalzoomer.core.interpolation.CatmullRom2Interpolation;
-import fractalzoomer.core.interpolation.CatmullRomInterpolation;
-import fractalzoomer.core.interpolation.CosineInterpolation;
-import fractalzoomer.core.interpolation.DecelerationInterpolation;
-import fractalzoomer.core.interpolation.ExponentialInterpolation;
-import fractalzoomer.core.interpolation.InterpolationMethod;
-import fractalzoomer.core.interpolation.LinearInterpolation;
-import fractalzoomer.core.interpolation.SigmoidInterpolation;
+import fractalzoomer.core.interpolation.*;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.utils.ColorSpaceConverter;
 import fractalzoomer.utils.MathUtils.BezierSpline;
-import java.awt.Color;
+
+import java.awt.*;
 import java.awt.geom.Point2D;
 
 /**
@@ -131,6 +124,15 @@ public class CustomPalette extends Palette {
                 break;
             case MainWindow.INTERPOLATION_SIGMOID:
                 method = new SigmoidInterpolation();
+                break;
+            case MainWindow.INTERPOLATION_QUADRATIC:
+                method = new QuadraticInterpolation();
+                break;
+            case MainWindow.INTERPOLATION_CUBIC:
+                method = new CubicInterpolation();
+                break;
+            case MainWindow.INTERPOLATION_SQRT:
+                method = new SqrtInterpolation();
                 break;
         }
 
@@ -434,6 +436,15 @@ public class CustomPalette extends Palette {
                 break;
             case MainWindow.INTERPOLATION_SIGMOID:
                 method = new SigmoidInterpolation();
+                break;
+            case MainWindow.INTERPOLATION_QUADRATIC:
+                method = new QuadraticInterpolation();
+                break;
+            case MainWindow.INTERPOLATION_CUBIC:
+                method = new CubicInterpolation();
+                break;
+            case MainWindow.INTERPOLATION_SQRT:
+                method = new SqrtInterpolation();
                 break;
         }
 

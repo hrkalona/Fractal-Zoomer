@@ -22,29 +22,15 @@ import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
 import fractalzoomer.main.app_settings.StatisticsSettings;
 import fractalzoomer.parser.ParserException;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
+
+import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import javax.swing.BorderFactory;
-import javax.swing.ButtonGroup;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JTextField;
 
 /**
  *
@@ -57,7 +43,7 @@ public class StatisticsColoringFrame extends JFrame {
     private StatisticsColoringFrame this_frame;
     private StatisticsSettings sts;
 
-    public StatisticsColoringFrame(MainWindow ptra, StatisticsSettings sts2, Settings s) {
+    public StatisticsColoringFrame(MainWindow ptra, StatisticsSettings sts2, Settings s, boolean periodicity_checking) {
 
         super();
 
@@ -72,6 +58,7 @@ public class StatisticsColoringFrame extends JFrame {
         JRadioButton alg1 = new JRadioButton(Constants.statisticalColoringName[MainWindow.COS_ARG_DIVIDE_NORM_AVERAGE]);
         JRadioButton alg2 = new JRadioButton(Constants.statisticalColoringName[MainWindow.COS_ARG_DIVIDE_INVERSE_NORM]);
         JRadioButton atomDomain = new JRadioButton(Constants.statisticalColoringName[MainWindow.ATOM_DOMAIN_BOF60_BOF61]);
+        JRadioButton lagrangian = new JRadioButton(Constants.statisticalColoringName[MainWindow.DISCRETE_LAGRANGIAN_DESCRIPTORS]);
 
         if(s.fns.function != MainWindow.MANDELBROT) {
             triangle_inequality_average.setEnabled(false);
@@ -89,7 +76,7 @@ public class StatisticsColoringFrame extends JFrame {
 
         ptra2.setEnabled(false);
         int custom_palette_window_width = (MainWindow.runsOnWindows ? 680 : 780) + 50;
-        int custom_palette_window_height = 700;
+        int custom_palette_window_height = 730;
         setTitle("Statistical Coloring");
         setIconImage(getIcon("/fractalzoomer/icons/statistics_coloring.png").getImage());
 
@@ -114,7 +101,7 @@ public class StatisticsColoringFrame extends JFrame {
         JPanel panel3 = new JPanel();
         panel3.setLayout(new FlowLayout());
         panel3.setBackground(MainWindow.bg_color);
-        panel3.setPreferredSize(new Dimension((MainWindow.runsOnWindows ? 580 : 680) + 50, 560));
+        panel3.setPreferredSize(new Dimension((MainWindow.runsOnWindows ? 580 : 680) + 50, 590));
 
         JCheckBox statistics = new JCheckBox("Statistical Coloring");
         statistics.setFocusable(false);
@@ -142,12 +129,45 @@ public class StatisticsColoringFrame extends JFrame {
         panel2.add(include_escaped_opt);
         panel2.add(include_notescaped_opt);
 
+        JCheckBox smoothing = new JCheckBox("Smooth Sum");
+        smoothing.setFocusable(false);
+        smoothing.setSelected(sts.useSmoothing);
+        smoothing.setBackground(MainWindow.bg_color);
+        smoothing.setToolTipText("Smooths the computed value of the sum.");
+
+        JCheckBox average = new JCheckBox("Average Sum");
+        average.setFocusable(false);
+        average.setSelected(sts.useAverage);
+        average.setBackground(MainWindow.bg_color);
+        average.setToolTipText("Averages the computed value of the sum.");
+
+
+        if(sts.statisticGroup == 1) {
+            smoothing.setEnabled(sts.reductionFunction == MainWindow.REDUCTION_SUM);
+            average.setEnabled(sts.reductionFunction == MainWindow.REDUCTION_SUM);
+        }
+        else if (sts.statisticGroup == 0) {
+            smoothing.setEnabled(sts.statistic_type != MainWindow.ATOM_DOMAIN_BOF60_BOF61 && sts.statistic_type != MainWindow.COS_ARG_DIVIDE_INVERSE_NORM);
+            average.setEnabled(sts.statistic_type != MainWindow.ATOM_DOMAIN_BOF60_BOF61 && sts.statistic_type != MainWindow.COS_ARG_DIVIDE_INVERSE_NORM);
+        }
+        else if(sts.statisticGroup == 2) {
+            smoothing.setEnabled(true);
+            average.setEnabled(true);
+        }
+
+        JPanel panel6 = new JPanel();
+        panel6.setLayout(new FlowLayout());
+        panel6.setBackground(MainWindow.bg_color);
+        panel6.add(smoothing);
+        panel6.add(average);
+
         JTabbedPane tabbedPane = new JTabbedPane();
         tabbedPane.setPreferredSize(new Dimension((MainWindow.runsOnWindows ? 560 : 660) + 50, 510));
         tabbedPane.setFocusable(false);
 
+
         final JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(6, 1));
+        panel.setLayout(new GridLayout(7, 1));
         panel.setBackground(MainWindow.bg_color);
         panel.setPreferredSize(new Dimension((int)tabbedPane.getPreferredSize().getWidth() - 20, (int)tabbedPane.getPreferredSize().getHeight() - 40));
 
@@ -158,8 +178,16 @@ public class StatisticsColoringFrame extends JFrame {
         JPanel panel4 = new JPanel();
         panel4.setBackground(MainWindow.bg_color);
 
+        JPanel panel7 = new JPanel();
+        panel7.setBackground(MainWindow.bg_color);
+
         tabbedPane.addTab("Presets", panel5);
         tabbedPane.addTab("User Statistical Coloring", panel4);
+        tabbedPane.addTab("Equicontinuity", panel7);
+
+        if(periodicity_checking) {
+            tabbedPane.setEnabledAt(2, false);
+        }
 
         JPanel panel21 = new JPanel();
         panel21.setLayout(new FlowLayout());
@@ -195,19 +223,6 @@ public class StatisticsColoringFrame extends JFrame {
         panel24.add(new JLabel("Initial value = "));
         panel24.add(field_formula_init);
 
-        JCheckBox average = new JCheckBox("Average Sum");
-        average.setFocusable(false);
-        average.setSelected(sts.useAverage);
-        average.setBackground(MainWindow.bg_color);
-        average.setToolTipText("Averages the computed value of the sum.");
-        average.setEnabled(sts.reductionFunction == MainWindow.REDUCTION_SUM);
-        
-        JCheckBox smoothing = new JCheckBox("Smooth Sum");
-        smoothing.setFocusable(false);
-        smoothing.setSelected(sts.useSmoothing);
-        smoothing.setBackground(MainWindow.bg_color);
-        smoothing.setToolTipText("Smooths the computed value of the sum.");
-        smoothing.setEnabled(sts.reductionFunction == MainWindow.REDUCTION_SUM);
         
         JCheckBox iterations = new JCheckBox("Similar Iterations");
         iterations.setFocusable(false);
@@ -229,11 +244,32 @@ public class StatisticsColoringFrame extends JFrame {
                 else if(reduction.getSelectedIndex() == MainWindow.REDUCTION_MIN) {
                     field_formula_init.setText("" + Double.MAX_VALUE);
                 }
-                else if(reduction.getSelectedIndex() == MainWindow.REDUCTION_SUM) {
+                else if(reduction.getSelectedIndex() == MainWindow.REDUCTION_SUM || reduction.getSelectedIndex() == MainWindow.REDUCTION_SUB || reduction.getSelectedIndex() == MainWindow.REDUCTION_ASSIGN) {
                     field_formula_init.setText("0.0");
+                }
+                else if(reduction.getSelectedIndex() == MainWindow.REDUCTION_MULT) {
+                    field_formula_init.setText("1.0");
                 }
             }
             
+        });
+
+        tabbedPane.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                if(tabbedPane.getSelectedIndex() == 1) {
+                    smoothing.setEnabled(reduction.getSelectedIndex() == MainWindow.REDUCTION_SUM);
+                    average.setEnabled(reduction.getSelectedIndex() == MainWindow.REDUCTION_SUM);
+                }
+                else if (tabbedPane.getSelectedIndex() == 2) {
+                   smoothing.setEnabled(!atomDomain.isSelected() && !alg2.isSelected());
+                   average.setEnabled(!atomDomain.isSelected() && !alg2.isSelected());
+                }
+                else {
+                    smoothing.setEnabled(true);
+                    average.setEnabled(true);
+                }
+            }
         });
 
         JComboBox escape_type = new JComboBox(new String[] {"Escaping", "Converging"});
@@ -245,8 +281,6 @@ public class StatisticsColoringFrame extends JFrame {
         panel23.setBackground(MainWindow.bg_color);
         panel23.setPreferredSize(new Dimension((MainWindow.runsOnWindows ? 500 : 600) + 50, 30));
 
-        panel23.add(average);
-        panel23.add(smoothing);
         panel23.add(iterations);
         if(s.isMagnetType()) {
             panel23.add(new JLabel("Type: "));
@@ -319,6 +353,142 @@ public class StatisticsColoringFrame extends JFrame {
         panel4.add(panel24);
 
         tabbedPane.setSelectedIndex(sts.statisticGroup);
+
+
+        JPanel panel70 = new JPanel();
+        panel70.setBackground(MainWindow.bg_color);
+
+        JTextField equiDenominatorFactor = new JTextField(10);
+        equiDenominatorFactor.setText("" + sts.equicontinuityDenominatorFactor);
+
+        JCheckBox inverseFactor = new JCheckBox("Invert Factor");
+        inverseFactor.setToolTipText("Inverts the calculated value.");
+        inverseFactor.setBackground(MainWindow.bg_color);
+        inverseFactor.setSelected(sts.equicontinuityInvertFactor);
+        inverseFactor.setFocusable(false);
+
+        JTextField equiDelta = new JTextField(10);
+        equiDelta.setText("" + sts.equicontinuityDelta);
+
+        panel70.add(new JLabel("Delta: "));
+        panel70.add(equiDelta);
+
+        panel70.add(new JLabel(" Denominator Factor: "));
+        panel70.add(equiDenominatorFactor);
+
+        panel70.add(new JLabel(" "));
+        panel70.add(inverseFactor);
+
+
+        JPanel panel71 = new JPanel();
+        panel71.setBackground(MainWindow.bg_color);
+
+        JCheckBox overrideColoring = new JCheckBox("Override Coloring");
+        overrideColoring.setToolTipText("Overrides the normal coloring is order to use the equicontinuity coloring.");
+        overrideColoring.setBackground(MainWindow.bg_color);
+        overrideColoring.setSelected(sts.equicontinuityOverrideColoring);
+        overrideColoring.setFocusable(false);
+
+        JComboBox argValue = new JComboBox(Constants.equicontinuityArgs);
+        argValue.setSelectedIndex(sts.equicontinuityArgValue);
+        argValue.setFocusable(false);
+        argValue.setToolTipText("Sets the color argument value.");
+
+        panel71.add(Box.createRigidArea(new Dimension(70, 10)));
+        panel71.add(overrideColoring);
+        panel71.add(new JLabel(" Argument: "));
+        panel71.add(argValue);
+        panel71.add(Box.createRigidArea(new Dimension(70, 10)));
+
+        JPanel panel72 = new JPanel();
+        panel72.setBackground(MainWindow.bg_color);
+
+        JComboBox equiColorMethods = new JComboBox(Constants.equicontinuityColorMethods);
+        equiColorMethods.setSelectedIndex(sts.equicontinuityColorMethod);
+        equiColorMethods.setFocusable(false);
+        equiColorMethods.setToolTipText("Sets the coloring method.");
+        equiColorMethods.setEnabled(overrideColoring.isSelected());
+
+        final JSlider saturationChroma = new JSlider(JSlider.HORIZONTAL, 0, 100, 0);
+        saturationChroma.setValue((int)(100 * sts.equicontinuitySatChroma));
+        saturationChroma.setBackground(MainWindow.bg_color);
+        saturationChroma.setMajorTickSpacing(25);
+        saturationChroma.setMinorTickSpacing(1);
+        saturationChroma.setToolTipText("Sets the saturation/chroma.");
+        saturationChroma.setFocusable(false);
+        saturationChroma.setPaintLabels(true);
+
+        panel72.add(new JLabel("Color Method: "));
+        panel72.add(equiColorMethods);
+
+        panel72.add(new JLabel(" Saturation/Chroma: "));
+        panel72.add(saturationChroma);
+
+        JPanel panel73 = new JPanel();
+        panel73.setBackground(MainWindow.bg_color);
+
+        JComboBox equiMixingMethods = new JComboBox(Constants.colorMethod);
+        equiMixingMethods.setSelectedIndex(sts.equicontinuityMixingMethod);
+        equiMixingMethods.setFocusable(false);
+        equiMixingMethods.setToolTipText("Sets the mixing method.");
+
+
+        JSlider blend_opt = new JSlider(JSlider.HORIZONTAL, 0, 100, 0);
+        blend_opt.setValue((int)(100 * sts.equicontinuityBlending));
+        blend_opt.setBackground(MainWindow.bg_color);
+        blend_opt.setMajorTickSpacing(25);
+        blend_opt.setMinorTickSpacing(1);
+        blend_opt.setToolTipText("Sets the blending percentage.");
+        blend_opt.setFocusable(false);
+        blend_opt.setPaintLabels(true);
+
+        equiMixingMethods.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                blend_opt.setEnabled(equiMixingMethods.getSelectedIndex() == 3);
+            }
+        });
+
+        blend_opt.setEnabled(overrideColoring.isSelected() && ((equiColorMethods.getSelectedIndex() == 3 || equiColorMethods.getSelectedIndex() == 4) && equiMixingMethods.getSelectedIndex() == 3));
+
+        panel73.add(new JLabel("Color Mixing: "));
+        panel73.add(equiMixingMethods);
+
+        panel73.add(new JLabel(" Color Blending: "));
+        panel73.add(blend_opt);
+
+
+        saturationChroma.setEnabled(overrideColoring.isSelected() && (equiColorMethods.getSelectedIndex() != 3 && equiColorMethods.getSelectedIndex() != 4));
+        equiMixingMethods.setEnabled(overrideColoring.isSelected() && (equiColorMethods.getSelectedIndex() == 3 || equiColorMethods.getSelectedIndex() == 4));
+        argValue.setEnabled(overrideColoring.isSelected() && equiColorMethods.getSelectedIndex() != 4);
+
+        equiColorMethods.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                saturationChroma.setEnabled(overrideColoring.isSelected() && (equiColorMethods.getSelectedIndex() != 3 && equiColorMethods.getSelectedIndex() != 4));
+                equiMixingMethods.setEnabled(overrideColoring.isSelected() && (equiColorMethods.getSelectedIndex() == 3 || equiColorMethods.getSelectedIndex() == 4));
+                argValue.setEnabled(overrideColoring.isSelected() && equiColorMethods.getSelectedIndex() != 4);
+                blend_opt.setEnabled(overrideColoring.isSelected() && ((equiColorMethods.getSelectedIndex() == 3 || equiColorMethods.getSelectedIndex() == 4) && equiMixingMethods.getSelectedIndex() == 3));
+            }
+        });
+
+
+        overrideColoring.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                equiColorMethods.setEnabled(overrideColoring.isSelected());
+                saturationChroma.setEnabled(overrideColoring.isSelected() && (equiColorMethods.getSelectedIndex() != 3 && equiColorMethods.getSelectedIndex() != 4));
+                equiMixingMethods.setEnabled(overrideColoring.isSelected() && (equiColorMethods.getSelectedIndex() == 3 || equiColorMethods.getSelectedIndex() == 4));
+                argValue.setEnabled(overrideColoring.isSelected() && equiColorMethods.getSelectedIndex() != 4);
+                blend_opt.setEnabled(overrideColoring.isSelected() && ((equiColorMethods.getSelectedIndex() == 3 || equiColorMethods.getSelectedIndex() == 4) && equiMixingMethods.getSelectedIndex() == 3));
+            }
+        });
+
+
+        panel7.add(panel70);
+        panel7.add(panel71);
+        panel7.add(panel72);
+        panel7.add(panel73);
 
         ButtonGroup button_group = new ButtonGroup();
 
@@ -431,12 +601,31 @@ public class StatisticsColoringFrame extends JFrame {
 
         atom_domain_panel.setBorder(atom_domain_border);
 
+        final JPanel lagrangian_panel = new JPanel();
+        lagrangian_panel.setLayout(new FlowLayout());
+        lagrangian_panel.setBackground(MainWindow.bg_color);
+
+        JTextField lagrPower = new JTextField(10);
+        lagrPower.setText("" + sts.lagrangianPower);
+        lagrangian_panel.add(new JLabel("Power: "));
+        lagrangian_panel.add(lagrPower);
+
+        lagrangian.setBackground(MainWindow.bg_color);
+        lagrangian.setSelected(sts.statistic_type == MainWindow.DISCRETE_LAGRANGIAN_DESCRIPTORS);
+        button_group.add(lagrangian);
+
+        ComponentTitledBorder lagrangian_border = new ComponentTitledBorder(lagrangian, lagrangian_panel, BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), this_frame);
+        lagrangian_border.setChangeListener();
+
+        lagrangian_panel.setBorder(lagrangian_border);
+
         panel.add(stripe_panel);
         panel.add(curvature_panel);
         panel.add(triangle_inequality_panel);
         panel.add(alg1_panel);
         panel.add(alg2_panel);
         panel.add(atom_domain_panel);
+        panel.add(lagrangian_panel);
 
         stripe_border.setState(stripe_average.isSelected());
         curvature_border.setState(curvature_average.isSelected());
@@ -444,8 +633,66 @@ public class StatisticsColoringFrame extends JFrame {
         alg1_border.setState(alg1.isSelected());
         alg2_border.setState(alg2.isSelected());
         atom_domain_border.setState(atomDomain.isSelected());
+        lagrangian_border.setState(lagrangian.isSelected());
+
+        stripe_average.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                smoothing.setEnabled(true);
+                average.setEnabled(true);
+            }
+        });
+
+        curvature_average.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                smoothing.setEnabled(true);
+                average.setEnabled(true);
+            }
+        });
+
+        triangle_inequality_average.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                smoothing.setEnabled(true);
+                average.setEnabled(true);
+            }
+        });
+
+        alg1.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                smoothing.setEnabled(true);
+                average.setEnabled(true);
+            }
+        });
+
+        atomDomain.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                smoothing.setEnabled(false);
+                average.setEnabled(false);
+            }
+        });
+
+        alg2.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                smoothing.setEnabled(false);
+                average.setEnabled(false);
+            }
+        });
+
+        lagrangian.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                smoothing.setEnabled(true);
+                average.setEnabled(true);
+            }
+        });
 
         panel3.add(panel2);
+        panel3.add(panel6);
         panel3.add(tabbedPane);
 
         JPanel buttons = new JPanel();
@@ -461,13 +708,16 @@ public class StatisticsColoringFrame extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
 
-                double temp, temp2, temp3, temp4, temp5;
+                double temp, temp2, temp3, temp4, temp5, temp6, temp7, temp8;
                 try {
                     temp = Double.parseDouble(intensity.getText());
                     temp2 = Double.parseDouble(stripeDensity1.getText());
                     temp3 = Double.parseDouble(stripeDensity2.getText());
                     temp4 = Double.parseDouble(stripeDensity3.getText());
                     temp5 = Double.parseDouble(denominatorFactor.getText());
+                    temp6 = Double.parseDouble(lagrPower.getText());
+                    temp7 = Double.parseDouble(equiDenominatorFactor.getText());
+                    temp8 = Double.parseDouble(equiDelta.getText());
                 }
                 catch(Exception ex) {
                     JOptionPane.showMessageDialog(this_frame, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
@@ -479,11 +729,21 @@ public class StatisticsColoringFrame extends JFrame {
                     return;
                 }
 
+                if(temp6 < 0) {
+                    JOptionPane.showMessageDialog(this_frame, "Discrete Lagrangian Descriptor power must be greater than -1.", "Error!", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                if(temp7 < 0) {
+                    JOptionPane.showMessageDialog(this_frame, "Equicontinuity denominator factor must be greater than -1.", "Error!", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
                 try {
                     s.parser.parse(field_formula.getText());
                     
-                    if(s.parser.foundR()) {
-                        JOptionPane.showMessageDialog(ptra, "The variable: r cannot be used in the value formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                    if(s.parser.foundR()|| s.parser.foundStat() || s.parser.foundTrap()) {
+                        JOptionPane.showMessageDialog(ptra, "The variables: r, stat, trap cannot be used in the value formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
 
@@ -500,8 +760,8 @@ public class StatisticsColoringFrame extends JFrame {
                     
                     s.parser.parse(field_formula_init.getText());
                     
-                    if (s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR()) {
-                        JOptionPane.showMessageDialog(ptra, "The variables: z, n, s, p, pp, bail, cbail, r cannot be used in the value(0) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                    if (s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                        JOptionPane.showMessageDialog(ptra, "The variables: z, n, s, p, pp, bail, cbail, r, stat, trap cannot be used in the value(0) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
                 }
@@ -521,6 +781,16 @@ public class StatisticsColoringFrame extends JFrame {
                 sts.reductionFunction = reduction.getSelectedIndex();
                 sts.useIterations = iterations.isSelected();
                 sts.useSmoothing = smoothing.isSelected();
+                sts.lagrangianPower = temp6;
+                sts.equicontinuityDenominatorFactor = temp7;
+                sts.equicontinuityArgValue = argValue.getSelectedIndex();
+                sts.equicontinuityColorMethod = equiColorMethods.getSelectedIndex();
+                sts.equicontinuitySatChroma = saturationChroma.getValue() / 100.0;
+                sts.equicontinuityMixingMethod = equiMixingMethods.getSelectedIndex();
+                sts.equicontinuityBlending = blend_opt.getValue() / 100.0;
+                sts.equicontinuityInvertFactor = inverseFactor.isSelected();
+                sts.equicontinuityOverrideColoring = overrideColoring.isSelected();
+                sts.equicontinuityDelta = temp8;
 
                 if(stripe_average.isSelected()) {
                     sts.statistic_type = MainWindow.STRIPE_AVERAGE;
@@ -539,6 +809,9 @@ public class StatisticsColoringFrame extends JFrame {
                 }
                 else if(atomDomain.isSelected()) {
                     sts.statistic_type = MainWindow.ATOM_DOMAIN_BOF60_BOF61;
+                }
+                else if(lagrangian.isSelected()) {
+                    sts.statistic_type = MainWindow.DISCRETE_LAGRANGIAN_DESCRIPTORS;
                 }
 
                 sts.statisticGroup = tabbedPane.getSelectedIndex();
@@ -579,7 +852,7 @@ public class StatisticsColoringFrame extends JFrame {
 
         RoundedPanel round_panel = new RoundedPanel(true, true, true, 15);
         round_panel.setBackground(MainWindow.bg_color);
-        round_panel.setPreferredSize(new Dimension((MainWindow.runsOnWindows ? 610 : 710) + 50, 620));
+        round_panel.setPreferredSize(new Dimension((MainWindow.runsOnWindows ? 610 : 710) + 50, 650));
         round_panel.setLayout(new GridBagLayout());
 
         GridBagConstraints con = new GridBagConstraints();

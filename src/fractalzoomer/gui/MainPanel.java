@@ -18,10 +18,10 @@
 package fractalzoomer.gui;
 
 import fractalzoomer.main.MainWindow;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.image.BufferedImage;
-import javax.swing.JPanel;
 
 
 /**

@@ -19,6 +19,7 @@ package fractalzoomer.functions.root_finding_methods.bairstow;
 import fractalzoomer.core.Complex;
 import fractalzoomer.functions.root_finding_methods.RootFindingMethods;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
+
 import java.util.ArrayList;
 
 /**
@@ -71,110 +72,49 @@ public abstract class BairstowRootFindingMethod extends RootFindingMethods {
     }
 
     @Override
-    public double calculateFractalWithoutPeriodicity(Complex pixel) {
-        int iterations = 0;
-        double temp = 0;
+    public Complex[] initialize(Complex pixel) {
+
+        Complex[] complex = new Complex[1];
+        complex[0] = new Complex(-2 * pixel.getRe(), pixel.getRe() * pixel.getRe() + pixel.getIm() * pixel.getAbsIm());//z = -2s + (s^2 + t|t|)i
+
+        zold = new Complex();
+        zold2 = new Complex();
+        start = new Complex(complex[0]);
+
+        return complex;
+
+    }
+
+    @Override
+    protected double iterateFractalWithoutPeriodicity(Complex[] complex, Complex pixel) {
 
         if (n < 2) {
             return 0;
         }
 
-        Complex[] complex = new Complex[1];
-        complex[0] = new Complex(-2 * pixel.getRe(), pixel.getRe() * pixel.getRe() + pixel.getIm() * pixel.getAbsIm());//z = -2s + (s^2 + t|t|)i
-
-        Complex zold = new Complex();
-        Complex zold2 = new Complex();
-        Complex start = new Complex(complex[0]);
-
-        for (; iterations < max_iterations; iterations++) {
-
-            if (trap != null) {
-                trap.check(complex[0], iterations);
-            }
-
-            if (iterations > 0 && (temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
-                escaped = true;
-
-                if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(complex[0], zold, zold2, iterations, pixel, start);
-                }
-
-                Object[] object = {iterations, complex[0], temp, zold, zold2, pixel, start};
-                iterationData = object;
-                double out = out_color_algorithm.getResult(object);
-
-                out = getFinalValueOut(out);
-
-                return out;
-            }
-            zold2.assign(zold);
-            zold.assign(complex[0]);
-            function(complex);
-
-            if (statistic != null) {
-                statistic.insert(complex[0], zold, zold2, iterations, pixel, start);
-            }
-
-        }
-
-        if (inTrueColorAlgorithm != null) {
-            setTrueColorIn(complex[0], zold, zold2, iterations, pixel, start);
-        }
-
-        Object[] object = {complex[0], zold, zold2, pixel, start};
-        iterationData = object;
-        double in = in_color_algorithm.getResult(object);
-
-        in = getFinalValueIn(in);
-
-        return in;
+        return super.iterateFractalWithoutPeriodicity(complex, pixel);
 
     }
 
     @Override
-    public void calculateFractalOrbit() {
-        int iterations = 0;
+    protected void iterateFractalOrbit(Complex[] complex, Complex pixel) {
 
         if (n < 2) {
-            return;
+            return ;
         }
 
-        Complex[] complex = new Complex[1];
-        complex[0] = new Complex(-2 * pixel_orbit.getRe(), pixel_orbit.getRe() * pixel_orbit.getRe() + pixel_orbit.getIm() * pixel_orbit.getAbsIm());//z = -2s + (s^2 + t|t|)i
-
-        Complex temp = null;
-
-        for (; iterations < max_iterations; iterations++) {
-            function(complex);
-            temp = rotation.rotateInverse(complex[0]);
-
-            if (Double.isNaN(temp.getRe()) || Double.isNaN(temp.getIm()) || Double.isInfinite(temp.getRe()) || Double.isInfinite(temp.getIm())) {
-                break;
-            }
-
-            complex_orbit.add(temp);
-        }
+        super.iterateFractalOrbit(complex, pixel);
 
     }
 
     @Override
-    public Complex iterateFractalDomain(Complex pixel) {
-        int iterations = 0;
+    protected Complex iterateFractalDomain(Complex[] complex, Complex pixel) {
 
         if (n < 2) {
             return new Complex();
         }
 
-        Complex[] complex = new Complex[1];
-        complex[0] = new Complex(-2 * pixel.getRe(), pixel.getRe() * pixel.getRe() + pixel.getIm() * pixel.getAbsIm());//z = -2s + (s^2 + t|t|)i
-
-        for (; iterations < max_iterations; iterations++) {
-
-            function(complex);
-
-        }
-
-        return complex[0];
+        return super.iterateFractalDomain(complex, pixel);
 
     }
 

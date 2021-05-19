@@ -33,12 +33,13 @@ package fractalzoomer.gui;
  * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
  * details.
  */
+
 import javax.swing.*;
 import javax.swing.border.Border;
-import java.awt.*;
-import java.awt.event.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import java.awt.*;
+import java.awt.event.*;
 
 public class ComponentTitledBorder implements Border, MouseListener, MouseMotionListener, SwingConstants {
 

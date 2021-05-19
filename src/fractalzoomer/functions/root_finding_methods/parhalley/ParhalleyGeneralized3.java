@@ -21,6 +21,7 @@ import fractalzoomer.core.Complex;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
 import fractalzoomer.main.app_settings.StatisticsSettings;
+
 import java.util.ArrayList;
 
 /**
@@ -67,7 +68,7 @@ public class ParhalleyGeneralized3 extends ParhalleyRootFindingMethod {
     }
 
     @Override
-    protected void function(Complex[] complex) {
+    public void function(Complex[] complex) {
 
         Complex fz = complex[0].cube().sub_mutable(complex[0].times(2)).plus_mutable(2);
         Complex dfz = complex[0].square().times_mutable(3).sub_mutable(2);

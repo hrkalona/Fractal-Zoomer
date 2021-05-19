@@ -16,25 +16,22 @@
  */
 package fractalzoomer.main;
 
-import fractalzoomer.main.app_settings.Settings;
+import fractalzoomer.core.Complex;
+import fractalzoomer.core.Derivative;
 import fractalzoomer.core.ThreadDraw;
 import fractalzoomer.core.drawing_algorithms.BoundaryTracingDraw;
 import fractalzoomer.core.drawing_algorithms.BruteForceDraw;
 import fractalzoomer.core.drawing_algorithms.DivideAndConquerDraw;
-import fractalzoomer.gui.GreedyAlgorithmsFrame;
-import fractalzoomer.gui.ImageSizeExpanderDialog;
-import fractalzoomer.gui.MemoryLabel;
-import fractalzoomer.gui.RoundedPanel;
-import fractalzoomer.gui.ThreadsDialog;
+import fractalzoomer.gui.*;
+import fractalzoomer.main.app_settings.Settings;
 import fractalzoomer.parser.ParserException;
 import fractalzoomer.utils.RefreshMemoryTask;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-import java.awt.Toolkit;
+
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.plaf.basic.BasicFileChooserUI;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -42,32 +39,12 @@ import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.Timer;
-import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JEditorPane;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-import javax.swing.JScrollPane;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
-import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.plaf.basic.BasicFileChooserUI;
 
 /**
  *
@@ -733,6 +710,10 @@ public class ImageExpanderWindow extends JFrame implements Constants {
             writer.println("[Window]");
             writer.println("image_size " + image_size);
 
+            writer.println();
+            writer.println("[Core]");
+            writer.println("derivative_step " + Derivative.DZ.getRe());
+
             writer.close();
         }
         catch(FileNotFoundException ex) {
@@ -825,7 +806,19 @@ public class ImageExpanderWindow extends JFrame implements Constants {
                         }
                         catch(Exception ex) {
                         }
-                    }                   
+                    }
+                    else if (token.equals("derivative_step") && tokenizer.countTokens() == 1) {
+                        try {
+                            double temp = Double.parseDouble(tokenizer.nextToken());
+
+                            if (temp > 0) {
+                                Derivative.DZ = new Complex(temp, temp);
+                                Derivative.calculateConstants();
+                            }
+                        } catch (Exception ex) {
+                        }
+
+                    }
                     else {
                         continue;
                     }

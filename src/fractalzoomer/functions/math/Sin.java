@@ -18,16 +18,17 @@ package fractalzoomer.functions.math;
 
 import fractalzoomer.core.Complex;
 import fractalzoomer.fractal_options.initial_value.DefaultInitialValue;
-import fractalzoomer.fractal_options.perturbation.DefaultPerturbation;
 import fractalzoomer.fractal_options.initial_value.InitialValue;
-import fractalzoomer.fractal_options.perturbation.Perturbation;
 import fractalzoomer.fractal_options.initial_value.VariableConditionalInitialValue;
-import fractalzoomer.fractal_options.perturbation.VariableConditionalPerturbation;
 import fractalzoomer.fractal_options.initial_value.VariableInitialValue;
+import fractalzoomer.fractal_options.perturbation.DefaultPerturbation;
+import fractalzoomer.fractal_options.perturbation.Perturbation;
+import fractalzoomer.fractal_options.perturbation.VariableConditionalPerturbation;
 import fractalzoomer.fractal_options.perturbation.VariablePerturbation;
 import fractalzoomer.functions.Julia;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
 import fractalzoomer.main.app_settings.StatisticsSettings;
+
 import java.util.ArrayList;
 
 /**
@@ -144,7 +145,7 @@ public class Sin extends Julia {
     }
 
     @Override
-    protected void function(Complex[] complex) {
+    public void function(Complex[] complex) {
 
         complex[0] = complex[0].sin().plus_mutable(complex[1]);
 

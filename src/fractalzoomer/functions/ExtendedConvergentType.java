@@ -17,60 +17,16 @@
 package fractalzoomer.functions;
 
 import fractalzoomer.core.Complex;
-import fractalzoomer.fractal_options.iteration_statistics.AtomDomain;
-import fractalzoomer.fractal_options.iteration_statistics.CosArgDivideInverseNorm;
-import fractalzoomer.fractal_options.iteration_statistics.UserStatisticColoringRootFindingMethod;
-import fractalzoomer.in_coloring_algorithms.AtanReTimesImTimesAbsReTimesAbsIm;
-import fractalzoomer.in_coloring_algorithms.CosMag;
-import fractalzoomer.in_coloring_algorithms.DecompositionLike;
-import fractalzoomer.in_coloring_algorithms.MagTimesCosReSquared;
-import fractalzoomer.in_coloring_algorithms.MaximumIterations;
-import fractalzoomer.in_coloring_algorithms.ReDivideIm;
-import fractalzoomer.in_coloring_algorithms.SinReSquaredMinusImSquared;
-import fractalzoomer.in_coloring_algorithms.Squares;
-import fractalzoomer.in_coloring_algorithms.Squares2;
-import fractalzoomer.in_coloring_algorithms.UserConditionalInColorAlgorithm;
-import fractalzoomer.in_coloring_algorithms.UserInColorAlgorithm;
-import fractalzoomer.in_coloring_algorithms.ZMag;
+import fractalzoomer.fractal_options.iteration_statistics.*;
+import fractalzoomer.in_coloring_algorithms.*;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
 import fractalzoomer.main.app_settings.StatisticsSettings;
 import fractalzoomer.main.app_settings.TrueColorSettings;
-import fractalzoomer.out_coloring_algorithms.Banded;
-import fractalzoomer.out_coloring_algorithms.BinaryDecomposition;
-import fractalzoomer.out_coloring_algorithms.BinaryDecomposition2;
-import fractalzoomer.out_coloring_algorithms.Biomorphs;
-import fractalzoomer.out_coloring_algorithms.ColorDecompositionRootFindingMethod;
-import fractalzoomer.out_coloring_algorithms.EscapeTime;
-import fractalzoomer.out_coloring_algorithms.EscapeTimeAlgorithm1;
-import fractalzoomer.out_coloring_algorithms.EscapeTimeAlgorithm2;
-import fractalzoomer.out_coloring_algorithms.EscapeTimeColorDecompositionRootFindingMethod;
-import fractalzoomer.out_coloring_algorithms.EscapeTimeEscapeRadiusNova;
-import fractalzoomer.out_coloring_algorithms.EscapeTimeFieldLines2Nova;
-import fractalzoomer.out_coloring_algorithms.EscapeTimeFieldLinesNova;
-import fractalzoomer.out_coloring_algorithms.EscapeTimeGaussianInteger;
-import fractalzoomer.out_coloring_algorithms.EscapeTimeGaussianInteger2;
-import fractalzoomer.out_coloring_algorithms.EscapeTimeGaussianInteger3;
-import fractalzoomer.out_coloring_algorithms.EscapeTimeGaussianInteger4;
-import fractalzoomer.out_coloring_algorithms.EscapeTimeGaussianInteger5;
-import fractalzoomer.out_coloring_algorithms.EscapeTimeGridNova;
-import fractalzoomer.out_coloring_algorithms.EscapeTimePlusIm;
-import fractalzoomer.out_coloring_algorithms.EscapeTimePlusRe;
-import fractalzoomer.out_coloring_algorithms.EscapeTimePlusReDivideIm;
-import fractalzoomer.out_coloring_algorithms.EscapeTimePlusRePlusImPlusReDivideIm;
-import fractalzoomer.out_coloring_algorithms.SmoothBinaryDecomposition2RootFindingMethod;
-import fractalzoomer.out_coloring_algorithms.SmoothBinaryDecompositionRootFindingMethod;
-import fractalzoomer.out_coloring_algorithms.SmoothBiomorphsNova;
-import fractalzoomer.out_coloring_algorithms.SmoothColorDecompositionRootFindingMethod;
-import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeColorDecompositionRootFindingMethod;
-import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeFieldLines2Nova;
-import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeFieldLinesNova;
-import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeGridNova;
-import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeRootFindingMethod;
-import fractalzoomer.out_coloring_algorithms.UserConditionalOutColorAlgorithmRootFindingMethod;
-import fractalzoomer.out_coloring_algorithms.UserOutColorAlgorithmRootFindingMethod;
+import fractalzoomer.out_coloring_algorithms.*;
 import fractalzoomer.true_coloring_algorithms.UserTrueColorAlgorithm;
 import fractalzoomer.utils.ColorAlgorithm;
+
 import java.util.ArrayList;
 
 /**
@@ -84,13 +40,17 @@ public abstract class ExtendedConvergentType extends Julia {
     public ExtendedConvergentType(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula,  double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, OrbitTrapSettings ots) {
         
         super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, false, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, ots);
-        
+
+        convergent_bailout = 1E-10;
+
     }
     
     public ExtendedConvergentType(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, boolean periodicity_checking, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula,  double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, OrbitTrapSettings ots, double xJuliaCenter, double yJuliaCenter) {
         
         super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, false, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, ots, xJuliaCenter, yJuliaCenter);
-        
+
+        convergent_bailout = 1E-10;
+
     }
     
     //orbit
@@ -300,7 +260,11 @@ public abstract class ExtendedConvergentType extends Julia {
             statistic = new UserStatisticColoringRootFindingMethod(sts.statistic_intensity, sts.user_statistic_formula, xCenter, yCenter, max_iterations, size, convergent_bailout, plane_transform_center, globalVars, sts.useAverage, sts.user_statistic_init_value, sts.reductionFunction, sts.useIterations, sts.useSmoothing);
             return;
         }
-        
+        else if(sts.statisticGroup == 2) {
+            statistic = new Equicontinuity(sts.statistic_intensity, sts.useSmoothing, sts.useAverage, 0, true, Math.log(convergent_bailout), sts.equicontinuityDenominatorFactor, sts.equicontinuityInvertFactor, sts.equicontinuityDelta);
+            return;
+        }
+
         switch (sts.statistic_type) {
 
             case MainWindow.COS_ARG_DIVIDE_INVERSE_NORM:
@@ -308,6 +272,9 @@ public abstract class ExtendedConvergentType extends Julia {
                 break;
             case MainWindow.ATOM_DOMAIN_BOF60_BOF61:
                 statistic = new AtomDomain(sts.showAtomDomains, sts.statistic_intensity);
+                break;
+            case MainWindow.DISCRETE_LAGRANGIAN_DESCRIPTORS:
+                statistic = new DiscreteLagrangianDescriptors(sts.statistic_intensity, sts.lagrangianPower, 0, sts.useSmoothing, sts.useAverage, true, Math.log(convergent_bailout));
                 break;
             
         }
@@ -332,6 +299,57 @@ public abstract class ExtendedConvergentType extends Julia {
                 inTrueColorAlgorithm = new UserTrueColorAlgorithm(tcs.inTcComponent1, tcs.inTcComponent2, tcs.inTcComponent3, tcs.inTcColorSpace, convergent_bailout, max_iterations, xCenter, yCenter, size, point, globalVars);
             }
         }
+
+    }
+
+    @Override
+    protected double iterateFractalWithoutPeriodicity(Complex[] complex, Complex pixel) {
+        iterations = 0;
+        double temp = 0;
+
+        for (; iterations < max_iterations; iterations++) {
+
+            if (trap != null) {
+                trap.check(complex[0], iterations);
+            }
+
+            if (iterations > 0 && (temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
+                escaped = true;
+
+                Object[] object = {iterations, complex[0], temp, zold, zold2, complex[1], start};
+                double out = out_color_algorithm.getResult(object);
+
+                out = getFinalValueOut(out);
+
+                if (outTrueColorAlgorithm != null) {
+                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start);
+                }
+
+                return out;
+            }
+            zold2.assign(zold);
+            zold.assign(complex[0]);
+
+            complex[0] = preFilter.getValue(complex[0], iterations, complex[1], start);
+            function(complex);
+            complex[0] = postFilter.getValue(complex[0], iterations, complex[1], start);
+
+            if (statistic != null) {
+                statistic.insert(complex[0], zold, zold2, iterations, complex[1], start);
+            }
+
+        }
+
+        Object[] object = {complex[0], zold, zold2, complex[1], start};
+        double in = in_color_algorithm.getResult(object);
+
+        in = getFinalValueIn(in);
+
+        if (inTrueColorAlgorithm != null) {
+            setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start);
+        }
+
+        return in;
 
     }
     

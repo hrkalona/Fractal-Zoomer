@@ -22,68 +22,8 @@ import fractalzoomer.settings.SettingsPalette;
 import fractalzoomer.settings.SettingsPalette1062;
 import fractalzoomer.utils.*;
 
-import java.awt.Color;
-import java.awt.Cursor;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.GradientPaint;
-import java.awt.Graphics2D;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-import java.awt.Point;
-import java.awt.RenderingHints;
-import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
-import java.awt.event.WindowAdapter;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import java.awt.event.WindowEvent;
-import java.awt.geom.Rectangle2D;
-import java.awt.image.BufferedImage;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JRadioButtonMenuItem;
-import javax.swing.JScrollPane;
-import javax.swing.JSlider;
-import javax.swing.JSpinner;
+import javax.swing.*;
 import javax.swing.JSpinner.DefaultEditor;
-import javax.swing.JTextField;
-import javax.swing.SpinnerModel;
-import javax.swing.SpinnerNumberModel;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
@@ -92,6 +32,20 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.plaf.basic.BasicFileChooserUI;
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.io.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+import static fractalzoomer.main.Constants.color_interp_str;
 
 /**
  *
@@ -1036,8 +990,6 @@ public class CustomPaletteEditorFrame extends JFrame {
         color_interp_panel.setLayout(new FlowLayout());
         color_interp_panel.setBackground(MainWindow.bg_color);
 
-        String[] color_interp_str = {"Linear", "Cosine", "Acceleration", "Deceleration", "Exponential", "Catmull-Rom", "Catmull-Rom 2", "Sigmoid"};
-
         combo_box_color_interp = new JComboBox(color_interp_str);
         combo_box_color_interp.setSelectedIndex(color_interpolation);
         combo_box_color_interp.setFocusable(false);
@@ -1068,7 +1020,7 @@ public class CustomPaletteEditorFrame extends JFrame {
 
         color_interp_panel.add(combo_box_color_interp);
 
-        String[] random_palette_alg_str = {"Golden Ratio", "Waves", "Distance", "Triad", "Tetrad", "Google Material", "ColorBrewer 1", "ColorBrewer 2", "Google-ColorBrewer", "Cubehelix"};
+        String[] random_palette_alg_str = {"Golden Ratio", "Waves", "Distance", "Triad", "Tetrad", "Google Material", "ColorBrewer 1", "ColorBrewer 2", "Google-ColorBrewer", "Cubehelix", "Cosines"};
 
         combo_box_random_palette_alg = new JComboBox(random_palette_alg_str);
         combo_box_random_palette_alg.setSelectedIndex(random_palette_algorithm);
@@ -2323,14 +2275,14 @@ public class CustomPaletteEditorFrame extends JFrame {
         
         Color[] c = null;
 
-        double golden_ratio_conjugate = 0.6180339887498949;//(1 + Math.sqrt(5)) / 2.0 - 1;
-
         // boolean same_colors;
         int hues = generator.nextInt(12) + 7;
 
         if (random_palette_alg == 0) {
             //float hue = generator.nextFloat();
             double brightness = generator.nextFloat();
+
+            double golden_ratio_conjugate = 0.6180339887498949;//(1 + Math.sqrt(5)) / 2.0 - 1;
 
             //do {
             for (int m = 0; m < palette.length; m++) {
@@ -2625,6 +2577,38 @@ public class CustomPaletteEditorFrame extends JFrame {
                     palette[m][1] = res[0];
                     palette[m][2] = res[1];
                     palette[m][3] = res[2];
+            }
+
+            c = CustomPalette.getPalette(palette, color_interpolation, color_space, reverse_palette, color_cycling, processing_val, processing_alg);
+        }
+        else if (random_palette_alg == 10) {
+            double a_red = Math.random();
+            double a_green = Math.random();
+            double a_blue = Math.random();
+
+            double b_red = Math.random();
+            double b_green = Math.random();
+            double b_blue = Math.random();
+
+            double c_red = Math.random();
+            double c_green = Math.random();
+            double c_blue = Math.random();
+
+            double d_red = Math.random();
+            double d_green = Math.random();
+            double d_blue = Math.random();
+
+            for (int m = 0; m < palette.length; m++) {
+                palette[m][0] = same_hues ? hues : generator.nextInt(12) + 7;
+
+                double t = ((double)m / palette.length);
+                palette[m][1] = (int)(255 * (a_red + b_red * Math.cos(Math.PI * 2 * (c_red * t + d_red))) + 0.5);
+                palette[m][2] = (int)(255 * (a_green + b_green * Math.cos(Math.PI * 2 * (c_green * t + d_green))) + 0.5);
+                palette[m][3] = (int)(255 * (a_blue + b_blue * Math.cos(Math.PI * 2 * (c_blue * t + d_blue))) + 0.5);
+
+                palette[m][1] = ColorSpaceConverter.clamp(palette[m][1]);
+                palette[m][2] = ColorSpaceConverter.clamp(palette[m][2]);
+                palette[m][3] = ColorSpaceConverter.clamp(palette[m][3]);
             }
 
             c = CustomPalette.getPalette(palette, color_interpolation, color_space, reverse_palette, color_cycling, processing_val, processing_alg);

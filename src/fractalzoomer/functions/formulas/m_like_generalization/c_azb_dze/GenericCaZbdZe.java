@@ -28,6 +28,7 @@ import fractalzoomer.functions.Julia;
 import fractalzoomer.main.app_settings.GenericCaZbdZeSettings;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
 import fractalzoomer.main.app_settings.StatisticsSettings;
+
 import java.util.ArrayList;
 
 /**
@@ -170,7 +171,7 @@ public class GenericCaZbdZe extends Julia {
     }
 
     @Override
-    protected void function(Complex[] complex) {
+    public void function(Complex[] complex) {
 
         complex[0] = (complex[0].pow(beta).times_mutable(alpha).plus_mutable(complex[0].pow(epsilon).times_mutable(delta))).times_mutable(complex[1]);
         

@@ -16,8 +16,9 @@
  */
 package fractalzoomer.settings;
 
-import java.io.Serializable;
 import fractalzoomer.main.app_settings.Settings;
+
+import java.io.Serializable;
 
 /**
  *

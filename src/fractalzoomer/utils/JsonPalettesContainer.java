@@ -16,10 +16,13 @@
  */
 package fractalzoomer.utils;
 
-import java.util.*;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
 
 public class JsonPalettesContainer {
     private ArrayList<Object> palettes;

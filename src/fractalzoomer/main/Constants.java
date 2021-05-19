@@ -16,25 +16,26 @@
  */
 package fractalzoomer.main;
 
-import java.awt.Color;
+import java.awt.*;
 
 /**
  *
  * @author hrkalona2
  */
 public interface Constants {
-    public static final int VERSION = 1076;
+    public static final int VERSION = 1077;
     public static final int FAST_JULIA_IMAGE_SIZE = 252;
     public static final int TOTAL_PALETTES = 37;
     public static final int TOTAL_INCOLORING_ALGORITHMS = 11;
     public static final int TOTAL_OUTCOLORING_ALGORITHMS = 25;
-    public static final int TOTAL_BAILOUT_CONDITIONS = 11;
+    public static final int TOTAL_BAILOUT_CONDITIONS = 12;
     public static final int TOTAL_PLANES = 64;
-    public static final int TOTAL_FUNCTIONS = 211;
+    public static final int TOTAL_FUNCTIONS = 288;
     public static final int TOTAL_FILTERS = 35;
     public static final int TOTAL_COLOR_TRANSFER_FILTERS = 7;
     public static final int TOTAL_COLOR_BLENDING = 30;
     public static final int TOTAL_POST_PROCESS_ALGORITHMS = 8;
+    public static final int TOTAL_FUNCTION_FILTERS = 10;
 
     public static final int MAX_ITERATIONS_NUMBER = 100000;
     
@@ -43,30 +44,34 @@ public interface Constants {
     "Grid Contours, Iso-Argument Lines", "Norm, Grid Contours, Iso-Argument Lines"};
     public static final String[] waveTypes = {"Sine", "Sawtooth", "Triangle", "Noise"};
     public static final String[] bumpTransferNames = {"1.5 / (x * factor + 1.5)", "1 / sqrt(x * factor + 1)", "1 / cbrt(x * factor + 1)", "2^(-x * factor)"};
-    public static final String[] color_interp_str = {"Linear", "Cosine", "Acceleration", "Deceleration", "Exponential", "Catmull-Rom", "Catmull-Rom 2", "Sigmoid"};
+    public static final String[] color_interp_str = {"Linear", "Cosine", "Acceleration", "Deceleration", "Exponential", "Catmull-Rom", "Catmull-Rom 2", "Sigmoid", "Quadratic", "Cubic", "Sqrt"};
     public static final String[] bumpProcessingMethod = {"RGB Scaling", "Blending", "Blending Alternative", "Lab", "HSB", "HSL"};
     public static final String[] entropyMethod = {"Palette Coloring", "Gradient Coloring"};
     public static final String[] rainbowMethod = {"Palette Coloring", "Gradient Coloring"};
     public static final String[] domainColors = {"Argument", "Norm", "Re", "Im"};
     public static final String[] domainContours = {"Norm", "Iso-Argument", "Norm, Iso-Argument", "Grid", "Grid, Norm", "Grid, Iso-Argument", "Grid, Norm, Iso-Argument", "Grid Lines", "Circles Lines", "Iso-Arg Lines", "Grid Lines, Circles Lines", "Circles Lines, Iso-Arg Lines"};
     public static final String[] argumentLinesDistance = {"2 * pi", "pi", "pi / 2", "pi / 4", "pi / 6", "pi / 8", "pi / 10", "pi / 12", "pi / 14", "pi / 16"};
-    public static final String[] orbitTrapsNames = {"Point", "Point Square", "Point Rhombus", "Point N-Norm", "Cross", "Re", "Im", "Circle", "Square", "Rhombus", "N-Norm", "Circle/Cross", "Square/Cross", "Rhombus/Cross", "N-Norm/Cross", "Circle/Point", "Square/Point", "Rhombus/Point", "N-Norm/Point", "N-Norm/Point N-Norm", "Golden Ratio Spiral", "Golden Ratio Spiral/Point", "Golden Ratio Spiral/Point N-Norm", "Golden Ratio Spiral/Cross", "Golden Ratio Spiral/Circle", "Golden Ratio Spiral/Square", "Golden Ratio Spiral/Rhombus", "Golden Ratio Spiral/N-Norm", "Stalks", "Stalks/Point", "Stalks/Point N-Norm", "Stalks/Cross", "Stalks/Circle", "Stalks/Square", "Stalks/Rhombus", "Stalks/N-Norm", "Image Based", "Atom Domain Circle", "Atom Domain Square", "Atom Domain Rhombus", "Atom Domain N-Norm"};
+    public static final String[] orbitTrapsNames = {"Point", "Point Square", "Point Rhombus", "Point N-Norm", "Cross", "Re", "Im", "Circle", "Square", "Rhombus", "N-Norm", "Circle/Cross", "Square/Cross", "Rhombus/Cross", "N-Norm/Cross", "Circle/Point", "Square/Point", "Rhombus/Point", "N-Norm/Point", "N-Norm/Point N-Norm", "Golden Ratio Spiral", "Golden Ratio Spiral/Point", "Golden Ratio Spiral/Point N-Norm", "Golden Ratio Spiral/Cross", "Golden Ratio Spiral/Circle", "Golden Ratio Spiral/Square", "Golden Ratio Spiral/Rhombus", "Golden Ratio Spiral/N-Norm", "Stalks", "Stalks/Point", "Stalks/Point N-Norm", "Stalks/Cross", "Stalks/Circle", "Stalks/Square", "Stalks/Rhombus", "Stalks/N-Norm", "Image Based", "Atom Domain Circle", "Atom Domain Square", "Atom Domain Rhombus", "Atom Domain N-Norm", "Teardrop"};
     public static final String[] orbitTrapLineTypes = {"Line", "Sin", "Cos", "Tan", "Sinh", "Cosh", "Tanh", "Asin", "Acos", "Atan", "Square", "Cube", "Sqrt", "Cbrt", "Exp", "Log", "Abs" };
     public static final String[] contourColorAlgorithmNames = {"Non-smooth Transitions", "Smooth Transitions", "Boundaries", "Boundaries/Non-Smooth Colors"};
     public static final String[] circleAndGridFadeNames = {"Square Root", "Cube Root", "Fourth Root", "Linear", "Saturate"};
     public static final String[] colorMethod = {"Lab", "HSB", "HSL", "Blending", "RGB Scaling"};
     public static final String[] lightTransfer = {"x * factor", "sqrt(x * factor)", "(x * factor)^2"};
     public static final String[] lightModes = {"Mode 1", "Mode 2", "Mode 3"};
-    public static final String[] statisticalColoringName = {"Stripe Average", "Curvature Average", "Triange Inequality Average", "cos(density * arg(z)) / norm(z) Average", "cos(density * (arg(z - p) + pi)) / (factor + 1 / norm(z - p))", "Atom Domain (bof60/bof61)"};
+    public static final String[] statisticalColoringName = {"Stripe Average(Sum)", "Curvature Average(Sum)", "Triange Inequality Average(Sum)", "cos(density * arg(z)) / norm(z) Average(Sum)", "cos(density * (arg(z - p) + pi)) / (factor + 1 / norm(z - p)) Sum", "Atom Domain (bof60/bof61)", "Discrete Lagrangian Descriptors"};
     public static final String[] domainProcessingTransferNames = {"x * factor", "1 / (x * factor)"};
     public static final String[] inertiaGravityPullFunction = {"Exponential", "Linear", "Oddball"};
-    public static final String[] reductionMethod = {"sum", "min", "max", "assign"};
+    public static final String[] reductionMethod = {"sum", "min", "max", "assign", "sub", "multiply"};
     public static final String[] trueColorModes = {"Xaos true color 1", "Xaos true color 2", "Xaos true color 3", "Xaos true color 4", "Xaos true color 5", "Xaos true color 6", "Xaos true color 7", "Xaos true color 8", "Xaos true color 9", "Xaos true color 10"};
     public static final String[] trueColorSpaces = {"RGB", "XYZ", "HSB", "HSL", "RYB", "LAB", "LCH", "Palette", "Gradient", "Direct"};
     public static final String[] derivativeMethod = {"Provided", "Numerical Forward", "Numerical Central", "Numerical Backward"};
     public static final String[] gridAlgorithms = {"sin", "mod"};
     public static final String[] combineAlgorithms = {"Multiply", "Average"};
     public static final String[] trapHeightAlgorithms = {"Linear", "Cosine", "Sqrt", "Exponential"};
+    public static final String[] novaMethods = {"Newton Method", "Halley Method", "Schroder Method", "Householder Method", "Secant Method", "Steffensen Method", "Muller Method", "Parhalley Method", "Laguerre Method", "Newton-Hines Method", "Whittaker Method", "Whittaker Double Convex Method", "Super Halley Method",  "Midpoint Method", "Traub-Ostrowski Method", "Stirling Method", "Jaratt Method", "Jaratt 2 Method", "Weerakoon-Fernando Method", "Third Order Newton Method", "Abbasbandy Method", "Householder3 Method"};
+    public static final String[] rootInitializationMethod = {"(a^i) * z", "z's circle", "z * cos(a * i)", "z * e^(a * i)"};
+    public static final String[] equicontinuityColorMethods = {"HSL", "HSB", "LCH", "Arg-Palette", "Palette"};
+    public static final String[] equicontinuityArgs = {"Final Z value", "Start Z value", "Pixel Value", "C Value"};
     /**
      * ** FUNCTION ***
      */
@@ -281,6 +286,85 @@ public interface Constants {
     public static final int SUPERHALLEYCOS = 208;
     public static final int SUPERHALLEYPOLY = 209;
     public static final int SUPERHALLEYFORMULA = 210;
+    public static final int TRAUB_OSTROWSKI3 = 211;
+    public static final int TRAUB_OSTROWSKI4 = 212;
+    public static final int TRAUB_OSTROWSKIGENERALIZED3 = 213;
+    public static final int TRAUB_OSTROWSKIGENERALIZED8 = 214;
+    public static final int TRAUB_OSTROWSKISIN = 215;
+    public static final int TRAUB_OSTROWSKICOS = 216;
+    public static final int TRAUB_OSTROWSKIPOLY = 217;
+    public static final int TRAUB_OSTROWSKIFORMULA = 218;
+    public static final int STIRLING3 = 219;
+    public static final int STIRLING4 = 220;
+    public static final int STIRLINGGENERALIZED3 = 221;
+    public static final int STIRLINGGENERALIZED8 = 222;
+    public static final int STIRLINGSIN = 223;
+    public static final int STIRLINGCOS = 224;
+    public static final int STIRLINGPOLY = 225;
+    public static final int STIRLINGFORMULA = 226;
+    public static final int MIDPOINT3 = 227;
+    public static final int MIDPOINT4 = 228;
+    public static final int MIDPOINTGENERALIZED3 = 229;
+    public static final int MIDPOINTGENERALIZED8 = 230;
+    public static final int MIDPOINTSIN = 231;
+    public static final int MIDPOINTCOS = 232;
+    public static final int MIDPOINTPOLY = 233;
+    public static final int MIDPOINTFORMULA = 234;
+    public static final int ABERTH_EHRLICH3 = 235;
+    public static final int ABERTH_EHRLICH4 = 236;
+    public static final int ABERTH_EHRLICHGENERALIZED3 = 237;
+    public static final int ABERTH_EHRLICHGENERALIZED8 = 238;
+    public static final int ABERTH_EHRLICHPOLY = 239;
+    public static final int JARATT3 = 240;
+    public static final int JARATT4 = 241;
+    public static final int JARATTGENERALIZED3 = 242;
+    public static final int JARATTGENERALIZED8 = 243;
+    public static final int JARATTSIN = 244;
+    public static final int JARATTCOS = 245;
+    public static final int JARATTPOLY = 246;
+    public static final int JARATTFORMULA = 247;
+    public static final int JARATT23 = 248;
+    public static final int JARATT24 = 249;
+    public static final int JARATT2GENERALIZED3 = 250;
+    public static final int JARATT2GENERALIZED8 = 251;
+    public static final int JARATT2SIN = 252;
+    public static final int JARATT2COS = 253;
+    public static final int JARATT2POLY = 254;
+    public static final int JARATT2FORMULA = 255;
+    public static final int THIRDORDERNEWTON3 = 256;
+    public static final int THIRDORDERNEWTON4 = 257;
+    public static final int THIRDORDERNEWTONGENERALIZED3 = 258;
+    public static final int THIRDORDERNEWTONGENERALIZED8 = 259;
+    public static final int THIRDORDERNEWTONSIN = 260;
+    public static final int THIRDORDERNEWTONCOS = 261;
+    public static final int THIRDORDERNEWTONPOLY = 262;
+    public static final int THIRDORDERNEWTONFORMULA = 263;
+    public static final int WEERAKOON_FERNANDO3 = 264;
+    public static final int WEERAKOON_FERNANDO4 = 265;
+    public static final int WEERAKOON_FERNANDOGENERALIZED3 = 266;
+    public static final int WEERAKOON_FERNANDOGENERALIZED8 = 267;
+    public static final int WEERAKOON_FERNANDOSIN = 268;
+    public static final int WEERAKOON_FERNANDOCOS = 269;
+    public static final int WEERAKOON_FERNANDOPOLY = 270;
+    public static final int WEERAKOON_FERNANDOFORMULA = 271;
+
+    public static final int HOUSEHOLDER33 = 272;
+    public static final int HOUSEHOLDER34 = 273;
+    public static final int HOUSEHOLDER3GENERALIZED3 = 274;
+    public static final int HOUSEHOLDER3GENERALIZED8 = 275;
+    public static final int HOUSEHOLDER3SIN = 276;
+    public static final int HOUSEHOLDER3COS = 277;
+    public static final int HOUSEHOLDER3POLY = 278;
+    public static final int HOUSEHOLDER3FORMULA = 279;
+
+    public static final int ABBASBANDY3 = 280;
+    public static final int ABBASBANDY4 = 281;
+    public static final int ABBASBANDYGENERALIZED3 = 282;
+    public static final int ABBASBANDYGENERALIZED8 = 283;
+    public static final int ABBASBANDYSIN = 284;
+    public static final int ABBASBANDYCOS = 285;
+    public static final int ABBASBANDYPOLY = 286;
+    public static final int ABBASBANDYFORMULA = 287;
     /**
      * ***************
      */
@@ -304,6 +388,12 @@ public interface Constants {
     public static final int NOVA_MIDPOINT = 13;
     public static final int NOVA_TRAUB_OSTROWSKI = 14;
     public static final int NOVA_STIRLING = 15;
+    public static final int NOVA_JARATT = 16;
+    public static final int NOVA_JARATT2 = 17;
+    public static final int NOVA_WEERAKOON_FERNANDO = 18;
+    public static final int NOVA_THIRD_ORDER_NEWTON = 19;
+    public static final int NOVA_ABBASBANDY = 20;
+    public static final int NOVA_HOUSEHOLDER3 = 21;
     /**
      * *******************
      */
@@ -322,6 +412,8 @@ public interface Constants {
     public static final int REDUCTION_MIN = 1;
     public static final int REDUCTION_MAX = 2;
     public static final int REDUCTION_ASSIGN = 3;
+    public static final int REDUCTION_SUB = 4;
+    public static final int REDUCTION_MULT = 5;
 
     /**
      * ** OUT COLORING MODE ***
@@ -458,6 +550,7 @@ public interface Constants {
     public static final int BAILOUT_CONDITION_CROSS = 8;
     public static final int BAILOUT_CONDITION_IM_STRIP = 9;
     public static final int BAILOUT_CONDITION_RE_IM_SQUARED = 10;
+    public static final int BAILOUT_CONDITION_NO_BAILOUT = 11;
     /**
      * ********************
      */
@@ -505,6 +598,23 @@ public interface Constants {
      */
 
     /**
+     * ** FUNCTION FILTERS ***
+     */
+    public static final int NO_FUNCTION_FILTER = 0;
+    public static final int ABS_FUNCTION_FILTER = 1;
+    public static final int SQUARE_FUNCTION_FILTER = 2;
+    public static final int SQRT_FUNCTION_FILTER = 3;
+    public static final int RECIPROCAL_FUNCTION_FILTER = 4;
+    public static final int SIN_FUNCTION_FILTER = 5;
+    public static final int COS_FUNCTION_FILTER = 6;
+    public static final int EXP_FUNCTION_FILTER = 7;
+    public static final int LOG_FUNCTION_FILTER = 8;
+    public static final int USER_FUNCTION_FILTER = 9;
+    /**
+     * *******************
+     */
+
+    /**
      * ** COLOR SPACE ***
      */
     public static final int COLOR_SPACE_RGB = 0;
@@ -533,6 +643,9 @@ public interface Constants {
     public static final int INTERPOLATION_CATMULLROM = 5;
     public static final int INTERPOLATION_CATMULLROM2 = 6;
     public static final int INTERPOLATION_SIGMOID = 7;
+    public static final int INTERPOLATION_QUADRATIC = 8;
+    public static final int INTERPOLATION_CUBIC = 9;
+    public static final int INTERPOLATION_SQRT = 10;
     /**
      * **************************
      */
@@ -672,6 +785,7 @@ public interface Constants {
     public static final int COS_ARG_DIVIDE_NORM_AVERAGE = 3;
     public static final int COS_ARG_DIVIDE_INVERSE_NORM = 4;
     public static final int ATOM_DOMAIN_BOF60_BOF61 = 5;
+    public static final int DISCRETE_LAGRANGIAN_DESCRIPTORS = 6;
     
     /**
      * **************************************
@@ -721,6 +835,7 @@ public interface Constants {
     public static final int SQUARE_ATOM_DOMAIN_TRAP = 38;
     public static final int RHOMBUS_ATOM_DOMAIN_TRAP = 39;
     public static final int NNORM_ATOM_DOMAIN_TRAP = 40;
+    public static final int TEAR_DROP_ORBIT_TRAP = 41;
 
 
 

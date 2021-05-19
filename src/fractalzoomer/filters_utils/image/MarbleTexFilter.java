@@ -16,7 +16,7 @@ limitations under the License.
 
 package fractalzoomer.filters_utils.image;
 
-import fractalzoomer.filters_utils.math.*;
+import fractalzoomer.filters_utils.math.Noise;
 
 public class MarbleTexFilter extends PointFilter {
 

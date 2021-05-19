@@ -16,19 +16,16 @@
  */
 package fractalzoomer.gui;
 
-import static fractalzoomer.main.Constants.color_interp_str;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
+
+import javax.swing.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import javax.swing.ImageIcon;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JDialog;
-import javax.swing.JOptionPane;
-import static javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE;
+
+import static fractalzoomer.main.Constants.color_interp_str;
 
 /**
  *

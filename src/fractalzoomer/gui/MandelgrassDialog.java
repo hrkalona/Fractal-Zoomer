@@ -16,20 +16,17 @@
  */
 package fractalzoomer.gui;
 
-import static fractalzoomer.main.Constants.MANDELBROTWTH;
-import static fractalzoomer.main.Constants.MANDELPOLY;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
+
+import javax.swing.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import javax.swing.ImageIcon;
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JDialog;
-import javax.swing.JOptionPane;
-import javax.swing.JTextField;
-import static javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE;
+
+import static fractalzoomer.main.Constants.MANDELBROTWTH;
+import static fractalzoomer.main.Constants.MANDELPOLY;
 
 /**
  *

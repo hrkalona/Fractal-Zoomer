@@ -17,6 +17,9 @@
 package fractalzoomer.parser;
 
 import fractalzoomer.core.Complex;
+
+import javax.tools.JavaCompiler;
+import javax.tools.ToolProvider;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -28,8 +31,6 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
-import javax.tools.JavaCompiler;
-import javax.tools.ToolProvider;
 
 /**
  * A parser for mathematical expressions. The parser class defines a method
@@ -115,6 +116,8 @@ public class Parser {
     boolean found_point;
     boolean found_isize;
     boolean found_r;
+    boolean found_stat;
+    boolean found_trap;
 
     boolean found_vars[];
 
@@ -133,6 +136,8 @@ public class Parser {
     ArrayList<ArrayList<VariableExpressionNode>> vars_var;
     ArrayList<VariableExpressionNode> point_var;
     ArrayList<VariableExpressionNode> r_var;
+    ArrayList<VariableExpressionNode> stat_var;
+    ArrayList<VariableExpressionNode> trap_var;
 
     VariableExpressionNode[] z_var_arr;
     VariableExpressionNode[] c_var_arr;
@@ -149,6 +154,8 @@ public class Parser {
     VariableExpressionNode[][] vars_var_arr;
     VariableExpressionNode[] point_var_arr;
     VariableExpressionNode[] r_var_arr;
+    VariableExpressionNode[] stat_var_arr;
+    VariableExpressionNode[] trap_var_arr;
 
     /**
      * ************************************
@@ -179,6 +186,8 @@ public class Parser {
         found_isize = false;
         found_point = false;
         found_r = false;
+        found_stat = false;
+        found_trap = false;
 
         found_vars = new boolean[EXTRA_VARS];
 
@@ -200,6 +209,8 @@ public class Parser {
         isize_var = new ArrayList<>();
         vars_var = new ArrayList<>();
         r_var = new ArrayList<>();
+        stat_var = new ArrayList<>();
+        trap_var = new ArrayList<>();
 
         for(int i = 0; i < EXTRA_VARS; i++) {
             vars_var.add(new ArrayList<>());
@@ -253,6 +264,8 @@ public class Parser {
         isize_var_arr = new VariableExpressionNode[isize_var.size()];
         point_var_arr = new VariableExpressionNode[point_var.size()];
         r_var_arr = new VariableExpressionNode[r_var.size()];
+        stat_var_arr = new VariableExpressionNode[stat_var.size()];
+        trap_var_arr = new VariableExpressionNode[trap_var.size()];
 
         z_var_arr = z_var.toArray(z_var_arr);
         c_var_arr = c_var.toArray(c_var_arr);
@@ -268,6 +281,8 @@ public class Parser {
         isize_var_arr = isize_var.toArray(isize_var_arr);
         point_var_arr = point_var.toArray(point_var_arr);
         r_var_arr = r_var.toArray(r_var_arr);
+        stat_var_arr = stat_var.toArray(stat_var_arr);
+        trap_var_arr = trap_var.toArray(trap_var_arr);
 
         vars_var_arr = new VariableExpressionNode[EXTRA_VARS][];
 
@@ -644,13 +659,16 @@ public class Parser {
                     && !temp.equalsIgnoreCase("phi") && !temp.equalsIgnoreCase("alpha") && !temp.equalsIgnoreCase("delta") && !temp.equalsIgnoreCase("center") && !temp.equalsIgnoreCase("size")
                     && !vars_exist
                     && !temp.equalsIgnoreCase("point") && !temp.equalsIgnoreCase("sizei")
-                    && !temp.equalsIgnoreCase("r")) {
+                    && !temp.equalsIgnoreCase("r")
+                    && !temp.equalsIgnoreCase("stat")
+                    && !temp.equalsIgnoreCase("trap")
+                    && !temp.equalsIgnoreCase("rand")) {
                 throw new ParserException("Unrecognized variable %s found.", lookahead);
             }
 
             ExpressionNode expr = null;
 
-            if(temp.equalsIgnoreCase("pi") || temp.equalsIgnoreCase("e") || temp.equalsIgnoreCase("c10") || temp.equalsIgnoreCase("phi") || temp.equalsIgnoreCase("alpha") || temp.equalsIgnoreCase("delta")) {
+            if(temp.equalsIgnoreCase("pi") || temp.equalsIgnoreCase("e") || temp.equalsIgnoreCase("c10") || temp.equalsIgnoreCase("phi") || temp.equalsIgnoreCase("alpha") || temp.equalsIgnoreCase("delta") || temp.equalsIgnoreCase("rand")) {
                 if(temp.equalsIgnoreCase("pi")) {
                     expr = new RealConstantExpressionNode(Math.PI);
                 }
@@ -673,6 +691,10 @@ public class Parser {
 
                 if(temp.equalsIgnoreCase("delta")) {
                     expr = new RealConstantExpressionNode(4.669201609102990);
+                }
+
+                if(temp.equalsIgnoreCase("rand")) {
+                    expr = new RandomConstantExpressionNode();
                 }
 
                 nextToken();
@@ -758,6 +780,17 @@ public class Parser {
                 found_r = true;
                 r_var.add((VariableExpressionNode)expr);
             }
+
+            if(temp.equalsIgnoreCase("stat")) {
+                found_stat = true;
+                stat_var.add((VariableExpressionNode)expr);
+            }
+
+            if(temp.equalsIgnoreCase("trap")) {
+                found_trap = true;
+                trap_var.add((VariableExpressionNode)expr);
+            }
+
 
             nextToken();
             return expr;
@@ -884,9 +917,17 @@ public class Parser {
     public boolean foundPoint() {
         return found_point;
     }
-    
+
     public boolean foundR() {
         return found_r;
+    }
+
+    public boolean foundStat() {
+        return found_stat;
+    }
+
+    public boolean foundTrap() {
+        return found_trap;
     }
 
     public boolean foundVar(int i) {
@@ -1023,6 +1064,22 @@ public class Parser {
 
         for(int i = 0; i < r_var_arr.length; i++) {
             r_var_arr[i].setValue(new Complex(value));
+        }
+
+    }
+
+    public void setStatvalue(Complex value) {
+
+        for(int i = 0; i < stat_var_arr.length; i++) {
+            stat_var_arr[i].setValue(new Complex(value));
+        }
+
+    }
+
+    public void setTrapvalue(Complex value) {
+
+        for(int i = 0; i < trap_var_arr.length; i++) {
+            trap_var_arr[i].setValue(new Complex(value));
         }
 
     }

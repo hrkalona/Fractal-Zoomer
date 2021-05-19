@@ -16,12 +16,11 @@
  */
 package fractalzoomer.gui;
 
-import static fractalzoomer.main.Constants.BIPOLAR_PLANE;
-import static fractalzoomer.main.Constants.INFLECTION_PLANE;
-import static fractalzoomer.main.Constants.INVERSED_BIPOLAR_PLANE;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
 import fractalzoomer.utils.MathUtils;
+
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -29,13 +28,8 @@ import java.awt.event.WindowEvent;
 import java.awt.geom.Point2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import javax.swing.ImageIcon;
-import javax.swing.JCheckBox;
-import javax.swing.JDialog;
-import javax.swing.JOptionPane;
-import javax.swing.JRadioButtonMenuItem;
-import javax.swing.JTextField;
-import static javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE;
+
+import static fractalzoomer.main.Constants.*;
 
 /**
  *

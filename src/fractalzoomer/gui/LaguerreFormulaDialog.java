@@ -21,21 +21,14 @@ import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
 import fractalzoomer.parser.ParserException;
+
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import javax.swing.ImageIcon;
-import javax.swing.JComboBox;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JRadioButtonMenuItem;
-import javax.swing.JTextField;
-import static javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE;
 
 /**
  *
@@ -82,12 +75,12 @@ public class LaguerreFormulaDialog extends JDialog {
 
         JPanel formula_dfz_panel9 = new JPanel();
 
-        formula_dfz_panel9.add(new JLabel("f '(z) ="));
+        formula_dfz_panel9.add(new JLabel("f'(z) ="));
         formula_dfz_panel9.add(field_dfz_formula9);
 
         JPanel formula_ddfz_panel9 = new JPanel();
 
-        formula_ddfz_panel9.add(new JLabel("f ''(z) ="));
+        formula_ddfz_panel9.add(new JLabel("f''(z) ="));
         formula_ddfz_panel9.add(field_ddfz_formula9);
 
         JLabel imagelabel91 = new JLabel();
@@ -187,22 +180,22 @@ public class LaguerreFormulaDialog extends JDialog {
                         double temp6 = Double.parseDouble(field_imaginary8.getText());
 
                         s.parser.parse(field_fz_formula9.getText());
-                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundC() || s.parser.foundR()) {
-                            JOptionPane.showMessageDialog(ptra, "The variables: c, bail, cbail, r cannot be used in the f(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundC() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                            JOptionPane.showMessageDialog(ptra, "The variables: c, bail, cbail, r, stat, trap cannot be used in the f(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                             return;
                         }
 
                         s.parser.parse(field_dfz_formula9.getText());
 
-                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundC() || s.parser.foundR()) {
-                            JOptionPane.showMessageDialog(ptra, "The variables: c, bail, cbail, r cannot be used in the f '(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundC() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                            JOptionPane.showMessageDialog(ptra, "The variables: c, bail, cbail, r, stat, trap cannot be used in the f'(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                             return;
                         }
 
                         s.parser.parse(field_ddfz_formula9.getText());
 
-                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundC() || s.parser.foundR()) {
-                            JOptionPane.showMessageDialog(ptra, "The variables: c, bail, cbail, r cannot be used in the f ''(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundC() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                            JOptionPane.showMessageDialog(ptra, "The variables: c, bail, cbail, r, stat, trap cannot be used in the f''(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                             return;
                         }
 

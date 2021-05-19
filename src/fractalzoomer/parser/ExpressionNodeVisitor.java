@@ -60,4 +60,10 @@ public interface ExpressionNodeVisitor
 
   /**  Visit a FunctionDerivative2ArgumentsExpressionNode */
   public void visit(FunctionDerivative2ArgumentsExpressionNode node);
+
+  /**  Visit a ConstantExpressionNode */
+  public void visit(ConstantExpressionNode node);
+
+  /**  Visit a RandomConstantExpressionNode */
+  public void visit(RandomConstantExpressionNode node);
 }

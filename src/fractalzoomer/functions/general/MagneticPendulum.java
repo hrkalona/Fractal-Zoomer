@@ -17,25 +17,18 @@
 package fractalzoomer.functions.general;
 
 import fractalzoomer.core.Complex;
-import fractalzoomer.fractal_options.iteration_statistics.AtomDomain;
-import fractalzoomer.fractal_options.iteration_statistics.CosArgDivideInverseNorm;
-import fractalzoomer.fractal_options.iteration_statistics.UserStatisticColoringRootFindingMethod;
+import fractalzoomer.fractal_options.iteration_statistics.*;
 import fractalzoomer.functions.Fractal;
+import fractalzoomer.functions.FractalWithoutConstant;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.MagneticPendulumSettings;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
 import fractalzoomer.main.app_settings.StatisticsSettings;
 import fractalzoomer.main.app_settings.TrueColorSettings;
-import fractalzoomer.out_coloring_algorithms.BinaryDecomposition2MagneticPendulum;
-import fractalzoomer.out_coloring_algorithms.BinaryDecompositionMagneticPendulum;
-import fractalzoomer.out_coloring_algorithms.ColorDecompositionMagneticPendulum;
-import fractalzoomer.out_coloring_algorithms.EscapeTimeAlgorithm1;
-import fractalzoomer.out_coloring_algorithms.EscapeTimeColorDecompositionMagneticPendulum;
-import fractalzoomer.out_coloring_algorithms.EscapeTimeMagneticPendulum;
-import fractalzoomer.out_coloring_algorithms.UserConditionalOutColorAlgorithmRootFindingMethod;
-import fractalzoomer.out_coloring_algorithms.UserOutColorAlgorithmRootFindingMethod;
+import fractalzoomer.out_coloring_algorithms.*;
 import fractalzoomer.true_coloring_algorithms.UserTrueColorAlgorithm;
 import fractalzoomer.utils.ColorAlgorithm;
+
 import java.util.ArrayList;
 import java.util.function.Predicate;
 
@@ -43,7 +36,7 @@ import java.util.function.Predicate;
  *
  * @author hrkalona2
  */
-public class MagneticPendulum extends Fractal {
+public class MagneticPendulum extends FractalWithoutConstant {
 
     private double height_squared;
     private Complex[] magnets;
@@ -164,8 +157,7 @@ public class MagneticPendulum extends Fractal {
     }
 
     @Override
-    public double calculateFractalWithoutPeriodicity(Complex pixel) {
-        int iterations = 0;
+    public Complex[] initialize(Complex pixel) {
 
         Complex[] complex = new Complex[5];
         complex[0] = new Complex(pixel);//z
@@ -174,9 +166,17 @@ public class MagneticPendulum extends Fractal {
         complex[3] = new Complex(); //acc_prev
         complex[4] = new Complex(); // len
 
-        Complex zold = new Complex();
-        Complex zold2 = new Complex();
-        Complex start = new Complex(complex[0]);
+        zold = new Complex();
+        zold2 = new Complex();
+        start = new Complex(complex[0]);
+
+        return complex;
+
+    }
+
+    @Override
+    protected double iterateFractalWithoutPeriodicity(Complex[] complex, Complex pixel) {
+        iterations = 0;
 
         for (; iterations < max_iterations; iterations++) {
 
@@ -186,7 +186,10 @@ public class MagneticPendulum extends Fractal {
 
             zold2.assign(zold);
             zold.assign(complex[0]);
+
+            complex[0] = preFilter.getValue(complex[0], iterations, pixel, start);
             function(complex);
+            complex[0] = postFilter.getValue(complex[0], iterations, pixel, start);
 
             if (statistic != null) {
                 statistic.insert(complex[0], zold, zold2, iterations, pixel, start);
@@ -198,80 +201,17 @@ public class MagneticPendulum extends Fractal {
 
         escaped = true;
 
-        if (outTrueColorAlgorithm != null) {
-            setTrueColorOut(complex[0], zold, zold2, iterations, pixel, start);
-        }
-
         Object[] object = {iterations, complex[0], 0, zold, zold2, pixel, start, complex[4]};
         iterationData = object;
         double out = out_color_algorithm.getResult(object);
 
         out = getFinalValueOut(out);
 
+        if (outTrueColorAlgorithm != null) {
+            setTrueColorOut(complex[0], zold, zold2, iterations, pixel, start);
+        }
+
         return out;
-
-    }
-
-    @Override
-    public void calculateFractalOrbit() {
-        int iterations = 0;
-
-        Complex[] complex = new Complex[5];
-        complex[0] = new Complex(pixel_orbit);//z
-        complex[1] = new Complex();//vel
-        complex[2] = new Complex(); //acc
-        complex[3] = new Complex(); //acc_prev
-        complex[4] = new Complex(); // len
-
-        Complex temp = null;
-
-        for (; iterations < max_iterations; iterations++) {
-            function(complex);
-            temp = rotation.rotateInverse(complex[0]);
-
-            if (Double.isNaN(temp.getRe()) || Double.isNaN(temp.getIm()) || Double.isInfinite(temp.getRe()) || Double.isInfinite(temp.getIm())) {
-                break;
-            }
-
-            complex_orbit.add(temp);
-        }
-
-    }
-
-    @Override
-    public Complex iterateFractalDomain(Complex pixel) {
-        int iterations = 0;
-
-        Complex[] complex = new Complex[5];
-        complex[0] = new Complex(pixel);//z
-        complex[1] = new Complex();//vel
-        complex[2] = new Complex(); //acc
-        complex[3] = new Complex(); //acc_prev
-        complex[4] = new Complex(); // len
-
-        for (; iterations < max_iterations; iterations++) {
-
-            function(complex);
-
-        }
-
-        return complex[0];
-
-    }
-
-    @Override
-    public double calculateJulia(Complex pixel) {
-        return 0;
-    }
-
-    @Override
-    public void calculateJuliaOrbit() {
-    }
-
-    @Override
-    public Complex calculateJuliaDomain(Complex pixel) {
-
-        return null;
 
     }
 
@@ -325,13 +265,6 @@ public class MagneticPendulum extends Fractal {
     }
 
     @Override
-    public double getJulia3DHeight(double value) {
-
-        return 0;
-
-    }
-
-    @Override
     public int type() {
 
         return MainWindow.CONVERGING;
@@ -345,7 +278,11 @@ public class MagneticPendulum extends Fractal {
         statisticIncludeNotEscaped = sts.statisticIncludeNotEscaped;
 
         if (sts.statisticGroup == 1) {
-            statistic = new UserStatisticColoringRootFindingMethod(sts.statistic_intensity, sts.user_statistic_formula, xCenter, yCenter, max_iterations, size, 0, plane_transform_center, globalVars, sts.useAverage, sts.user_statistic_init_value, sts.reductionFunction, sts.useIterations, sts.useSmoothing);
+            statistic = new UserStatisticColoringRootFindingMethod(sts.statistic_intensity, sts.user_statistic_formula, xCenter, yCenter, max_iterations, size, 1e-8, plane_transform_center, globalVars, sts.useAverage, sts.user_statistic_init_value, sts.reductionFunction, sts.useIterations, sts.useSmoothing);
+            return;
+        }
+        else if(sts.statisticGroup == 2) {
+            statistic = new Equicontinuity(sts.statistic_intensity, sts.useSmoothing, sts.useAverage, 0, true, Math.log(1e-8), sts.equicontinuityDenominatorFactor, sts.equicontinuityInvertFactor, sts.equicontinuityDelta);
             return;
         }
 
@@ -356,6 +293,9 @@ public class MagneticPendulum extends Fractal {
                 break;
             case MainWindow.ATOM_DOMAIN_BOF60_BOF61:
                 statistic = new AtomDomain(sts.showAtomDomains, sts.statistic_intensity);
+                break;
+            case MainWindow.DISCRETE_LAGRANGIAN_DESCRIPTORS:
+                statistic = new DiscreteLagrangianDescriptors(sts.statistic_intensity, sts.lagrangianPower, 0, sts.useSmoothing, sts.useAverage, true, Math.log(1e-8));
                 break;
 
         }

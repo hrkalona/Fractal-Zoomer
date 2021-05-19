@@ -16,10 +16,8 @@
  */
 package fractalzoomer.gui;
 
-import java.awt.Dimension;
-import javax.swing.JEditorPane;
-import javax.swing.JOptionPane;
-import javax.swing.JScrollPane;
+import javax.swing.*;
+import java.awt.*;
 
 /**
  *
@@ -49,9 +47,12 @@ public class UserFormulasHelpDialog {
                 + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>bail</b></font>: current bailout.<br>"
                 + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>cbail</b></font>: convergent bailout, for root finding methods.<br>"
                 + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>r</b></font>: current lyapunov expression.<br>"
+                + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>stat</b></font>: current statistic value.<br>"
+                + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>trap</b></font>: current trap value.<br>"
                 + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>center</b></font>: current center.<br>"
                 + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>size</b></font>: current size.<br>"
                 + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>sizei</b></font>: current image size in pixels (size / sizei will yield the pixel size).<br>"
+                + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>rand</b></font>: a random value.<br>"
                 + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>v1</b></font>: placeholder variable 1.<br>"
                 + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>v2</b></font>: placeholder variable 2.<br>"
                 + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>v3</b></font>: placeholder variable 3.<br>"
@@ -122,6 +123,7 @@ public class UserFormulasHelpDialog {
                 + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>c10 (Champernowne's)</b></font>: 0.1234567891011121314.<br>"
                 + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>alpha (Feigenbaum's)</b></font>: 2.5029078750958928.<br>"
                 + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>delta (Feigenbaum's)</b></font>: 4.669201609102990.<br><br><br>"
+
                 + "<font  face='arial'><font color='blue'><center><b><u>Complex Numbers</u></b></center></font><br>"
                 + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>a + bi</b></font>: a = Real, b = Imaginary.<br><br><br>"
                 
@@ -199,6 +201,7 @@ public class UserFormulasHelpDialog {
                 + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>trunc</b></font>: math truncate function.<br>"
                 + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>deta</b></font>: dirichlet eta function.<br>"
                 + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>snorm</b></font>: norm squared function.<br>"
+                + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>fib</b></font>: fibonacci function.<br>"
                 + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>f1</b></font>: user function f1 which can be changed in UserDefinedFunctions.java (Compilation is required).<br>"
                 + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>f2</b></font>: user function f2 which can be changed in UserDefinedFunctions.java (Compilation is required).<br>"
                 + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>f3</b></font>: user function f3 which can be changed in UserDefinedFunctions.java (Compilation is required).<br>"
@@ -280,8 +283,10 @@ public class UserFormulasHelpDialog {
                 + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>rot</b></font>: a function that rotates in degrees about point zero.<br>"
                 + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>dist</b></font>: distance function.<br>"
                 + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>sdist</b></font>: distance squared function.<br>"
+                + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>root</b></font>: the n-th root function.<br>"
                 + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>f'</b></font>: first derivative function (argument 1: the argument which is differentiated, argument 2: the variable of the differentiation).<br>"
                 + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>f''</b></font>: second derivative function (argument 1: the argument which is differentiated, argument 2: the variable of the differentiation).<br>"
+                + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>f'''</b></font>: third derivative function (argument 1: the argument which is differentiated, argument 2: the variable of the differentiation).<br>"
                 + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>g1</b></font>: user function g1 which can be changed in UserDefinedFunctions.java (Compilation is required).<br>"
                 + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>g2</b></font>: user function g2 which can be changed in UserDefinedFunctions.java (Compilation is required).<br>"
                 + "<font  face='arial'><font size='5' face='arial'>&#8226;</font><font color='red'><b>g3</b></font>: user function g3 which can be changed in UserDefinedFunctions.java (Compilation is required).<br>"

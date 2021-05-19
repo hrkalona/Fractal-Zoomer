@@ -16,9 +16,11 @@ limitations under the License.
 
 package fractalzoomer.filters_utils.image;
 
+import fractalzoomer.filters_utils.math.Function2D;
+import fractalzoomer.filters_utils.math.Noise;
+
 import java.awt.*;
-import java.util.*;
-import fractalzoomer.filters_utils.math.*;
+import java.util.Random;
 
 /**
  * A filter which produces an image with a cellular texture.

@@ -25,17 +25,12 @@ import fractalzoomer.main.Constants;
 import fractalzoomer.palettes.CustomPalette;
 import fractalzoomer.palettes.PresetPalette;
 import fractalzoomer.parser.Parser;
-import java.awt.Color;
 import fractalzoomer.settings.*;
 import fractalzoomer.utils.ColorAlgorithm;
-import java.awt.Component;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import javax.swing.JOptionPane;
+
+import javax.swing.*;
+import java.awt.*;
+import java.io.*;
 
 /**
  *
@@ -258,6 +253,10 @@ public class Settings implements Constants {
             else if (version == 1076) {
                 xJuliaCenter = ((SettingsJulia1076) settings).getXJuliaCenter();
                 yJuliaCenter = ((SettingsJulia1076) settings).getYJuliaCenter();
+            }
+            else if (version == 1077) {
+                xJuliaCenter = ((SettingsJulia1077) settings).getXJuliaCenter();
+                yJuliaCenter = ((SettingsJulia1077) settings).getYJuliaCenter();
             }
 
             fns.julia = true;
@@ -1031,6 +1030,59 @@ public class Settings implements Constants {
             ots.invertTrapHeight = ((SettingsFractals1076) settings).getInvertTrapHeight();
         }
 
+        if(version < 1077) {
+            fns.preffs.functionFilter = defaults.fns.preffs.functionFilter;
+            fns.preffs.userFormulaFunctionFilter = defaults.fns.preffs.userFormulaFunctionFilter;
+            fns.preffs.user_function_filter_condition_formula = defaults.fns.preffs.user_function_filter_condition_formula;
+            fns.preffs.user_function_filter_conditions = defaults.fns.preffs.user_function_filter_conditions;
+            fns.preffs.user_function_filter_algorithm = defaults.fns.preffs.user_function_filter_algorithm;
+
+            fns.postffs.functionFilter = defaults.fns.postffs.functionFilter;
+            fns.postffs.userFormulaFunctionFilter = defaults.fns.postffs.userFormulaFunctionFilter;
+            fns.postffs.user_function_filter_condition_formula = defaults.fns.postffs.user_function_filter_condition_formula;
+            fns.postffs.user_function_filter_conditions = defaults.fns.postffs.user_function_filter_conditions;
+            fns.postffs.user_function_filter_algorithm = defaults.fns.postffs.user_function_filter_algorithm;
+
+            fns.root_initialization_method = defaults.fns.root_initialization_method;
+
+            sts.lagrangianPower = defaults.sts.lagrangianPower;
+            sts.equicontinuityDenominatorFactor = defaults.sts.equicontinuityDenominatorFactor;
+            sts.equicontinuityColorMethod = defaults.sts.equicontinuityColorMethod;
+            sts.equicontinuityMixingMethod = defaults.sts.equicontinuityMixingMethod;
+            sts.equicontinuityBlending = defaults.sts.equicontinuityBlending;
+            sts.equicontinuitySatChroma = defaults.sts.equicontinuitySatChroma;
+            sts.equicontinuityArgValue = defaults.sts.equicontinuityArgValue;
+            sts.equicontinuityInvertFactor = defaults.sts.equicontinuityInvertFactor;
+            sts.equicontinuityOverrideColoring = defaults.sts.equicontinuityOverrideColoring;
+            sts.equicontinuityDelta = defaults.sts.equicontinuityDelta;
+        }
+        else {
+            fns.preffs.functionFilter = ((SettingsFractals1077) settings).getPreFunctionFilter();
+            fns.preffs.userFormulaFunctionFilter = ((SettingsFractals1077) settings).getPreUserFormulaFunctionFilter();
+            fns.preffs.user_function_filter_condition_formula = ((SettingsFractals1077) settings).getPreUserFunctionFilterConditionFormula();
+            fns.preffs.user_function_filter_conditions = ((SettingsFractals1077) settings).getPreUserFunctionFilterConditions();
+            fns.preffs.user_function_filter_algorithm = ((SettingsFractals1077) settings).getPreUserFunctionFilterAlgorithm();
+
+            fns.postffs.functionFilter = ((SettingsFractals1077) settings).getPostFunctionFilter();
+            fns.postffs.userFormulaFunctionFilter = ((SettingsFractals1077) settings).getPostUserFormulaFunctionFilter();
+            fns.postffs.user_function_filter_condition_formula = ((SettingsFractals1077) settings).getPostUserFunctionFilterConditionFormula();
+            fns.postffs.user_function_filter_conditions = ((SettingsFractals1077) settings).getPostUserFunctionFilterConditions();
+            fns.postffs.user_function_filter_algorithm = ((SettingsFractals1077) settings).getPostUserFunctionFilterAlgorithm();
+
+            fns.root_initialization_method = ((SettingsFractals1077) settings).getRootInitialization_method();
+
+            sts.lagrangianPower = ((SettingsFractals1077) settings).getLagrangianPower();
+            sts.equicontinuityDenominatorFactor = ((SettingsFractals1077) settings).getEquicontinuityDenominatorFactor();
+            sts.equicontinuityColorMethod = ((SettingsFractals1077) settings).getEquicontinuityColorMethod();
+            sts.equicontinuityMixingMethod = ((SettingsFractals1077) settings).getEquicontinuityMixingMethod();
+            sts.equicontinuityBlending = ((SettingsFractals1077) settings).getEquicontinuityBlending();
+            sts.equicontinuitySatChroma = ((SettingsFractals1077) settings).getEquicontinuitySatChroma();
+            sts.equicontinuityArgValue = ((SettingsFractals1077) settings).getEquicontinuityArgValue();
+            sts.equicontinuityInvertFactor = ((SettingsFractals1077) settings).isEquicontinuityInvertFactor();
+            sts.equicontinuityOverrideColoring = ((SettingsFractals1077) settings).isEquicontinuityOverrideColoring();
+            sts.equicontinuityDelta = ((SettingsFractals1077) settings).getEquicontinuityDelta();
+        }
+
         if (fns.plane_type == USER_PLANE) {
             if (version < 1058) {
                 fns.user_plane_algorithm = defaults.fns.user_plane_algorithm;
@@ -1186,42 +1238,6 @@ public class Settings implements Constants {
             case MANDELBROTWTH:
                 fns.z_exponent_complex = settings.getZExponentComplex();
                 break;
-            case MANDELPOLY:
-            case NEWTONPOLY:
-            case HALLEYPOLY:
-            case SCHRODERPOLY:
-            case HOUSEHOLDERPOLY:
-            case SECANTPOLY:
-            case STEFFENSENPOLY:
-            case MULLERPOLY:
-            case PARHALLEYPOLY:
-            case LAGUERREPOLY:
-            case DURAND_KERNERPOLY:
-            case BAIRSTOWPOLY:
-            case NEWTON_HINESPOLY:
-            case WHITTAKERPOLY:
-            case WHITTAKERDOUBLECONVEXPOLY:
-            case SUPERHALLEYPOLY:
-                fns.coefficients = settings.getCoefficients();
-
-                if (version < 1072) {
-                    fns.coefficients_im = defaults.fns.coefficients_im;
-                } else {
-                    fns.coefficients_im = ((SettingsFractals1072) settings).getCoefficientsIm();
-                }
-
-                if (fns.function == DURAND_KERNERPOLY) {
-                    fns.durand_kerner_init_val = ((SettingsFractals1072) settings).getDurandKernerInitVal();
-                }
-
-                if (version < 1074) {
-                    fns.newton_hines_k = defaults.fns.newton_hines_k;
-                } else {
-                    fns.newton_hines_k = ((SettingsFractals1074) settings).getNewtonHinesK();
-                }
-
-                createPoly();
-                break;
             case MAGNETIC_PENDULUM:
                 fns.mps.magnetLocation = ((SettingsFractals1072) settings).getMagnetLocation();
                 fns.mps.magnetStrength = ((SettingsFractals1072) settings).getMagnetStrength();
@@ -1294,36 +1310,6 @@ public class Settings implements Constants {
                 fns.gcs.delta = ((SettingsFractals1072) settings).getDelta();
                 fns.gcs.epsilon = ((SettingsFractals1072) settings).getEpsilon();
                 break;
-            case NEWTONFORMULA:
-            case NEWTON_HINESFORMULA:
-                fns.user_fz_formula = ((SettingsFractals1058) settings).getUserFzFormula();
-                fns.user_dfz_formula = ((SettingsFractals1058) settings).getUserDfzFormula();
-                
-                if(fns.function == NEWTON_HINESFORMULA) {
-                    fns.newton_hines_k = ((SettingsFractals1074) settings).getNewtonHinesK();
-                }
-                break;
-            case HALLEYFORMULA:
-            case SCHRODERFORMULA:   
-            case HOUSEHOLDERFORMULA:
-            case PARHALLEYFORMULA:
-            case LAGUERREFORMULA:
-            case WHITTAKERFORMULA:
-            case WHITTAKERDOUBLECONVEXFORMULA:
-            case SUPERHALLEYFORMULA:
-                fns.user_fz_formula = ((SettingsFractals1058) settings).getUserFzFormula();
-                fns.user_dfz_formula = ((SettingsFractals1058) settings).getUserDfzFormula();
-                fns.user_ddfz_formula = ((SettingsFractals1058) settings).getUserDdfzFormula();
-                
-                if(fns.function == LAGUERREFORMULA) {
-                    fns.laguerre_deg = ((SettingsFractals1067) settings).getLaguerreDeg();
-                }
-                break;
-            case SECANTFORMULA:
-            case STEFFENSENFORMULA:
-            case MULLERFORMULA:
-                fns.user_fz_formula = ((SettingsFractals1058) settings).getUserFzFormula();
-                break;                     
             case NOVA:
                 fns.z_exponent_nova = settings.getZExponentNova();
                 fns.relaxation = settings.getRelaxation();
@@ -1358,59 +1344,43 @@ public class Settings implements Constants {
 
                 temp_bool = false;
 
-                switch (fns.nova_method) {
-                    case NOVA_NEWTON:
-                    case NOVA_NEWTON_HINES:
-                    case NOVA_MIDPOINT:
-                    case NOVA_TRAUB_OSTROWSKI:
-                    case NOVA_STIRLING:
-                        fns.user_fz_formula = ((SettingsFractals1058) settings).getUserFzFormula();
-                        fns.user_dfz_formula = ((SettingsFractals1058) settings).getUserDfzFormula();
+                if(isTwoFunctionsNovaFormula(fns.nova_method)) {
+                    fns.user_fz_formula = ((SettingsFractals1058) settings).getUserFzFormula();
+                    fns.user_dfz_formula = ((SettingsFractals1058) settings).getUserDfzFormula();
 
-                        parser.parse(fns.user_fz_formula);
-                        temp_bool = temp_bool | parser.foundC();
+                    parser.parse(fns.user_fz_formula);
+                    temp_bool = temp_bool | parser.foundC();
 
-                        parser.parse(fns.user_dfz_formula);
-                        temp_bool = temp_bool | parser.foundC();
-                        
-                        if(fns.nova_method == NOVA_NEWTON_HINES) {
-                            fns.newton_hines_k = ((SettingsFractals1074) settings).getNewtonHinesK();
-                        }
-                        break;
-                    case NOVA_HALLEY:
-                    case NOVA_PARHALLEY:
-                    case NOVA_SCHRODER:
-                    case NOVA_HOUSEHOLDER:
-                    case NOVA_LAGUERRE:
-                    case NOVA_WHITTAKER:
-                    case NOVA_WHITTAKER_DOUBLE_CONVEX:
-                    case NOVA_SUPER_HALLEY:
-                        fns.user_fz_formula = ((SettingsFractals1058) settings).getUserFzFormula();
-                        fns.user_dfz_formula = ((SettingsFractals1058) settings).getUserDfzFormula();
-                        fns.user_ddfz_formula = ((SettingsFractals1058) settings).getUserDdfzFormula();
+                    parser.parse(fns.user_dfz_formula);
+                    temp_bool = temp_bool | parser.foundC();
 
-                        parser.parse(fns.user_fz_formula);
-                        temp_bool = temp_bool | parser.foundC();
+                    if(fns.nova_method == NOVA_NEWTON_HINES) {
+                        fns.newton_hines_k = ((SettingsFractals1074) settings).getNewtonHinesK();
+                    }
+                }
+                else if(isThreeFunctionsNovaFormula(fns.nova_method)) {
+                    fns.user_fz_formula = ((SettingsFractals1058) settings).getUserFzFormula();
+                    fns.user_dfz_formula = ((SettingsFractals1058) settings).getUserDfzFormula();
+                    fns.user_ddfz_formula = ((SettingsFractals1058) settings).getUserDdfzFormula();
 
-                        parser.parse(fns.user_dfz_formula);
-                        temp_bool = temp_bool | parser.foundC();
+                    parser.parse(fns.user_fz_formula);
+                    temp_bool = temp_bool | parser.foundC();
 
-                        parser.parse(fns.user_ddfz_formula);
-                        temp_bool = temp_bool | parser.foundC();
-                        
-                        if(fns.nova_method == NOVA_LAGUERRE) {
-                            fns.laguerre_deg = ((SettingsFractals1067) settings).getLaguerreDeg();
-                        }
-                        break;                   
-                    case NOVA_SECANT:
-                    case NOVA_STEFFENSEN:
-                    case NOVA_MULLER:
-                        fns.user_fz_formula = ((SettingsFractals1058) settings).getUserFzFormula();
+                    parser.parse(fns.user_dfz_formula);
+                    temp_bool = temp_bool | parser.foundC();
 
-                        parser.parse(fns.user_fz_formula);
-                        temp_bool = temp_bool | parser.foundC();
-                        break;                                                       
+                    parser.parse(fns.user_ddfz_formula);
+                    temp_bool = temp_bool | parser.foundC();
 
+                    if(fns.nova_method == NOVA_LAGUERRE) {
+                        fns.laguerre_deg = ((SettingsFractals1067) settings).getLaguerreDeg();
+                    }
+                }
+                else if (isOneFunctionsNovaFormula(fns.nova_method)){
+                    fns.user_fz_formula = ((SettingsFractals1058) settings).getUserFzFormula();
+
+                    parser.parse(fns.user_fz_formula);
+                    temp_bool = temp_bool | parser.foundC();
                 }
 
                 parser.parse(fns.user_relaxation_formula);
@@ -1480,6 +1450,55 @@ public class Settings implements Constants {
 
                 userFormulaHasC = temp_bool;
                 break;
+             default:
+                    if(isPolynomialFunction()) {
+                        fns.coefficients = settings.getCoefficients();
+
+                        if (version < 1072) {
+                            fns.coefficients_im = defaults.fns.coefficients_im;
+                        } else {
+                            fns.coefficients_im = ((SettingsFractals1072) settings).getCoefficientsIm();
+                        }
+
+                        if (fns.function == DURAND_KERNERPOLY || fns.function == ABERTH_EHRLICHPOLY) {
+                            fns.durand_kerner_init_val = ((SettingsFractals1072) settings).getDurandKernerInitVal();
+                        }
+
+                        if (version < 1074) {
+                            fns.newton_hines_k = defaults.fns.newton_hines_k;
+                        } else {
+                            fns.newton_hines_k = ((SettingsFractals1074) settings).getNewtonHinesK();
+                        }
+
+                        createPoly();
+                    }
+                    else if(isTwoFunctionsRootFindingMethodFormula(fns.function)) {
+                        fns.user_fz_formula = ((SettingsFractals1058) settings).getUserFzFormula();
+                        fns.user_dfz_formula = ((SettingsFractals1058) settings).getUserDfzFormula();
+
+                        if(fns.function == NEWTON_HINESFORMULA) {
+                            fns.newton_hines_k = ((SettingsFractals1074) settings).getNewtonHinesK();
+                        }
+                    }
+                    else if(isThreeFunctionsRootFindingMethodFormula(fns.function)) {
+                        fns.user_fz_formula = ((SettingsFractals1058) settings).getUserFzFormula();
+                        fns.user_dfz_formula = ((SettingsFractals1058) settings).getUserDfzFormula();
+                        fns.user_ddfz_formula = ((SettingsFractals1058) settings).getUserDdfzFormula();
+
+                        if(fns.function == LAGUERREFORMULA) {
+                            fns.laguerre_deg = ((SettingsFractals1067) settings).getLaguerreDeg();
+                        }
+                    }
+                    else if(isOneFunctionsRootFindingMethodFormula(fns.function)) {
+                        fns.user_fz_formula = ((SettingsFractals1058) settings).getUserFzFormula();
+                    }
+                    else if(isFourFunctionsRootFindingMethodFormula(fns.function)) {
+                        fns.user_fz_formula = ((SettingsFractals1058) settings).getUserFzFormula();
+                        fns.user_dfz_formula = ((SettingsFractals1058) settings).getUserDfzFormula();
+                        fns.user_ddfz_formula = ((SettingsFractals1058) settings).getUserDdfzFormula();
+                        fns.user_dddfz_formula = ((SettingsFractals1077) settings).getUserDddfzFormula();
+                    }
+                    break;
         }
 
         if (fns.out_coloring_algorithm != USER_OUTCOLORING_ALGORITHM) {
@@ -1506,9 +1525,9 @@ public class Settings implements Constants {
             file_temp = new ObjectOutputStream(new FileOutputStream(filename));
             SettingsFractals settings;
             if (fns.julia) {
-                settings = new SettingsJulia1076(this);
+                settings = new SettingsJulia1077(this);
             } else {
-                settings = new SettingsFractals1076(this);
+                settings = new SettingsFractals1077(this);
             }
             file_temp.writeObject(settings);
             file_temp.flush();
@@ -1561,7 +1580,6 @@ public class Settings implements Constants {
                 yCenter = 0.5;
                 size = 3;
                 break;
-            case FORMULA1:
             case FORMULA44:
             case FORMULA45:
             case FORMULA43:
@@ -1718,6 +1736,7 @@ public class Settings implements Constants {
 
         switch (fns.function) {
             case MANDEL_NEWTON:
+            case FORMULA1:
                 xCenter = 0;
                 yCenter = 0;
                 size = 24;
@@ -1748,122 +1767,6 @@ public class Settings implements Constants {
                     size = 7;
                     fns.bailout = fns.bailout < 13 ? 13 : fns.bailout;
                 }
-                break;
-            case NEWTON3:
-            case NEWTON4:
-            case NEWTONGENERALIZED3:
-            case NEWTONGENERALIZED8:
-            case NEWTONSIN:
-            case NEWTONCOS:
-            case NEWTONPOLY:
-            case NEWTONFORMULA:
-            case HALLEY3:
-            case HALLEY4:
-            case HALLEYGENERALIZED3:
-            case HALLEYGENERALIZED8:
-            case HALLEYSIN:
-            case HALLEYCOS:
-            case HALLEYPOLY:
-            case HALLEYFORMULA:
-            case SCHRODER3:
-            case SCHRODER4:
-            case SCHRODERGENERALIZED3:
-            case SCHRODERGENERALIZED8:
-            case SCHRODERSIN:
-            case SCHRODERCOS:
-            case SCHRODERPOLY:
-            case SCHRODERFORMULA:
-            case HOUSEHOLDER3:
-            case HOUSEHOLDER4:
-            case HOUSEHOLDERGENERALIZED3:
-            case HOUSEHOLDERGENERALIZED8:
-            case HOUSEHOLDERSIN:
-            case HOUSEHOLDERCOS:
-            case HOUSEHOLDERPOLY:
-            case HOUSEHOLDERFORMULA:
-            case SECANT3:
-            case SECANT4:
-            case SECANTGENERALIZED3:
-            case SECANTGENERALIZED8:
-            case SECANTCOS:
-            case SECANTPOLY:
-            case SECANTFORMULA:
-            case STEFFENSEN3:
-            case STEFFENSEN4:
-            case STEFFENSENGENERALIZED3:
-            case STEFFENSENPOLY:
-            case STEFFENSENFORMULA:
-            case MULLER3:
-            case MULLER4:
-            case MULLERGENERALIZED3:
-            case MULLERGENERALIZED8:
-            case MULLERSIN:
-            case MULLERCOS:
-            case MULLERPOLY:
-            case MULLERFORMULA:
-            case PARHALLEY3:
-            case PARHALLEY4:
-            case PARHALLEYGENERALIZED3:
-            case PARHALLEYGENERALIZED8:
-            case PARHALLEYSIN:
-            case PARHALLEYCOS:
-            case PARHALLEYPOLY:
-            case PARHALLEYFORMULA:
-            case LAGUERRE3:
-            case LAGUERRE4:
-            case LAGUERREGENERALIZED3:
-            case LAGUERREGENERALIZED8:
-            case LAGUERRESIN:
-            case LAGUERRECOS:
-            case LAGUERREPOLY:
-            case LAGUERREFORMULA:
-            case DURAND_KERNER3:
-            case DURAND_KERNER4:
-            case DURAND_KERNERGENERALIZED3:
-            case DURAND_KERNERGENERALIZED8:
-            case DURAND_KERNERPOLY:
-            case NOVA:
-            case MAGNETIC_PENDULUM:
-            case BAIRSTOW3:
-            case BAIRSTOW4:
-            case BAIRSTOWGENERALIZED3:
-            case BAIRSTOWGENERALIZED8:
-            case BAIRSTOWPOLY:
-            case NEWTON_HINES3:
-            case NEWTON_HINES4:
-            case NEWTON_HINESGENERALIZED3:
-            case NEWTON_HINESGENERALIZED8:
-            case NEWTON_HINESSIN:
-            case NEWTON_HINESCOS:
-            case NEWTON_HINESPOLY:
-            case NEWTON_HINESFORMULA:
-            case WHITTAKER3:
-            case WHITTAKER4:
-            case WHITTAKERGENERALIZED3:
-            case WHITTAKERGENERALIZED8:
-            case WHITTAKERSIN:
-            case WHITTAKERCOS:
-            case WHITTAKERPOLY:
-            case WHITTAKERFORMULA:
-            case WHITTAKERDOUBLECONVEX3:
-            case WHITTAKERDOUBLECONVEX4:
-            case WHITTAKERDOUBLECONVEXGENERALIZED3:
-            case WHITTAKERDOUBLECONVEXGENERALIZED8:
-            case WHITTAKERDOUBLECONVEXSIN:
-            case WHITTAKERDOUBLECONVEXCOS:
-            case WHITTAKERDOUBLECONVEXPOLY:
-            case WHITTAKERDOUBLECONVEXFORMULA:
-            case SUPERHALLEY3:
-            case SUPERHALLEY4:
-            case SUPERHALLEYGENERALIZED3:
-            case SUPERHALLEYGENERALIZED8:
-            case SUPERHALLEYSIN:
-            case SUPERHALLEYCOS:
-            case SUPERHALLEYPOLY:
-            case SUPERHALLEYFORMULA:
-                xCenter = 0;
-                yCenter = 0;
-                size = 6;
                 break;
             case BARNSLEY1:
             case BARNSLEY2:
@@ -1905,12 +1808,6 @@ public class Settings implements Constants {
                 xCenter = 0;
                 yCenter = 0;
                 size = 6;
-                fns.bailout = fns.bailout < 8 ? 8 : fns.bailout;
-                break;
-            case FORMULA1:
-                xCenter = 0;
-                yCenter = 0;
-                size = 24;
                 fns.bailout = fns.bailout < 8 ? 8 : fns.bailout;
                 break;
             case FORMULA2:
@@ -2051,7 +1948,10 @@ public class Settings implements Constants {
                 xCenter = 0;
                 yCenter = 0;
                 size = 6;
-                fns.bailout = fns.bailout < 2 ? 2 : fns.bailout;
+
+                if(!isRootSolvingMethod(fns.function) && fns.function != NOVA && fns.function != MAGNETIC_PENDULUM) {
+                    fns.bailout = fns.bailout < 2 ? 2 : fns.bailout;
+                }
                 break;
         }
     }
@@ -2093,7 +1993,7 @@ public class Settings implements Constants {
 
     public boolean isConvergingType() {
 
-        return isRootFindingMethod()
+        return isRootFindingMethod(fns.function)
                 || fns.function == NOVA
                 || fns.function == USER_FORMULA_NOVA
                 || fns.function == LAMBERT_W_VARIATION
@@ -2107,32 +2007,171 @@ public class Settings implements Constants {
 
     }
 
-    public boolean isRootFindingMethod() {
+    public static boolean isRootFindingMethod(int function ) {
 
-        return fns.function == NEWTON3 || fns.function == NEWTON4 || fns.function == NEWTONGENERALIZED3 || fns.function == NEWTONGENERALIZED8 || fns.function == NEWTONSIN || fns.function == NEWTONCOS || fns.function == NEWTONPOLY || fns.function == NEWTONFORMULA
-                || fns.function == HALLEY3 || fns.function == HALLEY4 || fns.function == HALLEYGENERALIZED3 || fns.function == HALLEYGENERALIZED8 || fns.function == HALLEYSIN || fns.function == HALLEYCOS || fns.function == HALLEYPOLY || fns.function == HALLEYFORMULA
-                || fns.function == SCHRODER3 || fns.function == SCHRODER4 || fns.function == SCHRODERGENERALIZED3 || fns.function == SCHRODERGENERALIZED8 || fns.function == SCHRODERSIN || fns.function == SCHRODERCOS || fns.function == SCHRODERPOLY || fns.function == SCHRODERFORMULA
-                || fns.function == HOUSEHOLDER3 || fns.function == HOUSEHOLDER4 || fns.function == HOUSEHOLDERGENERALIZED3 || fns.function == HOUSEHOLDERGENERALIZED8 || fns.function == HOUSEHOLDERSIN || fns.function == HOUSEHOLDERCOS || fns.function == HOUSEHOLDERPOLY || fns.function == HOUSEHOLDERFORMULA
-                || fns.function == SECANT3 || fns.function == SECANT4 || fns.function == SECANTGENERALIZED3 || fns.function == SECANTGENERALIZED8 || fns.function == SECANTCOS || fns.function == SECANTPOLY || fns.function == SECANTFORMULA
-                || fns.function == STEFFENSEN3 || fns.function == STEFFENSEN4 || fns.function == STEFFENSENGENERALIZED3 || fns.function == STEFFENSENPOLY || fns.function == STEFFENSENFORMULA
-                || fns.function == MULLER3 || fns.function == MULLER4 || fns.function == MULLERGENERALIZED3 || fns.function == MULLERGENERALIZED8 || fns.function == MULLERSIN || fns.function == MULLERCOS || fns.function == MULLERPOLY || fns.function == MULLERFORMULA
-                || fns.function == PARHALLEY3 || fns.function == PARHALLEY4 || fns.function == PARHALLEYGENERALIZED3 || fns.function == PARHALLEYGENERALIZED8 || fns.function == PARHALLEYSIN || fns.function == PARHALLEYCOS || fns.function == PARHALLEYPOLY || fns.function == PARHALLEYFORMULA
-                || fns.function == LAGUERRE3 || fns.function == LAGUERRE4 || fns.function == LAGUERREGENERALIZED3 || fns.function == LAGUERREGENERALIZED8 || fns.function == LAGUERRESIN || fns.function == LAGUERRECOS || fns.function == LAGUERREPOLY || fns.function == LAGUERREFORMULA
-                || fns.function == DURAND_KERNER3 || fns.function == DURAND_KERNER4 || fns.function == DURAND_KERNERGENERALIZED3 || fns.function == DURAND_KERNERGENERALIZED8 || fns.function == DURAND_KERNERPOLY
-                || fns.function == BAIRSTOW3 || fns.function == BAIRSTOW4 || fns.function == BAIRSTOWGENERALIZED3 || fns.function == BAIRSTOWGENERALIZED8 || fns.function == BAIRSTOWPOLY
-                || fns.function == MAGNETIC_PENDULUM
-                || fns.function == WHITTAKER3 || fns.function == WHITTAKER4 || fns.function == WHITTAKERGENERALIZED3 || fns.function == WHITTAKERGENERALIZED8 || fns.function == WHITTAKERSIN || fns.function == WHITTAKERCOS || fns.function == WHITTAKERPOLY || fns.function == WHITTAKERFORMULA
-                || fns.function == WHITTAKERDOUBLECONVEX3 || fns.function == WHITTAKERDOUBLECONVEX4 || fns.function == WHITTAKERDOUBLECONVEXGENERALIZED3 || fns.function == WHITTAKERDOUBLECONVEXGENERALIZED8 || fns.function == WHITTAKERDOUBLECONVEXSIN || fns.function == WHITTAKERDOUBLECONVEXCOS || fns.function == WHITTAKERDOUBLECONVEXPOLY || fns.function == WHITTAKERDOUBLECONVEXFORMULA
-                || fns.function == SUPERHALLEY3 || fns.function == SUPERHALLEY4 || fns.function == SUPERHALLEYGENERALIZED3 || fns.function == SUPERHALLEYGENERALIZED8 || fns.function == SUPERHALLEYSIN || fns.function == SUPERHALLEYCOS || fns.function == SUPERHALLEYPOLY || fns.function == SUPERHALLEYFORMULA
-                || fns.function == NEWTON_HINES3 || fns.function == NEWTON_HINES4 || fns.function == NEWTON_HINESGENERALIZED3 || fns.function == NEWTON_HINESGENERALIZED8 || fns.function == NEWTON_HINESSIN || fns.function == NEWTON_HINESCOS || fns.function == NEWTON_HINESPOLY || fns.function == NEWTON_HINESFORMULA;
+        return function == MAGNETIC_PENDULUM || isRootSolvingMethod(function);
 
+    }
+
+    public static boolean isRootSolvingMethod(int function) {
+
+        return isRoot3Function(function)
+                || isRoot4Function(function)
+                || isRootGeneralized3Function(function)
+                || isRootGeneralized8Function(function)
+                || isRootCosFunction(function)
+                || isRootSinFunction(function)
+                || isRootPolynomialFunction(function)
+                || isRootFormulaFunction(function);
     }
 
     public boolean functionSupportsC() {
 
-        return !isRootFindingMethod() && fns.function != KLEINIAN && fns.function != SIERPINSKI_GASKET && fns.function != INERTIA_GRAVITY
+        return !isRootFindingMethod(fns.function) && fns.function != KLEINIAN && fns.function != SIERPINSKI_GASKET && fns.function != INERTIA_GRAVITY
                 && (fns.function != USER_FORMULA_NOVA || (fns.function == USER_FORMULA_NOVA && userFormulaHasC)) && (fns.function != USER_FORMULA || (fns.function == USER_FORMULA && userFormulaHasC)) && (fns.function != USER_FORMULA_ITERATION_BASED || (fns.function == USER_FORMULA_ITERATION_BASED && userFormulaHasC)) && (fns.function != USER_FORMULA_CONDITIONAL || (fns.function == USER_FORMULA_CONDITIONAL && userFormulaHasC)) && (fns.function != USER_FORMULA_COUPLED || (fns.function == USER_FORMULA_COUPLED && userFormulaHasC))
                 && (fns.function != LYAPUNOV || (fns.function == LYAPUNOV && userFormulaHasC));
+
+    }
+
+    public boolean isPolynomialFunction() {
+
+        return fns.function == MANDELPOLY  || isRootPolynomialFunction(fns.function);
+    }
+
+    public static boolean isRootPolynomialFunction(int function) {
+
+        return function == NEWTONPOLY || function == HALLEYPOLY || function == SCHRODERPOLY || function == HOUSEHOLDERPOLY || function == SECANTPOLY || function == STEFFENSENPOLY || function == MULLERPOLY || function == PARHALLEYPOLY || function == LAGUERREPOLY || function == DURAND_KERNERPOLY || function == BAIRSTOWPOLY || function == NEWTON_HINESPOLY || function == WHITTAKERPOLY || function == WHITTAKERDOUBLECONVEXPOLY || function == SUPERHALLEYPOLY || function == TRAUB_OSTROWSKIPOLY || function == STIRLINGPOLY || function == MIDPOINTPOLY
+                || function == ABERTH_EHRLICHPOLY || function == JARATTPOLY || function == JARATT2POLY || function == THIRDORDERNEWTONPOLY || function == WEERAKOON_FERNANDOPOLY
+                || function == HOUSEHOLDER3POLY || function == ABBASBANDYPOLY;
+
+    }
+
+    public static boolean isRoot3Function(int function) {
+
+        return function == NEWTON3 || function == HALLEY3 || function == HOUSEHOLDER3 || function == SCHRODER3 || function == SECANT3 || function == STEFFENSEN3 || function == MULLER3 || function == PARHALLEY3 || function == LAGUERRE3 || function == DURAND_KERNER3 || function == BAIRSTOW3 || function == NEWTON_HINES3 || function == WHITTAKER3 || function == WHITTAKERDOUBLECONVEX3 || function == SUPERHALLEY3 || function == TRAUB_OSTROWSKI3 || function == STIRLING3 || function == MIDPOINT3
+                || function == ABERTH_EHRLICH3 || function == JARATT3 || function == JARATT23 || function == THIRDORDERNEWTON3 || function == WEERAKOON_FERNANDO3
+                || function == HOUSEHOLDER33 || function == ABBASBANDY3;
+
+    }
+
+    public static boolean isRootGeneralized3Function(int function) {
+
+        return function == NEWTONGENERALIZED3 || function == HALLEYGENERALIZED3 || function == HOUSEHOLDERGENERALIZED3 || function == SCHRODERGENERALIZED3 || function == SECANTGENERALIZED3 || function == STEFFENSENGENERALIZED3 || function == MULLERGENERALIZED3 || function == PARHALLEYGENERALIZED3 || function == LAGUERREGENERALIZED3 || function == DURAND_KERNERGENERALIZED3 || function == BAIRSTOWGENERALIZED3 || function == NEWTON_HINESGENERALIZED3 || function == WHITTAKERGENERALIZED3 || function == WHITTAKERDOUBLECONVEXGENERALIZED3 || function == SUPERHALLEYGENERALIZED3 || function == TRAUB_OSTROWSKIGENERALIZED3 || function == STIRLINGGENERALIZED3 || function == MIDPOINTGENERALIZED3
+                || function == ABERTH_EHRLICHGENERALIZED3 || function == JARATTGENERALIZED3 || function == JARATT2GENERALIZED3 || function == THIRDORDERNEWTONGENERALIZED3 || function == WEERAKOON_FERNANDOGENERALIZED3
+                || function == HOUSEHOLDER3GENERALIZED3 || function == ABBASBANDYGENERALIZED3;
+
+    }
+
+    public static boolean isRootGeneralized8Function(int function) {
+
+        return function == NEWTONGENERALIZED8 || function == HALLEYGENERALIZED8 || function == HOUSEHOLDERGENERALIZED8 || function == SCHRODERGENERALIZED8 || function == SECANTGENERALIZED8 || function == MULLERGENERALIZED8 || function == PARHALLEYGENERALIZED8 || function == LAGUERREGENERALIZED8 || function == DURAND_KERNERGENERALIZED8 || function == BAIRSTOWGENERALIZED8 || function == NEWTON_HINESGENERALIZED8 || function == WHITTAKERGENERALIZED8 || function == WHITTAKERDOUBLECONVEXGENERALIZED8 || function == SUPERHALLEYGENERALIZED8 || function == TRAUB_OSTROWSKIGENERALIZED8 || function == STIRLINGGENERALIZED8 || function == MIDPOINTGENERALIZED8
+                || function == ABERTH_EHRLICHGENERALIZED8 || function == JARATTGENERALIZED8 || function == JARATT2GENERALIZED8 || function == THIRDORDERNEWTONGENERALIZED8 || function == WEERAKOON_FERNANDOGENERALIZED8
+                || function == HOUSEHOLDER3GENERALIZED8 || function == ABBASBANDYGENERALIZED8;
+
+    }
+
+    public static boolean isRootSinFunction(int function) {
+
+        return function == NEWTONSIN || function == HALLEYSIN || function == HOUSEHOLDERSIN || function == SCHRODERSIN || function == MULLERSIN || function == PARHALLEYSIN || function == LAGUERRESIN || function == NEWTON_HINESSIN || function == WHITTAKERSIN || function == WHITTAKERDOUBLECONVEXSIN || function == SUPERHALLEYSIN || function == TRAUB_OSTROWSKISIN || function == STIRLINGSIN || function == MIDPOINTSIN
+                || function == JARATTSIN || function == JARATT2SIN || function == THIRDORDERNEWTONSIN || function == WEERAKOON_FERNANDOSIN
+                || function == HOUSEHOLDER3SIN || function == ABBASBANDYSIN;
+
+    }
+
+    public static boolean isRootCosFunction(int function) {
+
+        return function == NEWTONCOS || function == HALLEYCOS || function == HOUSEHOLDERCOS || function == SCHRODERCOS || function == SECANTCOS || function == MULLERCOS || function == PARHALLEYCOS || function == LAGUERRECOS || function == NEWTON_HINESCOS || function == WHITTAKERCOS || function == WHITTAKERDOUBLECONVEXCOS || function == SUPERHALLEYCOS || function == TRAUB_OSTROWSKICOS || function == STIRLINGCOS || function == MIDPOINTCOS
+                || function == JARATTCOS || function == JARATT2COS || function == THIRDORDERNEWTONCOS || function == WEERAKOON_FERNANDOCOS
+                || function == HOUSEHOLDER3COS || function == ABBASBANDYCOS;
+
+    }
+
+    public static boolean isRoot4Function(int function) {
+
+        return function == NEWTON4 || function == HALLEY4 || function == HOUSEHOLDER4 || function == SCHRODER4 || function == SECANT4 || function == STEFFENSEN4 || function == MULLER4 || function == PARHALLEY4 || function == LAGUERRE4 || function == DURAND_KERNER4 | function == BAIRSTOW4 || function == NEWTON_HINES4 || function == WHITTAKER4 || function == WHITTAKERDOUBLECONVEX4 || function == SUPERHALLEY4 || function == TRAUB_OSTROWSKI4 || function == STIRLING4 || function == MIDPOINT4
+                || function == ABERTH_EHRLICH4 || function == JARATT4 || function == JARATT24 || function == THIRDORDERNEWTON4 || function == WEERAKOON_FERNANDO4
+                || function == HOUSEHOLDER34 || function == ABBASBANDY4;
+
+    }
+
+    public static boolean hasNovaCombinedFFZ(int nova_method) {
+        return nova_method == NOVA_STEFFENSEN || nova_method == NOVA_TRAUB_OSTROWSKI || nova_method == NOVA_THIRD_ORDER_NEWTON;
+    }
+
+    public static boolean hasNovaCombinedDFZ(int nova_method) {
+        return nova_method == NOVA_MIDPOINT || nova_method == NOVA_STIRLING || nova_method == NOVA_JARATT || nova_method == NOVA_JARATT2 || nova_method == NOVA_WEERAKOON_FERNANDO;
+    }
+
+    public static boolean isTwoFunctionsNovaFormula(int nova_method) {
+        return nova_method == NOVA_NEWTON
+                || nova_method == NOVA_NEWTON_HINES
+                || nova_method == NOVA_MIDPOINT
+                || nova_method == NOVA_TRAUB_OSTROWSKI
+                || nova_method == NOVA_STIRLING
+                || nova_method == NOVA_JARATT
+                || nova_method == NOVA_JARATT2
+                || nova_method == NOVA_WEERAKOON_FERNANDO
+                || nova_method == NOVA_THIRD_ORDER_NEWTON;
+    }
+
+    public static boolean isThreeFunctionsNovaFormula(int nova_method) {
+
+        return  nova_method == NOVA_HALLEY
+                || nova_method == NOVA_PARHALLEY
+                || nova_method == NOVA_SCHRODER
+                || nova_method == NOVA_HOUSEHOLDER
+                || nova_method == NOVA_HOUSEHOLDER
+                || nova_method == NOVA_LAGUERRE
+                || nova_method == NOVA_WHITTAKER
+                || nova_method == NOVA_WHITTAKER_DOUBLE_CONVEX
+                || nova_method == NOVA_SUPER_HALLEY;
+
+    }
+
+    public static boolean isOneFunctionsNovaFormula(int nova_method) {
+
+        return  nova_method == NOVA_SECANT
+                || nova_method == NOVA_STEFFENSEN
+                || nova_method == NOVA_MULLER;
+
+    }
+
+    public static boolean isFourFunctionsNovaFormula(int nova_method) {
+
+        return  nova_method == NOVA_ABBASBANDY || nova_method == NOVA_HOUSEHOLDER3;
+
+    }
+
+    public static boolean isThreeFunctionsRootFindingMethodFormula(int function) {
+        return function == HALLEYFORMULA ||
+                function == SCHRODERFORMULA ||
+                function == HOUSEHOLDERFORMULA ||
+                function == PARHALLEYFORMULA ||
+                function == WHITTAKERFORMULA ||
+                function == WHITTAKERDOUBLECONVEXFORMULA ||
+                function == SUPERHALLEYFORMULA ||
+                function == LAGUERREFORMULA;
+    }
+
+    public static boolean isOneFunctionsRootFindingMethodFormula(int function) {
+        return function == SECANTFORMULA ||
+                function == STEFFENSENFORMULA ||
+                function == MULLERFORMULA;
+    }
+
+    public static boolean isTwoFunctionsRootFindingMethodFormula(int function) {
+        return function == NEWTONFORMULA || function == NEWTON_HINESFORMULA || function == TRAUB_OSTROWSKIFORMULA || function == STIRLINGFORMULA || function == MIDPOINTFORMULA
+                || function == JARATTFORMULA || function == JARATT2FORMULA || function == THIRDORDERNEWTONFORMULA|| function == WEERAKOON_FERNANDOFORMULA;
+    }
+
+    public static boolean isFourFunctionsRootFindingMethodFormula(int function) {
+        return function == HOUSEHOLDER3FORMULA ||
+                function == ABBASBANDYFORMULA;
+    }
+
+    public static boolean isRootFormulaFunction(int function) {
+
+        return isThreeFunctionsRootFindingMethodFormula(function) || isTwoFunctionsRootFindingMethodFormula(function) || isOneFunctionsRootFindingMethodFormula(function) || isFourFunctionsRootFindingMethodFormula(function);
 
     }
 

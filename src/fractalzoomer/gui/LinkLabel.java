@@ -16,13 +16,11 @@
  */
 package fractalzoomer.gui;
 
-import java.awt.Color;
-import java.awt.Cursor;
-import java.awt.Desktop;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.net.URI;
-import javax.swing.JLabel;
 
 /*
  * Fractal Zoomer, Copyright (C) 2020 hrkalona2

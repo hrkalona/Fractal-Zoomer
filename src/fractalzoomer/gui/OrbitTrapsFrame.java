@@ -21,18 +21,6 @@ import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
 
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.awt.image.BufferedImage;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import java.io.File;
-import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.EtchedBorder;
@@ -40,6 +28,13 @@ import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.plaf.basic.BasicFileChooserUI;
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.io.File;
+import java.io.IOException;
 
 public class OrbitTrapsFrame extends JFrame {
 	private static final long serialVersionUID = -4097447483434039100L;
@@ -695,7 +690,7 @@ public class OrbitTrapsFrame extends JFrame {
         } else {
             trap_length_field.setEnabled(true);
         }
-        
+
         if(index == MainWindow.CROSS_TRAP || index ==  MainWindow.RE_TRAP || index ==  MainWindow.IM_TRAP || index ==  MainWindow.CIRCLE_CROSS_TRAP || index ==  MainWindow.SQUARE_CROSS_TRAP || index ==  MainWindow.RHOMBUS_CROSS_TRAP || index ==  MainWindow.N_NORM_CROSS_TRAP || index == MainWindow.GOLDEN_RATIO_SPIRAL_CROSS_TRAP || index == MainWindow.STALKS_CROSS_TRAP) {
             lines_function_combo.setEnabled(true);
         }

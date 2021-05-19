@@ -27,17 +27,7 @@ public class RealConstantExpressionNode implements ExpressionNode
   /** The value of the constant */
   private Complex value;
 
-  /**
-   * Construct with the fixed value.
-   * 
-   * @param value
-   *          the value of the constant
-   */
-  public RealConstantExpressionNode(Complex value)
-  {
-    this.value = value;
-  }
-  
+
   public RealConstantExpressionNode(double value)
   {
     this.value = new Complex(value, 0);
@@ -64,7 +54,7 @@ public class RealConstantExpressionNode implements ExpressionNode
   }
 
   /**
-   * Returns the type of the node, in this case ExpressionNode.CONSTANT_NODE
+   * Returns the type of the node, in this case ExpressionNode.REAL_CONSTANT_NODE
    */
   @Override
   public int getType()

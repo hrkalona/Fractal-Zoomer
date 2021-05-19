@@ -17,7 +17,8 @@
 package fractalzoomer.settings;
 
 import fractalzoomer.main.app_settings.Settings;
-import java.awt.Color;
+
+import java.awt.*;
 import java.io.Serializable;
 
 /**

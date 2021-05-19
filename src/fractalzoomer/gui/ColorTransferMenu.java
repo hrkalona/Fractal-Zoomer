@@ -17,12 +17,10 @@
 package fractalzoomer.gui;
 
 import fractalzoomer.main.MainWindow;
+
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.ButtonGroup;
-import javax.swing.ImageIcon;
-import javax.swing.JMenu;
-import javax.swing.JRadioButtonMenuItem;
 
 /**
  *

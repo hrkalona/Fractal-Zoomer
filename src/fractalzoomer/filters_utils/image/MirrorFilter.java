@@ -16,7 +16,8 @@
 package fractalzoomer.filters_utils.image;
 
 import java.awt.*;
-import java.awt.image.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferInt;
 
 public class MirrorFilter extends AbstractBufferedImageOp {
 

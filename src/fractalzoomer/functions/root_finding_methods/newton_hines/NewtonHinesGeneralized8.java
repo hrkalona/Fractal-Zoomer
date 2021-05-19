@@ -21,6 +21,7 @@ import fractalzoomer.core.Complex;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
 import fractalzoomer.main.app_settings.StatisticsSettings;
+
 import java.util.ArrayList;
 
 /**
@@ -64,7 +65,7 @@ public class NewtonHinesGeneralized8 extends NewtonHinesRootFindingMethod {
     }
 
     @Override
-    protected void function(Complex[] complex) {
+    public void function(Complex[] complex) {
 
         Complex fz = complex[0].eighth().plus_mutable(complex[0].fourth().times_mutable(15)).sub_mutable(16);
         Complex dfz = complex[0].seventh().times_mutable(8).plus_mutable(complex[0].cube().times_mutable(60));

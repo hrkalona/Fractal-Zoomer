@@ -16,23 +16,18 @@
  */
 package fractalzoomer.gui;
 
-import static fractalzoomer.main.Constants.SECANTFORMULA;
-import static fractalzoomer.main.Constants.STEFFENSENFORMULA;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
 import fractalzoomer.parser.ParserException;
+
+import javax.swing.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import javax.swing.ImageIcon;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JRadioButtonMenuItem;
-import javax.swing.JTextField;
-import static javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE;
+
+import static fractalzoomer.main.Constants.SECANTFORMULA;
+import static fractalzoomer.main.Constants.STEFFENSENFORMULA;
 
 /**
  *
@@ -49,15 +44,7 @@ public class RootFindingOneFunctionDialog extends JDialog {
         
         ptra = ptr;
 
-        String title = "";
-
-        if (s.fns.function == SECANTFORMULA) {
-            title = "Secant Formula";
-        } else if (s.fns.function == STEFFENSENFORMULA) {
-            title = "Steffensen Formula";
-        } 
-
-        setTitle(title);
+        setTitle(FractalFunctionsMenu.functionNames[s.fns.function]);
         setModal(true);
         setIconImage(getIcon("/fractalzoomer/icons/mandel2.png").getImage());
 
@@ -134,8 +121,8 @@ public class RootFindingOneFunctionDialog extends JDialog {
 
                     try {
                         s.parser.parse(field_fz_formula5.getText());
-                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundC() || s.parser.foundR()) {
-                            JOptionPane.showMessageDialog(ptra, "The variables: c, bail, cbail, r cannot be used in the f(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundC() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                            JOptionPane.showMessageDialog(ptra, "The variables: c, bail, cbail, r, stat, trap cannot be used in the f(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                             return;
                         }
 

@@ -18,6 +18,7 @@ package fractalzoomer.functions.general;
 
 import fractalzoomer.core.Complex;
 import fractalzoomer.functions.Fractal;
+import fractalzoomer.functions.FractalWithoutConstant;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
 import fractalzoomer.main.app_settings.StatisticsSettings;
@@ -29,7 +30,7 @@ import java.util.ArrayList;
  *
  * @author hrkalona
  */
-public class Kleinian extends Fractal {
+public class Kleinian extends FractalWithoutConstant {
 
     private final double error = 1e-8;
     private double u;
@@ -74,7 +75,7 @@ public class Kleinian extends Fractal {
     }
 
     @Override
-    protected void function(Complex[] complex) {
+    public void function(Complex[] complex) {
 
         double re = complex[0].getRe();
         double im = complex[0].getIm();
@@ -97,15 +98,22 @@ public class Kleinian extends Fractal {
     }
 
     @Override
-    public double calculateFractalWithoutPeriodicity(Complex pixel) {
-        int iterations = 0;
+    public Complex[] initialize(Complex pixel) {
 
         Complex[] complex = new Complex[1];
         complex[0] = new Complex(pixel);//z
 
-        Complex zold = new Complex();
-        Complex zold2 = new Complex();
-        Complex start = new Complex(complex[0]);
+        zold = new Complex();
+        zold2 = new Complex();
+        start = new Complex(complex[0]);
+
+        return complex;
+
+    }
+
+    @Override
+    protected double iterateFractalWithoutPeriodicity(Complex[] complex, Complex pixel) {
+        iterations = 0;
 
         for (; iterations < max_iterations; iterations++) {
 
@@ -116,14 +124,14 @@ public class Kleinian extends Fractal {
             if (complex[0].getIm() < 0.0 || complex[0].getIm() > u) {
                 escaped = true;
 
-                if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(complex[0], zold, zold2, iterations, pixel, start);
-                }
-
                 Object[] object = {iterations, complex[0], zold, zold2, pixel, start};
                 double out = out_color_algorithm.getResult(object);
 
                 out = getFinalValueOut(out);
+
+                if (outTrueColorAlgorithm != null) {
+                    setTrueColorOut(complex[0], zold, zold2, iterations, pixel, start);
+                }
 
                 return out;
             }
@@ -131,14 +139,14 @@ public class Kleinian extends Fractal {
             //If the iterated points enters a 2-cycle , bail out.
             if (iterations != 0 && complex[0].distance_squared(zold2) < error) {
 
-                if (inTrueColorAlgorithm != null) {
-                    setTrueColorIn(complex[0], zold, zold2, iterations, pixel, start);
-                }
-
                 Object[] object = {complex[0], zold, zold2, pixel, start};
                 double in = in_color_algorithm.getResult(object);
 
                 in = getFinalValueIn(in);
+
+                if (inTrueColorAlgorithm != null) {
+                    setTrueColorIn(complex[0], zold, zold2, iterations, pixel, start);
+                }
 
                 return in;
             }
@@ -146,15 +154,14 @@ public class Kleinian extends Fractal {
             //Store prévious iterates
             zold2.assign(zold);
             zold.assign(complex[0]);
+
+            complex[0] = preFilter.getValue(complex[0], iterations, pixel, start);
             function(complex);
+            complex[0] = postFilter.getValue(complex[0], iterations, pixel, start);
 
             if (statistic != null) {
                 statistic.insert(complex[0], zold, zold2, iterations, pixel, start);
             }
-        }
-
-        if (inTrueColorAlgorithm != null) {
-            setTrueColorIn(complex[0], zold, zold2, iterations, pixel, start);
         }
 
         Object[] object = {complex[0], zold, zold2, pixel, start};
@@ -162,69 +169,11 @@ public class Kleinian extends Fractal {
 
         in = getFinalValueIn(in);
 
+        if (inTrueColorAlgorithm != null) {
+            setTrueColorIn(complex[0], zold, zold2, iterations, pixel, start);
+        }
+
         return in;
-
-    }
-
-    @Override
-    public void calculateFractalOrbit() {
-        int iterations = 0;
-
-        Complex[] complex = new Complex[1];
-        complex[0] = new Complex(pixel_orbit);//z
-
-        Complex temp = null;
-
-        for (; iterations < max_iterations; iterations++) {
-            function(complex);
-            temp = rotation.rotateInverse(complex[0]);
-
-            if (Double.isNaN(temp.getRe()) || Double.isNaN(temp.getIm()) || Double.isInfinite(temp.getRe()) || Double.isInfinite(temp.getIm())) {
-                break;
-            }
-
-            complex_orbit.add(temp);
-        }
-
-    }
-
-    @Override
-    public Complex iterateFractalDomain(Complex pixel) {
-        int iterations = 0;
-
-        Complex[] complex = new Complex[1];
-        complex[0] = new Complex(pixel);//z
-
-        for (; iterations < max_iterations; iterations++) {
-
-            function(complex);
-
-        }
-
-        return complex[0];
-
-    }
-
-    @Override
-    public double calculateJulia(Complex pixel) {
-        return 0;
-    }
-
-    @Override
-    public void calculateJuliaOrbit() {
-    }
-
-    @Override
-    public Complex calculateJuliaDomain(Complex pixel) {
-
-        return null;
-
-    }
-
-    @Override
-    public double getJulia3DHeight(double value) {
-
-        return 0;
 
     }
 

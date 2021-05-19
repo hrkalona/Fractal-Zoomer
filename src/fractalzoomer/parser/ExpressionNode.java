@@ -54,6 +54,10 @@ public interface ExpressionNode
   public static final int NO_ARGUMENT_NODE = 13;
   /** Node id for derivative function nodes with 2 arguments */
   public static final int FUNCTION_DERIVATIVE_2_ARG_NODE = 14;
+  /** Node id for complex constant nodes */
+  public static final int CONSTANT_NODE = 15;
+  /** Node id for complex random constant nodes */
+  public static final int RANDOM_CONSTANT_NODE = 16;
 
   /**
    * Returns the type of the node.ExpressionNode

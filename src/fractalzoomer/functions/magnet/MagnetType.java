@@ -17,69 +17,15 @@
 package fractalzoomer.functions.magnet;
 
 import fractalzoomer.core.Complex;
-import fractalzoomer.fractal_options.iteration_statistics.AtomDomain;
-import fractalzoomer.fractal_options.iteration_statistics.CosArgDivideInverseNorm;
-import fractalzoomer.fractal_options.iteration_statistics.CosArgDivideNormAverage;
-import fractalzoomer.fractal_options.iteration_statistics.CurvatureAverage;
-import fractalzoomer.fractal_options.iteration_statistics.StripeAverage;
-import fractalzoomer.fractal_options.iteration_statistics.UserStatisticColoring;
-import fractalzoomer.fractal_options.iteration_statistics.UserStatisticColoringMagnetConverging;
+import fractalzoomer.fractal_options.iteration_statistics.*;
 import fractalzoomer.functions.Julia;
-import fractalzoomer.in_coloring_algorithms.AtanReTimesImTimesAbsReTimesAbsIm;
-import fractalzoomer.in_coloring_algorithms.CosMag;
-import fractalzoomer.in_coloring_algorithms.DecompositionLike;
-import fractalzoomer.in_coloring_algorithms.MagTimesCosReSquared;
-import fractalzoomer.in_coloring_algorithms.MaximumIterations;
-import fractalzoomer.in_coloring_algorithms.ReDivideIm;
-import fractalzoomer.in_coloring_algorithms.SinReSquaredMinusImSquared;
-import fractalzoomer.in_coloring_algorithms.Squares;
-import fractalzoomer.in_coloring_algorithms.Squares2;
-import fractalzoomer.in_coloring_algorithms.UserConditionalInColorAlgorithm;
-import fractalzoomer.in_coloring_algorithms.UserInColorAlgorithm;
-import fractalzoomer.in_coloring_algorithms.ZMag;
+import fractalzoomer.in_coloring_algorithms.*;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
 import fractalzoomer.main.app_settings.StatisticsSettings;
-import fractalzoomer.out_coloring_algorithms.Banded;
-import fractalzoomer.out_coloring_algorithms.BinaryDecomposition2Magnet;
-import fractalzoomer.out_coloring_algorithms.BinaryDecompositionMagnet;
-import fractalzoomer.out_coloring_algorithms.BiomorphsMagnet;
-import fractalzoomer.out_coloring_algorithms.ColorDecomposition;
-import fractalzoomer.out_coloring_algorithms.EscapeTimeAlgorithm1;
-import fractalzoomer.out_coloring_algorithms.EscapeTimeAlgorithm2;
-import fractalzoomer.out_coloring_algorithms.EscapeTimeColorDecomposition;
-import fractalzoomer.out_coloring_algorithms.EscapeTimeEscapeRadiusMagnet;
-import fractalzoomer.out_coloring_algorithms.EscapeTimeFieldLines2Magnet;
-import fractalzoomer.out_coloring_algorithms.EscapeTimeFieldLinesMagnet;
-import fractalzoomer.out_coloring_algorithms.EscapeTimeGaussianInteger;
-import fractalzoomer.out_coloring_algorithms.EscapeTimeGaussianInteger2;
-import fractalzoomer.out_coloring_algorithms.EscapeTimeGaussianInteger3;
-import fractalzoomer.out_coloring_algorithms.EscapeTimeGaussianInteger4;
-import fractalzoomer.out_coloring_algorithms.EscapeTimeGaussianInteger5;
-import fractalzoomer.out_coloring_algorithms.EscapeTimeGridMagnet;
-import fractalzoomer.out_coloring_algorithms.EscapeTimeMagnet;
-import fractalzoomer.out_coloring_algorithms.EscapeTimePlusIm;
-import fractalzoomer.out_coloring_algorithms.EscapeTimePlusRe;
-import fractalzoomer.out_coloring_algorithms.EscapeTimePlusReDivideIm;
-import fractalzoomer.out_coloring_algorithms.EscapeTimePlusRePlusImPlusReDivideIm;
-import fractalzoomer.out_coloring_algorithms.SmoothBinaryDecomposition2Magnet;
-import fractalzoomer.out_coloring_algorithms.SmoothBinaryDecompositionMagnet;
-import fractalzoomer.out_coloring_algorithms.SmoothBiomorphsMagnet;
-import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeAlgorithm2Magnet;
-import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeColorDecompositionMagnet;
-import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeEscapeRadiusMagnet;
-import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeFieldLines2Magnet;
-import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeFieldLinesMagnet;
-import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeGaussianInteger3Magnet;
-import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeGaussianInteger4Magnet;
-import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeGaussianIntegerMagnet;
-import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeGridMagnet;
-import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeMagnet;
-import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimePlusImMagnet;
-import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimePlusReMagnet;
-import fractalzoomer.out_coloring_algorithms.UserConditionalOutColorAlgorithmMagnet;
-import fractalzoomer.out_coloring_algorithms.UserOutColorAlgorithmMagnet;
+import fractalzoomer.out_coloring_algorithms.*;
 import fractalzoomer.utils.ColorAlgorithm;
+
 import java.util.ArrayList;
 
 /**
@@ -124,8 +70,8 @@ public abstract class MagnetType extends Julia {
     }
 
     @Override
-    public double calculateFractalWithPeriodicity(Complex pixel) {
-        int iterations = 0;
+    protected double iterateFractalWithPeriodicity(Complex[] complex, Complex pixel) {
+        iterations = 0;
         Boolean temp1, temp2;
         double temp4;
 
@@ -139,16 +85,6 @@ public abstract class MagnetType extends Julia {
 
         period = new Complex();
 
-        Complex tempz = new Complex(pertur_val.getValue(init_val.getValue(pixel)));
-
-        Complex[] complex = new Complex[2];
-        complex[0] = tempz;//z
-        complex[1] = new Complex(pixel);//c
-
-        Complex zold = new Complex();
-        Complex zold2 = new Complex();
-        Complex start = new Complex(complex[0]);
-
         for (; iterations < max_iterations; iterations++) {
             temp1 = (temp4 = complex[0].distance_squared(1)) <= convergent_bailout;
             temp2 = bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start);
@@ -156,20 +92,23 @@ public abstract class MagnetType extends Julia {
                 escaped = true;
                 converged = temp1;
 
-                if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start);
-                }
-
                 Object[] object = {iterations, complex[0], temp2, temp4, zold, zold2, complex[1], start};
                 double out = out_color_algorithm.getResult(object);
 
                 out = getFinalValueOut(out);
 
+                if (outTrueColorAlgorithm != null) {
+                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start);
+                }
+
                 return out;
             }
             zold2.assign(zold);
             zold.assign(complex[0]);
+
+            complex[0] = preFilter.getValue(complex[0], iterations, complex[1], start);
             function(complex);
+            complex[0] = postFilter.getValue(complex[0], iterations, complex[1], start);
 
             if (periodicityCheck(complex[0])) {
                 return ColorAlgorithm.MAXIMUM_ITERATIONS;
@@ -185,22 +124,12 @@ public abstract class MagnetType extends Julia {
     }
 
     @Override
-    public double calculateFractalWithoutPeriodicity(Complex pixel) {
-        int iterations = 0;
+    protected double iterateFractalWithoutPeriodicity(Complex[] complex, Complex pixel) {
+        iterations = 0;
         Boolean temp1, temp2;
         double temp4;
 
         converged = false;
-
-        Complex tempz = new Complex(pertur_val.getValue(init_val.getValue(pixel)));
-
-        Complex[] complex = new Complex[2];
-        complex[0] = tempz;//z
-        complex[1] = new Complex(pixel);//c
-
-        Complex zold = new Complex();
-        Complex zold2 = new Complex();
-        Complex start = new Complex(complex[0]);
 
         for (; iterations < max_iterations; iterations++) {
 
@@ -214,29 +143,28 @@ public abstract class MagnetType extends Julia {
                 escaped = true;
                 converged = temp1;
 
-                if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start);
-                }
-
                 Object[] object = {iterations, complex[0], temp2, temp4, zold, zold2, complex[1], start};
                 double out = out_color_algorithm.getResult(object);
 
                 out = getFinalValueOut(out);
 
+                if (outTrueColorAlgorithm != null) {
+                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start);
+                }
+
                 return out;
             }
             zold2.assign(zold);
             zold.assign(complex[0]);
+
+            complex[0] = preFilter.getValue(complex[0], iterations, complex[1], start);
             function(complex);
+            complex[0] = postFilter.getValue(complex[0], iterations, complex[1], start);
 
             if (statistic != null) {
                 statistic.insert(complex[0], zold, zold2, iterations, complex[1], start);
             }
 
-        }
-
-        if (inTrueColorAlgorithm != null) {
-            setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start);
         }
 
         Object[] object = {complex[0], zold, zold2, complex[1], start};
@@ -244,126 +172,9 @@ public abstract class MagnetType extends Julia {
 
         in = getFinalValueIn(in);
 
-        return in;
-
-    }
-
-    @Override
-    public double calculateJuliaWithPeriodicity(Complex pixel) {
-        int iterations = 0;
-        Boolean temp1, temp2;
-        double temp4;
-
-        converged = false;
-
-        check = 3;
-        check_counter = 0;
-
-        update = 10;
-        update_counter = 0;
-
-        period = new Complex();
-
-        Complex[] complex = new Complex[2];
-        complex[0] = new Complex(pixel);//z
-        complex[1] = new Complex(seed);//c
-
-        Complex zold = new Complex();
-        Complex zold2 = new Complex();
-        Complex start = new Complex(complex[0]);
-
-        for (; iterations < max_iterations; iterations++) {
-            temp1 = (temp4 = complex[0].distance_squared(1)) <= convergent_bailout;
-            temp2 = bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start);
-            if (temp1 || temp2) {
-                escaped = true;
-                converged = temp1;
-
-                if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start);
-                }
-
-                Object[] object = {iterations, complex[0], temp2, temp4, zold, zold2, complex[1], start};
-                double out = out_color_algorithm.getResult(object);
-
-                out = getFinalValueOut(out);
-
-                return out;
-            }
-            zold2.assign(zold);
-            zold.assign(complex[0]);
-            function(complex);
-
-            if (periodicityCheck(complex[0])) {
-                return ColorAlgorithm.MAXIMUM_ITERATIONS;
-            }
-
-            if (statistic != null) {
-                statistic.insert(complex[0], zold, zold2, iterations, complex[1], start);
-            }
-
-        }
-
-        return ColorAlgorithm.MAXIMUM_ITERATIONS;
-    }
-
-    @Override
-    public double calculateJuliaWithoutPeriodicity(Complex pixel) {
-        int iterations = 0;
-        Boolean temp1, temp2;
-        double temp4;
-
-        converged = false;
-
-        Complex[] complex = new Complex[2];
-        complex[0] = new Complex(pixel);//z
-        complex[1] = new Complex(seed);//c
-
-        Complex zold = new Complex();
-        Complex zold2 = new Complex();
-        Complex start = new Complex(complex[0]);
-
-        for (; iterations < max_iterations; iterations++) {
-
-            if (trap != null) {
-                trap.check(complex[0], iterations);
-            }
-
-            temp1 = (temp4 = complex[0].distance_squared(1)) <= convergent_bailout;
-            temp2 = bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start);
-            if (temp1 || temp2) {
-                escaped = true;
-                converged = temp1;
-
-                if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start);
-                }
-
-                Object[] object = {iterations, complex[0], temp2, temp4, zold, zold2, complex[1], start};
-                double out = out_color_algorithm.getResult(object);
-
-                out = getFinalValueOut(out);
-
-                return out;
-            }
-            zold2.assign(zold);
-            zold.assign(complex[0]);
-            function(complex);
-
-            if (statistic != null) {
-                statistic.insert(complex[0], zold, zold2, iterations, complex[1], start);
-            }
-
-        }
-
         if (inTrueColorAlgorithm != null) {
             setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start);
         }
-
-        Object[] object = {complex[0], zold, zold2, complex[1], start};
-        double in = in_color_algorithm.getResult(object);
-
-        in = getFinalValueIn(in);
 
         return in;
 
@@ -586,16 +397,20 @@ public abstract class MagnetType extends Julia {
             }
             return;
         }
+        else if(sts.statisticGroup == 2) {
+            statistic = new Equicontinuity(sts.statistic_intensity, sts.useSmoothing, sts.useAverage, log_bailout_squared, false, Math.log(convergent_bailout), sts.equicontinuityDenominatorFactor, sts.equicontinuityInvertFactor, sts.equicontinuityDelta);
+            return;
+        }
 
         switch (sts.statistic_type) {
             case MainWindow.STRIPE_AVERAGE:
-                statistic = new StripeAverage(sts.statistic_intensity, sts.stripeAvgStripeDensity, log_bailout_squared);
+                statistic = new StripeAverage(sts.statistic_intensity, sts.stripeAvgStripeDensity, log_bailout_squared, sts.useSmoothing, sts.useAverage);
                 break;
             case MainWindow.CURVATURE_AVERAGE:
-                statistic = new CurvatureAverage(sts.statistic_intensity, log_bailout_squared);
+                statistic = new CurvatureAverage(sts.statistic_intensity, log_bailout_squared, sts.useSmoothing, sts.useAverage);
                 break;
             case MainWindow.COS_ARG_DIVIDE_NORM_AVERAGE:
-                statistic = new CosArgDivideNormAverage(sts.statistic_intensity, sts.cosArgStripeDensity, log_bailout_squared);
+                statistic = new CosArgDivideNormAverage(sts.statistic_intensity, sts.cosArgStripeDensity, log_bailout_squared, sts.useSmoothing, sts.useAverage);
                 break;
             case MainWindow.COS_ARG_DIVIDE_INVERSE_NORM:
                 statistic = new CosArgDivideInverseNorm(sts.statistic_intensity, sts.cosArgInvStripeDensity, sts.StripeDenominatorFactor);
@@ -603,25 +418,30 @@ public abstract class MagnetType extends Julia {
             case MainWindow.ATOM_DOMAIN_BOF60_BOF61:
                 statistic = new AtomDomain(sts.showAtomDomains, sts.statistic_intensity);
                 break;
+            case MainWindow.DISCRETE_LAGRANGIAN_DESCRIPTORS:
+                statistic = new DiscreteLagrangianDescriptors(sts.statistic_intensity, sts.lagrangianPower, log_bailout_squared, sts.useSmoothing, sts.useAverage, false, Math.log(convergent_bailout) );
+                break;
 
         }
     }
 
     @Override
-    protected double getStatistic(double result) {
+    protected double getStatistic(double result, boolean escaped) {
 
         if ((converged && statistic.getType() == MainWindow.ESCAPING) || (!converged && statistic.getType() == MainWindow.CONVERGING)) {
             return result;
         }
 
-        if (Math.abs(result) == ColorAlgorithm.MAXIMUM_ITERATIONS) {
-            if (statisticIncludeNotEscaped) {
-                result = max_iterations + statistic.getValue();
-            }
-            return result;
+        if(converged) {
+            statistic.setMode(GenericStatistic.MAGNET_ROOT);
         }
 
-        return result < 0 ? result - statistic.getValue() : result + statistic.getValue();
+        double res = super.getStatistic(result, escaped);
+
+        statistic.setMode(GenericStatistic.NORMAL_ESCAPE);
+
+        return res;
+
     }
 
 }

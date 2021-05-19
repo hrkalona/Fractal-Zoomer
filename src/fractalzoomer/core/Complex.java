@@ -1786,6 +1786,58 @@ public final class Complex {
     }
 
     /*
+     *  sin, (sin)', (sin)'', (sin)'''
+     */
+    public final Complex[] der0123_sin() {
+
+        double temp = Math.exp(-im);
+
+        double cos_re = Math.cos(re);
+        double sin_re = Math.sin(re);
+
+        Complex temp2 = new Complex(temp * cos_re, temp * sin_re);
+
+        double temp3 = Math.exp(im);
+        Complex temp4 = new Complex(temp3 * cos_re, temp3 * -sin_re);
+
+        Complex[] sin_and_der = new Complex[4];
+
+        sin_and_der[0] = (temp2.sub(temp4)).times_i_mutable(-0.5);
+        sin_and_der[1] = (temp2.plus(temp4)).times_mutable(0.5);
+        sin_and_der[2] = sin_and_der[0].negative();
+        sin_and_der[3] = sin_and_der[1].negative();
+
+        return sin_and_der;
+
+    }
+
+    /*
+     *  cos, (cos)', (cos)'', (cos)'''
+     */
+    public final Complex[] der0123_cos() {
+
+        double temp = Math.exp(-im);
+
+        double cos_re = Math.cos(re);
+        double sin_re = Math.sin(re);
+
+        Complex temp2 = new Complex(temp * cos_re, temp * sin_re);
+
+        double temp3 = Math.exp(im);
+        Complex temp4 = new Complex(temp3 * cos_re, temp3 * -sin_re);
+
+        Complex[] sin_and_der = new Complex[4];
+
+        sin_and_der[0] = (temp2.plus(temp4)).times_mutable(0.5);
+        sin_and_der[1] = (temp4.sub(temp2)).times_i_mutable(-0.5);
+        sin_and_der[2] = sin_and_der[0].negative();
+        sin_and_der[3] = sin_and_der[1].negative();
+
+        return sin_and_der;
+
+    }
+
+    /*
      *  The closest Gaussian Integer to the Complex number
      */
     public final Complex gaussian_integer() {
@@ -2203,6 +2255,10 @@ public final class Complex {
 
     }
 
+    public static Complex random() {
+        return new Complex(Math.random(), Math.random());
+    }
+
     public final Complex fuzz(Complex distance) {
         double random;
 
@@ -2310,6 +2366,26 @@ public final class Complex {
 
         return this;
 
+    }
+
+    public final Complex fibonacci() {
+
+        Complex phi = new Complex(1.618033988749895, 0);
+
+        return phi.pow(this).sub_mutable(phi.negative().pow(this.negative())).divide_mutable(2.236067977499789);
+
+    }
+
+    public final boolean isNaN() {
+        return Double.isNaN(re) || Double.isNaN(im);
+    }
+
+    public final boolean isInfinite() {
+        return Double.isInfinite(re) || Double.isInfinite(im);
+    }
+
+    public final boolean isFinite() {
+        return Double.isFinite(re) && Double.isFinite(im);
     }
 
     private double triangle(double x) {

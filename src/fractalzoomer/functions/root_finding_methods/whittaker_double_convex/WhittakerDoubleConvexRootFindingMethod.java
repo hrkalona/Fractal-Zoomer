@@ -19,6 +19,7 @@ package fractalzoomer.functions.root_finding_methods.whittaker_double_convex;
 import fractalzoomer.core.Complex;
 import fractalzoomer.functions.root_finding_methods.RootFindingMethods;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
+
 import java.util.ArrayList;
 
 /**

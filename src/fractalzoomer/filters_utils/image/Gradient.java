@@ -16,7 +16,7 @@ limitations under the License.
 
 package fractalzoomer.filters_utils.image;
 
-import java.awt.Color;
+import java.awt.*;
 
 /**
  * A Colormap implemented using Catmull-Rom colour splines. The map has a variable number

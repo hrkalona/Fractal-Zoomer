@@ -28,6 +28,7 @@ import fractalzoomer.functions.Julia;
 import fractalzoomer.functions.root_finding_methods.newton.NewtonRootFindingMethod;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
 import fractalzoomer.main.app_settings.StatisticsSettings;
+
 import java.util.ArrayList;
 
 /**
@@ -144,7 +145,7 @@ public class MandelNewton extends Julia {
     }
 
     @Override
-    protected void function(Complex[] complex) {
+    public void function(Complex[] complex) {
 
         complex[0].square_mutable().plus_mutable(complex[1]);
         

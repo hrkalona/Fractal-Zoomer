@@ -41,6 +41,16 @@ public class StatisticsSettings implements Constants {
     public int reductionFunction;
     public boolean useIterations;
     public boolean useSmoothing;
+    public double lagrangianPower;
+    public double equicontinuityDenominatorFactor;
+    public int equicontinuityColorMethod;
+    public int equicontinuityMixingMethod;
+    public double equicontinuityBlending;
+    public double equicontinuitySatChroma;
+    public int equicontinuityArgValue;
+    public boolean equicontinuityInvertFactor;
+    public boolean equicontinuityOverrideColoring;
+    public double equicontinuityDelta;
     
     public StatisticsSettings(StatisticsSettings copy) {
         statistic = copy.statistic;
@@ -61,6 +71,16 @@ public class StatisticsSettings implements Constants {
         reductionFunction = copy.reductionFunction;
         useIterations = copy.useIterations;
         useSmoothing = copy.useSmoothing;
+        lagrangianPower = copy.lagrangianPower;
+        equicontinuityDenominatorFactor = copy.equicontinuityDenominatorFactor;
+        equicontinuityColorMethod = copy.equicontinuityColorMethod;
+        equicontinuityMixingMethod = copy.equicontinuityMixingMethod;
+        equicontinuityBlending = copy.equicontinuityBlending;
+        equicontinuitySatChroma = copy.equicontinuitySatChroma;
+        equicontinuityArgValue = copy.equicontinuityArgValue;
+        equicontinuityInvertFactor = copy.equicontinuityInvertFactor;
+        equicontinuityOverrideColoring = copy.equicontinuityOverrideColoring;
+        equicontinuityDelta = copy.equicontinuityDelta;
     }
     
     public StatisticsSettings() {
@@ -82,5 +102,16 @@ public class StatisticsSettings implements Constants {
         reductionFunction = REDUCTION_SUM;
         useIterations = false;
         useSmoothing = true;
+        lagrangianPower = 0.25;
+
+        equicontinuityDenominatorFactor = 1000;
+        equicontinuityColorMethod = 0;
+        equicontinuityMixingMethod = 0;
+        equicontinuityBlending = 0;
+        equicontinuitySatChroma = 0.5;
+        equicontinuityArgValue = 0;
+        equicontinuityInvertFactor = false;
+        equicontinuityOverrideColoring = true;
+        equicontinuityDelta = 1e-4;
     }
 }

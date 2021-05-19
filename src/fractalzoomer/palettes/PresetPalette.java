@@ -17,7 +17,8 @@
 package fractalzoomer.palettes;
 
 import fractalzoomer.main.MainWindow;
-import java.awt.Color;
+
+import java.awt.*;
 
 /**
  *

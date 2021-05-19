@@ -125,4 +125,14 @@ public class SetVariable implements ExpressionNodeVisitor
   public void visit(FunctionDerivative2ArgumentsExpressionNode node)
   {}
 
+  /** Do nothing */
+  @Override
+  public void visit(ConstantExpressionNode node)
+  {}
+
+  /** Do nothing */
+  @Override
+  public void visit(RandomConstantExpressionNode node)
+  {}
+
 }

@@ -19,20 +19,13 @@ package fractalzoomer.gui;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
 import fractalzoomer.parser.ParserException;
-import java.awt.Font;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import javax.swing.ImageIcon;
-import javax.swing.JComboBox;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JRadioButtonMenuItem;
-import javax.swing.JTextField;
-import static javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE;
 
 /**
  *
@@ -149,8 +142,8 @@ public class UserFormulaIterationBasedDialog extends JDialog {
                     try {
                         s.parser.parse(field_formula_it_based1.getText());
 
-                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR()) {
-                            JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r cannot be used in the 1st iteration formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                            JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r, stat, trap cannot be used in the 1st iteration formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                             return;
                         }
 
@@ -158,8 +151,8 @@ public class UserFormulaIterationBasedDialog extends JDialog {
 
                         s.parser.parse(field_formula_it_based2.getText());
 
-                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR()) {
-                            JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r cannot be used in the 2nd iteration formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                            JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r, stat, trap cannot be used in the 2nd iteration formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                             return;
                         }
 
@@ -167,8 +160,8 @@ public class UserFormulaIterationBasedDialog extends JDialog {
 
                         s.parser.parse(field_formula_it_based3.getText());
 
-                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR()) {
-                            JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r cannot be used in the 3rd iteration formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                            JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r, stat, trap cannot be used in the 3rd iteration formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                             return;
                         }
 
@@ -176,8 +169,8 @@ public class UserFormulaIterationBasedDialog extends JDialog {
 
                         s.parser.parse(field_formula_it_based4.getText());
 
-                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR()) {
-                            JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r cannot be used in the 4th iteration formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                            JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r, stat, trap cannot be used in the 4th iteration formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                             return;
                         }
 

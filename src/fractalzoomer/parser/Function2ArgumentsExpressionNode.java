@@ -142,6 +142,11 @@ public class Function2ArgumentsExpressionNode implements ExpressionNode {
     public static final int SDIST = 22;
 
     /**
+     * function id for the Nth root function
+     */
+    public static final int ROOT = 23;
+
+    /**
      * the function to apply to the arguments
      */
     private AbstractTwoArgumentFunction function;
@@ -264,6 +269,10 @@ public class Function2ArgumentsExpressionNode implements ExpressionNode {
                 function = new DistanceSquaredFunction();
                 break;
 
+            case ROOT:
+                function = new RootFunction();
+                break;
+
         }
     }
 
@@ -380,6 +389,10 @@ public class Function2ArgumentsExpressionNode implements ExpressionNode {
             return Function2ArgumentsExpressionNode.SDIST;
         }
 
+        if (str.equals("root")) {
+            return Function2ArgumentsExpressionNode.ROOT;
+        }
+
         throw new ParserException("Unexpected Function " + str + " found.");
     }
 
@@ -392,7 +405,7 @@ public class Function2ArgumentsExpressionNode implements ExpressionNode {
      * @return a string containing all the function names
      */
     public static String getAllFunctions() {
-        return "bipol|ibipol|inflect|foldu|foldd|foldl|foldr|foldi|foldo|shear|cmp|add|sub|mul|div|rem|pow|logn|fuzz|normn|rot|dist|sdist";
+        return "bipol|ibipol|inflect|foldu|foldd|foldl|foldr|foldi|foldo|shear|cmp|add|sub|mul|div|rem|pow|logn|fuzz|normn|rot|dist|sdist|root";
     }
 
     /**

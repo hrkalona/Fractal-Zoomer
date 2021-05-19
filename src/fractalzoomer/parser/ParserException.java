@@ -63,9 +63,14 @@ public class ParserException extends RuntimeException
   public String getMessage()
   {
     String msg = super.getMessage();
-    if (token != null)
+    if (token != null && !token.sequence.isEmpty())
     {
-      msg = msg.replace("%s", token.sequence);
+      if(msg.indexOf("%s") != -1) {
+          msg = msg.replace("%s", token.sequence);
+      }
+      else {
+          msg = msg + " Before token \"" + token.sequence + "\".";
+      }
     }
     return msg;
   }

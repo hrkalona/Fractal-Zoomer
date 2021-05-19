@@ -16,17 +16,10 @@
  */
 package fractalzoomer.palettes;
 
+import fractalzoomer.core.interpolation.*;
 import fractalzoomer.main.MainWindow;
-import fractalzoomer.core.interpolation.AccelerationInterpolation;
-import fractalzoomer.core.interpolation.CatmullRom2Interpolation;
-import fractalzoomer.core.interpolation.CatmullRomInterpolation;
-import fractalzoomer.core.interpolation.CosineInterpolation;
-import fractalzoomer.core.interpolation.DecelerationInterpolation;
-import fractalzoomer.core.interpolation.ExponentialInterpolation;
-import fractalzoomer.core.interpolation.LinearInterpolation;
-import fractalzoomer.core.interpolation.SigmoidInterpolation;
-import fractalzoomer.core.interpolation.InterpolationMethod;
-import java.awt.Color;
+
+import java.awt.*;
 
 public class PaletteColorSmooth extends PaletteColor {
     private InterpolationMethod interpolator;
@@ -60,6 +53,15 @@ public class PaletteColorSmooth extends PaletteColor {
              case MainWindow.INTERPOLATION_SIGMOID:
                  interpolator = new SigmoidInterpolation();
                  break;
+            case MainWindow.INTERPOLATION_QUADRATIC:
+                interpolator = new QuadraticInterpolation();
+                break;
+            case MainWindow.INTERPOLATION_CUBIC:
+                interpolator = new CubicInterpolation();
+                break;
+            case MainWindow.INTERPOLATION_SQRT:
+                interpolator = new SqrtInterpolation();
+                break;
         }     
 
     }

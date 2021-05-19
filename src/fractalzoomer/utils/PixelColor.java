@@ -17,11 +17,9 @@
 package fractalzoomer.utils;
 
 import fractalzoomer.gui.RoundedPanel;
-import java.awt.AWTException;
-import java.awt.Color;
-import java.awt.MouseInfo;
-import java.awt.Robot;
-import javax.swing.JLabel;
+
+import javax.swing.*;
+import java.awt.*;
 
 /**
  *

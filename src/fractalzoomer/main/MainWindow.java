@@ -36,90 +36,47 @@
 package fractalzoomer.main;
 
 //import com.alee.laf.WebLookAndFeel;
+
 import fractalzoomer.bailout_conditions.SkipBailoutCondition;
-import fractalzoomer.main.app_settings.Settings;
-import fractalzoomer.core.drawing_algorithms.BoundaryTracingDraw;
-import fractalzoomer.core.drawing_algorithms.BruteForceDraw;
 import fractalzoomer.core.Complex;
-import fractalzoomer.core.drawing_algorithms.DivideAndConquerDraw;
+import fractalzoomer.core.Derivative;
 import fractalzoomer.core.DrawOrbit;
 import fractalzoomer.core.ThreadDraw;
-import fractalzoomer.palettes.CustomPalette;
-import fractalzoomer.parser.ParserException;
+import fractalzoomer.core.drawing_algorithms.BoundaryTracingDraw;
+import fractalzoomer.core.drawing_algorithms.BruteForceDraw;
+import fractalzoomer.core.drawing_algorithms.DivideAndConquerDraw;
 import fractalzoomer.gui.*;
 import fractalzoomer.main.app_settings.BumpMapSettings;
 import fractalzoomer.main.app_settings.LightSettings;
+import fractalzoomer.main.app_settings.Settings;
 import fractalzoomer.main.app_settings.StatisticsSettings;
+import fractalzoomer.palettes.CustomPalette;
 import fractalzoomer.palettes.PresetPalette;
 import fractalzoomer.parser.Parser;
+import fractalzoomer.parser.ParserException;
 import fractalzoomer.utils.ColorAlgorithm;
 import fractalzoomer.utils.CompleteImageTask;
 import fractalzoomer.utils.MathUtils;
-import java.awt.BasicStroke;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Cursor;
-import java.awt.Desktop;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.GradientPaint;
-import java.awt.Graphics2D;
-import java.awt.Point;
-import java.awt.RenderingHints;
-import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
-import java.awt.event.MouseWheelEvent;
-import java.awt.event.MouseWheelListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowStateListener;
+
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.plaf.basic.BasicFileChooserUI;
+import java.awt.*;
+import java.awt.event.*;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
+import java.io.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.Timer;
-import javax.imageio.ImageIO;
-import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JMenuBar;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-import javax.swing.JRadioButtonMenuItem;
-import javax.swing.JScrollPane;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
-import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.plaf.basic.BasicFileChooserUI;
 
 /**
  *
@@ -371,7 +328,7 @@ public class MainWindow extends JFrame implements Constants {
 
         file_menu = new FileMenu(ptr, "File");
 
-        options_menu = new OptionsMenu(ptr, "Options", s.ps, s.ps2, s.fns.smoothing, show_orbit_converging_point, s.fns.apply_plane_on_julia, s.fns.apply_plane_on_julia_seed, s.fns.out_coloring_algorithm, s.fns.in_coloring_algorithm, s.fns.function, s.fns.plane_type, s.fns.bailout_test_algorithm, s.color_blending, s.temp_color_cycling_location, s.temp_color_cycling_location_second_palette);
+        options_menu = new OptionsMenu(ptr, "Options", s.ps, s.ps2, s.fns.smoothing, show_orbit_converging_point, s.fns.apply_plane_on_julia, s.fns.apply_plane_on_julia_seed, s.fns.out_coloring_algorithm, s.fns.in_coloring_algorithm, s.fns.function, s.fns.plane_type, s.fns.bailout_test_algorithm, s.color_blending, s.temp_color_cycling_location, s.temp_color_cycling_location_second_palette, s.fns.preffs.functionFilter, s.fns.postffs.functionFilter);
 
         fractal_functions = options_menu.getFractalFunctions();
 
@@ -1011,336 +968,6 @@ public class MainWindow extends JFrame implements Constants {
             case MAGNET2:
                 temp += "   Magnet 2";
                 break;
-            case NEWTON3:
-                temp += "   Newton p(z) = z^3 -1";
-                break;
-            case NEWTON4:
-                temp += "   Newton p(z) = z^4 -1";
-                break;
-            case NEWTONGENERALIZED3:
-                temp += "   Newton p(z) = z^3 -2z +2";
-                break;
-            case NEWTONGENERALIZED8:
-                temp += "   Newton p(z) = z^8 +15z^4 -16";
-                break;
-            case NEWTONSIN:
-                temp += "   Newton f(z) = sin(z)";
-                break;
-            case NEWTONCOS:
-                temp += "   Newton f(z) = cos(z)";
-                break;
-            case NEWTONPOLY:
-                temp += "   Newton " + s.poly;
-                break;
-            case NEWTONFORMULA:
-                temp += "   Newton Formula";
-                break;
-            case HALLEY3:
-                temp += "   Halley p(z) = z^3 -1";
-                break;
-            case HALLEY4:
-                temp += "   Halley p(z) = z^4 -1";
-                break;
-            case HALLEYGENERALIZED3:
-                temp += "   Halley p(z) = z^3 -2z +2";
-                break;
-            case HALLEYGENERALIZED8:
-                temp += "   Halley p(z) = z^8 +15z^4 -16";
-                break;
-            case HALLEYSIN:
-                temp += "   Halley f(z) = sin(z)";
-                break;
-            case HALLEYCOS:
-                temp += "   Halley f(z) = cos(z)";
-                break;
-            case HALLEYPOLY:
-                temp += "   Halley " + s.poly;
-                break;
-            case HALLEYFORMULA:
-                temp += "   Halley Formula";
-                break;
-            case SCHRODER3:
-                temp += "   Schroder p(z) = z^3 -1";
-                break;
-            case SCHRODER4:
-                temp += "   Schroder p(z) = z^4 -1";
-                break;
-            case SCHRODERGENERALIZED3:
-                temp += "   Schroder p(z) = z^3 -2z +2";
-                break;
-            case SCHRODERGENERALIZED8:
-                temp += "   Schroder p(z) = z^8 +15z^4 -16";
-                break;
-            case SCHRODERSIN:
-                temp += "   Schroder f(z) = sin(z)";
-                break;
-            case SCHRODERCOS:
-                temp += "   Schroder f(z) = cos(z)";
-                break;
-            case SCHRODERPOLY:
-                temp += "   Schroder " + s.poly;
-                break;
-            case SCHRODERFORMULA:
-                temp += "   Schroder Formula";
-                break;
-            case HOUSEHOLDER3:
-                temp += "   Householder p(z) = z^3 -1";
-                break;
-            case HOUSEHOLDER4:
-                temp += "   Householder p(z) = z^4 -1";
-                break;
-            case HOUSEHOLDERGENERALIZED3:
-                temp += "   Householder p(z) = z^3 -2z +2";
-                break;
-            case HOUSEHOLDERGENERALIZED8:
-                temp += "   Householder p(z) = z^8 +15z^4 -16";
-                break;
-            case HOUSEHOLDERSIN:
-                temp += "   Householder f(z) = sin(z)";
-                break;
-            case HOUSEHOLDERCOS:
-                temp += "   Householder f(z) = cos(z)";
-                break;
-            case HOUSEHOLDERPOLY:
-                temp += "   Householder " + s.poly;
-                break;
-            case HOUSEHOLDERFORMULA:
-                temp += "   Householder Formula";
-                break;
-            case SECANT3:
-                temp += "   Secant p(z) = z^3 -1";
-                break;
-            case SECANT4:
-                temp += "   Secant p(z) = z^4 -1";
-                break;
-            case SECANTGENERALIZED3:
-                temp += "   Secant p(z) = z^3 -2z +2";
-                break;
-            case SECANTGENERALIZED8:
-                temp += "   Secant p(z) = z^8 +15z^4 -16";
-                break;
-            case SECANTCOS:
-                temp += "   Secant f(z) = cos(z)";
-                break;
-            case SECANTPOLY:
-                temp += "   Secant " + s.poly;
-                break;
-            case SECANTFORMULA:
-                temp += "   Secant Formula";
-                break;
-            case STEFFENSEN3:
-                temp += "   Steffensen p(z) = z^3 -1";
-                break;
-            case STEFFENSEN4:
-                temp += "   Steffensen p(z) = z^4 -1";
-                break;
-            case STEFFENSENGENERALIZED3:
-                temp += "   Steffensen p(z) = z^3 -2z +2";
-                break;
-            case STEFFENSENPOLY:
-                temp += "   Steffensen " + s.poly;
-                break;
-            case STEFFENSENFORMULA:
-                temp += "   Steffensen Formula";
-                break;
-            case MULLER3:
-                temp += "   Muller p(z) = z^3 -1";
-                break;
-            case MULLER4:
-                temp += "   Muller p(z) = z^4 -1";
-                break;
-            case MULLERGENERALIZED3:
-                temp += "   Muller p(z) = z^3 -2z +2";
-                break;
-            case MULLERGENERALIZED8:
-                temp += "   Muller p(z) = z^8 +15z^4 -16";
-                break;
-            case MULLERSIN:
-                temp += "   Muller f(z) = sin(z)";
-                break;
-            case MULLERCOS:
-                temp += "   Muller f(z) = cos(z)";
-                break;
-            case MULLERPOLY:
-                temp += "   Muller " + s.poly;
-                break;
-            case MULLERFORMULA:
-                temp += "   Muller Formula";
-                break;
-            case PARHALLEY3:
-                temp += "   Parhalley p(z) = z^3 -1";
-                break;
-            case PARHALLEY4:
-                temp += "   Parhalley p(z) = z^4 -1";
-                break;
-            case PARHALLEYGENERALIZED3:
-                temp += "   Parhalley p(z) = z^3 -2z +2";
-                break;
-            case PARHALLEYGENERALIZED8:
-                temp += "   Parhalley p(z) = z^8 +15z^4 -16";
-                break;
-            case PARHALLEYSIN:
-                temp += "   Parhalley f(z) = sin(z)";
-                break;
-            case PARHALLEYCOS:
-                temp += "   Parhalley f(z) = cos(z)";
-                break;
-            case PARHALLEYPOLY:
-                temp += "   Parhalley " + s.poly;
-                break;
-            case PARHALLEYFORMULA:
-                temp += "   Parhalley Formula";
-                break;
-            case LAGUERRE3:
-                temp += "   Laguerre p(z) = z^3 -1";
-                break;
-            case LAGUERRE4:
-                temp += "   Laguerre p(z) = z^4 -1";
-                break;
-            case LAGUERREGENERALIZED3:
-                temp += "   Laguerre p(z) = z^3 -2z +2";
-                break;
-            case LAGUERREGENERALIZED8:
-                temp += "   Laguerre p(z) = z^8 +15z^4 -16";
-                break;
-            case LAGUERRESIN:
-                temp += "   Laguerre f(z) = sin(z)";
-                break;
-            case LAGUERRECOS:
-                temp += "   Laguerre f(z) = cos(z)";
-                break;
-            case LAGUERREPOLY:
-                temp += "   Laguerre " + s.poly;
-                break;
-            case LAGUERREFORMULA:
-                temp += "   Laguerre Formula";
-                break;
-            case DURAND_KERNER3:
-                temp += "   Durand/Kerner p(z) = z^3 -1";
-                break;
-            case DURAND_KERNER4:
-                temp += "   Durand/Kerner p(z) = z^4 -1";
-                break;
-            case DURAND_KERNERGENERALIZED3:
-                temp += "   Durand/Kerner p(z) = z^3 -2z +2";
-                break;
-            case DURAND_KERNERGENERALIZED8:
-                temp += "   Durand/Kerner p(z) = z^8 +15z^4 -16";
-                break;
-            case DURAND_KERNERPOLY:
-                temp += "   Durand/Kerner " + s.poly;
-                break;
-            case BAIRSTOW3:
-                temp += "   Bairstow p(z) = z^3 -1";
-                break;
-            case BAIRSTOW4:
-                temp += "   Bairstow p(z) = z^4 -1";
-                break;
-            case BAIRSTOWGENERALIZED3:
-                temp += "   Bairstow p(z) = z^3 -2z +2";
-                break;
-            case BAIRSTOWGENERALIZED8:
-                temp += "   Bairstow p(z) = z^8 +15z^4 -16";
-                break;
-            case BAIRSTOWPOLY:
-                temp += "   Bairstow " + s.poly;
-                break;
-            case NEWTON_HINES3:
-                temp += "   Newton-Hines p(z) = z^3 -1";
-                break;
-            case NEWTON_HINES4:
-                temp += "   Newton-Hines p(z) = z^4 -1";
-                break;
-            case NEWTON_HINESGENERALIZED3:
-                temp += "   Newton-Hines p(z) = z^3 -2z +2";
-                break;
-            case NEWTON_HINESGENERALIZED8:
-                temp += "   Newton-Hines p(z) = z^8 +15z^4 -16";
-                break;
-            case NEWTON_HINESSIN:
-                temp += "   Newton-Hines f(z) = sin(z)";
-                break;
-            case NEWTON_HINESCOS:
-                temp += "   Newton-Hines f(z) = cos(z)";
-                break;
-            case NEWTON_HINESPOLY:
-                temp += "   Newton-Hines " + s.poly;
-                break;
-            case NEWTON_HINESFORMULA:
-                temp += "   Newton-Hines Formula";
-                break;
-            case WHITTAKER3:
-                temp += "   Whittaker p(z) = z^3 -1";
-                break;
-            case WHITTAKER4:
-                temp += "   Whittaker p(z) = z^4 -1";
-                break;
-            case WHITTAKERGENERALIZED3:
-                temp += "   Whittaker p(z) = z^3 -2z +2";
-                break;
-            case WHITTAKERGENERALIZED8:
-                temp += "   Whittaker p(z) = z^8 +15z^4 -16";
-                break;
-            case WHITTAKERSIN:
-                temp += "   Whittaker f(z) = sin(z)";
-                break;
-            case WHITTAKERCOS:
-                temp += "   Whittaker f(z) = cos(z)";
-                break;
-            case WHITTAKERPOLY:
-                temp += "   Whittaker " + s.poly;
-                break;
-            case WHITTAKERFORMULA:
-                temp += "   Whittaker Formula";
-                break;
-            case WHITTAKERDOUBLECONVEX3:
-                temp += "   Whittaker DblCon p(z) = z^3 -1";
-                break;
-            case WHITTAKERDOUBLECONVEX4:
-                temp += "   Whittaker DblCon p(z) = z^4 -1";
-                break;
-            case WHITTAKERDOUBLECONVEXGENERALIZED3:
-                temp += "   Whittaker DblCon p(z) = z^3 -2z +2";
-                break;
-            case WHITTAKERDOUBLECONVEXGENERALIZED8:
-                temp += "   Whittaker DblCon p(z) = z^8 +15z^4 -16";
-                break;
-            case WHITTAKERDOUBLECONVEXSIN:
-                temp += "   Whittaker DblCon f(z) = sin(z)";
-                break;
-            case WHITTAKERDOUBLECONVEXCOS:
-                temp += "   Whittaker DblCon f(z) = cos(z)";
-                break;
-            case WHITTAKERDOUBLECONVEXPOLY:
-                temp += "   Whittaker DblCon " + s.poly;
-                break;
-            case WHITTAKERDOUBLECONVEXFORMULA:
-                temp += "   Whittaker DblCon Formula";
-                break;
-            case SUPERHALLEY3:
-                temp += "   Super Halley p(z) = z^3 -1";
-                break;
-            case SUPERHALLEY4:
-                temp += "   Super Halley p(z) = z^4 -1";
-                break;
-            case SUPERHALLEYGENERALIZED3:
-                temp += "   Super Halley p(z) = z^3 -2z +2";
-                break;
-            case SUPERHALLEYGENERALIZED8:
-                temp += "   Super Halley p(z) = z^8 +15z^4 -16";
-                break;
-            case SUPERHALLEYSIN:
-                temp += "   Super Halley f(z) = sin(z)";
-                break;
-            case SUPERHALLEYCOS:
-                temp += "   Super Halley f(z) = cos(z)";
-                break;
-            case SUPERHALLEYPOLY:
-                temp += "   Super Halley " + s.poly;
-                break;
-            case SUPERHALLEYFORMULA:
-                temp += "   Super Halley Formula";
-                break;
             case MANDEL_NEWTON:
                 temp += "   Mandel Newton Variation";
                 break;
@@ -1348,55 +975,7 @@ public class MainWindow extends JFrame implements Constants {
                 temp += "   Lambert W Variation";
                 break;
             case NOVA:
-                switch (s.fns.nova_method) {
-
-                    case NOVA_NEWTON:
-                        temp += "   Nova-Newton, e: " + Complex.toString2(s.fns.z_exponent_nova[0], s.fns.z_exponent_nova[1]) + ", r: " + Complex.toString2(s.fns.relaxation[0], s.fns.relaxation[1]);
-                        break;
-                    case NOVA_HALLEY:
-                        temp += "   Nova-Halley, e: " + Complex.toString2(s.fns.z_exponent_nova[0], s.fns.z_exponent_nova[1]) + ", r: " + Complex.toString2(s.fns.relaxation[0], s.fns.relaxation[1]);
-                        break;
-                    case NOVA_SCHRODER:
-                        temp += "   Nova-Schroder, e: " + Complex.toString2(s.fns.z_exponent_nova[0], s.fns.z_exponent_nova[1]) + ", r: " + Complex.toString2(s.fns.relaxation[0], s.fns.relaxation[1]);
-                        break;
-                    case NOVA_HOUSEHOLDER:
-                        temp += "   Nova-Householder, e: " + Complex.toString2(s.fns.z_exponent_nova[0], s.fns.z_exponent_nova[1]) + ", r: " + Complex.toString2(s.fns.relaxation[0], s.fns.relaxation[1]);
-                        break;
-                    case NOVA_SECANT:
-                        temp += "   Nova-Secant, e: " + Complex.toString2(s.fns.z_exponent_nova[0], s.fns.z_exponent_nova[1]) + ", r: " + Complex.toString2(s.fns.relaxation[0], s.fns.relaxation[1]);
-                        break;
-                    case NOVA_STEFFENSEN:
-                        temp += "   Nova-Steffensen, e: " + Complex.toString2(s.fns.z_exponent_nova[0], s.fns.z_exponent_nova[1]) + ", r: " + Complex.toString2(s.fns.relaxation[0], s.fns.relaxation[1]);
-                        break;
-                    case NOVA_MULLER:
-                        temp += "   Nova-Muller, e: " + Complex.toString2(s.fns.z_exponent_nova[0], s.fns.z_exponent_nova[1]) + ", r: " + Complex.toString2(s.fns.relaxation[0], s.fns.relaxation[1]);
-                        break;
-                    case NOVA_PARHALLEY:
-                        temp += "   Nova-Parhallley, e: " + Complex.toString2(s.fns.z_exponent_nova[0], s.fns.z_exponent_nova[1]) + ", r: " + Complex.toString2(s.fns.relaxation[0], s.fns.relaxation[1]);
-                        break;
-                    case NOVA_LAGUERRE:
-                        temp += "   Nova-Laguerre, e: " + Complex.toString2(s.fns.z_exponent_nova[0], s.fns.z_exponent_nova[1]) + ", r: " + Complex.toString2(s.fns.relaxation[0], s.fns.relaxation[1]);
-                        break;
-                    case NOVA_WHITTAKER:
-                        temp += "   Nova-Whitakker, e: " + Complex.toString2(s.fns.z_exponent_nova[0], s.fns.z_exponent_nova[1]) + ", r: " + Complex.toString2(s.fns.relaxation[0], s.fns.relaxation[1]);
-                        break;
-                    case NOVA_WHITTAKER_DOUBLE_CONVEX:
-                        temp += "   Nova-Whittaker DblCon, e: " + Complex.toString2(s.fns.z_exponent_nova[0], s.fns.z_exponent_nova[1]) + ", r: " + Complex.toString2(s.fns.relaxation[0], s.fns.relaxation[1]);
-                        break;
-                    case NOVA_SUPER_HALLEY:
-                        temp += "   Nova-Super Halley, e: " + Complex.toString2(s.fns.z_exponent_nova[0], s.fns.z_exponent_nova[1]) + ", r: " + Complex.toString2(s.fns.relaxation[0], s.fns.relaxation[1]);
-                        break;
-                    case NOVA_MIDPOINT:
-                        temp += "   Nova-Midpoint, e: " + Complex.toString2(s.fns.z_exponent_nova[0], s.fns.z_exponent_nova[1]) + ", r: " + Complex.toString2(s.fns.relaxation[0], s.fns.relaxation[1]);
-                        break;
-                    case NOVA_TRAUB_OSTROWSKI:
-                        temp += "   Nova-Traub-Ostrowski, e: " + Complex.toString2(s.fns.z_exponent_nova[0], s.fns.z_exponent_nova[1]) + ", r: " + Complex.toString2(s.fns.relaxation[0], s.fns.relaxation[1]);
-                        break;
-                    case NOVA_STIRLING:
-                        temp += "   Nova-Stirling, e: " + Complex.toString2(s.fns.z_exponent_nova[0], s.fns.z_exponent_nova[1]) + ", r: " + Complex.toString2(s.fns.relaxation[0], s.fns.relaxation[1]);
-                        break;
-                }
-
+                temp += "   Nova-" + Constants.novaMethods[s.fns.nova_method] + ", e: " + Complex.toString2(s.fns.z_exponent_nova[0], s.fns.z_exponent_nova[1]) + ", r: " + Complex.toString2(s.fns.relaxation[0], s.fns.relaxation[1]);
                 break;
             case BARNSLEY1:
                 temp += "   Barnsley 1";
@@ -1638,6 +1217,46 @@ public class MainWindow extends JFrame implements Constants {
             case COUPLED_MANDELBROT_BURNING_SHIP:
                 temp += "   Coupled Mandelbrot-Burning Ship";
                 break;
+             default:
+
+                 if(Settings.isRootSolvingMethod(s.fns.function)) {
+                     String methodName = FractalFunctionsMenu.functionNames[s.fns.function];
+
+                     if (methodName.endsWith(" Generalized 3")) {
+                         methodName = methodName.replace(" Generalized 3", "");
+                     } else if (methodName.endsWith(" Generalized 8")) {
+                         methodName = methodName.replace(" Generalized 8", "");
+                     } else if (methodName.endsWith(" 3")) {
+                         methodName = methodName.replace(" 3", "");
+                     } else if (methodName.endsWith(" 4")) {
+                         methodName = methodName.replace(" 4", "");
+                     } else if (methodName.endsWith(" Sin")) {
+                         methodName = methodName.replace(" Sin", "");
+                     } else if (methodName.endsWith(" Cos")) {
+                         methodName = methodName.replace(" Cos", "");
+                     } else if (methodName.endsWith(" Polynomial")) {
+                         methodName = methodName.replace(" Polynomial", "");
+                     }
+
+                     if (Settings.isRoot3Function(s.fns.function)) {
+                         temp += "   " + methodName + " " + "p(z) = z^3 -1";
+                     } else if (Settings.isRoot4Function(s.fns.function)) {
+                         temp += "   " + methodName + " " + "p(z) = z^4 -1";
+                     } else if (Settings.isRootGeneralized3Function(s.fns.function)) {
+                         temp += "   " + methodName + " " + "p(z) = z^3 -2z +2";
+                     } else if (Settings.isRootGeneralized8Function(s.fns.function)) {
+                         temp += "   " + methodName + " " + "p(z) = z^8 +15z^4 -16";
+                     } else if (Settings.isRootSinFunction(s.fns.function)) {
+                         temp += "   " + methodName + " " + "f(z) = sin(z)";
+                     } else if (Settings.isRootCosFunction(s.fns.function)) {
+                         temp += "   " + methodName + " " + "f(z) = cos(z)";
+                     } else if (Settings.isRootPolynomialFunction(s.fns.function)) {
+                         temp += "   " + methodName + " " + s.poly;
+                     } else if (Settings.isRootFormulaFunction(s.fns.function)) {
+                         temp += "   " + methodName;
+                     }
+                 }
+                 break;
 
         }
 
@@ -1886,6 +1505,12 @@ public class MainWindow extends JFrame implements Constants {
             options_menu.getInColoringMenu().setEnabledAllButMaxIterations(true);
         }
 
+        if (s.ots.useTraps  || s.fns.tcs.trueColorIn || (s.sts.statistic && s.sts.statisticGroup == 2 && s.sts.equicontinuityOverrideColoring)) {
+            periodicity_checking = false;
+            options_menu.getPeriodicityChecking().setSelected(false);
+            options_menu.getPeriodicityChecking().setEnabled(false);
+        }
+
         resetFunctions();
 
         options_menu.getBurningShipOpt().setEnabled(true);
@@ -2100,7 +1725,7 @@ public class MainWindow extends JFrame implements Constants {
         tools_menu.getDomainColoring().setSelected(s.ds.domain_coloring);
         toolbar.getDomainColoringButton().setSelected(s.ds.domain_coloring);
 
-        if (s.ots.useTraps || s.fns.tcs.trueColorIn) {
+        if (s.ots.useTraps || s.fns.tcs.trueColorIn || (s.sts.statistic && s.sts.statisticGroup == 2 && s.sts.equicontinuityOverrideColoring)) {
             tools_menu.getColorCycling().setEnabled(false);
             toolbar.getColorCyclingButton().setEnabled(false);
             options_menu.getPeriodicityChecking().setEnabled(false);
@@ -2119,127 +1744,6 @@ public class MainWindow extends JFrame implements Constants {
         options_menu.getColorsMenu().updateIcons(s);
 
         switch (s.fns.function) {
-            case NEWTON3:
-            case NEWTON4:
-            case NEWTONGENERALIZED3:
-            case NEWTONGENERALIZED8:
-            case NEWTONSIN:
-            case NEWTONCOS:
-            case HALLEY3:
-            case HALLEY4:
-            case HALLEYGENERALIZED3:
-            case HALLEYGENERALIZED8:
-            case HALLEYSIN:
-            case HALLEYCOS:
-            case SCHRODER3:
-            case SCHRODER4:
-            case SCHRODERGENERALIZED3:
-            case SCHRODERGENERALIZED8:
-            case SCHRODERSIN:
-            case SCHRODERCOS:
-            case HOUSEHOLDER3:
-            case HOUSEHOLDER4:
-            case HOUSEHOLDERGENERALIZED3:
-            case HOUSEHOLDERGENERALIZED8:
-            case HOUSEHOLDERSIN:
-            case HOUSEHOLDERCOS:
-            case SECANT3:
-            case SECANT4:
-            case SECANTGENERALIZED3:
-            case SECANTGENERALIZED8:
-            case SECANTCOS:
-            case STEFFENSEN3:
-            case STEFFENSEN4:
-            case STEFFENSENGENERALIZED3:
-            case MULLER3:
-            case MULLER4:
-            case MULLERGENERALIZED3:
-            case MULLERGENERALIZED8:
-            case MULLERSIN:
-            case MULLERCOS:
-            case PARHALLEY3:
-            case PARHALLEY4:
-            case PARHALLEYGENERALIZED3:
-            case PARHALLEYGENERALIZED8:
-            case PARHALLEYSIN:
-            case PARHALLEYCOS:
-            case LAGUERRE3:
-            case LAGUERRE4:
-            case LAGUERREGENERALIZED3:
-            case LAGUERREGENERALIZED8:
-            case LAGUERRESIN:
-            case LAGUERRECOS:
-            case DURAND_KERNER3:
-            case DURAND_KERNER4:
-            case DURAND_KERNERGENERALIZED3:
-            case DURAND_KERNERGENERALIZED8:
-            case BAIRSTOW3:
-            case BAIRSTOW4:
-            case BAIRSTOWGENERALIZED3:
-            case BAIRSTOWGENERALIZED8:
-            case NEWTONFORMULA:
-            case HALLEYFORMULA:
-            case SCHRODERFORMULA:
-            case HOUSEHOLDERFORMULA:
-            case SECANTFORMULA:
-            case STEFFENSENFORMULA:
-            case MULLERFORMULA:
-            case PARHALLEYFORMULA:
-            case LAGUERREFORMULA:
-            case MAGNETIC_PENDULUM:
-            case LAMBERT_W_VARIATION:
-            case NEWTON_HINES3:
-            case NEWTON_HINES4:
-            case NEWTON_HINESGENERALIZED3:
-            case NEWTON_HINESGENERALIZED8:
-            case NEWTON_HINESSIN:
-            case NEWTON_HINESCOS:
-            case NEWTON_HINESFORMULA:
-            case WHITTAKER3:
-            case WHITTAKER4:
-            case WHITTAKERGENERALIZED3:
-            case WHITTAKERGENERALIZED8:
-            case WHITTAKERSIN:
-            case WHITTAKERCOS:
-            case WHITTAKERFORMULA:
-            case WHITTAKERDOUBLECONVEX3:
-            case WHITTAKERDOUBLECONVEX4:
-            case WHITTAKERDOUBLECONVEXGENERALIZED3:
-            case WHITTAKERDOUBLECONVEXGENERALIZED8:
-            case WHITTAKERDOUBLECONVEXSIN:
-            case WHITTAKERDOUBLECONVEXCOS:
-            case WHITTAKERDOUBLECONVEXFORMULA:
-            case SUPERHALLEY3:
-            case SUPERHALLEY4:
-            case SUPERHALLEYGENERALIZED3:
-            case SUPERHALLEYGENERALIZED8:
-            case SUPERHALLEYSIN:
-            case SUPERHALLEYCOS:
-            case SUPERHALLEYFORMULA:
-                optionsEnableShortcut2();
-                break;
-            case MANDELPOLY:
-            case NEWTONPOLY:
-            case HALLEYPOLY:
-            case SCHRODERPOLY:
-            case HOUSEHOLDERPOLY:
-            case SECANTPOLY:
-            case STEFFENSENPOLY:
-            case MULLERPOLY:
-            case PARHALLEYPOLY:
-            case LAGUERREPOLY:
-            case DURAND_KERNERPOLY:
-            case BAIRSTOWPOLY:
-            case NEWTON_HINESPOLY:
-            case WHITTAKERPOLY:
-            case WHITTAKERDOUBLECONVEXPOLY:
-            case SUPERHALLEYPOLY:
-                if (s.fns.function == MANDELPOLY) {
-                    optionsEnableShortcut();
-                } else {
-                    optionsEnableShortcut2();
-                }
-                break;
             case NOVA:
                 options_menu.getPeriodicityChecking().setEnabled(false);
                 options_menu.getBailout().setEnabled(false);
@@ -2350,7 +1854,19 @@ public class MainWindow extends JFrame implements Constants {
                 optionsEnableShortcut();
                 break;
             default:
-                optionsEnableShortcut();
+                if(s.isPolynomialFunction()) {
+                    if (s.fns.function == MANDELPOLY) {
+                        optionsEnableShortcut();
+                    } else {
+                        optionsEnableShortcut2();
+                    }
+                }
+                else if(Settings.isRootSolvingMethod(s.fns.function)) {
+                    optionsEnableShortcut2();
+                }
+                else {
+                    optionsEnableShortcut();
+                }
                 break;
         }
 
@@ -3052,7 +2568,7 @@ public class MainWindow extends JFrame implements Constants {
                     Arrays.fill(((DataBufferInt) image.getRaster().getDataBuffer()).getData(), Color.BLACK.getRGB());
                 }
 
-                if (s.ots.useTraps || s.fns.tcs.trueColorOut || s.fns.tcs.trueColorIn) {
+                if (s.ots.useTraps || s.fns.tcs.trueColorOut || s.fns.tcs.trueColorIn || (s.sts.statistic && s.sts.statisticGroup == 2 && s.sts.equicontinuityOverrideColoring)) {
                     if (julia_map) {
                         createThreadsJuliaMap();
                     } else if (s.d3s.d3) {
@@ -3128,7 +2644,7 @@ public class MainWindow extends JFrame implements Constants {
                 Arrays.fill(((DataBufferInt) image.getRaster().getDataBuffer()).getData(), Color.BLACK.getRGB());
             }
 
-            if (s.fs.filters[ANTIALIASING] || s.ots.useTraps || s.ds.domain_coloring || s.fns.tcs.trueColorOut || s.fns.tcs.trueColorIn) {
+            if (s.fs.filters[ANTIALIASING] || s.ots.useTraps || s.ds.domain_coloring || s.fns.tcs.trueColorOut || s.fns.tcs.trueColorIn || (s.sts.statistic && s.sts.statisticGroup == 2 && s.sts.equicontinuityOverrideColoring)) {
                 if (julia_map) {
                     createThreadsJuliaMap();
                 } else if (s.d3s.d3) {
@@ -4308,6 +3824,8 @@ public class MainWindow extends JFrame implements Constants {
         toolbar.getRotationButton().setEnabled(option);
         toolbar.getSaveImageButton().setEnabled(option);
         toolbar.getSaveImageAndSettignsButton().setEnabled(option);
+        toolbar.getCurrentFunction().setEnabled(option);
+        toolbar.getCurrentPlane().setEnabled(option);
         options_menu.getPoint().setEnabled(option);
 
         if (!s.ds.domain_coloring && !s.isConvergingType() && s.fns.function != KLEINIAN) {
@@ -4322,7 +3840,7 @@ public class MainWindow extends JFrame implements Constants {
             options_menu.getDirectColor().setEnabled(option);
         }
 
-        if (!s.ds.domain_coloring && !s.isConvergingType() && s.fns.function != KLEINIAN && s.fns.function != SIERPINSKI_GASKET && s.fns.function != INERTIA_GRAVITY && !s.ots.useTraps && !s.fns.tcs.trueColorIn) {
+        if (!s.ds.domain_coloring && !s.isConvergingType() && s.fns.function != KLEINIAN && s.fns.function != SIERPINSKI_GASKET && s.fns.function != INERTIA_GRAVITY && !s.ots.useTraps && !s.fns.tcs.trueColorIn && !(s.sts.statistic && s.sts.statisticGroup == 2 && s.sts.equicontinuityOverrideColoring)) {
             options_menu.getPeriodicityChecking().setEnabled(option);
         }
 
@@ -4335,7 +3853,7 @@ public class MainWindow extends JFrame implements Constants {
             toolbar.getJuliaButton().setEnabled(option);
         }
 
-        if (!zoom_window && !orbit && !color_cycling && !s.d3s.d3 && !s.ots.useTraps && !s.useDirectColor && !s.fns.tcs.trueColorOut && !s.fns.tcs.trueColorIn) {
+        if (!zoom_window && !orbit && !color_cycling && !s.d3s.d3 && !s.ots.useTraps && !s.useDirectColor && !s.fns.tcs.trueColorOut && !s.fns.tcs.trueColorIn && !(s.sts.statistic && s.sts.statisticGroup == 2 && s.sts.equicontinuityOverrideColoring)) {
             tools_menu.getColorCycling().setEnabled(option);
             toolbar.getColorCyclingButton().setEnabled(option);
         }
@@ -4589,131 +4107,11 @@ public class MainWindow extends JFrame implements Constants {
             case MANDELBROTWTH:
                 new MandelbrotWthDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
                 return;
-            case NEWTON3:
-            case NEWTON4:
-            case NEWTONGENERALIZED3:
-            case NEWTONGENERALIZED8:
-            case NEWTONSIN:
-            case NEWTONCOS:
-            case HALLEY3:
-            case HALLEY4:
-            case HALLEYGENERALIZED3:
-            case HALLEYGENERALIZED8:
-            case HALLEYSIN:
-            case HALLEYCOS:
-            case SCHRODER3:
-            case SCHRODER4:
-            case SCHRODERGENERALIZED3:
-            case SCHRODERGENERALIZED8:
-            case SCHRODERSIN:
-            case SCHRODERCOS:
-            case HOUSEHOLDER3:
-            case HOUSEHOLDER4:
-            case HOUSEHOLDERGENERALIZED3:
-            case HOUSEHOLDERGENERALIZED8:
-            case HOUSEHOLDERSIN:
-            case HOUSEHOLDERCOS:
-            case SECANT3:
-            case SECANT4:
-            case SECANTGENERALIZED3:
-            case SECANTGENERALIZED8:
-            case SECANTCOS:
-            case STEFFENSEN3:
-            case STEFFENSEN4:
-            case STEFFENSENGENERALIZED3:
-            case MULLER3:
-            case MULLER4:
-            case MULLERGENERALIZED3:
-            case MULLERGENERALIZED8:
-            case MULLERSIN:
-            case MULLERCOS:
-            case PARHALLEY3:
-            case PARHALLEY4:
-            case PARHALLEYGENERALIZED3:
-            case PARHALLEYGENERALIZED8:
-            case PARHALLEYSIN:
-            case PARHALLEYCOS:
-            case LAGUERRE3:
-            case LAGUERRE4:
-            case LAGUERREGENERALIZED3:
-            case LAGUERREGENERALIZED8:
-            case LAGUERRESIN:
-            case LAGUERRECOS:
-            case DURAND_KERNER3:
-            case DURAND_KERNER4:
-            case DURAND_KERNERGENERALIZED3:
-            case DURAND_KERNERGENERALIZED8:
-            case BAIRSTOW3:
-            case BAIRSTOW4:
-            case BAIRSTOWGENERALIZED3:
-            case BAIRSTOWGENERALIZED8:
-            case LAMBERT_W_VARIATION:
-            case NEWTON_HINES3:
-            case NEWTON_HINES4:
-            case NEWTON_HINESGENERALIZED3:
-            case NEWTON_HINESGENERALIZED8:
-            case NEWTON_HINESSIN:
-            case NEWTON_HINESCOS:
-            case WHITTAKER3:
-            case WHITTAKER4:
-            case WHITTAKERGENERALIZED3:
-            case WHITTAKERGENERALIZED8:
-            case WHITTAKERSIN:
-            case WHITTAKERCOS:
-            case WHITTAKERDOUBLECONVEX3:
-            case WHITTAKERDOUBLECONVEX4:
-            case WHITTAKERDOUBLECONVEXGENERALIZED3:
-            case WHITTAKERDOUBLECONVEXGENERALIZED8:
-            case WHITTAKERDOUBLECONVEXSIN:
-            case WHITTAKERDOUBLECONVEXCOS:
-            case SUPERHALLEY3:
-            case SUPERHALLEY4:
-            case SUPERHALLEYGENERALIZED3:
-            case SUPERHALLEYGENERALIZED8:
-            case SUPERHALLEYSIN:
-            case SUPERHALLEYCOS:
-                optionsEnableShortcut2();
-                break;
-            case MANDELPOLY:
-            case NEWTONPOLY:
-            case HALLEYPOLY:
-            case SCHRODERPOLY:
-            case HOUSEHOLDERPOLY:
-            case SECANTPOLY:
-            case STEFFENSENPOLY:
-            case MULLERPOLY:
-            case PARHALLEYPOLY:
-            case LAGUERREPOLY:
-            case DURAND_KERNERPOLY:
-            case BAIRSTOWPOLY:
-            case NEWTON_HINESPOLY:
-            case WHITTAKERPOLY:
-            case WHITTAKERDOUBLECONVEXPOLY:
-            case SUPERHALLEYPOLY:
-                new PolynomialDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
-                return;
             case GENERIC_CaZbdZe:
                 new GenericCaZbdZeDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
                 return;
             case GENERIC_CpAZpBC:
                 new GenericCpAZpBCDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
-                return;
-            case NEWTONFORMULA:
-            case NEWTON_HINESFORMULA:
-                new RootFindingTwoFunctionsDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
-                return;
-            case HALLEYFORMULA:
-            case SCHRODERFORMULA:
-            case HOUSEHOLDERFORMULA:
-            case PARHALLEYFORMULA:
-            case WHITTAKERFORMULA:
-            case WHITTAKERDOUBLECONVEXFORMULA:
-            case SUPERHALLEYFORMULA:
-                new RootFindingThreeFunctionsDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
-                return;
-            case SECANTFORMULA:
-            case STEFFENSENFORMULA:
-                new RootFindingOneFunctionDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
                 return;
             case MULLERFORMULA:
                 new MullerFormulaDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
@@ -4808,7 +4206,32 @@ public class MainWindow extends JFrame implements Constants {
                 new UserFormulaNovaDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
                 return;
             default:
-                optionsEnableShortcut();
+                if(Settings.isTwoFunctionsRootFindingMethodFormula(s.fns.function)) {
+                    new RootFindingTwoFunctionsDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
+                    return;
+                }
+                else if(Settings.isThreeFunctionsRootFindingMethodFormula(s.fns.function)) {
+                    new RootFindingThreeFunctionsDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
+                    return;
+                }
+                else if(Settings.isFourFunctionsRootFindingMethodFormula(s.fns.function)) {
+                    new RootFindingFourFunctionsDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
+                    return;
+                }
+                else if(Settings.isOneFunctionsRootFindingMethodFormula(s.fns.function)) {
+                    new RootFindingOneFunctionDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
+                    return;
+                }
+                else if(s.isPolynomialFunction()) {
+                    new PolynomialDialog(ptr, s, oldSelected, fractal_functions, wasMagnetType, wasConvergingType, wasSimpleType, wasMagneticPendulumType);
+                    return;
+                }
+                else if(Settings.isRootSolvingMethod(s.fns.function)) {
+                    optionsEnableShortcut2();
+                }
+                else {
+                    optionsEnableShortcut();
+                }
                 break;
         }
 
@@ -5619,25 +5042,12 @@ public class MainWindow extends JFrame implements Constants {
     public void resetFunctions() {
 
         for (int k = 0; k < fractal_functions.length; k++) {
-            if (k != PARHALLEY3 && k != PARHALLEY4 && k != PARHALLEYGENERALIZED3 && k != PARHALLEYGENERALIZED8 && k != PARHALLEYSIN && k != PARHALLEYCOS && k != PARHALLEYPOLY && k != PARHALLEYFORMULA
-                    && k != BAIRSTOW3 && k != BAIRSTOW4 && k != BAIRSTOWGENERALIZED3 && k != BAIRSTOWGENERALIZED8 && k != BAIRSTOWPOLY
-                    && k != DURAND_KERNER3 && k != DURAND_KERNER4 && k != DURAND_KERNERGENERALIZED3 && k != DURAND_KERNERGENERALIZED8 && k != DURAND_KERNERPOLY
-                    && k != LAGUERRE3 && k != LAGUERRE4 && k != LAGUERREGENERALIZED3 && k != LAGUERREGENERALIZED8 && k != LAGUERRESIN && k != LAGUERRECOS && k != LAGUERREPOLY && k != LAGUERREFORMULA
-                    && k != NEWTON_HINES3 && k != NEWTON_HINES4 && k != NEWTON_HINESGENERALIZED3 && k != NEWTON_HINESGENERALIZED8 && k != NEWTON_HINESSIN && k != NEWTON_HINESCOS && k != NEWTON_HINESPOLY && k != NEWTON_HINESFORMULA
-                    && k != WHITTAKER3 && k != WHITTAKER4 && k != WHITTAKERGENERALIZED3 && k != WHITTAKERGENERALIZED8 && k != WHITTAKERSIN && k != WHITTAKERCOS && k != WHITTAKERPOLY && k != WHITTAKERFORMULA
-                    && k != WHITTAKERDOUBLECONVEX3 && k != WHITTAKERDOUBLECONVEX4 && k != WHITTAKERDOUBLECONVEXGENERALIZED3 && k != WHITTAKERDOUBLECONVEXGENERALIZED8 && k != WHITTAKERDOUBLECONVEXSIN && k != WHITTAKERDOUBLECONVEXCOS && k != WHITTAKERDOUBLECONVEXPOLY && k != WHITTAKERDOUBLECONVEXFORMULA
-                    && k != SUPERHALLEY3 && k != SUPERHALLEY4 && k != SUPERHALLEYGENERALIZED3 && k != SUPERHALLEYGENERALIZED8 && k != SUPERHALLEYSIN && k != SUPERHALLEYCOS && k != SUPERHALLEYPOLY && k != SUPERHALLEYFORMULA
-                    && k != MULLER3 && k != MULLER4 && k != MULLERGENERALIZED3 && k != MULLERGENERALIZED8 && k != MULLERSIN && k != MULLERCOS && k != MULLERPOLY && k != MULLERFORMULA
-                    && k != KLEINIAN && k != MAGNETIC_PENDULUM && k != INERTIA_GRAVITY && k != SIERPINSKI_GASKET && k != NEWTON3 && k != STEFFENSENPOLY && k != NEWTON4 && k != NEWTONGENERALIZED3 && k != NEWTONGENERALIZED8 && k != NEWTONSIN && k != NEWTONCOS && k != NEWTONPOLY
-                    && k != HALLEY3 && k != HALLEY4 && k != HALLEYGENERALIZED3 && k != HALLEYGENERALIZED8 && k != HALLEYSIN && k != HALLEYCOS && k != HALLEYPOLY
-                    && k != SCHRODER3 && k != SCHRODER4 && k != SCHRODERGENERALIZED3 && k != SCHRODERGENERALIZED8 && k != SCHRODERSIN && k != SCHRODERCOS && k != SCHRODERPOLY
-                    && k != HOUSEHOLDER3 && k != HOUSEHOLDER4 && k != HOUSEHOLDERGENERALIZED3 && k != HOUSEHOLDERGENERALIZED8 && k != HOUSEHOLDERSIN && k != HOUSEHOLDERCOS && k != HOUSEHOLDERPOLY
-                    && k != SECANT3 && k != SECANT4 && k != SECANTGENERALIZED3 && k != SECANTGENERALIZED8 && k != SECANTCOS && k != SECANTPOLY
-                    && k != STEFFENSEN3 && k != STEFFENSEN4 && k != STEFFENSENGENERALIZED3 && k != NEWTONFORMULA && k != HALLEYFORMULA && k != SCHRODERFORMULA && k != HOUSEHOLDERFORMULA && k != SECANTFORMULA && k != STEFFENSENFORMULA) {
+
+            if (!Settings.isRootSolvingMethod(k) && k != KLEINIAN && k != MAGNETIC_PENDULUM && k != INERTIA_GRAVITY && k != SIERPINSKI_GASKET && !s.exterior_de) {
                 fractal_functions[k].setEnabled(true);
             }
 
-            if ((k == KLEINIAN || k == INERTIA_GRAVITY || k == SIERPINSKI_GASKET || k == MAGNETIC_PENDULUM) && !s.fns.julia && !julia_map && !s.fns.perturbation && !s.fns.init_val) {
+            if ((k == KLEINIAN || k == INERTIA_GRAVITY || k == SIERPINSKI_GASKET || k == MAGNETIC_PENDULUM) && !s.fns.julia && !julia_map && !s.fns.perturbation && !s.fns.init_val && !s.exterior_de) {
                 fractal_functions[k].setEnabled(true);
             }
         }
@@ -5655,16 +5065,17 @@ public class MainWindow extends JFrame implements Constants {
             resetFunctions();
         }
 
-        if (s.fns.out_coloring_algorithm == DISTANCE_ESTIMATOR || s.exterior_de) {
+        if (s.fns.out_coloring_algorithm == USER_OUTCOLORING_ALGORITHM) {
+            new OutColoringFormulaDialog(ptr, s, oldSelected, out_coloring_modes);
+            return;
+        }
+        else if (s.fns.out_coloring_algorithm == DISTANCE_ESTIMATOR || s.exterior_de) {
             for (int k = 1; k < fractal_functions.length; k++) {
                 fractal_functions[k].setEnabled(false);
             }
         } else if (s.fns.out_coloring_algorithm == ESCAPE_TIME_FIELD_LINES2 || s.fns.out_coloring_algorithm == ESCAPE_TIME_FIELD_LINES || s.fns.out_coloring_algorithm == ESCAPE_TIME_ESCAPE_RADIUS || s.fns.out_coloring_algorithm == ESCAPE_TIME_GRID || s.fns.out_coloring_algorithm == BIOMORPH || s.fns.out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER || s.fns.out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER2 || s.fns.out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER3 || s.fns.out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER4 || s.fns.out_coloring_algorithm == ESCAPE_TIME_GAUSSIAN_INTEGER5 || s.fns.out_coloring_algorithm == ITERATIONS_PLUS_RE || s.fns.out_coloring_algorithm == ITERATIONS_PLUS_IM || s.fns.out_coloring_algorithm == ITERATIONS_PLUS_RE_DIVIDE_IM || s.fns.out_coloring_algorithm == ITERATIONS_PLUS_RE_PLUS_IM_PLUS_RE_DIVIDE_IM || s.fns.out_coloring_algorithm == ESCAPE_TIME_ALGORITHM2 || s.fns.out_coloring_algorithm == BANDED) {
             rootFindingMethodsSetEnabled(false);
-        } else if (s.fns.out_coloring_algorithm == USER_OUTCOLORING_ALGORITHM) {
-            new OutColoringFormulaDialog(ptr, s, oldSelected, out_coloring_modes);
-            return;
-        } else if (!julia_map && !s.fns.julia && !s.fns.perturbation && !s.fns.init_val && !s.isRootFindingMethod()) {
+        } else if (!julia_map && !s.fns.julia && !s.fns.perturbation && !s.fns.init_val && !Settings.isRootFindingMethod(s.fns.function)) {
             rootFindingMethodsSetEnabled(true);
         }
 
@@ -5673,7 +5084,7 @@ public class MainWindow extends JFrame implements Constants {
     }
 
     public void setUserOutColoringModePost() {
-        if (!julia_map && !s.fns.julia && !s.fns.perturbation && !s.fns.init_val && !s.isRootFindingMethod()) {
+        if (!julia_map && !s.fns.julia && !s.fns.perturbation && !s.fns.init_val && !Settings.isRootFindingMethod(s.fns.function) && !s.exterior_de) {
             rootFindingMethodsSetEnabled(true);
         }
     }
@@ -5743,7 +5154,7 @@ public class MainWindow extends JFrame implements Constants {
         s.fns.in_coloring_algorithm = temp;
 
         if (s.fns.in_coloring_algorithm == MAX_ITERATIONS) {
-            if (!s.ds.domain_coloring && !s.isConvergingType() && s.fns.function != KLEINIAN && s.fns.function != SIERPINSKI_GASKET && s.fns.function != INERTIA_GRAVITY && !s.ots.useTraps && !s.fns.tcs.trueColorIn) {
+            if (!s.ds.domain_coloring && !s.isConvergingType() && s.fns.function != KLEINIAN && s.fns.function != SIERPINSKI_GASKET && s.fns.function != INERTIA_GRAVITY && !s.ots.useTraps && !s.fns.tcs.trueColorIn && !(s.sts.statistic && s.sts.statisticGroup == 2 && s.sts.equicontinuityOverrideColoring)) {
                 options_menu.getPeriodicityChecking().setEnabled(true);
             }
         } else if (s.fns.in_coloring_algorithm == USER_INCOLORING_ALGORITHM) {
@@ -7400,117 +6811,12 @@ public class MainWindow extends JFrame implements Constants {
 
     private void rootFindingMethodsSetEnabled(boolean option) {
 
-        fractal_functions[MAGNETIC_PENDULUM].setEnabled(option);
-        fractal_functions[NEWTON3].setEnabled(option);
-        fractal_functions[NEWTON4].setEnabled(option);
-        fractal_functions[NEWTONGENERALIZED3].setEnabled(option);
-        fractal_functions[NEWTONGENERALIZED8].setEnabled(option);
-        fractal_functions[NEWTONSIN].setEnabled(option);
-        fractal_functions[NEWTONCOS].setEnabled(option);
-        fractal_functions[NEWTONPOLY].setEnabled(option);
-        fractal_functions[NEWTONFORMULA].setEnabled(option);
-        fractal_functions[HALLEY3].setEnabled(option);
-        fractal_functions[HALLEY4].setEnabled(option);
-        fractal_functions[HALLEYGENERALIZED3].setEnabled(option);
-        fractal_functions[HALLEYGENERALIZED8].setEnabled(option);
-        fractal_functions[HALLEYSIN].setEnabled(option);
-        fractal_functions[HALLEYCOS].setEnabled(option);
-        fractal_functions[HALLEYPOLY].setEnabled(option);
-        fractal_functions[HALLEYFORMULA].setEnabled(option);
-        fractal_functions[SCHRODER3].setEnabled(option);
-        fractal_functions[SCHRODER4].setEnabled(option);
-        fractal_functions[SCHRODERGENERALIZED3].setEnabled(option);
-        fractal_functions[SCHRODERGENERALIZED8].setEnabled(option);
-        fractal_functions[SCHRODERSIN].setEnabled(option);
-        fractal_functions[SCHRODERCOS].setEnabled(option);
-        fractal_functions[SCHRODERPOLY].setEnabled(option);
-        fractal_functions[SCHRODERFORMULA].setEnabled(option);
-        fractal_functions[HOUSEHOLDER3].setEnabled(option);
-        fractal_functions[HOUSEHOLDER4].setEnabled(option);
-        fractal_functions[HOUSEHOLDERGENERALIZED3].setEnabled(option);
-        fractal_functions[HOUSEHOLDERGENERALIZED8].setEnabled(option);
-        fractal_functions[HOUSEHOLDERSIN].setEnabled(option);
-        fractal_functions[HOUSEHOLDERCOS].setEnabled(option);
-        fractal_functions[HOUSEHOLDERPOLY].setEnabled(option);
-        fractal_functions[HOUSEHOLDERFORMULA].setEnabled(option);
-        fractal_functions[SECANT3].setEnabled(option);
-        fractal_functions[SECANT4].setEnabled(option);
-        fractal_functions[SECANTGENERALIZED3].setEnabled(option);
-        fractal_functions[SECANTGENERALIZED8].setEnabled(option);
-        fractal_functions[SECANTCOS].setEnabled(option);
-        fractal_functions[SECANTPOLY].setEnabled(option);
-        fractal_functions[SECANTFORMULA].setEnabled(option);
-        fractal_functions[STEFFENSEN3].setEnabled(option);
-        fractal_functions[STEFFENSEN4].setEnabled(option);
-        fractal_functions[STEFFENSENGENERALIZED3].setEnabled(option);
-        fractal_functions[STEFFENSENPOLY].setEnabled(option);
-        fractal_functions[STEFFENSENFORMULA].setEnabled(option);
-        fractal_functions[MULLER3].setEnabled(option);
-        fractal_functions[MULLER4].setEnabled(option);
-        fractal_functions[MULLERGENERALIZED3].setEnabled(option);
-        fractal_functions[MULLERGENERALIZED8].setEnabled(option);
-        fractal_functions[MULLERSIN].setEnabled(option);
-        fractal_functions[MULLERCOS].setEnabled(option);
-        fractal_functions[MULLERPOLY].setEnabled(option);
-        fractal_functions[MULLERFORMULA].setEnabled(option);
-        fractal_functions[PARHALLEY3].setEnabled(option);
-        fractal_functions[PARHALLEY4].setEnabled(option);
-        fractal_functions[PARHALLEYGENERALIZED3].setEnabled(option);
-        fractal_functions[PARHALLEYGENERALIZED8].setEnabled(option);
-        fractal_functions[PARHALLEYSIN].setEnabled(option);
-        fractal_functions[PARHALLEYCOS].setEnabled(option);
-        fractal_functions[PARHALLEYPOLY].setEnabled(option);
-        fractal_functions[PARHALLEYFORMULA].setEnabled(option);
-        fractal_functions[LAGUERRE3].setEnabled(option);
-        fractal_functions[LAGUERRE4].setEnabled(option);
-        fractal_functions[LAGUERREGENERALIZED3].setEnabled(option);
-        fractal_functions[LAGUERREGENERALIZED8].setEnabled(option);
-        fractal_functions[LAGUERRESIN].setEnabled(option);
-        fractal_functions[LAGUERRECOS].setEnabled(option);
-        fractal_functions[LAGUERREPOLY].setEnabled(option);
-        fractal_functions[LAGUERREFORMULA].setEnabled(option);
-        fractal_functions[DURAND_KERNER3].setEnabled(option);
-        fractal_functions[DURAND_KERNER4].setEnabled(option);
-        fractal_functions[DURAND_KERNERGENERALIZED3].setEnabled(option);
-        fractal_functions[DURAND_KERNERGENERALIZED8].setEnabled(option);
-        fractal_functions[DURAND_KERNERPOLY].setEnabled(option);
-        fractal_functions[BAIRSTOW3].setEnabled(option);
-        fractal_functions[BAIRSTOW4].setEnabled(option);
-        fractal_functions[BAIRSTOWGENERALIZED3].setEnabled(option);
-        fractal_functions[BAIRSTOWGENERALIZED8].setEnabled(option);
-        fractal_functions[BAIRSTOWPOLY].setEnabled(option);
-        fractal_functions[NEWTON_HINES3].setEnabled(option);
-        fractal_functions[NEWTON_HINES4].setEnabled(option);
-        fractal_functions[NEWTON_HINESGENERALIZED3].setEnabled(option);
-        fractal_functions[NEWTON_HINESGENERALIZED8].setEnabled(option);
-        fractal_functions[NEWTON_HINESSIN].setEnabled(option);
-        fractal_functions[NEWTON_HINESCOS].setEnabled(option);
-        fractal_functions[NEWTON_HINESPOLY].setEnabled(option);
-        fractal_functions[NEWTON_HINESFORMULA].setEnabled(option);
-        fractal_functions[WHITTAKER3].setEnabled(option);
-        fractal_functions[WHITTAKER4].setEnabled(option);
-        fractal_functions[WHITTAKERGENERALIZED3].setEnabled(option);
-        fractal_functions[WHITTAKERGENERALIZED8].setEnabled(option);
-        fractal_functions[WHITTAKERSIN].setEnabled(option);
-        fractal_functions[WHITTAKERCOS].setEnabled(option);
-        fractal_functions[WHITTAKERPOLY].setEnabled(option);
-        fractal_functions[WHITTAKERFORMULA].setEnabled(option);
-        fractal_functions[WHITTAKERDOUBLECONVEX3].setEnabled(option);
-        fractal_functions[WHITTAKERDOUBLECONVEX4].setEnabled(option);
-        fractal_functions[WHITTAKERDOUBLECONVEXGENERALIZED3].setEnabled(option);
-        fractal_functions[WHITTAKERDOUBLECONVEXGENERALIZED8].setEnabled(option);
-        fractal_functions[WHITTAKERDOUBLECONVEXSIN].setEnabled(option);
-        fractal_functions[WHITTAKERDOUBLECONVEXCOS].setEnabled(option);
-        fractal_functions[WHITTAKERDOUBLECONVEXPOLY].setEnabled(option);
-        fractal_functions[WHITTAKERDOUBLECONVEXFORMULA].setEnabled(option);
-        fractal_functions[SUPERHALLEY3].setEnabled(option);
-        fractal_functions[SUPERHALLEY4].setEnabled(option);
-        fractal_functions[SUPERHALLEYGENERALIZED3].setEnabled(option);
-        fractal_functions[SUPERHALLEYGENERALIZED8].setEnabled(option);
-        fractal_functions[SUPERHALLEYSIN].setEnabled(option);
-        fractal_functions[SUPERHALLEYCOS].setEnabled(option);
-        fractal_functions[SUPERHALLEYPOLY].setEnabled(option);
-        fractal_functions[SUPERHALLEYFORMULA].setEnabled(option);
+        for(int i = 0; i < fractal_functions.length; i++) {
+            if(Settings.isRootFindingMethod(i)) {
+                fractal_functions[i].setEnabled(option);
+            }
+        }
+
     }
 
     public void optionsEnableShortcut() {
@@ -7916,6 +7222,10 @@ public class MainWindow extends JFrame implements Constants {
             writer.println("[Quick Draw]");
             writer.println("tiles " + ThreadDraw.TILE_SIZE);
 
+            writer.println();
+            writer.println("[Core]");
+            writer.println("derivative_step " + Derivative.DZ.getRe());
+
             writer.close();
         } catch (FileNotFoundException ex) {
 
@@ -8207,7 +7517,7 @@ public class MainWindow extends JFrame implements Constants {
                         try {
                             int temp = Integer.parseInt(tokenizer.nextToken());
 
-                            if (temp >= 0 && temp <= 9) {
+                            if (temp >= 0 && temp <= 10) {
                                 CustomPaletteEditorFrame.setRandomPaletteAlgorithm(temp);
                             }
                         } catch (Exception ex) {
@@ -8258,7 +7568,19 @@ public class MainWindow extends JFrame implements Constants {
                         } catch (Exception ex) {
                         }
 
-                    } else {
+                    }
+                    else if (token.equals("derivative_step") && tokenizer.countTokens() == 1) {
+                        try {
+                            double temp = Double.parseDouble(tokenizer.nextToken());
+
+                            if (temp > 0) {
+                                Derivative.DZ = new Complex(temp, temp);
+                                Derivative.calculateConstants();
+                            }
+                        } catch (Exception ex) {
+                        }
+
+                    }else {
                         continue;
                     }
                 }
@@ -8301,7 +7623,7 @@ public class MainWindow extends JFrame implements Constants {
 
         whole_image_done = false;
 
-        if (s.fs.filters[ANTIALIASING] || s.ds.domain_coloring || s.ots.useTraps || s.fns.tcs.trueColorOut || s.fns.tcs.trueColorIn) {
+        if (s.fs.filters[ANTIALIASING] || s.ds.domain_coloring || s.ots.useTraps || s.fns.tcs.trueColorOut || s.fns.tcs.trueColorIn || (s.sts.statistic && s.sts.statisticGroup == 2 && s.sts.equicontinuityOverrideColoring)) {
 
             if (s.d3s.d3) {
                 Arrays.fill(((DataBufferInt) image.getRaster().getDataBuffer()).getData(), Color.BLACK.getRGB());
@@ -8533,7 +7855,7 @@ public class MainWindow extends JFrame implements Constants {
 
         Object[] labels = {info_panel,
             variables,
-            new JLabel(supported_vars),
+            new JLabel(supported_vars + ", rand"),
             operations,
             new JLabel("+ - * / % ^ ( ) ,"),
             constants,
@@ -8546,10 +7868,10 @@ public class MainWindow extends JFrame implements Constants {
             new JLabel("hcvcos, exsec, excsc, avsin, avcos, acvsin, acvcos, ahvsin, ahvcos, ahcvsin, ahcvcos, aexsec, aexcsc"),
             other,
             new JLabel("exp, log, log10, log2, sqrt, abs, absre, absim, conj, re, im, norm, arg, gamma, fact, erf, rzeta, gi, rec, flip, round,"),
-            new JLabel("ceil, floor, trunc, deta, snorm, f1, ... f60"),
+            new JLabel("ceil, floor, trunc, deta, snorm, fib, f1, ... f60"),
             two_arg,
-            new JLabel("logn, bipol, ibipol, inflect, foldu, foldd, foldl, foldr, foldi, foldo, shear, cmp, fuzz, normn, rot, dist, sdist, f', f'',"),
-                new JLabel("g1, ... g60"),
+            new JLabel("logn, bipol, ibipol, inflect, foldu, foldd, foldl, foldr, foldi, foldo, shear, cmp, fuzz, normn, rot, dist, sdist, root, f',"),
+            new JLabel("f'', f''', g1, ... g60"),
             multi_arg,
             new JLabel("m1, ... m60, k1, ... k60")
         };
@@ -9123,7 +8445,7 @@ public class MainWindow extends JFrame implements Constants {
 
         whole_image_done = false;
 
-        if (s.fs.filters[ANTIALIASING] || s.ots.useTraps || s.fns.tcs.trueColorOut || s.fns.tcs.trueColorIn) {
+        if (s.fs.filters[ANTIALIASING] || s.ots.useTraps || s.fns.tcs.trueColorOut || s.fns.tcs.trueColorIn || (s.sts.statistic && s.sts.statisticGroup == 2 && s.sts.equicontinuityOverrideColoring)) {
             if (julia_map) {
                 createThreadsJuliaMap();
             } else {
@@ -9152,7 +8474,7 @@ public class MainWindow extends JFrame implements Constants {
 
     public void openStatisticsColoringFrame() {
         resetOrbit();
-        new StatisticsColoringFrame(ptr, s.sts, s);
+        new StatisticsColoringFrame(ptr, s.sts, s, periodicity_checking);
     }
 
     public void setHistogramColoring() {
@@ -9164,6 +8486,12 @@ public class MainWindow extends JFrame implements Constants {
         s.sts = new StatisticsSettings(sts);
 
         options_menu.getProcessing().updateIcons(s);
+
+        if(sts.statistic && sts.statisticGroup == 2 && sts.equicontinuityOverrideColoring) {
+            tools_menu.getColorCycling().setEnabled(false);
+            toolbar.getColorCyclingButton().setEnabled(false);
+            options_menu.getPeriodicityChecking().setEnabled(false);
+        }
 
         setOptions(false);
 
@@ -9288,6 +8616,45 @@ public class MainWindow extends JFrame implements Constants {
 
         options_menu.getPeriodicityChecking().setEnabled(false);
         setOutTrueColorModePost();
+
+    }
+
+    public void setFunctionFilter(int filter, boolean isPostFilter) {
+
+        resetOrbit();
+        int oldSelection;
+
+        if(isPostFilter) {
+            oldSelection = s.fns.postffs.functionFilter;
+            s.fns.postffs.functionFilter = filter;
+
+            if (s.fns.postffs.functionFilter == USER_FUNCTION_FILTER) {
+                new UserFunctionFilterDialog(ptr, s, oldSelection,  "User Post Function Filter", s.fns.postffs, options_menu.getPostFunctionFilters());
+                return;
+            }
+        }
+        else {
+            oldSelection = s.fns.preffs.functionFilter;
+            s.fns.preffs.functionFilter = filter;
+
+            if (s.fns.preffs.functionFilter == USER_FUNCTION_FILTER) {
+                new UserFunctionFilterDialog(ptr, s, oldSelection,  "User Pre Function Filter", s.fns.preffs, options_menu.getPreFunctionFilters());
+                return;
+            }
+        }
+
+        ptr.defaultFractalSettings();
+    }
+
+    public void clickCurrentFunction() {
+
+        fractal_functions[s.fns.function].doClick();
+
+    }
+
+    public void clickCurrentPlane() {
+
+        planes[s.fns.plane_type].doClick();
 
     }
 

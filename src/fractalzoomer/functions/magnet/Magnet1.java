@@ -17,16 +17,17 @@
 package fractalzoomer.functions.magnet;
 
 import fractalzoomer.core.Complex;
-import fractalzoomer.fractal_options.perturbation.DefaultPerturbation;
 import fractalzoomer.fractal_options.initial_value.InitialValue;
-import fractalzoomer.fractal_options.perturbation.Perturbation;
 import fractalzoomer.fractal_options.initial_value.VariableConditionalInitialValue;
-import fractalzoomer.fractal_options.perturbation.VariableConditionalPerturbation;
 import fractalzoomer.fractal_options.initial_value.VariableInitialValue;
+import fractalzoomer.fractal_options.perturbation.DefaultPerturbation;
+import fractalzoomer.fractal_options.perturbation.Perturbation;
+import fractalzoomer.fractal_options.perturbation.VariableConditionalPerturbation;
 import fractalzoomer.fractal_options.perturbation.VariablePerturbation;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
 import fractalzoomer.main.app_settings.StatisticsSettings;
+
 import java.util.ArrayList;
 
 /**
@@ -168,7 +169,7 @@ public class Magnet1 extends MagnetType {
     }
 
     @Override
-    protected void function(Complex[] complex) {
+    public void function(Complex[] complex) {
 
         complex[0] = (complex[0].square().plus_mutable(complex[1].sub(1))).divide_mutable(complex[0].times(2).plus_mutable(complex[1].sub(2))).square_mutable();
 

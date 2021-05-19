@@ -23,6 +23,7 @@ import fractalzoomer.main.app_settings.OrbitTrapSettings;
 import fractalzoomer.main.app_settings.StatisticsSettings;
 import fractalzoomer.parser.ExpressionNode;
 import fractalzoomer.parser.Parser;
+
 import java.util.ArrayList;
 
 /**
@@ -33,7 +34,6 @@ public class SecantFormula extends SecantRootFindingMethod {
 
     private ExpressionNode expr;
     private Parser parser;
-    private int iterations;
     private Complex point;
 
     public SecantFormula(double xCenter, double yCenter, double size, int max_iterations, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int converging_smooth_algorithm, String user_fz_formula, OrbitTrapSettings ots, StatisticsSettings sts) {
@@ -82,7 +82,7 @@ public class SecantFormula extends SecantRootFindingMethod {
     }
 
     @Override
-    protected void function(Complex[] complex) {
+    public void function(Complex[] complex) {
 
         if (parser.foundZ()) {
             parser.setZvalue(complex[0]);
@@ -98,140 +98,30 @@ public class SecantFormula extends SecantRootFindingMethod {
             }
         }
 
-        Complex fz1 = expr.getValue();
+        Complex fz = expr.getValue();
 
-        Complex temp = new Complex(complex[0]);
-        complex[0].sub_mutable(fz1.times((complex[0].sub(complex[1])).divide_mutable(fz1.sub(complex[2]))));
-        complex[1].assign(temp);
-        complex[2].assign(fz1);
+        secantMethod(complex[0], fz, complex[1], complex[2]);
+
+        setVariables(zold, zold2);
 
     }
 
     @Override
-    public double calculateFractalWithoutPeriodicity(Complex pixel) {
-        iterations = 0;
-        double temp = 0;
+    public Complex[] initialize(Complex pixel) {
 
         Complex[] complex = new Complex[3];
         complex[0] = new Complex(pixel);//z
         complex[1] = new Complex();
 
-        Complex zold = new Complex();
-        Complex zold2 = new Complex();
-        Complex start = new Complex(complex[0]);
+        zold = new Complex();
+        zold2 = new Complex();
+        start = new Complex(complex[0]);
 
         setInitVariables(start, zold, zold2, complex[1]);
 
         complex[2] = expr.getValue();
 
-        for (; iterations < max_iterations; iterations++) {
-
-            if (trap != null) {
-                trap.check(complex[0], iterations);
-            }
-
-            if (iterations > 0 && (temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
-                escaped = true;
-
-                if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(complex[0], zold, zold2, iterations, pixel, start);
-                }
-
-                Object[] object = {iterations, complex[0], temp, zold, zold2, pixel, start};
-                iterationData = object;
-                double out = out_color_algorithm.getResult(object);
-
-                out = getFinalValueOut(out);
-
-                return out;
-            }
-            zold2.assign(zold);
-            zold.assign(complex[0]);
-            function(complex);
-
-            setVariables(zold, zold2);
-
-            if (statistic != null) {
-                statistic.insert(complex[0], zold, zold2, iterations, pixel, start);
-            }
-
-        }
-
-        if (inTrueColorAlgorithm != null) {
-            setTrueColorIn(complex[0], zold, zold2, iterations, pixel, start);
-        }
-
-        Object[] object = {complex[0], zold, zold2, pixel, start};
-        iterationData = object;
-        double in = in_color_algorithm.getResult(object);
-
-        in = getFinalValueIn(in);
-
-        return in;
-
-    }
-
-    @Override
-    public void calculateFractalOrbit() {
-        iterations = 0;
-
-        Complex[] complex = new Complex[3];
-        complex[0] = new Complex(pixel_orbit);//z
-        complex[1] = new Complex();
-
-        Complex zold = new Complex();
-        Complex zold2 = new Complex();
-        Complex start = new Complex(complex[0]);
-
-        setInitVariables(start, zold, zold2, complex[1]);
-
-        complex[2] = expr.getValue();
-
-        Complex temp = null;
-
-        for (; iterations < max_iterations; iterations++) {
-            zold.assign(zold);
-            zold.assign(complex[0]);
-            function(complex);
-
-            setVariables(zold, zold2);
-
-            temp = rotation.rotateInverse(complex[0]);
-
-            if (Double.isNaN(temp.getRe()) || Double.isNaN(temp.getIm()) || Double.isInfinite(temp.getRe()) || Double.isInfinite(temp.getIm())) {
-                break;
-            }
-
-            complex_orbit.add(temp);
-        }
-
-    }
-
-    @Override
-    public Complex iterateFractalDomain(Complex pixel) {
-        iterations = 0;
-
-        Complex[] complex = new Complex[3];
-        complex[0] = new Complex(pixel);//z
-        complex[1] = new Complex();
-
-        Complex zold = new Complex();
-        Complex zold2 = new Complex();
-        Complex start = new Complex(complex[0]);
-
-        setInitVariables(start, zold, zold2, complex[1]);
-
-        complex[2] = expr.getValue();
-
-        for (; iterations < max_iterations; iterations++) {
-            zold2.assign(zold);
-            zold.assign(complex[0]);
-            function(complex);
-
-            setVariables(zold, zold2);
-        }
-
-        return complex[0];
+        return complex;
 
     }
 

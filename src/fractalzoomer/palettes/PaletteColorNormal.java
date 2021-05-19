@@ -16,7 +16,7 @@
  */
 package fractalzoomer.palettes;
 
-import java.awt.Color;
+import java.awt.*;
 
 public class PaletteColorNormal extends PaletteColor {
 

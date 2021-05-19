@@ -16,7 +16,6 @@
  */
 package fractalzoomer.main;
 
-import fractalzoomer.main.app_settings.Settings;
 import fractalzoomer.app_updater.AppUpdater;
 import fractalzoomer.core.Complex;
 import fractalzoomer.core.Derivative;
@@ -24,43 +23,23 @@ import fractalzoomer.core.ThreadDraw;
 import fractalzoomer.core.domain_coloring.DomainColoring;
 import fractalzoomer.functions.root_finding_methods.durand_kerner.DurandKernerRootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.newton_hines.NewtonHinesRootFindingMethod;
-import fractalzoomer.gui.BailoutConditionsMenu;
-import fractalzoomer.gui.ColorBlendingMenu;
-import fractalzoomer.gui.ColorTransferMenu;
-import fractalzoomer.gui.FiltersMenu;
-import fractalzoomer.gui.FractalFunctionsMenu;
-import fractalzoomer.gui.InColoringModesMenu;
-import fractalzoomer.gui.LinkLabel;
-import fractalzoomer.gui.OutColoringModesMenu;
-import fractalzoomer.gui.PaletteMenu;
-import fractalzoomer.gui.PlanesMenu;
+import fractalzoomer.gui.*;
 import fractalzoomer.main.app_settings.GradientSettings;
+import fractalzoomer.main.app_settings.Settings;
 import fractalzoomer.palettes.CustomPalette;
 import fractalzoomer.palettes.PresetPalette;
 import fractalzoomer.parser.Parser;
 import fractalzoomer.parser.ParserException;
 import fractalzoomer.utils.ColorSpaceConverter;
 import fractalzoomer.utils.MathUtils;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.GradientPaint;
-import java.awt.Graphics2D;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
-import java.nio.file.FileAlreadyExistsException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
-import javax.swing.ImageIcon;
-import javax.swing.JEditorPane;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JScrollPane;
-import javax.swing.UIManager;
+import java.nio.file.*;
 
 /**
  *
@@ -248,23 +227,23 @@ public class CommonFunctions implements Constants {
 
         overview += "<b><font color='red'>Function:</font></b> " + FractalFunctionsMenu.functionNames[s.fns.function] + "<br>";
 
-        if (s.fns.function == MANDELPOLY || s.fns.function == NEWTONPOLY || s.fns.function == HALLEYPOLY || s.fns.function == SCHRODERPOLY || s.fns.function == HOUSEHOLDERPOLY || s.fns.function == SECANTPOLY || s.fns.function == STEFFENSENPOLY || s.fns.function == MULLERPOLY || s.fns.function == PARHALLEYPOLY || s.fns.function == LAGUERREPOLY || s.fns.function == DURAND_KERNERPOLY || s.fns.function == BAIRSTOWPOLY || s.fns.function == NEWTON_HINESPOLY || s.fns.function == WHITTAKERPOLY || s.fns.function == WHITTAKERDOUBLECONVEXPOLY || s.fns.function == SUPERHALLEYPOLY) {
+        if (s.isPolynomialFunction()) {
             if (s.fns.function == MANDELPOLY) {
                 overview += tab + s.poly + " + c<br>";
             } else {
                 overview += tab + s.poly + "<br>";
             }
-        } else if (s.fns.function == NEWTON3 || s.fns.function == HALLEY3 || s.fns.function == HOUSEHOLDER3 || s.fns.function == SCHRODER3 || s.fns.function == SECANT3 || s.fns.function == STEFFENSEN3 || s.fns.function == MULLER3 || s.fns.function == PARHALLEY3 || s.fns.function == LAGUERRE3 || s.fns.function == DURAND_KERNER3 || s.fns.function == BAIRSTOW3 || s.fns.function == NEWTON_HINES3 || s.fns.function == WHITTAKER3 || s.fns.function == WHITTAKERDOUBLECONVEX3 || s.fns.function == SUPERHALLEY3) {
+        } else if (Settings.isRoot3Function(s.fns.function)) {
             overview += tab + "p(z) = z^3 - 1" + "<br>";
-        } else if (s.fns.function == NEWTON4 || s.fns.function == HALLEY4 || s.fns.function == HOUSEHOLDER4 || s.fns.function == SCHRODER4 || s.fns.function == SECANT4 || s.fns.function == STEFFENSEN4 || s.fns.function == MULLER4 || s.fns.function == PARHALLEY4 || s.fns.function == LAGUERRE4 || s.fns.function == DURAND_KERNER4 | s.fns.function == BAIRSTOW4 || s.fns.function == NEWTON_HINES4 || s.fns.function == WHITTAKER4 || s.fns.function == WHITTAKERDOUBLECONVEX4 || s.fns.function == SUPERHALLEY4) {
+        } else if (Settings.isRoot4Function(s.fns.function)) {
             overview += tab + "p(z) = z^4 - 1" + "<br>";
-        } else if (s.fns.function == NEWTONGENERALIZED3 || s.fns.function == HALLEYGENERALIZED3 || s.fns.function == HOUSEHOLDERGENERALIZED3 || s.fns.function == SCHRODERGENERALIZED3 || s.fns.function == SECANTGENERALIZED3 || s.fns.function == STEFFENSENGENERALIZED3 || s.fns.function == MULLERGENERALIZED3 || s.fns.function == PARHALLEYGENERALIZED3 || s.fns.function == LAGUERREGENERALIZED3 || s.fns.function == DURAND_KERNERGENERALIZED3 || s.fns.function == BAIRSTOWGENERALIZED3 || s.fns.function == NEWTON_HINESGENERALIZED3 || s.fns.function == WHITTAKERGENERALIZED3 || s.fns.function == WHITTAKERDOUBLECONVEXGENERALIZED3 || s.fns.function == SUPERHALLEYGENERALIZED3) {
+        } else if (Settings.isRootGeneralized3Function(s.fns.function)) {
             overview += tab + "p(z) = z^3 - 2z + 2" + "<br>";
-        } else if (s.fns.function == NEWTONGENERALIZED8 || s.fns.function == HALLEYGENERALIZED8 || s.fns.function == HOUSEHOLDERGENERALIZED8 || s.fns.function == SCHRODERGENERALIZED8 || s.fns.function == SECANTGENERALIZED8 || s.fns.function == MULLERGENERALIZED8 || s.fns.function == PARHALLEYGENERALIZED8 || s.fns.function == LAGUERREGENERALIZED8 || s.fns.function == DURAND_KERNERGENERALIZED8 || s.fns.function == BAIRSTOWGENERALIZED8 || s.fns.function == NEWTON_HINESGENERALIZED8 || s.fns.function == WHITTAKERGENERALIZED8 || s.fns.function == WHITTAKERDOUBLECONVEXGENERALIZED8 || s.fns.function == SUPERHALLEYGENERALIZED8) {
+        } else if (Settings.isRootGeneralized8Function(s.fns.function)) {
             overview += tab + "p(z) = z^8 + 15z^4 - 16" + "<br>";
-        } else if (s.fns.function == NEWTONCOS || s.fns.function == HALLEYCOS || s.fns.function == HOUSEHOLDERCOS || s.fns.function == SCHRODERCOS || s.fns.function == SECANTCOS || s.fns.function == MULLERCOS || s.fns.function == PARHALLEYCOS || s.fns.function == LAGUERRECOS || s.fns.function == NEWTON_HINESCOS || s.fns.function == WHITTAKERCOS || s.fns.function == WHITTAKERDOUBLECONVEXCOS || s.fns.function == SUPERHALLEYCOS) {
+        } else if (Settings.isRootCosFunction(s.fns.function)) {
             overview += tab + "f(z) = cos(z)" + "<br>";
-        } else if (s.fns.function == NEWTONSIN || s.fns.function == HALLEYSIN || s.fns.function == HOUSEHOLDERSIN || s.fns.function == SCHRODERSIN || s.fns.function == MULLERSIN || s.fns.function == PARHALLEYSIN || s.fns.function == LAGUERRESIN || s.fns.function == NEWTON_HINESSIN || s.fns.function == WHITTAKERSIN || s.fns.function == WHITTAKERDOUBLECONVEXSIN || s.fns.function == SUPERHALLEYSIN) {
+        } else if (Settings.isRootSinFunction(s.fns.function)) {
             overview += tab + "f(z) = sin(z)" + "<br>";
         } else if (s.fns.function == MANDELBROTNTH) {
             overview += tab + "z = z^" + s.fns.z_exponent + " + c<br>";
@@ -329,130 +308,45 @@ public class CommonFunctions implements Constants {
             overview += tab + "w = 0.1(a - b) + b<br>";
             overview += tab + "w(0) = 0.0 + 0.0i<br>";
         } else if (s.fns.function == NOVA) {
-            switch (s.fns.nova_method) {
-                case NOVA_NEWTON:
-                    overview += tab + "Newton Method<br>";
-                    break;
-                case NOVA_HALLEY:
-                    overview += tab + "Halley Method<br>";
-                    break;
-                case NOVA_SCHRODER:
-                    overview += tab + "Schroder Method<br>";
-                    break;
-                case NOVA_HOUSEHOLDER:
-                    overview += tab + "Householder Method<br>";
-                    break;
-                case NOVA_SECANT:
-                    overview += tab + "Secant Method<br>";
-                    break;
-                case NOVA_STEFFENSEN:
-                    overview += tab + "Steffensen Method<br>";
-                    break;
-                case NOVA_MULLER:
-                    overview += tab + "Muller Method<br>";
-                    break;
-                case NOVA_PARHALLEY:
-                    overview += tab + "Parhalley Method<br>";
-                    break;
-                case NOVA_LAGUERRE:
-                    overview += tab + "Laguerre Method<br>";
-                    break;
-                case NOVA_NEWTON_HINES:
-                    overview += tab + "Newton-Hines Method<br>";
-                    break;
-                case NOVA_WHITTAKER:
-                    overview += tab + "Whittaker Method<br>";
-                    break;
-                case NOVA_WHITTAKER_DOUBLE_CONVEX:
-                    overview += tab + "Whittaker Double Convex Method<br>";
-                    break;
-                case NOVA_SUPER_HALLEY:
-                    overview += tab + "Super Halley Method<br>";
-                    break;
-                case NOVA_MIDPOINT:
-                    overview += tab + "Midpoint Method<br>";
-                    break;
-                case NOVA_TRAUB_OSTROWSKI:
-                    overview += tab + "Traub-Ostrowski Method<br>";
-                    break;
-                case NOVA_STIRLING:
-                    overview += tab + "Stirling Method<br>";
-                    break;
-            }
-
+            overview += tab + Constants.novaMethods[s.fns.nova_method] + "<br>";
             overview += tab + "p(z) = z^(" + Complex.toString2(s.fns.z_exponent_nova[0], s.fns.z_exponent_nova[1]) + ") - 1<br>";
             overview += tab + "Relaxation = " + Complex.toString2(s.fns.relaxation[0], s.fns.relaxation[1]) + "<br>";
             if (s.fns.nova_method == NOVA_NEWTON_HINES) {
                 overview += tab + "k = " + Complex.toString2(s.fns.newton_hines_k[0], s.fns.newton_hines_k[1]) + "<br>";
             }
-        } else if (s.fns.function == NEWTONFORMULA) {
+        } else if (Settings.isTwoFunctionsRootFindingMethodFormula(s.fns.function)) {
             overview += tab + "f(z) = " + s.fns.user_fz_formula + "<br>";
             if (s.fns.derivative_method == Derivative.DISABLED) {
-                overview += tab + "f '(z) = " + s.fns.user_dfz_formula + "<br>";
+                overview += tab + "f'(z) = " + s.fns.user_dfz_formula + "<br>";
             }
-        } else if (s.fns.function == HALLEYFORMULA) {
+
+            if(s.fns.function == NEWTON_HINESFORMULA) {
+                overview += tab + "k = " + Complex.toString2(s.fns.newton_hines_k[0], s.fns.newton_hines_k[1]) + "<br>";
+            }
+        } else if (Settings.isThreeFunctionsRootFindingMethodFormula(s.fns.function)) {
             overview += tab + "f(z) = " + s.fns.user_fz_formula + "<br>";
 
             if (s.fns.derivative_method == Derivative.DISABLED) {
-                overview += tab + "f '(z) = " + s.fns.user_dfz_formula + "<br>";
-                overview += tab + "f ''(z) = " + s.fns.user_ddfz_formula + "<br>";
+                overview += tab + "f'(z) = " + s.fns.user_dfz_formula + "<br>";
+                overview += tab + "f''(z) = " + s.fns.user_ddfz_formula + "<br>";
             }
-        } else if (s.fns.function == SCHRODERFORMULA) {
+
+            if(s.fns.function == LAGUERREFORMULA) {
+                overview += tab + "Degree = " + Complex.toString2(s.fns.laguerre_deg[0], s.fns.laguerre_deg[1]) + "<br>";
+            }
+        } else if (Settings.isOneFunctionsRootFindingMethodFormula(s.fns.function)) {
             overview += tab + "f(z) = " + s.fns.user_fz_formula + "<br>";
+        }
+        else if (Settings.isFourFunctionsRootFindingMethodFormula(s.fns.function)) {
+            overview += tab + "f(z) = " + s.fns.user_fz_formula + "<br>";
+
             if (s.fns.derivative_method == Derivative.DISABLED) {
-                overview += tab + "f '(z) = " + s.fns.user_dfz_formula + "<br>";
-                overview += tab + "f ''(z) = " + s.fns.user_ddfz_formula + "<br>";
+                overview += tab + "f'(z) = " + s.fns.user_dfz_formula + "<br>";
+                overview += tab + "f''(z) = " + s.fns.user_ddfz_formula + "<br>";
+                overview += tab + "f'''(z) = " + s.fns.user_dddfz_formula + "<br>";
             }
-        } else if (s.fns.function == HOUSEHOLDERFORMULA) {
-            overview += tab + "f(z) = " + s.fns.user_fz_formula + "<br>";
-            if (s.fns.derivative_method == Derivative.DISABLED) {
-                overview += tab + "f '(z) = " + s.fns.user_dfz_formula + "<br>";
-                overview += tab + "f ''(z) = " + s.fns.user_ddfz_formula + "<br>";
-            }
-        } else if (s.fns.function == SECANTFORMULA) {
-            overview += tab + "f(z) = " + s.fns.user_fz_formula + "<br>";
-        } else if (s.fns.function == STEFFENSENFORMULA) {
-            overview += tab + "f(z) = " + s.fns.user_fz_formula + "<br>";
-        } else if (s.fns.function == MULLERFORMULA) {
-            overview += tab + "f(z) = " + s.fns.user_fz_formula + "<br>";
-        } else if (s.fns.function == PARHALLEYFORMULA) {
-            overview += tab + "f(z) = " + s.fns.user_fz_formula + "<br>";
-            if (s.fns.derivative_method == Derivative.DISABLED) {
-                overview += tab + "f '(z) = " + s.fns.user_dfz_formula + "<br>";
-                overview += tab + "f ''(z) = " + s.fns.user_ddfz_formula + "<br>";
-            }
-        } else if (s.fns.function == LAGUERREFORMULA) {
-            overview += tab + "f(z) = " + s.fns.user_fz_formula + "<br>";
-            if (s.fns.derivative_method == Derivative.DISABLED) {
-                overview += tab + "f '(z) = " + s.fns.user_dfz_formula + "<br>";
-                overview += tab + "f ''(z) = " + s.fns.user_ddfz_formula + "<br>";
-            }
-            overview += tab + "Degree = " + Complex.toString2(s.fns.laguerre_deg[0], s.fns.laguerre_deg[1]) + "<br>";
-        } else if (s.fns.function == NEWTON_HINESFORMULA) {
-            overview += tab + "f(z) = " + s.fns.user_fz_formula + "<br>";
-            if (s.fns.derivative_method == Derivative.DISABLED) {
-                overview += tab + "f '(z) = " + s.fns.user_dfz_formula + "<br>";
-            }
-            overview += tab + "k = " + Complex.toString2(s.fns.newton_hines_k[0], s.fns.newton_hines_k[1]) + "<br>";
-        } else if (s.fns.function == WHITTAKERFORMULA) {
-            overview += tab + "f(z) = " + s.fns.user_fz_formula + "<br>";
-            if (s.fns.derivative_method == Derivative.DISABLED) {
-                overview += tab + "f '(z) = " + s.fns.user_dfz_formula + "<br>";
-                overview += tab + "f ''(z) = " + s.fns.user_ddfz_formula + "<br>";
-            }
-        } else if (s.fns.function == WHITTAKERDOUBLECONVEXFORMULA) {
-            overview += tab + "f(z) = " + s.fns.user_fz_formula + "<br>";
-            if (s.fns.derivative_method == Derivative.DISABLED) {
-                overview += tab + "f '(z) = " + s.fns.user_dfz_formula + "<br>";
-                overview += tab + "f ''(z) = " + s.fns.user_ddfz_formula + "<br>";
-            }
-        } else if (s.fns.function == SUPERHALLEYFORMULA) {
-            overview += tab + "f(z) = " + s.fns.user_fz_formula + "<br>";
-            if (s.fns.derivative_method == Derivative.DISABLED) {
-                overview += tab + "f '(z) = " + s.fns.user_dfz_formula + "<br>";
-                overview += tab + "f ''(z) = " + s.fns.user_ddfz_formula + "<br>";
-            }
-        } else if (s.fns.function == USER_FORMULA) {
+        }
+        else if (s.fns.function == USER_FORMULA) {
             overview += tab + "z = " + s.fns.user_formula + "<br>";
             overview += tab + "c = " + s.fns.user_formula2 + "<br>";
             if (!s.ds.domain_coloring) {
@@ -571,129 +465,55 @@ public class CommonFunctions implements Constants {
             overview += tab + "Exponent = <font color='" + keyword_color + "'>average of sum</font>[<font color='" + condition_color + "'>log</font>(<font color='" + condition_color + "'>norm</font>(" + s.fns.lpns.lyapunovExponentFunction + "))]<br>";
             overview += tab + "Initial Iterations = " + s.fns.lpns.lyapunovInitializationIteratons + "<br>";
         } else if (s.fns.function == USER_FORMULA_NOVA) {
-            switch (s.fns.nova_method) {
-                case NOVA_NEWTON:
-                    overview += tab + "Newton Method<br>";
-                    overview += tab + "f(z) = " + s.fns.user_fz_formula + "<br>";
-                    if (s.fns.derivative_method == Derivative.DISABLED) {
-                        overview += tab + "f '(z) = " + s.fns.user_dfz_formula + "<br>";
-                    }
-                    break;
-                case NOVA_HALLEY:
-                    overview += tab + "Halley Method<br>";
-                    overview += tab + "f(z) = " + s.fns.user_fz_formula + "<br>";
-                    if (s.fns.derivative_method == Derivative.DISABLED) {
-                        overview += tab + "f '(z) = " + s.fns.user_dfz_formula + "<br>";
-                        overview += tab + "f ''(z) = " + s.fns.user_ddfz_formula + "<br>";
-                    }
-                    break;
-                case NOVA_SCHRODER:
-                    overview += tab + "Schroder Method<br>";
-                    overview += tab + "f(z) = " + s.fns.user_fz_formula + "<br>";
-                    if (s.fns.derivative_method == Derivative.DISABLED) {
-                        overview += tab + "f '(z) = " + s.fns.user_dfz_formula + "<br>";
-                        overview += tab + "f ''(z) = " + s.fns.user_ddfz_formula + "<br>";
-                    }
-                    break;
-                case NOVA_HOUSEHOLDER:
-                    overview += tab + "Householder Method<br>";
-                    overview += tab + "f(z) = " + s.fns.user_fz_formula + "<br>";
-                    if (s.fns.derivative_method == Derivative.DISABLED) {
-                        overview += tab + "f '(z) = " + s.fns.user_dfz_formula + "<br>";
-                        overview += tab + "f ''(z) = " + s.fns.user_ddfz_formula + "<br>";
-                    }
-                    break;
-                case NOVA_SECANT:
-                    overview += tab + "Secant Method<br>";
-                    overview += tab + "f(z) = " + s.fns.user_fz_formula + "<br>";
-                    break;
-                case NOVA_STEFFENSEN:
-                    overview += tab + "Steffensen Method<br>";
-                    overview += tab + "f(z) = " + s.fns.user_fz_formula + "<br>";
-                    break;
-                case NOVA_MULLER:
-                    overview += tab + "Muller Method<br>";
-                    overview += tab + "f(z) = " + s.fns.user_fz_formula + "<br>";
-                    break;
-                case NOVA_PARHALLEY:
-                    overview += tab + "Parhalley Method<br>";
-                    overview += tab + "f(z) = " + s.fns.user_fz_formula + "<br>";
-                    if (s.fns.derivative_method == Derivative.DISABLED) {
-                        overview += tab + "f '(z) = " + s.fns.user_dfz_formula + "<br>";
-                        overview += tab + "f ''(z) = " + s.fns.user_ddfz_formula + "<br>";
-                    }
-                    break;
-                case NOVA_LAGUERRE:
-                    overview += tab + "Laguerre Method<br>";
-                    overview += tab + "f(z) = " + s.fns.user_fz_formula + "<br>";
-                    if (s.fns.derivative_method == Derivative.DISABLED) {
-                        overview += tab + "f '(z) = " + s.fns.user_dfz_formula + "<br>";
-                        overview += tab + "f ''(z) = " + s.fns.user_ddfz_formula + "<br>";
-                    }
-                    overview += tab + "Degree = " + Complex.toString2(s.fns.laguerre_deg[0], s.fns.laguerre_deg[1]) + "<br>";
-                    break;
-                case NOVA_NEWTON_HINES:
-                    overview += tab + "Newton-Hines Method<br>";
-                    overview += tab + "f(z) = " + s.fns.user_fz_formula + "<br>";
-                    if (s.fns.derivative_method == Derivative.DISABLED) {
-                        overview += tab + "f '(z) = " + s.fns.user_dfz_formula + "<br>";
-                    }
+
+            overview += tab + Constants.novaMethods[s.fns.nova_method] + "<br>";
+
+            if(Settings.isTwoFunctionsNovaFormula(s.fns.nova_method)) {
+                overview += tab + "f(z) = " + s.fns.user_fz_formula + "<br>";
+                if (s.fns.derivative_method == Derivative.DISABLED) {
+                    overview += tab + "f'(z) = " + s.fns.user_dfz_formula + "<br>";
+                }
+
+                if(s.fns.nova_method == NOVA_NEWTON_HINES) {
                     overview += tab + "k = " + Complex.toString2(s.fns.newton_hines_k[0], s.fns.newton_hines_k[1]) + "<br>";
-                    break;
-                case NOVA_WHITTAKER:
-                    overview += tab + "Whittaker Method<br>";
-                    overview += tab + "f(z) = " + s.fns.user_fz_formula + "<br>";
-                    if (s.fns.derivative_method == Derivative.DISABLED) {
-                        overview += tab + "f '(z) = " + s.fns.user_dfz_formula + "<br>";
-                        overview += tab + "f ''(z) = " + s.fns.user_ddfz_formula + "<br>";
-                    }
-                    break;
-                case NOVA_WHITTAKER_DOUBLE_CONVEX:
-                    overview += tab + "Whittaker Double Convex Method<br>";
-                    overview += tab + "f(z) = " + s.fns.user_fz_formula + "<br>";
-                    if (s.fns.derivative_method == Derivative.DISABLED) {
-                        overview += tab + "f '(z) = " + s.fns.user_dfz_formula + "<br>";
-                        overview += tab + "f ''(z) = " + s.fns.user_ddfz_formula + "<br>";
-                    }
-                    break;
-                case NOVA_SUPER_HALLEY:
-                    overview += tab + "Super Halley Method<br>";
-                    overview += tab + "f(z) = " + s.fns.user_fz_formula + "<br>";
-                    if (s.fns.derivative_method == Derivative.DISABLED) {
-                        overview += tab + "f '(z) = " + s.fns.user_dfz_formula + "<br>";
-                        overview += tab + "f ''(z) = " + s.fns.user_ddfz_formula + "<br>";
-                    }
-                    break;
-                case NOVA_MIDPOINT:
-                    overview += tab + "Midpoint Method<br>";
-                    overview += tab + "f(z) = " + s.fns.user_fz_formula + "<br>";
-                    if (s.fns.derivative_method == Derivative.DISABLED) {
-                        overview += tab + "f '(z) = " + s.fns.user_dfz_formula + "<br>";
-                    }
-                    break;
-                case NOVA_TRAUB_OSTROWSKI:
-                    overview += tab + "Traub Ostrowski Method<br>";
-                    overview += tab + "f(z) = " + s.fns.user_fz_formula + "<br>";
-                    if (s.fns.derivative_method == Derivative.DISABLED) {
-                        overview += tab + "f '(z) = " + s.fns.user_dfz_formula + "<br>";
-                    }
-                    break;
-                case NOVA_STIRLING:
-                    overview += tab + "Stirling Method<br>";
-                    overview += tab + "f(z) = " + s.fns.user_fz_formula + "<br>";
-                    if (s.fns.derivative_method == Derivative.DISABLED) {
-                        overview += tab + "f '(z) = " + s.fns.user_dfz_formula + "<br>";
-                    }
-                    break;
+                }
             }
+            else if(Settings.isThreeFunctionsNovaFormula(s.fns.nova_method)) {
+                overview += tab + "f(z) = " + s.fns.user_fz_formula + "<br>";
+                if (s.fns.derivative_method == Derivative.DISABLED) {
+                    overview += tab + "f'(z) = " + s.fns.user_dfz_formula + "<br>";
+                    overview += tab + "f''(z) = " + s.fns.user_ddfz_formula + "<br>";
+                }
+
+                if(s.fns.nova_method == NOVA_LAGUERRE) {
+                    overview += tab + "Degree = " + Complex.toString2(s.fns.laguerre_deg[0], s.fns.laguerre_deg[1]) + "<br>";
+                }
+            }
+            else if(Settings.isFourFunctionsNovaFormula(s.fns.nova_method)) {
+                overview += tab + "f(z) = " + s.fns.user_fz_formula + "<br>";
+                if (s.fns.derivative_method == Derivative.DISABLED) {
+                    overview += tab + "f'(z) = " + s.fns.user_dfz_formula + "<br>";
+                    overview += tab + "f''(z) = " + s.fns.user_ddfz_formula + "<br>";
+                    overview += tab + "f'''(z) = " + s.fns.user_dddfz_formula + "<br>";
+                }
+            }
+            else if(Settings.isOneFunctionsNovaFormula(s.fns.nova_method)) {
+                overview += tab + "f(z) = " + s.fns.user_fz_formula + "<br>";
+            }
+
             overview += tab + "Relaxation = " + s.fns.user_relaxation_formula + "<br>";
             overview += tab + "Addend = " + s.fns.user_nova_addend_formula + "<br>";
         }
 
-        if (s.fns.function == DURAND_KERNER3 || s.fns.function == DURAND_KERNER4 || s.fns.function == DURAND_KERNERGENERALIZED3 || s.fns.function == DURAND_KERNERGENERALIZED8) {
+        if (s.fns.function == DURAND_KERNER3 || s.fns.function == DURAND_KERNER4 || s.fns.function == DURAND_KERNERGENERALIZED3 || s.fns.function == DURAND_KERNERGENERALIZED8
+        || s.fns.function == ABERTH_EHRLICH3 || s.fns.function == ABERTH_EHRLICH4 || s.fns.function == ABERTH_EHRLICHGENERALIZED3 || s.fns.function == ABERTH_EHRLICHGENERALIZED8) {
+            overview += tab + "Root Initialization Method = " + Constants.rootInitializationMethod[0] + "<br>";
             overview += tab + "a = " + DurandKernerRootFindingMethod.A + "<br>";
-        } else if (s.fns.function == DURAND_KERNERPOLY) {
-            overview += tab + "a = " + Complex.toString2(s.fns.durand_kerner_init_val[0], s.fns.durand_kerner_init_val[1]) + "<br>";
+        } else if (s.fns.function == DURAND_KERNERPOLY || s.fns.function == ABERTH_EHRLICHPOLY) {
+            overview += tab + "Root Initialization Method = " + Constants.rootInitializationMethod[s.fns.root_initialization_method] + "<br>";
+            if(s.fns.root_initialization_method != 1) {
+                overview += tab + "a = " + Complex.toString2(s.fns.durand_kerner_init_val[0], s.fns.durand_kerner_init_val[1]) + "<br>";
+            }
         }
 
         if (s.fns.function == NEWTON_HINES3 || s.fns.function == NEWTON_HINES4 || s.fns.function == NEWTON_HINESGENERALIZED3 || s.fns.function == NEWTON_HINESGENERALIZED8 || s.fns.function == NEWTON_HINESSIN || s.fns.function == NEWTON_HINESCOS) {
@@ -820,82 +640,119 @@ public class CommonFunctions implements Constants {
             overview += "<br>";
         }
 
+        if(s.fns.preffs.functionFilter == USER_FUNCTION_FILTER) {
+            if (s.fns.preffs.user_function_filter_algorithm == 0) {
+                overview += "<b><font color='red'>Pre Function Filter:</font></b> User Filter<br>";
+                overview += tab + "z = " + s.fns.preffs.userFormulaFunctionFilter + "<br>";
+            } else {
+                overview += "<b><font color='red'>Pre Function Filter:</font></b> User Filter Conditional<br>";
+                overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[" + s.fns.preffs.user_function_filter_conditions[0] + " > " + s.fns.preffs.user_function_filter_conditions[1] + "]</font> <font color='" + keyword_color + "'>then</font> z = " + s.fns.preffs.user_function_filter_condition_formula[0] + "<br>";
+                overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[" + s.fns.preffs.user_function_filter_conditions[0] + " &#60; " + s.fns.preffs.user_function_filter_conditions[1] + "]</font> <font color='" + keyword_color + "'>then</font> z = " + s.fns.preffs.user_function_filter_condition_formula[1] + "<br>";
+                overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[" + s.fns.preffs.user_function_filter_conditions[0] + " = " + s.fns.preffs.user_function_filter_conditions[1] + "]</font> <font color='" + keyword_color + "'>then</font> z = " + s.fns.preffs.user_function_filter_condition_formula[2] + "<br>";
+            }
+            overview += "<br>";
+        }
+        else {
+            overview += "<b><font color='red'>Pre Function Filter:</font></b> " + FunctionFiltersMenu.functionFilternNames[s.fns.preffs.functionFilter] + "<br><br>";
+        }
+
+        if(s.fns.postffs.functionFilter == USER_FUNCTION_FILTER) {
+            if (s.fns.postffs.user_function_filter_algorithm == 0) {
+                overview += "<b><font color='red'>Post Function Filter:</font></b> User Filter<br>";
+                overview += tab + "z = " + s.fns.postffs.userFormulaFunctionFilter + "<br>";
+            } else {
+                overview += "<b><font color='red'>Post Function Filter:</font></b> User Filter Conditional<br>";
+                overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[" + s.fns.postffs.user_function_filter_conditions[0] + " > " + s.fns.postffs.user_function_filter_conditions[1] + "]</font> <font color='" + keyword_color + "'>then</font> z = " + s.fns.postffs.user_function_filter_condition_formula[0] + "<br>";
+                overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[" + s.fns.postffs.user_function_filter_conditions[0] + " &#60; " + s.fns.postffs.user_function_filter_conditions[1] + "]</font> <font color='" + keyword_color + "'>then</font> z = " + s.fns.postffs.user_function_filter_condition_formula[1] + "<br>";
+                overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[" + s.fns.postffs.user_function_filter_conditions[0] + " = " + s.fns.postffs.user_function_filter_conditions[1] + "]</font> <font color='" + keyword_color + "'>then</font> z = " + s.fns.postffs.user_function_filter_condition_formula[2] + "<br>";
+            }
+            overview += "<br>";
+        }
+        else {
+            overview += "<b><font color='red'>Post Function Filter:</font></b> " + FunctionFiltersMenu.functionFilternNames[s.fns.postffs.functionFilter] + "<br><br>";
+        }
+
         overview += "<b><font color='red'>User Point:</font></b> " + Complex.toString2(s.fns.plane_transform_center[0], s.fns.plane_transform_center[1]) + "<br><br>";
 
         overview += "<b><font color='red'>Maximum Iterations:</font></b> " + s.max_iterations + "<br><br>";
 
         if (!s.ds.domain_coloring && !s.isConvergingType() && s.fns.function != KLEINIAN && (s.fns.function != LYAPUNOV || (s.fns.function == LYAPUNOV && !s.fns.lpns.lyapunovskipBailoutCheck))) {
 
-            overview += "<b><font color='red'>Bailout Condition:</font></b> Escaping when the criterion defined by the bailout condition \"" + BailoutConditionsMenu.bailoutConditionNames[s.fns.bailout_test_algorithm] + "\" is met.<br>";
-            if (s.fns.bailout_test_algorithm == BAILOUT_CONDITION_NNORM) {
-                overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[(abs(re(z))^" + s.fns.n_norm + " + abs(im(z))^" + s.fns.n_norm + ")^(1/" + s.fns.n_norm + ") >= bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
-                overview += tab + "<font color='" + keyword_color + "'>else then</font> Not Escaped";
-            } else if (s.fns.bailout_test_algorithm == BAILOUT_CONDITION_USER) {
-                String greater = "", equal = "", lower = "";
+            if (s.fns.bailout_test_algorithm == BAILOUT_CONDITION_NO_BAILOUT) {
+                overview += "<b><font color='red'>Bailout Condition:</font></b> The escaping condition is disabled.<br>";
+            } else {
+                overview += "<b><font color='red'>Bailout Condition:</font></b> Escaping when the criterion defined by the bailout condition \"" + BailoutConditionsMenu.bailoutConditionNames[s.fns.bailout_test_algorithm] + "\" is met.<br>";
+                if (s.fns.bailout_test_algorithm == BAILOUT_CONDITION_NNORM) {
+                    overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[(abs(re(z))^" + s.fns.n_norm + " + abs(im(z))^" + s.fns.n_norm + ")^(1/" + s.fns.n_norm + ") >= bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
+                    overview += tab + "<font color='" + keyword_color + "'>else then</font> Not Escaped";
+                } else if (s.fns.bailout_test_algorithm == BAILOUT_CONDITION_USER) {
+                    String greater = "", equal = "", lower = "";
 
-                if (s.fns.bailout_test_comparison == GREATER) { // >
-                    greater = "Escaped";
-                    equal = "Not Escaped";
-                    lower = "Not Escaped";
-                } else if (s.fns.bailout_test_comparison == GREATER_EQUAL) { // >=
-                    greater = "Escaped";
-                    equal = "Escaped";
-                    lower = "Not Escaped";
-                } else if (s.fns.bailout_test_comparison == LOWER) { // <
-                    greater = "Not Escaped";
-                    equal = "Not Escaped";
-                    lower = "Escaped";
-                } else if (s.fns.bailout_test_comparison == LOWER_EQUAL) { // <=
-                    greater = "Not Escaped";
-                    equal = "Escaped";
-                    lower = "Escaped";
-                } else if (s.fns.bailout_test_comparison == EQUAL) { // ==
-                    greater = "Not Escaped";
-                    equal = "Escaped";
-                    lower = "Not Escaped";
-                } else if (s.fns.bailout_test_comparison == NOT_EQUAL) { // !=
-                    greater = "Escaped";
-                    equal = "Not Escaped";
-                    lower = "Escaped";
+                    if (s.fns.bailout_test_comparison == GREATER) { // >
+                        greater = "Escaped";
+                        equal = "Not Escaped";
+                        lower = "Not Escaped";
+                    } else if (s.fns.bailout_test_comparison == GREATER_EQUAL) { // >=
+                        greater = "Escaped";
+                        equal = "Escaped";
+                        lower = "Not Escaped";
+                    } else if (s.fns.bailout_test_comparison == LOWER) { // <
+                        greater = "Not Escaped";
+                        equal = "Not Escaped";
+                        lower = "Escaped";
+                    } else if (s.fns.bailout_test_comparison == LOWER_EQUAL) { // <=
+                        greater = "Not Escaped";
+                        equal = "Escaped";
+                        lower = "Escaped";
+                    } else if (s.fns.bailout_test_comparison == EQUAL) { // ==
+                        greater = "Not Escaped";
+                        equal = "Escaped";
+                        lower = "Not Escaped";
+                    } else if (s.fns.bailout_test_comparison == NOT_EQUAL) { // !=
+                        greater = "Escaped";
+                        equal = "Not Escaped";
+                        lower = "Escaped";
+                    }
+
+                    overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[" + s.fns.bailout_test_user_formula + " > " + s.fns.bailout_test_user_formula2 + "]</font> <font color='" + keyword_color + "'>then</font> " + greater + "<br>";
+                    overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[" + s.fns.bailout_test_user_formula + " &#60; " + s.fns.bailout_test_user_formula2 + "]</font> <font color='" + keyword_color + "'>then</font> " + lower + "<br>";
+                    overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[" + s.fns.bailout_test_user_formula + " = " + s.fns.bailout_test_user_formula2 + "]</font> <font color='" + keyword_color + "'>then</font> " + equal + "<br>";
+                } else if (s.fns.bailout_test_algorithm == BAILOUT_CONDITION_CIRCLE) {
+                    overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[norm(z) >= bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
+                    overview += tab + "<font color='" + keyword_color + "'>else then</font> Not Escaped<br>";
+                } else if (s.fns.bailout_test_algorithm == BAILOUT_CONDITION_SQUARE) {
+                    overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[abs(re(z)) >= bailout or abs(im(z)) >= bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
+                    overview += tab + "<font color='" + keyword_color + "'>else then</font> Not Escaped<br>";
+                } else if (s.fns.bailout_test_algorithm == BAILOUT_CONDITION_RHOMBUS) {
+                    overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[abs(re(z)) + abs(im(z)) >= bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
+                    overview += tab + "<font color='" + keyword_color + "'>else then</font> Not Escaped<br>";
+                } else if (s.fns.bailout_test_algorithm == BAILOUT_CONDITION_REAL_STRIP) {
+                    overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[abs(re(z)) >= bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
+                    overview += tab + "<font color='" + keyword_color + "'>else then</font> Not Escaped<br>";
+                } else if (s.fns.bailout_test_algorithm == BAILOUT_CONDITION_HALFPLANE) {
+                    overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[re(z) >= bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
+                    overview += tab + "<font color='" + keyword_color + "'>else then</font> Not Escaped<br>";
+                } else if (s.fns.bailout_test_algorithm == BAILOUT_CONDITION_FIELD_LINES) {
+                    overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[re(z) / re(p) >= bailout and im(z) / im(p) >= bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
+                    overview += tab + "<font color='" + keyword_color + "'>else then</font> Not Escaped<br>";
+                    overview += tab + "p is the previous value of z.<br>";
+                } else if (s.fns.bailout_test_algorithm == BAILOUT_CONDITION_CROSS) {
+                    overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[abs(re(z)) >= bailout and abs(im(z)) >= bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
+                    overview += tab + "<font color='" + keyword_color + "'>else then</font> Not Escaped<br>";
+                } else if (s.fns.bailout_test_algorithm == BAILOUT_CONDITION_IM_STRIP) {
+                    overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[abs(im(z)) >= bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
+                    overview += tab + "<font color='" + keyword_color + "'>else then</font> Not Escaped<br>";
+                } else if (s.fns.bailout_test_algorithm == BAILOUT_CONDITION_RE_IM_SQUARED) {
+                    overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[(re(z) + im(z))^2 >= bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
+                    overview += tab + "<font color='" + keyword_color + "'>else then</font> Not Escaped<br>";
                 }
-
-                overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[" + s.fns.bailout_test_user_formula + " > " + s.fns.bailout_test_user_formula2 + "]</font> <font color='" + keyword_color + "'>then</font> " + greater + "<br>";
-                overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[" + s.fns.bailout_test_user_formula + " &#60; " + s.fns.bailout_test_user_formula2 + "]</font> <font color='" + keyword_color + "'>then</font> " + lower + "<br>";
-                overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[" + s.fns.bailout_test_user_formula + " = " + s.fns.bailout_test_user_formula2 + "]</font> <font color='" + keyword_color + "'>then</font> " + equal + "<br>";
-            } else if (s.fns.bailout_test_algorithm == BAILOUT_CONDITION_CIRCLE) {
-                overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[norm(z) >= bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
-                overview += tab + "<font color='" + keyword_color + "'>else then</font> Not Escaped<br>";
-            } else if (s.fns.bailout_test_algorithm == BAILOUT_CONDITION_SQUARE) {
-                overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[abs(re(z)) >= bailout or abs(im(z)) >= bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
-                overview += tab + "<font color='" + keyword_color + "'>else then</font> Not Escaped<br>";
-            } else if (s.fns.bailout_test_algorithm == BAILOUT_CONDITION_RHOMBUS) {
-                overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[abs(re(z)) + abs(im(z)) >= bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
-                overview += tab + "<font color='" + keyword_color + "'>else then</font> Not Escaped<br>";
-            } else if (s.fns.bailout_test_algorithm == BAILOUT_CONDITION_REAL_STRIP) {
-                overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[abs(re(z)) >= bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
-                overview += tab + "<font color='" + keyword_color + "'>else then</font> Not Escaped<br>";
-            } else if (s.fns.bailout_test_algorithm == BAILOUT_CONDITION_HALFPLANE) {
-                overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[re(z) >= bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
-                overview += tab + "<font color='" + keyword_color + "'>else then</font> Not Escaped<br>";
-            } else if (s.fns.bailout_test_algorithm == BAILOUT_CONDITION_FIELD_LINES) {
-                overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[re(z) / re(p) >= bailout and im(z) / im(p) >= bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
-                overview += tab + "<font color='" + keyword_color + "'>else then</font> Not Escaped<br>";
-                overview += tab + "p is the previous value of z.<br>";
-            } else if (s.fns.bailout_test_algorithm == BAILOUT_CONDITION_CROSS) {
-                overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[abs(re(z)) >= bailout and abs(im(z)) >= bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
-                overview += tab + "<font color='" + keyword_color + "'>else then</font> Not Escaped<br>";
-            } else if (s.fns.bailout_test_algorithm == BAILOUT_CONDITION_IM_STRIP) {
-                overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[abs(im(z)) >= bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
-                overview += tab + "<font color='" + keyword_color + "'>else then</font> Not Escaped<br>";
-            } else if (s.fns.bailout_test_algorithm == BAILOUT_CONDITION_RE_IM_SQUARED) {
-                overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[(re(z) + im(z))^2 >= bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
-                overview += tab + "<font color='" + keyword_color + "'>else then</font> Not Escaped<br>";
             }
             overview += "<br>";
 
-            overview += "<b><font color='red'>Bailout:</font></b> " + s.fns.bailout + "<br><br>";
-
-            overview += "<b><font color='red'>Skip Bailout Condition Iterations:</font></b> " + s.fns.skip_bailout_iterations + "<br><br>";
+            if (s.fns.bailout_test_algorithm != BAILOUT_CONDITION_NO_BAILOUT) {
+                overview += "<b><font color='red'>Bailout:</font></b> " + s.fns.bailout + "<br><br>";
+                overview += "<b><font color='red'>Skip Bailout Condition Iterations:</font></b> " + s.fns.skip_bailout_iterations + "<br><br>";
+            }
 
             if (s.fns.function == MAGNET1 || s.fns.function == MAGNET2) {
                 overview += "<b><font color='red'>Bailout Condition 2:</font></b> Escaping when a complex value almost reaches 1 + 0i (convergence).<br>";
@@ -961,13 +818,18 @@ public class CommonFunctions implements Constants {
                         overview += tab2 + "Stripe Density = " + s.sts.cosArgInvStripeDensity + "<br>";
                         overview += tab2 + "Stripe Denominator Factor = " + s.sts.StripeDenominatorFactor + "<br>";
                     }
-                } else {
+                    else if (s.sts.statistic_type == Constants.ATOM_DOMAIN_BOF60_BOF61) {
+                        if (s.sts.showAtomDomains) {
+                            overview += tab + "Shows atom domains.<br>";
+                        }
+                    }
+                    else if(s.sts.statistic_type == Constants.DISCRETE_LAGRANGIAN_DESCRIPTORS) {
+                        overview += tab2 + "Power = " + s.sts.lagrangianPower + "<br>";
+                    }
+                } else if (s.sts.statisticGroup == 1){
                     overview += tab + "User Statistical Formula: " + s.sts.user_statistic_formula + "<br>";
                     overview += tab + "Reduction Method = " + Constants.reductionMethod[s.sts.reductionFunction] + "<br>";
                     overview += tab + "Initial value = " + s.sts.user_statistic_init_value + "<br>";
-                    if (s.sts.useAverage && s.sts.reductionFunction == Constants.REDUCTION_SUM) {
-                        overview += tab + "Using Average<br>";
-                    }
 
                     if (s.sts.useIterations && (s.sts.reductionFunction == Constants.REDUCTION_MAX || s.sts.reductionFunction == Constants.REDUCTION_MIN)) {
                         overview += tab + "Using Similar Iterations<br>";
@@ -977,12 +839,70 @@ public class CommonFunctions implements Constants {
                         overview += tab + (s.sts.statistic_escape_type == ESCAPING ? "Escaping" : "Converging") + "<br>";
                     }
                 }
+                else {
+                    overview += tab + "Equicontinuity<br>";
+                    overview += tab2 + "Delta = " + s.sts.equicontinuityDelta + "<br>";
+                    overview += tab2 + "Denominator Factor = " + s.sts.equicontinuityDenominatorFactor + "<br>";
+                    if(s.sts.equicontinuityInvertFactor) {
+                        overview += tab2 + "Inverted Factor<br>";
+                    }
+
+                    if(s.sts.equicontinuityOverrideColoring) {
+                        if(s.sts.equicontinuityColorMethod != 4) {
+                            overview += tab2 + "Argument Value = " + Constants.equicontinuityArgs[s.sts.equicontinuityArgValue] + "<br>";
+                        }
+                        overview += tab2 + "Coloring Method = " + Constants.equicontinuityColorMethods[s.sts.equicontinuityColorMethod] + "<br>";
+
+                        if(s.sts.equicontinuityColorMethod != 3 && s.sts.equicontinuityColorMethod != 4) {
+                            overview += tab2 + "Saturation/Chroma = " + s.sts.equicontinuitySatChroma + "<br>";
+                        }
+                        else {
+                            overview += tab2 + "Mixing Method = " + Constants.colorMethod[s.sts.equicontinuityMixingMethod] + "<br>";
+
+                            if(s.sts.equicontinuityMixingMethod == 3) {
+                                overview += tab2 + "Color Blending = " + s.sts.equicontinuityBlending + "<br>";
+                            }
+                        }
+                    }
+
+
+                }
+
                 if (s.sts.statisticIncludeEscaped) {
                     overview += tab + "Includes escaped points.<br>";
                 }
                 if (s.sts.statisticIncludeNotEscaped) {
                     overview += tab + "Includes not escaped points.<br>";
                 }
+
+                if(s.sts.statisticGroup == 1) {
+                    if(s.sts.useSmoothing && s.sts.reductionFunction == Constants.REDUCTION_SUM) {
+                        overview += tab + "Smooth Sum.<br>";
+                    }
+
+                    if (s.sts.useAverage && s.sts.reductionFunction == Constants.REDUCTION_SUM) {
+                        overview += tab + "Using Average<br>";
+                    }
+                }
+                else if (s.sts.statisticGroup == 0){
+                    if(s.sts.useSmoothing && s.sts.statistic_type != Constants.ATOM_DOMAIN_BOF60_BOF61 && s.sts.statistic_type != Constants.COS_ARG_DIVIDE_INVERSE_NORM) {
+                        overview += tab + "Smooth Sum.<br>";
+                    }
+
+                    if (s.sts.useAverage && s.sts.statistic_type != Constants.ATOM_DOMAIN_BOF60_BOF61 && s.sts.statistic_type != Constants.COS_ARG_DIVIDE_INVERSE_NORM) {
+                        overview += tab + "Using Average<br>";
+                    }
+                }
+                else {
+                    if(s.sts.useSmoothing) {
+                        overview += tab + "Smooth Sum.<br>";
+                    }
+
+                    if (s.sts.useAverage) {
+                        overview += tab + "Using Average<br>";
+                    }
+                }
+
                 overview += tab + "Intensity = " + s.sts.statistic_intensity + "<br><br>";
             }
         }
@@ -1690,7 +1610,7 @@ public class CommonFunctions implements Constants {
     public static JLabel createUserFormulaHtmlLabels(String supported_vars, String mode, String mode2) {
 
         return new JLabel("<html><br><b>Variables:</b>"
-                + "<br>" + supported_vars + "<br>"
+                + "<br>" + supported_vars + ", rand<br>"
                 + "<b>Operations:</b><br>"
                 + "+ - * / % ^ ( ) ,<br>"
                 + "<b>Constants:</b><br>"
@@ -1703,10 +1623,10 @@ public class CommonFunctions implements Constants {
                 + "hcvcos, exsec, excsc, avsin, avcos, acvsin, acvcos, ahvsin, ahvcos, ahcvsin, ahcvcos, aexsec, aexcsc<br>"
                 + "<b>Other Functions: f(z)</b><br>"
                 + "exp, log, log10, log2, sqrt, abs, absre, absim, conj, re, im, norm, arg, gamma, fact, erf, rzeta, gi, rec, flip, round,<br>"
-                + "ceil, floor, trunc, deta, snorm, f1, ... f60<br>"
+                + "ceil, floor, trunc, deta, snorm, fib, f1, ... f60<br>"
                 + "<b>Two Argument Functions: f(z, w)</b><br>"
-                + "logn, bipol, ibipol, inflect, foldu, foldd, foldl, foldr, foldi, foldo, shear, cmp, fuzz, normn, rot, dist, sdist, f', f'',<br>"
-                + " g1, ... g60<br>"
+                + "logn, bipol, ibipol, inflect, foldu, foldd, foldl, foldr, foldi, foldo, shear, cmp, fuzz, normn, rot, dist, sdist, root, f',<br>"
+                + "f'', f''', g1, ... g60<br>"
                 + "<b>Multiple Argument User Functions: f(z1, ... z10) or f(z1, ... z20)</b><br>"
                 + "m1, ... m60, k1, ... k60<br><br>"
                 + "Set the " + mode + "." + mode2

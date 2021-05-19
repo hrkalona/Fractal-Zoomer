@@ -29,8 +29,8 @@ public class CurvatureAverage extends GenericStatistic {
     private double sum2;
     private double log_bailout_squared;
     
-    public CurvatureAverage(double statistic_intensity, double log_bailout_squared) {
-        super(statistic_intensity);
+    public CurvatureAverage(double statistic_intensity, double log_bailout_squared, boolean useSmoothing, boolean useAverage) {
+        super(statistic_intensity, useSmoothing, useAverage);
         sum = 0;
         sum2 = 0;
         this.log_bailout_squared = log_bailout_squared;
@@ -38,15 +38,14 @@ public class CurvatureAverage extends GenericStatistic {
 
     @Override
     public void insert(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start) {
-        z_val.assign(z);
-        zold_val.assign(zold);       
+        super.insert(z, zold, zold2, iterations, c, start);
         
         Complex a = z.sub(zold);
         Complex b = zold.sub(zold2);
         Complex d = a.divide_mutable(b);
         double temp = Math.atan(d.getIm() / d.getRe());
         
-        if(!Double.isNaN(temp)) {
+        if(!Double.isNaN(temp) && !Double.isInfinite(temp)) {
             samples++;
             sum2 = sum;
             sum += Math.abs(temp);        
@@ -54,7 +53,8 @@ public class CurvatureAverage extends GenericStatistic {
     }
 
     @Override
-    public void initialize(Complex pixel) {
+    public void initialize(Complex pixel, Complex untransformedPixel) {
+        super.initialize(pixel, untransformedPixel);
         sum = 0;
         sum2 = 0;
         samples = 0;
@@ -65,10 +65,17 @@ public class CurvatureAverage extends GenericStatistic {
         if(samples < 1) {
             return 0;
         }
+
+        if(useAverage) {
+            sum = sum / samples;
+            sum2 = samples < 2 ? 0 : sum2 / (samples - 1);
+        }
+
+        if(!useSmoothing) {
+            return sum * statistic_intensity;
+        }
         
         double smoothing = OutColorAlgorithm.fractionalPartEscaping(z_val, zold_val, log_bailout_squared);
-        sum = sum / samples;
-        sum2 = samples < 2 ? 0 : sum2 / (samples - 1);
         return (sum + (sum2 - sum) * smoothing) * statistic_intensity;
     }
     

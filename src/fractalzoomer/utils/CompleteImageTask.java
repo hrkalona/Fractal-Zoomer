@@ -17,6 +17,7 @@
 package fractalzoomer.utils;
 
 import fractalzoomer.main.MainWindow;
+
 import java.util.TimerTask;
 
 /**

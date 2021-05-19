@@ -26,17 +26,28 @@ public class Derivative {
     public static final int NUMERICAL_CENTRAL = 2;
     public static final int NUMERICAL_BACKWARD = 3;
 
-    public static final Complex DZ = new Complex(1e-4 * 0.5, 1e-4 * 0.5);
-    public static final Complex DZ_2 = DZ.times(2);
-    public static final Complex DZ_3 = DZ.times(3);
+    public static Complex DZ = new Complex(1e-3 * 0.5, 1e-3 * 0.5);
+    public static Complex DZ_2;
+    public static Complex DZ_3;
 
-    public static final Complex DZ_1_2 = DZ.times(0.5);
-    public static final Complex DZ_3_2 = DZ.times(1.5);
+    public static Complex INV_DZ;
+    public static Complex INV_DZ_2;
+    public static Complex INV_DZ_SQUARED;
+    public static Complex INV_DZ_CUBED;
 
-    public static final Complex INV_DZ = DZ.r_divide(1);
-    public static final Complex INV_DZ_2 = DZ_2.r_divide(1);
-    public static final Complex INV_DZ_SQUARED = DZ.square().r_divide(1);
-    public static final Complex INV_DZ_CUBED = DZ.cube().r_divide(1);
+    static {
+        calculateConstants();
+    }
+
+    public static void calculateConstants() {
+        DZ_2 = DZ.times(2);
+        DZ_3 = DZ.times(3);
+
+        INV_DZ = DZ.r_divide(1);
+        INV_DZ_2 = DZ_2.r_divide(1);
+        INV_DZ_SQUARED = DZ.square().r_divide(1);
+        INV_DZ_CUBED = DZ.cube().r_divide(1);
+    }
 
     public static int DERIVATIVE_METHOD;
 
@@ -96,10 +107,10 @@ public class Derivative {
 
     }
 
-    //Parameters: f(z + 1.5 * dz), f(z + 0.5 * dz), f(z - 0.5 * dz), f(z - 1.5 * dz)
-    public static Complex numericalCentralDerivativeThirdOrder(Complex fz3_2dz, Complex fz1_2dz, Complex fzm1_2dz, Complex fzm3_2dz) {
+    //Parameters: f(z + dz), f(z + 2 * dz), f(z - dz), f(z - 2 * dz)
+    public static Complex numericalCentralDerivativeThirdOrder(Complex fzdz, Complex fz2dz, Complex fzmdz, Complex fzm2dz) {
 
-        return fz3_2dz.sub(fz1_2dz.times(3)).plus_mutable(fzm1_2dz.times(3)).sub_mutable(fzm3_2dz).times_mutable(INV_DZ_CUBED);
+        return fzmdz.sub(fzm2dz.times(0.5)).plus_mutable(fz2dz.times(0.5)).sub_mutable(fzdz).times_mutable(INV_DZ_CUBED);
 
     }
 }

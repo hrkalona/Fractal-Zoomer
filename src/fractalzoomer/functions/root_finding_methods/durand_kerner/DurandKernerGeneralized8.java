@@ -20,6 +20,7 @@ import fractalzoomer.core.Complex;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
 import fractalzoomer.main.app_settings.StatisticsSettings;
+
 import java.util.ArrayList;
 
 /**
@@ -63,7 +64,7 @@ public class DurandKernerGeneralized8 extends DurandKernerRootFindingMethod {
     }
 
     @Override
-    protected void function(Complex[] complex) {
+    public void function(Complex[] complex) {
         
         for(int i = 0; i < degree; i++) {
             fz[i] = complex[i].eighth().plus_mutable(complex[i].fourth().times_mutable(15)).sub_mutable(16);

@@ -30,8 +30,8 @@ public class CosArgDivideNormAverage extends GenericStatistic {
     private double StripeDensity;
     private double log_bailout_squared;
 
-    public CosArgDivideNormAverage(double statistic_intensity, double StripeDensity, double log_bailout_squared) {
-        super(statistic_intensity);
+    public CosArgDivideNormAverage(double statistic_intensity, double StripeDensity, double log_bailout_squared, boolean useSmoothing, boolean useAverage) {
+        super(statistic_intensity, useSmoothing, useAverage);
         sum = 0;
         sum2 = 0;
         this.StripeDensity = StripeDensity;
@@ -39,9 +39,8 @@ public class CosArgDivideNormAverage extends GenericStatistic {
     }
 
     @Override
-    public void insert(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start) {       
-        z_val.assign(z);
-        zold_val.assign(zold);
+    public void insert(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start) {
+        super.insert(z, zold, zold2, iterations, c, start);
         
         samples++;
         sum2 = sum;
@@ -49,7 +48,8 @@ public class CosArgDivideNormAverage extends GenericStatistic {
     }
 
     @Override
-    public void initialize(Complex pixel) {
+    public void initialize(Complex pixel, Complex untransformedPixel) {
+        super.initialize(pixel, untransformedPixel);
         sum = 0;
         sum2 = 0;
         samples = 0;
@@ -60,10 +60,17 @@ public class CosArgDivideNormAverage extends GenericStatistic {
         if(samples < 1) {
             return 0;
         }
+
+        if(useAverage) {
+            sum = sum / samples;
+            sum2 = samples < 2 ? 0 : sum2 / (samples - 1);
+        }
+
+        if(!useSmoothing) {
+            return sum * statistic_intensity;
+        }
         
         double smoothing = OutColorAlgorithm.fractionalPartEscaping(z_val, zold_val, log_bailout_squared);
-        sum = sum / samples;
-        sum2 = samples < 2 ? 0 : sum2 / (samples - 1);
         return (sum + (sum2 - sum) * smoothing) * statistic_intensity;
     }
     

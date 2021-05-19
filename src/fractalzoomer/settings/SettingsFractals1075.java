@@ -18,6 +18,7 @@ package fractalzoomer.settings;
 
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
+
 import java.awt.image.BufferedImage;
 import java.io.Serializable;
 

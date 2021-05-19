@@ -17,6 +17,7 @@
 package fractalzoomer.utils;
 
 import fractalzoomer.gui.MemoryLabel;
+
 import java.util.TimerTask;
 
 /**

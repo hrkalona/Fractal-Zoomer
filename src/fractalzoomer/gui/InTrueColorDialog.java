@@ -21,25 +21,15 @@ import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
 import fractalzoomer.parser.ParserException;
 import fractalzoomer.utils.ColorSpaceConverter;
-import java.awt.Component;
-import java.awt.FlowLayout;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import javax.swing.ButtonGroup;
-import javax.swing.ImageIcon;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JTextField;
-import static javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE;
 
 /**
  *
@@ -148,7 +138,7 @@ public class InTrueColorDialog extends JDialog {
         color_space_panel.add(color_space_label);
         color_space_panel.add(color_space_opt);
 
-        Object[] labels3 = ptra.createUserFormulaLabels("z, c, s, p, pp, n, maxn, bail, cbail, center, size, sizei, v1 - v30, point");
+        Object[] labels3 = ptra.createUserFormulaLabels("z, c, s, p, pp, n, maxn, bail, cbail, center, size, sizei, v1 - v30, point, stat, trap");
 
         if (s.fns.tcs.trueColorInMode == 0) {
             presetButton.setSelected(true);

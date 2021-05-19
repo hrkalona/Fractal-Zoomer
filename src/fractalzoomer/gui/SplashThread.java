@@ -17,7 +17,8 @@
 package fractalzoomer.gui;
 
 import fractalzoomer.app_updater.AppUpdater;
-import java.awt.Color;
+
+import java.awt.*;
 import java.awt.image.BufferedImage;
 
 /**

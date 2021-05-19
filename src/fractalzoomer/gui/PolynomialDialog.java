@@ -16,24 +16,20 @@
  */
 package fractalzoomer.gui;
 
-import static fractalzoomer.main.Constants.BAIRSTOWPOLY;
-import static fractalzoomer.main.Constants.DURAND_KERNERPOLY;
-import static fractalzoomer.main.Constants.MANDELPOLY;
-import static fractalzoomer.main.Constants.NEWTON_HINESPOLY;
+import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
-import java.awt.FlowLayout;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import javax.swing.ImageIcon;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JRadioButtonMenuItem;
-import javax.swing.JTextField;
+
+import static fractalzoomer.main.Constants.*;
 
 /**
  *
@@ -83,16 +79,35 @@ public class PolynomialDialog extends JDialog {
             }
         }
 
+        JPanel root_init_method_panel = new JPanel();
+        JComboBox method_choice = new JComboBox(Constants.rootInitializationMethod);
+        method_choice.setSelectedIndex(s.fns.root_initialization_method);
+        method_choice.setToolTipText("Selects the root finding initialization method.");
+        method_choice.setFocusable(false);
+        root_init_method_panel.add(new JLabel("Root Initialization Method: "));
+        root_init_method_panel.add(method_choice);
+
         JPanel init_val_panel = new JPanel();
         JTextField init_val_real = new JTextField(30);
         init_val_real.setText("" + s.fns.durand_kerner_init_val[0]);
         JTextField init_val_imag = new JTextField(30);
         init_val_imag.setText("" + s.fns.durand_kerner_init_val[1]);
         init_val_panel.setLayout(new FlowLayout());
-        init_val_panel.add(new JLabel("Durand/Kerner Initial Value,  Re: "));
+        init_val_panel.add(new JLabel("Initial Value (a),  Re: "));
         init_val_panel.add(init_val_real);
         init_val_panel.add(new JLabel(" Im: "));
         init_val_panel.add(init_val_imag);
+
+        init_val_real.setEnabled(s.fns.root_initialization_method != 1);
+        init_val_imag.setEnabled(s.fns.root_initialization_method != 1);
+
+        method_choice.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                init_val_real.setEnabled(method_choice.getSelectedIndex() != 1);
+                init_val_imag.setEnabled(method_choice.getSelectedIndex() != 1);
+            }
+        });
         
         
         JPanel k_panel = new JPanel();
@@ -122,7 +137,9 @@ public class PolynomialDialog extends JDialog {
             poly_panels[8],
             poly_panels[9],
             poly_panels[10],
-            " ", s.fns.function == DURAND_KERNERPOLY ? init_val_panel : "",
+            " ",
+                s.fns.function == DURAND_KERNERPOLY || s.fns.function == ABERTH_EHRLICHPOLY ? root_init_method_panel : "",
+                s.fns.function == DURAND_KERNERPOLY || s.fns.function == ABERTH_EHRLICHPOLY ? init_val_panel : "",
             s.fns.function == NEWTON_HINESPOLY ? k_panel : ""};
 
         optionPane = new JOptionPane(poly_poly, JOptionPane.QUESTION_MESSAGE, JOptionPane.OK_CANCEL_OPTION, null, null, null);
@@ -199,9 +216,13 @@ public class PolynomialDialog extends JDialog {
 
                         s.createPoly();
 
-                        if (s.fns.function == DURAND_KERNERPOLY) {
+                        if (s.fns.function == DURAND_KERNERPOLY || s.fns.function == ABERTH_EHRLICHPOLY) {
                             s.fns.durand_kerner_init_val[0] = temp_re;
                             s.fns.durand_kerner_init_val[1] = temp_im;
+                        }
+
+                        if(s.fns.function == DURAND_KERNERPOLY || s.fns.function == ABERTH_EHRLICHPOLY) {
+                            s.fns.root_initialization_method = method_choice.getSelectedIndex();
                         }
                         
                         if(s.fns.function == NEWTON_HINESPOLY) {

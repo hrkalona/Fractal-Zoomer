@@ -16,7 +16,7 @@
  */
 package fractalzoomer.core.blending;
 
-import java.awt.Color;
+import java.awt.*;
 
 /**
  *

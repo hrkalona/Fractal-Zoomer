@@ -17,8 +17,11 @@ limitations under the License.
 package fractalzoomer.filters_utils.image;
 
 import java.awt.*;
-import java.awt.geom.*;
-import java.awt.image.*;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
+import java.awt.image.BufferedImageOp;
+import java.awt.image.ColorModel;
 
 /**
  * A convenience class which implements those methods of BufferedImageOp which are rarely changed.

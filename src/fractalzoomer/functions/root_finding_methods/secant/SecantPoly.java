@@ -20,6 +20,7 @@ import fractalzoomer.core.Complex;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
 import fractalzoomer.main.app_settings.StatisticsSettings;
+
 import java.util.ArrayList;
 
 /**
@@ -95,27 +96,21 @@ public class SecantPoly extends SecantRootFindingMethod {
     }
 
     @Override
-    protected void function(Complex[] complex) {
+    public void function(Complex[] complex) {
 
-        Complex fz1;
-
+        Complex fz;
         if (usesComplexCoefficients) {
-            fz1 = complex[0].tenth().times_mutable(complex_coefficients[0]).plus_mutable(complex[0].ninth().times_mutable(complex_coefficients[1])).plus_mutable(complex[0].eighth().times_mutable(complex_coefficients[2])).plus_mutable(complex[0].seventh().times_mutable(complex_coefficients[3])).plus_mutable(complex[0].sixth().times_mutable(complex_coefficients[4])).plus_mutable(complex[0].fifth().times_mutable(complex_coefficients[5])).plus_mutable(complex[0].fourth().times_mutable(complex_coefficients[6])).plus_mutable(complex[0].cube().times_mutable(complex_coefficients[7])).plus_mutable(complex[0].square().times_mutable(complex_coefficients[8])).plus_mutable(complex[0].times(complex_coefficients[9])).plus_mutable(complex_coefficients[10]);
+            fz = complex[0].tenth().times_mutable(complex_coefficients[0]).plus_mutable(complex[0].ninth().times_mutable(complex_coefficients[1])).plus_mutable(complex[0].eighth().times_mutable(complex_coefficients[2])).plus_mutable(complex[0].seventh().times_mutable(complex_coefficients[3])).plus_mutable(complex[0].sixth().times_mutable(complex_coefficients[4])).plus_mutable(complex[0].fifth().times_mutable(complex_coefficients[5])).plus_mutable(complex[0].fourth().times_mutable(complex_coefficients[6])).plus_mutable(complex[0].cube().times_mutable(complex_coefficients[7])).plus_mutable(complex[0].square().times_mutable(complex_coefficients[8])).plus_mutable(complex[0].times(complex_coefficients[9])).plus_mutable(complex_coefficients[10]);
         } else {
-            fz1 = complex[0].tenth().times_mutable(coefficients[0]).plus_mutable(complex[0].ninth().times_mutable(coefficients[1])).plus_mutable(complex[0].eighth().times_mutable(coefficients[2])).plus_mutable(complex[0].seventh().times_mutable(coefficients[3])).plus_mutable(complex[0].sixth().times_mutable(coefficients[4])).plus_mutable(complex[0].fifth().times_mutable(coefficients[5])).plus_mutable(complex[0].fourth().times_mutable(coefficients[6])).plus_mutable(complex[0].cube().times_mutable(coefficients[7])).plus_mutable(complex[0].square().times_mutable(coefficients[8])).plus_mutable(complex[0].times(coefficients[9])).plus_mutable(coefficients[10]);
+            fz = complex[0].tenth().times_mutable(coefficients[0]).plus_mutable(complex[0].ninth().times_mutable(coefficients[1])).plus_mutable(complex[0].eighth().times_mutable(coefficients[2])).plus_mutable(complex[0].seventh().times_mutable(coefficients[3])).plus_mutable(complex[0].sixth().times_mutable(coefficients[4])).plus_mutable(complex[0].fifth().times_mutable(coefficients[5])).plus_mutable(complex[0].fourth().times_mutable(coefficients[6])).plus_mutable(complex[0].cube().times_mutable(coefficients[7])).plus_mutable(complex[0].square().times_mutable(coefficients[8])).plus_mutable(complex[0].times(coefficients[9])).plus_mutable(coefficients[10]);
         }
 
-        Complex temp = new Complex(complex[0]);
-        complex[0].sub_mutable(fz1.times((complex[0].sub(complex[1])).divide_mutable(fz1.sub(complex[2]))));
-        complex[1].assign(temp);
-        complex[2].assign(fz1);
+        secantMethod(complex[0], fz, complex[1], complex[2]);
 
     }
 
     @Override
-    public double calculateFractalWithoutPeriodicity(Complex pixel) {
-        int iterations = 0;
-        double temp = 0;
+    public Complex[] initialize(Complex pixel) {
 
         Complex[] complex = new Complex[3];
         complex[0] = new Complex(pixel);//z
@@ -127,105 +122,11 @@ public class SecantPoly extends SecantRootFindingMethod {
             complex[2] = new Complex(coefficients[10], 0);
         }
 
-        Complex zold = new Complex();
-        Complex zold2 = new Complex();
-        Complex start = new Complex(complex[0]);
+        zold = new Complex();
+        zold2 = new Complex();
+        start = new Complex(complex[0]);
 
-        for (; iterations < max_iterations; iterations++) {
-
-            if (trap != null) {
-                trap.check(complex[0], iterations);
-            }
-
-            if (iterations > 0 && (temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
-                escaped = true;
-
-                if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(complex[0], zold, zold2, iterations, pixel, start);
-                }
-
-                Object[] object = {iterations, complex[0], temp, zold, zold2, pixel, start};
-                iterationData = object;
-                double out = out_color_algorithm.getResult(object);
-
-                out = getFinalValueOut(out);
-
-                return out;
-            }
-            zold2.assign(zold);
-            zold.assign(complex[0]);
-            function(complex);
-
-            if (statistic != null) {
-                statistic.insert(complex[0], zold, zold2, iterations, pixel, start);
-            }
-
-        }
-
-        if (inTrueColorAlgorithm != null) {
-            setTrueColorIn(complex[0], zold, zold2, iterations, pixel, start);
-        }
-
-        Object[] object = {complex[0], zold, zold2, pixel, start};
-        iterationData = object;
-        double in = in_color_algorithm.getResult(object);
-
-        in = getFinalValueIn(in);
-
-        return in;
-
-    }
-
-    @Override
-    public void calculateFractalOrbit() {
-        int iterations = 0;
-
-        Complex[] complex = new Complex[3];
-        complex[0] = new Complex(pixel_orbit);//z
-        complex[1] = new Complex();
-
-        if (usesComplexCoefficients) {
-            complex[2] = new Complex(complex_coefficients[10]);
-        } else {
-            complex[2] = new Complex(coefficients[10], 0);
-        }
-
-        Complex temp = null;
-
-        for (; iterations < max_iterations; iterations++) {
-            function(complex);
-            temp = rotation.rotateInverse(complex[0]);
-
-            if (Double.isNaN(temp.getRe()) || Double.isNaN(temp.getIm()) || Double.isInfinite(temp.getRe()) || Double.isInfinite(temp.getIm())) {
-                break;
-            }
-
-            complex_orbit.add(temp);
-        }
-
-    }
-
-    @Override
-    public Complex iterateFractalDomain(Complex pixel) {
-        int iterations = 0;
-
-        Complex[] complex = new Complex[3];
-        complex[0] = new Complex(pixel);//z
-        complex[1] = new Complex();
-
-        if (usesComplexCoefficients) {
-            complex[2] = new Complex(complex_coefficients[10]);
-        } else {
-            complex[2] = new Complex(coefficients[10], 0);
-        }
-
-        for (; iterations < max_iterations; iterations++) {
-
-            function(complex);
-
-        }
-
-        return complex[0];
+        return complex;
 
     }
 

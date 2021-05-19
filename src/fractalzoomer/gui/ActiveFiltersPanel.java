@@ -17,15 +17,11 @@
 package fractalzoomer.gui;
 
 import fractalzoomer.main.MainWindow;
-import java.awt.Dimension;
-import java.awt.GridLayout;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.ImageIcon;
-import javax.swing.JCheckBox;
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
 
 /**
  *

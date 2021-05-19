@@ -16,7 +16,7 @@ limitations under the License.
 
 package fractalzoomer.filters_utils.image;
 
-import java.awt.image.*;
+import java.awt.image.BufferedImage;
 
 public abstract class TransferFilter extends PointFilter {
 

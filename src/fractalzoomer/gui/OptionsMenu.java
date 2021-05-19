@@ -18,15 +18,11 @@ package fractalzoomer.gui;
 
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.PaletteSettings;
+
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import javax.swing.ImageIcon;
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import javax.swing.JRadioButtonMenuItem;
-import javax.swing.KeyStroke;
 
 /**
  *
@@ -62,13 +58,13 @@ public class OptionsMenu extends JMenu {
     private JCheckBoxMenuItem infobar_opt;
     private JCheckBoxMenuItem fullscreen_opt;
 
-    public OptionsMenu(MainWindow ptr2, String name, PaletteSettings ps, PaletteSettings ps2, boolean smoothing, boolean show_orbit_converging_point, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, int out_coloring_algorithm, int in_coloring_algorithm, int function, int plane_type, int bailout_test_algorithm, int color_blending, int temp_color_cycling_location, int temp_color_cycling_location2) {
+    public OptionsMenu(MainWindow ptr2, String name, PaletteSettings ps, PaletteSettings ps2, boolean smoothing, boolean show_orbit_converging_point, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, int out_coloring_algorithm, int in_coloring_algorithm, int function, int plane_type, int bailout_test_algorithm, int color_blending, int temp_color_cycling_location, int temp_color_cycling_location2, int pre_filter, int post_filter) {
 
         super(name);
 
         this.ptr = ptr2;
 
-        fractal_options_menu = new FractalOptionsMenu(ptr, "Fractal Options", apply_plane_on_julia, apply_plane_on_julia_seed, function, plane_type);
+        fractal_options_menu = new FractalOptionsMenu(ptr, "Fractal Options", apply_plane_on_julia, apply_plane_on_julia_seed, function, plane_type, pre_filter, post_filter);
 
         iterations_menu = new JMenu("Iterations");
         iterations_menu.setIcon(getIcon("/fractalzoomer/icons/iterations.png"));
@@ -819,6 +815,18 @@ public class OptionsMenu extends JMenu {
 
     public JMenuItem getInTrueColoring() {
         return colors_menu.getInTrueColoring();
+    }
+
+    public JRadioButtonMenuItem[] getPreFunctionFilters() {
+
+        return fractal_options_menu.getPreFunctionFilters();
+
+    }
+
+    public JRadioButtonMenuItem[] getPostFunctionFilters() {
+
+        return fractal_options_menu.getPostFunctionFilters();
+
     }
 
 }

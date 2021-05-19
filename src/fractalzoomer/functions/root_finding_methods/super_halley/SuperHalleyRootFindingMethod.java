@@ -19,6 +19,7 @@ package fractalzoomer.functions.root_finding_methods.super_halley;
 import fractalzoomer.core.Complex;
 import fractalzoomer.functions.root_finding_methods.RootFindingMethods;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
+
 import java.util.ArrayList;
 
 /**
@@ -42,7 +43,7 @@ public abstract class SuperHalleyRootFindingMethod extends RootFindingMethods {
     
     public Complex superHalleyMethod(Complex z, Complex fz, Complex dfz, Complex ddfz) {
  	
-	z.sub_mutable(fz.divide(dfz)).sub_mutable((fz.square().times_mutable(ddfz)).divide_mutable(dfz.cube().times_mutable(2).sub_mutable(fz.times(dfz).times_mutable(ddfz).times_mutable(2))));
+	    z.sub_mutable(fz.divide(dfz)).sub_mutable((fz.square().times_mutable(ddfz)).divide_mutable(dfz.cube().times_mutable(2).sub_mutable(fz.times(dfz).times_mutable(ddfz).times_mutable(2))));
         
         return z;
         

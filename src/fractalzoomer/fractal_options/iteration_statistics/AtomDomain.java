@@ -29,13 +29,15 @@ public class AtomDomain extends GenericStatistic {
     private boolean showAtomDomains;
     
     public AtomDomain(boolean showAtomDomains, double statistic_intensity) {
-        super(statistic_intensity);
+        super(statistic_intensity, false, false);
         this.showAtomDomains = showAtomDomains;
     }
 
     @Override
     public void insert(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start) {
-        
+
+        super.insert(z, zold, zold2, iterations, c, start);
+
         double currentNorm = z.norm();
         if(currentNorm < minNorm) {
             minNorm = currentNorm;
@@ -45,7 +47,8 @@ public class AtomDomain extends GenericStatistic {
     }
 
     @Override
-    public void initialize(Complex pixel) {
+    public void initialize(Complex pixel, Complex untransformedPixel) {
+        super.initialize(pixel, untransformedPixel);
         minNorm = Double.MAX_VALUE;
         minIteration = 0;
     }

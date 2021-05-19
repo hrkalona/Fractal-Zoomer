@@ -16,8 +16,6 @@
  */
 package fractalzoomer.core.interpolation;
 
-import java.awt.*;
-
 /**
  *
  * @author hrkalona2

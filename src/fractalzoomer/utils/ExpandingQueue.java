@@ -24,7 +24,7 @@ import java.util.Arrays;
  */
 public class ExpandingQueue<Item> {
 
-    private static final int LINKED_QUEUES_SIZE = 1000;
+    private static final int LINKED_QUEUES_SIZE = 10;
     private Object[] LinkedQueues;
     private Item[] headQueue;
     private Item[] tailQueue;
@@ -108,6 +108,28 @@ public class ExpandingQueue<Item> {
 
         head++;
         size--;
+
+        return item;
+    }
+
+    public Item last() {
+        /*if (isEmpty()) {
+            throw new NoSuchElementException("There is nothing in the queue");
+        }*/
+
+        tail--;
+        size--;
+
+        int locationInQueue = tail % initialAllocation;
+
+        if(locationInQueue == initialAllocation - 1) {
+            int currentQueue = tail / initialAllocation;
+            LinkedQueues[currentQueue + 1] = null;
+            tailQueue = (Item[]) LinkedQueues[currentQueue]; //assuming that tail is always greater or equal to head, this access shoud be fine
+        }
+
+        Item item = tailQueue[locationInQueue];
+        tailQueue[locationInQueue] = null;
 
         return item;
     }

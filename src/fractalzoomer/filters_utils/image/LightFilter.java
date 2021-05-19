@@ -16,11 +16,15 @@ limitations under the License.
 
 package fractalzoomer.filters_utils.image;
 
-import java.awt.image.*;
-import fractalzoomer.filters_utils.math.*;
-import fractalzoomer.filters_utils.vecmath.*;
+import fractalzoomer.filters_utils.math.Function2D;
+import fractalzoomer.filters_utils.math.ImageFunction2D;
+import fractalzoomer.filters_utils.vecmath.Color4f;
+import fractalzoomer.filters_utils.vecmath.Vector3f;
+
 import java.awt.*;
-import java.util.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.Kernel;
+import java.util.Vector;
 
 /**
  * A filter which produces lighting and embossing effects.

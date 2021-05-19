@@ -16,7 +16,7 @@ limitations under the License.
 
 package fractalzoomer.filters_utils.math;
 
-import java.util.*;
+import java.util.Random;
 
 /**
  * Perlin Noise functions

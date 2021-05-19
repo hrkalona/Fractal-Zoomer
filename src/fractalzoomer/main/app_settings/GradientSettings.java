@@ -16,8 +16,9 @@
  */
 package fractalzoomer.main.app_settings;
 
-import java.awt.Color;
 import fractalzoomer.main.Constants;
+
+import java.awt.*;
 
 /**
  *

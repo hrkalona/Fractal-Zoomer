@@ -18,31 +18,19 @@ package fractalzoomer.gui;
 
 import fractalzoomer.core.Derivative;
 import fractalzoomer.main.Constants;
-import static fractalzoomer.main.Constants.HALLEYFORMULA;
-import static fractalzoomer.main.Constants.HOUSEHOLDERFORMULA;
-import static fractalzoomer.main.Constants.PARHALLEYFORMULA;
-import static fractalzoomer.main.Constants.SCHRODERFORMULA;
-import static fractalzoomer.main.Constants.SUPERHALLEYFORMULA;
-import static fractalzoomer.main.Constants.WHITTAKERDOUBLECONVEXFORMULA;
-import static fractalzoomer.main.Constants.WHITTAKERFORMULA;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
 import fractalzoomer.parser.ParserException;
+
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import javax.swing.ImageIcon;
-import javax.swing.JComboBox;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JRadioButtonMenuItem;
-import javax.swing.JTextField;
-import static javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE;
+
+import static fractalzoomer.main.Constants.*;
 
 /**
  *
@@ -59,28 +47,7 @@ public class RootFindingThreeFunctionsDialog extends JDialog {
         
         ptra = ptr;
 
-        String title = "";
-
-        if (s.fns.function == HALLEYFORMULA) {
-            title = "Halley Formula";
-        } else if (s.fns.function == SCHRODERFORMULA) {
-            title = "Schroder Formula";
-        } else if (s.fns.function == HOUSEHOLDERFORMULA) {
-            title = "Householder Formula";
-        } else if (s.fns.function == PARHALLEYFORMULA) {
-            title = "Parhalley Formula";
-        }
-        else if (s.fns.function == WHITTAKERFORMULA) {
-            title = "Whittaker Formula";
-        }
-        else if (s.fns.function == WHITTAKERDOUBLECONVEXFORMULA) {
-            title = "Whittaker Double Convex Formula";
-        }
-        else if (s.fns.function == SUPERHALLEYFORMULA) {
-            title = "Super Halley Formula";
-        }
-
-        setTitle(title);
+        setTitle(FractalFunctionsMenu.functionNames[s.fns.function]);
         setModal(true);
         setIconImage(getIcon("/fractalzoomer/icons/mandel2.png").getImage());
         
@@ -110,12 +77,12 @@ public class RootFindingThreeFunctionsDialog extends JDialog {
 
         JPanel formula_dfz_panel2 = new JPanel();
 
-        formula_dfz_panel2.add(new JLabel("f '(z) ="));
+        formula_dfz_panel2.add(new JLabel("f'(z) ="));
         formula_dfz_panel2.add(field_dfz_formula2);
 
         JPanel formula_ddfz_panel2 = new JPanel();
 
-        formula_ddfz_panel2.add(new JLabel("f ''(z) ="));
+        formula_ddfz_panel2.add(new JLabel("f''(z) ="));
         formula_ddfz_panel2.add(field_ddfz_formula2);
 
         JLabel imagelabel41 = new JLabel();
@@ -216,22 +183,22 @@ public class RootFindingThreeFunctionsDialog extends JDialog {
 
                     try {
                         s.parser.parse(field_fz_formula2.getText());
-                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundC() || s.parser.foundR()) {
-                            JOptionPane.showMessageDialog(ptra, "The variables: c, bail, cbail, r cannot be used in the f(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundC() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                            JOptionPane.showMessageDialog(ptra, "The variables: c, bail, cbail, r, stat, trap cannot be used in the f(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                             return;
                         }
 
                         s.parser.parse(field_dfz_formula2.getText());
 
-                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundC() || s.parser.foundR()) {
-                            JOptionPane.showMessageDialog(ptra, "The variables: c, bail, cbail, r cannot be used in the f '(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundC() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                            JOptionPane.showMessageDialog(ptra, "The variables: c, bail, cbail, r, stat, trap cannot be used in the f'(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                             return;
                         }
 
                         s.parser.parse(field_ddfz_formula2.getText());
 
-                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundC() || s.parser.foundR()) {
-                            JOptionPane.showMessageDialog(ptra, "The variables: c, bail, cbail, r cannot be used in the f ''(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundC() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                            JOptionPane.showMessageDialog(ptra, "The variables: c, bail, cbail, r, stat, trap cannot be used in the f''(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                             return;
                         }
 

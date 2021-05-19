@@ -19,10 +19,9 @@ package fractalzoomer.gui;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
 import fractalzoomer.parser.ParserException;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.GridLayout;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -30,18 +29,6 @@ import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Hashtable;
-import javax.swing.ImageIcon;
-import javax.swing.JComboBox;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JRadioButtonMenuItem;
-import javax.swing.JSlider;
-import javax.swing.JTabbedPane;
-import javax.swing.JTextField;
-import javax.swing.SwingConstants;
-import static javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE;
 
 /**
  *
@@ -258,8 +245,8 @@ public class UserFormulaCoupledDialog extends JDialog {
 
                     try {
                         s.parser.parse(field_formula_coupled.getText());
-                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR()) {
-                            JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r cannot be used in the z formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                            JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r, stat, trap cannot be used in the z formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                             return;
                         }
 
@@ -267,8 +254,8 @@ public class UserFormulaCoupledDialog extends JDialog {
 
                         s.parser.parse(field_formula_coupled2.getText());
 
-                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR()) {
-                            JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r cannot be used in the z2 formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                            JOptionPane.showMessageDialog(ptra, "The variables: bail, cbail, r, stat, trap cannot be used in the z2 formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                             return;
                         }
 
@@ -276,8 +263,8 @@ public class UserFormulaCoupledDialog extends JDialog {
 
                         s.parser.parse(field_formula_coupled3.getText());
 
-                        if (s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR()) {
-                            JOptionPane.showMessageDialog(ptra, "The variables: z, n, s, p, pp, bail, cbail, r cannot be used in the z2(0) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                        if (s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                            JOptionPane.showMessageDialog(ptra, "The variables: z, n, s, p, pp, bail, cbail, r, stat, trap cannot be used in the z2(0) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                             return;
                         }
 

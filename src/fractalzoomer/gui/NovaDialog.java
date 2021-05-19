@@ -16,23 +16,17 @@
  */
 package fractalzoomer.gui;
 
+import fractalzoomer.main.Constants;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
+
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import javax.swing.ImageIcon;
-import javax.swing.JComboBox;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JRadioButtonMenuItem;
-import javax.swing.JTextField;
-import static javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE;
 
 /**
  *
@@ -81,9 +75,7 @@ public class NovaDialog extends JDialog {
         k_panel.add(new JLabel(" Imaginary:"));
         k_panel.add(field_imaginaryk);
 
-        String[] method = {"Newton", "Halley", "Schroder", "Householder", "Secant", "Steffensen", "Muller", "Parhalley", "Laguerre", "Newton-Hines", "Whittaker", "Whittaker Double Convex", "Super Halley", "Midpoint", "Traub-Ostrowski", "Stirling"};
-
-        JComboBox method_choice = new JComboBox(method);
+        JComboBox method_choice = new JComboBox(Constants.novaMethods);
         method_choice.setSelectedIndex(s.fns.nova_method);
         method_choice.setToolTipText("Selects the root finding method for the Nova function.");
         method_choice.setFocusable(false);

@@ -32,6 +32,7 @@ import fractalzoomer.main.app_settings.StatisticsSettings;
 import fractalzoomer.parser.ExpressionNode;
 import fractalzoomer.parser.Parser;
 import fractalzoomer.utils.ColorAlgorithm;
+
 import java.util.ArrayList;
 
 /**
@@ -47,7 +48,6 @@ public class Lyapunov extends Julia {
     private ExpressionNode exponent_expr;
     private Parser exponent_parser;
     private Complex point;
-    private int iterations;
     private boolean useLyapunovExponent;
     private double sum;
     private int samples;
@@ -251,7 +251,7 @@ public class Lyapunov extends Julia {
     }
 
     @Override
-    protected void function(Complex[] complex) {
+    public void function(Complex[] complex) {
 
         Complex step = new Complex();
 
@@ -349,26 +349,36 @@ public class Lyapunov extends Julia {
             samples++;
         }
 
+        setVariables(zold, zold2);
+
+    }
+
+    public Complex[] initialize(Complex pixel) {
+
+        Complex[] complex = super.initialize(pixel);
+
+        setInitVariables(start, zold, zold2);
+
+        return complex;
+
+    }
+
+    public Complex[] initializeSeed(Complex pixel) {
+
+        Complex[] complex = super.initializeSeed(pixel);
+
+        setInitVariables(start, zold, zold2);
+
+        return complex;
+
     }
 
     @Override
-    public double calculateFractalWithoutPeriodicity(Complex pixel) {
+    protected double iterateFractalWithoutPeriodicity(Complex[] complex, Complex pixel) {
 
         iterations = 0;
         sum = 0;
         samples = 0;
-
-        Complex tempz = new Complex(pertur_val.getValue(init_val.getValue(pixel)));
-
-        Complex[] complex = new Complex[2];
-        complex[0] = tempz;//z
-        complex[1] = new Complex(pixel);//c
-
-        Complex zold = new Complex();
-        Complex zold2 = new Complex();
-        Complex start = new Complex(complex[0]);
-
-        setInitVariables(start, zold, zold2);
 
         calculateExponent = false;
         for(int initialIteration = 0; initialIteration < initializationIterations; initialIteration++) {
@@ -378,8 +388,10 @@ public class Lyapunov extends Julia {
 
             zold2.assign(zold);
             zold.assign(complex[0]);
+
+            complex[0] = preFilter.getValue(complex[0], iterations, complex[1], start);
             function(complex);
-            setVariables(zold, zold2);
+            complex[0] = postFilter.getValue(complex[0], iterations, complex[1], start);
 
             if (statistic != null) {
                 statistic.insert(complex[0], zold, zold2, iterations, complex[1], start);
@@ -396,22 +408,23 @@ public class Lyapunov extends Julia {
             if (!skipBailoutCheck && bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
                 escaped = true;
 
-                if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start);
-                }
-
                 Object[] object = {iterations, complex[0], zold, zold2, complex[1], start};
                 double out = out_color_algorithm.getResult(object);
 
                 out = getFinalValueOut(out);
 
+                if (outTrueColorAlgorithm != null) {
+                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start);
+                }
+
                 return out;
             }
             zold2.assign(zold);
             zold.assign(complex[0]);
-            function(complex);
 
-            setVariables(zold, zold2);
+            complex[0] = preFilter.getValue(complex[0], iterations, complex[1], start);
+            function(complex);
+            complex[0] = postFilter.getValue(complex[0], iterations, complex[1], start);
 
             if (statistic != null) {
                 statistic.insert(complex[0], zold, zold2, iterations, complex[1], start);
@@ -422,18 +435,22 @@ public class Lyapunov extends Julia {
         double res = sum / samples;
         
         globalVars[lyapunovVariableId].assign(res);
-        
-        if (inTrueColorAlgorithm != null) {
-            setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start);
-        }
 
         if (useLyapunovExponent) {
 
+            double value;
             if (res > 0) {
-                return getFinalValueOut(ColorAlgorithm.MAXIMUM_ITERATIONS);
+                value = getFinalValueOut(ColorAlgorithm.MAXIMUM_ITERATIONS);
+            }
+            else {
+                value = getFinalValueIn(Math.abs(res) + max_iterations);
             }
 
-            return getFinalValueIn(Math.abs(res) + max_iterations);
+            if (inTrueColorAlgorithm != null) {
+                setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start);
+            }
+
+            return  value;
         }
 
         Object[] object = {complex[0], zold, zold2, complex[1], start};
@@ -441,12 +458,16 @@ public class Lyapunov extends Julia {
 
         in = getFinalValueIn(in);
 
+        if (inTrueColorAlgorithm != null) {
+            setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start);
+        }
+
         return in;
 
     }
 
     @Override
-    public double calculateFractalWithPeriodicity(Complex pixel) {
+    protected double iterateFractalWithPeriodicity(Complex[] complex, Complex pixel) {
 
         iterations = 0;
         sum = 0;
@@ -460,24 +481,14 @@ public class Lyapunov extends Julia {
 
         period = new Complex();
 
-        Complex tempz = new Complex(pertur_val.getValue(init_val.getValue(pixel)));
-
-        Complex[] complex = new Complex[2];
-        complex[0] = tempz;//z
-        complex[1] = new Complex(pixel);//c
-
-        Complex zold = new Complex();
-        Complex zold2 = new Complex();
-        Complex start = new Complex(complex[0]);
-
-        setInitVariables(start, zold, zold2);
-
         calculateExponent = false;
         for(int initialIteration = 0; initialIteration < initializationIterations; initialIteration++) {
             zold2.assign(zold);
             zold.assign(complex[0]);
+
+            complex[0] = preFilter.getValue(complex[0], iterations, complex[1], start);
             function(complex);
-            setVariables(zold, zold2);
+            complex[0] = postFilter.getValue(complex[0], iterations, complex[1], start);
 
             if (statistic != null) {
                 statistic.insert(complex[0], zold, zold2, iterations, complex[1], start);
@@ -490,22 +501,23 @@ public class Lyapunov extends Julia {
             if (!skipBailoutCheck && bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
                 escaped = true;
 
-                if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start);
-                }
-
                 Object[] object = {iterations, complex[0], zold, zold2, complex[1], start};
                 double out = out_color_algorithm.getResult(object);
 
                 out = getFinalValueOut(out);
 
+                if (outTrueColorAlgorithm != null) {
+                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start);
+                }
+
                 return out;
             }
             zold2.assign(zold);
             zold.assign(complex[0]);
-            function(complex);
 
-            setVariables(zold, zold2);
+            complex[0] = preFilter.getValue(complex[0], iterations, complex[1], start);
+            function(complex);
+            complex[0] = postFilter.getValue(complex[0], iterations, complex[1], start);
 
             if (periodicityCheck(complex[0])) {
                 return ColorAlgorithm.MAXIMUM_ITERATIONS;
@@ -522,35 +534,28 @@ public class Lyapunov extends Julia {
     }
 
     @Override
-    public void calculateFractalOrbit() {
+    protected void iterateFractalOrbit(Complex[] complex, Complex pixel) {
         iterations = 0;
 
-        Complex[] complex = new Complex[2];
-        complex[0] = new Complex(pertur_val.getValue(init_val.getValue(pixel_orbit)));//z
-        complex[1] = new Complex(pixel_orbit);//c
-
         Complex temp = null;
-
-        Complex zold = new Complex();
-        Complex zold2 = new Complex();
-        Complex start = new Complex(complex[0]);
-
-        setInitVariables(start, zold, zold2);
 
         calculateExponent = false;
         for(int initialIteration = 0; initialIteration < initializationIterations; initialIteration++) {
             zold2.assign(zold);
             zold.assign(complex[0]);
+
+            complex[0] = preFilter.getValue(complex[0], iterations, complex[1], start);
             function(complex);
-            setVariables(zold, zold2);
+            complex[0] = postFilter.getValue(complex[0], iterations, complex[1], start);
         }
 
         for (; iterations < max_iterations; iterations++) {
             zold2.assign(zold);
             zold.assign(complex[0]);
-            function(complex);
 
-            setVariables(zold, zold2);
+            complex[0] = preFilter.getValue(complex[0], iterations, complex[1], start);
+            function(complex);
+            complex[0] = postFilter.getValue(complex[0], iterations, complex[1], start);
 
             temp = rotation.rotateInverse(complex[0]);
 
@@ -564,276 +569,28 @@ public class Lyapunov extends Julia {
     }
 
     @Override
-    public double calculateJuliaWithPeriodicity(Complex pixel) {
+    protected Complex iterateFractalDomain(Complex[] complex, Complex pixel) {
+
         iterations = 0;
-        sum = 0;
-        samples = 0;
-
-        check = 3;
-        check_counter = 0;
-
-        update = 10;
-        update_counter = 0;
-
-        period = new Complex();
-
-        Complex[] complex = new Complex[2];
-        complex[0] = new Complex(pixel);//z
-        complex[1] = new Complex(seed);//c
-
-        Complex zold = new Complex();
-        Complex zold2 = new Complex();
-        Complex start = new Complex(complex[0]);
-
-        setInitVariables(start, zold, zold2);
 
         calculateExponent = false;
         for(int initialIteration = 0; initialIteration < initializationIterations; initialIteration++) {
             zold2.assign(zold);
             zold.assign(complex[0]);
+
+            complex[0] = preFilter.getValue(complex[0], iterations, complex[1], start);
             function(complex);
-            setVariables(zold, zold2);
-
-            if (statistic != null) {
-                statistic.insert(complex[0], zold, zold2, iterations, complex[1], start);
-            }
-        }
-        calculateExponent = true;
-
-        for (; iterations < max_iterations; iterations++) {
-            if (!skipBailoutCheck && bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
-                escaped = true;
-
-                if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start);
-                }
-
-                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start};
-                double out = out_color_algorithm.getResult(object);
-
-                out = getFinalValueOut(out);
-
-                return out;
-            }
-            zold2.assign(zold);
-            zold.assign(complex[0]);
-            function(complex);
-
-            setVariables(zold, zold2);
-
-            if (periodicityCheck(complex[0])) {
-                return ColorAlgorithm.MAXIMUM_ITERATIONS;
-            }
-
-            if (statistic != null) {
-                statistic.insert(complex[0], zold, zold2, iterations, complex[1], start);
-            }
-        }
-
-        return ColorAlgorithm.MAXIMUM_ITERATIONS;
-    }
-
-    @Override
-    public double calculateJuliaWithoutPeriodicity(Complex pixel) {
-        iterations = 0;
-        sum = 0;
-        samples = 0;
-
-        Complex[] complex = new Complex[2];
-        complex[0] = new Complex(pixel);//z
-        complex[1] = new Complex(seed);//c
-
-        Complex zold = new Complex();
-        Complex zold2 = new Complex();
-        Complex start = new Complex(complex[0]);
-
-        setInitVariables(start, zold, zold2);
-
-        calculateExponent = false;
-        for(int initialIteration = 0; initialIteration < initializationIterations; initialIteration++) {
-            if (trap != null) {
-                trap.check(complex[0], iterations);
-            }
-
-            zold2.assign(zold);
-            zold.assign(complex[0]);
-            function(complex);
-            setVariables(zold, zold2);
-
-            if (statistic != null) {
-                statistic.insert(complex[0], zold, zold2, iterations, complex[1], start);
-            }
-        }
-        calculateExponent = true;
-
-        for (; iterations < max_iterations; iterations++) {
-
-            if (trap != null) {
-                trap.check(complex[0], iterations);
-            }
-
-            if (!skipBailoutCheck && bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
-                escaped = true;
-
-                if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start);
-                }
-
-                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start};
-                double out = out_color_algorithm.getResult(object);
-
-                out = getFinalValueOut(out);
-
-                return out;
-            }
-            zold2.assign(zold);
-            zold.assign(complex[0]);
-            function(complex);
-
-            setVariables(zold, zold2);
-
-            if (statistic != null) {
-                statistic.insert(complex[0], zold, zold2, iterations, complex[1], start);
-            }
-
-        }
-
-        double res = sum / samples;
-        
-        globalVars[lyapunovVariableId].assign(res);
-        
-        if (inTrueColorAlgorithm != null) {
-            setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start);
-        }
-
-        if (useLyapunovExponent) {
-
-            if (res > 0) {
-                return getFinalValueOut(ColorAlgorithm.MAXIMUM_ITERATIONS);
-            }
-
-            return getFinalValueIn(Math.abs(res) + max_iterations);
-        }
-
-        Object[] object = {complex[0], zold, zold2, complex[1], start};
-        double in = in_color_algorithm.getResult(object);
-
-        in = getFinalValueIn(in);
-
-        return in;
-
-    }
-
-    @Override
-    public void calculateJuliaOrbit() {
-        iterations = 0;
-
-        Complex[] complex = new Complex[2];
-        complex[0] = new Complex(pixel_orbit);//z
-        complex[1] = new Complex(seed);//c
-
-        Complex temp = null;
-
-        Complex zold = new Complex();
-        Complex zold2 = new Complex();
-        Complex start = new Complex(complex[0]);
-
-        setInitVariables(start, zold, zold2);
-
-        calculateExponent = false;
-        for(int initialIteration = 0; initialIteration < initializationIterations; initialIteration++) {
-            zold2.assign(zold);
-            zold.assign(complex[0]);
-            function(complex);
-            setVariables(zold, zold2);
-        }
-
-        for (; iterations < max_iterations; iterations++) {
-            zold2.assign(zold);
-            zold.assign(complex[0]);
-            function(complex);
-
-            setVariables(zold, zold2);
-
-            temp = rotation.rotateInverse(complex[0]);
-
-            if (Double.isNaN(temp.getRe()) || Double.isNaN(temp.getIm()) || Double.isInfinite(temp.getRe()) || Double.isInfinite(temp.getIm())) {
-                break;
-            }
-
-            complex_orbit.add(temp);
-        }
-
-    }
-
-    @Override
-    public Complex iterateFractalDomain(Complex pixel) {
-
-        iterations = 0;
-
-        Complex tempz = new Complex(pertur_val.getValue(init_val.getValue(pixel)));
-
-        Complex[] complex = new Complex[2];
-        complex[0] = tempz;//z
-        complex[1] = new Complex(pixel);//c
-
-        Complex zold = new Complex();
-        Complex zold2 = new Complex();
-        Complex start = new Complex(complex[0]);
-
-        setInitVariables(start, zold, zold2);
-
-        calculateExponent = false;
-        for(int initialIteration = 0; initialIteration < initializationIterations; initialIteration++) {
-            zold2.assign(zold);
-            zold.assign(complex[0]);
-            function(complex);
-            setVariables(zold, zold2);
+            complex[0] = postFilter.getValue(complex[0], iterations, complex[1], start);
         }
 
         for (; iterations < max_iterations; iterations++) {
 
             zold2.assign(zold);
             zold.assign(complex[0]);
+
+            complex[0] = preFilter.getValue(complex[0], iterations, complex[1], start);
             function(complex);
-
-            setVariables(zold, zold2);
-
-        }
-
-        return complex[0];
-
-    }
-
-    @Override
-    public Complex iterateJuliaDomain(Complex pixel) {
-        iterations = 0;
-
-        Complex[] complex = new Complex[2];
-        complex[0] = new Complex(pixel);//z
-        complex[1] = new Complex(seed);//c
-
-        Complex zold = new Complex();
-        Complex zold2 = new Complex();
-        Complex start = new Complex(complex[0]);
-
-        setInitVariables(start, zold, zold2);
-
-        calculateExponent = false;
-        for(int initialIteration = 0; initialIteration < initializationIterations; initialIteration++) {
-            zold2.assign(zold);
-            zold.assign(complex[0]);
-            function(complex);
-            setVariables(zold, zold2);
-        }
-
-        for (; iterations < max_iterations; iterations++) {
-
-            zold2.assign(zold);
-            zold.assign(complex[0]);
-            function(complex);
-
-            setVariables(zold, zold2);
+            complex[0] = postFilter.getValue(complex[0], iterations, complex[1], start);
 
         }
 

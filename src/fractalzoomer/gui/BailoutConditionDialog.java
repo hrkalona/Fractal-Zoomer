@@ -16,30 +16,18 @@
  */
 package fractalzoomer.gui;
 
-import static fractalzoomer.main.Constants.EQUAL;
-import static fractalzoomer.main.Constants.GREATER;
-import static fractalzoomer.main.Constants.GREATER_EQUAL;
-import static fractalzoomer.main.Constants.LOWER;
-import static fractalzoomer.main.Constants.LOWER_EQUAL;
-import static fractalzoomer.main.Constants.NOT_EQUAL;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
 import fractalzoomer.parser.ParserException;
-import java.awt.GridLayout;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import javax.swing.ImageIcon;
-import javax.swing.JComboBox;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JRadioButtonMenuItem;
-import javax.swing.JTextField;
-import javax.swing.SwingConstants;
-import static javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE;
+
+import static fractalzoomer.main.Constants.*;
 
 /**
  *
@@ -179,15 +167,15 @@ public class BailoutConditionDialog extends JDialog {
                     try {
                         s.parser.parse(field_condition.getText());
 
-                        if (s.parser.foundCbail() || s.parser.foundR()) {
-                            JOptionPane.showMessageDialog(ptra, "The variables: cbail, r cannot be used in left condition formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                        if (s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                            JOptionPane.showMessageDialog(ptra, "The variables: cbail, r, stat, trap cannot be used in left condition formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                             return;
                         }
 
                         s.parser.parse(field_condition2.getText());
 
-                        if (s.parser.foundCbail() || s.parser.foundR()) {
-                            JOptionPane.showMessageDialog(ptra, "The variables: cbail, r cannot be used in the right condition formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                        if (s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                            JOptionPane.showMessageDialog(ptra, "The variables: cbail, r, stat, trap cannot be used in the right condition formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                             return;
                         }
 

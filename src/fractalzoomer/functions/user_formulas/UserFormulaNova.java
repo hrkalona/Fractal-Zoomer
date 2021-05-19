@@ -28,8 +28,12 @@ import fractalzoomer.fractal_options.perturbation.Perturbation;
 import fractalzoomer.fractal_options.perturbation.VariableConditionalPerturbation;
 import fractalzoomer.fractal_options.perturbation.VariablePerturbation;
 import fractalzoomer.functions.ExtendedConvergentType;
+import fractalzoomer.functions.root_finding_methods.abbasbandy.AbbasbandyRootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.halley.HalleyRootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.householder.HouseholderRootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.householder3.Householder3RootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.jaratt.JarattRootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.jaratt2.Jaratt2RootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.laguerre.LaguerreRootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.midpoint.MidpointRootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.muller.MullerRootFindingMethod;
@@ -41,17 +45,21 @@ import fractalzoomer.functions.root_finding_methods.secant.SecantRootFindingMeth
 import fractalzoomer.functions.root_finding_methods.steffensen.SteffensenRootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.stirling.StirlingRootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.super_halley.SuperHalleyRootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.third_order_newton.ThirdOrderNewtonRootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.weerakoon_fernando.WeerakoonFernandoRootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.traub_ostrowski.TraubOstrowskiRootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.whittaker.WhittakerRootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.whittaker_double_convex.WhittakerDoubleConvexRootFindingMethod;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
+import fractalzoomer.main.app_settings.Settings;
 import fractalzoomer.main.app_settings.StatisticsSettings;
 import fractalzoomer.out_coloring_algorithms.ColorDecomposition;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeColorDecomposition;
 import fractalzoomer.parser.ExpressionNode;
 import fractalzoomer.parser.Parser;
 import fractalzoomer.utils.ColorAlgorithm;
+
 import java.util.ArrayList;
 
 /**
@@ -67,21 +75,21 @@ public class UserFormulaNova extends ExtendedConvergentType {
     private Parser parser2;
     private ExpressionNode expr3;
     private Parser parser3;
+    private ExpressionNode expr4;
+    private Parser parser4;
     private ExpressionNode exprRelaxation;
     private Parser parserRelaxation;
     private ExpressionNode exprAddend;
     private Parser parserAddend;
     private Complex point;
-    private int iterations;
     private Complex laguerreDeg;
     private Complex newtonHinesK;
 
-    public UserFormulaNova(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_value, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, int nova_method, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int converging_smooth_algorithm, OrbitTrapSettings ots, StatisticsSettings sts, String user_fz_formula, String user_dfz_formula, String user_ddfz_formula, String user_relaxation_formula, String user_nova_addend_formula, double[] laguerre_deg, double[] newton_hines_k) {
+    public UserFormulaNova(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_value, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, int nova_method, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int converging_smooth_algorithm, OrbitTrapSettings ots, StatisticsSettings sts, String user_fz_formula, String user_dfz_formula, String user_ddfz_formula, String user_dddfz_formula, String user_relaxation_formula, String user_nova_addend_formula, double[] laguerre_deg, double[] newton_hines_k) {
 
         super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, false, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, ots);
 
-        convergent_bailout = 1E-10;
-        
+        //Todo: Check which other methods need this
         if(nova_method == MainWindow.NOVA_TRAUB_OSTROWSKI) {
             convergent_bailout = 1E-8;
         }
@@ -99,6 +107,9 @@ public class UserFormulaNova extends ExtendedConvergentType {
 
         parser3 = new Parser();
         expr3 = parser3.parse(user_ddfz_formula);
+
+        parser4 = new Parser();
+        expr4 = parser4.parse(user_dddfz_formula);
 
         parserRelaxation = new Parser();
         exprRelaxation = parserRelaxation.parse(user_relaxation_formula);
@@ -155,11 +166,9 @@ public class UserFormulaNova extends ExtendedConvergentType {
         point = new Complex(plane_transform_center[0], plane_transform_center[1]);
     }
 
-    public UserFormulaNova(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, int nova_method, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int converging_smooth_algorithm, OrbitTrapSettings ots, StatisticsSettings sts, String user_fz_formula, String user_dfz_formula, String user_ddfz_formula, String user_relaxation_formula, String user_nova_addend_formula, double[] laguerre_deg, double[] newton_hines_k, double xJuliaCenter, double yJuliaCenter) {
+    public UserFormulaNova(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, int nova_method, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int converging_smooth_algorithm, OrbitTrapSettings ots, StatisticsSettings sts, String user_fz_formula, String user_dfz_formula, String user_ddfz_formula, String user_dddfz_formula, String user_relaxation_formula, String user_nova_addend_formula, double[] laguerre_deg, double[] newton_hines_k, double xJuliaCenter, double yJuliaCenter) {
 
         super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, false, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, ots, xJuliaCenter, yJuliaCenter);
-
-        convergent_bailout = 1E-10;
         
         if(nova_method == MainWindow.NOVA_TRAUB_OSTROWSKI) {
             convergent_bailout = 1E-8;
@@ -179,6 +188,9 @@ public class UserFormulaNova extends ExtendedConvergentType {
         parser3 = new Parser();
         expr3 = parser3.parse(user_ddfz_formula);
 
+        parser4 = new Parser();
+        expr4 = parser4.parse(user_dddfz_formula);
+
         parserRelaxation = new Parser();
         exprRelaxation = parserRelaxation.parse(user_relaxation_formula);
 
@@ -188,23 +200,7 @@ public class UserFormulaNova extends ExtendedConvergentType {
         switch (out_coloring_algorithm) {
 
             case MainWindow.BINARY_DECOMPOSITION:
-                if (nova_method == MainWindow.NOVA_HALLEY || nova_method == MainWindow.NOVA_HOUSEHOLDER || nova_method == MainWindow.NOVA_WHITTAKER || nova_method == MainWindow.NOVA_WHITTAKER_DOUBLE_CONVEX || nova_method == MainWindow.NOVA_SUPER_HALLEY) {
-                    convergent_bailout = 1E-4;
-                } else if (nova_method == MainWindow.NOVA_NEWTON || nova_method == MainWindow.NOVA_STEFFENSEN) {
-                    convergent_bailout = 1E-9;
-                } else if (nova_method == MainWindow.NOVA_SCHRODER) {
-                    convergent_bailout = 1E-6;
-                }
-                break;
             case MainWindow.BINARY_DECOMPOSITION2:
-                if (nova_method == MainWindow.NOVA_HALLEY || nova_method == MainWindow.NOVA_HOUSEHOLDER || nova_method == MainWindow.NOVA_WHITTAKER || nova_method == MainWindow.NOVA_WHITTAKER_DOUBLE_CONVEX || nova_method == MainWindow.NOVA_SUPER_HALLEY) {
-                    convergent_bailout = 1E-4;
-                } else if (nova_method == MainWindow.NOVA_NEWTON || nova_method == MainWindow.NOVA_STEFFENSEN) {
-                    convergent_bailout = 1E-9;
-                } else if (nova_method == MainWindow.NOVA_SCHRODER) {
-                    convergent_bailout = 1E-6;
-                }
-                break;
             case MainWindow.BANDED:
                 if (nova_method == MainWindow.NOVA_HALLEY || nova_method == MainWindow.NOVA_HOUSEHOLDER || nova_method == MainWindow.NOVA_WHITTAKER || nova_method == MainWindow.NOVA_WHITTAKER_DOUBLE_CONVEX || nova_method == MainWindow.NOVA_SUPER_HALLEY) {
                     convergent_bailout = 1E-4;
@@ -232,7 +228,7 @@ public class UserFormulaNova extends ExtendedConvergentType {
     }
 
     //orbit
-    public UserFormulaNova(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_value, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, int nova_method, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, String user_fz_formula, String user_dfz_formula, String user_ddfz_formula, String user_relaxation_formula, String user_nova_addend_formula, double[] laguerre_deg, double[] newton_hines_k) {
+    public UserFormulaNova(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_value, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, int nova_method, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, String user_fz_formula, String user_dfz_formula, String user_ddfz_formula, String user_dddfz_formula, String user_relaxation_formula, String user_nova_addend_formula, double[] laguerre_deg, double[] newton_hines_k) {
 
         super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
 
@@ -249,6 +245,9 @@ public class UserFormulaNova extends ExtendedConvergentType {
 
         parser3 = new Parser();
         expr3 = parser3.parse(user_ddfz_formula);
+
+        parser4 = new Parser();
+        expr4 = parser4.parse(user_dddfz_formula);
 
         parserRelaxation = new Parser();
         exprRelaxation = parserRelaxation.parse(user_relaxation_formula);
@@ -288,7 +287,7 @@ public class UserFormulaNova extends ExtendedConvergentType {
 
     }
 
-    public UserFormulaNova(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, int nova_method, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, String user_fz_formula, String user_dfz_formula, String user_ddfz_formula, String user_relaxation_formula, String user_nova_addend_formula, double[] laguerre_deg, double[] newton_hines_k, double xJuliaCenter, double yJuliaCenter) {
+    public UserFormulaNova(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, int nova_method, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, String user_fz_formula, String user_dfz_formula, String user_ddfz_formula, String user_dddfz_formula, String user_relaxation_formula, String user_nova_addend_formula, double[] laguerre_deg, double[] newton_hines_k, double xJuliaCenter, double yJuliaCenter) {
 
         super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
 
@@ -306,6 +305,9 @@ public class UserFormulaNova extends ExtendedConvergentType {
         parser3 = new Parser();
         expr3 = parser3.parse(user_ddfz_formula);
 
+        parser4 = new Parser();
+        expr4 = parser4.parse(user_dddfz_formula);
+
         parserRelaxation = new Parser();
         exprRelaxation = parserRelaxation.parse(user_relaxation_formula);
 
@@ -315,11 +317,106 @@ public class UserFormulaNova extends ExtendedConvergentType {
         point = new Complex(plane_transform_center[0], plane_transform_center[1]);
     }
 
+    private Complex combinedFFZ(Complex z, Complex fz, Complex dfz) {
+
+        Complex temp = null;
+
+        if(nova_method == MainWindow.NOVA_STEFFENSEN) {
+            temp = SteffensenRootFindingMethod.getFunctionArgument(z, fz);
+        }
+        else if(nova_method == MainWindow.NOVA_TRAUB_OSTROWSKI) {
+            temp = TraubOstrowskiRootFindingMethod.getFunctionArgument(z, fz, dfz);
+        }
+        else if(nova_method == MainWindow.NOVA_THIRD_ORDER_NEWTON) {
+            temp = ThirdOrderNewtonRootFindingMethod.getFunctionArgument(z, fz, dfz);
+        }
+
+        if (parser.foundZ()) {
+            parser.setZvalue(temp);
+        }
+
+        return expr.getValue();
+
+    }
+
+    private Complex combinedDFZ(Complex z, Complex fz, Complex dfz) {
+        Complex temp = null, combined_dfz;
+
+        if(nova_method == MainWindow.NOVA_MIDPOINT) {
+            temp = MidpointRootFindingMethod.getDerivativeArgument(z, fz, dfz);
+        }
+        else if (nova_method == MainWindow.NOVA_STIRLING){
+            temp = StirlingRootFindingMethod.getDerivativeArgument(z, fz);
+        }
+        else if (nova_method == MainWindow.NOVA_JARATT){
+            temp = JarattRootFindingMethod.getDerivativeArgument(z, fz, dfz);
+        }
+        else if (nova_method == MainWindow.NOVA_JARATT2){
+            temp = Jaratt2RootFindingMethod.getDerivativeArgument(z, fz, dfz);
+        }
+        else if(nova_method == MainWindow.NOVA_WEERAKOON_FERNANDO) {
+            temp = WeerakoonFernandoRootFindingMethod.getDerivativeArgument(z, fz, dfz);
+        }
+
+        if (Derivative.DERIVATIVE_METHOD == Derivative.DISABLED) {
+            if (parser2.foundZ()) {
+                parser2.setZvalue(temp);
+            }
+
+            combined_dfz = expr2.getValue();
+        } else if (Derivative.DERIVATIVE_METHOD == Derivative.NUMERICAL_CENTRAL) {
+            if (parser.foundZ()) {
+                parser.setZvalue(temp.plus(Derivative.DZ));
+            }
+
+            Complex cmb_fzdz = expr.getValue();
+
+            if (parser.foundZ()) {
+                parser.setZvalue(temp.sub(Derivative.DZ));
+            }
+
+            Complex cmb_fzmdz = expr.getValue();
+
+            combined_dfz = Derivative.numericalCentralDerivativeFirstOrder(cmb_fzdz, cmb_fzmdz);
+        } else if (Derivative.DERIVATIVE_METHOD == Derivative.NUMERICAL_FORWARD) {
+            if (parser.foundZ()) {
+                parser.setZvalue(temp);
+            }
+
+            Complex cmb_fz = expr.getValue();
+
+            if (parser.foundZ()) {
+                parser.setZvalue(temp.plus(Derivative.DZ));
+            }
+
+            Complex cmb_fzdz = expr.getValue();
+
+            combined_dfz = Derivative.numericalForwardDerivativeFirstOrder(cmb_fz, cmb_fzdz);
+        } else {
+            if (parser.foundZ()) {
+                parser.setZvalue(temp);
+            }
+
+            Complex cmb_fz = expr.getValue();
+
+            if (parser.foundZ()) {
+                parser.setZvalue(temp.sub(Derivative.DZ));
+            }
+
+            Complex cmb_fzmdz = expr.getValue();
+
+            combined_dfz = Derivative.numericalBackwardDerivativeFirstOrder(cmb_fz, cmb_fzmdz);
+        }
+
+        return combined_dfz;
+    }
+
     @Override
-    protected void function(Complex[] complex) {
+    public void function(Complex[] complex) {
 
         Complex dfz = null;
         Complex ddfz = null;
+        Complex dddfz = null;
         Complex ffz = null;
         Complex combined_dfz = null;
 
@@ -389,7 +486,7 @@ public class UserFormulaNova extends ExtendedConvergentType {
         Complex fzmdz = null;
 
         //-----------------------------------
-        if (nova_method != MainWindow.NOVA_SECANT && nova_method != MainWindow.NOVA_STEFFENSEN && nova_method != MainWindow.NOVA_MULLER) {
+        if (!Settings.isOneFunctionsNovaFormula(nova_method) && nova_method != MainWindow.NOVA_STIRLING) {
 
             if (Derivative.DERIVATIVE_METHOD == Derivative.DISABLED) {
                 if (parser2.foundZ()) {
@@ -444,7 +541,7 @@ public class UserFormulaNova extends ExtendedConvergentType {
             }
         }
 
-        if (nova_method == MainWindow.NOVA_HALLEY || nova_method == MainWindow.NOVA_SCHRODER || nova_method == MainWindow.NOVA_HOUSEHOLDER || nova_method == MainWindow.NOVA_PARHALLEY || nova_method == MainWindow.NOVA_LAGUERRE || nova_method == MainWindow.NOVA_WHITTAKER || nova_method == MainWindow.NOVA_WHITTAKER_DOUBLE_CONVEX || nova_method == MainWindow.NOVA_SUPER_HALLEY) {
+        if (Settings.isThreeFunctionsNovaFormula(nova_method) || Settings.isFourFunctionsNovaFormula(nova_method)) {
 
             if (Derivative.DERIVATIVE_METHOD == Derivative.DISABLED) {
                 if (parser3.foundZ()) {
@@ -488,37 +585,77 @@ public class UserFormulaNova extends ExtendedConvergentType {
             }
         }
 
-        if (nova_method == MainWindow.NOVA_STEFFENSEN || nova_method == MainWindow.NOVA_TRAUB_OSTROWSKI) {            
-            Complex temp;
-            
-            if(nova_method == MainWindow.NOVA_STEFFENSEN) {
-                temp = SteffensenRootFindingMethod.getFunctionArgument(complex[0], fz);
-            }
-            else {
-                temp = TraubOstrowskiRootFindingMethod.getFunctionArgument(complex[0], fz, dfz);
-            }
+        if(Settings.isFourFunctionsNovaFormula(nova_method)) {
+            if (Derivative.DERIVATIVE_METHOD == Derivative.DISABLED) {
+                if (parser4.foundZ()) {
+                    parser4.setZvalue(complex[0]);
+                }
 
-            if (parser.foundZ()) {
-                parser.setZvalue(temp);
-            }
+                if (parser4.foundN()) {
+                    parser4.setNvalue(new Complex(iterations, 0));
+                }
 
-            ffz = expr.getValue();
+                if (parser4.foundC()) {
+                    parser4.setCvalue(complex[1]);
+                }
+
+                for (int i = 0; i < Parser.EXTRA_VARS; i++) {
+                    if (parser4.foundVar(i)) {
+                        parser4.setVarsvalue(i, globalVars[i]);
+                    }
+                }
+
+                dddfz = expr4.getValue();
+            } else if (Derivative.DERIVATIVE_METHOD == Derivative.NUMERICAL_CENTRAL) {
+                if (parser.foundZ()) {
+                    parser.setZvalue(complex[0].plus(Derivative.DZ_2));
+                }
+
+                Complex fz2dz = expr.getValue();
+
+                if (parser.foundZ()) {
+                    parser.setZvalue(complex[0].sub(Derivative.DZ_2));
+                }
+
+                Complex fzm2dz = expr.getValue();
+
+                dddfz = Derivative.numericalCentralDerivativeThirdOrder(fzdz, fz2dz, fzmdz, fzm2dz);
+            } else if (Derivative.DERIVATIVE_METHOD == Derivative.NUMERICAL_FORWARD) {
+                if (parser.foundZ()) {
+                    parser.setZvalue(complex[0].plus(Derivative.DZ_2));
+                }
+
+                Complex fz2dz = expr.getValue();
+
+                if (parser.foundZ()) {
+                    parser.setZvalue(complex[0].plus(Derivative.DZ_3));
+                }
+
+                Complex fz3dz = expr.getValue();
+
+                dddfz = Derivative.numericalForwardDerivativeThirdOrder(fz, fzdz, fz2dz, fz3dz);
+            } else {
+                if (parser.foundZ()) {
+                    parser.setZvalue(complex[0].sub(Derivative.DZ_2));
+                }
+
+                Complex fzm2dz = expr.getValue();
+
+                if (parser.foundZ()) {
+                    parser.setZvalue(complex[0].sub(Derivative.DZ_3));
+                }
+
+                Complex fzm3dz = expr.getValue();
+
+                dddfz = Derivative.numericalBackwardDerivativeThirdOrder(fz, fzmdz, fzm2dz, fzm3dz);
+            }
         }
-        else if(nova_method == MainWindow.NOVA_MIDPOINT || nova_method == MainWindow.NOVA_STIRLING) {
-            Complex temp;
-            
-            if(nova_method == MainWindow.NOVA_MIDPOINT) {
-                temp = MidpointRootFindingMethod.getDerivativeArgument(complex[0], fz, dfz);
-            }
-            else {
-                temp = StirlingRootFindingMethod.getDerivativeArgument(complex[0], fz);
-            }
-            
-            if (parser2.foundZ()) {
-                parser2.setZvalue(temp);
-            }
-            
-            combined_dfz = expr2.getValue();           
+
+        if (Settings.hasNovaCombinedFFZ(nova_method)) {
+            ffz = combinedFFZ(complex[0], fz, dfz);
+        }
+        else if(Settings.hasNovaCombinedDFZ(nova_method)) {
+            combined_dfz = combinedDFZ(complex[0], fz, dfz);
         }
 
         switch (nova_method) {
@@ -563,16 +700,36 @@ public class UserFormulaNova extends ExtendedConvergentType {
                 SuperHalleyRootFindingMethod.superHalleyMethod(complex[0], fz, dfz, ddfz, relaxation).plus_mutable(addend);
                 break;
             case MainWindow.NOVA_MIDPOINT:
-                MidpointRootFindingMethod.midpointMethod(complex[0], fz, combined_dfz, relaxation).plus_mutable(complex[1]);
+                MidpointRootFindingMethod.midpointMethod(complex[0], fz, combined_dfz, relaxation).plus_mutable(addend);
                 break;
             case MainWindow.NOVA_TRAUB_OSTROWSKI:
-                TraubOstrowskiRootFindingMethod.traubOstrowskiMethod(complex[0], fz, dfz, ffz, relaxation).plus_mutable(complex[1]);
+                TraubOstrowskiRootFindingMethod.traubOstrowskiMethod(complex[0], fz, dfz, ffz, relaxation).plus_mutable(addend);
                 break;
             case MainWindow.NOVA_STIRLING:
-                StirlingRootFindingMethod.stirlingMethod(complex[0], fz, combined_dfz, relaxation).plus_mutable(complex[1]);
+                StirlingRootFindingMethod.stirlingMethod(complex[0], fz, combined_dfz, relaxation).plus_mutable(addend);
+                break;
+            case MainWindow.NOVA_JARATT:
+                JarattRootFindingMethod.jarattMethod(complex[0], fz, dfz, combined_dfz, relaxation).plus_mutable(addend);
+                break;
+            case MainWindow.NOVA_JARATT2:
+                Jaratt2RootFindingMethod.jaratt2Method(complex[0], fz, dfz, combined_dfz, relaxation).plus_mutable(addend);
+                break;
+            case MainWindow.NOVA_WEERAKOON_FERNANDO:
+                WeerakoonFernandoRootFindingMethod.weerakoonFernandoMethod(complex[0], fz, dfz, combined_dfz, relaxation).plus_mutable(addend);
+                break;
+            case MainWindow.NOVA_THIRD_ORDER_NEWTON:
+                ThirdOrderNewtonRootFindingMethod.thirdOrderNewtonMethod(complex[0], fz, dfz, ffz, relaxation).plus_mutable(addend);
+                break;
+            case MainWindow.NOVA_ABBASBANDY:
+                AbbasbandyRootFindingMethod.abbasbandyMethod(complex[0], fz, dfz, ddfz, dddfz, relaxation).plus_mutable(addend);
+                break;
+            case MainWindow.NOVA_HOUSEHOLDER3:
+                Householder3RootFindingMethod.householder3Method(complex[0], fz, dfz, ddfz, dddfz, relaxation).plus_mutable(addend);
                 break;
 
         }
+
+        setVariables(zold, zold2);
 
     }
 
@@ -624,77 +781,28 @@ public class UserFormulaNova extends ExtendedConvergentType {
     }
 
     @Override
-    public double calculateFractalWithoutPeriodicity(Complex pixel) {
-        iterations = 0;
-        double temp = 0;
-
-        Complex tempz = new Complex(pertur_val.getValue(init_val.getValue(pixel)));
+    public Complex[] initialize(Complex pixel) {
 
         Complex[] complex = new Complex[6];
-        complex[0] = tempz;
+        complex[0] = new Complex(pertur_val.getValue(init_val.getValue(pixel)));
         complex[1] = new Complex(pixel);//c
         complex[2] = new Complex();
         complex[4] = new Complex(1e-10, 0);
 
-        Complex zold = new Complex();
-        Complex zold2 = new Complex();
-        Complex start = new Complex(complex[0]);
+        zold = new Complex();
+        zold2 = new Complex();
+        start = new Complex(complex[0]);
 
         setInitVariables(start, zold, zold2);
 
         initExtra(complex);
 
-        for (; iterations < max_iterations; iterations++) {
-
-            if (trap != null) {
-                trap.check(complex[0], iterations);
-            }
-
-            if (iterations > 0 && (temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
-                escaped = true;
-
-                if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start);
-                }
-
-                Object[] object = {iterations, complex[0], temp, zold, zold2, complex[1], start};
-                iterationData = object;
-                double out = out_color_algorithm.getResult(object);
-
-                out = getFinalValueOut(out);
-
-                return out;
-            }
-            zold2.assign(zold);
-            zold.assign(complex[0]);
-            function(complex);
-
-            setVariables(zold, zold2);
-
-            if (statistic != null) {
-                statistic.insert(complex[0], zold, zold2, iterations, complex[1], start);
-            }
-
-        }
-
-        if (inTrueColorAlgorithm != null) {
-            setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start);
-        }
-
-        Object[] object = {complex[0], zold, zold2, complex[1], start};
-        iterationData = object;
-        double in = in_color_algorithm.getResult(object);
-
-        in = getFinalValueIn(in);
-
-        return in;
+        return complex;
 
     }
 
     @Override
-    public double calculateJuliaWithoutPeriodicity(Complex pixel) {
-        iterations = 0;
-        double temp = 0;
+    public Complex[] initializeSeed(Complex pixel) {
 
         Complex[] complex = new Complex[6];
         complex[0] = new Complex(pixel);
@@ -702,199 +810,15 @@ public class UserFormulaNova extends ExtendedConvergentType {
         complex[2] = new Complex();
         complex[4] = new Complex(1e-10, 0);
 
-        Complex zold = new Complex();
-        Complex zold2 = new Complex();
-        Complex start = new Complex(complex[0]);
+        zold = new Complex();
+        zold2 = new Complex();
+        start = new Complex(complex[0]);
 
         setInitVariables(start, zold, zold2);
 
         initExtra(complex);
 
-        for (; iterations < max_iterations; iterations++) {
-
-            if (trap != null) {
-                trap.check(complex[0], iterations);
-            }
-
-            if (iterations > 0 && (temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
-                escaped = true;
-
-                if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start);
-                }
-
-                Object[] object = {iterations, complex[0], temp, zold, zold2, complex[1], start};
-                iterationData = object;
-                double out = out_color_algorithm.getResult(object);
-
-                out = getFinalValueOut(out);
-
-                return out;
-            }
-            zold2.assign(zold);
-            zold.assign(complex[0]);
-            function(complex);
-
-            setVariables(zold, zold2);
-
-            if (statistic != null) {
-                statistic.insert(complex[0], zold, zold2, iterations, complex[1], start);
-            }
-
-        }
-
-        if (inTrueColorAlgorithm != null) {
-            setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start);
-        }
-
-        Object[] object = {complex[0], zold, zold2, complex[1], start};
-        iterationData = object;
-        double in = in_color_algorithm.getResult(object);
-
-        in = getFinalValueIn(in);
-
-        return in;
-
-    }
-
-    @Override
-    public void calculateFractalOrbit() {
-        iterations = 0;
-
-        Complex[] complex = new Complex[6];
-        complex[0] = new Complex(pertur_val.getValue(init_val.getValue(pixel_orbit)));
-        complex[1] = new Complex(pixel_orbit);//c
-        complex[2] = new Complex();
-        complex[4] = new Complex(1e-10, 0);
-
-        Complex temp = null;
-
-        Complex zold = new Complex();
-        Complex zold2 = new Complex();
-        Complex start = new Complex(complex[0]);
-
-        setInitVariables(start, zold, zold2);
-
-        initExtra(complex);
-
-        for (; iterations < max_iterations; iterations++) {
-            zold2.assign(zold);
-            zold.assign(complex[0]);
-            function(complex);
-
-            setVariables(zold, zold2);
-
-            temp = rotation.rotateInverse(complex[0]);
-
-            if (Double.isNaN(temp.getRe()) || Double.isNaN(temp.getIm()) || Double.isInfinite(temp.getRe()) || Double.isInfinite(temp.getIm())) {
-                break;
-            }
-
-            complex_orbit.add(temp);
-        }
-
-    }
-
-    @Override
-    public void calculateJuliaOrbit() {
-        iterations = 0;
-
-        Complex[] complex = new Complex[6];
-        complex[0] = new Complex(pixel_orbit);//z
-        complex[1] = new Complex(seed);//c
-        complex[2] = new Complex();
-        complex[4] = new Complex(1e-10, 0);
-
-        Complex temp = null;
-
-        Complex zold = new Complex();
-        Complex zold2 = new Complex();
-        Complex start = new Complex(complex[0]);
-
-        setInitVariables(start, zold, zold2);
-
-        initExtra(complex);
-
-        for (; iterations < max_iterations; iterations++) {
-            zold2.assign(zold);
-            zold.assign(complex[0]);
-            function(complex);
-
-            setVariables(zold, zold2);
-
-            temp = rotation.rotateInverse(complex[0]);
-
-            if (Double.isNaN(temp.getRe()) || Double.isNaN(temp.getIm()) || Double.isInfinite(temp.getRe()) || Double.isInfinite(temp.getIm())) {
-                break;
-            }
-
-            complex_orbit.add(temp);
-        }
-
-    }
-
-    @Override
-    public Complex iterateFractalDomain(Complex pixel) {
-        iterations = 0;
-
-        Complex tempz = new Complex(pertur_val.getValue(init_val.getValue(pixel)));
-
-        Complex[] complex = new Complex[6];
-        complex[0] = tempz;
-        complex[1] = new Complex(pixel);//c
-        complex[2] = new Complex();
-        complex[4] = new Complex(1e-10, 0);
-
-        Complex zold = new Complex();
-        Complex zold2 = new Complex();
-        Complex start = new Complex(complex[0]);
-
-        setInitVariables(start, zold, zold2);
-
-        initExtra(complex);
-
-        for (; iterations < max_iterations; iterations++) {
-
-            zold2.assign(zold);
-            zold.assign(complex[0]);
-            function(complex);
-
-            setVariables(zold, zold2);
-
-        }
-
-        return complex[0];
-
-    }
-
-    @Override
-    public Complex iterateJuliaDomain(Complex pixel) {
-        iterations = 0;
-
-        Complex[] complex = new Complex[6];
-        complex[0] = new Complex(pixel);
-        complex[1] = new Complex(seed);//c
-        complex[2] = new Complex();
-        complex[4] = new Complex(1e-10, 0);
-
-        Complex zold = new Complex();
-        Complex zold2 = new Complex();
-        Complex start = new Complex(complex[0]);
-
-        setInitVariables(start, zold, zold2);
-
-        initExtra(complex);
-
-        for (; iterations < max_iterations; iterations++) {
-
-            zold2.assign(zold);
-            zold.assign(complex[0]);
-            function(complex);
-
-            setVariables(zold, zold2);
-        }
-
-        return complex[0];
+        return complex;
 
     }
 

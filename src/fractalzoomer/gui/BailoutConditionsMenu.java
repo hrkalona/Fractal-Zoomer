@@ -18,15 +18,11 @@
 package fractalzoomer.gui;
 
 import fractalzoomer.main.MainWindow;
+
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import javax.swing.ButtonGroup;
-import javax.swing.ImageIcon;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import javax.swing.JRadioButtonMenuItem;
-import javax.swing.KeyStroke;
 
 /**
  *
@@ -52,6 +48,7 @@ public class BailoutConditionsMenu extends JMenu {
         bailoutConditionNames[MainWindow.BAILOUT_CONDITION_CROSS] = "Cross (and)";
         bailoutConditionNames[MainWindow.BAILOUT_CONDITION_IM_STRIP] = "Imaginary Strip (imag)";
         bailoutConditionNames[MainWindow.BAILOUT_CONDITION_RE_IM_SQUARED] = "(Real + Imaginary)^2 (manr)";
+        bailoutConditionNames[MainWindow.BAILOUT_CONDITION_NO_BAILOUT] = "No Condition";
     }
     
     public BailoutConditionsMenu(MainWindow ptr2, String name, int bailout_test_algorithm) {
@@ -207,6 +204,21 @@ public class BailoutConditionsMenu extends JMenu {
         });
         add(bailout_conditions[MainWindow.BAILOUT_CONDITION_FIELD_LINES]);
         bailout_tests_group.add(bailout_conditions[MainWindow.BAILOUT_CONDITION_FIELD_LINES]);
+
+
+        bailout_conditions[MainWindow.BAILOUT_CONDITION_NO_BAILOUT] = new JRadioButtonMenuItem(bailoutConditionNames[MainWindow.BAILOUT_CONDITION_NO_BAILOUT]);
+        bailout_conditions[MainWindow.BAILOUT_CONDITION_NO_BAILOUT].setToolTipText("By setting this option, you are disabling the bailout condition.");
+        bailout_conditions[MainWindow.BAILOUT_CONDITION_NO_BAILOUT].addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setBailoutTest(MainWindow.BAILOUT_CONDITION_NO_BAILOUT);
+
+            }
+        });
+        add(bailout_conditions[MainWindow.BAILOUT_CONDITION_NO_BAILOUT]);
+        bailout_tests_group.add(bailout_conditions[MainWindow.BAILOUT_CONDITION_NO_BAILOUT]);
 
         bailout_conditions[MainWindow.BAILOUT_CONDITION_USER] = new JRadioButtonMenuItem(bailoutConditionNames[MainWindow.BAILOUT_CONDITION_USER]);
         bailout_conditions[MainWindow.BAILOUT_CONDITION_USER].setToolTipText("A bailout condition defined by the user.");

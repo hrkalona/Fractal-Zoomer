@@ -38,21 +38,18 @@ public class UserStatisticColoringRootFindingMethod extends GenericStatistic {
     private Parser parser;
     private Complex[] globalVars;
     private double log_convergent_bailout;
-    private boolean useAverage;
     private PlanePointOption init_val;
     private int reductionFunction;
     private boolean useIterations;
-    private boolean useSmoothing;
 
     public UserStatisticColoringRootFindingMethod(double statistic_intensity, String user_statistic_formula, double xCenter, double yCenter, int max_iterations, double size, double convergent_bailout, double[] point, Complex[] globalVars, boolean useAverage, String user_statistic_init_value, int reductionFunction, boolean useIterations, boolean useSmoothing) {
-        super(statistic_intensity);
+        super(statistic_intensity, useSmoothing, useAverage);
         val = new Complex();
         val2 = new Complex();
 
         this.useAverage = useAverage;
         this.reductionFunction = reductionFunction;
         this.useIterations = useIterations;
-        this.useSmoothing = useSmoothing;
 
         log_convergent_bailout = Math.log(convergent_bailout);
 
@@ -91,6 +88,8 @@ public class UserStatisticColoringRootFindingMethod extends GenericStatistic {
     @Override
     public void insert(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start) {
 
+        super.insert(z, zold, zold2, iterations, c, start);
+
         if (parser.foundN()) {
             parser.setNvalue(new Complex(iterations, 0));
         }
@@ -126,10 +125,6 @@ public class UserStatisticColoringRootFindingMethod extends GenericStatistic {
                 samples++;
                 val2.assign(val);
                 val.plus_mutable(expr.getValue());
-
-                z_val.assign(z);
-                zold_val.assign(zold);
-                zold2_val.assign(zold2);
                 break;
             case MainWindow.REDUCTION_MIN:
                 Complex newVal = expr.getValue();
@@ -152,12 +147,21 @@ public class UserStatisticColoringRootFindingMethod extends GenericStatistic {
             case MainWindow.REDUCTION_ASSIGN:
                 val.assign(expr.getValue());
                 break;
+            case MainWindow.REDUCTION_SUB:
+                samples++;
+                val2.assign(val);
+                val.sub_mutable(expr.getValue());
+                break;
+            case MainWindow.REDUCTION_MULT:
+                val.times_mutable(expr.getValue());
+                break;
         }
 
     }
 
     @Override
-    public void initialize(Complex pixel) {
+    public void initialize(Complex pixel, Complex untransformedPixel) {
+        super.initialize(pixel, untransformedPixel);
         val = new Complex(init_val.getValue(pixel));
         val2 = new Complex(val);
         samples = 0;
@@ -170,7 +174,7 @@ public class UserStatisticColoringRootFindingMethod extends GenericStatistic {
         if (reductionFunction == MainWindow.REDUCTION_MAX || reductionFunction == MainWindow.REDUCTION_MIN) {
             return useIterations ? statisticIteration * statistic_intensity : val.getRe() * statistic_intensity;
         }
-        else if(reductionFunction != MainWindow.REDUCTION_SUM) {
+        else if(reductionFunction != MainWindow.REDUCTION_SUM && reductionFunction != MainWindow.REDUCTION_SUB) {
             return val.getRe() * statistic_intensity;
         }
 

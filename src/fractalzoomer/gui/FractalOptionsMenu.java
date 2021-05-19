@@ -17,14 +17,11 @@
 package fractalzoomer.gui;
 
 import fractalzoomer.main.MainWindow;
+
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import javax.swing.ImageIcon;
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JMenu;
-import javax.swing.JRadioButtonMenuItem;
-import javax.swing.KeyStroke;
 
 /**
  *
@@ -36,9 +33,11 @@ public class FractalOptionsMenu extends JMenu {
     private FractalFunctionsMenu fractal_functions_menu;
     private PlanesMenu planes_menu;
     private JCheckBoxMenuItem perturbation_opt;
-    private JCheckBoxMenuItem init_val_opt; 
+    private JCheckBoxMenuItem init_val_opt;
+    private FunctionFiltersMenu pre_function_filters;
+    private FunctionFiltersMenu post_function_filters;
     
-    public FractalOptionsMenu(MainWindow ptr2, String name, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, int function, int plane_type) {
+    public FractalOptionsMenu(MainWindow ptr2, String name, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, int function, int plane_type, int pre_filter, int post_filter) {
         super(name);
 
         this.ptr = ptr2;
@@ -48,6 +47,9 @@ public class FractalOptionsMenu extends JMenu {
         fractal_functions_menu = new FractalFunctionsMenu(ptr, "Fractal Functions", function);
         
         planes_menu = new PlanesMenu(ptr, "Planes", apply_plane_on_julia, apply_plane_on_julia_seed, plane_type);
+
+        pre_function_filters = new FunctionFiltersMenu(ptr, "Pre Function Filter", pre_filter, false);
+        post_function_filters = new FunctionFiltersMenu(ptr, "Post Function Filter", post_filter, true);
         
         perturbation_opt = new JCheckBoxMenuItem("Perturbation");
         init_val_opt = new JCheckBoxMenuItem("Initial Value");
@@ -81,6 +83,10 @@ public class FractalOptionsMenu extends JMenu {
         add(fractal_functions_menu);
         addSeparator();
         add(planes_menu);
+        addSeparator();
+        add(pre_function_filters);
+        addSeparator();
+        add(post_function_filters);
         addSeparator();
         add(init_val_opt);
         addSeparator();
@@ -151,6 +157,18 @@ public class FractalOptionsMenu extends JMenu {
         
         return perturbation_opt;
         
+    }
+
+    public JRadioButtonMenuItem[] getPreFunctionFilters() {
+
+        return pre_function_filters.getFunctionFilters();
+
+    }
+
+    public JRadioButtonMenuItem[] getPostFunctionFilters() {
+
+        return post_function_filters.getFunctionFilters();
+
     }
     
 }

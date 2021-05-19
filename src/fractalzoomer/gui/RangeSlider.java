@@ -1,6 +1,6 @@
 package fractalzoomer.gui;
 
-import javax.swing.JSlider;
+import javax.swing.*;
 
 /**
  * An extension of JSlider to select a range of values using two thumb controls.

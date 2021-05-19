@@ -151,7 +151,7 @@ public class UserTrueColorAlgorithm extends TrueColorAlgorithm {
     }
 
     @Override
-    public int createColor(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, boolean escaped) {
+    public int createColor(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, double stat, double trap, boolean escaped) {
 
         /**
          * * C1 ***
@@ -178,6 +178,14 @@ public class UserTrueColorAlgorithm extends TrueColorAlgorithm {
 
         if (parser1.foundPP()) {
             parser1.setPPvalue(zold2);
+        }
+
+        if (parser1.foundStat()) {
+            parser1.setStatvalue(new Complex(stat, 0));
+        }
+
+        if (parser1.foundTrap()) {
+            parser1.setTrapvalue(new Complex(trap, 0));
         }
 
         for (int i = 0; i < Parser.EXTRA_VARS; i++) {
@@ -217,6 +225,14 @@ public class UserTrueColorAlgorithm extends TrueColorAlgorithm {
                 parser2.setPPvalue(zold2);
             }
 
+            if (parser2.foundStat()) {
+                parser2.setStatvalue(new Complex(stat, 0));
+            }
+
+            if (parser2.foundTrap()) {
+                parser2.setTrapvalue(new Complex(trap, 0));
+            }
+
             for (int i = 0; i < Parser.EXTRA_VARS; i++) {
                 if (parser2.foundVar(i)) {
                     parser2.setVarsvalue(i, globalVars[i]);
@@ -251,6 +267,14 @@ public class UserTrueColorAlgorithm extends TrueColorAlgorithm {
 
             if (parser3.foundPP()) {
                 parser3.setPPvalue(zold2);
+            }
+
+            if (parser3.foundStat()) {
+                parser3.setStatvalue(new Complex(stat, 0));
+            }
+
+            if (parser3.foundTrap()) {
+                parser3.setTrapvalue(new Complex(trap, 0));
             }
 
             for (int i = 0; i < Parser.EXTRA_VARS; i++) {

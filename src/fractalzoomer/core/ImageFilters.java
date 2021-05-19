@@ -16,50 +16,19 @@
  */
 package fractalzoomer.core;
 
-import fractalzoomer.filters_utils.image.BumpFilter;
-import fractalzoomer.filters_utils.image.ChannelMixFilter;
-import fractalzoomer.filters_utils.image.ContrastFilter;
-import fractalzoomer.filters_utils.image.CrystallizeFilter;
-import fractalzoomer.filters_utils.image.DiffusionFilter;
-import fractalzoomer.filters_utils.image.DitherFilter;
-import fractalzoomer.filters_utils.image.EdgeFilter;
-import fractalzoomer.filters_utils.image.EmbossFilter;
-import fractalzoomer.filters_utils.image.ExposureFilter;
-import fractalzoomer.filters_utils.image.GainFilter;
-import fractalzoomer.filters_utils.image.GammaFilter;
-import fractalzoomer.filters_utils.image.GlowFilter;
 import fractalzoomer.filters_utils.image.GrayFilter;
-import fractalzoomer.filters_utils.image.HSBAdjustFilter;
-import fractalzoomer.filters_utils.image.HighPassFilter;
-import fractalzoomer.filters_utils.image.LightFilter;
+import fractalzoomer.filters_utils.image.*;
 import fractalzoomer.filters_utils.image.LightFilter.Light;
 import fractalzoomer.filters_utils.image.LightFilter.Material;
-import fractalzoomer.filters_utils.image.MarbleTexFilter;
-import fractalzoomer.filters_utils.image.MaskFilter;
-import fractalzoomer.filters_utils.image.MaximumFilter;
-import fractalzoomer.filters_utils.image.MedianFilter;
-import fractalzoomer.filters_utils.image.MinimumFilter;
-import fractalzoomer.filters_utils.image.MirrorFilter;
-import fractalzoomer.filters_utils.image.NoiseFilter;
-import fractalzoomer.filters_utils.image.OilFilter;
-import fractalzoomer.filters_utils.image.PointillizeFilter;
-import fractalzoomer.filters_utils.image.PosterizeFilter;
-import fractalzoomer.filters_utils.image.RGBAdjustFilter;
-import fractalzoomer.filters_utils.image.RescaleFilter;
-import fractalzoomer.filters_utils.image.SolarizeFilter;
-import fractalzoomer.filters_utils.image.SparkleFilter;
-import fractalzoomer.filters_utils.image.SwizzleFilter;
-import fractalzoomer.filters_utils.image.TemperatureFilter;
-import fractalzoomer.filters_utils.image.WeaveFilter;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.utils.ColorSpaceConverter;
-import java.awt.Color;
-import java.awt.Graphics2D;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.ConvolveOp;
 import java.awt.image.DataBufferInt;
 import java.awt.image.Kernel;
-import javax.swing.JProgressBar;
 
 /**
  *

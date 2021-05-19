@@ -29,7 +29,7 @@ public class CosArgDivideInverseNorm extends GenericStatistic {
     private double StripeDenominatorFactor;
     
     public CosArgDivideInverseNorm(double statistic_intensity, double StripeDensity, double StripeDenominatorFactor) {
-        super(statistic_intensity);
+        super(statistic_intensity, false, false);
         sum = 0;
         this.StripeDenominatorFactor = StripeDenominatorFactor;
         this.StripeDensity = StripeDensity;
@@ -37,14 +37,17 @@ public class CosArgDivideInverseNorm extends GenericStatistic {
 
     @Override
     public void insert(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start) {
-        
+
+        super.insert(z, zold, zold2, iterations, c, start);
+
         Complex sub = z.sub(zold);
         sum += (0.5 * Math.cos(StripeDensity * (sub.arg() + Math.PI)) + 0.5) / (StripeDenominatorFactor + 1 / (sub.norm()));
               
     }
 
     @Override
-    public void initialize(Complex pixel) {
+    public void initialize(Complex pixel, Complex untransformedPixel) {
+        super.initialize(pixel, untransformedPixel);
         sum = 0;
     }
 

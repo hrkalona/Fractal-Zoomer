@@ -16,33 +16,20 @@
  */
 package fractalzoomer.gui;
 
-import static fractalzoomer.main.Constants.CUSTOM_PALETTE_ID;
-import static fractalzoomer.main.Constants.domainAlgNames;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.DomainColoringSettings;
 import fractalzoomer.main.app_settings.Settings;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
+
+import javax.swing.*;
+import javax.swing.border.TitledBorder;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import javax.swing.BorderFactory;
-import javax.swing.ButtonGroup;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JScrollPane;
-import javax.swing.JTextField;
-import javax.swing.border.TitledBorder;
+
+import static fractalzoomer.main.Constants.CUSTOM_PALETTE_ID;
+import static fractalzoomer.main.Constants.domainAlgNames;
 
 /**
  *

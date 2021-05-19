@@ -89,6 +89,7 @@ public class FunctionSettings implements Constants {
     public String user_fz_formula;
     public String user_dfz_formula;
     public String user_ddfz_formula;
+    public String user_dddfz_formula;
     public int bail_technique;
     public boolean julia;
     public int bailout_test_algorithm;
@@ -121,6 +122,9 @@ public class FunctionSettings implements Constants {
     public double[] newton_hines_k;
     public TrueColorSettings tcs;
     public int derivative_method;
+    public int root_initialization_method;
+    public FunctionFilterSettings preffs;
+    public FunctionFilterSettings postffs;
     
     public FunctionSettings() {
         n_norm = 2;
@@ -235,7 +239,9 @@ public class FunctionSettings implements Constants {
         user_fz_formula = "z^3 - 1";
         user_dfz_formula = "3*z^2";
         user_ddfz_formula = "6*z";
-        
+        user_dddfz_formula = "6";
+
+
         user_relaxation_formula = "1.0";
         user_nova_addend_formula = "c";
         
@@ -346,6 +352,10 @@ public class FunctionSettings implements Constants {
         tcs = new TrueColorSettings();
         
         derivative_method = Derivative.DISABLED;
+        root_initialization_method = 0;
+
+        preffs = new FunctionFilterSettings();
+        postffs = new FunctionFilterSettings();
         
     }
     

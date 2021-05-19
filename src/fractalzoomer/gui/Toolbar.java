@@ -17,11 +17,10 @@
 package fractalzoomer.gui;
 
 import fractalzoomer.main.MainWindow;
+
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JToolBar;
 
 /**
  *
@@ -50,6 +49,8 @@ public class Toolbar extends JToolBar {
     private JButton julia_map_button;
     private JButton domain_coloring_button;
     private JButton help_button;
+    private JButton current_function_button;
+    private JButton current_plane_button;
     
     public Toolbar(MainWindow ptr2) {
         super();
@@ -161,6 +162,40 @@ public class Toolbar extends JToolBar {
         });
 
         add(save_image_and_settings_button);
+
+        addSeparator();
+
+
+
+        current_function_button = new JButton();
+        current_function_button.setIcon(getIcon("/fractalzoomer/icons/functions.png"));
+        current_function_button.setFocusable(false);
+        current_function_button.setToolTipText("Selects the active function for parameterization (if applicable).");
+
+        current_function_button.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ptr.clickCurrentFunction();
+            }
+        });
+
+        add(current_function_button);
+
+        current_plane_button = new JButton();
+        current_plane_button.setIcon(getIcon("/fractalzoomer/icons/planes.png"));
+        current_plane_button.setFocusable(false);
+        current_plane_button.setToolTipText("Selects the active plane transformation for parameterization (if applicable).");
+
+        current_plane_button.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                ptr.clickCurrentPlane();
+            }
+        });
+
+        add(current_plane_button);
 
         addSeparator();
 
@@ -529,5 +564,17 @@ public class Toolbar extends JToolBar {
         
         return go_to_button;
         
+    }
+
+    public JButton getCurrentFunction() {
+
+        return current_function_button;
+
+    }
+
+    public JButton getCurrentPlane() {
+
+        return current_plane_button;
+
     }
 }

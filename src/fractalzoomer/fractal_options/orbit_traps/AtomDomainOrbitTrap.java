@@ -49,7 +49,7 @@ public class AtomDomainOrbitTrap extends OrbitTrap {
             distance = dist;
             trapId = 0;
             setTrappedData(val, iteration);           
-        } else if (dist < old_distance) {
+        } else if (dist < old_distance && dist != distance) {
             old_distance = dist;
             countExtraIterations();
         }

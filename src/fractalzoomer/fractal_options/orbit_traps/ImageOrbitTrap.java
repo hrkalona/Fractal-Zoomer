@@ -17,6 +17,7 @@
 package fractalzoomer.fractal_options.orbit_traps;
 
 import fractalzoomer.core.Complex;
+
 import java.awt.image.BufferedImage;
 
 /**

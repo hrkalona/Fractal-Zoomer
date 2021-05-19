@@ -16,7 +16,7 @@ limitations under the License.
 
 package fractalzoomer.filters_utils.image;
 
-import java.util.*;
+import java.util.Random;
 
 public class SparkleFilter extends PointFilter {
 	

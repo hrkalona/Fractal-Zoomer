@@ -17,40 +17,15 @@
 package fractalzoomer.functions.root_finding_methods;
 
 import fractalzoomer.core.Complex;
-import fractalzoomer.fractal_options.iteration_statistics.AtomDomain;
-import fractalzoomer.fractal_options.iteration_statistics.CosArgDivideInverseNorm;
-import fractalzoomer.fractal_options.iteration_statistics.UserStatisticColoringRootFindingMethod;
+import fractalzoomer.fractal_options.iteration_statistics.*;
 import fractalzoomer.functions.Fractal;
-import fractalzoomer.in_coloring_algorithms.AtanReTimesImTimesAbsReTimesAbsIm;
-import fractalzoomer.in_coloring_algorithms.CosMag;
-import fractalzoomer.in_coloring_algorithms.DecompositionLike;
-import fractalzoomer.in_coloring_algorithms.MagTimesCosReSquared;
-import fractalzoomer.in_coloring_algorithms.MaximumIterations;
-import fractalzoomer.in_coloring_algorithms.ReDivideIm;
-import fractalzoomer.in_coloring_algorithms.SinReSquaredMinusImSquared;
-import fractalzoomer.in_coloring_algorithms.Squares;
-import fractalzoomer.in_coloring_algorithms.Squares2;
-import fractalzoomer.in_coloring_algorithms.UserConditionalInColorAlgorithm;
-import fractalzoomer.in_coloring_algorithms.UserInColorAlgorithm;
-import fractalzoomer.in_coloring_algorithms.ZMag;
+import fractalzoomer.in_coloring_algorithms.*;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
 import fractalzoomer.main.app_settings.StatisticsSettings;
 import fractalzoomer.main.app_settings.TrueColorSettings;
-import fractalzoomer.out_coloring_algorithms.BinaryDecomposition;
-import fractalzoomer.out_coloring_algorithms.BinaryDecomposition2;
-import fractalzoomer.out_coloring_algorithms.ColorDecompositionRootFindingMethod;
-import fractalzoomer.out_coloring_algorithms.EscapeTime;
-import fractalzoomer.out_coloring_algorithms.EscapeTimeAlgorithm1;
-import fractalzoomer.out_coloring_algorithms.EscapeTimeColorDecompositionRootFindingMethod;
-import fractalzoomer.out_coloring_algorithms.SmoothBinaryDecomposition2RootFindingMethod;
-import fractalzoomer.out_coloring_algorithms.SmoothBinaryDecompositionRootFindingMethod;
-import fractalzoomer.out_coloring_algorithms.SmoothColorDecompositionRootFindingMethod;
-import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeColorDecompositionRootFindingMethod;
-import fractalzoomer.out_coloring_algorithms.SmoothEscapeTimeRootFindingMethod;
-import fractalzoomer.out_coloring_algorithms.UserConditionalOutColorAlgorithmRootFindingMethod;
-import fractalzoomer.out_coloring_algorithms.UserOutColorAlgorithmRootFindingMethod;
-import fractalzoomer.true_coloring_algorithms.*;
+import fractalzoomer.out_coloring_algorithms.*;
+import fractalzoomer.true_coloring_algorithms.UserTrueColorAlgorithm;
 import fractalzoomer.utils.ColorAlgorithm;
 
 import java.util.ArrayList;
@@ -80,16 +55,23 @@ public abstract class RootFindingMethods extends Fractal {
     }
 
     @Override
-    public double calculateFractalWithoutPeriodicity(Complex pixel) {
-        int iterations = 0;
-        double temp = 0;
+    public Complex[] initialize(Complex pixel) {
 
         Complex[] complex = new Complex[1];
         complex[0] = new Complex(pixel);//z
 
-        Complex zold = new Complex();
-        Complex zold2 = new Complex();
-        Complex start = new Complex(complex[0]);
+        zold = new Complex();
+        zold2 = new Complex();
+        start = new Complex(complex[0]);
+
+        return complex;
+
+    }
+
+    @Override
+    protected double iterateFractalWithoutPeriodicity(Complex[] complex, Complex pixel) {
+        iterations = 0;
+        double temp = 0;
 
         for (; iterations < max_iterations; iterations++) {
 
@@ -100,30 +82,29 @@ public abstract class RootFindingMethods extends Fractal {
             if (iterations > 0 && (temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
                 escaped = true;
 
-                if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(complex[0], zold, zold2, iterations, pixel, start);
-                }
-
                 Object[] object = {iterations, complex[0], temp, zold, zold2, pixel, start};
                 iterationData = object;
                 double out = out_color_algorithm.getResult(object);
 
                 out = getFinalValueOut(out);
 
+                if (outTrueColorAlgorithm != null) {
+                    setTrueColorOut(complex[0], zold, zold2, iterations, pixel, start);
+                }
+
                 return out;
             }
             zold2.assign(zold);
             zold.assign(complex[0]);
+
+            complex[0] = preFilter.getValue(complex[0], iterations, pixel, start);
             function(complex);
+            complex[0] = postFilter.getValue(complex[0], iterations, pixel, start);
 
             if (statistic != null) {
                 statistic.insert(complex[0], zold, zold2, iterations, pixel, start);
             }
 
-        }
-
-        if (inTrueColorAlgorithm != null) {
-            setTrueColorIn(complex[0], zold, zold2, iterations, pixel, start);
         }
 
         Object[] object = {complex[0], zold, zold2, pixel, start};
@@ -132,21 +113,28 @@ public abstract class RootFindingMethods extends Fractal {
 
         in = getFinalValueIn(in);
 
+        if (inTrueColorAlgorithm != null) {
+            setTrueColorIn(complex[0], zold, zold2, iterations, pixel, start);
+        }
+
         return in;
 
     }
 
     @Override
-    public void calculateFractalOrbit() {
-        int iterations = 0;
-
-        Complex[] complex = new Complex[1];
-        complex[0] = new Complex(pixel_orbit);//z
+    protected void iterateFractalOrbit(Complex[] complex, Complex pixel) {
+        iterations = 0;
 
         Complex temp = null;
 
         for (; iterations < max_iterations; iterations++) {
+            zold2.assign(zold);
+            zold.assign(complex[0]);
+
+            complex[0] = preFilter.getValue(complex[0], iterations, pixel, start);
             function(complex);
+            complex[0] = postFilter.getValue(complex[0], iterations, pixel, start);
+
             temp = rotation.rotateInverse(complex[0]);
 
             if (Double.isNaN(temp.getRe()) || Double.isNaN(temp.getIm()) || Double.isInfinite(temp.getRe()) || Double.isInfinite(temp.getIm())) {
@@ -158,16 +146,18 @@ public abstract class RootFindingMethods extends Fractal {
 
     }
 
-    @Override
-    public Complex iterateFractalDomain(Complex pixel) {
-        int iterations = 0;
+    protected Complex iterateFractalDomain(Complex[] complex, Complex pixel) {
 
-        Complex[] complex = new Complex[1];
-        complex[0] = new Complex(pixel);//z
+        iterations = 0;
 
         for (; iterations < max_iterations; iterations++) {
 
+            zold2.assign(zold);
+            zold.assign(complex[0]);
+
+            complex[0] = preFilter.getValue(complex[0], iterations, pixel, start);
             function(complex);
+            complex[0] = postFilter.getValue(complex[0], iterations, pixel, start);
 
         }
 
@@ -338,6 +328,10 @@ public abstract class RootFindingMethods extends Fractal {
             statistic = new UserStatisticColoringRootFindingMethod(sts.statistic_intensity, sts.user_statistic_formula, xCenter, yCenter, max_iterations, size, convergent_bailout, plane_transform_center, globalVars, sts.useAverage, sts.user_statistic_init_value, sts.reductionFunction, sts.useIterations, sts.useSmoothing);
             return;
         }
+        else if(sts.statisticGroup == 2) {
+            statistic = new Equicontinuity(sts.statistic_intensity, sts.useSmoothing, sts.useAverage, 0, true, Math.log(convergent_bailout), sts.equicontinuityDenominatorFactor, sts.equicontinuityInvertFactor, sts.equicontinuityDelta);
+            return;
+        }
 
         switch (sts.statistic_type) {
 
@@ -347,7 +341,9 @@ public abstract class RootFindingMethods extends Fractal {
             case MainWindow.ATOM_DOMAIN_BOF60_BOF61:
                 statistic = new AtomDomain(sts.showAtomDomains, sts.statistic_intensity);
                 break;
-
+            case MainWindow.DISCRETE_LAGRANGIAN_DESCRIPTORS:
+                statistic = new DiscreteLagrangianDescriptors(sts.statistic_intensity, sts.lagrangianPower, 0, sts.useSmoothing, sts.useAverage, true, Math.log(convergent_bailout));
+                break;
         }
     }
 
