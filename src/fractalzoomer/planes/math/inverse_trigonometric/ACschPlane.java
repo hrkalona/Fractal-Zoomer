@@ -16,7 +16,7 @@
  */
 
 package fractalzoomer.planes.math.inverse_trigonometric;
-        
+
 import fractalzoomer.core.Complex;
 import fractalzoomer.planes.Plane;
 

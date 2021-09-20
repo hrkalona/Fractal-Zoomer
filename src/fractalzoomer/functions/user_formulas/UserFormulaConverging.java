@@ -135,6 +135,9 @@ public class UserFormulaConverging extends ExtendedConvergentType {
             StatisticFactory(sts, plane_transform_center);
         }
 
+        pertur_val = new DefaultPerturbation();
+        init_val = new DefaultInitialValue();
+
     }
 
     //orbit
@@ -191,6 +194,9 @@ public class UserFormulaConverging extends ExtendedConvergentType {
         expr2 = parser2.parse(user_formula2);
 
         point = new Complex(plane_transform_center[0], plane_transform_center[1]);
+
+        pertur_val = new DefaultPerturbation();
+        init_val = new DefaultInitialValue();
 
     }
 
@@ -258,7 +264,7 @@ public class UserFormulaConverging extends ExtendedConvergentType {
 
         Complex[] complex = super.initialize(pixel);
 
-        setInitVariables(start, zold, zold2);
+        setInitVariables(start, zold, zold2, c0);
 
         return complex;
 
@@ -269,7 +275,7 @@ public class UserFormulaConverging extends ExtendedConvergentType {
 
         Complex[] complex = super.initializeSeed(pixel);
 
-        setInitVariables(start, zold, zold2);
+        setInitVariables(start, zold, zold2, c0);
 
         return complex;
 
@@ -295,7 +301,7 @@ public class UserFormulaConverging extends ExtendedConvergentType {
 
     }
 
-    private void setInitVariables(Complex start, Complex zold, Complex zold2) {
+    private void setInitVariables(Complex start, Complex zold, Complex zold2, Complex c0) {
 
         if (parser.foundS()) {
             parser.setSvalue(start);
@@ -303,6 +309,14 @@ public class UserFormulaConverging extends ExtendedConvergentType {
 
         if (parser2.foundS()) {
             parser2.setSvalue(start);
+        }
+
+        if (parser.foundC0()) {
+            parser.setC0value(c0);
+        }
+
+        if (parser2.foundC0()) {
+            parser2.setC0value(c0);
         }
 
         if (parser.foundMaxn()) {

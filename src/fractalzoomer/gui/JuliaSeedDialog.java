@@ -48,7 +48,7 @@ public class JuliaSeedDialog extends JDialog {
 
         JTextField field_real = new JTextField();
 
-        Point2D.Double p = MathUtils.rotatePointRelativeToPoint(s.xCenter, s.yCenter, s.fns.rotation_vals, s.fns.rotation_center);
+        Point2D.Double p = MathUtils.rotatePointRelativeToPoint(s.xCenter.doubleValue(), s.yCenter.doubleValue(), Settings.fromDDArray(s.fns.rotation_vals), Settings.fromDDArray(s.fns.rotation_center));
 
         if (p.x == 0) {
             field_real.setText("" + 0.0);

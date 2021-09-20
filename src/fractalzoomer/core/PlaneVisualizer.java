@@ -58,8 +58,8 @@ public class PlaneVisualizer {
         this.plane_mu_image = plane_mu_image;
         this.new_plane_image = new_plane_image;
         this.size = size;
-        this.xCenter = s.xCenter;
-        this.yCenter = s.yCenter;
+        this.xCenter = s.xCenter.doubleValue();
+        this.yCenter = s.yCenter.doubleValue();
         
         usesCenter = false;
         
@@ -296,7 +296,7 @@ public class PlaneVisualizer {
             x_center = xCenter;
             y_center = yCenter;
         }
-        
+
         double size_2 = size * 0.5;
         double temp_xcenter_size = x_center - size_2;
         double temp_ycenter_size = y_center+ size_2;

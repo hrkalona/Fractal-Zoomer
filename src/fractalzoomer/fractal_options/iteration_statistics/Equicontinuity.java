@@ -13,6 +13,7 @@ public class Equicontinuity extends GenericStatistic {
     private double sum2;
     private Complex[] complex;
     private boolean julia;
+    private boolean juliter;
     private double log_bailout_squared;
     private double log_convergent_bailout;
     private Complex root;
@@ -41,18 +42,26 @@ public class Equicontinuity extends GenericStatistic {
         this.denominatorFactor = denominatorFactor;
         this.invertFactor = invertFactor;
         this.delta = delta;
+
+        juliter = false;
     }
 
     @Override
-    public void insert(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start) {
-        super.insert(z, zold, zold2, iterations, c, start);
+    public void insert(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0) {
+        super.insert(z, zold, zold2, iterations, c, start, c0);
 
-        f.updateZoldAndZold2(complex[0]);
         f.setIteration(iterations);
 
-        complex[0] = f.getPreFilter().getValue(complex[0], iterations, isFractalWithoutConstant ? pixel_val : complex[1], start);
+        f.updateValues(complex);
+
+        f.updateZoldAndZold2(complex[0]);
+
+        if(!isFractalWithoutConstant) {
+            complex[1] = f.getPlaneInfluence().getValue(complex[0], iterations, complex[1], start, zold, zold2, c0);
+        }
+        complex[0] = f.getPreFilter().getValue(complex[0], iterations, isFractalWithoutConstant ? pixel_val : complex[1], start, c0);
         f.function(complex);
-        complex[0] = f.getPostFilter().getValue(complex[0], iterations, isFractalWithoutConstant ? pixel_val : complex[1], start);
+        complex[0] = f.getPostFilter().getValue(complex[0], iterations, isFractalWithoutConstant ? pixel_val : complex[1], start, c0);
 
         double res = complex[0].distance_squared(z);
 
@@ -75,7 +84,7 @@ public class Equicontinuity extends GenericStatistic {
         f.setIteration(0);
         Complex deltaPixel = untransformedPixel.plus(delta);
         Complex transformed = julia ? f.getTransformedPixelJulia(deltaPixel) : f.getTransformedPixel(deltaPixel);
-        complex = julia ? f.initializeSeed(transformed) : f.initialize(transformed);
+        complex = julia ? (juliter ? f.initialize(transformed) : f.initializeSeed(transformed)) : f.initialize(transformed);
     }
 
     @Override
@@ -144,5 +153,9 @@ public class Equicontinuity extends GenericStatistic {
 
     public void setJulia(boolean julia) {
         this.julia = julia;
+    }
+
+    public void setJuliIter(boolean juliter) {
+        this.juliter = juliter;
     }
 }

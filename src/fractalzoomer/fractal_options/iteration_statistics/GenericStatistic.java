@@ -34,6 +34,7 @@ public abstract class GenericStatistic {
     protected Complex zold2_val;
     protected Complex start_val;
     protected Complex c_val;
+    protected Complex c0_val;
     protected Complex pixel_val;
     protected boolean useSmoothing;
     protected boolean useAverage;
@@ -46,6 +47,7 @@ public abstract class GenericStatistic {
         zold2_val = new Complex();
         start_val = new Complex();
         c_val = new Complex();
+        c0_val = new Complex();
         pixel_val = new Complex();
         samples = 0;
         this.useSmoothing = useSmoothing;
@@ -53,12 +55,13 @@ public abstract class GenericStatistic {
         mode = NORMAL_ESCAPE;
     }
     
-    public void insert(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start) {
+    public void insert(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0) {
         z_val.assign(z);
         zold_val.assign(zold);
         zold2_val.assign(zold2);
         start_val.assign(start);
         c_val.assign(c);
+        c0_val.assign(c0);
     }
 
     public void initialize(Complex pixel, Complex untransformedPixel) {
@@ -67,6 +70,7 @@ public abstract class GenericStatistic {
         zold2_val.reset();
         start_val.reset();
         c_val.reset();
+        c0_val.reset();
         pixel_val.assign(pixel);
     }
 
@@ -112,6 +116,10 @@ public abstract class GenericStatistic {
 
     public Complex getStart() {
         return start_val;
+    }
+
+    public Complex getC0() {
+        return c0_val;
     }
 
     public Complex getC() {

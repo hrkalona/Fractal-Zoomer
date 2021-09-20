@@ -43,11 +43,15 @@ import fractalzoomer.functions.magnet.Magnet1;
 import fractalzoomer.functions.magnet.Magnet2;
 import fractalzoomer.functions.mandelbrot.*;
 import fractalzoomer.functions.math.*;
+import fractalzoomer.functions.root_finding_methods.abbasbandy.*;
 import fractalzoomer.functions.root_finding_methods.aberth_ehrlich.*;
 import fractalzoomer.functions.root_finding_methods.bairstow.*;
 import fractalzoomer.functions.root_finding_methods.durand_kerner.*;
 import fractalzoomer.functions.root_finding_methods.halley.*;
 import fractalzoomer.functions.root_finding_methods.householder.*;
+import fractalzoomer.functions.root_finding_methods.householder3.*;
+import fractalzoomer.functions.root_finding_methods.jaratt.*;
+import fractalzoomer.functions.root_finding_methods.jaratt2.*;
 import fractalzoomer.functions.root_finding_methods.laguerre.*;
 import fractalzoomer.functions.root_finding_methods.midpoint.*;
 import fractalzoomer.functions.root_finding_methods.muller.*;
@@ -59,20 +63,17 @@ import fractalzoomer.functions.root_finding_methods.secant.*;
 import fractalzoomer.functions.root_finding_methods.steffensen.*;
 import fractalzoomer.functions.root_finding_methods.stirling.*;
 import fractalzoomer.functions.root_finding_methods.super_halley.*;
+import fractalzoomer.functions.root_finding_methods.third_order_newton.*;
 import fractalzoomer.functions.root_finding_methods.traub_ostrowski.*;
+import fractalzoomer.functions.root_finding_methods.weerakoon_fernando.*;
 import fractalzoomer.functions.root_finding_methods.whittaker.*;
 import fractalzoomer.functions.root_finding_methods.whittaker_double_convex.*;
-import fractalzoomer.functions.root_finding_methods.jaratt.*;
-import fractalzoomer.functions.root_finding_methods.jaratt2.*;
-import fractalzoomer.functions.root_finding_methods.third_order_newton.*;
-import fractalzoomer.functions.root_finding_methods.weerakoon_fernando.*;
-import fractalzoomer.functions.root_finding_methods.householder3.*;
-import fractalzoomer.functions.root_finding_methods.abbasbandy.*;
 import fractalzoomer.functions.szegedi_butterfly.SzegediButterfly1;
 import fractalzoomer.functions.szegedi_butterfly.SzegediButterfly2;
 import fractalzoomer.functions.user_formulas.*;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.*;
+import org.apfloat.Apfloat;
 
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
@@ -83,7 +84,10 @@ import java.util.ArrayList;
  * @author hrkalona
  */
 public class DrawOrbit extends Thread {
-    
+
+    protected Apfloat xCenter;
+    protected Apfloat yCenter;
+    protected Apfloat size;
     protected Fractal pixel_orbit;
     protected IterationAlgorithm iteration_algorithm;
     protected ArrayList<Complex> complex_orbit;
@@ -103,10 +107,10 @@ public class DrawOrbit extends Thread {
     public DrawOrbit(Settings s, int pixel_x, int pixel_y, int image_size, MainWindow ptr, Color orbit_color, int orbit_style, boolean show_converging_point) {
         
         if(!s.fns.julia) {
-            InitOrbitSettings(s.xCenter, s.yCenter, s.size, s.max_iterations > 400 ? 400 : s.max_iterations, pixel_x, pixel_y, image_size, ptr, orbit_color, orbit_style, s.fns.plane_type, s.fns.burning_ship, s.fns.mandel_grass, s.fns.mandel_grass_vals, s.fns.function, s.fns.z_exponent, s.fns.z_exponent_complex, s.fns.rotation_vals, s.fns.rotation_center, s.fns.perturbation, s.fns.perturbation_vals, s.fns.variable_perturbation, s.fns.user_perturbation_algorithm, s.fns.user_perturbation_conditions, s.fns.user_perturbation_condition_formula, s.fns.perturbation_user_formula, s.fns.init_val, s.fns.initial_vals, s.fns.variable_init_value, s.fns.user_initial_value_algorithm, s.fns.user_initial_value_conditions, s.fns.user_initial_value_condition_formula, s.fns.initial_value_user_formula, s.fns.coefficients, s.fns.z_exponent_nova, s.fns.relaxation, s.fns.nova_method, s.fns.user_formula, s.fns.user_formula2, s.fns.bail_technique, s.fns.user_plane, s.fns.user_plane_algorithm, s.fns.user_plane_conditions, s.fns.user_plane_condition_formula, s.fns.user_formula_iteration_based, s.fns.user_formula_conditions, s.fns.user_formula_condition_formula, s.height_ratio, s.fns.plane_transform_center, s.fns.plane_transform_angle, s.fns.plane_transform_radius, s.fns.plane_transform_scales, s.fns.plane_transform_wavelength, s.fns.waveType, s.fns.plane_transform_angle2, s.fns.plane_transform_sides, s.fns.plane_transform_amount, s.polar_projection, s.circle_period, s.fns.user_fz_formula, s.fns.user_dfz_formula, s.fns.user_ddfz_formula, s.fns.user_dddfz_formula, show_converging_point, s.fns.coupling, s.fns.user_formula_coupled, s.fns.coupling_method, s.fns.coupling_amplitude, s.fns.coupling_frequency, s.fns.coupling_seed, s.fns.laguerre_deg, s.fns.kleinianLine, s.fns.kleinianK, s.fns.kleinianM, s.fns.gcs, s.fns.durand_kerner_init_val, s.fns.mps, s.fns.coefficients_im, s.fns.lpns.lyapunovFinalExpression, s.fns.lpns.lyapunovFunction, s.fns.lpns.lyapunovExponentFunction, s.fns.user_relaxation_formula, s.fns.user_nova_addend_formula, s.fns.gcps, s.fns.igs, s.fns.lfns, s.fns.newton_hines_k, s.fns.lpns.lyapunovInitialValue, s.fns.lpns.lyapunovInitializationIteratons, s.fns.root_initialization_method, s.fns.preffs, s.fns.postffs);
+            InitOrbitSettings(s.xCenter, s.yCenter, s.size, s.max_iterations > 400 ? 400 : s.max_iterations, pixel_x, pixel_y, image_size, ptr, orbit_color, orbit_style, s.fns.plane_type, s.fns.burning_ship, s.fns.mandel_grass, s.fns.mandel_grass_vals, s.fns.function, s.fns.z_exponent, s.fns.z_exponent_complex, Settings.fromDDArray(s.fns.rotation_vals), Settings.fromDDArray(s.fns.rotation_center), s.fns.perturbation, s.fns.perturbation_vals, s.fns.variable_perturbation, s.fns.user_perturbation_algorithm, s.fns.user_perturbation_conditions, s.fns.user_perturbation_condition_formula, s.fns.perturbation_user_formula, s.fns.init_val, s.fns.initial_vals, s.fns.variable_init_value, s.fns.user_initial_value_algorithm, s.fns.user_initial_value_conditions, s.fns.user_initial_value_condition_formula, s.fns.initial_value_user_formula, s.fns.coefficients, s.fns.z_exponent_nova, s.fns.relaxation, s.fns.nova_method, s.fns.user_formula, s.fns.user_formula2, s.fns.bail_technique, s.fns.user_plane, s.fns.user_plane_algorithm, s.fns.user_plane_conditions, s.fns.user_plane_condition_formula, s.fns.user_formula_iteration_based, s.fns.user_formula_conditions, s.fns.user_formula_condition_formula, s.height_ratio, s.fns.plane_transform_center, s.fns.plane_transform_angle, s.fns.plane_transform_radius, s.fns.plane_transform_scales, s.fns.plane_transform_wavelength, s.fns.waveType, s.fns.plane_transform_angle2, s.fns.plane_transform_sides, s.fns.plane_transform_amount, s.polar_projection, s.circle_period, s.fns.user_fz_formula, s.fns.user_dfz_formula, s.fns.user_ddfz_formula, s.fns.user_dddfz_formula, show_converging_point, s.fns.coupling, s.fns.user_formula_coupled, s.fns.coupling_method, s.fns.coupling_amplitude, s.fns.coupling_frequency, s.fns.coupling_seed, s.fns.laguerre_deg, s.fns.kleinianLine, s.fns.kleinianK, s.fns.kleinianM, s.fns.gcs, s.fns.durand_kerner_init_val, s.fns.mps, s.fns.coefficients_im, s.fns.lpns.lyapunovFinalExpression, s.fns.lpns.lyapunovFunction, s.fns.lpns.lyapunovExponentFunction, s.fns.user_relaxation_formula, s.fns.user_nova_addend_formula, s.fns.gcps, s.fns.igs, s.fns.lfns, s.fns.newton_hines_k, s.fns.lpns.lyapunovInitialValue, s.fns.lpns.lyapunovInitializationIteratons, s.fns.root_initialization_method, s.fns.preffs, s.fns.postffs, s.fns.ips);
         }
         else {
-            InitOrbitSettings(s.xCenter, s.yCenter, s.size, s.max_iterations > 400 ? 400 : s.max_iterations, pixel_x, pixel_y, image_size, ptr, orbit_color, orbit_style, s.fns.plane_type, s.fns.apply_plane_on_julia, s.fns.apply_plane_on_julia_seed, s.fns.burning_ship, s.fns.mandel_grass, s.fns.mandel_grass_vals, s.fns.function, s.fns.z_exponent, s.fns.z_exponent_complex, s.fns.rotation_vals, s.fns.rotation_center, s.fns.coefficients, s.fns.z_exponent_nova, s.fns.relaxation, s.fns.nova_method, s.fns.user_formula, s.fns.user_formula2, s.fns.bail_technique, s.fns.user_plane, s.fns.user_plane_algorithm, s.fns.user_plane_conditions, s.fns.user_plane_condition_formula, s.fns.user_formula_iteration_based, s.fns.user_formula_conditions, s.fns.user_formula_condition_formula, s.height_ratio, s.fns.plane_transform_center, s.fns.plane_transform_angle, s.fns.plane_transform_radius, s.fns.plane_transform_scales, s.fns.plane_transform_wavelength, s.fns.waveType, s.fns.plane_transform_angle2, s.fns.plane_transform_sides, s.fns.plane_transform_amount, s.polar_projection, s.circle_period, show_converging_point, s.fns.coupling, s.fns.user_formula_coupled, s.fns.coupling_method, s.fns.coupling_amplitude, s.fns.coupling_frequency, s.fns.coupling_seed, s.fns.gcs, s.fns.coefficients_im, s.fns.lpns.lyapunovFinalExpression, s.fns.lpns.lyapunovFunction, s.fns.lpns.lyapunovExponentFunction, s.fns.user_fz_formula, s.fns.user_dfz_formula, s.fns.user_ddfz_formula, s.fns.user_dddfz_formula, s.fns.user_relaxation_formula, s.fns.user_nova_addend_formula, s.fns.laguerre_deg, s.fns.gcps, s.fns.lfns, s.fns.newton_hines_k, s.fns.lpns.lyapunovInitializationIteratons, s.fns.preffs, s.fns.postffs, s.xJuliaCenter, s.yJuliaCenter);
+            InitOrbitSettings(s.xCenter, s.yCenter, s.size, s.max_iterations > 400 ? 400 : s.max_iterations, pixel_x, pixel_y, image_size, ptr, orbit_color, orbit_style, s.fns.plane_type, s.fns.apply_plane_on_julia, s.fns.apply_plane_on_julia_seed, s.fns.burning_ship, s.fns.mandel_grass, s.fns.mandel_grass_vals, s.fns.function, s.fns.z_exponent, s.fns.z_exponent_complex, Settings.fromDDArray(s.fns.rotation_vals), Settings.fromDDArray(s.fns.rotation_center), s.fns.coefficients, s.fns.z_exponent_nova, s.fns.relaxation, s.fns.nova_method, s.fns.user_formula, s.fns.user_formula2, s.fns.bail_technique, s.fns.user_plane, s.fns.user_plane_algorithm, s.fns.user_plane_conditions, s.fns.user_plane_condition_formula, s.fns.user_formula_iteration_based, s.fns.user_formula_conditions, s.fns.user_formula_condition_formula, s.height_ratio, s.fns.plane_transform_center, s.fns.plane_transform_angle, s.fns.plane_transform_radius, s.fns.plane_transform_scales, s.fns.plane_transform_wavelength, s.fns.waveType, s.fns.plane_transform_angle2, s.fns.plane_transform_sides, s.fns.plane_transform_amount, s.polar_projection, s.circle_period, show_converging_point, s.fns.coupling, s.fns.user_formula_coupled, s.fns.coupling_method, s.fns.coupling_amplitude, s.fns.coupling_frequency, s.fns.coupling_seed, s.fns.gcs, s.fns.coefficients_im, s.fns.lpns.lyapunovFinalExpression, s.fns.lpns.lyapunovFunction, s.fns.lpns.lyapunovExponentFunction, s.fns.user_fz_formula, s.fns.user_dfz_formula, s.fns.user_ddfz_formula, s.fns.user_dddfz_formula, s.fns.user_relaxation_formula, s.fns.user_nova_addend_formula, s.fns.laguerre_deg, s.fns.gcps, s.fns.lfns, s.fns.newton_hines_k, s.fns.lpns.lyapunovInitialValue, s.fns.lpns.lyapunovInitializationIteratons, s.fns.preffs, s.fns.postffs, s.fns.ips, s.fns.juliter, s.fns.juliterIterations, s.fns.juliterIncludeInitialIterations, s.xJuliaCenter, s.yJuliaCenter);
         }
         
     }
@@ -114,16 +118,20 @@ public class DrawOrbit extends Thread {
     public DrawOrbit(Settings s, double pixel_x, double pixel_y, int sec_points, int image_size, MainWindow ptr, Color orbit_color, int orbit_style, boolean show_converging_point) {
         
         if(!s.fns.julia) {
-            InitOrbitSettings(s.xCenter, s.yCenter, s.size, sec_points, pixel_x, pixel_y, image_size, ptr, orbit_color, orbit_style, s.fns.plane_type, s.fns.burning_ship, s.fns.mandel_grass, s.fns.mandel_grass_vals, s.fns.function, s.fns.z_exponent, s.fns.z_exponent_complex, s.fns.rotation_vals, s.fns.rotation_center, s.fns.perturbation, s.fns.perturbation_vals, s.fns.variable_perturbation, s.fns.user_perturbation_algorithm, s.fns.user_perturbation_conditions, s.fns.user_perturbation_condition_formula, s.fns.perturbation_user_formula, s.fns.init_val, s.fns.initial_vals, s.fns.variable_init_value, s.fns.user_initial_value_algorithm, s.fns.user_initial_value_conditions, s.fns.user_initial_value_condition_formula, s.fns.initial_value_user_formula, s.fns.coefficients, s.fns.z_exponent_nova, s.fns.relaxation, s.fns.nova_method, s.fns.user_formula, s.fns.user_formula2, s.fns.bail_technique, s.fns.user_plane, s.fns.user_plane_algorithm, s.fns.user_plane_conditions, s.fns.user_plane_condition_formula, s.fns.user_formula_iteration_based, s.fns.user_formula_conditions, s.fns.user_formula_condition_formula, s.height_ratio, s.fns.plane_transform_center, s.fns.plane_transform_angle, s.fns.plane_transform_radius, s.fns.plane_transform_scales, s.fns.plane_transform_wavelength, s.fns.waveType, s.fns.plane_transform_angle2, s.fns.plane_transform_sides, s.fns.plane_transform_amount, s.polar_projection, s.circle_period, s.fns.user_fz_formula, s.fns.user_dfz_formula, s.fns.user_ddfz_formula, s.fns.user_dddfz_formula, show_converging_point, s.fns.coupling, s.fns.user_formula_coupled, s.fns.coupling_method, s.fns.coupling_amplitude, s.fns.coupling_frequency, s.fns.coupling_seed, s.fns.laguerre_deg, s.fns.kleinianLine, s.fns.kleinianK, s.fns.kleinianM, s.fns.gcs, s.fns.durand_kerner_init_val, s.fns.mps, s.fns.coefficients_im, s.fns.lpns.lyapunovFinalExpression, s.fns.lpns.lyapunovFunction, s.fns.lpns.lyapunovExponentFunction, s.fns.user_relaxation_formula, s.fns.user_nova_addend_formula, s.fns.gcps, s.fns.igs, s.fns.lfns, s.fns.newton_hines_k, s.fns.lpns.lyapunovInitialValue, s.fns.lpns.lyapunovInitializationIteratons, s.fns.root_initialization_method, s.fns.preffs, s.fns.postffs);
+            InitOrbitSettings(s.xCenter, s.yCenter, s.size, sec_points, pixel_x, pixel_y, image_size, ptr, orbit_color, orbit_style, s.fns.plane_type, s.fns.burning_ship, s.fns.mandel_grass, s.fns.mandel_grass_vals, s.fns.function, s.fns.z_exponent, s.fns.z_exponent_complex, Settings.fromDDArray(s.fns.rotation_vals), Settings.fromDDArray(s.fns.rotation_center), s.fns.perturbation, s.fns.perturbation_vals, s.fns.variable_perturbation, s.fns.user_perturbation_algorithm, s.fns.user_perturbation_conditions, s.fns.user_perturbation_condition_formula, s.fns.perturbation_user_formula, s.fns.init_val, s.fns.initial_vals, s.fns.variable_init_value, s.fns.user_initial_value_algorithm, s.fns.user_initial_value_conditions, s.fns.user_initial_value_condition_formula, s.fns.initial_value_user_formula, s.fns.coefficients, s.fns.z_exponent_nova, s.fns.relaxation, s.fns.nova_method, s.fns.user_formula, s.fns.user_formula2, s.fns.bail_technique, s.fns.user_plane, s.fns.user_plane_algorithm, s.fns.user_plane_conditions, s.fns.user_plane_condition_formula, s.fns.user_formula_iteration_based, s.fns.user_formula_conditions, s.fns.user_formula_condition_formula, s.height_ratio, s.fns.plane_transform_center, s.fns.plane_transform_angle, s.fns.plane_transform_radius, s.fns.plane_transform_scales, s.fns.plane_transform_wavelength, s.fns.waveType, s.fns.plane_transform_angle2, s.fns.plane_transform_sides, s.fns.plane_transform_amount, s.polar_projection, s.circle_period, s.fns.user_fz_formula, s.fns.user_dfz_formula, s.fns.user_ddfz_formula, s.fns.user_dddfz_formula, show_converging_point, s.fns.coupling, s.fns.user_formula_coupled, s.fns.coupling_method, s.fns.coupling_amplitude, s.fns.coupling_frequency, s.fns.coupling_seed, s.fns.laguerre_deg, s.fns.kleinianLine, s.fns.kleinianK, s.fns.kleinianM, s.fns.gcs, s.fns.durand_kerner_init_val, s.fns.mps, s.fns.coefficients_im, s.fns.lpns.lyapunovFinalExpression, s.fns.lpns.lyapunovFunction, s.fns.lpns.lyapunovExponentFunction, s.fns.user_relaxation_formula, s.fns.user_nova_addend_formula, s.fns.gcps, s.fns.igs, s.fns.lfns, s.fns.newton_hines_k, s.fns.lpns.lyapunovInitialValue, s.fns.lpns.lyapunovInitializationIteratons, s.fns.root_initialization_method, s.fns.preffs, s.fns.postffs, s.fns.ips);
         }
         else {
-            InitOrbitSettings(s.xCenter, s.yCenter, s.size, sec_points, pixel_x, pixel_y, image_size, ptr, orbit_color, orbit_style, s.fns.plane_type, s.fns.apply_plane_on_julia, s.fns.apply_plane_on_julia_seed, s.fns.burning_ship, s.fns.mandel_grass, s.fns.mandel_grass_vals, s.fns.function, s.fns.z_exponent, s.fns.z_exponent_complex, s.fns.rotation_vals, s.fns.rotation_center, s.fns.coefficients, s.fns.z_exponent_nova, s.fns.relaxation, s.fns.nova_method, s.fns.user_formula, s.fns.user_formula2, s.fns.bail_technique, s.fns.user_plane, s.fns.user_plane_algorithm, s.fns.user_plane_conditions, s.fns.user_plane_condition_formula, s.fns.user_formula_iteration_based, s.fns.user_formula_conditions, s.fns.user_formula_condition_formula, s.height_ratio, s.fns.plane_transform_center, s.fns.plane_transform_angle, s.fns.plane_transform_radius, s.fns.plane_transform_scales, s.fns.plane_transform_wavelength, s.fns.waveType, s.fns.plane_transform_angle2, s.fns.plane_transform_sides, s.fns.plane_transform_amount, s.polar_projection, s.circle_period, show_converging_point, s.fns.coupling, s.fns.user_formula_coupled, s.fns.coupling_method, s.fns.coupling_amplitude, s.fns.coupling_frequency, s.fns.coupling_seed, s.fns.gcs, s.fns.coefficients_im, s.fns.lpns.lyapunovFinalExpression, s.fns.lpns.lyapunovFunction, s.fns.lpns.lyapunovExponentFunction, s.fns.user_fz_formula, s.fns.user_dfz_formula, s.fns.user_ddfz_formula, s.fns.user_dddfz_formula, s.fns.user_relaxation_formula, s.fns.user_nova_addend_formula, s.fns.laguerre_deg, s.fns.gcps, s.fns.lfns, s.fns.newton_hines_k, s.fns.lpns.lyapunovInitializationIteratons, s.fns.preffs, s.fns.postffs, s.xJuliaCenter, s.yJuliaCenter);
+            InitOrbitSettings(s.xCenter, s.yCenter, s.size, sec_points, pixel_x, pixel_y, image_size, ptr, orbit_color, orbit_style, s.fns.plane_type, s.fns.apply_plane_on_julia, s.fns.apply_plane_on_julia_seed, s.fns.burning_ship, s.fns.mandel_grass, s.fns.mandel_grass_vals, s.fns.function, s.fns.z_exponent, s.fns.z_exponent_complex, Settings.fromDDArray(s.fns.rotation_vals), Settings.fromDDArray(s.fns.rotation_center), s.fns.coefficients, s.fns.z_exponent_nova, s.fns.relaxation, s.fns.nova_method, s.fns.user_formula, s.fns.user_formula2, s.fns.bail_technique, s.fns.user_plane, s.fns.user_plane_algorithm, s.fns.user_plane_conditions, s.fns.user_plane_condition_formula, s.fns.user_formula_iteration_based, s.fns.user_formula_conditions, s.fns.user_formula_condition_formula, s.height_ratio, s.fns.plane_transform_center, s.fns.plane_transform_angle, s.fns.plane_transform_radius, s.fns.plane_transform_scales, s.fns.plane_transform_wavelength, s.fns.waveType, s.fns.plane_transform_angle2, s.fns.plane_transform_sides, s.fns.plane_transform_amount, s.polar_projection, s.circle_period, show_converging_point, s.fns.coupling, s.fns.user_formula_coupled, s.fns.coupling_method, s.fns.coupling_amplitude, s.fns.coupling_frequency, s.fns.coupling_seed, s.fns.gcs, s.fns.coefficients_im, s.fns.lpns.lyapunovFinalExpression, s.fns.lpns.lyapunovFunction, s.fns.lpns.lyapunovExponentFunction, s.fns.user_fz_formula, s.fns.user_dfz_formula, s.fns.user_ddfz_formula, s.fns.user_dddfz_formula, s.fns.user_relaxation_formula, s.fns.user_nova_addend_formula, s.fns.laguerre_deg, s.fns.gcps, s.fns.lfns, s.fns.newton_hines_k, s.fns.lpns.lyapunovInitialValue, s.fns.lpns.lyapunovInitializationIteratons, s.fns.preffs, s.fns.postffs, s.fns.ips, s.fns.juliter, s.fns.juliterIterations, s.fns.juliterIncludeInitialIterations, s.xJuliaCenter, s.yJuliaCenter);
         }
         
     }
     
-    private void InitOrbitSettings(double xCenter, double yCenter, double size, int max_iterations, int pixel_x, int pixel_y, int image_size, MainWindow ptr, Color orbit_color, int orbit_style, int plane_type, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_val, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, boolean polar_projection, double circle_period, String user_fz_formula, String user_dfz_formula, String user_ddfz_formula, String user_dddfz_formula, boolean show_converging_point, double coupling, String[] user_formula_coupled, int coupling_method, double coupling_amplitude, double coupling_frequency, int coupling_seed, double[] laguerre_deg, double[] kleinianLine, double kleinianK, double kleinianM, GenericCaZbdZeSettings gcs, double[] durand_kerner_init_val, MagneticPendulumSettings mps, double[] coefficients_im, String[] lyapunovExpression, String lyapunovFunction, String lyapunovExponentFunction, String user_relaxation_formula, String user_nova_addend_formula, GenericCpAZpBCSettings gcps, InertiaGravityFractalSettings igs, LambdaFnFnSettings lfns, double[] newton_hines_k, String lyapunovInitialValue, int lyapunovInitializationIteratons, int root_initialization_method, FunctionFilterSettings preffs, FunctionFilterSettings postffs) {
-        
+    private void InitOrbitSettings(Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, int pixel_x, int pixel_y, int image_size, MainWindow ptr, Color orbit_color, int orbit_style, int plane_type, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_val, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, boolean polar_projection, double circle_period, String user_fz_formula, String user_dfz_formula, String user_ddfz_formula, String user_dddfz_formula, boolean show_converging_point, double coupling, String[] user_formula_coupled, int coupling_method, double coupling_amplitude, double coupling_frequency, int coupling_seed, double[] laguerre_deg, double[] kleinianLine, double kleinianK, double kleinianM, GenericCaZbdZeSettings gcs, double[] durand_kerner_init_val, MagneticPendulumSettings mps, double[] coefficients_im, String[] lyapunovExpression, String lyapunovFunction, String lyapunovExponentFunction, String user_relaxation_formula, String user_nova_addend_formula, GenericCpAZpBCSettings gcps, InertiaGravityFractalSettings igs, LambdaFnFnSettings lfns, double[] newton_hines_k, String lyapunovInitialValue, int lyapunovInitializationIteratons, int root_initialization_method, FunctionFilterSettings preffs, FunctionFilterSettings postffs, PlaneInfluenceSettings ips) {
+
+        this.xCenter = xCenter;
+        this.yCenter = yCenter;
+        this.size = size;
+
         this.image_size = image_size;
         this.height_ratio = height_ratio;
         
@@ -138,42 +146,17 @@ public class DrawOrbit extends Thread {
         this.rotation_center = rotation_center;        
         
         if(polar_projection) {
-            double start;
-            double center = Math.log(size);
-            
-            double f, sf, cf, r;
-            double muly = (2 * circle_period * Math.PI) / image_size;
-            
-            double mulx = muly * height_ratio;
-            
-            start = center - mulx * image_size * 0.5;
-            
-            f = pixel_y * muly;
-            sf = Math.sin(f);
-            cf = Math.cos(f);
-            
-            r = Math.exp(pixel_x * mulx + start);
-            
-            double xPixel = xCenter + r * cf;
-            double yPixel = yCenter + r * sf;
-            
+            PolarLocation location = new PolarLocation(xCenter, yCenter, size, height_ratio, image_size, circle_period);
             complex_orbit = new ArrayList<>(max_iterations + 1);
-            complex_orbit.add(new Complex(xPixel, yPixel));
+            complex_orbit.add(location.getComplexOrbit(pixel_x, pixel_y));
         }
         else {
-            double size_2_x = size * 0.5;
-            double size_2_y = (size * height_ratio) * 0.5;
-            double temp_size_image_size_x = size / image_size;
-            double temp_size_image_size_y = (size * height_ratio) / image_size;
-            
-            double xPixel = xCenter - size_2_x + temp_size_image_size_x * pixel_x;
-            double yPixel = yCenter + size_2_y - temp_size_image_size_y * pixel_y;
-            
+            CartesianLocation location = new CartesianLocation(xCenter, yCenter, size, height_ratio, image_size);
             complex_orbit = new ArrayList<>(max_iterations + 1);
-            complex_orbit.add(new Complex(xPixel, yPixel));
+            complex_orbit.add(location.getComplexOrbit(pixel_x, pixel_y));
         }
         
-        orbitFractalFactory(function, xCenter, yCenter, size, max_iterations, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, z_exponent, z_exponent_complex, coefficients, coefficients_im, z_exponent_nova, relaxation, nova_method, bail_technique, user_formula, user_formula2, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, coupling, user_formula_coupled, coupling_method, coupling_amplitude, coupling_frequency, coupling_seed, gcs, lyapunovExpression, user_fz_formula, user_dfz_formula, user_ddfz_formula, user_dddfz_formula, kleinianLine, kleinianK, kleinianM, laguerre_deg, durand_kerner_init_val, mps, lyapunovFunction, lyapunovExponentFunction, user_relaxation_formula, user_nova_addend_formula, gcps, igs, lfns, newton_hines_k, lyapunovInitialValue, lyapunovInitializationIteratons, root_initialization_method, preffs, postffs);
+        orbitFractalFactory(function, xCenter.doubleValue(), yCenter.doubleValue(), size.doubleValue(), max_iterations, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, z_exponent, z_exponent_complex, coefficients, coefficients_im, z_exponent_nova, relaxation, nova_method, bail_technique, user_formula, user_formula2, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, coupling, user_formula_coupled, coupling_method, coupling_amplitude, coupling_frequency, coupling_seed, gcs, lyapunovExpression, user_fz_formula, user_dfz_formula, user_ddfz_formula, user_dddfz_formula, kleinianLine, kleinianK, kleinianM, laguerre_deg, durand_kerner_init_val, mps, lyapunovFunction, lyapunovExponentFunction, user_relaxation_formula, user_nova_addend_formula, gcps, igs, lfns, newton_hines_k, lyapunovInitialValue, lyapunovInitializationIteratons, root_initialization_method, preffs, postffs, ips);
 
         iteration_algorithm = new FractalIterationAlgorithm(pixel_orbit);
 
@@ -183,7 +166,11 @@ public class DrawOrbit extends Thread {
 
     }
 
-    private void InitOrbitSettings(double xCenter, double yCenter, double size, int max_iterations, double pixel_x, double pixel_y, int image_size, MainWindow ptr, Color orbit_color, int orbit_style, int plane_type, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_val, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, boolean polar_projection, double circle_period, String user_fz_formula, String user_dfz_formula, String user_ddfz_formula, String user_dddfz_formula, boolean show_converging_point, double coupling, String[] user_formula_coupled, int coupling_method, double coupling_amplitude, double coupling_frequency, int coupling_seed, double[] laguerre_deg, double[] kleinianLine, double kleinianK, double kleinianM, GenericCaZbdZeSettings gcs, double[] durand_kerner_init_val, MagneticPendulumSettings mps, double[] coefficients_im, String[] lyapunovExpression, String lyapunovFunction, String lyapunovExponentFunction, String user_relaxation_formula, String user_nova_addend_formula, GenericCpAZpBCSettings gcps, InertiaGravityFractalSettings igs, LambdaFnFnSettings lfns, double[] newton_hines_k, String lyapunovInitialValue, int lyapunovInitializationIteratons, int root_initialization_method, FunctionFilterSettings preffs, FunctionFilterSettings postffs) {
+    private void InitOrbitSettings(Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, double pixel_x, double pixel_y, int image_size, MainWindow ptr, Color orbit_color, int orbit_style, int plane_type, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_val, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, boolean polar_projection, double circle_period, String user_fz_formula, String user_dfz_formula, String user_ddfz_formula, String user_dddfz_formula, boolean show_converging_point, double coupling, String[] user_formula_coupled, int coupling_method, double coupling_amplitude, double coupling_frequency, int coupling_seed, double[] laguerre_deg, double[] kleinianLine, double kleinianK, double kleinianM, GenericCaZbdZeSettings gcs, double[] durand_kerner_init_val, MagneticPendulumSettings mps, double[] coefficients_im, String[] lyapunovExpression, String lyapunovFunction, String lyapunovExponentFunction, String user_relaxation_formula, String user_nova_addend_formula, GenericCpAZpBCSettings gcps, InertiaGravityFractalSettings igs, LambdaFnFnSettings lfns, double[] newton_hines_k, String lyapunovInitialValue, int lyapunovInitializationIteratons, int root_initialization_method, FunctionFilterSettings preffs, FunctionFilterSettings postffs, PlaneInfluenceSettings ips) {
+
+        this.xCenter = xCenter;
+        this.yCenter = yCenter;
+        this.size = size;
 
         this.image_size = image_size;
         this.height_ratio = height_ratio;
@@ -201,7 +188,7 @@ public class DrawOrbit extends Thread {
         complex_orbit = new ArrayList<>(max_iterations + 1);
         complex_orbit.add(new Complex(pixel_x, pixel_y));
 
-        orbitFractalFactory(function, xCenter, yCenter, size, max_iterations, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, z_exponent, z_exponent_complex, coefficients, coefficients_im, z_exponent_nova, relaxation, nova_method, bail_technique, user_formula, user_formula2, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, coupling, user_formula_coupled, coupling_method, coupling_amplitude, coupling_frequency, coupling_seed, gcs, lyapunovExpression, user_fz_formula, user_dfz_formula, user_ddfz_formula, user_dddfz_formula, kleinianLine, kleinianK, kleinianM, laguerre_deg, durand_kerner_init_val, mps, lyapunovFunction, lyapunovExponentFunction, user_relaxation_formula, user_nova_addend_formula, gcps, igs, lfns, newton_hines_k, lyapunovInitialValue, lyapunovInitializationIteratons, root_initialization_method, preffs, postffs);
+        orbitFractalFactory(function, xCenter.doubleValue(), yCenter.doubleValue(), size.doubleValue(), max_iterations, perturbation, perturbation_vals, variable_perturbation, user_perturbation_algorithm, user_perturbation_conditions, user_perturbation_condition_formula, perturbation_user_formula, init_val, initial_vals, variable_init_value, user_initial_value_algorithm, user_initial_value_conditions, user_initial_value_condition_formula, initial_value_user_formula, plane_type, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, z_exponent, z_exponent_complex, coefficients, coefficients_im, z_exponent_nova, relaxation, nova_method, bail_technique, user_formula, user_formula2, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, coupling, user_formula_coupled, coupling_method, coupling_amplitude, coupling_frequency, coupling_seed, gcs, lyapunovExpression, user_fz_formula, user_dfz_formula, user_ddfz_formula, user_dddfz_formula, kleinianLine, kleinianK, kleinianM, laguerre_deg, durand_kerner_init_val, mps, lyapunovFunction, lyapunovExponentFunction, user_relaxation_formula, user_nova_addend_formula, gcps, igs, lfns, newton_hines_k, lyapunovInitialValue, lyapunovInitializationIteratons, root_initialization_method, preffs, postffs, ips);
         
         iteration_algorithm = new FractalIterationAlgorithm(pixel_orbit);
 
@@ -211,8 +198,12 @@ public class DrawOrbit extends Thread {
    
     }
     
-    private void InitOrbitSettings(double xCenter, double yCenter, double size, int max_iterations, int pixel_x, int pixel_y, int image_size, MainWindow ptr, Color orbit_color, int orbit_style, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, double[] rotation_vals, double[] rotation_center, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, boolean polar_projection, double circle_period, boolean show_converging_point, double coupling, String[] user_formula_coupled, int coupling_method, double coupling_amplitude, double coupling_frequency, int coupling_seed, GenericCaZbdZeSettings gcs, double[] coefficients_im, String[] lyapunovExpression, String lyapunovFunction, String lyapunovExponentFunction, String user_fz_formula, String user_dfz_formula, String user_ddfz_formula, String user_dddfz_formula, String user_relaxation_formula, String user_nova_addend_formula, double[] laguerre_deg, GenericCpAZpBCSettings gcps, LambdaFnFnSettings lfns, double[] newton_hines_k, int lyapunovInitializationIteratons, FunctionFilterSettings preffs, FunctionFilterSettings postffs, double xJuliaCenter, double yJuliaCenter) {
-        
+    private void InitOrbitSettings(Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, int pixel_x, int pixel_y, int image_size, MainWindow ptr, Color orbit_color, int orbit_style, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, double[] rotation_vals, double[] rotation_center, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, boolean polar_projection, double circle_period, boolean show_converging_point, double coupling, String[] user_formula_coupled, int coupling_method, double coupling_amplitude, double coupling_frequency, int coupling_seed, GenericCaZbdZeSettings gcs, double[] coefficients_im, String[] lyapunovExpression, String lyapunovFunction, String lyapunovExponentFunction, String user_fz_formula, String user_dfz_formula, String user_ddfz_formula, String user_dddfz_formula, String user_relaxation_formula, String user_nova_addend_formula, double[] laguerre_deg, GenericCpAZpBCSettings gcps, LambdaFnFnSettings lfns, double[] newton_hines_k, String lyapunovInitialValue, int lyapunovInitializationIteratons, FunctionFilterSettings preffs, FunctionFilterSettings postffs, PlaneInfluenceSettings ips, boolean juliter, int juliterIterations, boolean juliterIncludeInitialIterations, double xJuliaCenter, double yJuliaCenter) {
+
+        this.xCenter = xCenter;
+        this.yCenter = yCenter;
+        this.size = size;
+
         this.image_size = image_size;
         this.height_ratio = height_ratio;
         
@@ -224,45 +215,20 @@ public class DrawOrbit extends Thread {
         
         this.show_converging_point = show_converging_point;
         this.rotation_vals = rotation_vals;
-        this.rotation_center = rotation_center;        
-        
+        this.rotation_center = rotation_center;
+
         if(polar_projection) {
-            double start;
-            double center = Math.log(size);
-            
-            double f, sf, cf, r;
-            double muly = (2 * circle_period * Math.PI) / image_size;
-            
-            double mulx = muly * height_ratio;
-            
-            start = center - mulx * image_size * 0.5;
-            
-            f = pixel_y * muly;
-            sf = Math.sin(f);
-            cf = Math.cos(f);
-            
-            r = Math.exp(pixel_x * mulx + start);
-            
-            double xPixel = xCenter + r * cf;
-            double yPixel = yCenter + r * sf;
-            
+            PolarLocation location = new PolarLocation(xCenter, yCenter, size, height_ratio, image_size, circle_period);
             complex_orbit = new ArrayList<>(max_iterations + 1);
-            complex_orbit.add(new Complex(xPixel, yPixel));
+            complex_orbit.add(location.getComplexOrbit(pixel_x, pixel_y));
         }
         else {
-            double size_2_x = size * 0.5;
-            double size_2_y = (size * height_ratio) * 0.5;
-            double temp_size_image_size_x = size / image_size;
-            double temp_size_image_size_y = (size * height_ratio) / image_size;
-            
-            double xPixel = xCenter - size_2_x + temp_size_image_size_x * pixel_x;
-            double yPixel = yCenter + size_2_y - temp_size_image_size_y * pixel_y;
-            
+            CartesianLocation location = new CartesianLocation(xCenter, yCenter, size, height_ratio, image_size);
             complex_orbit = new ArrayList<>(max_iterations + 1);
-            complex_orbit.add(new Complex(xPixel, yPixel));
+            complex_orbit.add(location.getComplexOrbit(pixel_x, pixel_y));
         }
         
-        orbitJuliaFactory(function, xCenter, yCenter, size, max_iterations, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, z_exponent, z_exponent_complex, coefficients, coefficients_im, z_exponent_nova, relaxation, nova_method, bail_technique, user_formula, user_formula2, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, coupling, user_formula_coupled, coupling_method, coupling_amplitude, coupling_frequency, coupling_seed, gcs, lyapunovExpression, lyapunovFunction, lyapunovExponentFunction, user_fz_formula, user_dfz_formula, user_ddfz_formula, user_dddfz_formula, user_relaxation_formula, user_nova_addend_formula, laguerre_deg, gcps, lfns, newton_hines_k, lyapunovInitializationIteratons, preffs, postffs,  xJuliaCenter, yJuliaCenter);
+        orbitJuliaFactory(function, xCenter.doubleValue(), yCenter.doubleValue(), size.doubleValue(), max_iterations, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, z_exponent, z_exponent_complex, coefficients, coefficients_im, z_exponent_nova, relaxation, nova_method, bail_technique, user_formula, user_formula2, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, coupling, user_formula_coupled, coupling_method, coupling_amplitude, coupling_frequency, coupling_seed, gcs, lyapunovExpression, lyapunovFunction, lyapunovExponentFunction, user_fz_formula, user_dfz_formula, user_ddfz_formula, user_dddfz_formula, user_relaxation_formula, user_nova_addend_formula, laguerre_deg, gcps, lfns, newton_hines_k, lyapunovInitialValue, lyapunovInitializationIteratons, preffs, postffs, ips, juliter, juliterIterations, juliterIncludeInitialIterations, xJuliaCenter, yJuliaCenter);
         
         iteration_algorithm = new JuliaIterationAlgorithm(pixel_orbit);
         
@@ -272,8 +238,12 @@ public class DrawOrbit extends Thread {
      
     }
     
-    private void InitOrbitSettings(double xCenter, double yCenter, double size, int max_iterations, double pixel_x, double pixel_y, int image_size, MainWindow ptr, Color orbit_color, int orbit_style, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, double[] rotation_vals, double[] rotation_center, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, boolean polar_projection, double circle_period, boolean show_converging_point, double coupling, String[] user_formula_coupled, int coupling_method, double coupling_amplitude, double coupling_frequency, int coupling_seed, GenericCaZbdZeSettings gcs, double[] coefficients_im, String[] lyapunovExpression, String lyapunovFunction, String lyapunovExponentFunction, String user_fz_formula, String user_dfz_formula, String user_ddfz_formula, String user_dddfz_formula, String user_relaxation_formula, String user_nova_addend_formula, double[] laguerre_deg, GenericCpAZpBCSettings gcps, LambdaFnFnSettings lfns, double[] newton_hines_k, int lyapunovInitializationIteratons, FunctionFilterSettings preffs, FunctionFilterSettings postffs, double xJuliaCenter, double yJuliaCenter) {
-        
+    private void InitOrbitSettings(Apfloat xCenter, Apfloat yCenter, Apfloat size, int max_iterations, double pixel_x, double pixel_y, int image_size, MainWindow ptr, Color orbit_color, int orbit_style, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, int function, double z_exponent, double[] z_exponent_complex, double[] rotation_vals, double[] rotation_center, double[] coefficients, double[] z_exponent_nova, double[] relaxation, int nova_method, String user_formula, String user_formula2, int bail_technique, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, double height_ratio, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, boolean polar_projection, double circle_period, boolean show_converging_point, double coupling, String[] user_formula_coupled, int coupling_method, double coupling_amplitude, double coupling_frequency, int coupling_seed, GenericCaZbdZeSettings gcs, double[] coefficients_im, String[] lyapunovExpression, String lyapunovFunction, String lyapunovExponentFunction, String user_fz_formula, String user_dfz_formula, String user_ddfz_formula, String user_dddfz_formula, String user_relaxation_formula, String user_nova_addend_formula, double[] laguerre_deg, GenericCpAZpBCSettings gcps, LambdaFnFnSettings lfns, double[] newton_hines_k, String lyapunovInitialValue, int lyapunovInitializationIteratons, FunctionFilterSettings preffs, FunctionFilterSettings postffs, PlaneInfluenceSettings ips, boolean juliter, int juliterIterations, boolean juliterIncludeInitialIterations, double xJuliaCenter, double yJuliaCenter) {
+
+        this.xCenter = xCenter;
+        this.yCenter = yCenter;
+        this.size = size;
+
         this.image_size = image_size;
         this.height_ratio = height_ratio;
         
@@ -290,7 +260,7 @@ public class DrawOrbit extends Thread {
         complex_orbit = new ArrayList<>(max_iterations + 1);
         complex_orbit.add(new Complex(pixel_x, pixel_y));
         
-        orbitJuliaFactory(function, xCenter, yCenter, size, max_iterations, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, z_exponent, z_exponent_complex, coefficients, coefficients_im, z_exponent_nova, relaxation, nova_method, bail_technique, user_formula, user_formula2, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, coupling, user_formula_coupled, coupling_method, coupling_amplitude, coupling_frequency, coupling_seed, gcs, lyapunovExpression, lyapunovFunction, lyapunovExponentFunction, user_fz_formula, user_dfz_formula, user_ddfz_formula, user_dddfz_formula, user_relaxation_formula, user_nova_addend_formula, laguerre_deg, gcps, lfns, newton_hines_k, lyapunovInitializationIteratons, preffs, postffs, xJuliaCenter, yJuliaCenter);
+        orbitJuliaFactory(function, xCenter.doubleValue(), yCenter.doubleValue(), size.doubleValue(), max_iterations, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, burning_ship, mandel_grass, mandel_grass_vals, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, z_exponent, z_exponent_complex, coefficients, coefficients_im, z_exponent_nova, relaxation, nova_method, bail_technique, user_formula, user_formula2, user_formula_iteration_based, user_formula_conditions, user_formula_condition_formula, coupling, user_formula_coupled, coupling_method, coupling_amplitude, coupling_frequency, coupling_seed, gcs, lyapunovExpression, lyapunovFunction, lyapunovExponentFunction, user_fz_formula, user_dfz_formula, user_ddfz_formula, user_dddfz_formula, user_relaxation_formula, user_nova_addend_formula, laguerre_deg, gcps, lfns, newton_hines_k, lyapunovInitialValue, lyapunovInitializationIteratons, preffs, postffs, ips, juliter, juliterIterations, juliterIncludeInitialIterations, xJuliaCenter, yJuliaCenter);
         
         iteration_algorithm = new JuliaIterationAlgorithm(pixel_orbit);
 
@@ -321,7 +291,7 @@ public class DrawOrbit extends Thread {
         full_image_g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
         list_size = complex_orbit.size() - 1;
         
-        double size = pixel_orbit.getSize();
+        double size = this.size.doubleValue();
         
         double start = 0, center, f0, r0, f1, r1, xcenter = 0, ycenter = 0, mulx = 0, muly = 0;
         
@@ -330,8 +300,8 @@ public class DrawOrbit extends Thread {
         if(polar_projection) {
             center = Math.log(size);
             
-            xcenter = pixel_orbit.getXCenter();
-            ycenter = pixel_orbit.getYCenter();
+            xcenter = xCenter.doubleValue();
+            ycenter = yCenter.doubleValue();
             
             muly = (2 * circle_period * Math.PI) / image_size;
             
@@ -342,8 +312,8 @@ public class DrawOrbit extends Thread {
         else {
             size_2_x = size * 0.5;
             size_2_y = (size * height_ratio) * 0.5;
-            temp_xcenter_size = pixel_orbit.getXCenter() - size_2_x;
-            temp_ycenter_size = pixel_orbit.getYCenter() + size_2_y;
+            temp_xcenter_size = xCenter.doubleValue() - size_2_x;
+            temp_ycenter_size = yCenter.doubleValue() + size_2_y;
             temp_size_image_size_x = size / image_size;
             temp_size_image_size_y = (size * height_ratio) / image_size;
         }
@@ -428,7 +398,7 @@ public class DrawOrbit extends Thread {
         
         list_size = complex_orbit.size();
         
-        double size = pixel_orbit.getSize();
+        double size = this.size.doubleValue();
         
         double start = 0, center, f0, r0, xcenter = 0, ycenter = 0, mulx = 0, muly = 0;
         
@@ -437,8 +407,8 @@ public class DrawOrbit extends Thread {
         if(polar_projection) {
             center = Math.log(size);
             
-            xcenter = pixel_orbit.getXCenter();
-            ycenter = pixel_orbit.getYCenter();
+            xcenter = xCenter.doubleValue();
+            ycenter = yCenter.doubleValue();
             
             muly = (2 * circle_period * Math.PI) / image_size;
             
@@ -449,8 +419,8 @@ public class DrawOrbit extends Thread {
         else {
             size_2_x = size * 0.5;
             size_2_y = (size * height_ratio) * 0.5;
-            temp_xcenter_size = pixel_orbit.getXCenter() - size_2_x;
-            temp_ycenter_size = pixel_orbit.getYCenter() + size_2_y;
+            temp_xcenter_size = xCenter.doubleValue() - size_2_x;
+            temp_ycenter_size = yCenter.doubleValue() + size_2_y;
             temp_size_image_size_x = size / image_size;
             temp_size_image_size_y = (size * height_ratio) / image_size;
         }
@@ -509,7 +479,7 @@ public class DrawOrbit extends Thread {
     }
     
     
-    private void orbitJuliaFactory(int function, double xCenter, double yCenter, double size, int max_iterations, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, double z_exponent, double[] z_exponent_complex, double[] coefficients, double[] coefficients_im, double[] z_exponent_nova, double[] relaxation, int nova_method, int bail_technique, String user_formula, String user_formula2, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, double coupling, String[] user_formula_coupled, int coupling_method, double coupling_amplitude, double coupling_frequency, int coupling_seed, GenericCaZbdZeSettings gcs, String[] lyapunovExpression, String lyapunovFunction, String lyapunovExponentFunction, String user_fz_formula, String user_dfz_formula, String user_ddfz_formula, String user_dddfz_formula, String user_relaxation_formula, String user_nova_addend_formula, double[] laguerre_deg, GenericCpAZpBCSettings gcps, LambdaFnFnSettings lfns, double[] newton_hines_k, int lyapunovInitializationIteratons, FunctionFilterSettings preffs, FunctionFilterSettings postffs, double xJuliaCenter, double yJuliaCenter) {
+    private void orbitJuliaFactory(int function, double xCenter, double yCenter, double size, int max_iterations, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, double z_exponent, double[] z_exponent_complex, double[] coefficients, double[] coefficients_im, double[] z_exponent_nova, double[] relaxation, int nova_method, int bail_technique, String user_formula, String user_formula2, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, double coupling, String[] user_formula_coupled, int coupling_method, double coupling_amplitude, double coupling_frequency, int coupling_seed, GenericCaZbdZeSettings gcs, String[] lyapunovExpression, String lyapunovFunction, String lyapunovExponentFunction, String user_fz_formula, String user_dfz_formula, String user_ddfz_formula, String user_dddfz_formula, String user_relaxation_formula, String user_nova_addend_formula, double[] laguerre_deg, GenericCpAZpBCSettings gcps, LambdaFnFnSettings lfns, double[] newton_hines_k, String lyapunovInitialValue, int lyapunovInitializationIteratons, FunctionFilterSettings preffs, FunctionFilterSettings postffs, PlaneInfluenceSettings ips, boolean juliter, int juliterIterations, boolean juliterIncludeInitialIterations, double xJuliaCenter, double yJuliaCenter) {
         
         switch (function) {
             case MainWindow.MANDELBROT:
@@ -809,7 +779,7 @@ public class DrawOrbit extends Thread {
                 pixel_orbit = new GenericCaZbdZe(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, gcs, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.LYAPUNOV:
-                pixel_orbit = new Lyapunov(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, lyapunovExpression, lyapunovFunction, lyapunovExponentFunction, lyapunovInitializationIteratons, xJuliaCenter, yJuliaCenter);
+                pixel_orbit = new Lyapunov(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, lyapunovExpression, lyapunovFunction, lyapunovExponentFunction, lyapunovInitialValue, lyapunovInitializationIteratons, xJuliaCenter, yJuliaCenter);
                 break;
             case MainWindow.USER_FORMULA_NOVA:
                 pixel_orbit = new UserFormulaNova(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, nova_method, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, user_fz_formula, user_dfz_formula, user_ddfz_formula, user_dddfz_formula, user_relaxation_formula, user_nova_addend_formula, laguerre_deg, newton_hines_k, xJuliaCenter, yJuliaCenter);
@@ -828,10 +798,16 @@ public class DrawOrbit extends Thread {
 
         pixel_orbit.preFilterFactory(preffs);
         pixel_orbit.postFilterFactory(postffs);
+        pixel_orbit.influencePlaneFactory(ips);
+
+
+        pixel_orbit.setJuliter(juliter);
+        pixel_orbit.setJuliterIterations(juliterIterations);
+        pixel_orbit.setJuliterIncludeInitialIterations(juliterIncludeInitialIterations);
         
     }
     
-    private void orbitFractalFactory(int function, double xCenter, double yCenter, double size, int max_iterations, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_val, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, int plane_type, double[] rotation_vals, double[] rotation_center, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, double z_exponent, double[] z_exponent_complex, double[] coefficients, double[] coefficients_im, double[] z_exponent_nova, double[] relaxation, int nova_method, int bail_technique, String user_formula, String user_formula2, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, double coupling, String[] user_formula_coupled, int coupling_method, double coupling_amplitude, double coupling_frequency, int coupling_seed, GenericCaZbdZeSettings gcs, String[] lyapunovExpression, String user_fz_formula, String user_dfz_formula, String user_ddfz_formula, String user_dddfz_formula, double[] kleinianLine, double kleinianK, double kleinianM, double[] laguerre_deg, double[] durand_kerner_init_val, MagneticPendulumSettings mps, String lyapunovFunction, String lyapunovExponentFunction, String user_relaxation_formula, String user_nova_addend_formula, GenericCpAZpBCSettings gcps, InertiaGravityFractalSettings igs, LambdaFnFnSettings lfns, double[] newton_hines_k, String lyapunovInitialValue, int lyapunovInitializationIteratons, int root_initialization_method, FunctionFilterSettings preffs, FunctionFilterSettings postffs) {
+    private void orbitFractalFactory(int function, double xCenter, double yCenter, double size, int max_iterations, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_val, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, int plane_type, double[] rotation_vals, double[] rotation_center, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, double z_exponent, double[] z_exponent_complex, double[] coefficients, double[] coefficients_im, double[] z_exponent_nova, double[] relaxation, int nova_method, int bail_technique, String user_formula, String user_formula2, String[] user_formula_iteration_based, String[] user_formula_conditions, String[] user_formula_condition_formula, double coupling, String[] user_formula_coupled, int coupling_method, double coupling_amplitude, double coupling_frequency, int coupling_seed, GenericCaZbdZeSettings gcs, String[] lyapunovExpression, String user_fz_formula, String user_dfz_formula, String user_ddfz_formula, String user_dddfz_formula, double[] kleinianLine, double kleinianK, double kleinianM, double[] laguerre_deg, double[] durand_kerner_init_val, MagneticPendulumSettings mps, String lyapunovFunction, String lyapunovExponentFunction, String user_relaxation_formula, String user_nova_addend_formula, GenericCpAZpBCSettings gcps, InertiaGravityFractalSettings igs, LambdaFnFnSettings lfns, double[] newton_hines_k, String lyapunovInitialValue, int lyapunovInitializationIteratons, int root_initialization_method, FunctionFilterSettings preffs, FunctionFilterSettings postffs, PlaneInfluenceSettings ips) {
         
         switch (function) {
             case MainWindow.MANDELBROT:
@@ -1722,6 +1698,7 @@ public class DrawOrbit extends Thread {
 
         pixel_orbit.preFilterFactory(preffs);
         pixel_orbit.postFilterFactory(postffs);
+        pixel_orbit.influencePlaneFactory(ips);
         
     }
 }

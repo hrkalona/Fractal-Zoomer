@@ -17,7 +17,6 @@
 package fractalzoomer.functions.general;
 
 import fractalzoomer.core.Complex;
-import fractalzoomer.functions.Fractal;
 import fractalzoomer.functions.FractalWithoutConstant;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.InertiaGravityFractalSettings;
@@ -126,6 +125,7 @@ public class InertiaGravityFractal extends FractalWithoutConstant {
         zold = new Complex();
         zold2 = new Complex();
         start = new Complex(complex[0]);
+        c0 = new Complex(complex[0]);
 
         return complex;
 

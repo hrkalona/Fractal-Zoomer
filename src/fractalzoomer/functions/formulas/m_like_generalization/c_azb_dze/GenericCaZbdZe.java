@@ -110,6 +110,10 @@ public class GenericCaZbdZe extends Julia {
         if(sts.statistic) {
             StatisticFactory(sts, plane_transform_center);
         }
+
+        pertur_val = new DefaultPerturbation();
+        Complex temp = (new Complex((-delta * epsilon) / (alpha * beta), 0)).pow(1 / (beta - epsilon));
+        init_val = new InitialValue(temp.getRe(), temp.getIm());
     }
 
     //orbit
@@ -167,6 +171,10 @@ public class GenericCaZbdZe extends Julia {
         beta = gfs.beta;
         delta = gfs.delta;
         epsilon = gfs.epsilon;
+
+        pertur_val = new DefaultPerturbation();
+        Complex temp = (new Complex((-delta * epsilon) / (alpha * beta), 0)).pow(1 / (beta - epsilon));
+        init_val = new InitialValue(temp.getRe(), temp.getIm());
         
     }
 

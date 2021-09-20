@@ -17,6 +17,7 @@
 package fractalzoomer.core.iteration_algorithm;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.core.GenericComplex;
 import fractalzoomer.functions.Fractal;
 
 /**
@@ -32,16 +33,16 @@ public class FractalIterationAlgorithm extends IterationAlgorithm {
     }
     
     @Override
-    public double calculate(Complex number) {
+    public double calculate(GenericComplex number) {
         
         return fractal.calculateFractal(number);
         
     }
 
     @Override
-    public Complex calculateDomain(Complex number) {
+    public Complex calculateDomain(GenericComplex number) {
         
-        return fractal.calculateFractalDomain(number);
+        return fractal.calculateFractalDomain((Complex)number);
         
     }
 
@@ -53,7 +54,7 @@ public class FractalIterationAlgorithm extends IterationAlgorithm {
     }
 
     @Override
-    public double[] calculate3D(Complex number) {
+    public double[] calculate3D(GenericComplex number) {
         
         double value = fractal.calculateFractal(number);
         return new double[] {fractal.getFractal3DHeight(value), value};

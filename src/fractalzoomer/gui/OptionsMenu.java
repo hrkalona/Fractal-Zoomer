@@ -58,13 +58,13 @@ public class OptionsMenu extends JMenu {
     private JCheckBoxMenuItem infobar_opt;
     private JCheckBoxMenuItem fullscreen_opt;
 
-    public OptionsMenu(MainWindow ptr2, String name, PaletteSettings ps, PaletteSettings ps2, boolean smoothing, boolean show_orbit_converging_point, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, int out_coloring_algorithm, int in_coloring_algorithm, int function, int plane_type, int bailout_test_algorithm, int color_blending, int temp_color_cycling_location, int temp_color_cycling_location2, int pre_filter, int post_filter) {
+    public OptionsMenu(MainWindow ptr2, String name, PaletteSettings ps, PaletteSettings ps2, boolean smoothing, boolean show_orbit_converging_point, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, int out_coloring_algorithm, int in_coloring_algorithm, int function, int plane_type, int bailout_test_algorithm, int color_blending, int temp_color_cycling_location, int temp_color_cycling_location2, int pre_filter, int post_filter, int plane_influence) {
 
         super(name);
 
         this.ptr = ptr2;
 
-        fractal_options_menu = new FractalOptionsMenu(ptr, "Fractal Options", apply_plane_on_julia, apply_plane_on_julia_seed, function, plane_type, pre_filter, post_filter);
+        fractal_options_menu = new FractalOptionsMenu(ptr, "Fractal Options", apply_plane_on_julia, apply_plane_on_julia_seed, function, plane_type, pre_filter, post_filter, plane_influence);
 
         iterations_menu = new JMenu("Iterations");
         iterations_menu.setIcon(getIcon("/fractalzoomer/icons/iterations.png"));
@@ -493,6 +493,12 @@ public class OptionsMenu extends JMenu {
 
     }
 
+    public JMenuItem getJuliterOptions() {
+
+        return tools_options_menu.getJuliterOptions();
+
+    }
+
     public JMenuItem getPolarProjectionOptions() {
 
         return tools_options_menu.getPolarProjectionOptions();
@@ -826,6 +832,18 @@ public class OptionsMenu extends JMenu {
     public JRadioButtonMenuItem[] getPostFunctionFilters() {
 
         return fractal_options_menu.getPostFunctionFilters();
+
+    }
+
+    public JRadioButtonMenuItem[] getPlaneInfluences() {
+
+        return fractal_options_menu.getPlaneInfluences();
+
+    }
+
+    public JMenu getPlaneInfluenceMenu() {
+
+        return fractal_options_menu.getPlaneInfluenceMenu();
 
     }
 

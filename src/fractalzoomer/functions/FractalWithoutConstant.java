@@ -1,6 +1,7 @@
 package fractalzoomer.functions;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.core.GenericComplex;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
 
 import java.util.ArrayList;
@@ -26,20 +27,22 @@ public abstract class FractalWithoutConstant extends Fractal {
 
         for (; iterations < max_iterations; iterations++) {
 
+            updateValues(complex);
+
             if (trap != null) {
                 trap.check(complex[0], iterations);
             }
 
-            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, pixel, start)) {
+            if (bailout_algorithm.escaped(complex[0], zold, zold2, iterations, pixel, start, c0, 0.0)) {
                 escaped = true;
 
-                Object[] object = {iterations, complex[0], zold, zold2, pixel, start};
+                Object[] object = {iterations, complex[0], zold, zold2, pixel, start, c0};
                 double out = out_color_algorithm.getResult(object);
 
                 out = getFinalValueOut(out);
 
                 if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(complex[0], zold, zold2, iterations, pixel, start);
+                    setTrueColorOut(complex[0], zold, zold2, iterations, pixel, start, c0);
                 }
 
                 return out;
@@ -47,23 +50,23 @@ public abstract class FractalWithoutConstant extends Fractal {
             zold2.assign(zold);
             zold.assign(complex[0]);
 
-            complex[0] = preFilter.getValue(complex[0], iterations, pixel, start);
+            complex[0] = preFilter.getValue(complex[0], iterations, pixel, start, c0);
             function(complex);
-            complex[0] = postFilter.getValue(complex[0], iterations, pixel, start);
+            complex[0] = postFilter.getValue(complex[0], iterations, pixel, start, c0);
 
             if (statistic != null) {
-                statistic.insert(complex[0], zold, zold2, iterations, pixel, start);
+                statistic.insert(complex[0], zold, zold2, iterations, pixel, start, c0);
             }
 
         }
 
-        Object[] object = {complex[0], zold, zold2, pixel, start};
+        Object[] object = {complex[0], zold, zold2, pixel, start, c0};
         double in = in_color_algorithm.getResult(object);
 
         in = getFinalValueIn(in);
 
         if (inTrueColorAlgorithm != null) {
-            setTrueColorIn(complex[0], zold, zold2, iterations, pixel, start);
+            setTrueColorIn(complex[0], zold, zold2, iterations, pixel, start, c0);
         }
 
         return in;
@@ -77,12 +80,15 @@ public abstract class FractalWithoutConstant extends Fractal {
         Complex temp = null;
 
         for (; iterations < max_iterations; iterations++) {
+
+            updateValues(complex);
+
             zold2.assign(zold);
             zold.assign(complex[0]);
 
-            complex[0] = preFilter.getValue(complex[0], iterations, pixel, start);
+            complex[0] = preFilter.getValue(complex[0], iterations, pixel, start, c0);
             function(complex);
-            complex[0] = postFilter.getValue(complex[0], iterations, pixel, start);
+            complex[0] = postFilter.getValue(complex[0], iterations, pixel, start, c0);
 
             temp = rotation.rotateInverse(complex[0]);
 
@@ -101,12 +107,14 @@ public abstract class FractalWithoutConstant extends Fractal {
 
         for (; iterations < max_iterations; iterations++) {
 
+            updateValues(complex);
+
             zold2.assign(zold);
             zold.assign(complex[0]);
 
-            complex[0] = preFilter.getValue(complex[0], iterations, pixel, start);
+            complex[0] = preFilter.getValue(complex[0], iterations, pixel, start, c0);
             function(complex);
-            complex[0] = postFilter.getValue(complex[0], iterations, pixel, start);
+            complex[0] = postFilter.getValue(complex[0], iterations, pixel, start, c0);
 
         }
 
@@ -115,7 +123,7 @@ public abstract class FractalWithoutConstant extends Fractal {
     }
 
     @Override
-    public double calculateJulia(Complex pixel) {
+    public double calculateJulia(GenericComplex pixel) {
         return 0;
     }
 

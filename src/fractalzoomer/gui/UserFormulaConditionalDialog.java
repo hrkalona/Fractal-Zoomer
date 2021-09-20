@@ -94,7 +94,7 @@ public class UserFormulaConditionalDialog extends JDialog {
         method43_choice.setToolTipText("Selects the bailout technique.");
         method43_choice.setFocusable(false);
 
-        Object[] labels33 = ptra.createUserFormulaLabels("z, c, s, p, pp, n, maxn, center, size, sizei, v1 - v30, point");
+        Object[] labels33 = ptra.createUserFormulaLabels("z, c, s, c0, p, pp, n, maxn, center, size, sizei, v1 - v30, point");
 
         Object[] message33 = {
             labels33,

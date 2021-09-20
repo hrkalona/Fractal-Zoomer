@@ -198,7 +198,7 @@ public class UserFormulaCoupledDialog extends JDialog {
             }
         });
 
-        Object[] labels5 = ptra.createUserFormulaLabels("z, c, s, p, pp, n, maxn, center, size, sizei, v1 - v30, point");
+        Object[] labels5 = ptra.createUserFormulaLabels("z, c, s, c0, p, pp, n, maxn, center, size, sizei, v1 - v30, point");
 
         Object[] message5 = {
             labels5,
@@ -263,8 +263,8 @@ public class UserFormulaCoupledDialog extends JDialog {
 
                         s.parser.parse(field_formula_coupled3.getText());
 
-                        if (s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
-                            JOptionPane.showMessageDialog(ptra, "The variables: z, n, s, p, pp, bail, cbail, r, stat, trap cannot be used in the z2(0) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                        if (s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundC0() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                            JOptionPane.showMessageDialog(ptra, "The variables: z, n, s, c0, p, pp, bail, cbail, r, stat, trap cannot be used in the z2(0) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                             return;
                         }
 

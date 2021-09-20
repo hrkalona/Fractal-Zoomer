@@ -17,11 +17,13 @@
 
 package fractalzoomer.bailout_conditions;
 
+import fractalzoomer.core.BigComplex;
 import fractalzoomer.core.Complex;
 import fractalzoomer.core.ThreadDraw;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.parser.ExpressionNode;
 import fractalzoomer.parser.Parser;
+import org.apfloat.Apfloat;
 
 /**
  *
@@ -113,7 +115,7 @@ public class UserBailoutCondition extends BailoutCondition {
     }
 
     @Override
-    public boolean escaped(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start) {
+    public boolean escaped(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0, double norm_squared) {
         
         /*LEFT*/
         if(parser[0].foundN()) {
@@ -130,6 +132,10 @@ public class UserBailoutCondition extends BailoutCondition {
         
         if(parser[0].foundS()) {
             parser[0].setSvalue(start);
+        }
+
+        if(parser[0].foundC0()) {
+            parser[0].setC0value(c0);
         }
         
         if(parser[0].foundP()) {
@@ -161,6 +167,10 @@ public class UserBailoutCondition extends BailoutCondition {
         
         if(parser[1].foundS()) {
             parser[1].setSvalue(start);
+        }
+
+        if(parser[1].foundC0()) {
+            parser[1].setC0value(c0);
         }
         
         if(parser[1].foundP()) {
@@ -196,5 +206,10 @@ public class UserBailoutCondition extends BailoutCondition {
                 return false;
         }
 
+    }
+
+    @Override
+    public boolean escaped(BigComplex z, BigComplex zold, BigComplex zold2, int iterations, BigComplex c, BigComplex start, BigComplex c0, Apfloat norm_squared) {
+        return escaped(z.toComplex(), zold.toComplex(), zold2.toComplex(), iterations, c.toComplex(), start.toComplex(), c0.toComplex(), norm_squared.doubleValue());
     }
 }

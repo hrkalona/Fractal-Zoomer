@@ -94,6 +94,10 @@ public class UserInColorAlgorithm extends InColorAlgorithm {
         if(parser.foundS()) {
             parser.setSvalue(((Complex)object[4]));
         }
+
+        if(parser.foundC0()) {
+            parser.setC0value(((Complex)object[5]));
+        }
         
         if(parser.foundP()) {
             parser.setPvalue(((Complex)object[1]));

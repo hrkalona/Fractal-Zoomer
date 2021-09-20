@@ -90,7 +90,7 @@ public class OrbitDialog extends JDialog {
                     field_imaginary.setEditable(true);
                 } else {
 
-                    Point2D.Double p = MathUtils.rotatePointRelativeToPoint(s.xCenter, s.yCenter, s.fns.rotation_vals, s.fns.rotation_center);
+                    Point2D.Double p = MathUtils.rotatePointRelativeToPoint(s.xCenter.doubleValue(), s.yCenter.doubleValue(), Settings.fromDDArray(s.fns.rotation_vals), Settings.fromDDArray(s.fns.rotation_center));
 
                     field_real.setText("" + p.x);
                     field_real.setEditable(false);
@@ -163,12 +163,15 @@ public class OrbitDialog extends JDialog {
                         orbit_vals[0] = tempReal;
                         orbit_vals[1] = tempImaginary;
 
-                        tempReal -= s.fns.rotation_center[0];
-                        tempImaginary -= s.fns.rotation_center[1];
+                        double[] rot_center = Settings.fromDDArray(s.fns.rotation_center);
+                        double[] rot_vals = Settings.fromDDArray(s.fns.rotation_vals);
+
+                        tempReal -= rot_center[0];
+                        tempImaginary -= rot_center[1];
 
                         /* Inversed Rotation */
-                        x_real = tempReal * s.fns.rotation_vals[0] + tempImaginary * s.fns.rotation_vals[1] + s.fns.rotation_center[0];
-                        y_imag = -tempReal * s.fns.rotation_vals[1] + tempImaginary * s.fns.rotation_vals[0] + s.fns.rotation_center[1];
+                        x_real = tempReal * rot_vals[0] + tempImaginary * rot_vals[1] + rot_center[0];
+                        y_imag = -tempReal * rot_vals[1] + tempImaginary * rot_vals[0] + rot_center[1];
                     } catch (Exception ex) {
                         JOptionPane.showMessageDialog(ptra, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
                         return;

@@ -17,6 +17,7 @@
 package fractalzoomer.core.iteration_algorithm;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.core.GenericComplex;
 import fractalzoomer.functions.Fractal;
 
 /**
@@ -30,10 +31,10 @@ public abstract class IterationAlgorithm {
         this.fractal = fractal;
     }
     
-    public abstract double calculate(Complex number);
-    public abstract Complex calculateDomain(Complex number);
+    public abstract double calculate(GenericComplex number);
+    public abstract Complex calculateDomain(GenericComplex number);
     public abstract void calculateOrbit();
-    public abstract double[] calculate3D(Complex number);
+    public abstract double[] calculate3D(GenericComplex number);
     
     public boolean escaped() {
         

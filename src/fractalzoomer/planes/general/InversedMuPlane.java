@@ -17,6 +17,7 @@
 
 package fractalzoomer.planes.general;
 
+import fractalzoomer.core.BigComplex;
 import fractalzoomer.core.Complex;
 import fractalzoomer.planes.Plane;
 
@@ -36,6 +37,16 @@ public class InversedMuPlane extends Plane {
     @Override
     public Complex transform(Complex pixel) {
 
+        return pixel.reciprocal();
+
+    }
+
+    @Override
+    public BigComplex transform(BigComplex pixel) {
+
+        if(pixel.isZero()) {
+            return pixel;
+        }
         return pixel.reciprocal();
 
     }

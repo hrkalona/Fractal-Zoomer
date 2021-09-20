@@ -34,6 +34,7 @@ public class OptimizationsMenu extends JMenu {
     private JCheckBoxMenuItem periodicity_checking_opt;
     private JMenuItem quick_draw_opt;
     private JMenuItem thread_number;
+    private JMenuItem perturbation_theory;
     
     public OptimizationsMenu(MainWindow ptr2, String name) {
 
@@ -46,18 +47,21 @@ public class OptimizationsMenu extends JMenu {
         thread_number = new JMenuItem("Threads", getIcon("/fractalzoomer/icons/threads.png"));
         greedy_algorithm_item = new JMenuItem("Greedy Drawing Algorithms", getIcon("/fractalzoomer/icons/greedy_algorithm.png"));
         periodicity_checking_opt = new JCheckBoxMenuItem("Periodicity Checking");
+        perturbation_theory = new JMenuItem("Perturbation Theory", getIcon("/fractalzoomer/icons/perturbation.png"));
 
         quick_draw_opt = new JMenuItem("Quick Draw Tiles", getIcon("/fractalzoomer/icons/quickdraw.png"));
         
         thread_number.setToolTipText("Sets the number of parallel drawing threads.");
         quick_draw_opt.setToolTipText("Sets the tile size for the quick draw method.");
-        periodicity_checking_opt.setToolTipText("Renders the image faster when containing alot of bounded areas.");
+        periodicity_checking_opt.setToolTipText("Renders the image faster when containing a lot of bounded areas.");
         greedy_algorithm_item.setToolTipText("Sets the greedy algorithms options.");
+        perturbation_theory.setToolTipText("Sets the perturbation theory settings.");
         
         thread_number.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, ActionEvent.CTRL_MASK));
         quick_draw_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, ActionEvent.SHIFT_MASK));
         periodicity_checking_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_K, ActionEvent.CTRL_MASK));
         greedy_algorithm_item.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, ActionEvent.ALT_MASK));
+        perturbation_theory.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_1, ActionEvent.ALT_MASK));
         
         thread_number.addActionListener(new ActionListener() {
 
@@ -99,10 +103,22 @@ public class OptimizationsMenu extends JMenu {
             }
         });
 
+        perturbation_theory.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setPerturbationTheory();
+
+            }
+        });
+
         
         add(thread_number);
         addSeparator();
         add(greedy_algorithm_item);
+        addSeparator();
+        add(perturbation_theory);
         addSeparator();
         add(periodicity_checking_opt);
         addSeparator();

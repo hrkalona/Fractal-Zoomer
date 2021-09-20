@@ -135,6 +135,9 @@ public class MandelbrotNth extends Julia {
         if(sts.statistic) {
             StatisticFactory(sts, plane_transform_center);
         }
+
+        pertur_val = new DefaultPerturbation();
+        init_val = new DefaultInitialValue();
     }
 
     //orbit
@@ -213,6 +216,9 @@ public class MandelbrotNth extends Julia {
         }
 
         this.z_exponent = z_exponent;
+
+        pertur_val = new DefaultPerturbation();
+        init_val = new DefaultInitialValue();
 
     }
 

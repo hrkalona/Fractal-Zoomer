@@ -197,7 +197,7 @@ public class StatisticsColoringFrame extends JFrame {
         panel22.setLayout(new FlowLayout());
         panel22.setBackground(MainWindow.bg_color);
 
-        JLabel html_label = CommonFunctions.createUserFormulaHtmlLabels("z, c, s, p, pp, n, maxn, bail, cbail, center, size, sizei, v1 - v30, point", "user statistical formula", " Only the real component of the complex number will be used on the final value.");
+        JLabel html_label = CommonFunctions.createUserFormulaHtmlLabels("z, c, s, c0, p, pp, n, maxn, bail, cbail, center, size, sizei, v1 - v30, point", "user statistical formula", " Only the real component of the complex number will be used on the final value.");
         panel21.add(html_label);
 
         JTextField field_formula = new JTextField(45);
@@ -760,8 +760,8 @@ public class StatisticsColoringFrame extends JFrame {
                     
                     s.parser.parse(field_formula_init.getText());
                     
-                    if (s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
-                        JOptionPane.showMessageDialog(ptra, "The variables: z, n, s, p, pp, bail, cbail, r, stat, trap cannot be used in the value(0) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                    if (s.parser.foundN() || s.parser.foundP() || s.parser.foundS() || s.parser.foundC0() || s.parser.foundZ() || s.parser.foundPP() || s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                        JOptionPane.showMessageDialog(ptra, "The variables: z, n, s, c0, p, pp, bail, cbail, r, stat, trap cannot be used in the value(0) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                         return;
                     }
                 }

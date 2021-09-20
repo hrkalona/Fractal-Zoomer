@@ -17,7 +17,9 @@
 
 package fractalzoomer.planes.general;
 
+import fractalzoomer.core.BigComplex;
 import fractalzoomer.core.Complex;
+import fractalzoomer.core.MyApfloat;
 import fractalzoomer.planes.Plane;
 
 /**
@@ -36,6 +38,13 @@ public class MuVariationPlane extends Plane {
     public Complex transform(Complex pixel) {
 
         return pixel.square().divide_mutable(pixel.fourth().sub_mutable(0.25));
+
+    }
+
+    @Override
+    public BigComplex transform(BigComplex pixel) {
+
+        return pixel.square().divide(pixel.fourth().sub(new MyApfloat(0.25)));
 
     }
 }

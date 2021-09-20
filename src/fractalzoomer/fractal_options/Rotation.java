@@ -33,6 +33,7 @@ public class Rotation {
         
         rotation = new Complex(cos_theta, sin_theta);
         inv_rotation = rotation.conjugate();
+
         center = new Complex(x, y);
         
     }

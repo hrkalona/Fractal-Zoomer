@@ -39,5 +39,6 @@ public class ExpPlane extends Plane {
         return pixel.exp();
 
     }
+
     
 }

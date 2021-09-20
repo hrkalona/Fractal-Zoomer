@@ -30,7 +30,8 @@ import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
-import static fractalzoomer.main.Constants.*;
+import static fractalzoomer.main.Constants.ABBASBANDYFORMULA;
+import static fractalzoomer.main.Constants.HOUSEHOLDER3FORMULA;
 
 /**
  *
@@ -131,7 +132,7 @@ public class RootFindingFourFunctionsDialog extends JDialog {
             
         });
 
-        Object[] labels41 = ptra.createUserFormulaLabels("z, s, p, pp, n, maxn, center, size, sizei, v1 - v30, point");
+        Object[] labels41 = ptra.createUserFormulaLabels("z, s, c0, p, pp, n, maxn, center, size, sizei, v1 - v30, point");
 
         Object[] message41 = {
             labels41,

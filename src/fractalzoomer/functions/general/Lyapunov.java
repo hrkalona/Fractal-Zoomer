@@ -125,7 +125,7 @@ public class Lyapunov extends Julia {
 
     }
 
-    public Lyapunov(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, OrbitTrapSettings ots, StatisticsSettings sts, String[] lyapunov_expression, boolean useLyapunovExponent, String lyapunovFunction, String lyapunovExponentFunction, int lyapunovVariableId, int initializationIterations, boolean skipBailoutCheck, double xJuliaCenter, double yJuliaCenter) {
+    public Lyapunov(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, OrbitTrapSettings ots, StatisticsSettings sts, String[] lyapunov_expression, boolean useLyapunovExponent, String lyapunovFunction, String lyapunovExponentFunction, int lyapunovVariableId, String lyapunovInitialValue, int initializationIterations, boolean skipBailoutCheck, double xJuliaCenter, double yJuliaCenter) {
 
         super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, periodicity_checking, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, ots, xJuliaCenter, yJuliaCenter);
 
@@ -162,6 +162,9 @@ public class Lyapunov extends Julia {
         }
 
         point = new Complex(plane_transform_center[0], plane_transform_center[1]);
+
+        pertur_val = new DefaultPerturbation();
+        init_val = new VariableInitialValue(lyapunovInitialValue, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
 
     }
 
@@ -222,7 +225,7 @@ public class Lyapunov extends Julia {
 
     }
 
-    public Lyapunov(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, String[] lyapunov_expression, String lyapunovFunction, String lyapunovExponentFunction, int initializationIterations, double xJuliaCenter, double yJuliaCenter) {
+    public Lyapunov(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, String[] lyapunov_expression, String lyapunovFunction, String lyapunovExponentFunction, String lyapunovInitialValue, int initializationIterations, double xJuliaCenter, double yJuliaCenter) {
 
         super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
 
@@ -247,6 +250,9 @@ public class Lyapunov extends Julia {
         point = new Complex(plane_transform_center[0], plane_transform_center[1]);
 
         this.initializationIterations = initializationIterations;
+
+        pertur_val = new DefaultPerturbation();
+        init_val = new VariableInitialValue(lyapunovInitialValue, xCenter, yCenter, size, max_iterations, plane_transform_center, globalVars);
 
     }
 
@@ -389,32 +395,35 @@ public class Lyapunov extends Julia {
             zold2.assign(zold);
             zold.assign(complex[0]);
 
-            complex[0] = preFilter.getValue(complex[0], iterations, complex[1], start);
+            complex[1] = planeInfluence.getValue(complex[0], iterations, complex[1], start, zold, zold2, c0);
+            complex[0] = preFilter.getValue(complex[0], iterations, complex[1], start, c0);
             function(complex);
-            complex[0] = postFilter.getValue(complex[0], iterations, complex[1], start);
+            complex[0] = postFilter.getValue(complex[0], iterations, complex[1], start, c0);
 
             if (statistic != null) {
-                statistic.insert(complex[0], zold, zold2, iterations, complex[1], start);
+                statistic.insert(complex[0], zold, zold2, iterations, complex[1], start, c0);
             }
         }
         calculateExponent = true;
 
         for (; iterations < max_iterations; iterations++) {
 
+            updateValues(complex);
+
             if (trap != null) {
                 trap.check(complex[0], iterations);
             }
 
-            if (!skipBailoutCheck && bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
+            if (!skipBailoutCheck && bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, 0.0)) {
                 escaped = true;
 
-                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start};
+                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0};
                 double out = out_color_algorithm.getResult(object);
 
                 out = getFinalValueOut(out);
 
                 if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start);
+                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0);
                 }
 
                 return out;
@@ -422,12 +431,13 @@ public class Lyapunov extends Julia {
             zold2.assign(zold);
             zold.assign(complex[0]);
 
-            complex[0] = preFilter.getValue(complex[0], iterations, complex[1], start);
+            complex[1] = planeInfluence.getValue(complex[0], iterations, complex[1], start, zold, zold2, c0);
+            complex[0] = preFilter.getValue(complex[0], iterations, complex[1], start, c0);
             function(complex);
-            complex[0] = postFilter.getValue(complex[0], iterations, complex[1], start);
+            complex[0] = postFilter.getValue(complex[0], iterations, complex[1], start, c0);
 
             if (statistic != null) {
-                statistic.insert(complex[0], zold, zold2, iterations, complex[1], start);
+                statistic.insert(complex[0], zold, zold2, iterations, complex[1], start, c0);
             }
 
         }
@@ -447,19 +457,19 @@ public class Lyapunov extends Julia {
             }
 
             if (inTrueColorAlgorithm != null) {
-                setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start);
+                setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start, c0);
             }
 
             return  value;
         }
 
-        Object[] object = {complex[0], zold, zold2, complex[1], start};
+        Object[] object = {complex[0], zold, zold2, complex[1], start, c0};
         double in = in_color_algorithm.getResult(object);
 
         in = getFinalValueIn(in);
 
         if (inTrueColorAlgorithm != null) {
-            setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start);
+            setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start, c0);
         }
 
         return in;
@@ -486,28 +496,31 @@ public class Lyapunov extends Julia {
             zold2.assign(zold);
             zold.assign(complex[0]);
 
-            complex[0] = preFilter.getValue(complex[0], iterations, complex[1], start);
+            complex[1] = planeInfluence.getValue(complex[0], iterations, complex[1], start, zold, zold2, c0);
+            complex[0] = preFilter.getValue(complex[0], iterations, complex[1], start, c0);
             function(complex);
-            complex[0] = postFilter.getValue(complex[0], iterations, complex[1], start);
+            complex[0] = postFilter.getValue(complex[0], iterations, complex[1], start, c0);
 
             if (statistic != null) {
-                statistic.insert(complex[0], zold, zold2, iterations, complex[1], start);
+                statistic.insert(complex[0], zold, zold2, iterations, complex[1], start, c0);
             }
         }
         calculateExponent = true;
 
         for (; iterations < max_iterations; iterations++) {
 
-            if (!skipBailoutCheck && bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start)) {
+            updateValues(complex);
+
+            if (!skipBailoutCheck && bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, 0.0)) {
                 escaped = true;
 
-                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start};
+                Object[] object = {iterations, complex[0], zold, zold2, complex[1], start, c0};
                 double out = out_color_algorithm.getResult(object);
 
                 out = getFinalValueOut(out);
 
                 if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start);
+                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0);
                 }
 
                 return out;
@@ -515,16 +528,17 @@ public class Lyapunov extends Julia {
             zold2.assign(zold);
             zold.assign(complex[0]);
 
-            complex[0] = preFilter.getValue(complex[0], iterations, complex[1], start);
+            complex[1] = planeInfluence.getValue(complex[0], iterations, complex[1], start, zold, zold2, c0);
+            complex[0] = preFilter.getValue(complex[0], iterations, complex[1], start, c0);
             function(complex);
-            complex[0] = postFilter.getValue(complex[0], iterations, complex[1], start);
+            complex[0] = postFilter.getValue(complex[0], iterations, complex[1], start, c0);
 
             if (periodicityCheck(complex[0])) {
                 return ColorAlgorithm.MAXIMUM_ITERATIONS;
             }
 
             if (statistic != null) {
-                statistic.insert(complex[0], zold, zold2, iterations, complex[1], start);
+                statistic.insert(complex[0], zold, zold2, iterations, complex[1], start, c0);
             }
 
         }
@@ -544,18 +558,23 @@ public class Lyapunov extends Julia {
             zold2.assign(zold);
             zold.assign(complex[0]);
 
-            complex[0] = preFilter.getValue(complex[0], iterations, complex[1], start);
+            complex[1] = planeInfluence.getValue(complex[0], iterations, complex[1], start, zold, zold2, c0);
+            complex[0] = preFilter.getValue(complex[0], iterations, complex[1], start, c0);
             function(complex);
-            complex[0] = postFilter.getValue(complex[0], iterations, complex[1], start);
+            complex[0] = postFilter.getValue(complex[0], iterations, complex[1], start, c0);
         }
 
         for (; iterations < max_iterations; iterations++) {
+
+            updateValues(complex);
+
             zold2.assign(zold);
             zold.assign(complex[0]);
 
-            complex[0] = preFilter.getValue(complex[0], iterations, complex[1], start);
+            complex[1] = planeInfluence.getValue(complex[0], iterations, complex[1], start, zold, zold2, c0);
+            complex[0] = preFilter.getValue(complex[0], iterations, complex[1], start, c0);
             function(complex);
-            complex[0] = postFilter.getValue(complex[0], iterations, complex[1], start);
+            complex[0] = postFilter.getValue(complex[0], iterations, complex[1], start, c0);
 
             temp = rotation.rotateInverse(complex[0]);
 
@@ -578,19 +597,23 @@ public class Lyapunov extends Julia {
             zold2.assign(zold);
             zold.assign(complex[0]);
 
-            complex[0] = preFilter.getValue(complex[0], iterations, complex[1], start);
+            complex[1] = planeInfluence.getValue(complex[0], iterations, complex[1], start, zold, zold2, c0);
+            complex[0] = preFilter.getValue(complex[0], iterations, complex[1], start, c0);
             function(complex);
-            complex[0] = postFilter.getValue(complex[0], iterations, complex[1], start);
+            complex[0] = postFilter.getValue(complex[0], iterations, complex[1], start, c0);
         }
 
         for (; iterations < max_iterations; iterations++) {
 
+            updateValues(complex);
+
             zold2.assign(zold);
             zold.assign(complex[0]);
 
-            complex[0] = preFilter.getValue(complex[0], iterations, complex[1], start);
+            complex[1] = planeInfluence.getValue(complex[0], iterations, complex[1], start, zold, zold2, c0);
+            complex[0] = preFilter.getValue(complex[0], iterations, complex[1], start, c0);
             function(complex);
-            complex[0] = postFilter.getValue(complex[0], iterations, complex[1], start);
+            complex[0] = postFilter.getValue(complex[0], iterations, complex[1], start, c0);
 
         }
 

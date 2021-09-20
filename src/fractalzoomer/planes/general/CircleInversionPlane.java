@@ -17,8 +17,11 @@
 
 package fractalzoomer.planes.general;
 
+import fractalzoomer.core.BigComplex;
 import fractalzoomer.core.Complex;
+import fractalzoomer.core.MyApfloat;
 import fractalzoomer.planes.Plane;
+import org.apfloat.Apfloat;
 
 /**
  *
@@ -27,13 +30,17 @@ import fractalzoomer.planes.Plane;
 public class CircleInversionPlane extends Plane {
 
     private Complex center;
+    private BigComplex ddcenter;
     private double plane_transform_radius;
+    private Apfloat ddplane_transform_radius;
 
     public CircleInversionPlane(double[] plane_transform_center, double plane_transform_radius) {
 
         super();
         center = new Complex(plane_transform_center[0], plane_transform_center[1]);
         this.plane_transform_radius = plane_transform_radius;
+        ddplane_transform_radius = new MyApfloat(plane_transform_radius);
+        ddcenter = new BigComplex(center);
 
     }
 
@@ -43,4 +50,12 @@ public class CircleInversionPlane extends Plane {
         return pixel.circle_inversion(center, plane_transform_radius);
         
     }
+
+    @Override
+    public BigComplex transform(BigComplex pixel) {
+
+        return pixel.circle_inversion(ddcenter, ddplane_transform_radius);
+
+    }
+
 }

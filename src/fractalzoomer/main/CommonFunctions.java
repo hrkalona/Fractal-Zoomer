@@ -17,9 +17,7 @@
 package fractalzoomer.main;
 
 import fractalzoomer.app_updater.AppUpdater;
-import fractalzoomer.core.Complex;
-import fractalzoomer.core.Derivative;
-import fractalzoomer.core.ThreadDraw;
+import fractalzoomer.core.*;
 import fractalzoomer.core.domain_coloring.DomainColoring;
 import fractalzoomer.functions.root_finding_methods.durand_kerner.DurandKernerRootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.newton_hines.NewtonHinesRootFindingMethod;
@@ -35,7 +33,6 @@ import fractalzoomer.utils.MathUtils;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
@@ -208,7 +205,7 @@ public class CommonFunctions implements Constants {
         JScrollPane scroll_pane_2 = new JScrollPane(textArea);
         scroll_pane_2.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 
-        Point2D.Double p = MathUtils.rotatePointRelativeToPoint(s.xCenter, s.yCenter, s.fns.rotation_vals, s.fns.rotation_center);
+        BigPoint p = MathUtils.rotatePointRelativeToPoint(new BigPoint(s.xCenter, s.yCenter), s.fns.rotation_vals, s.fns.rotation_center);
 
         String keyword_color = "#008080";
         String condition_color = "#800000";
@@ -218,8 +215,8 @@ public class CommonFunctions implements Constants {
 
         String overview = "<html><center><b><u><font size='5' face='arial' color='blue'>Active Fractal Options</font></u></b></center><br><br><font  face='arial' size='3'>";
 
-        overview += "<b><font color='red'>Center:</font></b> " + Complex.toString2(p.x, p.y) + "<br><br>";
-        overview += "<b><font color='red'>Size:</font></b> " + s.size + "<br><br>";
+        overview += "<b><font color='red'>Center:</font></b> " + BigComplex.toString2Pretty(p.x, p.y, s.size) + "<br><br>";
+        overview += "<b><font color='red'>Size:</font></b> " + MyApfloat.toString(s.size, s.size) + "<br><br>";
 
         if (s.polar_projection) {
             overview += "<b><font color='red'>Polar Projection:</font></b> " + "<br>" + tab + "Circle Periods = " + s.circle_period + "<br><br>";
@@ -526,14 +523,20 @@ public class CommonFunctions implements Constants {
             overview += tab + "Burning Ship<br>";
             overview += tab2 + "z = abs(z), applied before the function evaluation.<br>";
         }
-        if ((s.fns.function <= 9 || s.fns.function == MANDELPOLY || s.fns.function == MANDELBROTWTH) && s.fns.mandel_grass) {
+
+        if ((s.fns.function <= 9 || s.fns.function == MANDELPOLY || s.fns.function == MANDELBROTWTH) && s.fns.mandel_grass && !s.isPertubationTheoryInUse()) {
             overview += tab + "Mandel Grass = " + Complex.toString2(s.fns.mandel_grass_vals[0], s.fns.mandel_grass_vals[1]) + "<br>";
             overview += tab2 + "z = z + (MG * z)/(norm(z)), applied after the function evaluation.<br>";
         }
         overview += "<br>";
 
         if (s.fns.julia) {
-            overview += "<b><font color='red'>Julia Seed:</font></b> " + Complex.toString2(s.xJuliaCenter, s.yJuliaCenter) + " is replacing the c constant in the formula.<br><br>";
+            if(s.fns.juliter) {
+                overview += "<b><font color='red'>Julia Seed:</font></b> " + Complex.toString2(s.xJuliaCenter, s.yJuliaCenter) + " is replacing the c constant in the formula after the iteration " + s.fns.juliterIterations + " (Juliter).<br><br>";
+            }
+            else {
+                overview += "<b><font color='red'>Julia Seed:</font></b> " + Complex.toString2(s.xJuliaCenter, s.yJuliaCenter) + " is replacing the c constant in the formula.<br><br>";
+            }
         }
 
         overview += "<b><font color='red'>Plane Transformation:</font></b> Applies the transformation \"" + PlanesMenu.planeNames[s.fns.plane_type] + "\" to every plane point c.<br>";
@@ -596,7 +599,24 @@ public class CommonFunctions implements Constants {
             }
         }
 
-        if (!s.fns.init_val) {
+        if (s.functionSupportsC() && !s.isPertubationTheoryInUse()) {
+            if (s.fns.ips.influencePlane == USER_PLANE_INFLUENCE) {
+                if (s.fns.ips.user_plane_influence_algorithm == 0) {
+                    overview += "<b><font color='red'>Plane Influence:</font></b> User Plane Influence<br>";
+                    overview += tab + "z = " + s.fns.ips.userFormulaPlaneInfluence + "<br>";
+                } else {
+                    overview += "<b><font color='red'>Plane Influence:</font></b> User Plane Influence Conditional<br>";
+                    overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[" + s.fns.ips.user_plane_influence_conditions[0] + " > " + s.fns.ips.user_plane_influence_conditions[1] + "]</font> <font color='" + keyword_color + "'>then</font> z = " + s.fns.ips.user_plane_influence_condition_formula[0] + "<br>";
+                    overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[" + s.fns.ips.user_plane_influence_conditions[0] + " &#60; " + s.fns.ips.user_plane_influence_conditions[1] + "]</font> <font color='" + keyword_color + "'>then</font> z = " + s.fns.ips.user_plane_influence_condition_formula[1] + "<br>";
+                    overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[" + s.fns.ips.user_plane_influence_conditions[0] + " = " + s.fns.ips.user_plane_influence_conditions[1] + "]</font> <font color='" + keyword_color + "'>then</font> z = " + s.fns.ips.user_plane_influence_condition_formula[2] + "<br>";
+                }
+                overview += "<br>";
+            } else {
+                overview += "<b><font color='red'>Plane Influence:</font></b> " + PlaneInfluenceMenu.planeInfluenceNames[s.fns.ips.influencePlane] + "<br><br>";
+            }
+        }
+
+        if (!s.fns.init_val || s.isPertubationTheoryInUse()) {
             String res = ThreadDraw.getDefaultInitialValue();
 
             if (!res.equals("")) {
@@ -622,7 +642,7 @@ public class CommonFunctions implements Constants {
             overview += "<br>";
         }
 
-        if (s.fns.perturbation) {
+        if (s.fns.perturbation && !s.isPertubationTheoryInUse()) {
             if (s.fns.variable_perturbation) {
                 if (s.fns.user_perturbation_algorithm == 0) {
                     overview += "<b><font color='red'>Perturbation:</font></b> Variable Value<br>";
@@ -640,36 +660,37 @@ public class CommonFunctions implements Constants {
             overview += "<br>";
         }
 
-        if(s.fns.preffs.functionFilter == USER_FUNCTION_FILTER) {
-            if (s.fns.preffs.user_function_filter_algorithm == 0) {
-                overview += "<b><font color='red'>Pre Function Filter:</font></b> User Filter<br>";
-                overview += tab + "z = " + s.fns.preffs.userFormulaFunctionFilter + "<br>";
-            } else {
-                overview += "<b><font color='red'>Pre Function Filter:</font></b> User Filter Conditional<br>";
-                overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[" + s.fns.preffs.user_function_filter_conditions[0] + " > " + s.fns.preffs.user_function_filter_conditions[1] + "]</font> <font color='" + keyword_color + "'>then</font> z = " + s.fns.preffs.user_function_filter_condition_formula[0] + "<br>";
-                overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[" + s.fns.preffs.user_function_filter_conditions[0] + " &#60; " + s.fns.preffs.user_function_filter_conditions[1] + "]</font> <font color='" + keyword_color + "'>then</font> z = " + s.fns.preffs.user_function_filter_condition_formula[1] + "<br>";
-                overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[" + s.fns.preffs.user_function_filter_conditions[0] + " = " + s.fns.preffs.user_function_filter_conditions[1] + "]</font> <font color='" + keyword_color + "'>then</font> z = " + s.fns.preffs.user_function_filter_condition_formula[2] + "<br>";
-            }
-            overview += "<br>";
-        }
-        else {
-            overview += "<b><font color='red'>Pre Function Filter:</font></b> " + FunctionFiltersMenu.functionFilternNames[s.fns.preffs.functionFilter] + "<br><br>";
-        }
 
-        if(s.fns.postffs.functionFilter == USER_FUNCTION_FILTER) {
-            if (s.fns.postffs.user_function_filter_algorithm == 0) {
-                overview += "<b><font color='red'>Post Function Filter:</font></b> User Filter<br>";
-                overview += tab + "z = " + s.fns.postffs.userFormulaFunctionFilter + "<br>";
+        if(!s.isPertubationTheoryInUse()) {
+            if (s.fns.preffs.functionFilter == USER_FUNCTION_FILTER) {
+                if (s.fns.preffs.user_function_filter_algorithm == 0) {
+                    overview += "<b><font color='red'>Pre Function Filter:</font></b> User Filter<br>";
+                    overview += tab + "z = " + s.fns.preffs.userFormulaFunctionFilter + "<br>";
+                } else {
+                    overview += "<b><font color='red'>Pre Function Filter:</font></b> User Filter Conditional<br>";
+                    overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[" + s.fns.preffs.user_function_filter_conditions[0] + " > " + s.fns.preffs.user_function_filter_conditions[1] + "]</font> <font color='" + keyword_color + "'>then</font> z = " + s.fns.preffs.user_function_filter_condition_formula[0] + "<br>";
+                    overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[" + s.fns.preffs.user_function_filter_conditions[0] + " &#60; " + s.fns.preffs.user_function_filter_conditions[1] + "]</font> <font color='" + keyword_color + "'>then</font> z = " + s.fns.preffs.user_function_filter_condition_formula[1] + "<br>";
+                    overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[" + s.fns.preffs.user_function_filter_conditions[0] + " = " + s.fns.preffs.user_function_filter_conditions[1] + "]</font> <font color='" + keyword_color + "'>then</font> z = " + s.fns.preffs.user_function_filter_condition_formula[2] + "<br>";
+                }
+                overview += "<br>";
             } else {
-                overview += "<b><font color='red'>Post Function Filter:</font></b> User Filter Conditional<br>";
-                overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[" + s.fns.postffs.user_function_filter_conditions[0] + " > " + s.fns.postffs.user_function_filter_conditions[1] + "]</font> <font color='" + keyword_color + "'>then</font> z = " + s.fns.postffs.user_function_filter_condition_formula[0] + "<br>";
-                overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[" + s.fns.postffs.user_function_filter_conditions[0] + " &#60; " + s.fns.postffs.user_function_filter_conditions[1] + "]</font> <font color='" + keyword_color + "'>then</font> z = " + s.fns.postffs.user_function_filter_condition_formula[1] + "<br>";
-                overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[" + s.fns.postffs.user_function_filter_conditions[0] + " = " + s.fns.postffs.user_function_filter_conditions[1] + "]</font> <font color='" + keyword_color + "'>then</font> z = " + s.fns.postffs.user_function_filter_condition_formula[2] + "<br>";
+                overview += "<b><font color='red'>Pre Function Filter:</font></b> " + FunctionFiltersMenu.functionFilternNames[s.fns.preffs.functionFilter] + "<br><br>";
             }
-            overview += "<br>";
-        }
-        else {
-            overview += "<b><font color='red'>Post Function Filter:</font></b> " + FunctionFiltersMenu.functionFilternNames[s.fns.postffs.functionFilter] + "<br><br>";
+
+            if (s.fns.postffs.functionFilter == USER_FUNCTION_FILTER) {
+                if (s.fns.postffs.user_function_filter_algorithm == 0) {
+                    overview += "<b><font color='red'>Post Function Filter:</font></b> User Filter<br>";
+                    overview += tab + "z = " + s.fns.postffs.userFormulaFunctionFilter + "<br>";
+                } else {
+                    overview += "<b><font color='red'>Post Function Filter:</font></b> User Filter Conditional<br>";
+                    overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[" + s.fns.postffs.user_function_filter_conditions[0] + " > " + s.fns.postffs.user_function_filter_conditions[1] + "]</font> <font color='" + keyword_color + "'>then</font> z = " + s.fns.postffs.user_function_filter_condition_formula[0] + "<br>";
+                    overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[" + s.fns.postffs.user_function_filter_conditions[0] + " &#60; " + s.fns.postffs.user_function_filter_conditions[1] + "]</font> <font color='" + keyword_color + "'>then</font> z = " + s.fns.postffs.user_function_filter_condition_formula[1] + "<br>";
+                    overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[" + s.fns.postffs.user_function_filter_conditions[0] + " = " + s.fns.postffs.user_function_filter_conditions[1] + "]</font> <font color='" + keyword_color + "'>then</font> z = " + s.fns.postffs.user_function_filter_condition_formula[2] + "<br>";
+                }
+                overview += "<br>";
+            } else {
+                overview += "<b><font color='red'>Post Function Filter:</font></b> " + FunctionFiltersMenu.functionFilternNames[s.fns.postffs.functionFilter] + "<br><br>";
+            }
         }
 
         overview += "<b><font color='red'>User Point:</font></b> " + Complex.toString2(s.fns.plane_transform_center[0], s.fns.plane_transform_center[1]) + "<br><br>";
@@ -776,12 +797,18 @@ public class CommonFunctions implements Constants {
             overview += "<b><font color='red'>Bailout Condition:</font></b> Escaping when the maximum iterations value is reached.<br><br>";
         }
 
-        overview += "<b><font color='red'>Rotation:</font></b> " + s.fns.rotation + " <font color='" + keyword_color + "'>degrees about</font> " + Complex.toString2(s.fns.rotation_center[0], s.fns.rotation_center[1]) + "<br><br>";
+        overview += "<b><font color='red'>Rotation:</font></b> " + s.fns.rotation + " <font color='" + keyword_color + "'>degrees about</font> " + BigComplex.toString2Pretty(s.fns.rotation_center[0], s.fns.rotation_center[1], s.size) + "<br><br>";
 
         overview += "<b><font color='red'>Stretch Factor:</font></b> " + s.height_ratio + "<br><br>";
 
         if (!s.ds.domain_coloring) {
-            overview += "<b><font color='red'>Out Coloring Mode:</font></b> " + OutColoringModesMenu.outColoringNames[s.fns.out_coloring_algorithm] + "<br>";
+
+            if(s.isPertubationTheoryInUse() && s.fns.out_coloring_algorithm == MainWindow.DISTANCE_ESTIMATOR) {
+                overview += "<b><font color='red'>Out Coloring Mode:</font></b> " + OutColoringModesMenu.outColoringNames[0] + "<br>";
+            }
+            else {
+                overview += "<b><font color='red'>Out Coloring Mode:</font></b> " + OutColoringModesMenu.outColoringNames[s.fns.out_coloring_algorithm] + "<br>";
+            }
 
             if (s.fns.out_coloring_algorithm == USER_OUTCOLORING_ALGORITHM) {
                 if (s.fns.user_out_coloring_algorithm == 0) {
@@ -807,8 +834,8 @@ public class CommonFunctions implements Constants {
             overview += "<br>";
 
             if (s.sts.statistic) {
-                overview += "<b><font color='red'>Statistical Coloring:</font></b><br>";
                 if (s.sts.statisticGroup == 0) {
+                    overview += "<b><font color='red'>Statistical Coloring:</font></b><br>";
                     overview += tab + "Algorithm = " + Constants.statisticalColoringName[s.sts.statistic_type] + "<br>";
                     if (s.sts.statistic_type == Constants.STRIPE_AVERAGE) {
                         overview += tab2 + "Stripe Density = " + s.sts.stripeAvgStripeDensity + "<br>";
@@ -827,6 +854,7 @@ public class CommonFunctions implements Constants {
                         overview += tab2 + "Power = " + s.sts.lagrangianPower + "<br>";
                     }
                 } else if (s.sts.statisticGroup == 1){
+                    overview += "<b><font color='red'>Statistical Coloring:</font></b><br>";
                     overview += tab + "User Statistical Formula: " + s.sts.user_statistic_formula + "<br>";
                     overview += tab + "Reduction Method = " + Constants.reductionMethod[s.sts.reductionFunction] + "<br>";
                     overview += tab + "Initial value = " + s.sts.user_statistic_init_value + "<br>";
@@ -839,7 +867,8 @@ public class CommonFunctions implements Constants {
                         overview += tab + (s.sts.statistic_escape_type == ESCAPING ? "Escaping" : "Converging") + "<br>";
                     }
                 }
-                else {
+                else if (!s.isPertubationTheoryInUse()) {
+                    overview += "<b><font color='red'>Statistical Coloring:</font></b><br>";
                     overview += tab + "Equicontinuity<br>";
                     overview += tab2 + "Delta = " + s.sts.equicontinuityDelta + "<br>";
                     overview += tab2 + "Denominator Factor = " + s.sts.equicontinuityDenominatorFactor + "<br>";
@@ -868,42 +897,42 @@ public class CommonFunctions implements Constants {
 
                 }
 
-                if (s.sts.statisticIncludeEscaped) {
-                    overview += tab + "Includes escaped points.<br>";
-                }
-                if (s.sts.statisticIncludeNotEscaped) {
-                    overview += tab + "Includes not escaped points.<br>";
-                }
-
-                if(s.sts.statisticGroup == 1) {
-                    if(s.sts.useSmoothing && s.sts.reductionFunction == Constants.REDUCTION_SUM) {
-                        overview += tab + "Smooth Sum.<br>";
+                if(s.sts.statisticGroup != 2 || !s.isPertubationTheoryInUse()) {
+                    if (s.sts.statisticIncludeEscaped) {
+                        overview += tab + "Includes escaped points.<br>";
+                    }
+                    if (s.sts.statisticIncludeNotEscaped) {
+                        overview += tab + "Includes not escaped points.<br>";
                     }
 
-                    if (s.sts.useAverage && s.sts.reductionFunction == Constants.REDUCTION_SUM) {
-                        overview += tab + "Using Average<br>";
-                    }
-                }
-                else if (s.sts.statisticGroup == 0){
-                    if(s.sts.useSmoothing && s.sts.statistic_type != Constants.ATOM_DOMAIN_BOF60_BOF61 && s.sts.statistic_type != Constants.COS_ARG_DIVIDE_INVERSE_NORM) {
-                        overview += tab + "Smooth Sum.<br>";
+                    if (s.sts.statisticGroup == 1) {
+                        if (s.sts.useSmoothing && s.sts.reductionFunction == Constants.REDUCTION_SUM) {
+                            overview += tab + "Smooth Sum.<br>";
+                        }
+
+                        if (s.sts.useAverage && s.sts.reductionFunction == Constants.REDUCTION_SUM) {
+                            overview += tab + "Using Average<br>";
+                        }
+                    } else if (s.sts.statisticGroup == 0) {
+                        if (s.sts.useSmoothing && s.sts.statistic_type != Constants.ATOM_DOMAIN_BOF60_BOF61 && s.sts.statistic_type != Constants.COS_ARG_DIVIDE_INVERSE_NORM) {
+                            overview += tab + "Smooth Sum.<br>";
+                        }
+
+                        if (s.sts.useAverage && s.sts.statistic_type != Constants.ATOM_DOMAIN_BOF60_BOF61 && s.sts.statistic_type != Constants.COS_ARG_DIVIDE_INVERSE_NORM) {
+                            overview += tab + "Using Average<br>";
+                        }
+                    } else {
+                        if (s.sts.useSmoothing) {
+                            overview += tab + "Smooth Sum.<br>";
+                        }
+
+                        if (s.sts.useAverage) {
+                            overview += tab + "Using Average<br>";
+                        }
                     }
 
-                    if (s.sts.useAverage && s.sts.statistic_type != Constants.ATOM_DOMAIN_BOF60_BOF61 && s.sts.statistic_type != Constants.COS_ARG_DIVIDE_INVERSE_NORM) {
-                        overview += tab + "Using Average<br>";
-                    }
+                    overview += tab + "Intensity = " + s.sts.statistic_intensity + "<br><br>";
                 }
-                else {
-                    if(s.sts.useSmoothing) {
-                        overview += tab + "Smooth Sum.<br>";
-                    }
-
-                    if (s.sts.useAverage) {
-                        overview += tab + "Using Average<br>";
-                    }
-                }
-
-                overview += tab + "Intensity = " + s.sts.statistic_intensity + "<br><br>";
             }
         }
 
@@ -1067,7 +1096,7 @@ public class CommonFunctions implements Constants {
                 overview += tab + "Gradient Intensity = " + s.pbs.gradient_intensity + "<br><br>";
             }
 
-            if (s.exterior_de) {
+            if (s.exterior_de && !s.isPertubationTheoryInUse()) {
                 overview += "<b><font color='red'>Distance Estimation:</font></b><br>";
 
                 if (s.inverse_dem) {

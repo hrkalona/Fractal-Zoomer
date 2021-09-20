@@ -1,4 +1,4 @@
-import fractalzoomer.core.Complex;
+import fractalzoomer.core.*;
 import fractalzoomer.core.Derivative;
 import java.awt.Color;
 import java.awt.image.BufferedImage;

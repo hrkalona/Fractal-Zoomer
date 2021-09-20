@@ -16,6 +16,11 @@
  */
 package fractalzoomer.utils;
 
+import fractalzoomer.core.BigPoint;
+import fractalzoomer.core.MyApfloat;
+import org.apfloat.Apfloat;
+import org.apfloat.ApfloatMath;
+
 import java.awt.geom.Point2D;
 
 /**
@@ -56,23 +61,41 @@ public class MathUtils {
                         
         return new Point2D.Double(temp1, temp2);
     }
+
+	public static BigPoint rotatePointRelativeToPoint(BigPoint p, Apfloat[] rotation_vals, Apfloat[] rotation_center) {
+		Apfloat temp_xcenter = p.x.subtract(rotation_center[0]);
+		Apfloat temp_ycenter = p.y.subtract(rotation_center[1]);
+
+		Apfloat temp1 = temp_xcenter.multiply(rotation_vals[0]).subtract(temp_ycenter.multiply(rotation_vals[1])).add(rotation_center[0]);
+		Apfloat temp2 = temp_xcenter.multiply(rotation_vals[1]).add(temp_ycenter.multiply(rotation_vals[0])).add(rotation_center[1]);
+
+		Apfloat zero = new MyApfloat(0.0);
+
+		temp1 = temp1.compareTo(zero) == 0 ? zero : temp1;
+		temp2 = temp2.compareTo(zero) == 0 ? zero : temp2;
+
+		return new BigPoint(temp1, temp2);
+	}
     
-    public static double[] convertFromCenterSizeToCorners(double xCenter, double yCenter, double size) {
-        
-        return new double[] {xCenter - size * 0.5, yCenter + size * 0.5, xCenter + size * 0.5, yCenter - size * 0.5};
+    public static Apfloat[] convertFromCenterSizeToCorners(Apfloat xCenter, Apfloat yCenter, Apfloat size) {
+
+		Apfloat point5 = new MyApfloat(0.5);
+        return new Apfloat[] {xCenter.subtract(size.multiply(point5)), yCenter.add(size.multiply(point5)), xCenter.add(size.multiply(point5)), yCenter.subtract(size.multiply(point5))};
         
     }
     
-    public static double[] convertFromCornersToCenterSize(double[] corners) {
+    public static Apfloat[] convertFromCornersToCenterSize(Apfloat[] corners) {
+
+		Apfloat xLen = ApfloatMath.abs(corners[0].subtract(corners[2]));
+		Apfloat yLen = ApfloatMath.abs(corners[1].subtract(corners[3]));
+		Apfloat size = ApfloatMath.max(xLen, yLen);
+
+		Apfloat topX = ApfloatMath.min(corners[0], corners[2]);
+		Apfloat topY = ApfloatMath.max(corners[1], corners[3]);
+
+		Apfloat point5 = new MyApfloat(0.5);
         
-        double xLen = Math.abs(corners[0] - corners[2]);
-        double yLen = Math.abs(corners[1] - corners[3]);
-        double size = Math.max(xLen, yLen);
-        
-        double topX = Math.min(corners[0], corners[2]);
-        double topY = Math.max(corners[1], corners[3]);
-        
-        return new double[] {topX + xLen * 0.5, topY - yLen * 0.5, size};
+        return new Apfloat[] {topX.add(xLen.multiply(point5)), topY.subtract(yLen.multiply(point5)), size};
         
     }
     

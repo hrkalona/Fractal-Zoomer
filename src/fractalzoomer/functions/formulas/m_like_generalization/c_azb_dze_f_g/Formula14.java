@@ -94,6 +94,9 @@ public class Formula14 extends Julia {
         if(sts.statistic) {
             StatisticFactory(sts, plane_transform_center);
         }
+
+        pertur_val = new DefaultPerturbation();
+        init_val = new InitialValue(1, 0);
     }
 
     //orbit
@@ -140,7 +143,8 @@ public class Formula14 extends Julia {
     public Formula14(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, double xJuliaCenter, double yJuliaCenter) {
 
         super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
-
+        pertur_val = new DefaultPerturbation();
+        init_val = new InitialValue(1, 0);
     }
 
     @Override

@@ -17,6 +17,7 @@
 
 package fractalzoomer.planes.general;
 
+import fractalzoomer.core.BigComplex;
 import fractalzoomer.core.Complex;
 import fractalzoomer.planes.Plane;
 
@@ -37,5 +38,12 @@ public class MuPlane extends Plane {
 
         return pixel;
         
+    }
+
+    @Override
+    public BigComplex transform(BigComplex pixel) {
+
+        return pixel;
+
     }
 }

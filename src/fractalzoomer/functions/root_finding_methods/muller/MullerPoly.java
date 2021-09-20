@@ -120,6 +120,7 @@ public class MullerPoly extends MullerRootFindingMethod {
         zold = new Complex();
         zold2 = new Complex();
         start = new Complex(complex[0]);
+        c0 = new Complex(complex[0]);
 
         return complex;
 

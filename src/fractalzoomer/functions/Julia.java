@@ -17,6 +17,8 @@
 package fractalzoomer.functions;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.core.GenericComplex;
+import fractalzoomer.core.ThreadDraw;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
 import fractalzoomer.utils.ColorAlgorithm;
 
@@ -30,11 +32,12 @@ public abstract class Julia extends Fractal {
 
     protected Complex seed;
     private boolean apply_plane_on_julia;
+    protected boolean updatedJuliter;
 
     public Julia(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, OrbitTrapSettings ots) {
 
         super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, ots);
-
+        isJulia = false;
     }
 
     public Julia(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, boolean periodicity_checking, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, OrbitTrapSettings ots, double xJuliaCenter, double yJuliaCenter) {
@@ -48,6 +51,8 @@ public abstract class Julia extends Fractal {
         }
 
         this.apply_plane_on_julia = apply_plane_on_julia;
+        isJulia = true;
+        updatedJuliter = false;
 
     }
 
@@ -55,7 +60,7 @@ public abstract class Julia extends Fractal {
     public Julia(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount) {
 
         super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
-
+        isJulia = false;
     }
 
     public Julia(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, double xJuliaCenter, double yJuliaCenter) {
@@ -74,6 +79,8 @@ public abstract class Julia extends Fractal {
             pixel_orbit = this.complex_orbit.get(0);
             pixel_orbit = rotation.rotate(pixel_orbit);
         }
+        isJulia = true;
+        updatedJuliter = false;
 
     }
 
@@ -88,13 +95,16 @@ public abstract class Julia extends Fractal {
     }
 
     @Override
-    public final double calculateJulia(Complex pixel) {
+    public final double calculateJulia(GenericComplex gpixel) {
 
         escaped = false;
         hasTrueColor = false;
+        updatedJuliter = false;
 
         statValue = 0;
         trapValue = 0;
+
+        Complex pixel = (Complex)gpixel;
 
         resetGlobalVars();
 
@@ -108,7 +118,7 @@ public abstract class Julia extends Fractal {
             trap.initialize(transformed);
         }
 
-        return periodicity_checking ? iterateFractalWithPeriodicity(initializeSeed(transformed), transformed) : iterateFractalWithoutPeriodicity(initializeSeed(transformed), transformed);
+        return periodicity_checking ? iterateFractalWithPeriodicity(juliter ? initialize(transformed) : initializeSeed(transformed), transformed) : iterateFractalWithoutPeriodicity(juliter ? initialize(transformed) : initializeSeed(transformed), transformed);
 
     }
 
@@ -122,15 +132,28 @@ public abstract class Julia extends Fractal {
         zold = new Complex();
         zold2 = new Complex();
         start = new Complex(complex[0]);
+        c0 = new Complex(complex[1]);
 
         return complex;
 
     }
 
     @Override
+    public void updateValues(Complex[] complex) {
+        if(isJulia && juliter && !updatedJuliter && iterations == juliterIterations) {
+            updatedJuliter = true;
+            complex[1] = new Complex(seed);
+
+            if(!juliterIncludeInitialIterations) {
+                iterations = 0;
+            }
+        }
+    }
+
+    @Override
     public final void calculateJuliaOrbit() {
 
-        Complex[] complex = initializeSeed(pixel_orbit);
+        Complex[] complex = juliter ? initialize(pixel_orbit) : initializeSeed(pixel_orbit);
         iterateFractalOrbit(complex, pixel_orbit);
 
     }
@@ -138,11 +161,13 @@ public abstract class Julia extends Fractal {
     @Override
     public final Complex calculateJuliaDomain(Complex pixel) {
 
+        updatedJuliter = false;
+
         resetGlobalVars();
 
         Complex transformed = getTransformedPixelJulia(pixel);
 
-        return iterateFractalDomain(initializeSeed(transformed), transformed);
+        return iterateFractalDomain(juliter ? initialize(transformed) : initializeSeed(transformed), transformed);
 
     }
 

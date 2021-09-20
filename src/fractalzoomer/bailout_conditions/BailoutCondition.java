@@ -17,7 +17,10 @@
 
 package fractalzoomer.bailout_conditions;
 
+import fractalzoomer.core.BigComplex;
 import fractalzoomer.core.Complex;
+import fractalzoomer.core.MyApfloat;
+import org.apfloat.Apfloat;
 
 /**
  *
@@ -25,13 +28,16 @@ import fractalzoomer.core.Complex;
  */
 public abstract class BailoutCondition {
   protected double bound;
+  protected Apfloat ddbound;
     
     public BailoutCondition(double bound) {
         
         this.bound = bound;
+        ddbound = new MyApfloat(bound);
         
     }
     
-    public abstract boolean escaped(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start);
+    public abstract boolean escaped(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0, double norm_squared);
+    public abstract boolean escaped(BigComplex z, BigComplex zold, BigComplex zold2, int iterations, BigComplex c, BigComplex start, BigComplex c0, Apfloat norm_squared);
     
 }

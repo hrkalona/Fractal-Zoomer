@@ -32,7 +32,6 @@ import fractalzoomer.main.app_settings.OrbitTrapSettings;
 import fractalzoomer.main.app_settings.StatisticsSettings;
 import fractalzoomer.parser.ExpressionNode;
 import fractalzoomer.parser.Parser;
-import fractalzoomer.utils.ColorAlgorithm;
 
 import java.util.ArrayList;
 
@@ -136,6 +135,9 @@ public class LambdaFnFn extends Julia {
         }
 
         point = new Complex(plane_transform_center[0], plane_transform_center[1]);
+
+        pertur_val = new DefaultPerturbation();
+        init_val = new DefaultInitialValue();
     }
 
     //orbit
@@ -212,6 +214,9 @@ public class LambdaFnFn extends Julia {
         }
 
         point = new Complex(plane_transform_center[0], plane_transform_center[1]);
+
+        pertur_val = new DefaultPerturbation();
+        init_val = new DefaultInitialValue();
 
     }
 
@@ -334,6 +339,7 @@ public class LambdaFnFn extends Julia {
         zold = new Complex();
         zold2 = new Complex();
         start = new Complex(complex[0]);
+        c0 = new Complex(complex[1]);
 
         setInitVariables(start, zold, zold2);
 
@@ -351,6 +357,7 @@ public class LambdaFnFn extends Julia {
         zold = new Complex();
         zold2 = new Complex();
         start = new Complex(complex[0]);
+        c0 = new Complex(complex[1]);
 
         setInitVariables(start, zold, zold2);
 

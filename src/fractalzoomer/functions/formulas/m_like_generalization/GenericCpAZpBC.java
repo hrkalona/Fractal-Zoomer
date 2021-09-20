@@ -104,6 +104,9 @@ public class GenericCpAZpBC extends Julia {
         
         alpha2 = gcps.alpha2;
         beta2 = gcps.beta2;
+
+        pertur_val = new DefaultPerturbation();
+        init_val = new DefaultInitialValue();
     }
 
     //orbit
@@ -155,6 +158,8 @@ public class GenericCpAZpBC extends Julia {
         super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
         alpha2 = gcps.alpha2;
         beta2 = gcps.beta2;
+        pertur_val = new DefaultPerturbation();
+        init_val = new DefaultInitialValue();
     }
 
     @Override

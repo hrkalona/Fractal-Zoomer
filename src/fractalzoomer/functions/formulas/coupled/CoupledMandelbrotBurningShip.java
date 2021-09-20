@@ -29,7 +29,6 @@ import fractalzoomer.fractal_options.perturbation.VariablePerturbation;
 import fractalzoomer.functions.Julia;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
 import fractalzoomer.main.app_settings.StatisticsSettings;
-import fractalzoomer.utils.ColorAlgorithm;
 
 import java.util.ArrayList;
 
@@ -97,6 +96,9 @@ public class CoupledMandelbrotBurningShip extends Julia {
         if (sts.statistic) {
             StatisticFactory(sts, plane_transform_center);
         }
+
+        pertur_val = new DefaultPerturbation();
+        init_val = new InitialValue(0, 0);
     }
 
     //orbit
@@ -141,7 +143,8 @@ public class CoupledMandelbrotBurningShip extends Julia {
         super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
 
         coupler = new SimpleCoupling(0.1);
-
+        pertur_val = new DefaultPerturbation();
+        init_val = new InitialValue(0, 0);
     }
 
     @Override
@@ -167,6 +170,7 @@ public class CoupledMandelbrotBurningShip extends Julia {
         zold = new Complex();
         zold2 = new Complex();
         start = new Complex(complex[0]);
+        c0 = new Complex(complex[1]);
 
         return complex;
 
@@ -183,6 +187,7 @@ public class CoupledMandelbrotBurningShip extends Julia {
         zold = new Complex();
         zold2 = new Complex();
         start = new Complex(complex[0]);
+        c0 = new Complex(complex[1]);
 
         return complex;
 

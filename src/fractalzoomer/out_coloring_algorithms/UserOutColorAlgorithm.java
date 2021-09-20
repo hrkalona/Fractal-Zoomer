@@ -90,6 +90,10 @@ public class UserOutColorAlgorithm extends OutColorAlgorithm {
             parser.setSvalue(((Complex) object[5]));
         }
 
+        if (parser.foundC0()) {
+            parser.setC0value(((Complex) object[6]));
+        }
+
         if (parser.foundP()) {
             parser.setPvalue(((Complex) object[2]));
         }

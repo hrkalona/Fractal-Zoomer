@@ -44,8 +44,8 @@ import fractalzoomer.functions.root_finding_methods.steffensen.SteffensenRootFin
 import fractalzoomer.functions.root_finding_methods.stirling.StirlingRootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.super_halley.SuperHalleyRootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.third_order_newton.ThirdOrderNewtonRootFindingMethod;
-import fractalzoomer.functions.root_finding_methods.weerakoon_fernando.WeerakoonFernandoRootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.traub_ostrowski.TraubOstrowskiRootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.weerakoon_fernando.WeerakoonFernandoRootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.whittaker.WhittakerRootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.whittaker_double_convex.WhittakerDoubleConvexRootFindingMethod;
 import fractalzoomer.main.MainWindow;
@@ -174,6 +174,9 @@ public class Nova extends ExtendedConvergentType {
         if (sts.statistic) {
             StatisticFactory(sts, plane_transform_center);
         }
+
+        pertur_val = new DefaultPerturbation();
+        init_val = new DefaultInitialValue();
     }
 
     //orbit
@@ -230,6 +233,9 @@ public class Nova extends ExtendedConvergentType {
         this.relaxation = new Complex(relaxation[0], relaxation[1]);
 
         newtonHinesK = new Complex(newton_hines_k[0], newton_hines_k[1]);
+
+        pertur_val = new DefaultPerturbation();
+        init_val = new DefaultInitialValue();
 
     }
 
@@ -538,6 +544,7 @@ public class Nova extends ExtendedConvergentType {
         zold = new Complex();
         zold2 = new Complex();
         start = new Complex(complex[0]);
+        c0 = new Complex(complex[1]);
 
         return complex;
 
@@ -557,6 +564,7 @@ public class Nova extends ExtendedConvergentType {
         zold = new Complex();
         zold2 = new Complex();
         start = new Complex(complex[0]);
+        c0 = new Complex(complex[1]);
 
         return complex;
 

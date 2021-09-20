@@ -217,7 +217,7 @@ public class UserFormulaNovaDialog extends JDialog {
 
         });    
         
-        Object[] labels3 = ptr.createUserFormulaLabels("z, c, s, p, pp, n, maxn, center, size, sizei, v1 - v30, point");
+        Object[] labels3 = ptr.createUserFormulaLabels("z, c, s, c0, p, pp, n, maxn, center, size, sizei, v1 - v30, point");
 
         if (method_choice.getSelectedIndex() != MainWindow.NOVA_LAGUERRE) {
             degree_panel.setVisible(false);

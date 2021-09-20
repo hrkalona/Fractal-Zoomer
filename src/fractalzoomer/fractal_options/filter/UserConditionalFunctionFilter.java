@@ -141,7 +141,7 @@ public class UserConditionalFunctionFilter extends FunctionFilter {
     }
 
     @Override
-    public Complex getValue(Complex z, int iterations, Complex c, Complex start) {
+    public Complex getValue(Complex z, int iterations, Complex c, Complex start, Complex c0) {
 
         /* LEFT */
         if (parser[0].foundN()) {
@@ -158,6 +158,10 @@ public class UserConditionalFunctionFilter extends FunctionFilter {
 
         if (parser[0].foundS()) {
             parser[0].setSvalue(start);
+        }
+
+        if (parser[0].foundC0()) {
+            parser[0].setC0value(c0);
         }
 
         for (int i = 0; i < Parser.EXTRA_VARS; i++) {
@@ -181,6 +185,10 @@ public class UserConditionalFunctionFilter extends FunctionFilter {
 
         if (parser[1].foundS()) {
             parser[1].setSvalue(start);
+        }
+
+        if (parser[1].foundC0()) {
+            parser[1].setC0value(c0);
         }
 
         for (int i = 0; i < Parser.EXTRA_VARS; i++) {
@@ -208,6 +216,10 @@ public class UserConditionalFunctionFilter extends FunctionFilter {
                 parser2[0].setSvalue(start);
             }
 
+            if (parser2[0].foundC0()) {
+                parser2[0].setC0value(c0);
+            }
+
             for (int i = 0; i < Parser.EXTRA_VARS; i++) {
                 if (parser2[0].foundVar(i)) {
                     parser2[0].setVarsvalue(i, globalVars[i]);
@@ -232,6 +244,10 @@ public class UserConditionalFunctionFilter extends FunctionFilter {
                 parser2[1].setSvalue(start);
             }
 
+            if (parser2[1].foundC0()) {
+                parser2[1].setC0value(c0);
+            }
+
             for (int i = 0; i < Parser.EXTRA_VARS; i++) {
                 if (parser2[1].foundVar(i)) {
                     parser2[1].setVarsvalue(i, globalVars[i]);
@@ -254,6 +270,10 @@ public class UserConditionalFunctionFilter extends FunctionFilter {
 
             if (parser2[2].foundS()) {
                 parser2[2].setSvalue(start);
+            }
+
+            if (parser2[2].foundC0()) {
+                parser2[2].setC0value(c0);
             }
 
             for (int i = 0; i < Parser.EXTRA_VARS; i++) {

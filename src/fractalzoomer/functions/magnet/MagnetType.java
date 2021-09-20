@@ -86,19 +86,22 @@ public abstract class MagnetType extends Julia {
         period = new Complex();
 
         for (; iterations < max_iterations; iterations++) {
+
+            updateValues(complex);
+
             temp1 = (temp4 = complex[0].distance_squared(1)) <= convergent_bailout;
-            temp2 = bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start);
+            temp2 = bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, 0.0);
             if (temp1 || temp2) {
                 escaped = true;
                 converged = temp1;
 
-                Object[] object = {iterations, complex[0], temp2, temp4, zold, zold2, complex[1], start};
+                Object[] object = {iterations, complex[0], temp2, temp4, zold, zold2, complex[1], start, c0};
                 double out = out_color_algorithm.getResult(object);
 
                 out = getFinalValueOut(out);
 
                 if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start);
+                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0);
                 }
 
                 return out;
@@ -106,16 +109,17 @@ public abstract class MagnetType extends Julia {
             zold2.assign(zold);
             zold.assign(complex[0]);
 
-            complex[0] = preFilter.getValue(complex[0], iterations, complex[1], start);
+            complex[1] = planeInfluence.getValue(complex[0], iterations, complex[1], start, zold, zold2, c0);
+            complex[0] = preFilter.getValue(complex[0], iterations, complex[1], start, c0);
             function(complex);
-            complex[0] = postFilter.getValue(complex[0], iterations, complex[1], start);
+            complex[0] = postFilter.getValue(complex[0], iterations, complex[1], start, c0);
 
             if (periodicityCheck(complex[0])) {
                 return ColorAlgorithm.MAXIMUM_ITERATIONS;
             }
 
             if (statistic != null) {
-                statistic.insert(complex[0], zold, zold2, iterations, complex[1], start);
+                statistic.insert(complex[0], zold, zold2, iterations, complex[1], start, c0);
             }
 
         }
@@ -133,23 +137,25 @@ public abstract class MagnetType extends Julia {
 
         for (; iterations < max_iterations; iterations++) {
 
+            updateValues(complex);
+
             if (trap != null) {
                 trap.check(complex[0], iterations);
             }
 
             temp1 = (temp4 = complex[0].distance_squared(1)) <= convergent_bailout;
-            temp2 = bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start);
+            temp2 = bailout_algorithm.escaped(complex[0], zold, zold2, iterations, complex[1], start, c0, 0.0);
             if (temp1 || temp2) {
                 escaped = true;
                 converged = temp1;
 
-                Object[] object = {iterations, complex[0], temp2, temp4, zold, zold2, complex[1], start};
+                Object[] object = {iterations, complex[0], temp2, temp4, zold, zold2, complex[1], start, c0};
                 double out = out_color_algorithm.getResult(object);
 
                 out = getFinalValueOut(out);
 
                 if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start);
+                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0);
                 }
 
                 return out;
@@ -157,23 +163,24 @@ public abstract class MagnetType extends Julia {
             zold2.assign(zold);
             zold.assign(complex[0]);
 
-            complex[0] = preFilter.getValue(complex[0], iterations, complex[1], start);
+            complex[1] = planeInfluence.getValue(complex[0], iterations, complex[1], start, zold, zold2, c0);
+            complex[0] = preFilter.getValue(complex[0], iterations, complex[1], start, c0);
             function(complex);
-            complex[0] = postFilter.getValue(complex[0], iterations, complex[1], start);
+            complex[0] = postFilter.getValue(complex[0], iterations, complex[1], start, c0);
 
             if (statistic != null) {
-                statistic.insert(complex[0], zold, zold2, iterations, complex[1], start);
+                statistic.insert(complex[0], zold, zold2, iterations, complex[1], start, c0);
             }
 
         }
 
-        Object[] object = {complex[0], zold, zold2, complex[1], start};
+        Object[] object = {complex[0], zold, zold2, complex[1], start, c0};
         double in = in_color_algorithm.getResult(object);
 
         in = getFinalValueIn(in);
 
         if (inTrueColorAlgorithm != null) {
-            setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start);
+            setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start, c0);
         }
 
         return in;

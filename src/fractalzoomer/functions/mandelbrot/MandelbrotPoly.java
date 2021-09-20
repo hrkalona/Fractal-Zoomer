@@ -161,6 +161,9 @@ public class MandelbrotPoly extends Julia {
         if(sts.statistic) {
             StatisticFactory(sts, plane_transform_center);
         }
+
+        pertur_val = new DefaultPerturbation();
+        init_val = new DefaultInitialValue();
     }
 
     //orbit
@@ -254,7 +257,10 @@ public class MandelbrotPoly extends Julia {
         }
         else {
             this.coefficients = coefficients;
-        } 
+        }
+
+        pertur_val = new DefaultPerturbation();
+        init_val = new DefaultInitialValue();
 
     }
 

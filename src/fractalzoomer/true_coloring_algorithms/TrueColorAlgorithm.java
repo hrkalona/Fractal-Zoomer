@@ -39,7 +39,7 @@ public abstract class TrueColorAlgorithm {
 
     }
 
-    public abstract int createColor(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, double stat, double trap, boolean escaped);
+    public abstract int createColor(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0, double stat, double trap, boolean escaped);
 
     
 }

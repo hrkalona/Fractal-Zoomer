@@ -16,9 +16,13 @@
  */
 package fractalzoomer.gui;
 
+import fractalzoomer.core.BigPoint;
+import fractalzoomer.core.MyApfloat;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
 import fractalzoomer.utils.MathUtils;
+import org.apfloat.Apfloat;
+import org.apfloat.ApfloatMath;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -30,7 +34,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.geom.Point2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
@@ -114,18 +117,20 @@ public class RotationDialog extends JDialog {
 
         final JTextField field_real = new JTextField();
 
-        if (s.fns.rotation_center[0] == 0) {
+        Apfloat zero = new MyApfloat(0.0);
+
+        if (s.fns.rotation_center[0].compareTo(zero) == 0) {
             field_real.setText("" + 0.0);
         } else {
-            field_real.setText("" + s.fns.rotation_center[0]);
+            field_real.setText("" + s.fns.rotation_center[0].toString(true));
         }
 
         final JTextField field_imaginary = new JTextField();
 
-        if (s.fns.rotation_center[1] == 0) {
+        if (s.fns.rotation_center[1].compareTo(zero) == 0) {
             field_imaginary.setText("" + 0.0);
         } else {
-            field_imaginary.setText("" + s.fns.rotation_center[1]);
+            field_imaginary.setText("" + s.fns.rotation_center[1].toString(true));
         }
 
         final JCheckBox current_center = new JCheckBox("Current Center");
@@ -137,27 +142,29 @@ public class RotationDialog extends JDialog {
             @Override
             public void actionPerformed(ActionEvent e) {
 
+                Apfloat zero = new MyApfloat(0.0);
+
                 if (!current_center.isSelected()) {
-                    if (s.fns.rotation_center[0] == 0) {
+                    if (s.fns.rotation_center[0].compareTo(zero) == 0) {
                         field_real.setText("" + 0.0);
                     } else {
-                        field_real.setText("" + s.fns.rotation_center[0]);
+                        field_real.setText("" + s.fns.rotation_center[0].toString(true));
                     }
 
                     field_real.setEditable(true);
 
-                    if (s.fns.rotation_center[1] == 0) {
+                    if (s.fns.rotation_center[1].compareTo(zero) == 0) {
                         field_imaginary.setText("" + 0.0);
                     } else {
-                        field_imaginary.setText("" + s.fns.rotation_center[1]);
+                        field_imaginary.setText("" + s.fns.rotation_center[1].toString(true));
                     }
                     field_imaginary.setEditable(true);
                 } else {
-                    Point2D.Double p = MathUtils.rotatePointRelativeToPoint(s.xCenter, s.yCenter, s.fns.rotation_vals, s.fns.rotation_center);
+                    BigPoint p = MathUtils.rotatePointRelativeToPoint(new BigPoint(s.xCenter, s.yCenter), s.fns.rotation_vals, s.fns.rotation_center);
 
-                    field_real.setText("" + p.x);
+                    field_real.setText("" + p.x.toString(true));
                     field_real.setEditable(false);
-                    field_imaginary.setText("" + p.y);
+                    field_imaginary.setText("" + p.y.toString(true));
                     field_imaginary.setEditable(false);
                 }
             }
@@ -209,8 +216,8 @@ public class RotationDialog extends JDialog {
 
                     try {
                         double temp = Double.parseDouble(field_rotation.getText());
-                        double tempReal = Double.parseDouble(field_real.getText());
-                        double tempImaginary = Double.parseDouble(field_imaginary.getText());
+                        Apfloat tempReal = new MyApfloat(field_real.getText());
+                        Apfloat tempImaginary = new MyApfloat(field_imaginary.getText());
 
                         if (temp < -360) {            
                             JOptionPane.showMessageDialog(ptra, "Rotation angle must be greater than -361.", "Error!", JOptionPane.ERROR_MESSAGE);
@@ -222,14 +229,17 @@ public class RotationDialog extends JDialog {
 
                         s.fns.rotation = temp;
 
-                        s.fns.rotation_vals[0] = Math.cos(Math.toRadians(s.fns.rotation));
-                        s.fns.rotation_vals[1] = Math.sin(Math.toRadians(s.fns.rotation));
+                        Apfloat tempRadians =  ApfloatMath.toRadians(new MyApfloat(s.fns.rotation));
+                        s.fns.rotation_vals[0] = MyApfloat.cos(tempRadians);
+                        s.fns.rotation_vals[1] = MyApfloat.sin(tempRadians);
 
                         s.fns.rotation_center[0] = tempReal;
                         s.fns.rotation_center[1] = tempImaginary;
 
-                        s.fns.rotation_center[0] = s.fns.rotation_center[0] == 0 ? 0 : s.fns.rotation_center[0];
-                        s.fns.rotation_center[1] = s.fns.rotation_center[1] == 0 ? 0 : s.fns.rotation_center[1];
+                        Apfloat zero = new MyApfloat(0.0);
+
+                        s.fns.rotation_center[0] = s.fns.rotation_center[0].compareTo(zero) == 0 ? zero : s.fns.rotation_center[0];
+                        s.fns.rotation_center[1] = s.fns.rotation_center[1].compareTo(zero) == 0? zero : s.fns.rotation_center[1];
 
                         s.xCenter = s.fns.rotation_center[0];
                         s.yCenter = s.fns.rotation_center[1];

@@ -36,7 +36,6 @@ import fractalzoomer.main.app_settings.OrbitTrapSettings;
 import fractalzoomer.main.app_settings.StatisticsSettings;
 import fractalzoomer.parser.ExpressionNode;
 import fractalzoomer.parser.Parser;
-import fractalzoomer.utils.ColorAlgorithm;
 
 import java.util.ArrayList;
 
@@ -152,6 +151,9 @@ public class UserFormulaCoupledEscaping extends Julia {
             StatisticFactory(sts, plane_transform_center);
         }
 
+        pertur_val = new DefaultPerturbation();
+        init_val = new DefaultInitialValue();
+
     }
 
     //orbit
@@ -237,6 +239,9 @@ public class UserFormulaCoupledEscaping extends Julia {
 
         point = new Complex(plane_transform_center[0], plane_transform_center[1]);
 
+        pertur_val = new DefaultPerturbation();
+        init_val = new DefaultInitialValue();
+
     }
 
     @Override
@@ -316,8 +321,9 @@ public class UserFormulaCoupledEscaping extends Julia {
         zold = new Complex();
         zold2 = new Complex();
         start = new Complex(complex[0]);
+        c0 = new Complex(complex[1]);
 
-        setInitVariables(start, zold, zold2);
+        setInitVariables(start, zold, zold2, c0);
 
         return complex;
 
@@ -334,8 +340,9 @@ public class UserFormulaCoupledEscaping extends Julia {
         zold = new Complex();
         zold2 = new Complex();
         start = new Complex(complex[0]);
+        c0 = new Complex(complex[1]);
 
-        setInitVariables(start, zold, zold2);
+        setInitVariables(start, zold, zold2, c0);
 
         return complex;
 
@@ -361,7 +368,7 @@ public class UserFormulaCoupledEscaping extends Julia {
 
     }
 
-    private void setInitVariables(Complex start, Complex zold, Complex zold2) {
+    private void setInitVariables(Complex start, Complex zold, Complex zold2, Complex c0) {
 
         if (parser.foundS()) {
             parser.setSvalue(start);
@@ -369,6 +376,14 @@ public class UserFormulaCoupledEscaping extends Julia {
 
         if (parser2.foundS()) {
             parser2.setSvalue(start);
+        }
+
+        if (parser.foundC0()) {
+            parser.setC0value(c0);
+        }
+
+        if (parser2.foundC0()) {
+            parser2.setC0value(c0);
         }
 
         if (parser.foundMaxn()) {

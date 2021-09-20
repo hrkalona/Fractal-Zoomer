@@ -117,7 +117,7 @@ public class BailoutConditionDialog extends JDialog {
         formula_panel_cond13.add(new JLabel("left = right"));
         formula_panel_cond13.add(combo_box_equal);
 
-        Object[] labels33 = ptra.createUserFormulaLabels("z, c, s, p, pp, n, maxn, bail, center, size, sizei, v1 - v30, point");
+        Object[] labels33 = ptra.createUserFormulaLabels("z, c, s, c0, p, pp, n, maxn, bail, center, size, sizei, v1 - v30, point");
 
         Object[] message33 = {
             labels33,

@@ -130,6 +130,9 @@ public class MandelbrotFifth extends Julia {
         if(sts.statistic) {
             StatisticFactory(sts, plane_transform_center);
         }
+
+        pertur_val = new DefaultPerturbation();
+        init_val = new DefaultInitialValue();
     }
 
     //orbit
@@ -204,6 +207,9 @@ public class MandelbrotFifth extends Julia {
         else {
             type2 = new NormalMandel();
         }
+
+        pertur_val = new DefaultPerturbation();
+        init_val = new DefaultInitialValue();
 
     }
 

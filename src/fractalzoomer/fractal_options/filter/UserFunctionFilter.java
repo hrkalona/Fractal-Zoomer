@@ -40,7 +40,7 @@ public class UserFunctionFilter extends FunctionFilter {
     }
 
     @Override
-    public Complex getValue(Complex z, int iterations, Complex c, Complex start) {
+    public Complex getValue(Complex z, int iterations, Complex c, Complex start, Complex c0) {
 
         if (parser.foundN()) {
             parser.setNvalue(new Complex(iterations, 0));
@@ -56,6 +56,10 @@ public class UserFunctionFilter extends FunctionFilter {
 
         if (parser.foundS()) {
             parser.setSvalue(start);
+        }
+
+        if (parser.foundC0()) {
+            parser.setC0value(c0);
         }
 
         for (int i = 0; i < Parser.EXTRA_VARS; i++) {

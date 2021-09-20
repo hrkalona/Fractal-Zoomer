@@ -34,9 +34,9 @@ public class AtomDomain extends GenericStatistic {
     }
 
     @Override
-    public void insert(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start) {
+    public void insert(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0) {
 
-        super.insert(z, zold, zold2, iterations, c, start);
+        super.insert(z, zold, zold2, iterations, c, start, c0);
 
         double currentNorm = z.norm();
         if(currentNorm < minNorm) {

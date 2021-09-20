@@ -17,6 +17,7 @@
 package fractalzoomer.functions.root_finding_methods;
 
 import fractalzoomer.core.Complex;
+import fractalzoomer.core.GenericComplex;
 import fractalzoomer.fractal_options.iteration_statistics.*;
 import fractalzoomer.functions.Fractal;
 import fractalzoomer.in_coloring_algorithms.*;
@@ -63,6 +64,7 @@ public abstract class RootFindingMethods extends Fractal {
         zold = new Complex();
         zold2 = new Complex();
         start = new Complex(complex[0]);
+        c0 = new Complex(complex[0]);
 
         return complex;
 
@@ -75,6 +77,8 @@ public abstract class RootFindingMethods extends Fractal {
 
         for (; iterations < max_iterations; iterations++) {
 
+            updateValues(complex);
+
             if (trap != null) {
                 trap.check(complex[0], iterations);
             }
@@ -82,14 +86,14 @@ public abstract class RootFindingMethods extends Fractal {
             if (iterations > 0 && (temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
                 escaped = true;
 
-                Object[] object = {iterations, complex[0], temp, zold, zold2, pixel, start};
+                Object[] object = {iterations, complex[0], temp, zold, zold2, pixel, start, c0};
                 iterationData = object;
                 double out = out_color_algorithm.getResult(object);
 
                 out = getFinalValueOut(out);
 
                 if (outTrueColorAlgorithm != null) {
-                    setTrueColorOut(complex[0], zold, zold2, iterations, pixel, start);
+                    setTrueColorOut(complex[0], zold, zold2, iterations, pixel, start, c0);
                 }
 
                 return out;
@@ -97,24 +101,24 @@ public abstract class RootFindingMethods extends Fractal {
             zold2.assign(zold);
             zold.assign(complex[0]);
 
-            complex[0] = preFilter.getValue(complex[0], iterations, pixel, start);
+            complex[0] = preFilter.getValue(complex[0], iterations, pixel, start, c0);
             function(complex);
-            complex[0] = postFilter.getValue(complex[0], iterations, pixel, start);
+            complex[0] = postFilter.getValue(complex[0], iterations, pixel, start, c0);
 
             if (statistic != null) {
-                statistic.insert(complex[0], zold, zold2, iterations, pixel, start);
+                statistic.insert(complex[0], zold, zold2, iterations, pixel, start, c0);
             }
 
         }
 
-        Object[] object = {complex[0], zold, zold2, pixel, start};
+        Object[] object = {complex[0], zold, zold2, pixel, start, c0};
         iterationData = object;
         double in = in_color_algorithm.getResult(object);
 
         in = getFinalValueIn(in);
 
         if (inTrueColorAlgorithm != null) {
-            setTrueColorIn(complex[0], zold, zold2, iterations, pixel, start);
+            setTrueColorIn(complex[0], zold, zold2, iterations, pixel, start, c0);
         }
 
         return in;
@@ -128,12 +132,14 @@ public abstract class RootFindingMethods extends Fractal {
         Complex temp = null;
 
         for (; iterations < max_iterations; iterations++) {
+            updateValues(complex);
+
             zold2.assign(zold);
             zold.assign(complex[0]);
 
-            complex[0] = preFilter.getValue(complex[0], iterations, pixel, start);
+            complex[0] = preFilter.getValue(complex[0], iterations, pixel, start, c0);
             function(complex);
-            complex[0] = postFilter.getValue(complex[0], iterations, pixel, start);
+            complex[0] = postFilter.getValue(complex[0], iterations, pixel, start, c0);
 
             temp = rotation.rotateInverse(complex[0]);
 
@@ -152,12 +158,14 @@ public abstract class RootFindingMethods extends Fractal {
 
         for (; iterations < max_iterations; iterations++) {
 
+            updateValues(complex);
+
             zold2.assign(zold);
             zold.assign(complex[0]);
 
-            complex[0] = preFilter.getValue(complex[0], iterations, pixel, start);
+            complex[0] = preFilter.getValue(complex[0], iterations, pixel, start, c0);
             function(complex);
-            complex[0] = postFilter.getValue(complex[0], iterations, pixel, start);
+            complex[0] = postFilter.getValue(complex[0], iterations, pixel, start, c0);
 
         }
 
@@ -166,7 +174,7 @@ public abstract class RootFindingMethods extends Fractal {
     }
 
     @Override
-    public double calculateJulia(Complex pixel) {
+    public double calculateJulia(GenericComplex pixel) {
         return 0;
     }
 

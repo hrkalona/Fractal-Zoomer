@@ -36,8 +36,9 @@ public class FractalOptionsMenu extends JMenu {
     private JCheckBoxMenuItem init_val_opt;
     private FunctionFiltersMenu pre_function_filters;
     private FunctionFiltersMenu post_function_filters;
+    private PlaneInfluenceMenu plane_influence_menu;
     
-    public FractalOptionsMenu(MainWindow ptr2, String name, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, int function, int plane_type, int pre_filter, int post_filter) {
+    public FractalOptionsMenu(MainWindow ptr2, String name, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, int function, int plane_type, int pre_filter, int post_filter, int plane_influence) {
         super(name);
 
         this.ptr = ptr2;
@@ -50,6 +51,8 @@ public class FractalOptionsMenu extends JMenu {
 
         pre_function_filters = new FunctionFiltersMenu(ptr, "Pre Function Filter", pre_filter, false);
         post_function_filters = new FunctionFiltersMenu(ptr, "Post Function Filter", post_filter, true);
+
+        plane_influence_menu = new PlaneInfluenceMenu(ptr, plane_influence);
         
         perturbation_opt = new JCheckBoxMenuItem("Perturbation");
         init_val_opt = new JCheckBoxMenuItem("Initial Value");
@@ -83,6 +86,8 @@ public class FractalOptionsMenu extends JMenu {
         add(fractal_functions_menu);
         addSeparator();
         add(planes_menu);
+        addSeparator();
+        add(plane_influence_menu);
         addSeparator();
         add(pre_function_filters);
         addSeparator();
@@ -168,6 +173,18 @@ public class FractalOptionsMenu extends JMenu {
     public JRadioButtonMenuItem[] getPostFunctionFilters() {
 
         return post_function_filters.getFunctionFilters();
+
+    }
+
+    public JRadioButtonMenuItem[] getPlaneInfluences() {
+
+        return plane_influence_menu.getPlaneInfluences();
+
+    }
+
+    public JMenu getPlaneInfluenceMenu() {
+
+        return plane_influence_menu;
 
     }
     

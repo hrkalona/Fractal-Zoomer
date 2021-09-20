@@ -46,8 +46,8 @@ import fractalzoomer.functions.root_finding_methods.steffensen.SteffensenRootFin
 import fractalzoomer.functions.root_finding_methods.stirling.StirlingRootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.super_halley.SuperHalleyRootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.third_order_newton.ThirdOrderNewtonRootFindingMethod;
-import fractalzoomer.functions.root_finding_methods.weerakoon_fernando.WeerakoonFernandoRootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.traub_ostrowski.TraubOstrowskiRootFindingMethod;
+import fractalzoomer.functions.root_finding_methods.weerakoon_fernando.WeerakoonFernandoRootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.whittaker.WhittakerRootFindingMethod;
 import fractalzoomer.functions.root_finding_methods.whittaker_double_convex.WhittakerDoubleConvexRootFindingMethod;
 import fractalzoomer.main.MainWindow;
@@ -225,6 +225,9 @@ public class UserFormulaNova extends ExtendedConvergentType {
         }
 
         point = new Complex(plane_transform_center[0], plane_transform_center[1]);
+
+        pertur_val = new DefaultPerturbation();
+        init_val = new DefaultInitialValue();
     }
 
     //orbit
@@ -315,6 +318,9 @@ public class UserFormulaNova extends ExtendedConvergentType {
         exprAddend = parserAddend.parse(user_nova_addend_formula);
 
         point = new Complex(plane_transform_center[0], plane_transform_center[1]);
+
+        pertur_val = new DefaultPerturbation();
+        init_val = new DefaultInitialValue();
     }
 
     private Complex combinedFFZ(Complex z, Complex fz, Complex dfz) {
@@ -792,8 +798,9 @@ public class UserFormulaNova extends ExtendedConvergentType {
         zold = new Complex();
         zold2 = new Complex();
         start = new Complex(complex[0]);
+        c0 = new Complex(complex[1]);
 
-        setInitVariables(start, zold, zold2);
+        setInitVariables(start, zold, zold2, c0);
 
         initExtra(complex);
 
@@ -813,8 +820,9 @@ public class UserFormulaNova extends ExtendedConvergentType {
         zold = new Complex();
         zold2 = new Complex();
         start = new Complex(complex[0]);
+        c0 = new Complex(complex[1]);
 
-        setInitVariables(start, zold, zold2);
+        setInitVariables(start, zold, zold2, c0);
 
         initExtra(complex);
 
@@ -866,7 +874,7 @@ public class UserFormulaNova extends ExtendedConvergentType {
 
     }
 
-    private void setInitVariables(Complex start, Complex zold, Complex zold2) {
+    private void setInitVariables(Complex start, Complex zold, Complex zold2, Complex c0) {
 
         if (parser.foundS()) {
             parser.setSvalue(start);
@@ -886,6 +894,26 @@ public class UserFormulaNova extends ExtendedConvergentType {
 
         if (parserAddend.foundS()) {
             parserAddend.setSvalue(start);
+        }
+
+        if (parser.foundC0()) {
+            parser.setC0value(c0);
+        }
+
+        if (parser2.foundC0()) {
+            parser2.setC0value(c0);
+        }
+
+        if (parser3.foundC0()) {
+            parser3.setC0value(c0);
+        }
+
+        if (parserRelaxation.foundC0()) {
+            parserRelaxation.setC0value(c0);
+        }
+
+        if (parserAddend.foundC0()) {
+            parserAddend.setC0value(c0);
         }
 
         Complex c_maxn = new Complex(max_iterations, 0);

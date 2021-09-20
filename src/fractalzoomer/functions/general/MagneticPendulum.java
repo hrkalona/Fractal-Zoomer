@@ -18,7 +18,6 @@ package fractalzoomer.functions.general;
 
 import fractalzoomer.core.Complex;
 import fractalzoomer.fractal_options.iteration_statistics.*;
-import fractalzoomer.functions.Fractal;
 import fractalzoomer.functions.FractalWithoutConstant;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.MagneticPendulumSettings;
@@ -169,6 +168,7 @@ public class MagneticPendulum extends FractalWithoutConstant {
         zold = new Complex();
         zold2 = new Complex();
         start = new Complex(complex[0]);
+        c0 = new Complex(complex[0]);
 
         return complex;
 
@@ -180,6 +180,8 @@ public class MagneticPendulum extends FractalWithoutConstant {
 
         for (; iterations < max_iterations; iterations++) {
 
+            updateValues(complex);
+
             if (trap != null) {
                 trap.check(complex[0], iterations);
             }
@@ -187,12 +189,12 @@ public class MagneticPendulum extends FractalWithoutConstant {
             zold2.assign(zold);
             zold.assign(complex[0]);
 
-            complex[0] = preFilter.getValue(complex[0], iterations, pixel, start);
+            complex[0] = preFilter.getValue(complex[0], iterations, pixel, start, c0);
             function(complex);
-            complex[0] = postFilter.getValue(complex[0], iterations, pixel, start);
+            complex[0] = postFilter.getValue(complex[0], iterations, pixel, start, c0);
 
             if (statistic != null) {
-                statistic.insert(complex[0], zold, zold2, iterations, pixel, start);
+                statistic.insert(complex[0], zold, zold2, iterations, pixel, start, c0);
             }
 
         }
@@ -201,14 +203,14 @@ public class MagneticPendulum extends FractalWithoutConstant {
 
         escaped = true;
 
-        Object[] object = {iterations, complex[0], 0, zold, zold2, pixel, start, complex[4]};
+        Object[] object = {iterations, complex[0], 0, zold, zold2, pixel, start, complex[4], c0};
         iterationData = object;
         double out = out_color_algorithm.getResult(object);
 
         out = getFinalValueOut(out);
 
         if (outTrueColorAlgorithm != null) {
-            setTrueColorOut(complex[0], zold, zold2, iterations, pixel, start);
+            setTrueColorOut(complex[0], zold, zold2, iterations, pixel, start, c0);
         }
 
         return out;

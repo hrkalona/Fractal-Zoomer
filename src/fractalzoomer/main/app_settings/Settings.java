@@ -19,6 +19,7 @@ package fractalzoomer.main.app_settings;
 import fractalzoomer.bailout_conditions.SkipBailoutCondition;
 import fractalzoomer.core.Complex;
 import fractalzoomer.core.Derivative;
+import fractalzoomer.core.MyApfloat;
 import fractalzoomer.core.ThreadDraw;
 import fractalzoomer.fractal_options.orbit_traps.ImageOrbitTrap;
 import fractalzoomer.main.Constants;
@@ -27,6 +28,8 @@ import fractalzoomer.palettes.PresetPalette;
 import fractalzoomer.parser.Parser;
 import fractalzoomer.settings.*;
 import fractalzoomer.utils.ColorAlgorithm;
+import org.apfloat.Apfloat;
+import org.apfloat.ApfloatMath;
 
 import javax.swing.*;
 import java.awt.*;
@@ -45,11 +48,11 @@ public class Settings implements Constants {
     public boolean polar_projection;
     public boolean inverse_dem;
     public DomainColoringSettings ds;
-    public double xCenter;
-    public double yCenter;
+    public Apfloat xCenter;
+    public Apfloat yCenter;
     public double xJuliaCenter;
     public double yJuliaCenter;
-    public double size;
+    public Apfloat size;
     public double height_ratio;
     public int max_iterations;
     public double circle_period;
@@ -84,6 +87,7 @@ public class Settings implements Constants {
     public Parser parser;
     public boolean useDirectColor;
     public boolean globalIncrementBypass;
+    public boolean julia_map;
 
     public Settings() {
         defaultValues();
@@ -96,13 +100,15 @@ public class Settings implements Constants {
         useDirectColor = false;
         globalIncrementBypass = false;
 
-        xCenter = 0;
-        yCenter = 0;
+        xCenter = new MyApfloat(0.0);
+        yCenter = new MyApfloat(0.0);
 
-        size = 6;
+        size = new MyApfloat(6);
 
         height_ratio = 1;
         max_iterations = 500;
+
+        julia_map = false;
 
         fns = new FunctionSettings();
         ds = new DomainColoringSettings();
@@ -258,6 +264,10 @@ public class Settings implements Constants {
                 xJuliaCenter = ((SettingsJulia1077) settings).getXJuliaCenter();
                 yJuliaCenter = ((SettingsJulia1077) settings).getYJuliaCenter();
             }
+            else if (version == 1078) {
+                xJuliaCenter = ((SettingsJulia1078) settings).getXJuliaCenter();
+                yJuliaCenter = ((SettingsJulia1078) settings).getYJuliaCenter();
+            }
 
             fns.julia = true;
 
@@ -323,9 +333,17 @@ public class Settings implements Constants {
             }
         }
 
-        xCenter = settings.getXCenter();
-        yCenter = settings.getYCenter();
-        size = settings.getSize();
+        if(version < 1078) {
+            xCenter = new MyApfloat(settings.getXCenter());
+            yCenter = new MyApfloat(settings.getYCenter());
+            size = new MyApfloat(settings.getSize());
+        }
+        else {
+            xCenter = new MyApfloat(((SettingsFractals1078) settings).getxCenterStr());
+            yCenter = new MyApfloat(((SettingsFractals1078) settings).getyCenterStr());
+            size = new MyApfloat(((SettingsFractals1078) settings).getSizeStr());
+        }
+
         max_iterations = settings.getMaxIterations();
         ps.color_choice = settings.getColorChoice();
 
@@ -1083,6 +1101,27 @@ public class Settings implements Constants {
             sts.equicontinuityDelta = ((SettingsFractals1077) settings).getEquicontinuityDelta();
         }
 
+        if(version < 1078) {
+            fns.juliter = defaults.fns.juliter;
+            fns.juliterIterations = defaults.fns.juliterIterations;
+            fns.juliterIncludeInitialIterations = defaults.fns.juliterIncludeInitialIterations;
+            fns.ips.influencePlane = defaults.fns.ips.influencePlane;
+            fns.ips.userFormulaPlaneInfluence = defaults.fns.ips.userFormulaPlaneInfluence;
+            fns.ips.user_plane_influence_conditions = defaults.fns.ips.user_plane_influence_conditions;
+            fns.ips.user_plane_influence_condition_formula = defaults.fns.ips.user_plane_influence_condition_formula;
+            fns.ips.user_plane_influence_algorithm = defaults.fns.ips.user_plane_influence_algorithm;
+        }
+        else {
+            fns.juliter = ((SettingsFractals1078) settings).getJuliter();
+            fns.juliterIterations = ((SettingsFractals1078) settings).getJuliterIterations();
+            fns.juliterIncludeInitialIterations = ((SettingsFractals1078) settings).getJuliterIncludeInitialIterations();
+            fns.ips.influencePlane = ((SettingsFractals1078) settings).getInfluencePlane();
+            fns.ips.userFormulaPlaneInfluence = ((SettingsFractals1078) settings).getUserFormulaPlaneInfluence();
+            fns.ips.user_plane_influence_conditions = ((SettingsFractals1078) settings).getUserPlaneInfluenceConditions();
+            fns.ips.user_plane_influence_condition_formula = ((SettingsFractals1078) settings).getUserPlaneInfluenceConditionFormula();
+            fns.ips.user_plane_influence_algorithm = ((SettingsFractals1078) settings).getUserPlaneInfluenceAlgorithm();
+        }
+
         if (fns.plane_type == USER_PLANE) {
             if (version < 1058) {
                 fns.user_plane_algorithm = defaults.fns.user_plane_algorithm;
@@ -1115,7 +1154,19 @@ public class Settings implements Constants {
         }
 
         fns.rotation = settings.getRotation();
-        fns.rotation_center = settings.getRotationCenter();
+
+        fns.rotation_center = new Apfloat[2];
+
+        if(version < 1078) {
+            double[] tempRotCenter = settings.getRotationCenter();
+            fns.rotation_center[0] = new MyApfloat(tempRotCenter[0]);
+            fns.rotation_center[1] = new MyApfloat(tempRotCenter[1]);
+        }
+        else {
+            String[] tempRotCenter = ((SettingsFractals1078) settings).getRotationCenterStr();
+            fns.rotation_center[0] = new MyApfloat(tempRotCenter[0]);
+            fns.rotation_center[1] = new MyApfloat(tempRotCenter[1]);
+        }
 
         fns.bailout_test_algorithm = settings.getBailoutTestAlgorithm();
 
@@ -1131,8 +1182,9 @@ public class Settings implements Constants {
             }
         }
 
-        fns.rotation_vals[0] = Math.cos(Math.toRadians(fns.rotation));
-        fns.rotation_vals[1] = Math.sin(Math.toRadians(fns.rotation));
+        Apfloat tempRadians =  ApfloatMath.toRadians(new MyApfloat(fns.rotation));
+        fns.rotation_vals[0] = MyApfloat.cos(tempRadians);
+        fns.rotation_vals[1] = MyApfloat.sin(tempRadians);
 
         fns.out_coloring_algorithm = settings.getOutColoringAlgorithm();
 
@@ -1525,9 +1577,9 @@ public class Settings implements Constants {
             file_temp = new ObjectOutputStream(new FileOutputStream(filename));
             SettingsFractals settings;
             if (fns.julia) {
-                settings = new SettingsJulia1077(this);
+                settings = new SettingsJulia1078(this);
             } else {
-                settings = new SettingsFractals1077(this);
+                settings = new SettingsFractals1078(this);
             }
             file_temp.writeObject(settings);
             file_temp.flush();
@@ -1543,64 +1595,64 @@ public class Settings implements Constants {
     public void startingPosition() {
         switch (fns.function) {
             case MANDEL_NEWTON:
-                xCenter = 0;
-                yCenter = 0;
-                size = 24;
+                xCenter = new MyApfloat(0.0);
+                yCenter = new MyApfloat(0.0);
+                size = new MyApfloat(24);
                 break;
             case MAGNET1:
                 if (fns.julia) {
-                    xCenter = 0;
-                    yCenter = 0;
-                    size = 28;
+                    xCenter = new MyApfloat(0.0);
+                    yCenter = new MyApfloat(0.0);
+                    size = new MyApfloat(28);
                 } else {
-                    xCenter = 1.35;
-                    yCenter = 0;
-                    size = 8;
+                    xCenter = new MyApfloat(1.35);
+                    yCenter = new MyApfloat(0.0);
+                    size = new MyApfloat(8);
                 }
                 break;
             case MAGNET2:
                 if (fns.julia) {
-                    xCenter = 0;
-                    yCenter = 0;
-                    size = 56;
+                    xCenter = new MyApfloat(0.0);
+                    yCenter = new MyApfloat(0.0);
+                    size = new MyApfloat(56);
                 } else {
-                    xCenter = 1;
-                    yCenter = 0;
-                    size = 7;
+                    xCenter = new MyApfloat(1.0);
+                    yCenter = new MyApfloat(0.0);
+                    size = new MyApfloat(7);
                 }
                 break;
             case BARNSLEY1:
             case BARNSLEY2:
-                xCenter = 0;
-                yCenter = 0;
-                size = 7;
+                xCenter = new MyApfloat(0.0);
+                yCenter = new MyApfloat(0.0);
+                size = new MyApfloat(7);
                 break;
             case SIERPINSKI_GASKET:
-                xCenter = 0.5;
-                yCenter = 0.5;
-                size = 3;
+                xCenter = new MyApfloat(0.5);
+                yCenter = new MyApfloat(0.5);
+                size = new MyApfloat(3);
                 break;
             case FORMULA44:
             case FORMULA45:
             case FORMULA43:
-                xCenter = 0;
-                yCenter = 0;
-                size = 24;
+                xCenter = new MyApfloat(0.0);
+                yCenter = new MyApfloat(0.0);
+                size = new MyApfloat(24);
                 break;
             case FORMULA3:
             case FORMULA9:
             case FORMULA10:
             case FORMULA8:
-                xCenter = 0;
-                yCenter = 0;
-                size = 3;
+                xCenter = new MyApfloat(0.0);
+                yCenter = new MyApfloat(0.0);
+                size = new MyApfloat(3);
                 break;
             case FORMULA4:
             case FORMULA5:
             case FORMULA11:
-                xCenter = 0;
-                yCenter = 0;
-                size = 1.5;
+                xCenter = new MyApfloat(0.0);
+                yCenter = new MyApfloat(0.0);
+                size = new MyApfloat(1.5);
                 break;
             case FORMULA7:
             case FORMULA12:
@@ -1608,53 +1660,53 @@ public class Settings implements Constants {
             case SZEGEDI_BUTTERFLY2:
             case KLEINIAN:
             case FORMULA42:
-                xCenter = 0;
-                yCenter = 0;
-                size = 12;
+                xCenter = new MyApfloat(0.0);
+                yCenter = new MyApfloat(0.0);
+                size = new MyApfloat(12);
                 break;
             case FORMULA27:
                 if (fns.julia) {
-                    xCenter = -2;
-                    yCenter = 0;
-                    size = 6;
+                    xCenter = new MyApfloat(-2);
+                    yCenter = new MyApfloat(0.0);
+                    size = new MyApfloat(6);
                 } else {
-                    xCenter = 0;
-                    yCenter = 0;
-                    size = 3;
+                    xCenter = new MyApfloat(0.0);
+                    yCenter = new MyApfloat(0.0);
+                    size = new MyApfloat(3);
                 }
                 break;
             case FORMULA28:
             case FORMULA29:
                 if (fns.julia) {
-                    xCenter = 0;
-                    yCenter = 0;
-                    size = 12;
+                    xCenter = new MyApfloat(0.0);
+                    yCenter = new MyApfloat(0.0);
+                    size = new MyApfloat(12);
                 } else {
-                    xCenter = 0;
-                    yCenter = 0;
-                    size = 3;
+                    xCenter = new MyApfloat(0.0);
+                    yCenter = new MyApfloat(0.0);
+                    size = new MyApfloat(3);
                 }
                 break;
             case FORMULA38:
                 if (fns.julia) {
-                    xCenter = 0;
-                    yCenter = 0;
-                    size = 6;
+                    xCenter = new MyApfloat(0.0);
+                    yCenter = new MyApfloat(0.0);
+                    size = new MyApfloat(6);
                 } else {
-                    xCenter = 0;
-                    yCenter = 0;
-                    size = 1.5;
+                    xCenter = new MyApfloat(0.0);
+                    yCenter = new MyApfloat(0.0);
+                    size = new MyApfloat(1.5);
                 }
                 break;
             case LYAPUNOV:
-                xCenter = 0;
-                yCenter = 0;
-                size = 24;
+                xCenter = new MyApfloat(0.0);
+                yCenter = new MyApfloat(0.0);
+                size = new MyApfloat(24);
                 break;
             default:
-                xCenter = 0;
-                yCenter = 0;
-                size = 6;
+                xCenter = new MyApfloat(0.0);
+                yCenter = new MyApfloat(0.0);
+                size = new MyApfloat(6);
                 break;
         }
     }
@@ -1737,54 +1789,54 @@ public class Settings implements Constants {
         switch (fns.function) {
             case MANDEL_NEWTON:
             case FORMULA1:
-                xCenter = 0;
-                yCenter = 0;
-                size = 24;
+                xCenter = new MyApfloat(0.0);
+                yCenter = new MyApfloat(0.0);
+                size = new MyApfloat(24);
                 fns.bailout = fns.bailout < 8 ? 8 : fns.bailout;
                 break;
             case MAGNET1:
                 if (fns.julia) {
-                    xCenter = 0;
-                    yCenter = 0;
-                    size = 28;
+                    xCenter = new MyApfloat(0.0);
+                    yCenter = new MyApfloat(0.0);
+                    size = new MyApfloat(28);
                     fns.bailout = fns.bailout < 13 ? 13 : fns.bailout;
                 } else {
-                    xCenter = 1.35;
-                    yCenter = 0;
-                    size = 8;
+                    xCenter = new MyApfloat(1.35);
+                    yCenter = new MyApfloat(0.0);
+                    size = new MyApfloat(8);
                     fns.bailout = fns.bailout < 13 ? 13 : fns.bailout;
                 }
                 break;
             case MAGNET2:
                 if (fns.julia) {
-                    xCenter = 0;
-                    yCenter = 0;
-                    size = 56;
+                    xCenter = new MyApfloat(0.0);
+                    yCenter = new MyApfloat(0.0);
+                    size = new MyApfloat(56);
                     fns.bailout = fns.bailout < 13 ? 13 : fns.bailout;
                 } else {
-                    xCenter = 1;
-                    yCenter = 0;
-                    size = 7;
+                    xCenter = new MyApfloat(1.0);
+                    yCenter = new MyApfloat(0.0);
+                    size = new MyApfloat(7);
                     fns.bailout = fns.bailout < 13 ? 13 : fns.bailout;
                 }
                 break;
             case BARNSLEY1:
             case BARNSLEY2:
-                xCenter = 0;
-                yCenter = 0;
-                size = 7;
+                xCenter = new MyApfloat(0.0);
+                yCenter = new MyApfloat(0.0);
+                size = new MyApfloat(7);
                 fns.bailout = fns.bailout < 2 ? 2 : fns.bailout;
                 break;
             case SIERPINSKI_GASKET:
-                xCenter = 0.5;
-                yCenter = 0.5;
-                size = 3;
+                xCenter = new MyApfloat(0.5);
+                yCenter = new MyApfloat(0.5);
+                size = new MyApfloat(3);
                 fns.bailout = fns.bailout < 100 ? 100 : fns.bailout;
                 break;
             case KLEINIAN:
-                xCenter = 0;
-                yCenter = 0;
-                size = 12;
+                xCenter = new MyApfloat(0.0);
+                yCenter = new MyApfloat(0.0);
+                size = new MyApfloat(12);
                 break;
             case EXP:
             case LOG:
@@ -1805,9 +1857,9 @@ public class Settings implements Constants {
             case FORMULA41:
             case COUPLED_MANDELBROT:
             case COUPLED_MANDELBROT_BURNING_SHIP:
-                xCenter = 0;
-                yCenter = 0;
-                size = 6;
+                xCenter = new MyApfloat(0.0);
+                yCenter = new MyApfloat(0.0);
+                size = new MyApfloat(6);
                 fns.bailout = fns.bailout < 8 ? 8 : fns.bailout;
                 break;
             case FORMULA2:
@@ -1817,69 +1869,69 @@ public class Settings implements Constants {
             case FORMULA16:
             case FORMULA17:
             case FORMULA19:
-                xCenter = 0;
-                yCenter = 0;
-                size = 6;
+                xCenter = new MyApfloat(0.0);
+                yCenter = new MyApfloat(0.0);
+                size = new MyApfloat(6);
                 fns.bailout = fns.bailout < 4 ? 4 : fns.bailout;
                 break;
             case FORMULA3:
             case FORMULA9:
             case FORMULA10:
-                xCenter = 0;
-                yCenter = 0;
-                size = 3;
+                xCenter = new MyApfloat(0.0);
+                yCenter = new MyApfloat(0.0);
+                size = new MyApfloat(3);
                 fns.bailout = fns.bailout < 4 ? 4 : fns.bailout;
                 break;
             case FORMULA4:
             case FORMULA5:
-                xCenter = 0;
-                yCenter = 0;
-                size = 1.5;
+                xCenter = new MyApfloat(0.0);
+                yCenter = new MyApfloat(0.0);
+                size = new MyApfloat(1.5);
                 fns.bailout = fns.bailout < 4 ? 4 : fns.bailout;
                 break;
             case FORMULA7:
             case FORMULA12:
-                xCenter = 0;
-                yCenter = 0;
-                size = 12;
+                xCenter = new MyApfloat(0.0);
+                yCenter = new MyApfloat(0.0);
+                size = new MyApfloat(12);
                 fns.bailout = fns.bailout < 8 ? 8 : fns.bailout;
                 break;
             case FORMULA8:
-                xCenter = 0;
-                yCenter = 0;
-                size = 3;
+                xCenter = new MyApfloat(0.0);
+                yCenter = new MyApfloat(0.0);
+                size = new MyApfloat(3);
                 fns.bailout = fns.bailout < 16 ? 16 : fns.bailout;
                 break;
             case FORMULA11:
-                xCenter = 0;
-                yCenter = 0;
-                size = 1.5;
+                xCenter = new MyApfloat(0.0);
+                yCenter = new MyApfloat(0.0);
+                size = new MyApfloat(1.5);
                 fns.bailout = fns.bailout < 100 ? 100 : fns.bailout;
                 break;
             case FORMULA27:
                 if (fns.julia) {
-                    xCenter = -2;
-                    yCenter = 0;
-                    size = 6;
+                    xCenter = new MyApfloat(-2);
+                    yCenter = new MyApfloat(0.0);
+                    size = new MyApfloat(6);
                     fns.bailout = fns.bailout < 8 ? 8 : fns.bailout;
                 } else {
-                    xCenter = 0;
-                    yCenter = 0;
-                    size = 3;
+                    xCenter = new MyApfloat(0.0);
+                    yCenter = new MyApfloat(0.0);
+                    size = new MyApfloat(3);
                     fns.bailout = fns.bailout < 8 ? 8 : fns.bailout;
                 }
                 break;
             case FORMULA28:
             case FORMULA29:
                 if (fns.julia) {
-                    xCenter = 0;
-                    yCenter = 0;
-                    size = 12;
+                    xCenter = new MyApfloat(0.0);
+                    yCenter = new MyApfloat(0.0);
+                    size = new MyApfloat(12);
                     fns.bailout = fns.bailout < 16 ? 16 : fns.bailout;
                 } else {
-                    xCenter = 0;
-                    yCenter = 0;
-                    size = 3;
+                    xCenter = new MyApfloat(0.0);
+                    yCenter = new MyApfloat(0.0);
+                    size = new MyApfloat(3);
                     fns.bailout = fns.bailout < 16 ? 16 : fns.bailout;
                 }
                 break;
@@ -1888,66 +1940,66 @@ public class Settings implements Constants {
             case FORMULA35:
             case FORMULA36:
             case FORMULA37:
-                xCenter = 0;
-                yCenter = 0;
-                size = 6;
+                xCenter = new MyApfloat(0.0);
+                yCenter = new MyApfloat(0.0);
+                size = new MyApfloat(6);
                 fns.bailout = fns.bailout < 16 ? 16 : fns.bailout;
                 break;
             case FORMULA38:
                 if (fns.julia) {
-                    xCenter = 0;
-                    yCenter = 0;
-                    size = 6;
+                    xCenter = new MyApfloat(0.0);
+                    yCenter = new MyApfloat(0.0);
+                    size = new MyApfloat(6);
                     fns.bailout = fns.bailout < 2 ? 2 : fns.bailout;
                 } else {
-                    xCenter = 0;
-                    yCenter = 0;
-                    size = 1.5;
+                    xCenter = new MyApfloat(0.0);
+                    yCenter = new MyApfloat(0.0);
+                    size = new MyApfloat(1.5);
                     fns.bailout = fns.bailout < 2 ? 2 : fns.bailout;
                 }
                 break;
             case FORMULA42:
-                xCenter = 0;
-                yCenter = 0;
-                size = 12;
+                xCenter = new MyApfloat(0.0);
+                yCenter = new MyApfloat(0.0);
+                size = new MyApfloat(12);
                 fns.bailout = fns.bailout < 12 ? 12 : fns.bailout;
                 break;
             case FORMULA43:
-                xCenter = 0;
-                yCenter = 0;
-                size = 24;
+                xCenter = new MyApfloat(0.0);
+                yCenter = new MyApfloat(0.0);
+                size = new MyApfloat(24);
                 fns.bailout = fns.bailout < 12 ? 12 : fns.bailout;
                 break;
             case FORMULA44:
             case FORMULA45:
-                xCenter = 0;
-                yCenter = 0;
-                size = 24;
+                xCenter = new MyApfloat(0.0);
+                yCenter = new MyApfloat(0.0);
+                size = new MyApfloat(24);
                 fns.bailout = fns.bailout < 16 ? 16 : fns.bailout;
                 break;
             case FORMULA46:
-                xCenter = 0;
-                yCenter = 0;
-                size = 6;
+                xCenter = new MyApfloat(0.0);
+                yCenter = new MyApfloat(0.0);
+                size = new MyApfloat(6);
                 fns.bailout = fns.bailout < 100 ? 100 : fns.bailout;
                 break;
             case LYAPUNOV:
-                xCenter = 0;
-                yCenter = 0;
-                size = 24;
+                xCenter = new MyApfloat(0.0);
+                yCenter = new MyApfloat(0.0);
+                size = new MyApfloat(24);
                 fns.bailout = fns.bailout < 100 ? 100 : fns.bailout;
                 break;
             case SZEGEDI_BUTTERFLY1:
             case SZEGEDI_BUTTERFLY2:
-                xCenter = 0;
-                yCenter = 0;
-                size = 12;
+                xCenter = new MyApfloat(0.0);
+                yCenter = new MyApfloat(0.0);
+                size = new MyApfloat(12);
                 fns.bailout = fns.bailout < 4 ? 4 : fns.bailout;
                 break;
             default:
-                xCenter = 0;
-                yCenter = 0;
-                size = 6;
+                xCenter = new MyApfloat(0.0);
+                yCenter = new MyApfloat(0.0);
+                size = new MyApfloat(6);
 
                 if(!isRootSolvingMethod(fns.function) && fns.function != NOVA && fns.function != MAGNETIC_PENDULUM) {
                     fns.bailout = fns.bailout < 2 ? 2 : fns.bailout;
@@ -2205,6 +2257,10 @@ public class Settings implements Constants {
 
     }
 
+    public boolean isPertubationTheoryInUse() {
+        return ThreadDraw.PERTURBATION_THEORY && !fns.julia && !julia_map && (fns.function == MANDELBROT || fns.function == MANDELBROTCUBED || fns.function == MANDELBROTFOURTH);
+    }
+
     public void loadedSettings(String file, Component parent, int version) {
         String temp2 = "" + version;
         String versionStr = "";
@@ -2216,6 +2272,15 @@ public class Settings implements Constants {
         versionStr += temp2.charAt(i);
 
         JOptionPane.showMessageDialog(parent, file + " (version:  " + versionStr + ")\nwas successfully loaded.", "Settings Loaded", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    public static double[] fromDDArray(Apfloat[] array) {
+        double[] temp = new double[array.length];
+
+        for(int i = 0; i < array.length; i++) {
+            temp[i] = array[i].doubleValue();
+        }
+        return temp;
     }
 
 }

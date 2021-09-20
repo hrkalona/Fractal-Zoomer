@@ -45,6 +45,7 @@ public class ToolsOptionsMenu extends JMenu {
     private JMenuItem d3_details_opt;
     private JMenuItem domain_coloring_options_opt;
     private JMenuItem julia_map_options_opt;
+    private JMenuItem juliter_options_opt;
     private JMenuItem polar_projection_options_opt;
     private JRadioButtonMenuItem line;
     private JRadioButtonMenuItem dot;
@@ -71,6 +72,8 @@ public class ToolsOptionsMenu extends JMenu {
         domain_coloring_options_opt = new JMenuItem("Domain Coloring Options", getIcon("/fractalzoomer/icons/domain_coloring_options.png"));
 
         julia_map_options_opt = new JMenuItem("Julia Map Options", getIcon("/fractalzoomer/icons/julia_map_options.png"));
+
+        juliter_options_opt = new JMenuItem("Juliter Options", getIcon("/fractalzoomer/icons/juliter_options.png"));
 
         polar_projection_options_opt = new JMenuItem("Polar Projection Options", getIcon("/fractalzoomer/icons/polar_projection_options.png"));
 
@@ -119,6 +122,7 @@ public class ToolsOptionsMenu extends JMenu {
         polar_projection_options_opt.setToolTipText("Changes the Polar Projection options.");
         domain_coloring_options_opt.setToolTipText("Changes the Domain Coloring options.");
         color_cycling_options_opt.setToolTipText("Changes the color cycling options.");
+        juliter_options_opt.setToolTipText("Changes the Juliter options.");
         
         fast_julia_filters_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_W, ActionEvent.CTRL_MASK));
         julia_map_options_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_J, ActionEvent.SHIFT_MASK));
@@ -127,6 +131,7 @@ public class ToolsOptionsMenu extends JMenu {
         domain_coloring_options_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, ActionEvent.ALT_MASK));
         color_cycling_options_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y, ActionEvent.ALT_MASK));
         show_orbit_converging_point_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, ActionEvent.CTRL_MASK));
+        juliter_options_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_4, ActionEvent.ALT_MASK));
         
         show_orbit_converging_point_opt.setSelected(show_orbit_converging_point);
         
@@ -156,6 +161,16 @@ public class ToolsOptionsMenu extends JMenu {
             public void actionPerformed(ActionEvent e) {
 
                 ptr.setJuliaMapOptions();
+
+            }
+        });
+
+        juliter_options_opt.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setJuliterOptions();
 
             }
         });
@@ -201,6 +216,7 @@ public class ToolsOptionsMenu extends JMenu {
         });
         
         julia_map_options_opt.setEnabled(false);
+        juliter_options_opt.setEnabled(false);
         d3_details_opt.setEnabled(false);
         polar_projection_options_opt.setEnabled(false);
         domain_coloring_options_opt.setEnabled(false);
@@ -359,6 +375,8 @@ public class ToolsOptionsMenu extends JMenu {
         addSeparator();
         add(julia_map_options_opt);
         addSeparator();
+        add(juliter_options_opt);
+        addSeparator();
         add(d3_details_opt);
         addSeparator();
         add(polar_projection_options_opt);
@@ -392,7 +410,13 @@ public class ToolsOptionsMenu extends JMenu {
         return julia_map_options_opt;
         
     }
-    
+
+    public JMenuItem getJuliterOptions() {
+
+        return juliter_options_opt;
+
+    }
+
     public JMenuItem getPolarProjectionOptions() {
     
         return polar_projection_options_opt;

@@ -36,6 +36,7 @@ public class ToolsMenu extends JMenu {
     private JCheckBoxMenuItem d3_opt;
     private JCheckBoxMenuItem color_cycling_opt;
     private JCheckBoxMenuItem julia_map_opt;
+    private JCheckBoxMenuItem juliter_opt;
     private JCheckBoxMenuItem domain_coloring_opt;
     private JCheckBoxMenuItem grid_opt;
     private JCheckBoxMenuItem boundaries_opt;
@@ -53,6 +54,7 @@ public class ToolsMenu extends JMenu {
         color_cycling_opt = new JCheckBoxMenuItem("Color Cycling", getIcon("/fractalzoomer/icons/color_cycling.png"));
         d3_opt = new JCheckBoxMenuItem("3D", getIcon("/fractalzoomer/icons/3d.png"));
         julia_map_opt = new JCheckBoxMenuItem("Julia Map", getIcon("/fractalzoomer/icons/julia_map.png"));
+        juliter_opt = new JCheckBoxMenuItem("Juliter", getIcon("/fractalzoomer/icons/juliter.png"));
         domain_coloring_opt = new JCheckBoxMenuItem("Domain Coloring", getIcon("/fractalzoomer/icons/domain_coloring.png"));
         polar_projection_opt = new JCheckBoxMenuItem("Polar Projection", getIcon("/fractalzoomer/icons/polar_projection.png"));
         grid_opt = new JCheckBoxMenuItem("Show Grid", getIcon("/fractalzoomer/icons/grid.png"));
@@ -63,6 +65,7 @@ public class ToolsMenu extends JMenu {
         orbit_opt.setToolTipText("Displays the orbit of a complex number.");
         julia_opt.setToolTipText("Generates an image based on a seed (chosen pixel).");
         julia_map_opt.setToolTipText("Creates an image of julia sets.");
+        juliter_opt.setToolTipText("Applies the juliter transformation on a julia set.");
         polar_projection_opt.setToolTipText("Projects the image into polar coordinates.");
         d3_opt.setToolTipText("Creates a 3D version of the image.");
         color_cycling_opt.setToolTipText("Animates the image, cycling through the palette.");
@@ -76,6 +79,7 @@ public class ToolsMenu extends JMenu {
         polar_projection_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_J, ActionEvent.CTRL_MASK));    
         julia_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_J, 0));
         julia_map_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_J, ActionEvent.ALT_MASK));
+        juliter_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_K,0));
         d3_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, ActionEvent.SHIFT_MASK));
         color_cycling_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Y, 0));
         plane_visualization_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_U, ActionEvent.SHIFT_MASK));
@@ -164,6 +168,16 @@ public class ToolsMenu extends JMenu {
             }
         });
 
+        juliter_opt.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setJuliter();
+
+            }
+        });
+
         domain_coloring_opt.addActionListener(new ActionListener() {
 
             @Override
@@ -199,6 +213,8 @@ public class ToolsMenu extends JMenu {
         add(julia_opt);
         addSeparator();
         add(julia_map_opt);
+        addSeparator();
+        add(juliter_opt);
         addSeparator();
         add(d3_opt);
         addSeparator();
@@ -288,5 +304,11 @@ public class ToolsMenu extends JMenu {
         
         return plane_visualization_opt;
         
+    }
+
+    public JCheckBoxMenuItem getJuliter() {
+
+        return juliter_opt;
+
     }
 }

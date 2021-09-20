@@ -16,16 +16,18 @@
  */
 package fractalzoomer.gui;
 
+import fractalzoomer.core.BigPoint;
+import fractalzoomer.core.MyApfloat;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
 import fractalzoomer.utils.MathUtils;
+import org.apfloat.Apfloat;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.geom.Point2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
@@ -50,20 +52,22 @@ public class PolarProjectionDialog extends JDialog {
 
         JTextField field_real = new JTextField();
 
-        Point2D.Double p = MathUtils.rotatePointRelativeToPoint(s.xCenter, s.yCenter, s.fns.rotation_vals, s.fns.rotation_center);
+        BigPoint p = MathUtils.rotatePointRelativeToPoint(new BigPoint(s.xCenter, s.yCenter), s.fns.rotation_vals, s.fns.rotation_center);
 
-        if (p.x == 0) {
+        Apfloat zero = new MyApfloat(0.0);
+
+        if (p.x.compareTo(zero) == 0) {
             field_real.setText("" + 0.0);
         } else {
-            field_real.setText("" + p.x);
+            field_real.setText("" + p.x.toString(true));
         }
 
         JTextField field_imaginary = new JTextField();
 
-        if (p.y == 0) {
+        if (p.y.compareTo(zero) == 0) {
             field_imaginary.setText("" + 0.0);
         } else {
-            field_imaginary.setText("" + p.y);
+            field_imaginary.setText("" + p.y.toString(true));
         }
 
         JTextField field_size = new JTextField();
@@ -142,12 +146,13 @@ public class PolarProjectionDialog extends JDialog {
                     }
 
                     try {
-                        double tempReal = Double.parseDouble(field_real.getText()) - s.fns.rotation_center[0];
-                        double tempImaginary = Double.parseDouble(field_imaginary.getText()) - s.fns.rotation_center[1];
-                        double tempSize = Double.parseDouble(field_size.getText());
+                        Apfloat tempReal = new MyApfloat(field_real.getText()).subtract(s.fns.rotation_center[0]);
+                        Apfloat tempImaginary = new MyApfloat(field_imaginary.getText()).subtract(s.fns.rotation_center[1]);
+                        Apfloat tempSize = new MyApfloat(field_size.getText());
                         double temp_circle_period = Double.parseDouble(field_circle_period.getText());
 
-                        if (tempSize <= 0) {
+                        Apfloat zero = new MyApfloat(0.0);
+                        if (tempSize.compareTo(zero) <= 0) {
                             JOptionPane.showMessageDialog(ptra, "Size number must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
                             return;
                         }
@@ -158,8 +163,10 @@ public class PolarProjectionDialog extends JDialog {
                         }
 
                         s.size = tempSize;
-                        s.xCenter = tempReal * s.fns.rotation_vals[0] + tempImaginary * s.fns.rotation_vals[1] + s.fns.rotation_center[0];
-                        s.yCenter = -tempReal * s.fns.rotation_vals[1] + tempImaginary * s.fns.rotation_vals[0] + s.fns.rotation_center[1];
+
+                        s.xCenter = tempReal.multiply(s.fns.rotation_vals[0]).add(tempImaginary.multiply(s.fns.rotation_vals[1])).add(s.fns.rotation_center[0]);
+                        s.yCenter = tempReal.negate().multiply(s.fns.rotation_vals[1]).add(tempImaginary.multiply(s.fns.rotation_vals[0])).add(s.fns.rotation_center[1]);
+
                         s.circle_period = temp_circle_period;
                     } catch (Exception ex) {
                         JOptionPane.showMessageDialog(ptra, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);

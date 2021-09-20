@@ -132,7 +132,7 @@ public class RootFindingThreeFunctionsDialog extends JDialog {
             
         });
 
-        Object[] labels41 = ptra.createUserFormulaLabels("z, s, p, pp, n, maxn, center, size, sizei, v1 - v30, point");
+        Object[] labels41 = ptra.createUserFormulaLabels("z, s, c0, p, pp, n, maxn, center, size, sizei, v1 - v30, point");
 
         Object[] message41 = {
             labels41,

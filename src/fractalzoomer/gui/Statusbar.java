@@ -48,7 +48,7 @@ public class Statusbar extends JToolBar {
         
         real = new JTextField("Real");
         real.setHorizontalAlignment(JTextField.RIGHT);
-        real.setPreferredSize(new Dimension(200, 22));
+        real.setPreferredSize(new Dimension(210, 22));
         real.setMaximumSize(real.getPreferredSize());
         //real.setMinimumSize(real.getPreferredSize());
         real.setEditable(false);
@@ -63,7 +63,7 @@ public class Statusbar extends JToolBar {
         add(label);
 
         imaginary = new JTextField("Imaginary");
-        imaginary.setPreferredSize(new Dimension(200, 22));
+        imaginary.setPreferredSize(new Dimension(210, 22));
         imaginary.setMaximumSize(imaginary.getPreferredSize());
         //imaginary.setMinimumSize(imaginary.getPreferredSize());
         imaginary.setHorizontalAlignment(JTextField.RIGHT);

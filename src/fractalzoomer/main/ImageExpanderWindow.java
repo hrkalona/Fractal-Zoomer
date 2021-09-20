@@ -18,14 +18,17 @@ package fractalzoomer.main;
 
 import fractalzoomer.core.Complex;
 import fractalzoomer.core.Derivative;
+import fractalzoomer.core.MyApfloat;
 import fractalzoomer.core.ThreadDraw;
 import fractalzoomer.core.drawing_algorithms.BoundaryTracingDraw;
 import fractalzoomer.core.drawing_algorithms.BruteForceDraw;
 import fractalzoomer.core.drawing_algorithms.DivideAndConquerDraw;
+import fractalzoomer.functions.Fractal;
 import fractalzoomer.gui.*;
 import fractalzoomer.main.app_settings.Settings;
 import fractalzoomer.parser.ParserException;
 import fractalzoomer.utils.RefreshMemoryTask;
+import org.apfloat.Apfloat;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -62,6 +65,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
     private JButton threadsButton;
     private JButton imageSizeButton;
     private JButton greedyAlgorithmsButton;
+    private JButton perturbationTheoryButton;
     private JButton aboutButton;
     private JButton helpButton;
     private JButton overviewButton;
@@ -96,7 +100,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
         Locale.setDefault(Locale.US);
 
         image_size = 1000;
-        setSize(540, 370);
+        setSize(540, 420);
         setTitle("Fractal Zoomer Image Expander");
         
         loadPreferences();
@@ -135,7 +139,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
         setResizable(false);
 
         JPanel main_panel = new JPanel();
-        main_panel.setLayout(new GridLayout(6, 1));
+        main_panel.setLayout(new GridLayout(7, 1));
         main_panel.setBackground(Constants.bg_color);
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
@@ -262,6 +266,26 @@ public class ImageExpanderWindow extends JFrame implements Constants {
 
         });
 
+        JPanel p6 = new JPanel();
+        p6.setBackground(Constants.bg_color);
+
+        perturbationTheoryButton = new JButton("Perturbation Theory", getIcon("/fractalzoomer/icons/perturbation.png"));
+        perturbationTheoryButton.setFocusable(false);
+        perturbationTheoryButton.setPreferredSize(buttonDimension);
+        perturbationTheoryButton.setToolTipText("Sets the perturbation theory settings.");
+        perturbationTheoryButton.setEnabled(false);
+
+        perturbationTheoryButton.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                setPerturbationTheory();
+            }
+
+        });
+
+        p6.add(perturbationTheoryButton);
+
         compileButton = new JButton("Compile User Code", getIcon("/fractalzoomer/icons/compile.png"));
         compileButton.setFocusable(false);
         compileButton.setPreferredSize(buttonDimension);
@@ -334,13 +358,14 @@ public class ImageExpanderWindow extends JFrame implements Constants {
         main_panel.add(p1);
         main_panel.add(p2);
         main_panel.add(p3);
+        main_panel.add(p6);
         main_panel.add(p4);
         main_panel.add(p5);
         main_panel.add(stats);
 
         RoundedPanel round_panel = new RoundedPanel(true, true, true, 15);
         round_panel.setBackground(Constants.bg_color);
-        round_panel.setPreferredSize(new Dimension(490, 280));
+        round_panel.setPreferredSize(new Dimension(490, 330));
         round_panel.setLayout(new GridBagLayout());
 
         GridBagConstraints con = new GridBagConstraints();
@@ -369,6 +394,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
     public void setOptions(boolean opt) {
 
         loadButton.setEnabled(opt);
+        perturbationTheoryButton.setEnabled(opt);
         renderButton.setEnabled(opt);
         compileButton.setEnabled(opt);
         threadsButton.setEnabled(opt);
@@ -424,6 +450,7 @@ public class ImageExpanderWindow extends JFrame implements Constants {
                 overviewButton.setVisible(true);
                 imageSizeButton.setEnabled(true);
                 greedyAlgorithmsButton.setEnabled(true);
+                perturbationTheoryButton.setEnabled(true);
 
             }
             catch(IOException ex) {
@@ -618,10 +645,18 @@ public class ImageExpanderWindow extends JFrame implements Constants {
 
     }
 
+    public void setPerturbationTheory() {
+        new PerturbationTheoryDialog(ptr, s);
+    }
+
     public void boundaryTracingOptionsChanged(boolean greedy_algorithm, int algorithm) {
 
         this.greedy_algorithm = greedy_algorithm;
         greedy_algorithm_selection = algorithm;
+
+    }
+
+    public void setPerturbationTheoryPost() {
 
     }
 
@@ -704,6 +739,13 @@ public class ImageExpanderWindow extends JFrame implements Constants {
             writer.println("skipped_pixels_coloring " + ThreadDraw.SKIPPED_PIXELS_ALG);
             int color = ThreadDraw.SKIPPED_PIXELS_COLOR;
             writer.println("skipped_pixels_user_color " + ((color >> 16) & 0xff) + " " + ((color >> 8) & 0xff) + " " + (color & 0xff));
+            writer.println("perturbation_theory " + ThreadDraw.PERTURBATION_THEORY);
+            writer.println("precision " + MyApfloat.precision);
+            writer.println("calculate_full_reference " + ThreadDraw.CALCULATE_FULL_REFERENCE);
+            writer.println("series_approximation " + ThreadDraw.SERIES_APPROXIMATION);
+            writer.println("series_approximation_terms " + ThreadDraw.SERIES_APPROXIMATION_TERMS);
+            writer.println("series_approximation_oom_diff " + ThreadDraw.SERIES_APPROXIMATION_OOM_DIFFERENCE);
+            writer.println("use_full_floatexp " + ThreadDraw.USE_FULL_FLOATEXP_FOR_DEEP_ZOOM);
             
             writer.println();
             
@@ -795,7 +837,78 @@ public class ImageExpanderWindow extends JFrame implements Constants {
                         }
                         catch(Exception ex) {
                         }
-                    }                 
+                    }
+                    else if (token.equals("perturbation_theory") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if (token.equals("false")) {
+                            ThreadDraw.PERTURBATION_THEORY = false;
+                        } else if (token.equals("true")) {
+                            ThreadDraw.PERTURBATION_THEORY = true;
+                        }
+                    }
+                    else if (token.equals("precision") && tokenizer.countTokens() == 1) {
+
+                        try {
+                            int temp = Integer.parseInt(tokenizer.nextToken());
+
+                            if (temp > 0) {
+                                MyApfloat.setPrecision(temp, s);
+                            }
+                        } catch (Exception ex) {
+                        }
+                    }
+                    else if (token.equals("series_approximation") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if (token.equals("false")) {
+                            ThreadDraw.SERIES_APPROXIMATION = false;
+                        } else if (token.equals("true")) {
+                            ThreadDraw.SERIES_APPROXIMATION = true;
+                        }
+                    }
+                    else if (token.equals("calculate_full_reference") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+                        if (token.equals("false")) {
+                            ThreadDraw.CALCULATE_FULL_REFERENCE = false;
+                        } else if (token.equals("true")) {
+                            ThreadDraw.CALCULATE_FULL_REFERENCE = true;
+                        }
+
+                    }
+                    else if (token.equals("use_full_floatexp") && tokenizer.countTokens() == 1) {
+
+                        token = tokenizer.nextToken();
+
+                        if (token.equals("false")) {
+                            ThreadDraw.USE_FULL_FLOATEXP_FOR_DEEP_ZOOM = false;
+                        } else if (token.equals("true")) {
+                            ThreadDraw.USE_FULL_FLOATEXP_FOR_DEEP_ZOOM = true;
+                        }
+                    }
+                    else if (token.equals("series_approximation_oom_diff") && tokenizer.countTokens() == 1) {
+
+                        try {
+                            long temp = Long.parseLong(tokenizer.nextToken());
+                            ThreadDraw.SERIES_APPROXIMATION_OOM_DIFFERENCE = temp;
+
+                        } catch (Exception ex) {
+                        }
+                    }
+                    else if (token.equals("series_approximation_terms") && tokenizer.countTokens() == 1) {
+
+                        try {
+                            int temp = Integer.parseInt(tokenizer.nextToken());
+
+                            if (temp >=2  && temp <= 129) {
+                                ThreadDraw.SERIES_APPROXIMATION_TERMS = temp;
+                            }
+                        } catch (Exception ex) {
+                        }
+                    }
                     else if(token.equals("image_size") && tokenizer.countTokens() == 1) {
                         try {
                             int temp = Integer.parseInt(tokenizer.nextToken());

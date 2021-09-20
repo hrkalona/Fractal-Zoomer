@@ -100,6 +100,9 @@ public class Formula11 extends Julia {
         if(sts.statistic) {
             StatisticFactory(sts, plane_transform_center);
         }
+
+        pertur_val = new DefaultPerturbation();
+        init_val = new InitialValue(0.623832938258, -0.258400063681);
     }
 
     //orbit
@@ -150,6 +153,8 @@ public class Formula11 extends Julia {
         super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
 
         exponent = new Complex(0, 2);
+        pertur_val = new DefaultPerturbation();
+        init_val = new InitialValue(0.623832938258, -0.258400063681);
 
     }
 

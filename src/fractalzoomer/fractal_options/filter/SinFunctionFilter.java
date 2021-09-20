@@ -9,7 +9,7 @@ public class SinFunctionFilter extends FunctionFilter {
     }
 
     @Override
-    public Complex getValue(Complex z, int iterations, Complex c, Complex start) {
+    public Complex getValue(Complex z, int iterations, Complex c, Complex start, Complex c0) {
         return z.sin();
     }
 }

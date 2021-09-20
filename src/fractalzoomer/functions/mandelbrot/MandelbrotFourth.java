@@ -16,7 +16,7 @@
  */
 package fractalzoomer.functions.mandelbrot;
 
-import fractalzoomer.core.Complex;
+import fractalzoomer.core.*;
 import fractalzoomer.fractal_options.BurningShip;
 import fractalzoomer.fractal_options.MandelGrass;
 import fractalzoomer.fractal_options.MandelVariation;
@@ -32,6 +32,7 @@ import fractalzoomer.fractal_options.perturbation.VariablePerturbation;
 import fractalzoomer.functions.Julia;
 import fractalzoomer.main.app_settings.OrbitTrapSettings;
 import fractalzoomer.main.app_settings.StatisticsSettings;
+import org.apfloat.Apfloat;
 
 import java.util.ArrayList;
 
@@ -47,6 +48,10 @@ public class MandelbrotFourth extends Julia {
     public MandelbrotFourth(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_value, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int escaping_smooth_algorithm, OrbitTrapSettings ots, StatisticsSettings sts) {
 
         super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, periodicity_checking, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, ots);
+
+        this.burning_ship = burning_ship;
+
+        power = 4;
 
         if(burning_ship) {
             type = new BurningShip();
@@ -109,6 +114,10 @@ public class MandelbrotFourth extends Julia {
 
         super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, periodicity_checking, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, ots, xJuliaCenter, yJuliaCenter);
 
+        this.burning_ship = burning_ship;
+
+        power = 4;
+
         if(burning_ship) {
             type = new BurningShip();
         }
@@ -130,12 +139,19 @@ public class MandelbrotFourth extends Julia {
         if(sts.statistic) {
             StatisticFactory(sts, plane_transform_center);
         }
+
+        pertur_val = new DefaultPerturbation();
+        init_val = new DefaultInitialValue();
     }
 
     //orbit
     public MandelbrotFourth(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_value, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, boolean burning_ship, boolean mandel_grass, double[] mandel_grass_vals, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount) {
 
         super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
+
+        this.burning_ship = burning_ship;
+
+        power = 4;
 
         if(burning_ship) {
             type = new BurningShip();
@@ -191,6 +207,10 @@ public class MandelbrotFourth extends Julia {
 
         super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
 
+        this.burning_ship = burning_ship;
+
+        power = 4;
+
         if(burning_ship) {
             type = new BurningShip();
         }
@@ -205,6 +225,9 @@ public class MandelbrotFourth extends Julia {
             type2 = new NormalMandel();
         }
 
+        pertur_val = new DefaultPerturbation();
+        init_val = new DefaultInitialValue();
+
     }
 
     @Override
@@ -214,5 +237,362 @@ public class MandelbrotFourth extends Julia {
         complex[0].fourth_mutable().plus_mutable(complex[1]);
         type2.getValue(complex[0]);
 
+    }
+
+    @Override
+    public boolean supportsPerturbationTheory() {
+        return true;
+    }
+
+    @Override
+    public void calculateReferencePoint(BigComplex pixel, Apfloat size, boolean deepZoom, int iterations, Location externalLocation) {
+
+        if(iterations == 0) {
+            Reference = new Complex[max_iterations];
+
+            if (deepZoom) {
+                ReferenceDeep = new MantExpComplex[max_iterations];
+            }
+        }
+        else if (max_iterations > Reference.length){
+            Reference = copyReference(Reference, new Complex[max_iterations]);
+
+            if (deepZoom) {
+                ReferenceDeep = copyDeepReference(ReferenceDeep,  new MantExpComplex[max_iterations]);
+            }
+        }
+
+        BigComplex z = iterations == 0 ? new BigComplex() : lastZValue;
+        BigComplex c = pixel;
+        BigComplex zold = iterations == 0 ? new BigComplex() : secondTolastZValue;
+        BigComplex zold2 = iterations == 0 ? new BigComplex() : thirdTolastZValue;
+        BigComplex start = z;
+        BigComplex c0 = pixel;
+
+        refPoint = pixel;
+
+        boolean fullReference = ThreadDraw.CALCULATE_FULL_REFERENCE;
+        boolean isSeriesInUse = ThreadDraw.SERIES_APPROXIMATION && !burning_ship;
+        RefPower = power;
+        RefBurningShip = burning_ship;
+        FullRef = fullReference;
+
+        Location loc = new Location();
+
+        for (; iterations < max_iterations; iterations++) {
+
+            Complex cz = z.toComplex();
+            if(cz.isInfinite()) {
+                break;
+            }
+
+            Reference[iterations] = cz;
+
+            if(deepZoom) {
+                ReferenceDeep[iterations] = loc.getMantExpComplex(z);
+                //ReferenceDeep[iterations] = new MantExpComplex(Reference[iterations]);
+            }
+
+            if(Reference[iterations].isInfinite()) {
+                break;
+            }
+
+            if (!fullReference && iterations > 0 && bailout_algorithm.escaped(z, zold, zold2, iterations, c, start, c0, null)) {
+                break;
+            }
+
+            zold2 = zold;
+            zold = z;
+
+            if (burning_ship) {
+                z = z.abs().fourth().plus(c);
+            } else {
+                z = z.fourth().plus(c);
+            }
+
+        }
+
+        lastZValue = z;
+        secondTolastZValue = zold;
+        thirdTolastZValue = zold2;
+
+        MaxRefIteration = iterations - 1;
+
+        skippedIterations = 0;
+        if(isSeriesInUse) {
+            calculateSeries(size, deepZoom, externalLocation);
+        }
+
+    }
+
+    @Override
+    public Complex perturbationFunction(Complex DeltaSubN, Complex DeltaSub0, int RefIteration) {
+
+        if(burning_ship) {
+            double r = Reference[RefIteration].getRe();
+            double i = Reference[RefIteration].getIm();
+            double a = DeltaSubN.getRe();
+            double b = DeltaSubN.getIm();
+            double r2 = r*r;
+            double i2 = i*i;
+            double a2 = a*a;
+            double b2 = b*b;
+            double ar = a*r;
+            double ib = i*b;
+            double ab = a * b;
+            double ri = r * i;
+            double rb = r * b;
+            double ai = a * i;
+
+            double Dnr = 4 * r2*ar + 6 * r2*a2 + 4 * ar*a2 + a2 * a2 + 4 * i2*ib + 6 * i2*b2 + 4 * ib*b2 + b2 * b2 - 12 * r2*ib - 6 * r2*b2 - 12 * ar*i2 - 24 * ar*ib - 12 * ar*b2 - 6 * a2*i2 - 12 * a2*ib - 6 * a2*b2;
+            double Dni = Complex.DiffAbs(ri, rb + ai + ab);
+            Dni = 4 * (r2 - i2)*(Dni)+4 * Math.abs(ri + rb + ai + ab)*(2 * ar + a2 - 2 * ib - b2);
+
+            return new Complex(Dnr, Dni).plus_mutable(DeltaSub0);
+        }
+        else
+        {
+            return DeltaSubN.fourth()
+                    .plus_mutable(DeltaSubN.cube().times_mutable(4).times_mutable(Reference[RefIteration]))
+                    .plus_mutable(DeltaSubN.square().times_mutable(6).times_mutable(Reference[RefIteration].square()))
+                    .plus_mutable(DeltaSubN.times(4).times_mutable(Reference[RefIteration].cube()))
+                    .plus_mutable(DeltaSub0);
+        }
+    }
+
+    @Override
+    public MantExpComplex perturbationFunction(MantExpComplex DeltaSubN, MantExpComplex DeltaSub0, int RefIteration) {
+
+        if(burning_ship) {
+            MantExp r = ReferenceDeep[RefIteration].getRe();
+            MantExp i = ReferenceDeep[RefIteration].getIm();
+            MantExp a = DeltaSubN.getRe();
+            MantExp b = DeltaSubN.getIm();
+            MantExp r2 = r.multiply(r);
+            MantExp i2 = i.multiply(i);
+            MantExp a2 = a.multiply(a);
+            MantExp b2 = b.multiply(b);
+            MantExp ar = a.multiply(r);
+            MantExp ib = i.multiply(b);
+            MantExp ab = a.multiply(b);
+            MantExp ri = r.multiply(i);
+            MantExp rb = r.multiply(b);
+            MantExp ai = a.multiply(i);
+
+            MantExp Dnr = r2.multiply4().multiply_mutable(ar)
+                    .add_mutable(MantExp.SIX.multiply(r2).multiply_mutable(a2))
+                    .add_mutable(ar.multiply4().multiply_mutable(a2))
+                    .add_mutable(a2.multiply(a2))
+                    .add_mutable(i2.multiply4().multiply_mutable(ib))
+                    .add_mutable(MantExp.SIX.multiply(i2).multiply_mutable(b2))
+                    .add_mutable(ib.multiply4().multiply_mutable(b2))
+                    .add_mutable(b2.multiply(b2))
+                    .subtract_mutable(MantExp.TWELVE.multiply(r2).multiply_mutable(ib))
+                    .subtract_mutable(MantExp.SIX.multiply(r2).multiply_mutable(b2))
+                    .subtract_mutable(MantExp.TWELVE.multiply(ar).multiply_mutable(i2))
+                    .subtract_mutable(MantExp.TWENTYFOUR.multiply(ar).multiply_mutable(ib))
+                    .subtract_mutable(MantExp.TWELVE.multiply(ar).multiply_mutable(b2))
+                    .subtract_mutable(MantExp.SIX.multiply(a2).multiply_mutable(i2))
+                    .subtract_mutable(MantExp.TWELVE.multiply(a2).multiply_mutable(ib))
+                    .subtract_mutable(MantExp.SIX.multiply(a2).multiply_mutable(b2));
+
+            MantExp Dni = MantExpComplex.DiffAbs(ri, rb.add(ai).add_mutable(ab));
+
+            Dni = (r2.subtract(i2)).multiply4_mutable().multiply_mutable(Dni)
+                    .add_mutable(((ri.add(rb).add_mutable(ai).add_mutable(ab)).abs_mutable()).multiply4_mutable().multiply_mutable(ar.multiply2().add_mutable(a2).subtract_mutable(ib.multiply2()).subtract_mutable(b2)));
+
+            return new MantExpComplex(Dnr, Dni).plus_mutable(DeltaSub0);
+        }
+        else {
+            return DeltaSubN.fourth()
+                    .plus_mutable(DeltaSubN.cube().times4_mutable().times_mutable(ReferenceDeep[RefIteration]))
+                    .plus_mutable(DeltaSubN.square().times_mutable(MantExp.SIX).times_mutable(ReferenceDeep[RefIteration].square()))
+                    .plus_mutable(DeltaSubN.times4().times_mutable(ReferenceDeep[RefIteration].cube()))
+                    .plus_mutable(DeltaSub0);
+        }
+    }
+
+    @Override
+    public Complex perturbationFunction(Complex DeltaSubN, int RefIteration) {
+
+        if(burning_ship) {
+            double r = Reference[RefIteration].getRe();
+            double i = Reference[RefIteration].getIm();
+            double a = DeltaSubN.getRe();
+            double b = DeltaSubN.getIm();
+            double r2 = r*r;
+            double i2 = i*i;
+            double a2 = a*a;
+            double b2 = b*b;
+            double ar = a*r;
+            double ib = i*b;
+            double ab = a * b;
+            double ri = r * i;
+            double rb = r * b;
+            double ai = a * i;
+
+            double Dnr = 4 * r2*ar + 6 * r2*a2 + 4 * ar*a2 + a2 * a2 + 4 * i2*ib + 6 * i2*b2 + 4 * ib*b2 + b2 * b2 - 12 * r2*ib - 6 * r2*b2 - 12 * ar*i2 - 24 * ar*ib - 12 * ar*b2 - 6 * a2*i2 - 12 * a2*ib - 6 * a2*b2;
+            double Dni = Complex.DiffAbs(ri, rb + ai + ab);
+            Dni = 4 * (r2 - i2)*(Dni)+4 * Math.abs(ri + rb + ai + ab)*(2 * ar + a2 - 2 * ib - b2);
+
+            return new Complex(Dnr, Dni);
+        }
+        else
+        {
+            return DeltaSubN.fourth()
+                    .plus_mutable(DeltaSubN.cube().times_mutable(4).times_mutable(Reference[RefIteration]))
+                    .plus_mutable(DeltaSubN.square().times_mutable(6).times_mutable(Reference[RefIteration].square()))
+                    .plus_mutable(DeltaSubN.times(4).times_mutable(Reference[RefIteration].cube()));
+        }
+    }
+
+    @Override
+    public void calculateSeries(Apfloat dsize, boolean deepZoom, Location loc) {
+
+        skippedIterations = 0;
+
+        int numCoefficients = ThreadDraw.SERIES_APPROXIMATION_TERMS;
+
+        if (numCoefficients < 2 || dsize.compareTo(MyApfloat.SA_START_SIZE) > 0) {
+            return;
+        }
+
+        if (numCoefficients > 5) {
+            numCoefficients = 5;
+        }
+
+        long[] logwToThe  = new long[numCoefficients + 1];
+
+        final long[] magCoeff = new long[numCoefficients];
+
+        logwToThe[1] = loc.getSeriesApproxSize().log2approx();
+
+        for (int i = 2; i <= numCoefficients; i++) {
+            logwToThe[i] = logwToThe[1] * i;
+        }
+
+        coefficients = new MantExpComplex[numCoefficients][max_data];
+
+
+        coefficients[0][0] = new MantExpComplex(1, 0);
+        for(int i = 1; i < numCoefficients; i++){
+            coefficients[i][0] = new MantExpComplex();
+        }
+
+        long oomDiff = ThreadDraw.SERIES_APPROXIMATION_OOM_DIFFERENCE;
+
+        int length = deepZoom ? ReferenceDeep.length : Reference.length;
+
+        int i;
+        for(i = 1; i < length; i++) {
+
+            if(deepZoom) {
+                if(ReferenceDeep[i - 1] == null) {
+                    skippedIterations = i - 1 <= skippedThreshold ? 0 : i - 1 - skippedThreshold;
+                    return;
+                }
+            }
+            else {
+                if(Reference[i - 1] == null) {
+                    skippedIterations = i - 1 <= skippedThreshold ? 0 : i - 1 - skippedThreshold;
+                    return;
+                }
+            }
+
+            MantExpComplex fourRefCubed = null;
+
+            if(deepZoom) {
+                fourRefCubed = ReferenceDeep[i - 1].cube().times4_mutable();
+            }
+            else {
+                fourRefCubed = new MantExpComplex(Reference[i - 1].cube().times_mutable(4));
+            }
+
+            MantExpComplex refSquared = null;
+
+            if(deepZoom) {
+                refSquared = ReferenceDeep[i - 1].square();
+            }
+            else {
+                refSquared = new MantExpComplex(Reference[i - 1].square());
+            }
+
+            MantExpComplex ref = null;
+
+            if(deepZoom) {
+                ref = ReferenceDeep[i - 1];
+            }
+            else {
+                ref = new MantExpComplex(Reference[i - 1]);
+            }
+
+            int new_i = i % max_data;
+            int old_i = (i - 1) % max_data;
+
+            MantExpComplex anSquared = null;
+            MantExpComplex sixRefSquared = null;
+            MantExpComplex twelveRefSquared = null;
+            MantExpComplex fourAnCube = null;
+            MantExpComplex bnSquared = null;
+            MantExpComplex twelveRef = null;
+
+            if (numCoefficients >= 1) {
+                //An+1 = P * A * (X^(P-1)) + 1
+                coefficients[0][new_i] = coefficients[0][old_i].times(fourRefCubed).plus_mutable(MantExp.ONE); //4*Z^3*a_1 + 1
+            }
+            if (numCoefficients >= 2) {
+                //Bn+1 = P * B * (X^(P-1)) + ((P*(P-1))/2) * (A^2) * (X^(P-2))
+                anSquared = coefficients[0][old_i].square();
+                sixRefSquared = refSquared.times(MantExp.SIX);
+                coefficients[1][new_i] = coefficients[1][old_i].times(fourRefCubed)
+                        .plus_mutable(anSquared.times(sixRefSquared)); //6*Z^2*a_1^2 + 4*Z^3*a_2
+            }
+            if (numCoefficients >= 3) {
+                //Cn+1 = P * C * (X^(P-1)) + (P*(P-1)) * A * B * (X^(P-2)) + ((P*(P-1)*(P-2))/6) * (A^3) * (X^(P-3))
+                twelveRefSquared = refSquared.times(MantExp.TWELVE);
+                fourAnCube = coefficients[0][old_i].cube().times4_mutable();
+                coefficients[2][new_i] = coefficients[2][old_i].times(fourRefCubed)
+                        .plus_mutable(coefficients[0][old_i].times(coefficients[1][old_i]).times(twelveRefSquared))
+                        .plus_mutable(fourAnCube.times(ref)); //4*Z*a_1^3 + 12*Z^2*a_1*a_2 + 4*Z^3*a_3
+            }
+
+            if (numCoefficients >= 4) {
+                bnSquared = coefficients[1][old_i].square();
+                twelveRef = ref.times(MantExp.TWELVE);
+                coefficients[3][new_i] = coefficients[3][old_i].times(fourRefCubed)
+                        .plus_mutable(coefficients[0][old_i].fourth())
+                        .plus_mutable(anSquared.times(twelveRef).times_mutable(coefficients[1][old_i]))
+                        .plus_mutable(sixRefSquared.times(bnSquared))
+                        .plus_mutable(twelveRefSquared.times(coefficients[0][old_i]).times_mutable(coefficients[2][old_i])); //a_1^4 + 12*Z*a_1^2*a_2 + 6*Z^2*a_2^2 + 12*Z^2*a_1*a_3 + 4*Z^3*a_4
+            }
+
+            if (numCoefficients >= 5) {
+                coefficients[4][new_i] = coefficients[4][old_i].times(fourRefCubed)
+                        .plus_mutable(fourAnCube.times(coefficients[1][old_i]))
+                        .plus_mutable(bnSquared.times(coefficients[0][old_i]).times_mutable(twelveRef))
+                        .plus_mutable(anSquared.times(coefficients[2][old_i]).times_mutable(twelveRef))
+                        .plus_mutable(coefficients[1][old_i].times(coefficients[2][old_i]).times_mutable(twelveRefSquared))
+                        .plus_mutable(coefficients[0][old_i].times(coefficients[3][old_i]).times_mutable(twelveRefSquared)); //4*a_1^3*a_2 + 12*Z*a_1*a_2^2 + 12*Z*a_1^2*a_3 + 12*Z^2*a_2*a_3 + 12*Z^2*a_1*a_4 + 4*Z^3*a_5
+            }
+
+            for (int j = 0; j < numCoefficients; j++) {
+                coefficients[j][new_i].Reduce();
+                magCoeff[j] = coefficients[j][new_i].log2normApprox() + logwToThe[j + 1];
+            }
+
+            //Check to see if the approximation is no longer valid. The validity is checked if an arbitrary point we approximated differs from the point it should be by too much. That is the tolerancy which scales with the depth.
+            //if (coefficients[numCoefficients - 2][new_i].times(tempLimit).norm_squared().compareTo(coefficients[numCoefficients - 1][new_i].times(DeltaSub0ToThe[numCoefficients]).norm_squared()) < 0) {
+            //if(coefficients[numCoefficients - 2][new_i].norm_squared().divide(coefficients[numCoefficients - 1][new_i].norm_squared()).compareTo(tempLimit2) < 0) {
+            if(i > 1 && isLastTermNotNegligible(magCoeff, oomDiff, numCoefficients)) {
+                //|Bn+1 * d^2 * tolerance| < |Cn+1 * d^3|
+                //When we're breaking here, it means that we've found a point where the approximation no longer works. Returning that would create a messed up image. We should move a little further back to get an approximation that is good.
+                skippedIterations = i <= skippedThreshold ? 0 : i - skippedThreshold;
+                return;
+            }
+
+        }
+
+        i = length - 1;
+        skippedIterations = i <= skippedThreshold ? 0 : i - skippedThreshold;
     }
 }

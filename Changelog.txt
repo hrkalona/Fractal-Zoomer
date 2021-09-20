@@ -1,3 +1,10 @@
+Version 1.0.7.8
+    -Added Pertubation Theory for Mandelbrot, Mandelbrot Cubed, Mandelbrot Fourth, and their Burning-Ship variants.
+    -Added Series Approximation for Mandelbrot, Mandelbrot Cubed, Mandelbrot Fourth.
+    -Added the Juliter transformation.
+    -Added the Plane Influence transformation (can be used to Influence Julia or to create "cracks").
+    -Refactored the code and fixed some bugs.
+
 Version 1.0.7.7
     -Added pre and post function filters.
     -Added Lagrangian statistical coloring method.

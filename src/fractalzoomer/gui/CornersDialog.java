@@ -16,9 +16,11 @@
  */
 package fractalzoomer.gui;
 
+import fractalzoomer.core.MyApfloat;
 import fractalzoomer.main.MainWindow;
 import fractalzoomer.main.app_settings.Settings;
 import fractalzoomer.utils.MathUtils;
+import org.apfloat.Apfloat;
 
 import javax.swing.*;
 import java.awt.event.WindowAdapter;
@@ -45,28 +47,28 @@ public class CornersDialog extends JDialog {
         setModal(true);
         setIconImage(getIcon("/fractalzoomer/icons/mandel2.png").getImage());
 
-        double tempx, tempy, tempSize;
+        Apfloat tempx, tempy, tempSize;
         try {
-            tempx = Double.parseDouble(field_real.getText());
-            tempy = Double.parseDouble(field_imaginary.getText());
-            tempSize = Double.parseDouble(field_size.getText());
+            tempx = new MyApfloat(field_real.getText());
+            tempy = new MyApfloat(field_imaginary.getText());
+            tempSize =new MyApfloat(field_size.getText());
         } catch (Exception ex) {
             tempx = s.xCenter;
             tempy = s.yCenter;
             tempSize = s.size;
         }
 
-        double[] corners = MathUtils.convertFromCenterSizeToCorners(tempx, tempy, tempSize);
+        Apfloat[] corners = MathUtils.convertFromCenterSizeToCorners(tempx, tempy, tempSize);
 
-        JTextField corner1_real = new JTextField(20);
-        corner1_real.setText("" + corners[0]);
+        JTextField corner1_real = new JTextField(40);
+        corner1_real.setText("" + corners[0].toString(true));
 
-        JTextField corner1_imag = new JTextField(20);
-        corner1_imag.setText("" + corners[1]);
-        JTextField corner2_real = new JTextField(20);
-        corner2_real.setText("" + corners[2]);
-        JTextField corner2_imag = new JTextField(20);
-        corner2_imag.setText("" + corners[3]);
+        JTextField corner1_imag = new JTextField(40);
+        corner1_imag.setText("" + corners[1].toString(true));
+        JTextField corner2_real = new JTextField(40);
+        corner2_real.setText("" + corners[2].toString(true));
+        JTextField corner2_imag = new JTextField(40);
+        corner2_imag.setText("" + corners[3].toString(true));
 
         JPanel p1 = new JPanel();
         p1.add(new JLabel("Real: "));
@@ -125,14 +127,14 @@ public class CornersDialog extends JDialog {
                     }
 
                     try {
-                        double tempc1_re = Double.parseDouble(corner1_real.getText());
-                        double tempc1_im = Double.parseDouble(corner1_imag.getText());
-                        double tempc2_re = Double.parseDouble(corner2_real.getText());
-                        double tempc2_im = Double.parseDouble(corner2_imag.getText());
+                        Apfloat tempc1_re = new MyApfloat(corner1_real.getText());
+                        Apfloat tempc1_im = new MyApfloat(corner1_imag.getText());
+                        Apfloat tempc2_re = new MyApfloat(corner2_real.getText());
+                        Apfloat tempc2_im = new MyApfloat(corner2_imag.getText());
 
-                        double[] centersize = MathUtils.convertFromCornersToCenterSize(new double[]{tempc1_re, tempc1_im, tempc2_re, tempc2_im});
-                        field_real.setText("" + centersize[0]);
-                        field_imaginary.setText("" + centersize[1]);
+                        Apfloat[] centersize = MathUtils.convertFromCornersToCenterSize(new Apfloat[]{tempc1_re, tempc1_im, tempc2_re, tempc2_im});
+                        field_real.setText("" + centersize[0].toString(true));
+                        field_imaginary.setText("" + centersize[1].toString(true));
                         field_size.setText("" + centersize[2]);
                     } catch (Exception ex) {
                         JOptionPane.showMessageDialog(ptra, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);

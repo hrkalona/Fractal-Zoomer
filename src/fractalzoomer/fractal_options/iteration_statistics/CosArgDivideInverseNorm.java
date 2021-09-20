@@ -36,9 +36,9 @@ public class CosArgDivideInverseNorm extends GenericStatistic {
     }
 
     @Override
-    public void insert(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start) {
+    public void insert(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0) {
 
-        super.insert(z, zold, zold2, iterations, c, start);
+        super.insert(z, zold, zold2, iterations, c, start, c0);
 
         Complex sub = z.sub(zold);
         sum += (0.5 * Math.cos(StripeDensity * (sub.arg() + Math.PI)) + 0.5) / (StripeDenominatorFactor + 1 / (sub.norm()));

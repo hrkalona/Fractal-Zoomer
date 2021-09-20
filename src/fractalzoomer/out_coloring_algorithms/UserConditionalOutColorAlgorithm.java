@@ -217,6 +217,10 @@ public class UserConditionalOutColorAlgorithm extends OutColorAlgorithm {
             parser[0].setSvalue(((Complex)object[5]));
         }
 
+        if (parser[0].foundC0()) {
+            parser[0].setC0value(((Complex) object[6]));
+        }
+
         if(parser[0].foundP()) {
             parser[0].setPvalue(((Complex)object[2]));
         }
@@ -247,6 +251,10 @@ public class UserConditionalOutColorAlgorithm extends OutColorAlgorithm {
 
         if(parser[1].foundS()) {
             parser[1].setSvalue(((Complex)object[5]));
+        }
+
+        if (parser[1].foundC0()) {
+            parser[1].setC0value(((Complex) object[6]));
         }
 
         if(parser[1].foundP()) {
@@ -280,6 +288,10 @@ public class UserConditionalOutColorAlgorithm extends OutColorAlgorithm {
 
             if(parser2[0].foundS()) {
                 parser2[0].setSvalue(((Complex)object[5]));
+            }
+
+            if (parser2[0].foundC0()) {
+                parser2[0].setC0value(((Complex) object[6]));
             }
 
             if(parser2[0].foundP()) {
@@ -325,6 +337,10 @@ public class UserConditionalOutColorAlgorithm extends OutColorAlgorithm {
                 parser2[1].setSvalue(((Complex)object[5]));
             }
 
+            if (parser2[1].foundC0()) {
+                parser2[1].setC0value(((Complex) object[6]));
+            }
+
             if(parser2[1].foundP()) {
                 parser2[1].setPvalue(((Complex)object[2]));
             }
@@ -366,6 +382,10 @@ public class UserConditionalOutColorAlgorithm extends OutColorAlgorithm {
 
             if(parser2[2].foundS()) {
                 parser2[2].setSvalue(((Complex)object[5]));
+            }
+
+            if (parser2[2].foundC0()) {
+                parser2[2].setC0value(((Complex) object[6]));
             }
 
             if(parser2[2].foundP()) {

@@ -72,7 +72,7 @@ public class UserFormulaDialog extends JDialog {
         method4_choice.setToolTipText("Selects the bailout technique.");
         method4_choice.setFocusable(false);
 
-        Object[] labels3 = ptr.createUserFormulaLabels("z, c, s, p, pp, n, maxn, center, size, sizei, v1 - v30, point");
+        Object[] labels3 = ptr.createUserFormulaLabels("z, c, s, c0, p, pp, n, maxn, center, size, sizei, v1 - v30, point");
 
         Object[] message3 = {
             labels3,

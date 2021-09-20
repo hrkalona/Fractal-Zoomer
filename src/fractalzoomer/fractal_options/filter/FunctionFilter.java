@@ -4,6 +4,6 @@ import fractalzoomer.core.Complex;
 
 public abstract class FunctionFilter {
 
-    public abstract Complex getValue(Complex z, int iterations, Complex c, Complex start);
+    public abstract Complex getValue(Complex z, int iterations, Complex c, Complex start, Complex c0);
 
 }

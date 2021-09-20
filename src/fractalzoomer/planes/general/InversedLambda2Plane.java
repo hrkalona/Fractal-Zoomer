@@ -17,7 +17,9 @@
 
 package fractalzoomer.planes.general;
 
+import fractalzoomer.core.BigComplex;
 import fractalzoomer.core.Complex;
+import fractalzoomer.core.MyApfloat;
 import fractalzoomer.planes.Plane;
 
 /**
@@ -37,6 +39,17 @@ public class InversedLambda2Plane extends Plane {
         
         return pixel.square().reciprocal_mutable().r_sub_mutable(0.25);
         
+    }
+
+    @Override
+    public BigComplex transform(BigComplex pixel) {
+
+        if(pixel.isZero()) {
+            return pixel;
+        }
+
+        return pixel.square().reciprocal().r_sub(new MyApfloat(0.25));
+
     }
     
 }

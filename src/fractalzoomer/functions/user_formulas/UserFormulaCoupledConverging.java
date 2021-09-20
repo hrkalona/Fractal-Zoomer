@@ -170,6 +170,9 @@ public class UserFormulaCoupledConverging extends ExtendedConvergentType {
             StatisticFactory(sts, plane_transform_center);
         }
 
+        pertur_val = new DefaultPerturbation();
+        init_val = new DefaultInitialValue();
+
     }
 
     //orbit
@@ -255,6 +258,9 @@ public class UserFormulaCoupledConverging extends ExtendedConvergentType {
 
         point = new Complex(plane_transform_center[0], plane_transform_center[1]);
 
+        pertur_val = new DefaultPerturbation();
+        init_val = new DefaultInitialValue();
+
     }
 
     @Override
@@ -331,8 +337,9 @@ public class UserFormulaCoupledConverging extends ExtendedConvergentType {
         zold = new Complex();
         zold2 = new Complex();
         start = new Complex(complex[0]);
+        c0 = new Complex(complex[1]);
 
-        setInitVariables(start, zold, zold2);
+        setInitVariables(start, zold, zold2, c0);
 
         return complex;
 
@@ -349,8 +356,9 @@ public class UserFormulaCoupledConverging extends ExtendedConvergentType {
         zold = new Complex();
         zold2 = new Complex();
         start = new Complex(complex[0]);
+        c0 = new Complex(complex[1]);
 
-        setInitVariables(start, zold, zold2);
+        setInitVariables(start, zold, zold2, c0);
 
         return complex;
 
@@ -376,7 +384,7 @@ public class UserFormulaCoupledConverging extends ExtendedConvergentType {
 
     }
 
-    private void setInitVariables(Complex start, Complex zold, Complex zold2) {
+    private void setInitVariables(Complex start, Complex zold, Complex zold2, Complex c0) {
 
         if (parser.foundS()) {
             parser.setSvalue(start);
@@ -384,6 +392,14 @@ public class UserFormulaCoupledConverging extends ExtendedConvergentType {
 
         if (parser2.foundS()) {
             parser2.setSvalue(start);
+        }
+
+        if (parser.foundC0()) {
+            parser.setC0value(c0);
+        }
+
+        if (parser2.foundC0()) {
+            parser2.setC0value(c0);
         }
 
         if (parser.foundMaxn()) {

@@ -17,8 +17,11 @@
 
 package fractalzoomer.planes.newton;
 
+import fractalzoomer.core.BigComplex;
 import fractalzoomer.core.Complex;
+import fractalzoomer.core.MyApfloat;
 import fractalzoomer.planes.Plane;
+import org.apfloat.Apfloat;
 
 /**
  *
@@ -46,5 +49,23 @@ public class Newton4Plane extends Plane {
 
         return temp;
  
+    }
+
+    @Override
+    public BigComplex transform(BigComplex pixel) {
+
+        BigComplex temp = pixel;
+        Apfloat one = new MyApfloat(1.0);
+        Apfloat four = new MyApfloat(4.0);
+
+        for(int iterations = 0; iterations < 5; iterations++) {
+            BigComplex fz = temp.fourth().sub(one);
+            BigComplex dfz = temp.cube().times(four);
+
+            temp.sub(fz.divide(dfz));
+        }
+
+        return temp;
+
     }
 }

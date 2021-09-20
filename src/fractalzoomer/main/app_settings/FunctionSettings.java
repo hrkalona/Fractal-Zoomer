@@ -17,7 +17,10 @@
 package fractalzoomer.main.app_settings;
 
 import fractalzoomer.core.Derivative;
+import fractalzoomer.core.MyApfloat;
 import fractalzoomer.main.Constants;
+import org.apfloat.Apfloat;
+import org.apfloat.ApfloatMath;
 
 
 /**
@@ -49,8 +52,8 @@ public class FunctionSettings implements Constants {
     public String[] user_initial_value_condition_formula;
     public int user_initial_value_algorithm;
     public double rotation;
-    public double[] rotation_vals;
-    public double[] rotation_center;
+    public Apfloat[] rotation_vals;
+    public Apfloat[] rotation_center;
     public double[] mandel_grass_vals;
     public double[] plane_transform_center;
     public double[] plane_transform_scales;
@@ -125,6 +128,10 @@ public class FunctionSettings implements Constants {
     public int root_initialization_method;
     public FunctionFilterSettings preffs;
     public FunctionFilterSettings postffs;
+    public boolean juliter;
+    public int juliterIterations;
+    public boolean juliterIncludeInitialIterations;
+    public PlaneInfluenceSettings ips;
     
     public FunctionSettings() {
         n_norm = 2;
@@ -147,17 +154,18 @@ public class FunctionSettings implements Constants {
         
         plane_type = MU_PLANE;
         
-        rotation_vals = new double[2];
+        rotation_vals = new Apfloat[2];
 
         rotation = 0;
-        
-        rotation_vals[0] = Math.cos(Math.toRadians(rotation));
-        rotation_vals[1] = Math.sin(Math.toRadians(rotation));
 
-        rotation_center = new double[2];
+        Apfloat tempRadians = ApfloatMath.toRadians(new MyApfloat(rotation));
+        rotation_vals[0] = MyApfloat.cos(tempRadians);
+        rotation_vals[1] = MyApfloat.sin(tempRadians);
 
-        rotation_center[0] = 0;
-        rotation_center[1] = 0;
+        rotation_center = new Apfloat[2];
+
+        rotation_center[0] = new MyApfloat(0.0);
+        rotation_center[1] = new MyApfloat(0.0);
 
         plane_transform_scales = new double[2];
         plane_transform_scales[0] = 0;
@@ -356,6 +364,12 @@ public class FunctionSettings implements Constants {
 
         preffs = new FunctionFilterSettings();
         postffs = new FunctionFilterSettings();
+
+        juliter = false;
+        juliterIterations = 16;
+        juliterIncludeInitialIterations = true;
+
+        ips = new PlaneInfluenceSettings();
         
     }
     

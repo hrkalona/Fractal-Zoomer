@@ -17,6 +17,7 @@
 
 package fractalzoomer.planes.math;
 
+import fractalzoomer.core.BigComplex;
 import fractalzoomer.core.Complex;
 import fractalzoomer.planes.Plane;
 
@@ -35,6 +36,13 @@ public class AbsPlane extends Plane {
         
         return pixel.abs();
         
-    }   
-    
+    }
+
+    @Override
+    public BigComplex transform(BigComplex pixel) {
+
+        return pixel.abs();
+
+    }
+
 }

@@ -86,9 +86,9 @@ public class UserStatisticColoringRootFindingMethod extends GenericStatistic {
     }
 
     @Override
-    public void insert(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start) {
+    public void insert(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0) {
 
-        super.insert(z, zold, zold2, iterations, c, start);
+        super.insert(z, zold, zold2, iterations, c, start, c0);
 
         if (parser.foundN()) {
             parser.setNvalue(new Complex(iterations, 0));
@@ -104,6 +104,10 @@ public class UserStatisticColoringRootFindingMethod extends GenericStatistic {
 
         if (parser.foundS()) {
             parser.setSvalue(start);
+        }
+
+        if (parser.foundC0()) {
+            parser.setC0value(c0);
         }
 
         if (parser.foundP()) {

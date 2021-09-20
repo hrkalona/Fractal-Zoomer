@@ -23,7 +23,7 @@ import java.awt.*;
  * @author hrkalona2
  */
 public interface Constants {
-    public static final int VERSION = 1077;
+    public static final int VERSION = 1078;
     public static final int FAST_JULIA_IMAGE_SIZE = 252;
     public static final int TOTAL_PALETTES = 37;
     public static final int TOTAL_INCOLORING_ALGORITHMS = 11;
@@ -36,8 +36,9 @@ public interface Constants {
     public static final int TOTAL_COLOR_BLENDING = 30;
     public static final int TOTAL_POST_PROCESS_ALGORITHMS = 8;
     public static final int TOTAL_FUNCTION_FILTERS = 10;
+    public static final int TOTAL_PLANE_INFLUENCES = 2;
 
-    public static final int MAX_ITERATIONS_NUMBER = 100000;
+    public static final int MAX_ITERATIONS_NUMBER = Integer.MAX_VALUE;
     
     public static final String[] domainAlgNames = {"Black Grid, White Circles log2", "White Grid, Black Circles log2", "Black Grid", "White Grid", "Black Grid, Bright Contours log2", "White Grid, Dark Contours log2", "Norm, Black Grid, White Circles log2", "Norm, White Grid, Black Circles log2", "Norm, Black Grid", "Norm, White Grid", "Norm, Black Grid, Bright Contours log2", "Norm, White Grid, Dark Contours log2", "White Circles log2", "Black Circles log2", "Bright Contours log2", "Dark Contours log2", "Norm, White Circles log2", "Norm, Black Circles log2", "Norm, Bright Contours log2", "Norm, Dark Contours log2",
     "Black Grid, Contours log2, Iso-Argument lines", "Norm, Black Grid, Contours log2, Iso-Argument lines", "Black Grid, Iso-Argument Contours", "Norm, Black Grid, Iso-Argument Contours", "Iso-Argument Contours, Contours log2", "Norm, Iso-Argument Contours, Contours log2",
@@ -610,6 +611,15 @@ public interface Constants {
     public static final int EXP_FUNCTION_FILTER = 7;
     public static final int LOG_FUNCTION_FILTER = 8;
     public static final int USER_FUNCTION_FILTER = 9;
+    /**
+     * *******************
+     */
+
+    /**
+     * ** PLANE INFLUENCE ***
+     */
+    public static final int NO_PLANE_INFLUENCE = 0;
+    public static final int USER_PLANE_INFLUENCE = 1;
     /**
      * *******************
      */

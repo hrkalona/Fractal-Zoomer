@@ -57,6 +57,10 @@ public class UserConditionalOutColorAlgorithmMagnet extends UserConditionalOutCo
             parser[0].setSvalue(((Complex)object[7]));
         }
 
+        if(parser[0].foundC0()) {
+            parser[0].setC0value(((Complex)object[8]));
+        }
+
         if(parser[0].foundP()) {
             parser[0].setPvalue(((Complex)object[4]));
         }
@@ -86,6 +90,10 @@ public class UserConditionalOutColorAlgorithmMagnet extends UserConditionalOutCo
 
         if(parser[1].foundS()) {
             parser[1].setSvalue(((Complex)object[7]));
+        }
+
+        if(parser[1].foundC0()) {
+            parser[1].setC0value(((Complex)object[8]));
         }
 
         if(parser[1].foundP()) {
@@ -119,6 +127,10 @@ public class UserConditionalOutColorAlgorithmMagnet extends UserConditionalOutCo
 
             if(parser2[0].foundS()) {
                 parser2[0].setSvalue(((Complex)object[7]));
+            }
+
+            if(parser2[0].foundC0()) {
+                parser2[0].setC0value(((Complex)object[8]));
             }
 
             if(parser2[0].foundP()) {
@@ -169,6 +181,10 @@ public class UserConditionalOutColorAlgorithmMagnet extends UserConditionalOutCo
                 parser2[1].setSvalue(((Complex)object[7]));
             }
 
+            if(parser2[1].foundC0()) {
+                parser2[1].setC0value(((Complex)object[8]));
+            }
+
             if(parser2[1].foundP()) {
                 parser2[1].setPvalue(((Complex)object[4]));
             }
@@ -215,6 +231,10 @@ public class UserConditionalOutColorAlgorithmMagnet extends UserConditionalOutCo
 
             if(parser2[2].foundS()) {
                 parser2[2].setSvalue(((Complex)object[7]));
+            }
+
+            if(parser2[2].foundC0()) {
+                parser2[2].setC0value(((Complex)object[8]));
             }
 
             if(parser2[2].foundP()) {

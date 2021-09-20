@@ -101,7 +101,7 @@ public class GenericPlaneDialog extends JDialog {
                     }
                     field_imaginary.setEditable(true);
                 } else {
-                    Point2D.Double p = MathUtils.rotatePointRelativeToPoint(s.xCenter, s.yCenter, s.fns.rotation_vals, s.fns.rotation_center);
+                    Point2D.Double p = MathUtils.rotatePointRelativeToPoint(s.xCenter.doubleValue(), s.yCenter.doubleValue(), Settings.fromDDArray(s.fns.rotation_vals), Settings.fromDDArray(s.fns.rotation_center));
 
                     field_real.setText("" + p.x);
                     field_real.setEditable(false);
