@@ -451,6 +451,12 @@ public class OptionsMenu extends JMenu {
 
     }
 
+    public JMenuItem getContourFactor() {
+
+        return colors_menu.getContourFactor();
+
+    }
+
     public JRadioButtonMenuItem[] getOutColoringModes() {
 
         return colors_menu.getOutColoringModes();

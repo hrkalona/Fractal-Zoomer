@@ -1,5 +1,15 @@
+Version 1.0.7.9
+    -Added Perturbation Theory for Mandelbrot Fifth and its Burning-Ship variant.
+    -Added Series Approximation for Mandelbrot Fifth.
+    -Added Perturbation Theory for Mandelbar, Lambda, and Magnet 1 functions.
+    -Added some more Magnet variations.
+    -Added Normal Map statistical coloring for the Mandelbrot powers.
+    -Added a new bailout method.
+    -Added export of overview info.
+    -Fixed a lot of bugs and crashes, and updated the UI.
+
 Version 1.0.7.8
-    -Added Pertubation Theory for Mandelbrot, Mandelbrot Cubed, Mandelbrot Fourth, and their Burning-Ship variants.
+    -Added Perturbation Theory for Mandelbrot, Mandelbrot Cubed, Mandelbrot Fourth, and their Burning-Ship variants.
     -Added Series Approximation for Mandelbrot, Mandelbrot Cubed, Mandelbrot Fourth.
     -Added the Juliter transformation.
     -Added the Plane Influence transformation (can be used to Influence Julia or to create "cracks").

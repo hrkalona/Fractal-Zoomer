@@ -27,9 +27,9 @@ import fractalzoomer.palettes.transfer_functions.TransferFunction;
  */
 public class NormWhiteGridDomainColoring extends DomainColoring {
 
-    public NormWhiteGridDomainColoring(int domain_coloring_mode, PaletteColor palette, TransferFunction color_transfer, int color_cycling_location, Blending blending, int interpolation) {
+    public NormWhiteGridDomainColoring(int domain_coloring_mode, PaletteColor palette, TransferFunction color_transfer, int color_cycling_location, Blending blending, int interpolation, double countourFactor) {
 
-        super(domain_coloring_mode, palette, color_transfer, color_cycling_location, interpolation, blending);
+        super(domain_coloring_mode, palette, color_transfer, color_cycling_location, interpolation, blending, countourFactor);
 
         gridColorRed = 255;
         gridColorGreen = 255;

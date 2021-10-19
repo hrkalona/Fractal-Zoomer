@@ -85,8 +85,9 @@ public abstract class DomainColoring {
     protected double circleWidth;
     protected double gridWidth;
     protected int gridAlgorithm;
+    protected double countourFactor;
 
-    public DomainColoring(int coloring_mode, PaletteColor palette, TransferFunction color_transfer, int color_cycling_location, int color_interpolation, Blending blending) {
+    public DomainColoring(int coloring_mode, PaletteColor palette, TransferFunction color_transfer, int color_cycling_location, int color_interpolation, Blending blending, double countourFactor) {
 
         this.coloring_mode = coloring_mode;
         this.palette = palette;
@@ -99,6 +100,7 @@ public abstract class DomainColoring {
         max_norm_re_im_value = 20.0;
         
         contourMethod = 3;
+        this.countourFactor = countourFactor;
         
         gradient_offset = 0;
         
@@ -743,21 +745,21 @@ public abstract class DomainColoring {
          
          if(contourMethod == 0) { //Lab
              double[] res = ColorSpaceConverter.RGBtoLAB(red, green, blue);
-             double val = 2 * coef * res[0];
+             double val = countourFactor * coef * res[0];
              val = val > 100 ? 100 : val;
              int[] rgb = ColorSpaceConverter.LABtoRGB(val, res[1], res[2]);   
              return 0xff000000 | (rgb[0] << 16) | (rgb[1] << 8) | rgb[2];
          }
          else if(contourMethod == 1) { //HSB
              double[] res = ColorSpaceConverter.RGBtoHSB(red, green, blue);
-             double val = 2 * coef * res[2];
+             double val = countourFactor * coef * res[2];
              val = val > 1 ? 1 : val;
              int[] rgb = ColorSpaceConverter.HSBtoRGB(res[0], res[1], val);
              return 0xff000000 | (rgb[0] << 16) | (rgb[1] << 8) | rgb[2];
          }
          else if(contourMethod == 2) { //HSL
              double[] res = ColorSpaceConverter.RGBtoHSL(red, green, blue);
-             double val = 2 * coef * res[2];
+             double val = countourFactor * coef * res[2];
              val = val > 1 ? 1 : val;
              int[] rgb = ColorSpaceConverter.HSLtoRGB(res[0], res[1], val);
              return 0xff000000 | (rgb[0] << 16) | (rgb[1] << 8) | rgb[2];
@@ -774,9 +776,9 @@ public abstract class DomainColoring {
              return blending.blend(temp_red, temp_green, temp_blue, red, green, blue, 1 - contourBlending);
          }
          else { //scale
-            red = (int)(2 * coef * red + 0.5);
-            green = (int)(2 * coef * green + 0.5);
-            blue = (int)(2 * coef * blue + 0.5);
+            red = (int)(countourFactor * coef * red + 0.5);
+            green = (int)(countourFactor * coef * green + 0.5);
+            blue = (int)(countourFactor * coef * blue + 0.5);
             red = red > 255 ? 255 : red;
             green = green > 255 ? 255 : green;
             blue = blue > 255 ? 255 : blue;

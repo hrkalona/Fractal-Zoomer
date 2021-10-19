@@ -1,6 +1,7 @@
 package fractalzoomer.gui;
 
 import fractalzoomer.main.MainWindow;
+import fractalzoomer.main.app_settings.Settings;
 
 import javax.swing.*;
 import java.awt.event.WindowAdapter;
@@ -13,7 +14,7 @@ public class JuliterDialog extends JDialog {
     private MainWindow ptra;
     private JOptionPane optionPane;
 
-    public JuliterDialog(MainWindow ptr, int juliterIterations, boolean juliterIncludeInitialIterations, JCheckBoxMenuItem juliter_opt, boolean mode) {
+    public JuliterDialog(MainWindow ptr, int juliterIterations, boolean juliterIncludeInitialIterations, JCheckBoxMenuItem juliter_opt, boolean mode, Settings s) {
 
         super(ptr);
 
@@ -33,6 +34,7 @@ public class JuliterDialog extends JDialog {
         includePreStarting.setSelected(juliterIncludeInitialIterations);
 
         Object[] message3 = {
+
                 " ",
                 "Set the starting iterations of Juliter.",
                 "Starting Iterations:",
@@ -91,7 +93,12 @@ public class JuliterDialog extends JDialog {
                                 return;
                             }
 
+
                             dispose();
+
+                            if (!s.julia_map && !s.fns.julia) {
+                                JOptionPane.showMessageDialog(ptra, "Juliter is an extension of Julia or Julia-Map.\nMake sure you have any of those options selected, in order for Juliter to be applied.", "Warning!", JOptionPane.WARNING_MESSAGE);
+                            }
                             ptr.setJuliterPost(temp, includePreStarting.isSelected());
                         }
                     }

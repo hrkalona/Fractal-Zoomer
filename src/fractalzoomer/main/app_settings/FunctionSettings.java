@@ -132,6 +132,7 @@ public class FunctionSettings implements Constants {
     public int juliterIterations;
     public boolean juliterIncludeInitialIterations;
     public PlaneInfluenceSettings ips;
+    public boolean defaultNovaInitialValue;
     
     public FunctionSettings() {
         n_norm = 2;
@@ -370,6 +371,8 @@ public class FunctionSettings implements Constants {
         juliterIncludeInitialIterations = true;
 
         ips = new PlaneInfluenceSettings();
+
+        defaultNovaInitialValue = true;
         
     }
     

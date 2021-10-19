@@ -20,6 +20,7 @@ package fractalzoomer.bailout_conditions;
 import fractalzoomer.core.BigComplex;
 import fractalzoomer.core.Complex;
 import fractalzoomer.core.MyApfloat;
+import org.apfloat.Apcomplex;
 import org.apfloat.Apfloat;
 
 /**
@@ -47,6 +48,10 @@ public class NNormBailoutCondition extends BailoutCondition {
 
     @Override //N norm
     public boolean escaped(BigComplex z, BigComplex zold, BigComplex zold2, int iterations, BigComplex c, BigComplex start, BigComplex c0, Apfloat norm_squared) {
+
+        if(ddn_norm.compareTo(Apcomplex.ZERO) == 0) {
+            return false;
+        }
 
         return z.nnorm(ddn_norm).compareTo(ddbound) >= 0;
 

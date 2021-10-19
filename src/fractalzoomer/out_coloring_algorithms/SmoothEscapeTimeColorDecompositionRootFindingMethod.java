@@ -50,7 +50,6 @@ public class SmoothEscapeTimeColorDecompositionRootFindingMethod extends EscapeT
             return Math.abs(((Integer)object[0]) + (long)(((Math.atan2(temp2, temp) / (pi2) + 0.75) * pi59) + (temp * temp + temp2 * temp2) * 2.5) + temp4);
         }
         else {
-
             double temp = Math.floor(1000 * ((Complex)object[1]).getRe() + 0.5) / 1000;
             double temp2 = Math.floor(1000 * ((Complex)object[1]).getIm() + 0.5) / 1000;
 

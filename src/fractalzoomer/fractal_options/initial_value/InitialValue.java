@@ -34,6 +34,13 @@ public class InitialValue extends PlanePointOption {
         
     }
 
+    public InitialValue(Complex z) {
+
+        super();
+        pixel = new Complex(z);
+
+    }
+
     @Override
     public Complex getValue(Complex pixel) {
 

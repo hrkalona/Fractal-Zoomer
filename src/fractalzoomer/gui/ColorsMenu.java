@@ -34,6 +34,7 @@ public class ColorsMenu extends JMenu {
 	private static final long serialVersionUID = -6910654944774874305L;
 	private MainWindow ptr;
     private JMenuItem fract_color;
+    private JMenuItem contour_factor;
     private JMenuItem gradient;
     private JMenuItem random_palette;
     private JMenuItem blend_palette_opt;
@@ -79,6 +80,8 @@ public class ColorsMenu extends JMenu {
         color_blending_menu = new ColorBlendingMenu(ptr, "Blending", color_blending);
         
         gradient = new JMenuItem("Gradient", getIcon("/fractalzoomer/icons/gradient.png"));
+
+        contour_factor = new JMenuItem("Contour Factor", getIcon("/fractalzoomer/icons/contour.png"));
      
         fract_color.setToolTipText("Sets the colors for maximum iterations, distance estimation and some color algorithms.");
         random_palette.setToolTipText("Randomizes the palette.");        
@@ -86,7 +89,8 @@ public class ColorsMenu extends JMenu {
         direct_color_opt.setToolTipText("Enables the use of direct color, via the use of user code, in user out-coloring and in-coloring modes.");
         blend_palette_opt.setToolTipText("The coloring algorithm is mapped through the gradient and then it is merged with the palette.");        
         out_true_color_opt.setToolTipText("Overrides the palette coloring for out coloring mode, and uses a direct color space coloring."); 
-        in_true_color_opt.setToolTipText("Overrides the palette coloring for in coloring mode, and uses a direct color space coloring.");        
+        in_true_color_opt.setToolTipText("Overrides the palette coloring for in coloring mode, and uses a direct color space coloring.");
+        contour_factor.setToolTipText("Changes the contour factor in all color algorithms that use it.");
                 
         fract_color.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T, 0));
         random_palette.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, ActionEvent.SHIFT_MASK));
@@ -95,6 +99,7 @@ public class ColorsMenu extends JMenu {
         blend_palette_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_0, 0));
         out_true_color_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_3, ActionEvent.SHIFT_MASK));
         in_true_color_opt.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_3, ActionEvent.ALT_MASK));
+        contour_factor.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_6, ActionEvent.SHIFT_MASK));
 
         fract_color.addActionListener(new ActionListener() {
 
@@ -166,6 +171,16 @@ public class ColorsMenu extends JMenu {
             }
         });
 
+        contour_factor.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setContourFactor();
+
+            }
+        });
+
         direct_color_opt.setSelected(ThreadDraw.USE_DIRECT_COLOR);
         
         add(out_coloring_mode_menu);
@@ -180,6 +195,8 @@ public class ColorsMenu extends JMenu {
         add(gradient);
         addSeparator();                
         add(fract_color);
+        addSeparator();
+        add(contour_factor);
         addSeparator();
         add(outcolor_palette_menu);
         add(incolor_palette_menu);
@@ -398,6 +415,12 @@ public class ColorsMenu extends JMenu {
     
     public JMenuItem getInTrueColoring() {
         return in_true_color_opt;
+    }
+
+    public JMenuItem getContourFactor() {
+
+        return contour_factor;
+
     }
     
     public void updateIcons(Settings s) {

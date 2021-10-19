@@ -16,7 +16,7 @@
  */
 package fractalzoomer.functions.general;
 
-import fractalzoomer.core.Complex;
+import fractalzoomer.core.*;
 import fractalzoomer.fractal_options.initial_value.DefaultInitialValue;
 import fractalzoomer.fractal_options.initial_value.InitialValue;
 import fractalzoomer.fractal_options.initial_value.VariableConditionalInitialValue;
@@ -54,6 +54,7 @@ import fractalzoomer.main.app_settings.Settings;
 import fractalzoomer.main.app_settings.StatisticsSettings;
 import fractalzoomer.out_coloring_algorithms.ColorDecomposition;
 import fractalzoomer.out_coloring_algorithms.EscapeTimeColorDecomposition;
+import org.apfloat.Apfloat;
 
 import java.util.ArrayList;
 
@@ -67,8 +68,9 @@ public class Nova extends ExtendedConvergentType {
     private Complex relaxation;
     private int nova_method;
     private Complex newtonHinesK;
+    //private boolean supportsPerturbation;
 
-    public Nova(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_value, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, double[] z_exponent, double[] relaxation, int nova_method, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int converging_smooth_algorithm, OrbitTrapSettings ots, StatisticsSettings sts, double[] newton_hines_k) {
+    public Nova(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_value, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, double[] z_exponent, double[] relaxation, int nova_method, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int converging_smooth_algorithm, OrbitTrapSettings ots, StatisticsSettings sts, double[] newton_hines_k, boolean defaultNovaInitialValue) {
 
         super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, false, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, ots);
         
@@ -82,7 +84,15 @@ public class Nova extends ExtendedConvergentType {
 
         this.relaxation = new Complex(relaxation[0], relaxation[1]);
 
+        /*supportsPerturbation = false;
+        if(z_exponent[0] == 3 &&  z_exponent[1] == 0 && relaxation[0] == 1 && relaxation[1] == 0) {
+            power = 3;
+            supportsPerturbation = true;
+        }*/
+
         newtonHinesK = new Complex(newton_hines_k[0], newton_hines_k[1]);
+
+        defaultInitVal = new Complex(1, 0);
 
         if (perturbation) {
             if (variable_perturbation) {
@@ -109,20 +119,25 @@ public class Nova extends ExtendedConvergentType {
                 init_val = new InitialValue(initial_vals[0], initial_vals[1]);
             }
         } else {
-            init_val = new DefaultInitialValue();
+            if(defaultNovaInitialValue) {
+                init_val = new InitialValue(defaultInitVal);
+            }
+            else {
+                init_val = new DefaultInitialValue();
+            }
         }
 
         OutColoringAlgorithmFactory(out_coloring_algorithm, smoothing, converging_smooth_algorithm, user_out_coloring_algorithm, outcoloring_formula, user_outcoloring_conditions, user_outcoloring_condition_formula, plane_transform_center);
 
         //override some algorithms
-        switch (out_coloring_algorithm) {
+        /*switch (out_coloring_algorithm) {
             case MainWindow.COLOR_DECOMPOSITION:
                 out_color_algorithm = new ColorDecomposition();
                 break;
             case MainWindow.ESCAPE_TIME_COLOR_DECOMPOSITION:
                 out_color_algorithm = new EscapeTimeColorDecomposition();
                 break;
-        }
+        }*/
 
         InColoringAlgorithmFactory(in_coloring_algorithm, user_in_coloring_algorithm, incoloring_formula, user_incoloring_conditions, user_incoloring_condition_formula, plane_transform_center);
 
@@ -131,7 +146,7 @@ public class Nova extends ExtendedConvergentType {
         }
     }
 
-    public Nova(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, double[] z_exponent, double[] relaxation, int nova_method, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int converging_smooth_algorithm, OrbitTrapSettings ots, StatisticsSettings sts, double[] newton_hines_k, double xJuliaCenter, double yJuliaCenter) {
+    public Nova(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, int out_coloring_algorithm, int user_out_coloring_algorithm, String outcoloring_formula, String[] user_outcoloring_conditions, String[] user_outcoloring_condition_formula, int in_coloring_algorithm, int user_in_coloring_algorithm, String incoloring_formula, String[] user_incoloring_conditions, String[] user_incoloring_condition_formula, boolean smoothing, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, double[] z_exponent, double[] relaxation, int nova_method, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, int converging_smooth_algorithm, OrbitTrapSettings ots, StatisticsSettings sts, double[] newton_hines_k, boolean defaultNovaInitialValue, double xJuliaCenter, double yJuliaCenter) {
 
         super(xCenter, yCenter, size, max_iterations, bailout_test_algorithm, bailout, bailout_test_user_formula, bailout_test_user_formula2, bailout_test_comparison, n_norm, false, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, ots, xJuliaCenter, yJuliaCenter);
 
@@ -145,6 +160,13 @@ public class Nova extends ExtendedConvergentType {
         this.z_exponent = new Complex(z_exponent[0], z_exponent[1]);
 
         this.relaxation = new Complex(relaxation[0], relaxation[1]);
+
+        defaultInitVal = new Complex(1, 0);
+
+        /*supportsPerturbation = false;
+        if(z_exponent[0] == 3 &&  z_exponent[1] == 0 && relaxation[0] == 1 && relaxation[1] == 0) {
+            power = 3;
+        }*/
 
         newtonHinesK = new Complex(newton_hines_k[0], newton_hines_k[1]);
 
@@ -176,11 +198,17 @@ public class Nova extends ExtendedConvergentType {
         }
 
         pertur_val = new DefaultPerturbation();
-        init_val = new DefaultInitialValue();
+
+        if(defaultNovaInitialValue) {
+            init_val = new InitialValue(defaultInitVal);
+        }
+        else {
+            init_val = new DefaultInitialValue();
+        }
     }
 
     //orbit
-    public Nova(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_value, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, double[] z_exponent, double[] relaxation, int nova_method, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, double[] newton_hines_k) {
+    public Nova(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, boolean perturbation, double[] perturbation_vals, boolean variable_perturbation, int user_perturbation_algorithm, String[] user_perturbation_conditions, String[] user_perturbation_condition_formula, String perturbation_user_formula, boolean init_value, double[] initial_vals, boolean variable_init_value, int user_initial_value_algorithm, String[] user_initial_value_conditions, String[] user_initial_value_condition_formula, String initial_value_user_formula, double[] z_exponent, double[] relaxation, int nova_method, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, double[] newton_hines_k, boolean defaultNovaInitialValue) {
 
         super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount);
 
@@ -191,6 +219,13 @@ public class Nova extends ExtendedConvergentType {
         this.relaxation = new Complex(relaxation[0], relaxation[1]);
 
         newtonHinesK = new Complex(newton_hines_k[0], newton_hines_k[1]);
+
+        defaultInitVal = new Complex(1, 0);
+
+        /*supportsPerturbation = false;
+        if(z_exponent[0] == 3 &&  z_exponent[1] == 0 && relaxation[0] == 1 && relaxation[1] == 0) {
+            power = 3;
+        }*/
 
         if (perturbation) {
             if (variable_perturbation) {
@@ -217,12 +252,17 @@ public class Nova extends ExtendedConvergentType {
                 init_val = new InitialValue(initial_vals[0], initial_vals[1]);
             }
         } else {
-            init_val = new DefaultInitialValue();
+            if(defaultNovaInitialValue) {
+                init_val = new InitialValue(defaultInitVal);
+            }
+            else {
+                init_val = new DefaultInitialValue();
+            }
         }
 
     }
 
-    public Nova(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, double[] z_exponent, double[] relaxation, int nova_method, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, double[] newton_hines_k, double xJuliaCenter, double yJuliaCenter) {
+    public Nova(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, boolean apply_plane_on_julia, boolean apply_plane_on_julia_seed, double[] rotation_vals, double[] rotation_center, double[] z_exponent, double[] relaxation, int nova_method, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, double[] newton_hines_k, boolean defaultNovaInitialValue, double xJuliaCenter, double yJuliaCenter) {
 
         super(xCenter, yCenter, size, max_iterations, complex_orbit, plane_type, apply_plane_on_julia, apply_plane_on_julia_seed, rotation_vals, rotation_center, user_plane, user_plane_algorithm, user_plane_conditions, user_plane_condition_formula, plane_transform_center, plane_transform_angle, plane_transform_radius, plane_transform_scales, plane_transform_wavelength, waveType, plane_transform_angle2, plane_transform_sides, plane_transform_amount, xJuliaCenter, yJuliaCenter);
 
@@ -232,10 +272,22 @@ public class Nova extends ExtendedConvergentType {
 
         this.relaxation = new Complex(relaxation[0], relaxation[1]);
 
+        defaultInitVal = new Complex(1, 0);
+
+        /*supportsPerturbation = false;
+        if(z_exponent[0] == 3 &&  z_exponent[1] == 0 && relaxation[0] == 1 && relaxation[1] == 0) {
+            power = 3;
+        }*/
+
         newtonHinesK = new Complex(newton_hines_k[0], newton_hines_k[1]);
 
         pertur_val = new DefaultPerturbation();
-        init_val = new DefaultInitialValue();
+        if(defaultNovaInitialValue) {
+            init_val = new InitialValue(defaultInitVal);
+        }
+        else {
+            init_val = new DefaultInitialValue();
+        }
 
     }
 
@@ -534,12 +586,25 @@ public class Nova extends ExtendedConvergentType {
     public Complex[] initialize(Complex pixel) {
 
         Complex[] complex = new Complex[6];
-        complex[0] = new Complex(pertur_val.getValue(init_val.getValue(pixel)));
-        complex[1] = new Complex(pixel);//c
-        complex[2] = new Complex();
-        complex[3] = new Complex(-1, 0);
-        complex[4] = new Complex(1e-10, 0);
-        complex[5] = complex[4].pow(z_exponent).sub_mutable(1);
+
+        /*if(ThreadDraw.PERTURBATION_THEORY && supportsPerturbationTheory() && !isJulia) {
+            complex[0] = new Complex();
+            if(!isOrbit && !isDomain) {
+                        complex[1] = new Complex(pixel.getRe() + refPoint.getRe().doubleValue(), pixel.getIm() + refPoint.getIm().doubleValue());
+                  }
+                  else {
+                      complex[1] = new Complex(pixel);
+                   }
+
+        }
+        else {*/
+            complex[0] = new Complex(pertur_val.getValue(init_val.getValue(pixel)));
+            complex[1] = new Complex(pixel);//c
+            complex[2] = new Complex();
+            complex[3] = new Complex(-1, 0);
+            complex[4] = new Complex(1e-10, 0);
+            complex[5] = complex[4].pow(z_exponent).sub_mutable(1);
+        //}
 
         zold = new Complex();
         zold2 = new Complex();
@@ -569,5 +634,252 @@ public class Nova extends ExtendedConvergentType {
         return complex;
 
     }
+
+    /*@Override
+    public boolean supportsPerturbationTheory() {
+        return supportsPerturbation;
+    }
+
+    @Override
+    public void calculateReferencePoint(BigComplex pixel, Apfloat size, boolean deepZoom, int iterations, Location externalLocation) {
+
+        if(iterations == 0) {
+            Reference = new Complex[max_iterations];
+
+            if (deepZoom) {
+                ReferenceDeep = new MantExpComplex[max_iterations];
+            }
+        }
+        else if (max_iterations > Reference.length){
+            Reference = copyReference(Reference, new Complex[max_iterations]);
+
+            if (deepZoom) {
+                ReferenceDeep = copyDeepReference(ReferenceDeep,  new MantExpComplex[max_iterations]);
+            }
+        }
+
+        BigComplex z = iterations == 0 ? new BigComplex() : lastZValue;
+        BigComplex c = pixel;
+        BigComplex zold = iterations == 0 ? new BigComplex() : secondTolastZValue;
+        BigComplex zold2 = iterations == 0 ? new BigComplex() : thirdTolastZValue;
+
+        refPoint = pixel;
+
+        boolean fullReference = ThreadDraw.CALCULATE_FULL_REFERENCE;
+        RefType = getRefType();
+        FullRef = fullReference;
+
+        Location loc = new Location();
+
+        Apfloat twoThirds = new MyApfloat(2.0).divide(new MyApfloat(3.0));
+        Apfloat convergentB = new MyApfloat(convergent_bailout);
+
+        for (; iterations < max_iterations; iterations++) {
+
+            Complex cz = z.toComplex();
+            if(cz.isInfinite()) {
+                break;
+            }
+
+            Reference[iterations] = cz;
+
+            if(deepZoom) {
+                ReferenceDeep[iterations] = loc.getMantExpComplex(z);
+            }
+
+            if (!fullReference && iterations > 0 && z.distance_squared(zold).compareTo(convergentB) <= 0) {
+                break;
+            }
+
+            zold2 = zold;
+            zold = z;
+
+            z = (z.cube().times(twoThirds).sub(z.times(MyApfloat.TWO)).sub(MyApfloat.ONE)).divide(z.plus(MyApfloat.ONE).square()).plus(c).plus(MyApfloat.ONE);
+
+        }
+
+        lastZValue = z;
+        secondTolastZValue = zold;
+        thirdTolastZValue = zold2;
+
+        MaxRefIteration = iterations - 1;
+
+        skippedIterations = 0;
+    }
+
+
+    @Override
+    public Complex perturbationFunction(Complex DeltaSubN, Complex DeltaSub0, int RefIteration) {
+
+        Complex X = Reference[RefIteration];
+
+        Complex twoX = X.times(2);
+        Complex Xp1 = X.plus(1);
+        Complex XA = (twoX.plus(4)).times_mutable(X).plus_mutable(2);
+        Complex XB = ((X.times(4).plus_mutable(12)).times_mutable(X).plus_mutable(12)).times_mutable(X).plus_mutable(3);
+        Complex XC = (((twoX.plus(8)).times_mutable(X).plus_mutable(12)).times_mutable(X).plus_mutable(6)).times_mutable(X);
+        Complex XD = (Xp1.square()).times_mutable(3);
+
+
+        //XA = (2*X+4)*X+2;
+        //XB= ((4*X+12)*X+12)*X+3;
+        //XC = (((2*X+8)*X+12)*X+6)*X;
+        //XD = 3*((X+1)^2);
+        //xn = c + (((XA*x + XB)*x + XC)*x) / (XD*(((X+1)+x)^2));
+
+        return (((XA.times(DeltaSubN).plus_mutable(XB)).times_mutable(DeltaSubN).plus_mutable(XC)).times_mutable(DeltaSubN)).divide_mutable(XD.times((Xp1.plus(DeltaSubN)).square_mutable())).plus_mutable(DeltaSub0);
+
+
+
+        //(c, z) |--> c + 1/3*(2*z^3 - 6*z - 3)/(z + 1)^2 + 1
+        //(C, Z, c, z) |--> 1/3*(2*(Z^2 + 2*Z + 1)*z^3 + (4*Z^3 + 12*Z^2 + 3*(Z^2 + 2*Z + 1)*c + 12*Z + 3)*z^2 + 3*(Z^4 + 4*Z^3 + 6*Z^2 + 4*Z + 1)*c + 2*(Z^4 + 4*Z^3 + 6*Z^2 + 3*(Z^3 + 3*Z^2 + 3*Z + 1)*c + 3*Z)*z)/(Z^4 + 4*Z^3 + (Z^2 + 2*Z + 1)*z^2 + 6*Z^2 + 2*(Z^3 + 3*Z^2 + 3*Z + 1)*z + 4*Z + 1)
+
+        Complex Z = Reference[RefIteration];
+        Complex z = DeltaSubN;
+        Complex c = DeltaSub0;
+
+        Complex Zsqr = Z.square();
+        Complex Zcube = Z.cube();
+
+        Complex zsqr = z.square();
+
+        Complex temp4 =  Zcube.times(4);
+
+        Complex temp1 = Zsqr.plus(Z.times(2)).plus_mutable(1);
+        Complex temp2 = Zcube.plus(Zsqr.times(3)).plus_mutable(Z.times(3)).plus_mutable(1);
+        Complex temp3 = Z.fourth().plus_mutable(temp4).plus_mutable(Zsqr.times(6));
+        Complex temp5 = Z.times(4).plus_mutable(1);
+        Complex temp6 = temp3.plus(temp5);
+
+        Complex z2 = z.times(2);
+        Complex c3 = c.times(3);
+
+        Complex A = temp1.times(2).times_mutable(z.cube());
+        Complex B = (temp4.plus(Zsqr.times(12)).plus_mutable(temp1.times(c3)).plus_mutable(Z.times(12)).plus_mutable(3)).times_mutable(zsqr);
+        Complex C = temp6.times(c3);
+        Complex D = (temp3.plus(temp2.times(c3)).plus_mutable(Z.times(3))).times_mutable(z2);
+        Complex E = (temp6.plus(temp1.times(zsqr)).plus_mutable(temp2.times(z2))).times_mutable(3);
+
+        return (A.plus_mutable(B).plus_mutable(C).plus_mutable(D)).divide_mutable(E);
+    }
+
+    @Override
+    public MantExpComplex perturbationFunction(MantExpComplex DeltaSubN, MantExpComplex DeltaSub0, int RefIteration) {
+
+        MantExpComplex X = ReferenceDeep[RefIteration];
+
+        return null;
+    }
+
+    @Override
+    public Complex perturbationFunction(Complex DeltaSubN, int RefIteration) {
+
+        Complex X = Reference[RefIteration];
+
+        Complex twoX = X.times(2);
+        Complex Xp1 = X.plus(1);
+        Complex XA = (twoX.plus(4)).times_mutable(X).plus_mutable(2);
+        Complex XB = ((X.times(4).plus_mutable(12)).times_mutable(X).plus_mutable(12)).times_mutable(X).plus_mutable(3);
+        Complex XC = (((twoX.plus(8)).times_mutable(X).plus_mutable(12)).times_mutable(X).plus_mutable(6)).times_mutable(X);
+        Complex XD = (Xp1.square()).times_mutable(3);
+
+
+        //XA = (2*X+4)*X+2;
+        //XB= ((4*X+12)*X+12)*X+3;
+        //XC = (((2*X+8)*X+12)*X+6)*X;
+        //XD = 3*((X+1)^2);
+        //xn = c + (((XA*x + XB)*x + XC)*x) / (XD*(((X+1)+x)^2));
+
+        return (((XA.times(DeltaSubN).plus_mutable(XB)).times_mutable(DeltaSubN).plus_mutable(XC)).times_mutable(DeltaSubN)).divide_mutable(XD.times((Xp1.plus(DeltaSubN)).square_mutable()));
+
+    }
+
+    @Override
+    public double iterateFractalWithPerturbationWithoutPeriodicity(Complex[] complex, Complex pixel) {
+
+        iterations = skippedIterations;
+
+        Complex DeltaSubN = new Complex(complex[0]); // Delta z
+
+        if(skippedIterations != 0) {
+
+            DeltaSubN = (Complex) initializeFromSeries(pixel);
+
+        }
+
+        int RefIteration = iterations;
+
+        Complex DeltaSub0 = new Complex(pixel); // Delta c
+        double temp = 0;
+
+        Complex zWithoutInitVal = new Complex();
+
+        for (; iterations < max_iterations; iterations++) {
+
+            //No update values
+
+            if (trap != null) {
+                trap.check(complex[0], iterations);
+            }
+
+            if (iterations > 0 &&  (temp = complex[0].distance_squared(zold)) <= convergent_bailout) {
+                escaped = true;
+
+                Object[] object = {iterations, complex[0], temp, zold, zold2, complex[1], start, c0};
+                double res = out_color_algorithm.getResult(object);
+
+                res = getFinalValueOut(res);
+
+                if (outTrueColorAlgorithm != null) {
+                    setTrueColorOut(complex[0], zold, zold2, iterations, complex[1], start, c0);
+                }
+
+                return res;
+            }
+
+            DeltaSubN = perturbationFunction(DeltaSubN, DeltaSub0, RefIteration);
+
+            RefIteration++;
+
+            zold2.assign(zold);
+            zold.assign(complex[0]);
+
+            //No Plane influence work
+            //No Pre filters work
+
+            if(max_iterations > 1){
+                zWithoutInitVal = Reference[RefIteration].plus(DeltaSubN);
+                complex[0] = zWithoutInitVal.plus(defaultInitVal);
+            }
+            //No Post filters work
+
+            if (statistic != null) {
+                statistic.insert(complex[0], zold, zold2, iterations, complex[1], start, c0);
+            }
+
+            if (zWithoutInitVal.norm_squared() < DeltaSubN.norm_squared() || RefIteration >= MaxRefIteration) {
+                DeltaSubN = zWithoutInitVal;
+                RefIteration = 0;
+            }
+
+        }
+
+        Object[] object = {complex[0], zold, zold2, complex[1], start, c0};
+        double in = in_color_algorithm.getResult(object);
+
+        in = getFinalValueIn(in);
+
+        if (inTrueColorAlgorithm != null) {
+            setTrueColorIn(complex[0], zold, zold2, iterations, complex[1], start, c0);
+        }
+
+        return in;
+
+    }
+
+    @Override
+    public String getRefType() {
+        return super.getRefType() + "-" + z_exponent.toString();
+    }*/
 
 }

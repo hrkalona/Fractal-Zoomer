@@ -28,6 +28,8 @@ import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
+import static fractalzoomer.gui.CenterSizeDialog.TEMPLATE_TFIELD;
+
 /**
  *
  * @author hrkalona2
@@ -37,7 +39,7 @@ public class CornersDialog extends JDialog {
     private MainWindow ptra;
     private JOptionPane optionPane;
 
-    public CornersDialog(MainWindow ptr, Settings s, JTextField field_real, JTextField field_imaginary, JTextField field_size) {
+    public CornersDialog(MainWindow ptr, Settings s, JTextArea field_real, JTextArea field_imaginary, JTextArea field_size) {
 
         super(ptr);
         
@@ -60,27 +62,80 @@ public class CornersDialog extends JDialog {
 
         Apfloat[] corners = MathUtils.convertFromCenterSizeToCorners(tempx, tempy, tempSize);
 
-        JTextField corner1_real = new JTextField(40);
+
+        JTextArea corner1_real = new JTextArea(3, 25);
+        corner1_real.setFont(TEMPLATE_TFIELD.getFont());
+        corner1_real.setLineWrap(true);
+
+        JScrollPane corner1Real = new JScrollPane (corner1_real,
+                JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
+        CenterSizeDialog.disableKeys(corner1_real.getInputMap());
+        CenterSizeDialog.disableKeys(corner1Real.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT));
+
         corner1_real.setText("" + corners[0].toString(true));
 
-        JTextField corner1_imag = new JTextField(40);
+
+        JTextArea corner1_imag = new JTextArea(3, 25);
+        corner1_imag.setFont(TEMPLATE_TFIELD.getFont());
+        corner1_imag.setLineWrap(true);
+
+        JScrollPane corner1Imag = new JScrollPane (corner1_imag,
+                JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
+        CenterSizeDialog.disableKeys(corner1_imag.getInputMap());
+        CenterSizeDialog.disableKeys(corner1Imag.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT));
+
         corner1_imag.setText("" + corners[1].toString(true));
-        JTextField corner2_real = new JTextField(40);
+
+        JTextArea corner2_real = new JTextArea(3, 25);
+        corner2_real.setFont(TEMPLATE_TFIELD.getFont());
+        corner2_real.setLineWrap(true);
+
+        JScrollPane corner2Real = new JScrollPane (corner2_real,
+                JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
+        CenterSizeDialog.disableKeys(corner2_real.getInputMap());
+        CenterSizeDialog.disableKeys(corner2Real.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT));
+
         corner2_real.setText("" + corners[2].toString(true));
-        JTextField corner2_imag = new JTextField(40);
+
+        JTextArea corner2_imag = new JTextArea(3, 25);
+        corner2_imag.setFont(TEMPLATE_TFIELD.getFont());
+        corner2_imag.setLineWrap(true);
+
+        JScrollPane corner2Imag = new JScrollPane (corner2_imag,
+                JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
+        CenterSizeDialog.disableKeys(corner2_imag.getInputMap());
+        CenterSizeDialog.disableKeys(corner2Imag.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT));
+
         corner2_imag.setText("" + corners[3].toString(true));
 
         JPanel p1 = new JPanel();
         p1.add(new JLabel("Real: "));
-        p1.add(corner1_real);
+        p1.add(corner1Real);
         p1.add(new JLabel(" Imaginary: "));
-        p1.add(corner1_imag);
+        p1.add(corner1Imag);
 
         JPanel p2 = new JPanel();
         p2.add(new JLabel("Real: "));
-        p2.add(corner2_real);
+        p2.add(corner2Real);
         p2.add(new JLabel(" Imaginary: "));
-        p2.add(corner2_imag);
+        p2.add(corner2Imag);
+
+
+        SwingUtilities.invokeLater(new Runnable() {
+
+            @Override
+            public void run() {
+                corner1Real.getVerticalScrollBar().setValue(0);
+                corner1Imag.getVerticalScrollBar().setValue(0);
+                corner2Real.getVerticalScrollBar().setValue(0);
+                corner2Imag.getVerticalScrollBar().setValue(0);
+
+            }
+        });
 
         Object[] message = {
             " ",

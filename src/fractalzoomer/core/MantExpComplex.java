@@ -276,6 +276,45 @@ public class MantExpComplex extends GenericComplex {
 
     }
 
+    public MantExpComplex times8() {
+        MantExpComplex p = new MantExpComplex(mantissaReal, mantissaImag, exp + 3);
+        return p;
+    }
+
+    public MantExpComplex times8_mutable() {
+
+        long exp = this.exp + 3;
+        this.exp = exp < MantExp.MIN_BIG_EXPONENT ? MantExp.MIN_BIG_EXPONENT : exp;
+        return this;
+
+    }
+
+    public MantExpComplex times16() {
+        MantExpComplex p = new MantExpComplex(mantissaReal, mantissaImag, exp + 4);
+        return p;
+    }
+
+    public MantExpComplex times16_mutable() {
+
+        long exp = this.exp + 4;
+        this.exp = exp < MantExp.MIN_BIG_EXPONENT ? MantExp.MIN_BIG_EXPONENT : exp;
+        return this;
+
+    }
+
+    public MantExpComplex times32() {
+        MantExpComplex p = new MantExpComplex(mantissaReal, mantissaImag, exp + 5);
+        return p;
+    }
+
+    public MantExpComplex times32_mutable() {
+
+        long exp = this.exp + 5;
+        this.exp = exp < MantExp.MIN_BIG_EXPONENT ? MantExp.MIN_BIG_EXPONENT : exp;
+        return this;
+
+    }
+
     public MantExpComplex plus(double real) {
         return plus(new MantExp(real));
     }
@@ -682,6 +721,40 @@ public class MantExpComplex extends GenericComplex {
         return this;
     }
 
+    public MantExpComplex fifth() {
+
+        double temp = mantissaReal * mantissaReal;
+        double temp2 = mantissaImag * mantissaImag;
+
+        MantExpComplex p  = new MantExpComplex(mantissaReal * (temp * temp + temp2 * (5 * temp2 - 10 * temp)), mantissaImag * (temp2 * temp2 + temp * (5 * temp - 10 * temp2)), exp + (exp << 2));
+
+        /*double absRe = Math.abs(p.mantissaReal);
+        double absIm = Math.abs(p.mantissaImag);
+        if (absRe > 1e50 || absIm > 1e50 || absRe < 1e-50 || absIm < 1e-50) {
+            p.Reduce();
+        }*/
+
+        return p;
+    }
+
+    public MantExpComplex fifth_mutable() {
+        double temp = mantissaReal * mantissaReal;
+        double temp2 = mantissaImag * mantissaImag;
+
+        long exp = this.exp + (this.exp << 2);
+        mantissaReal = mantissaReal * (temp * temp + temp2 * (5 * temp2 - 10 * temp));
+        mantissaImag = mantissaImag * (temp2 * temp2 + temp * (5 * temp - 10 * temp2));
+        this.exp = exp < MantExp.MIN_BIG_EXPONENT ? MantExp.MIN_BIG_EXPONENT : exp;
+
+        /*double absRe = Math.abs(mantissaReal);
+        double absIm = Math.abs(mantissaImag);
+        if (absRe > 1e50 || absIm > 1e50 || absRe < 1e-50 || absIm < 1e-50) {
+            Reduce();
+        }*/
+
+        return this;
+    }
+
     public MantExp norm_squared() {
         return new MantExp(mantissaReal * mantissaReal + mantissaImag * mantissaImag, exp << 1);
     }
@@ -694,9 +767,9 @@ public class MantExpComplex extends GenericComplex {
 
         double temp = factor.mantissaReal * factor.mantissaReal + factor.mantissaImag * factor.mantissaImag;
 
-        double tempMantissaReal = (mantissaReal * factor.mantissaReal) + (mantissaImag * factor.mantissaImag) / temp;
+        double tempMantissaReal = (mantissaReal * factor.mantissaReal + mantissaImag * factor.mantissaImag) / temp;
 
-        double tempMantissaImag = (mantissaImag * factor.mantissaReal) - (mantissaReal * factor.mantissaImag)  / temp;
+        double tempMantissaImag = (mantissaImag * factor.mantissaReal - mantissaReal * factor.mantissaImag)  / temp;
 
         MantExpComplex p = new MantExpComplex(tempMantissaReal , tempMantissaImag, exp - factor.exp);
 
@@ -713,9 +786,9 @@ public class MantExpComplex extends GenericComplex {
 
         double temp = factor.mantissaReal * factor.mantissaReal + factor.mantissaImag * factor.mantissaImag;
 
-        double tempMantissaReal = (mantissaReal * factor.mantissaReal) + (mantissaImag * factor.mantissaImag) / temp;
+        double tempMantissaReal = (mantissaReal * factor.mantissaReal + mantissaImag * factor.mantissaImag) / temp;
 
-        double tempMantissaImag = (mantissaImag * factor.mantissaReal) - (mantissaReal * factor.mantissaImag)  / temp;
+        double tempMantissaImag = (mantissaImag * factor.mantissaReal - mantissaReal * factor.mantissaImag)  / temp;
 
         long exp = this.exp - factor.exp;
         mantissaReal = tempMantissaReal;

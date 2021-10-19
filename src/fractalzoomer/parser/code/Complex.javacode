@@ -18,7 +18,7 @@ package fractalzoomer.core;
 
 import fractalzoomer.filters_utils.math.Noise;
 
-public final class Complex {
+public final class Complex extends GenericComplex {
     public static final double HALF_PI = Math.PI * 0.5;
     public static final double TWO_PI = Math.PI * 2;
     public static final double SQRT_PI = Math.sqrt(Math.PI);
@@ -1181,7 +1181,7 @@ public final class Complex {
 
         Complex temp2 = new Complex(temp * cos_re, temp * sin_re);
 
-        double temp3 = Math.exp(im);
+        double temp3 = 1 / temp;
         Complex temp4 = new Complex(temp3 * cos_re, temp3 * -sin_re);
 
         return (temp2.plus_mutable(temp4)).times_mutable(0.5);
@@ -1200,7 +1200,7 @@ public final class Complex {
 
         Complex temp2 = new Complex(temp * cos_im, temp * sin_im);
 
-        double temp3 = Math.exp(-re);
+        double temp3 = 1 / temp;
         Complex temp4 = new Complex(temp3 * cos_im, temp3 * -sin_im);
 
         return (temp2.plus_mutable(temp4)).times_mutable(0.5);
@@ -1237,7 +1237,7 @@ public final class Complex {
 
         Complex temp2 = new Complex(temp * cos_re, temp * sin_re);
 
-        double temp3 = Math.exp(im);
+        double temp3 = 1 / temp;
         Complex temp4 = new Complex(temp3 * cos_re, temp3 * -sin_re);
 
         return (temp2.sub_mutable(temp4)).times_i_mutable(-0.5);
@@ -1256,7 +1256,7 @@ public final class Complex {
 
         Complex temp2 = new Complex(temp * cos_im, temp * sin_im);
 
-        double temp3 = Math.exp(-re);
+        double temp3 = 1 / temp;
         Complex temp4 = new Complex(temp3 * cos_im, temp3 * -sin_im);
 
         return (temp2.sub_mutable(temp4)).times_mutable(0.5);
@@ -1699,7 +1699,7 @@ public final class Complex {
 
         Complex temp2 = new Complex(temp * cos_re, temp * sin_re);
 
-        double temp3 = Math.exp(im);
+        double temp3 = 1 / temp;
         Complex temp4 = new Complex(temp3 * cos_re, temp3 * -sin_re);
 
         Complex[] sin_and_der = new Complex[2];
@@ -1723,7 +1723,7 @@ public final class Complex {
 
         Complex temp2 = new Complex(temp * cos_re, temp * sin_re);
 
-        double temp3 = Math.exp(im);
+        double temp3 = 1 / temp;
         Complex temp4 = new Complex(temp3 * cos_re, temp3 * -sin_re);
 
         Complex[] sin_and_der = new Complex[3];
@@ -1748,7 +1748,7 @@ public final class Complex {
 
         Complex temp2 = new Complex(temp * cos_re, temp * sin_re);
 
-        double temp3 = Math.exp(im);
+        double temp3 = 1 / temp;
         Complex temp4 = new Complex(temp3 * cos_re, temp3 * -sin_re);
 
         Complex[] sin_and_der = new Complex[2];
@@ -1772,7 +1772,7 @@ public final class Complex {
 
         Complex temp2 = new Complex(temp * cos_re, temp * sin_re);
 
-        double temp3 = Math.exp(im);
+        double temp3 = 1 / temp;
         Complex temp4 = new Complex(temp3 * cos_re, temp3 * -sin_re);
 
         Complex[] sin_and_der = new Complex[3];
@@ -1797,7 +1797,7 @@ public final class Complex {
 
         Complex temp2 = new Complex(temp * cos_re, temp * sin_re);
 
-        double temp3 = Math.exp(im);
+        double temp3 = 1 / temp;
         Complex temp4 = new Complex(temp3 * cos_re, temp3 * -sin_re);
 
         Complex[] sin_and_der = new Complex[4];
@@ -1823,7 +1823,7 @@ public final class Complex {
 
         Complex temp2 = new Complex(temp * cos_re, temp * sin_re);
 
-        double temp3 = Math.exp(im);
+        double temp3 = 1 / temp;
         Complex temp4 = new Complex(temp3 * cos_re, temp3 * -sin_re);
 
         Complex[] sin_and_der = new Complex[4];
@@ -1872,7 +1872,7 @@ public final class Complex {
             return 1;
         } else if (im > z2.im) {
             return -1;
-        } else if (z2.im > im) {
+        } else if (im < z2.im) {
             return 1;
         } else if (re == z2.re && im == z2.im) {
             return 0;
@@ -2388,6 +2388,8 @@ public final class Complex {
         return Double.isFinite(re) && Double.isFinite(im);
     }
 
+    public final boolean isZero() {return re == 0 && im == 0;}
+
     private double triangle(double x) {
         double r = mod(x, 1.0f);
         return 2.0f * (r < 0.5 ? r : 1 - r);
@@ -2401,5 +2403,16 @@ public final class Complex {
             return a + b;
         }
         return a;
+    }
+
+    public static double DiffAbs(double c, double d)
+    {
+        double cd = c + d;
+        if (c >= 0.0)
+            if (cd >= 0.0)      return d;
+            else      return -d - 2.0 * c;
+        else
+            if (cd > 0.0)      return d + 2.0 * c;
+            else      return -d;
     }
 }

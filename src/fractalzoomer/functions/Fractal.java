@@ -111,20 +111,24 @@ public abstract class Fractal {
     protected int juliterIterations;
     protected boolean juliterIncludeInitialIterations;
     protected boolean isJulia;
+    protected Complex defaultInitVal;
+    protected boolean isOrbit;
+    protected boolean isDomain;
 
     public static Complex[] Reference;
     public static MantExpComplex[] ReferenceDeep;
     public static int MaxRefIteration;
     public static BigComplex refPoint;
+    public static Complex refPointSmall;
+    public static MantExpComplex refPointSmallDeep;
     public static BigComplex lastZValue;
     public static BigComplex secondTolastZValue;
     public static BigComplex thirdTolastZValue;
     public static boolean FullRef = false;
-    public static int RefPower = -1;
-    public static boolean RefBurningShip = false;
+    public static String RefType = "";
     public static int skippedIterations;
     protected static final int skippedThreshold = 3;
-    protected int power = 0;
+    protected double power = 0;
     protected boolean burning_ship = false;
     protected static final int max_data = skippedThreshold * 2;
     protected static MantExpComplex[][] coefficients;
@@ -132,6 +136,9 @@ public abstract class Fractal {
     public Fractal(double xCenter, double yCenter, double size, int max_iterations, int bailout_test_algorithm, double bailout, String bailout_test_user_formula, String bailout_test_user_formula2, int bailout_test_comparison, double n_norm, boolean periodicity_checking, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount, OrbitTrapSettings ots) {
 
         isJulia = false;
+        isOrbit = false;
+        isDomain = false;
+
         this.xCenter = xCenter;
         this.yCenter = yCenter;
         this.size = size;
@@ -140,6 +147,8 @@ public abstract class Fractal {
         bailout_squared = bailout * bailout;
         this.periodicity_checking = periodicity_checking;
         log_bailout_squared = Math.log(bailout_squared);
+
+        defaultInitVal = new Complex();
 
         globalVars = createGlobalVars();
 
@@ -168,12 +177,17 @@ public abstract class Fractal {
     public Fractal(double xCenter, double yCenter, double size, int max_iterations, ArrayList<Complex> complex_orbit, int plane_type, double[] rotation_vals, double[] rotation_center, String user_plane, int user_plane_algorithm, String[] user_plane_conditions, String[] user_plane_condition_formula, double[] plane_transform_center, double plane_transform_angle, double plane_transform_radius, double[] plane_transform_scales, double[] plane_transform_wavelength, int waveType, double plane_transform_angle2, int plane_transform_sides, double plane_transform_amount) {
 
         isJulia = false;
+        isOrbit = true;
+        isDomain = false;
+
         this.xCenter = xCenter;
         this.yCenter = yCenter;
         this.size = size;
         this.max_iterations = max_iterations;
         this.complex_orbit = complex_orbit;
         pixel_orbit = this.complex_orbit.get(0);
+
+        defaultInitVal = new Complex();
 
         globalVars = createGlobalVars();
 
@@ -236,7 +250,7 @@ public abstract class Fractal {
 
     public Complex getTransformedPixel(Complex pixel) {
 
-        if(ThreadDraw.PERTURBATION_THEORY && supportsPerturbationTheory()) {
+        if(ThreadDraw.PERTURBATION_THEORY && supportsPerturbationTheory() && !isJulia) {
             return pixel;
         }
 
@@ -333,9 +347,16 @@ public abstract class Fractal {
 
         Complex[] complex = new Complex[2];
 
-        if(ThreadDraw.PERTURBATION_THEORY && supportsPerturbationTheory()) {
+        if(ThreadDraw.PERTURBATION_THEORY && supportsPerturbationTheory() && !isJulia) {
             complex[0] = new Complex();
-            complex[1] = new Complex(pixel.getRe() + refPoint.getRe().doubleValue(), pixel.getIm() + refPoint.getIm().doubleValue());
+
+            if(!isOrbit && !isDomain) {
+                complex[1] = new Complex(pixel.getRe() + refPoint.getRe().doubleValue(), pixel.getIm() + refPoint.getIm().doubleValue());
+            }
+            else {
+                complex[1] = new Complex(pixel);
+            }
+
         }
         else {
             complex[0] = new Complex(pertur_val.getValue(init_val.getValue(pixel)));//z
@@ -590,6 +611,8 @@ public abstract class Fractal {
 
     public final Complex calculateFractalDomain(Complex pixel) {
 
+        isDomain = true;
+
         resetGlobalVars();
 
         Complex transformed = getTransformedPixel(pixel);
@@ -726,7 +749,6 @@ public abstract class Fractal {
             if(max_iterations > 1){
                 //complex[0] = Reference[RefIteration].plus(DeltaSubN.divide(1e100));
                 complex[0] = Reference[RefIteration].plus(DeltaSubN);
-
             }
             //No Post filters work
 
@@ -772,7 +794,7 @@ public abstract class Fractal {
         MantExpComplex DeltaSub0 = new MantExpComplex(pixel); // Delta c
 
         int minExp = -1000;
-        int reducedExp = minExp / power;
+        int reducedExp = minExp / (int)power;
 
         DeltaSubN.Reduce();
         long exp = DeltaSubN.getExp();
@@ -915,6 +937,9 @@ public abstract class Fractal {
     public String getInitialValue() {
 
         if(ThreadDraw.PERTURBATION_THEORY && !isJulia && supportsPerturbationTheory()) {
+            if(defaultInitVal != null) {
+                return defaultInitVal.toString();
+            }
             return "0.0";
         }
 
@@ -970,6 +995,9 @@ public abstract class Fractal {
                 break;
             case MainWindow.BAILOUT_CONDITION_NO_BAILOUT:
                 bailout_algorithm2 = bailout_algorithm = new NoBailoutCondition();
+                break;
+            case MainWindow.BAILOUT_CONDITION_CUSTOM:
+                bailout_algorithm2 = bailout_algorithm = new CustomBailoutCondition(bailout);
                 break;
 
         }
@@ -1348,10 +1376,14 @@ public abstract class Fractal {
             return;
         }
         else if(sts.statisticGroup == 2) {
-            if(ThreadDraw.PERTURBATION_THEORY && !isJulia() && supportsPerturbationTheory()) {
+            if(ThreadDraw.PERTURBATION_THEORY && !isJulia && supportsPerturbationTheory()) {
                 return;
             }
             statistic = new Equicontinuity(sts.statistic_intensity, sts.useSmoothing, sts.useAverage, log_bailout_squared, false, 0, sts.equicontinuityDenominatorFactor, sts.equicontinuityInvertFactor, sts.equicontinuityDelta);
+            return;
+        }
+        else if(sts.statisticGroup == 3) {
+            statistic = new NormalMap(sts.statistic_intensity, power, sts.normalMapHeight, sts.normalMapAngle, sts.normalMapUseSecondDerivative, size, sts.normalMapDEfactor, isJulia, sts.normalMapUseDE, sts.normalMapInvertDE, sts.normalMapColoring, sts.useNormalMap, juliter, juliterIterations);
             return;
         }
 
@@ -1380,7 +1412,30 @@ public abstract class Fractal {
         statValue = escaped ? statistic.getValue() : statistic.getValueNotEscaped();
 
         if (Math.abs(result) == ColorAlgorithm.MAXIMUM_ITERATIONS) {
+
+            if(statistic.getIntensity() == 0) {
+                if(statValue == 0) {
+                    return result;
+                }
+                else if(Math.abs(statValue) == ColorAlgorithm.MAXIMUM_ITERATIONS) {
+                    return statValue;
+                }
+            }
+
+            if(Math.abs(statValue) == ColorAlgorithm.MAXIMUM_ITERATIONS) {
+                return max_iterations;
+            }
+
             return max_iterations + statValue;
+        }
+
+        if(Math.abs(statValue) == ColorAlgorithm.MAXIMUM_ITERATIONS) {
+            if(statistic.getIntensity() == 0 || (escaped && !statisticIncludeNotEscaped)) {
+                return statValue;
+            }
+            else {
+                return max_iterations;
+            }
         }
 
         return result < 0 ? result - statValue : result + statValue;
@@ -1425,6 +1480,9 @@ public abstract class Fractal {
         trapValue = distance;
         
         if (Math.abs(result) == ColorAlgorithm.MAXIMUM_ITERATIONS) {
+            if(trapValue == 0) {
+                return result;
+            }
             return max_iterations + trapValue;
         }
         
@@ -1842,11 +1900,12 @@ public abstract class Fractal {
 
     public static void clearReferences() {
         refPoint = null;
+        refPointSmall = null;
+        refPointSmallDeep = null;
         lastZValue = null;
         secondTolastZValue = null;
         thirdTolastZValue = null;
-        RefPower = -1;
-        RefBurningShip = false;
+        RefType = "";
         Reference = null;
         ReferenceDeep = null;
         Mandelbrot.Referencex2 = null;
@@ -1879,8 +1938,8 @@ public abstract class Fractal {
         return false;
     }
 
-    public int getPower() {
-        return power;
+    public String getRefType() {
+        return this.getClass().getName();
     }
 
     public boolean getBurningShip() {
@@ -1898,6 +1957,7 @@ public abstract class Fractal {
 
         return to;
     }
+
 
     protected MantExpComplex[] copyDeepReference(MantExpComplex[] from, MantExpComplex[] to) {
 

@@ -22,6 +22,7 @@ import fractalzoomer.core.Derivative;
 import fractalzoomer.core.MyApfloat;
 import fractalzoomer.core.ThreadDraw;
 import fractalzoomer.fractal_options.orbit_traps.ImageOrbitTrap;
+import fractalzoomer.functions.Fractal;
 import fractalzoomer.main.Constants;
 import fractalzoomer.palettes.CustomPalette;
 import fractalzoomer.palettes.PresetPalette;
@@ -88,6 +89,7 @@ public class Settings implements Constants {
     public boolean useDirectColor;
     public boolean globalIncrementBypass;
     public boolean julia_map;
+    public double contourFactor;
 
     public Settings() {
         defaultValues();
@@ -148,10 +150,12 @@ public class Settings implements Constants {
         special_use_palette_color = true;
 
         fractal_color = Color.BLACK;
-        dem_color = new Color(1, 0, 0);
+        dem_color = new Color(1, 1, 1);
         special_color = Color.WHITE;
 
         d3s = new D3Settings();
+
+        contourFactor = 2;
 
         post_processing_order = new int[TOTAL_POST_PROCESS_ALGORITHMS];
         defaultProcessingOrder();
@@ -267,6 +271,10 @@ public class Settings implements Constants {
             else if (version == 1078) {
                 xJuliaCenter = ((SettingsJulia1078) settings).getXJuliaCenter();
                 yJuliaCenter = ((SettingsJulia1078) settings).getYJuliaCenter();
+            }
+            else if (version == 1079) {
+                xJuliaCenter = ((SettingsJulia1079) settings).getXJuliaCenter();
+                yJuliaCenter = ((SettingsJulia1079) settings).getYJuliaCenter();
             }
 
             fns.julia = true;
@@ -1122,6 +1130,39 @@ public class Settings implements Constants {
             fns.ips.user_plane_influence_algorithm = ((SettingsFractals1078) settings).getUserPlaneInfluenceAlgorithm();
         }
 
+        if(version < 1079) {
+            sts.useNormalMap = defaults.sts.useNormalMap;
+            sts.normalMapColorMode = defaults.sts.normalMapColorMode;
+            sts.normalMapOverrideColoring = defaults.sts.normalMapOverrideColoring;
+            sts.normalMapLightFactor = defaults.sts.normalMapLightFactor;
+            sts.normalMapBlending = defaults.sts.normalMapBlending;
+            sts.normalMapHeight = defaults.sts.normalMapHeight;
+            sts.normalMapAngle = defaults.sts.normalMapAngle;
+            sts.normalMapUseSecondDerivative = defaults.sts.normalMapUseSecondDerivative;
+            sts.normalMapUseDE = defaults.sts.normalMapUseDE;
+            sts.normalMapDEfactor = defaults.sts.normalMapDEfactor;
+            sts.normalMapInvertDE = defaults.sts.normalMapInvertDE;
+            sts.normalMapColoring = defaults.sts.normalMapColoring;
+            fns.defaultNovaInitialValue = false;
+            contourFactor = defaults.contourFactor;
+        }
+        else {
+            sts.useNormalMap = ((SettingsFractals1079) settings).getUseNormalMap();
+            sts.normalMapColorMode = ((SettingsFractals1079) settings).getNormalMapColorMode();
+            sts.normalMapOverrideColoring = ((SettingsFractals1079) settings).getNormalMapOverrideColoring();
+            sts.normalMapLightFactor = ((SettingsFractals1079) settings).getNormalMapLightFactor();
+            sts.normalMapBlending = ((SettingsFractals1079) settings).getNormalMapBlending();
+            sts.normalMapHeight = ((SettingsFractals1079) settings).getNormalMapHeight();
+            sts.normalMapAngle = ((SettingsFractals1079) settings).getNormalMapAngle();
+            sts.normalMapUseSecondDerivative = ((SettingsFractals1079) settings).getNormalMapUseSecondDerivative();
+            sts.normalMapUseDE = ((SettingsFractals1079) settings).getNormalMapUseDE();
+            sts.normalMapDEfactor = ((SettingsFractals1079) settings).getNormalMapDEfactor();
+            sts.normalMapInvertDE = ((SettingsFractals1079) settings).getNormalMapInvertDE();
+            sts.normalMapColoring = ((SettingsFractals1079) settings).getNormalMapColoring();
+            fns.defaultNovaInitialValue = ((SettingsFractals1079) settings).getDefaultNovaInitialValue();
+            contourFactor = ((SettingsFractals1079) settings).getContourFactor();
+        }
+
         if (fns.plane_type == USER_PLANE) {
             if (version < 1058) {
                 fns.user_plane_algorithm = defaults.fns.user_plane_algorithm;
@@ -1561,12 +1602,18 @@ public class Settings implements Constants {
             resetStatisticalColoringFormulas();
         }
 
+        Fractal.clearReferences();
+
         applyStaticSettings();
 
         file_temp.close();
 
         if (!silent) {
             loadedSettings(filename, parent, version);
+        }
+
+        if (supportsPerturbationTheory() && !isPertubationTheoryInUse() && size.compareTo(MyApfloat.MIN_DOUBLE_SIZE) <= 0) {
+            JOptionPane.showMessageDialog(parent, "The current function supports perturbation theory.\nYou should enable it for a better result.", "Warning!", JOptionPane.WARNING_MESSAGE);
         }
     }
 
@@ -1577,9 +1624,9 @@ public class Settings implements Constants {
             file_temp = new ObjectOutputStream(new FileOutputStream(filename));
             SettingsFractals settings;
             if (fns.julia) {
-                settings = new SettingsJulia1078(this);
+                settings = new SettingsJulia1079(this);
             } else {
-                settings = new SettingsFractals1078(this);
+                settings = new SettingsFractals1079(this);
             }
             file_temp.writeObject(settings);
             file_temp.flush();
@@ -1600,6 +1647,8 @@ public class Settings implements Constants {
                 size = new MyApfloat(24);
                 break;
             case MAGNET1:
+            case MAGNET13:
+            case MAGNET14:
                 if (fns.julia) {
                     xCenter = new MyApfloat(0.0);
                     yCenter = new MyApfloat(0.0);
@@ -1611,6 +1660,8 @@ public class Settings implements Constants {
                 }
                 break;
             case MAGNET2:
+            case MAGNET23:
+            case MAGNET24:
                 if (fns.julia) {
                     xCenter = new MyApfloat(0.0);
                     yCenter = new MyApfloat(0.0);
@@ -1650,6 +1701,7 @@ public class Settings implements Constants {
             case FORMULA4:
             case FORMULA5:
             case FORMULA11:
+            case FORMULA38:
                 xCenter = new MyApfloat(0.0);
                 yCenter = new MyApfloat(0.0);
                 size = new MyApfloat(1.5);
@@ -1685,17 +1737,6 @@ public class Settings implements Constants {
                     xCenter = new MyApfloat(0.0);
                     yCenter = new MyApfloat(0.0);
                     size = new MyApfloat(3);
-                }
-                break;
-            case FORMULA38:
-                if (fns.julia) {
-                    xCenter = new MyApfloat(0.0);
-                    yCenter = new MyApfloat(0.0);
-                    size = new MyApfloat(6);
-                } else {
-                    xCenter = new MyApfloat(0.0);
-                    yCenter = new MyApfloat(0.0);
-                    size = new MyApfloat(1.5);
                 }
                 break;
             case LYAPUNOV:
@@ -1795,6 +1836,8 @@ public class Settings implements Constants {
                 fns.bailout = fns.bailout < 8 ? 8 : fns.bailout;
                 break;
             case MAGNET1:
+            case MAGNET13:
+            case MAGNET14:
                 if (fns.julia) {
                     xCenter = new MyApfloat(0.0);
                     yCenter = new MyApfloat(0.0);
@@ -1808,6 +1851,8 @@ public class Settings implements Constants {
                 }
                 break;
             case MAGNET2:
+            case MAGNET23:
+            case MAGNET24:
                 if (fns.julia) {
                     xCenter = new MyApfloat(0.0);
                     yCenter = new MyApfloat(0.0);
@@ -1946,17 +1991,10 @@ public class Settings implements Constants {
                 fns.bailout = fns.bailout < 16 ? 16 : fns.bailout;
                 break;
             case FORMULA38:
-                if (fns.julia) {
-                    xCenter = new MyApfloat(0.0);
-                    yCenter = new MyApfloat(0.0);
-                    size = new MyApfloat(6);
-                    fns.bailout = fns.bailout < 2 ? 2 : fns.bailout;
-                } else {
-                    xCenter = new MyApfloat(0.0);
-                    yCenter = new MyApfloat(0.0);
-                    size = new MyApfloat(1.5);
-                    fns.bailout = fns.bailout < 2 ? 2 : fns.bailout;
-                }
+                xCenter = new MyApfloat(0.0);
+                yCenter = new MyApfloat(0.0);
+                size = new MyApfloat(1.5);
+                fns.bailout = fns.bailout < 2 ? 2 : fns.bailout;
                 break;
             case FORMULA42:
                 xCenter = new MyApfloat(0.0);
@@ -2257,8 +2295,12 @@ public class Settings implements Constants {
 
     }
 
+    public boolean supportsPerturbationTheory() {
+        return !fns.julia && !julia_map && (fns.function == MANDELBROT || fns.function == MANDELBROTCUBED || fns.function == MANDELBROTFOURTH || fns.function == MANDELBROTFIFTH || fns.function == MANDELBAR || fns.function == LAMBDA || fns.function == MAGNET1);
+    }
+
     public boolean isPertubationTheoryInUse() {
-        return ThreadDraw.PERTURBATION_THEORY && !fns.julia && !julia_map && (fns.function == MANDELBROT || fns.function == MANDELBROTCUBED || fns.function == MANDELBROTFOURTH);
+        return ThreadDraw.PERTURBATION_THEORY && supportsPerturbationTheory();
     }
 
     public void loadedSettings(String file, Component parent, int version) {

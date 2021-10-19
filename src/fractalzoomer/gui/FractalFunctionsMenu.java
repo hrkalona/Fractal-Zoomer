@@ -311,6 +311,11 @@ public class FractalFunctionsMenu extends JMenu {
         for(int i = 0; i < rootPostfixes.length; i++) {
             functionNames[i + MainWindow.ABBASBANDY3] = "Abbasbandy " + rootPostfixes[i];
         }
+
+        functionNames[MainWindow.MAGNET13] = "Magnet 1 Cubed";
+        functionNames[MainWindow.MAGNET14] = "Magnet 1 Fourth";
+        functionNames[MainWindow.MAGNET23] = "Magnet 2 Cubed";
+        functionNames[MainWindow.MAGNET24] = "Magnet 2 Fourth";
     }
 
     public FractalFunctionsMenu(MainWindow ptr2, String name, int function) {
@@ -1095,6 +1100,32 @@ public class FractalFunctionsMenu extends JMenu {
         magnet_type_functions.add(fractal_functions[MainWindow.MAGNET1]);
         functions_button_group.add(fractal_functions[MainWindow.MAGNET1]);
 
+        fractal_functions[MainWindow.MAGNET13] = new JRadioButtonMenuItem(functionNames[MainWindow.MAGNET13]);
+        fractal_functions[MainWindow.MAGNET13].addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFunction(MainWindow.MAGNET13);
+
+            }
+        });
+        magnet_type_functions.add(fractal_functions[MainWindow.MAGNET13]);
+        functions_button_group.add(fractal_functions[MainWindow.MAGNET13]);
+
+        fractal_functions[MainWindow.MAGNET14] = new JRadioButtonMenuItem(functionNames[MainWindow.MAGNET14]);
+        fractal_functions[MainWindow.MAGNET14].addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFunction(MainWindow.MAGNET14);
+
+            }
+        });
+        magnet_type_functions.add(fractal_functions[MainWindow.MAGNET14]);
+        functions_button_group.add(fractal_functions[MainWindow.MAGNET14]);
+
         fractal_functions[MainWindow.MAGNET2] = new JRadioButtonMenuItem(functionNames[MainWindow.MAGNET2]);
         fractal_functions[MainWindow.MAGNET2].addActionListener(new ActionListener() {
 
@@ -1107,6 +1138,33 @@ public class FractalFunctionsMenu extends JMenu {
         });
         magnet_type_functions.add(fractal_functions[MainWindow.MAGNET2]);
         functions_button_group.add(fractal_functions[MainWindow.MAGNET2]);
+
+        fractal_functions[MainWindow.MAGNET23] = new JRadioButtonMenuItem(functionNames[MainWindow.MAGNET23]);
+        fractal_functions[MainWindow.MAGNET23].addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFunction(MainWindow.MAGNET23);
+
+            }
+        });
+        magnet_type_functions.add(fractal_functions[MainWindow.MAGNET23]);
+        functions_button_group.add(fractal_functions[MainWindow.MAGNET23]);
+
+        fractal_functions[MainWindow.MAGNET24] = new JRadioButtonMenuItem(functionNames[MainWindow.MAGNET24]);
+        fractal_functions[MainWindow.MAGNET24].addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setFunction(MainWindow.MAGNET24);
+
+            }
+        });
+        magnet_type_functions.add(fractal_functions[MainWindow.MAGNET24]);
+        functions_button_group.add(fractal_functions[MainWindow.MAGNET24]);
+
         add(magnet_type_functions);
         addSeparator();
 

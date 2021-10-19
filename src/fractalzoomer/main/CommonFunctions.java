@@ -32,11 +32,22 @@ import fractalzoomer.utils.ColorSpaceConverter;
 import fractalzoomer.utils.MathUtils;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.plaf.basic.BasicFileChooserUI;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.html.HTMLDocument;
+import javax.swing.text.html.HTMLWriter;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.io.InputStream;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.io.*;
 import java.nio.file.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 /**
  *
@@ -212,6 +223,7 @@ public class CommonFunctions implements Constants {
 
         String tab = "<font size='5' face='arial'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#8226;&nbsp;</font>";
         String tab2 = "<font size='5' face='arial'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#8226;&nbsp;</font>";
+        String tab3 = "<font size='5' face='arial'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&#8226;&nbsp;</font>";
 
         String overview = "<html><center><b><u><font size='5' face='arial' color='blue'>Active Fractal Options</font></u></b></center><br><br><font  face='arial' size='3'>";
 
@@ -589,7 +601,7 @@ public class CommonFunctions implements Constants {
 
         overview += "<br>";
 
-        if (!s.fns.perturbation && !s.fns.init_val && s.functionSupportsC()) {
+        if (!s.fns.perturbation && !s.fns.init_val && s.functionSupportsC() && (s.fns.julia || s.julia_map)) {
             if (s.fns.apply_plane_on_julia && s.fns.apply_plane_on_julia_seed) {
                 overview += "<b><font color='red'>Julia Set Plane Transformation:</font></b> Applicable to the Julia Seed and the Whole Plane (c).<br><br>";
             } else if (s.fns.apply_plane_on_julia) {
@@ -625,21 +637,33 @@ public class CommonFunctions implements Constants {
                 overview += "<br>";
             }
         } else {
-            if (s.fns.variable_init_value) {
-                if (s.fns.user_initial_value_algorithm == 0) {
-                    overview += "<b><font color='red'>Initial Value:</font></b> Variable Value<br>";
-                    overview += tab + "z(0) = " + s.fns.initial_value_user_formula + "<br>";
-                } else {
-                    overview += "<b><font color='red'>Initial Value:</font></b> Variable Value Conditional<br>";
-                    overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[" + s.fns.user_initial_value_conditions[0] + " > " + s.fns.user_initial_value_conditions[1] + "]</font> <font color='" + keyword_color + "'>then</font> z(0) = " + s.fns.user_initial_value_condition_formula[0] + "<br>";
-                    overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[" + s.fns.user_initial_value_conditions[0] + " &#60; " + s.fns.user_initial_value_conditions[1] + "]</font> <font color='" + keyword_color + "'>then</font> z(0) = " + s.fns.user_initial_value_condition_formula[1] + "<br>";
-                    overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[" + s.fns.user_initial_value_conditions[0] + " = " + s.fns.user_initial_value_conditions[1] + "]</font> <font color='" + keyword_color + "'>then</font> z(0) = " + s.fns.user_initial_value_condition_formula[2] + "<br>";
+            if(s.julia_map || s.fns.julia) {
+                String res = ThreadDraw.getDefaultInitialValue();
+
+                if (!res.equals("")) {
+                    overview += "<b><font color='red'>Initial Value:</font></b> Default Value<br>";
+                    overview += tab + "z(0) = " + res + "<br>";
+                    overview += "<br>";
                 }
-            } else {
-                overview += "<b><font color='red'>Initial Value:</font></b> Static Value<br>";
-                overview += tab + "z(0) = " + Complex.toString2(s.fns.initial_vals[0], s.fns.initial_vals[1]) + "<br>";
             }
-            overview += "<br>";
+            else {
+                if (s.fns.variable_init_value) {
+                    if (s.fns.user_initial_value_algorithm == 0) {
+                        overview += "<b><font color='red'>Initial Value:</font></b> Variable Value<br>";
+                        overview += tab + "z(0) = " + s.fns.initial_value_user_formula + "<br>";
+                    } else {
+                        overview += "<b><font color='red'>Initial Value:</font></b> Variable Value Conditional<br>";
+                        overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[" + s.fns.user_initial_value_conditions[0] + " > " + s.fns.user_initial_value_conditions[1] + "]</font> <font color='" + keyword_color + "'>then</font> z(0) = " + s.fns.user_initial_value_condition_formula[0] + "<br>";
+                        overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[" + s.fns.user_initial_value_conditions[0] + " &#60; " + s.fns.user_initial_value_conditions[1] + "]</font> <font color='" + keyword_color + "'>then</font> z(0) = " + s.fns.user_initial_value_condition_formula[1] + "<br>";
+                        overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[" + s.fns.user_initial_value_conditions[0] + " = " + s.fns.user_initial_value_conditions[1] + "]</font> <font color='" + keyword_color + "'>then</font> z(0) = " + s.fns.user_initial_value_condition_formula[2] + "<br>";
+                    }
+                } else {
+                    overview += "<b><font color='red'>Initial Value:</font></b> Static Value<br>";
+                    overview += tab + "z(0) = " + Complex.toString2(s.fns.initial_vals[0], s.fns.initial_vals[1]) + "<br>";
+                }
+                overview += "<br>";
+            }
+
         }
 
         if (s.fns.perturbation && !s.isPertubationTheoryInUse()) {
@@ -767,6 +791,10 @@ public class CommonFunctions implements Constants {
                     overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[(re(z) + im(z))^2 >= bailout]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
                     overview += tab + "<font color='" + keyword_color + "'>else then</font> Not Escaped<br>";
                 }
+                else if (s.fns.bailout_test_algorithm == BAILOUT_CONDITION_CUSTOM) {
+                    overview += tab + "<font color='" + keyword_color + "'>if</font> <font color='" + condition_color + "'>[norm(z) >= bailout^(1 / sqrt(bailout))]</font> <font color='" + keyword_color + "'>then</font> Escaped<br>";
+                    overview += tab + "<font color='" + keyword_color + "'>else then</font> Not Escaped<br>";
+                }
             }
             overview += "<br>";
 
@@ -867,7 +895,7 @@ public class CommonFunctions implements Constants {
                         overview += tab + (s.sts.statistic_escape_type == ESCAPING ? "Escaping" : "Converging") + "<br>";
                     }
                 }
-                else if (!s.isPertubationTheoryInUse()) {
+                else if (!s.isPertubationTheoryInUse() && s.sts.statisticGroup == 2) {
                     overview += "<b><font color='red'>Statistical Coloring:</font></b><br>";
                     overview += tab + "Equicontinuity<br>";
                     overview += tab2 + "Delta = " + s.sts.equicontinuityDelta + "<br>";
@@ -896,6 +924,43 @@ public class CommonFunctions implements Constants {
 
 
                 }
+                else if (s.sts.statisticGroup == 3){
+                    overview += "<b><font color='red'>Statistical Coloring:</font></b><br>";
+                    if(s.sts.useNormalMap) {
+                        overview += tab + "Normal Map<br>";
+                        overview += tab2 + "Height = " + s.sts.normalMapHeight + "<br>";
+                        overview += tab2 + "Angle = " + s.sts.normalMapAngle + "<br>";
+
+                        if(s.sts.normalMapUseSecondDerivative) {
+                            overview += tab2 + "Using second derivative.<br>";
+                        }
+
+                        if(s.sts.normalMapOverrideColoring) {
+                            overview += tab2 + "Light = " + s.sts.normalMapLightFactor + "<br>";
+                            overview += tab2 + "Color Mode = " + colorMethod[s.sts.normalMapColorMode] + "<br>";
+
+                            if(s.sts.normalMapColorMode == 3) {
+                                overview += tab3 + "Color Blending = " + s.sts.normalMapBlending + "<br>";
+                            }
+                        }
+                    }
+
+                    if(s.sts.normalMapUseDE) {
+                        overview += tab + "Distance Estimation<br>";
+
+                        if (s.sts.normalMapInvertDE) {
+                            overview += tab2 + "Factor = " + s.sts.normalMapDEfactor + "<br>";
+                            overview += tab2 + "Inverted Coloring<br><br>";
+                        } else {
+                            overview += tab2 + "Factor = " + s.sts.normalMapDEfactor + "<br>";
+                        }
+                    }
+
+                    if(s.sts.normalMapOverrideColoring) {
+                        overview += tab + "Coloring Algorithm = " + normalMapColoringMethods[s.sts.normalMapColoring] + "<br>";
+                    }
+
+                }
 
                 if(s.sts.statisticGroup != 2 || !s.isPertubationTheoryInUse()) {
                     if (s.sts.statisticIncludeEscaped) {
@@ -921,7 +986,7 @@ public class CommonFunctions implements Constants {
                         if (s.sts.useAverage && s.sts.statistic_type != Constants.ATOM_DOMAIN_BOF60_BOF61 && s.sts.statistic_type != Constants.COS_ARG_DIVIDE_INVERSE_NORM) {
                             overview += tab + "Using Average<br>";
                         }
-                    } else {
+                    } else if (s.sts.statisticGroup == 2) {
                         if (s.sts.useSmoothing) {
                             overview += tab + "Smooth Sum.<br>";
                         }
@@ -1292,6 +1357,9 @@ public class CommonFunctions implements Constants {
         if (!s.useDirectColor) {
             overview += "<b><font color='red'>Color Blending:</font></b> " + ColorBlendingMenu.colorBlendingNames[s.color_blending] + "<br>";
             overview += tab + "Interpolation = " + color_interp_str[s.color_smoothing_method] + "<br><br>";
+
+
+            overview += "<b><font color='red'>Contour Factor:</font></b> " + s.contourFactor + "<br><br>";
         }
 
         if (s.ds.domain_coloring && !s.useDirectColor) {
@@ -1433,13 +1501,82 @@ public class CommonFunctions implements Constants {
 
                 JLabel gradient_text_label = new JLabel("Gradient: (Length = " + gradientLength + ")");
 
+
+                JButton saveOverview = new JButton("Save Overview");
+
+                saveOverview.setToolTipText("Saves the overview as an html file.");
+                saveOverview.setFocusable(false);
+                saveOverview.setIcon(getIcon("/fractalzoomer/icons/save.png"));
+                saveOverview.setPreferredSize(new Dimension(150, 32));
+
+
+                saveOverview.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        JFileChooser file_chooser = new JFileChooser(".");
+                        file_chooser.setAcceptAllFileFilterUsed(false);
+                        file_chooser.setDialogType(JFileChooser.SAVE_DIALOG);
+
+                        file_chooser.addChoosableFileFilter(new FileNameExtensionFilter("HTML (*.html)", "html"));
+
+                        String name = "fractal overview " + DateTimeFormatter.ofPattern("yyyy-MM-dd HH;mm;ss").format(LocalDateTime.now()) + ".html";
+                        file_chooser.setSelectedFile(new File(name));
+
+                        file_chooser.addPropertyChangeListener(JFileChooser.FILE_FILTER_CHANGED_PROPERTY, new PropertyChangeListener() {
+
+                            @Override
+                            public void propertyChange(PropertyChangeEvent evt) {
+                                FileNameExtensionFilter filter = (FileNameExtensionFilter) evt.getNewValue();
+
+                                String extension = filter.getExtensions()[0];
+
+                                String file_name = ((BasicFileChooserUI) file_chooser.getUI()).getFileName();
+
+                                int index = file_name.lastIndexOf(".");
+
+                                if (index != -1) {
+                                    file_name = file_name.substring(0, index);
+                                }
+
+                                file_chooser.setSelectedFile(new File(file_name + "." + extension));
+                            }
+                        });
+
+                        int returnVal = file_chooser.showDialog(parent, "Save Image");
+
+                        if (returnVal == JFileChooser.APPROVE_OPTION) {
+                            try {
+                                File file = file_chooser.getSelectedFile();
+
+                                FileNameExtensionFilter filter = (FileNameExtensionFilter) file_chooser.getFileFilter();
+
+                                if (!file.getAbsolutePath().endsWith(".html")) {
+                                    file = new File(file.getAbsolutePath() + ".html");
+                                }
+
+                                BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+                                writer.write(writeOverview(textArea));
+
+                                writer.close();
+
+
+                            } catch (IOException ex) {
+                            }
+
+                        }
+
+                    }
+                });
+
                 Object[] message = {
                     scroll_pane_2,
                     " ",
                     palette_text_label,
                     palette_label,
                     gradient_text_label,
-                    gradient_label};
+                    gradient_label
+                    ," ",
+                        saveOverview,};
 
                 textArea.setCaretPosition(0);
 
@@ -1454,6 +1591,18 @@ public class CommonFunctions implements Constants {
             JOptionPane.showMessageDialog(parent, message, "Options Overview", JOptionPane.INFORMATION_MESSAGE);
         }
 
+    }
+
+    private String writeOverview(JEditorPane jtp) {
+        StringWriter buf = new StringWriter();
+        HTMLWriter writer = new HTMLWriter(buf,
+                (HTMLDocument)jtp.getDocument(), 0, jtp.getText().length());
+        try {
+            writer.write();
+        } catch (IOException | BadLocationException ex) {
+
+        }
+        return buf.toString();
     }
 
     public static BufferedImage getGradientPreview(GradientSettings gs, int offset, int width, int height) {

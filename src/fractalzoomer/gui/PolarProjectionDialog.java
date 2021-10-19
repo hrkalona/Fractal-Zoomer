@@ -31,6 +31,8 @@ import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
+import static fractalzoomer.gui.CenterSizeDialog.TEMPLATE_TFIELD;
+
 /**
  *
  * @author hrkalona2
@@ -50,7 +52,15 @@ public class PolarProjectionDialog extends JDialog {
         setModal(true);
         setIconImage(getIcon("/fractalzoomer/icons/mandel2.png").getImage());
 
-        JTextField field_real = new JTextField();
+        JTextArea field_real = new JTextArea(3, 50);
+        field_real.setFont(TEMPLATE_TFIELD.getFont());
+        field_real.setLineWrap(true);
+
+        JScrollPane scrollReal = new JScrollPane (field_real,
+                JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
+        CenterSizeDialog.disableKeys(field_real.getInputMap());
+        CenterSizeDialog.disableKeys(scrollReal.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT));
 
         BigPoint p = MathUtils.rotatePointRelativeToPoint(new BigPoint(s.xCenter, s.yCenter), s.fns.rotation_vals, s.fns.rotation_center);
 
@@ -62,7 +72,15 @@ public class PolarProjectionDialog extends JDialog {
             field_real.setText("" + p.x.toString(true));
         }
 
-        JTextField field_imaginary = new JTextField();
+        JTextArea field_imaginary = new JTextArea(3, 50);
+        field_imaginary.setFont(TEMPLATE_TFIELD.getFont());
+        field_imaginary.setLineWrap(true);
+
+        JScrollPane scrollImaginary = new JScrollPane (field_imaginary,
+                JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
+        CenterSizeDialog.disableKeys(field_imaginary.getInputMap());
+        CenterSizeDialog.disableKeys(scrollImaginary.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT));
 
         if (p.y.compareTo(zero) == 0) {
             field_imaginary.setText("" + 0.0);
@@ -70,7 +88,16 @@ public class PolarProjectionDialog extends JDialog {
             field_imaginary.setText("" + p.y.toString(true));
         }
 
-        JTextField field_size = new JTextField();
+        JTextArea field_size = new JTextArea(3, 50);
+        field_size.setFont(TEMPLATE_TFIELD.getFont());
+        field_size.setLineWrap(true);
+
+        JScrollPane scrollSize = new JScrollPane (field_size,
+                JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
+        CenterSizeDialog.disableKeys(field_size.getInputMap());
+        CenterSizeDialog.disableKeys(scrollSize.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT));
+
         field_size.setText("" + s.size);
 
         JTextField field_circle_period = new JTextField();
@@ -92,13 +119,24 @@ public class PolarProjectionDialog extends JDialog {
 
         });
 
+        SwingUtilities.invokeLater(new Runnable() {
+
+            @Override
+            public void run() {
+                scrollSize.getVerticalScrollBar().setValue(0);
+                scrollReal.getVerticalScrollBar().setValue(0);
+                scrollImaginary.getVerticalScrollBar().setValue(0);
+
+            }
+        });
+
         Object[] message3 = {
             " ",
             "Set the real and imaginary part of the polar projection center",
             "and the size.",
-            "Real:", field_real,
-            "Imaginary:", field_imaginary,
-            "Size:", field_size,
+            "Real:", scrollReal,
+            "Imaginary:", scrollImaginary,
+            "Size:", scrollSize,
             " ",
             corners,
             " ",

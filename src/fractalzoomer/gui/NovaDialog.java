@@ -79,6 +79,11 @@ public class NovaDialog extends JDialog {
         method_choice.setSelectedIndex(s.fns.nova_method);
         method_choice.setToolTipText("Selects the root finding method for the Nova function.");
         method_choice.setFocusable(false);
+
+        JCheckBox defaultInit = new JCheckBox("Default Nova Initial Value");
+        defaultInit.setSelected(s.fns.defaultNovaInitialValue);
+        defaultInit.setToolTipText("Uses 1 + 0i for Nova initialization.");
+        defaultInit.setFocusable(false);
         
         method_choice.addActionListener(new ActionListener() {
             @Override
@@ -111,6 +116,8 @@ public class NovaDialog extends JDialog {
             "Real:", field_real2,
             "Imaginary:", field_imaginary2,
             " ",
+                defaultInit,
+                " ",
              k_panel};
 
         optionPane = new JOptionPane(message2, JOptionPane.QUESTION_MESSAGE, JOptionPane.OK_CANCEL_OPTION, null, null, null);
@@ -174,6 +181,8 @@ public class NovaDialog extends JDialog {
                         s.fns.relaxation[1] = temp6 == 0.0 ? 0.0 : temp6;
 
                         s.fns.nova_method = temp7;
+
+                        s.fns.defaultNovaInitialValue = defaultInit.isSelected();
                         
                         ptr.setFunctionPostNova();
 

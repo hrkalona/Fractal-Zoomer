@@ -132,7 +132,7 @@ public class RootFindingFourFunctionsDialog extends JDialog {
             
         });
 
-        Object[] labels41 = ptra.createUserFormulaLabels("z, s, c0, p, pp, n, maxn, center, size, sizei, v1 - v30, point");
+        Object[] labels41 = ptra.createUserFormulaLabels("z, s, p, pp, n, maxn, center, size, sizei, v1 - v30, point");
 
         Object[] message41 = {
             labels41,
@@ -184,29 +184,29 @@ public class RootFindingFourFunctionsDialog extends JDialog {
 
                     try {
                         s.parser.parse(field_fz_formula2.getText());
-                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundC() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
-                            JOptionPane.showMessageDialog(ptra, "The variables: c, bail, cbail, r, stat, trap cannot be used in the f(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundC() || s.parser.foundC0() ||  s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                            JOptionPane.showMessageDialog(ptra, "The variables: c, c0, bail, cbail, r, stat, trap cannot be used in the f(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                             return;
                         }
 
                         s.parser.parse(field_dfz_formula2.getText());
 
-                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundC() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
-                            JOptionPane.showMessageDialog(ptra, "The variables: c, bail, cbail, r, stat, trap cannot be used in the f'(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundC() ||  s.parser.foundC0() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                            JOptionPane.showMessageDialog(ptra, "The variables: c, c0, bail, cbail, r, stat, trap cannot be used in the f'(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                             return;
                         }
 
                         s.parser.parse(field_ddfz_formula2.getText());
 
-                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundC() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
-                            JOptionPane.showMessageDialog(ptra, "The variables: c, bail, cbail, r, stat, trap cannot be used in the f''(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundC() || s.parser.foundC0() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                            JOptionPane.showMessageDialog(ptra, "The variables: c, c0, bail, cbail, r, stat, trap cannot be used in the f''(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                             return;
                         }
 
                         s.parser.parse(field_dddfz_formula2.getText());
 
-                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundC() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
-                            JOptionPane.showMessageDialog(ptra, "The variables: c, bail, cbail, r, stat, trap cannot be used in the f'''(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
+                        if (s.parser.foundBail() || s.parser.foundCbail() || s.parser.foundC() || s.parser.foundC0() || s.parser.foundR() || s.parser.foundStat() || s.parser.foundTrap()) {
+                            JOptionPane.showMessageDialog(ptra, "The variables: c, c0, bail, cbail, r, stat, trap cannot be used in the f'''(z) formula.", "Error!", JOptionPane.ERROR_MESSAGE);
                             return;
                         }
 

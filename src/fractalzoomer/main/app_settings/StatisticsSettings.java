@@ -51,6 +51,19 @@ public class StatisticsSettings implements Constants {
     public boolean equicontinuityInvertFactor;
     public boolean equicontinuityOverrideColoring;
     public double equicontinuityDelta;
+
+    public boolean useNormalMap;
+    public int normalMapColorMode;
+    public boolean normalMapOverrideColoring;
+    public double normalMapLightFactor;
+    public double normalMapBlending;
+    public double normalMapHeight;
+    public double normalMapAngle;
+    public boolean normalMapUseSecondDerivative;
+    public boolean normalMapUseDE;
+    public double normalMapDEfactor;
+    public boolean normalMapInvertDE;
+    public int normalMapColoring;
     
     public StatisticsSettings(StatisticsSettings copy) {
         statistic = copy.statistic;
@@ -81,6 +94,19 @@ public class StatisticsSettings implements Constants {
         equicontinuityInvertFactor = copy.equicontinuityInvertFactor;
         equicontinuityOverrideColoring = copy.equicontinuityOverrideColoring;
         equicontinuityDelta = copy.equicontinuityDelta;
+
+        normalMapColorMode = copy.normalMapColorMode;
+        normalMapOverrideColoring = copy.normalMapOverrideColoring;
+        normalMapLightFactor = copy.normalMapLightFactor;
+        normalMapBlending = copy.normalMapBlending;
+        normalMapHeight = copy.normalMapHeight;
+        normalMapAngle = copy.normalMapAngle;
+        normalMapUseSecondDerivative = copy.normalMapUseSecondDerivative;
+        normalMapDEfactor = copy.normalMapDEfactor;
+        normalMapUseDE = copy.normalMapUseDE;
+        normalMapInvertDE = copy.normalMapInvertDE;
+        normalMapColoring = copy.normalMapColoring;
+        useNormalMap = copy.useNormalMap;
     }
     
     public StatisticsSettings() {
@@ -113,5 +139,18 @@ public class StatisticsSettings implements Constants {
         equicontinuityInvertFactor = false;
         equicontinuityOverrideColoring = true;
         equicontinuityDelta = 1e-4;
+
+        normalMapColorMode = 0;
+        normalMapOverrideColoring = true;
+        normalMapLightFactor = 0.5;
+        normalMapBlending = 0.5;
+        normalMapHeight = 1.5;
+        normalMapAngle = 45;
+        normalMapUseSecondDerivative = false;
+        normalMapDEfactor = 1;
+        normalMapUseDE = false;
+        normalMapInvertDE = false;
+        normalMapColoring = 0;
+        useNormalMap = true;
     }
 }

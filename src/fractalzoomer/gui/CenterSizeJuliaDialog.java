@@ -31,6 +31,8 @@ import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
+import static fractalzoomer.gui.CenterSizeDialog.TEMPLATE_TFIELD;
+
 /**
  *
  * @author hrkalona2
@@ -46,11 +48,25 @@ public class CenterSizeJuliaDialog extends JDialog {
         
         ptra = ptr;
 
-        setTitle("Center, Size, and Julia Seed");
+        if(s.fns.juliter) {
+            setTitle("Center, Size, Julia Seed, and Juliter");
+        }
+        else {
+            setTitle("Center, Size, and Julia Seed");
+        }
+
         setModal(true);
         setIconImage(getIcon("/fractalzoomer/icons/mandel2.png").getImage());
 
-        JTextField field_real = new JTextField();
+        JTextArea field_real = new JTextArea(3, 50);
+        field_real.setFont(TEMPLATE_TFIELD.getFont());
+        field_real.setLineWrap(true);
+
+        JScrollPane scrollReal = new JScrollPane (field_real,
+                JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
+        CenterSizeDialog.disableKeys(field_real.getInputMap());
+        CenterSizeDialog.disableKeys(scrollReal.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT));
 
         BigPoint p = MathUtils.rotatePointRelativeToPoint(new BigPoint(s.xCenter, s.yCenter), s.fns.rotation_vals, s.fns.rotation_center);
 
@@ -62,7 +78,15 @@ public class CenterSizeJuliaDialog extends JDialog {
             field_real.setText("" + p.x.toString(true));
         }
 
-        JTextField field_imaginary = new JTextField();
+        JTextArea field_imaginary = new JTextArea(3, 50);
+        field_imaginary.setFont(TEMPLATE_TFIELD.getFont());
+        field_imaginary.setLineWrap(true);
+
+        JScrollPane scrollImaginary = new JScrollPane (field_imaginary,
+                JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
+        CenterSizeDialog.disableKeys(field_imaginary.getInputMap());
+        CenterSizeDialog.disableKeys(scrollImaginary.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT));
 
         if (p.y.compareTo(zero) == 0) {
             field_imaginary.setText("" + 0.0);
@@ -70,7 +94,16 @@ public class CenterSizeJuliaDialog extends JDialog {
             field_imaginary.setText("" + p.y.toString(true));
         }
 
-        JTextField field_size = new JTextField();
+        JTextArea field_size = new JTextArea(3, 50);
+        field_size.setFont(TEMPLATE_TFIELD.getFont());
+        field_size.setLineWrap(true);
+
+        JScrollPane scrollSize = new JScrollPane (field_size,
+                JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
+        CenterSizeDialog.disableKeys(field_size.getInputMap());
+        CenterSizeDialog.disableKeys(scrollSize.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT));
+
         field_size.setText("" + s.size);
 
         s.xJuliaCenter = s.xJuliaCenter == 0.0 ? 0.0 : s.xJuliaCenter;
@@ -98,20 +131,72 @@ public class CenterSizeJuliaDialog extends JDialog {
 
         });
 
-        Object[] message = {
-            " ",
-            "Set the real and imaginary part of the new center",
-            "and the new size.",
-            "Real:", field_real,
-            "Imaginary:", field_imaginary,
-            "Size:", field_size,
-            " ",
-            corners,
-            " ",
-            "Set the real and imaginary part of the Julia seed.",
-            "Real:", real_seed,
-            "Imaginary:", imag_seed,
-            " ",};
+        SwingUtilities.invokeLater(new Runnable() {
+
+            @Override
+            public void run() {
+                scrollSize.getVerticalScrollBar().setValue(0);
+                scrollReal.getVerticalScrollBar().setValue(0);
+                scrollImaginary.getVerticalScrollBar().setValue(0);
+
+            }
+        });
+
+        Object[] message = null;
+
+        JTextField juliterIterationsfield = new JTextField();
+        juliterIterationsfield.addAncestorListener(new RequestFocusListener());
+        juliterIterationsfield.setText("" + s.fns.juliterIterations);
+
+        JCheckBox includePreStarting = new JCheckBox("Include pre-starting iterations");
+        includePreStarting.setFocusable(false);
+        includePreStarting.setSelected(s.fns.juliterIncludeInitialIterations);
+
+        if(s.fns.juliter) {
+            Object[] temp = {
+                    " ",
+                    "Set the real and imaginary part of the new center",
+                    "and the new size.",
+                    "Real:", scrollReal,
+                    "Imaginary:", scrollImaginary,
+                    "Size:", scrollSize,
+                    " ",
+                    corners,
+                    " ",
+                    "Set the real and imaginary part of the Julia seed.",
+                    "Real:", real_seed,
+                    "Imaginary:", imag_seed,
+                    " ",
+                    "Set the starting iterations of Juliter.",
+                    "Starting Iterations:",
+                    juliterIterationsfield,
+                    " ",
+                    includePreStarting,
+                    " "};
+
+
+            message = temp;
+        }
+        else {
+            Object[] temp = {
+                    " ",
+                    "Set the real and imaginary part of the new center",
+                    "and the new size.",
+                    "Real:", scrollReal,
+                    "Imaginary:", scrollImaginary,
+                    "Size:", scrollSize,
+                    " ",
+                    corners,
+                    " ",
+                    "Set the real and imaginary part of the Julia seed.",
+                    "Real:", real_seed,
+                    "Imaginary:", imag_seed,
+                    " ",};
+
+
+            message = temp;
+        }
+
 
         optionPane = new JOptionPane(message, JOptionPane.QUESTION_MESSAGE, JOptionPane.OK_CANCEL_OPTION, null, null, null);
 
@@ -159,6 +244,18 @@ public class CenterSizeJuliaDialog extends JDialog {
                         if (tempSize.compareTo(zero) <= 0) {
                             JOptionPane.showMessageDialog(ptra, "Size number must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
                             return;
+                        }
+
+                        if(s.fns.juliter) {
+                            int temp = Integer.parseInt(juliterIterationsfield.getText());
+
+                            if (temp < 0) {
+                                JOptionPane.showMessageDialog(ptra, "Juliter's starting iterations must be greater than -1.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+
+                            s.fns.juliterIterations = temp;
+                            s.fns.juliterIncludeInitialIterations = includePreStarting.isSelected();
                         }
 
                         s.size = tempSize;

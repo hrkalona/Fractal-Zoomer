@@ -9,6 +9,8 @@ public class MyApfloat extends Apfloat {
     public static Apfloat PI;
     public static Apfloat TWO_PI;
     public static Apfloat TWO;
+    public static Apfloat ONE;
+    public static Apfloat ZERO;
     public static Apfloat SQRT_TWO;
     public static Apfloat RECIPROCAL_LOG_TWO_BASE_TEN;
     public static Apfloat E;
@@ -23,6 +25,8 @@ public class MyApfloat extends Apfloat {
         PI = ApfloatMath.pi(precision);
         E = ApfloatMath.exp(new MyApfloat(1.0));
         TWO = new MyApfloat(2);
+        ONE = new MyApfloat(1);
+        ZERO = new MyApfloat(0);
         TWO_PI = PI.multiply(TWO);
         SQRT_TWO = ApfloatMath.sqrt(TWO);
         RECIPROCAL_LOG_TWO_BASE_TEN = MyApfloat.reciprocal(MyApfloat.log(TWO).divide(MyApfloat.log(new MyApfloat(10.0))));
@@ -36,6 +40,8 @@ public class MyApfloat extends Apfloat {
         PI = ApfloatMath.pi(precision);
         E = ApfloatMath.exp(new MyApfloat(1.0));
         TWO = new MyApfloat(2);
+        ONE = new MyApfloat(1);
+        ZERO = new MyApfloat(0);
         TWO_PI = PI.multiply(TWO);
         SQRT_TWO = ApfloatMath.sqrt(TWO);
         RECIPROCAL_LOG_TWO_BASE_TEN = MyApfloat.reciprocal(MyApfloat.log(TWO).divide(MyApfloat.log(new MyApfloat(10.0))));
@@ -420,6 +426,14 @@ public class MyApfloat extends Apfloat {
         return "" + val.doubleValue();
     }
 
+    public static String toStringTruncated(Apfloat val, int begin, int end) {
+        return truncateString(val.toString(), begin,end);
+    }
+
+    public static String toStringTruncatedPretty(Apfloat val, int begin, int end) {
+        return truncateString(val.toString(true), begin,end);
+    }
+
     public static void main(String[] args) {
 
         MyApfloat.precision = 1200;
@@ -430,51 +444,32 @@ public class MyApfloat extends Apfloat {
         Apfloat c = new MyApfloat("8.99996619445037030418434688506350579675531241540724851511761922944801584242342684381376129778868913812287046406560949864353810575744772166485672496092803920095332");
         Apfloat d = new MyApfloat("-4.00000000000000000000000000000000030013824367909383240724973039775924987346831190773335270174257280120474975614823581185647299288414075519224186504978181625478529");
 
-        long runs = 10000000;
+        long runs = 100;
+
+
 
 
         for(long i = 0; i < runs; i++) {
-            a.multiply(b).add(c.multiply(d));
-            ApfloatMath.multiplyAdd(a, b , c ,d);
-            a.multiply(b).subtract(c.multiply(d));
-            ApfloatMath.multiplySubtract(a, b , c ,d);
+            ApfloatMath.exp(c);
+            MyApfloat.exp(c);
         }
+
 
         for(long i = 0; i < runs; i++) {
-            a.multiply(b).add(c.multiply(d));
-            ApfloatMath.multiplyAdd(a, b , c ,d);
-            a.multiply(b).subtract(c.multiply(d));
-            ApfloatMath.multiplySubtract(a, b , c ,d);
+            ApfloatMath.exp(c);
+            MyApfloat.exp(c);
         }
-
-
-
-
-
 
         long time = System.currentTimeMillis();
         for(long i = 0; i < runs; i++) {
-            a.multiply(b).add(c.multiply(d));
+            ApfloatMath.exp(c);
         }
         System.out.println(System.currentTimeMillis() - time);
 
 
         time = System.currentTimeMillis();
         for(long i = 0; i < runs; i++) {
-            a.multiply(b).subtract(c.multiply(d));
-        }
-        System.out.println(System.currentTimeMillis() - time);
-
-        time = System.currentTimeMillis();
-        for(long i = 0; i < runs; i++) {
-            ApfloatMath.multiplyAdd(a, b , c, d);
-        }
-        System.out.println(System.currentTimeMillis() - time);
-
-
-        time = System.currentTimeMillis();
-        for(long i = 0; i < runs; i++) {
-            ApfloatMath.multiplySubtract(a, b , c, d);
+            MyApfloat.exp(c);
         }
         System.out.println(System.currentTimeMillis() - time);
 

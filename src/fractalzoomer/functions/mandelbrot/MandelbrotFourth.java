@@ -273,8 +273,7 @@ public class MandelbrotFourth extends Julia {
 
         boolean fullReference = ThreadDraw.CALCULATE_FULL_REFERENCE;
         boolean isSeriesInUse = ThreadDraw.SERIES_APPROXIMATION && !burning_ship;
-        RefPower = power;
-        RefBurningShip = burning_ship;
+        RefType = getRefType();
         FullRef = fullReference;
 
         Location loc = new Location();
@@ -293,11 +292,7 @@ public class MandelbrotFourth extends Julia {
                 //ReferenceDeep[iterations] = new MantExpComplex(Reference[iterations]);
             }
 
-            if(Reference[iterations].isInfinite()) {
-                break;
-            }
-
-            if (!fullReference && iterations > 0 && bailout_algorithm.escaped(z, zold, zold2, iterations, c, start, c0, null)) {
+            if (!fullReference && iterations > 0 && bailout_algorithm.escaped(z, zold, zold2, iterations, c, start, c0, Apfloat.ZERO)) {
                 break;
             }
 
@@ -328,9 +323,11 @@ public class MandelbrotFourth extends Julia {
     @Override
     public Complex perturbationFunction(Complex DeltaSubN, Complex DeltaSub0, int RefIteration) {
 
+        Complex X = Reference[RefIteration];
+
         if(burning_ship) {
-            double r = Reference[RefIteration].getRe();
-            double i = Reference[RefIteration].getIm();
+            double r = X.getRe();
+            double i = X.getIm();
             double a = DeltaSubN.getRe();
             double b = DeltaSubN.getIm();
             double r2 = r*r;
@@ -353,9 +350,9 @@ public class MandelbrotFourth extends Julia {
         else
         {
             return DeltaSubN.fourth()
-                    .plus_mutable(DeltaSubN.cube().times_mutable(4).times_mutable(Reference[RefIteration]))
-                    .plus_mutable(DeltaSubN.square().times_mutable(6).times_mutable(Reference[RefIteration].square()))
-                    .plus_mutable(DeltaSubN.times(4).times_mutable(Reference[RefIteration].cube()))
+                    .plus_mutable(DeltaSubN.cube().times_mutable(4).times_mutable(X))
+                    .plus_mutable(DeltaSubN.square().times_mutable(6).times_mutable(X.square()))
+                    .plus_mutable(DeltaSubN.times(4).times_mutable(X.cube()))
                     .plus_mutable(DeltaSub0);
         }
     }
@@ -363,9 +360,11 @@ public class MandelbrotFourth extends Julia {
     @Override
     public MantExpComplex perturbationFunction(MantExpComplex DeltaSubN, MantExpComplex DeltaSub0, int RefIteration) {
 
+        MantExpComplex X = ReferenceDeep[RefIteration];
+
         if(burning_ship) {
-            MantExp r = ReferenceDeep[RefIteration].getRe();
-            MantExp i = ReferenceDeep[RefIteration].getIm();
+            MantExp r = X.getRe();
+            MantExp i = X.getIm();
             MantExp a = DeltaSubN.getRe();
             MantExp b = DeltaSubN.getIm();
             MantExp r2 = r.multiply(r);
@@ -405,9 +404,9 @@ public class MandelbrotFourth extends Julia {
         }
         else {
             return DeltaSubN.fourth()
-                    .plus_mutable(DeltaSubN.cube().times4_mutable().times_mutable(ReferenceDeep[RefIteration]))
-                    .plus_mutable(DeltaSubN.square().times_mutable(MantExp.SIX).times_mutable(ReferenceDeep[RefIteration].square()))
-                    .plus_mutable(DeltaSubN.times4().times_mutable(ReferenceDeep[RefIteration].cube()))
+                    .plus_mutable(DeltaSubN.cube().times4_mutable().times_mutable(X))
+                    .plus_mutable(DeltaSubN.square().times_mutable(MantExp.SIX).times_mutable(X.square()))
+                    .plus_mutable(DeltaSubN.times4().times_mutable(X.cube()))
                     .plus_mutable(DeltaSub0);
         }
     }
@@ -415,9 +414,11 @@ public class MandelbrotFourth extends Julia {
     @Override
     public Complex perturbationFunction(Complex DeltaSubN, int RefIteration) {
 
+        Complex X = Reference[RefIteration];
+
         if(burning_ship) {
-            double r = Reference[RefIteration].getRe();
-            double i = Reference[RefIteration].getIm();
+            double r = X.getRe();
+            double i = X.getIm();
             double a = DeltaSubN.getRe();
             double b = DeltaSubN.getIm();
             double r2 = r*r;
@@ -440,9 +441,9 @@ public class MandelbrotFourth extends Julia {
         else
         {
             return DeltaSubN.fourth()
-                    .plus_mutable(DeltaSubN.cube().times_mutable(4).times_mutable(Reference[RefIteration]))
-                    .plus_mutable(DeltaSubN.square().times_mutable(6).times_mutable(Reference[RefIteration].square()))
-                    .plus_mutable(DeltaSubN.times(4).times_mutable(Reference[RefIteration].cube()));
+                    .plus_mutable(DeltaSubN.cube().times_mutable(4).times_mutable(X))
+                    .plus_mutable(DeltaSubN.square().times_mutable(6).times_mutable(X.square()))
+                    .plus_mutable(DeltaSubN.times(4).times_mutable(X.cube()));
         }
     }
 
@@ -499,24 +500,6 @@ public class MandelbrotFourth extends Julia {
                 }
             }
 
-            MantExpComplex fourRefCubed = null;
-
-            if(deepZoom) {
-                fourRefCubed = ReferenceDeep[i - 1].cube().times4_mutable();
-            }
-            else {
-                fourRefCubed = new MantExpComplex(Reference[i - 1].cube().times_mutable(4));
-            }
-
-            MantExpComplex refSquared = null;
-
-            if(deepZoom) {
-                refSquared = ReferenceDeep[i - 1].square();
-            }
-            else {
-                refSquared = new MantExpComplex(Reference[i - 1].square());
-            }
-
             MantExpComplex ref = null;
 
             if(deepZoom) {
@@ -525,6 +508,10 @@ public class MandelbrotFourth extends Julia {
             else {
                 ref = new MantExpComplex(Reference[i - 1]);
             }
+
+            MantExpComplex fourRefCubed = ref.cube().times4_mutable();
+
+            MantExpComplex refSquared = ref.square();
 
             int new_i = i % max_data;
             int old_i = (i - 1) % max_data;
@@ -535,6 +522,7 @@ public class MandelbrotFourth extends Julia {
             MantExpComplex fourAnCube = null;
             MantExpComplex bnSquared = null;
             MantExpComplex twelveRef = null;
+            MantExpComplex twelveRefSquaredAn = null;
 
             if (numCoefficients >= 1) {
                 //An+1 = P * A * (X^(P-1)) + 1
@@ -550,9 +538,10 @@ public class MandelbrotFourth extends Julia {
             if (numCoefficients >= 3) {
                 //Cn+1 = P * C * (X^(P-1)) + (P*(P-1)) * A * B * (X^(P-2)) + ((P*(P-1)*(P-2))/6) * (A^3) * (X^(P-3))
                 twelveRefSquared = refSquared.times(MantExp.TWELVE);
+                twelveRefSquaredAn = twelveRefSquared.times(coefficients[0][old_i]);
                 fourAnCube = coefficients[0][old_i].cube().times4_mutable();
                 coefficients[2][new_i] = coefficients[2][old_i].times(fourRefCubed)
-                        .plus_mutable(coefficients[0][old_i].times(coefficients[1][old_i]).times(twelveRefSquared))
+                        .plus_mutable(twelveRefSquaredAn.times(coefficients[1][old_i]))
                         .plus_mutable(fourAnCube.times(ref)); //4*Z*a_1^3 + 12*Z^2*a_1*a_2 + 4*Z^3*a_3
             }
 
@@ -563,7 +552,7 @@ public class MandelbrotFourth extends Julia {
                         .plus_mutable(coefficients[0][old_i].fourth())
                         .plus_mutable(anSquared.times(twelveRef).times_mutable(coefficients[1][old_i]))
                         .plus_mutable(sixRefSquared.times(bnSquared))
-                        .plus_mutable(twelveRefSquared.times(coefficients[0][old_i]).times_mutable(coefficients[2][old_i])); //a_1^4 + 12*Z*a_1^2*a_2 + 6*Z^2*a_2^2 + 12*Z^2*a_1*a_3 + 4*Z^3*a_4
+                        .plus_mutable(twelveRefSquaredAn.times(coefficients[2][old_i])); //a_1^4 + 12*Z*a_1^2*a_2 + 6*Z^2*a_2^2 + 12*Z^2*a_1*a_3 + 4*Z^3*a_4
             }
 
             if (numCoefficients >= 5) {
@@ -572,7 +561,7 @@ public class MandelbrotFourth extends Julia {
                         .plus_mutable(bnSquared.times(coefficients[0][old_i]).times_mutable(twelveRef))
                         .plus_mutable(anSquared.times(coefficients[2][old_i]).times_mutable(twelveRef))
                         .plus_mutable(coefficients[1][old_i].times(coefficients[2][old_i]).times_mutable(twelveRefSquared))
-                        .plus_mutable(coefficients[0][old_i].times(coefficients[3][old_i]).times_mutable(twelveRefSquared)); //4*a_1^3*a_2 + 12*Z*a_1*a_2^2 + 12*Z*a_1^2*a_3 + 12*Z^2*a_2*a_3 + 12*Z^2*a_1*a_4 + 4*Z^3*a_5
+                        .plus_mutable(twelveRefSquaredAn.times(coefficients[3][old_i])); //4*a_1^3*a_2 + 12*Z*a_1*a_2^2 + 12*Z*a_1^2*a_3 + 12*Z^2*a_2*a_3 + 12*Z^2*a_1*a_4 + 4*Z^3*a_5
             }
 
             for (int j = 0; j < numCoefficients; j++) {
@@ -594,5 +583,10 @@ public class MandelbrotFourth extends Julia {
 
         i = length - 1;
         skippedIterations = i <= skippedThreshold ? 0 : i - skippedThreshold;
+    }
+
+    @Override
+    public String getRefType() {
+        return super.getRefType() + (burning_ship ? "-Burning Ship" : "");
     }
 }

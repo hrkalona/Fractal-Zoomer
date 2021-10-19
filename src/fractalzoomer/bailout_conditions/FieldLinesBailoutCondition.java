@@ -35,14 +35,21 @@ public class FieldLinesBailoutCondition extends BailoutCondition {
     @Override
      public boolean escaped(Complex z, Complex zold, Complex zold2, int iterations, Complex c, Complex start, Complex c0, double norm_squared) {
 
-        return iterations > 0 && z.getRe() / zold.getRe() >= bound && z.getIm() / zold.getIm() >= bound;
+        return iterations > 1 && z.getRe() / zold.getRe() >= bound && z.getIm() / zold.getIm() >= bound;
          
      }
 
     @Override
     public boolean escaped(BigComplex z, BigComplex zold, BigComplex zold2, int iterations, BigComplex c, BigComplex start, BigComplex c0, Apfloat norm_squared) {
 
-        return iterations > 0 && z.getRe().divide(zold.getRe()).compareTo(ddbound) >= 0 && z.getIm().divide(zold.getIm()).compareTo(ddbound) >= 0;
+        Apfloat zoldRe = zold.getRe();
+        Apfloat zoldIm = zold.getIm();
+
+        if(iterations > 1 && (zoldRe.compareTo(Apfloat.ZERO) == 0 || zoldIm.compareTo(Apfloat.ZERO) == 0)) {
+            return false;
+        }
+
+        return iterations > 1 && z.getRe().divide(zoldRe).compareTo(ddbound) >= 0 && z.getIm().divide(zoldIm).compareTo(ddbound) >= 0;
 
     }
     

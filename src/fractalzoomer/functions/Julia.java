@@ -163,6 +163,8 @@ public abstract class Julia extends Fractal {
 
         updatedJuliter = false;
 
+        isDomain = true;
+
         resetGlobalVars();
 
         Complex transformed = getTransformedPixelJulia(pixel);

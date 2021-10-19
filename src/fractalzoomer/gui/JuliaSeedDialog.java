@@ -42,7 +42,13 @@ public class JuliaSeedDialog extends JDialog {
 
         ptra = ptr;
 
-        setTitle("Julia Seed");
+        if(s.fns.juliter) {
+            setTitle("Julia Seed and Juliter");
+        }
+        else {
+            setTitle("Julia Seed");
+        }
+
         setModal(true);
         setIconImage(getIcon("/fractalzoomer/icons/mandel2.png").getImage());
 
@@ -64,12 +70,43 @@ public class JuliaSeedDialog extends JDialog {
             field_imaginary.setText("" + p.y);
         }
 
-        Object[] message = {
-            " ",
-            "Set the real and imaginary part of the Julia seed.",
-            "Real:", field_real,
-            "Imaginary:", field_imaginary,
-            " ",};
+        Object[] message = null;
+
+        JTextField juliterIterationsfield = new JTextField();
+        juliterIterationsfield.addAncestorListener(new RequestFocusListener());
+        juliterIterationsfield.setText("" + s.fns.juliterIterations);
+
+        JCheckBox includePreStarting = new JCheckBox("Include pre-starting iterations");
+        includePreStarting.setFocusable(false);
+        includePreStarting.setSelected(s.fns.juliterIncludeInitialIterations);
+
+        if(s.fns.juliter) {
+            Object[] temp = {
+                    " ",
+                    "Set the real and imaginary part of the Julia seed.",
+                    "Real:", field_real,
+                    "Imaginary:", field_imaginary,
+                    " ",
+                    "Set the starting iterations of Juliter.",
+                    "Starting Iterations:",
+                    juliterIterationsfield,
+                    " ",
+                    includePreStarting,
+                    " "};
+
+            message = temp;
+        }
+        else {
+            Object[] temp = {
+                    " ",
+                    "Set the real and imaginary part of the Julia seed.",
+                    "Real:", field_real,
+                    "Imaginary:", field_imaginary,
+                    " ",};
+
+            message = temp;
+        }
+
 
         optionPane = new JOptionPane(message, JOptionPane.QUESTION_MESSAGE, JOptionPane.OK_CANCEL_OPTION, null, null, null);
 
@@ -110,6 +147,18 @@ public class JuliaSeedDialog extends JDialog {
                         double tempImaginary = Double.parseDouble(field_imaginary.getText());
                         s.xJuliaCenter = tempReal;
                         s.yJuliaCenter = tempImaginary;
+
+                        if(s.fns.juliter) {
+                            int temp = Integer.parseInt(juliterIterationsfield.getText());
+
+                            if (temp < 0) {
+                                JOptionPane.showMessageDialog(ptra, "Juliter's starting iterations must be greater than -1.", "Error!", JOptionPane.ERROR_MESSAGE);
+                                return;
+                            }
+
+                            s.fns.juliterIterations = temp;
+                            s.fns.juliterIncludeInitialIterations = includePreStarting.isSelected();
+                        }
                     } catch (Exception ex) {
                         JOptionPane.showMessageDialog(ptra, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
                         return;

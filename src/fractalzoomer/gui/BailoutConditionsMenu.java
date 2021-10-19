@@ -49,6 +49,7 @@ public class BailoutConditionsMenu extends JMenu {
         bailoutConditionNames[MainWindow.BAILOUT_CONDITION_IM_STRIP] = "Imaginary Strip (imag)";
         bailoutConditionNames[MainWindow.BAILOUT_CONDITION_RE_IM_SQUARED] = "(Real + Imaginary)^2 (manr)";
         bailoutConditionNames[MainWindow.BAILOUT_CONDITION_NO_BAILOUT] = "No Condition";
+        bailoutConditionNames[MainWindow.BAILOUT_CONDITION_CUSTOM] = "|z| >= bail^(1 / sqrt(bail))";
     }
     
     public BailoutConditionsMenu(MainWindow ptr2, String name, int bailout_test_algorithm) {
@@ -204,6 +205,21 @@ public class BailoutConditionsMenu extends JMenu {
         });
         add(bailout_conditions[MainWindow.BAILOUT_CONDITION_FIELD_LINES]);
         bailout_tests_group.add(bailout_conditions[MainWindow.BAILOUT_CONDITION_FIELD_LINES]);
+
+
+        bailout_conditions[MainWindow.BAILOUT_CONDITION_CUSTOM] = new JRadioButtonMenuItem(bailoutConditionNames[MainWindow.BAILOUT_CONDITION_CUSTOM]);
+        bailout_conditions[MainWindow.BAILOUT_CONDITION_CUSTOM].setToolTipText("A custom bailout condition.");
+        bailout_conditions[MainWindow.BAILOUT_CONDITION_CUSTOM].addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+
+                ptr.setBailoutTest(MainWindow.BAILOUT_CONDITION_CUSTOM);
+
+            }
+        });
+        add(bailout_conditions[MainWindow.BAILOUT_CONDITION_CUSTOM]);
+        bailout_tests_group.add(bailout_conditions[MainWindow.BAILOUT_CONDITION_CUSTOM]);
 
 
         bailout_conditions[MainWindow.BAILOUT_CONDITION_NO_BAILOUT] = new JRadioButtonMenuItem(bailoutConditionNames[MainWindow.BAILOUT_CONDITION_NO_BAILOUT]);

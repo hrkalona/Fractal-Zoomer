@@ -25,10 +25,7 @@ import org.apfloat.Apfloat;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
@@ -37,9 +34,17 @@ import java.beans.PropertyChangeListener;
  * @author hrkalona2
  */
 public class CenterSizeDialog extends JDialog {
+    public static JTextField TEMPLATE_TFIELD = new JTextField();
 
     private MainWindow ptra;
     private JOptionPane optionPane;
+
+    public static void disableKeys(InputMap inputMap) {
+        String[] keys = {"ENTER"};
+        for (String key : keys) {
+            inputMap.put(KeyStroke.getKeyStroke(key), "none");
+        }
+    }
 
     public CenterSizeDialog(MainWindow ptr, Settings s) {
 
@@ -51,7 +56,15 @@ public class CenterSizeDialog extends JDialog {
         setModal(true);
         setIconImage(getIcon("/fractalzoomer/icons/mandel2.png").getImage());
 
-        JTextField field_real = new JTextField();
+        JTextArea field_real = new JTextArea(3, 50);
+        field_real.setLineWrap(true);
+        field_real.setFont(TEMPLATE_TFIELD.getFont());
+
+        JScrollPane scrollReal = new JScrollPane (field_real,
+                JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
+        disableKeys(field_real.getInputMap());
+        disableKeys(scrollReal.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT));
 
         BigPoint p = MathUtils.rotatePointRelativeToPoint(new BigPoint(s.xCenter, s.yCenter), s.fns.rotation_vals, s.fns.rotation_center);
 
@@ -62,7 +75,18 @@ public class CenterSizeDialog extends JDialog {
             field_real.setText("" + p.x.toString(true));
         }
 
-        JTextField field_imaginary = new JTextField();
+        JTextArea field_imaginary = new JTextArea(3, 50);
+        field_imaginary.setLineWrap(true);
+        field_imaginary.setFont(TEMPLATE_TFIELD.getFont());
+
+        JScrollPane scrollImaginary = new JScrollPane (field_imaginary,
+                JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
+        disableKeys(field_imaginary.getInputMap());
+        disableKeys(scrollImaginary.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT));
+
+        scrollImaginary.getInputMap().put(KeyStroke.getKeyStroke("ENTER"),"doNothing");
+
 
         if (p.y.compareTo(zero) == 0) {
             field_imaginary.setText("" + 0.0);
@@ -70,7 +94,19 @@ public class CenterSizeDialog extends JDialog {
             field_imaginary.setText("" + p.y.toString(true));
         }
 
-        JTextField field_size = new JTextField();
+        JTextArea field_size = new JTextArea(3, 50);
+        field_size.setLineWrap(true);
+        field_size.setFont(TEMPLATE_TFIELD.getFont());
+
+        JScrollPane scrollSize = new JScrollPane (field_size,
+                JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
+        disableKeys(field_size.getInputMap());
+        disableKeys(scrollSize.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT));
+
+
+        scrollSize.getInputMap().put(KeyStroke.getKeyStroke("ENTER"),"doNothing");
+
         field_size.setText("" + s.size);
 
         JButton corners = new JButton("Set Corners");
@@ -89,13 +125,24 @@ public class CenterSizeDialog extends JDialog {
 
         });
 
+        SwingUtilities.invokeLater(new Runnable() {
+
+            @Override
+            public void run() {
+                scrollSize.getVerticalScrollBar().setValue(0);
+                scrollReal.getVerticalScrollBar().setValue(0);
+                scrollImaginary.getVerticalScrollBar().setValue(0);
+
+            }
+        });
+
         Object[] message = {
             " ",
             "Set the real and imaginary part of the new center",
             "and the new size.",
-            "Real:", field_real,
-            "Imaginary:", field_imaginary,
-            "Size:", field_size,
+            "Real:", scrollReal,
+            "Imaginary:", scrollImaginary,
+            "Size:", scrollSize,
             " ",
             corners,
             " "};

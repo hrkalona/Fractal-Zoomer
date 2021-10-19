@@ -17,6 +17,7 @@
 package fractalzoomer.gui;
 
 import fractalzoomer.app_updater.AppUpdater;
+import fractalzoomer.main.Constants;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -57,8 +58,13 @@ public class SplashThread extends Thread {
             }
         }
     
-        
-        l1.drawText("version " + AppUpdater.convertVersion(version), width - 90, 50, new Color(27, 32, 99), 13);
+
+        if(Constants.beta) {
+            l1.drawText("version " + AppUpdater.convertVersion(version) + " beta", width - 115, 50, new Color(27, 32, 99), 13);
+        }
+        else {
+            l1.drawText("version " + AppUpdater.convertVersion(version), width - 90, 50, new Color(27, 32, 99), 13);
+        }
         l1.drawText("Fractal Zoomer", width - 180, 30, Color.BLACK, 26);
         l1.repaint();
             

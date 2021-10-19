@@ -92,6 +92,9 @@ public class ComponentTitledBorder implements Border, MouseListener, MouseMotion
                 else if(parentFrame instanceof CustomDomainColoringFrame) {
                     ((CustomDomainColoringFrame) parentFrame).toggled(element.isSelected());
                 }
+                else if(parentFrame instanceof StatisticsColoringFrame) {
+                    ((StatisticsColoringFrame) parentFrame).toggled(element.isSelected());
+                }
             }
         });
 

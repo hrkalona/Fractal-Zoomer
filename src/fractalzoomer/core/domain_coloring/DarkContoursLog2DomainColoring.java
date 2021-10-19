@@ -27,9 +27,9 @@ import fractalzoomer.palettes.transfer_functions.TransferFunction;
  */
 public class DarkContoursLog2DomainColoring extends DomainColoring {
 
-    public DarkContoursLog2DomainColoring(int domain_coloring_mode, PaletteColor palette, TransferFunction color_transfer, int color_cycling_location, Blending blending, int interpolation) {
+    public DarkContoursLog2DomainColoring(int domain_coloring_mode, PaletteColor palette, TransferFunction color_transfer, int color_cycling_location, Blending blending, int interpolation, double countourFactor) {
 
-        super(domain_coloring_mode, palette, color_transfer, color_cycling_location, interpolation, blending);
+        super(domain_coloring_mode, palette, color_transfer, color_cycling_location, interpolation, blending, countourFactor);
 
         gradient = whiteToBlack;
 

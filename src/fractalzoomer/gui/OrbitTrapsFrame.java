@@ -400,7 +400,7 @@ public class OrbitTrapsFrame extends JFrame {
         JPanel p7 = new JPanel();
         p7.setBackground(MainWindow.bg_color);
         
-        JComboBox colors = new JComboBox(new String[] {"Per Trap", "Random", "Hue/Arg HSB", "Hue/Arg LCH", "Random HSB", "Random Palette", "Arg Palette"});
+        JComboBox colors = new JComboBox(new String[] {"Per Trap", "Random", "Hue/Arg HSB", "Hue/Arg LCH", "Random HSB", "Random Palette", "Arg Palette", "Trap Iteration HSB", "Trap Iterations LCH"});
         colors.setFocusable(false);
         colors.setSelectedIndex(ots.trapColorFillingMethod);
         colors.setToolTipText("Sets the trap color filling method.");

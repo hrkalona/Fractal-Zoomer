@@ -127,5 +127,13 @@ public abstract class GenericStatistic {
     }
 
     public Complex getPixel() { return pixel_val; }
+
+    public double getIntensity() {
+        return statistic_intensity;
+    }
+
+    public double getExtraValue() {
+        return 0;
+    }
     
 }

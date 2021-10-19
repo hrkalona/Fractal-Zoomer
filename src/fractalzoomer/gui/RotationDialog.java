@@ -37,6 +37,8 @@ import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
+import static fractalzoomer.gui.CenterSizeDialog.TEMPLATE_TFIELD;
+
 /**
  *
  * @author hrkalona2
@@ -115,7 +117,15 @@ public class RotationDialog extends JDialog {
 
         });
 
-        final JTextField field_real = new JTextField();
+        JTextArea field_real = new JTextArea(3, 50);
+        field_real.setFont(TEMPLATE_TFIELD.getFont());
+        field_real.setLineWrap(true);
+
+        JScrollPane scrollReal = new JScrollPane (field_real,
+                JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
+        CenterSizeDialog.disableKeys(field_real.getInputMap());
+        CenterSizeDialog.disableKeys(scrollReal.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT));
 
         Apfloat zero = new MyApfloat(0.0);
 
@@ -125,7 +135,15 @@ public class RotationDialog extends JDialog {
             field_real.setText("" + s.fns.rotation_center[0].toString(true));
         }
 
-        final JTextField field_imaginary = new JTextField();
+        JTextArea field_imaginary = new JTextArea(3, 50);
+        field_imaginary.setFont(TEMPLATE_TFIELD.getFont());
+        field_imaginary.setLineWrap(true);
+
+        JScrollPane scrollImaginary = new JScrollPane (field_imaginary,
+                JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
+        CenterSizeDialog.disableKeys(field_imaginary.getInputMap());
+        CenterSizeDialog.disableKeys(scrollImaginary.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT));
 
         if (s.fns.rotation_center[1].compareTo(zero) == 0) {
             field_imaginary.setText("" + 0.0);
@@ -151,22 +169,32 @@ public class RotationDialog extends JDialog {
                         field_real.setText("" + s.fns.rotation_center[0].toString(true));
                     }
 
-                    field_real.setEditable(true);
+                    field_real.setEnabled(true);
 
                     if (s.fns.rotation_center[1].compareTo(zero) == 0) {
                         field_imaginary.setText("" + 0.0);
                     } else {
                         field_imaginary.setText("" + s.fns.rotation_center[1].toString(true));
                     }
-                    field_imaginary.setEditable(true);
+                    field_imaginary.setEnabled(true);
                 } else {
                     BigPoint p = MathUtils.rotatePointRelativeToPoint(new BigPoint(s.xCenter, s.yCenter), s.fns.rotation_vals, s.fns.rotation_center);
 
                     field_real.setText("" + p.x.toString(true));
-                    field_real.setEditable(false);
+                    field_real.setEnabled(false);
                     field_imaginary.setText("" + p.y.toString(true));
-                    field_imaginary.setEditable(false);
+                    field_imaginary.setEnabled(false);
                 }
+            }
+        });
+
+        SwingUtilities.invokeLater(new Runnable() {
+
+            @Override
+            public void run() {
+                scrollReal.getVerticalScrollBar().setValue(0);
+                scrollImaginary.getVerticalScrollBar().setValue(0);
+
             }
         });
 
@@ -176,8 +204,8 @@ public class RotationDialog extends JDialog {
             "Rotation:", rotation_slid, field_rotation,
             " ",
             "Set the rotation center.",
-            "Real:", field_real,
-            "Imaginary:", field_imaginary,
+            "Real:", scrollReal,
+            "Imaginary:", scrollImaginary,
             current_center, " "};
 
         optionPane = new JOptionPane(message, JOptionPane.QUESTION_MESSAGE, JOptionPane.OK_CANCEL_OPTION, null, null, null);

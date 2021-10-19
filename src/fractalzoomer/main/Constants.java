@@ -23,14 +23,15 @@ import java.awt.*;
  * @author hrkalona2
  */
 public interface Constants {
-    public static final int VERSION = 1078;
+    public static final int VERSION = 1079;
+    public static final boolean beta = false;
     public static final int FAST_JULIA_IMAGE_SIZE = 252;
     public static final int TOTAL_PALETTES = 37;
     public static final int TOTAL_INCOLORING_ALGORITHMS = 11;
     public static final int TOTAL_OUTCOLORING_ALGORITHMS = 25;
-    public static final int TOTAL_BAILOUT_CONDITIONS = 12;
+    public static final int TOTAL_BAILOUT_CONDITIONS = 13;
     public static final int TOTAL_PLANES = 64;
-    public static final int TOTAL_FUNCTIONS = 288;
+    public static final int TOTAL_FUNCTIONS = 292;
     public static final int TOTAL_FILTERS = 35;
     public static final int TOTAL_COLOR_TRANSFER_FILTERS = 7;
     public static final int TOTAL_COLOR_BLENDING = 30;
@@ -73,6 +74,7 @@ public interface Constants {
     public static final String[] rootInitializationMethod = {"(a^i) * z", "z's circle", "z * cos(a * i)", "z * e^(a * i)"};
     public static final String[] equicontinuityColorMethods = {"HSL", "HSB", "LCH", "Arg-Palette", "Palette"};
     public static final String[] equicontinuityArgs = {"Final Z value", "Start Z value", "Pixel Value", "C Value"};
+    public static final String[] normalMapColoringMethods = {"Original Color", "Rainbow Palette", "Distance Estimator", "Original + Distance Estimator"};
     /**
      * ** FUNCTION ***
      */
@@ -366,6 +368,11 @@ public interface Constants {
     public static final int ABBASBANDYCOS = 285;
     public static final int ABBASBANDYPOLY = 286;
     public static final int ABBASBANDYFORMULA = 287;
+
+    public static final int MAGNET13 = 288;
+    public static final int MAGNET14 = 289;
+    public static final int MAGNET23 = 290;
+    public static final int MAGNET24 = 291;
     /**
      * ***************
      */
@@ -552,6 +559,7 @@ public interface Constants {
     public static final int BAILOUT_CONDITION_IM_STRIP = 9;
     public static final int BAILOUT_CONDITION_RE_IM_SQUARED = 10;
     public static final int BAILOUT_CONDITION_NO_BAILOUT = 11;
+    public static final int BAILOUT_CONDITION_CUSTOM = 12;
     /**
      * ********************
      */
@@ -859,6 +867,8 @@ public interface Constants {
     public static final int TRAP_COLOR_RANDOM_HSB = 4;
     public static final int TRAP_COLOR_RANDOM_PALETTE = 5;
     public static final int TRAP_COLOR_ARG_PALETTE = 6;
+    public static final int TRAP_COLOR_ITER_HSB = 7;
+    public static final int TRAP_COLOR_ITER_LCH = 8;
     
     
      /**

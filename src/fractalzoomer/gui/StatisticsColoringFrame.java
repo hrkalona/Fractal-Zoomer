@@ -42,6 +42,11 @@ public class StatisticsColoringFrame extends JFrame {
     private MainWindow ptra2;
     private StatisticsColoringFrame this_frame;
     private StatisticsSettings sts;
+    private JCheckBox normalMap;
+    private JSlider color_blend_opt;
+    private JComboBox color_method_combo;
+    private JSlider nmLightFactor;
+    private JCheckBox normalMapOverrideColoring;
 
     public StatisticsColoringFrame(MainWindow ptra, StatisticsSettings sts2, Settings s, boolean periodicity_checking) {
 
@@ -75,7 +80,7 @@ public class StatisticsColoringFrame extends JFrame {
         }
 
         ptra2.setEnabled(false);
-        int custom_palette_window_width = (MainWindow.runsOnWindows ? 680 : 780) + 50;
+        int custom_palette_window_width = (MainWindow.runsOnWindows ? 680 : 780) + 90;
         int custom_palette_window_height = 730;
         setTitle("Statistical Coloring");
         setIconImage(getIcon("/fractalzoomer/icons/statistics_coloring.png").getImage());
@@ -101,7 +106,7 @@ public class StatisticsColoringFrame extends JFrame {
         JPanel panel3 = new JPanel();
         panel3.setLayout(new FlowLayout());
         panel3.setBackground(MainWindow.bg_color);
-        panel3.setPreferredSize(new Dimension((MainWindow.runsOnWindows ? 580 : 680) + 50, 590));
+        panel3.setPreferredSize(new Dimension((MainWindow.runsOnWindows ? 580 : 680) + 90, 590));
 
         JCheckBox statistics = new JCheckBox("Statistical Coloring");
         statistics.setFocusable(false);
@@ -154,6 +159,10 @@ public class StatisticsColoringFrame extends JFrame {
             smoothing.setEnabled(true);
             average.setEnabled(true);
         }
+        else if(sts.statisticGroup == 3) {
+            smoothing.setEnabled(false);
+            average.setEnabled(false);
+        }
 
         JPanel panel6 = new JPanel();
         panel6.setLayout(new FlowLayout());
@@ -162,7 +171,7 @@ public class StatisticsColoringFrame extends JFrame {
         panel6.add(average);
 
         JTabbedPane tabbedPane = new JTabbedPane();
-        tabbedPane.setPreferredSize(new Dimension((MainWindow.runsOnWindows ? 560 : 660) + 50, 510));
+        tabbedPane.setPreferredSize(new Dimension((MainWindow.runsOnWindows ? 560 : 660) + 90, 510));
         tabbedPane.setFocusable(false);
 
 
@@ -181,9 +190,15 @@ public class StatisticsColoringFrame extends JFrame {
         JPanel panel7 = new JPanel();
         panel7.setBackground(MainWindow.bg_color);
 
+        JPanel panel8 = new JPanel();
+        panel8.setBackground(MainWindow.bg_color);
+
         tabbedPane.addTab("Presets", panel5);
         tabbedPane.addTab("User Statistical Coloring", panel4);
         tabbedPane.addTab("Equicontinuity", panel7);
+        tabbedPane.addTab("Normal Map", panel8);
+
+        tabbedPane.setEnabledAt(3, s.fns.function >= MainWindow.MANDELBROT && s.fns.function <= MainWindow.MANDELBROTNTH && !s.fns.burning_ship);
 
         if(periodicity_checking) {
             tabbedPane.setEnabledAt(2, false);
@@ -261,9 +276,13 @@ public class StatisticsColoringFrame extends JFrame {
                     smoothing.setEnabled(reduction.getSelectedIndex() == MainWindow.REDUCTION_SUM);
                     average.setEnabled(reduction.getSelectedIndex() == MainWindow.REDUCTION_SUM);
                 }
-                else if (tabbedPane.getSelectedIndex() == 2) {
+                else if (tabbedPane.getSelectedIndex() == 0) {
                    smoothing.setEnabled(!atomDomain.isSelected() && !alg2.isSelected());
                    average.setEnabled(!atomDomain.isSelected() && !alg2.isSelected());
+                }
+                else if(tabbedPane.getSelectedIndex() == 3) {
+                    smoothing.setEnabled(false);
+                    average.setEnabled(false);
                 }
                 else {
                     smoothing.setEnabled(true);
@@ -279,7 +298,7 @@ public class StatisticsColoringFrame extends JFrame {
         JPanel panel23 = new JPanel();
         panel23.setLayout(new FlowLayout());
         panel23.setBackground(MainWindow.bg_color);
-        panel23.setPreferredSize(new Dimension((MainWindow.runsOnWindows ? 500 : 600) + 50, 30));
+        panel23.setPreferredSize(new Dimension((MainWindow.runsOnWindows ? 500 : 600) + 90, 30));
 
         panel23.add(iterations);
         if(s.isMagnetType()) {
@@ -343,7 +362,7 @@ public class StatisticsColoringFrame extends JFrame {
         info_panel.add(info_user);
         info_panel.add(code_editor);
         info_panel.add(compile_code);
-        info_panel.setPreferredSize(new Dimension((MainWindow.runsOnWindows ? 500 : 600) + 50, 28));
+        info_panel.setPreferredSize(new Dimension((MainWindow.runsOnWindows ? 500 : 600) + 90, 28));
         info_panel.setBackground(MainWindow.bg_color);
 
         panel4.add(info_panel);
@@ -489,6 +508,161 @@ public class StatisticsColoringFrame extends JFrame {
         panel7.add(panel71);
         panel7.add(panel72);
         panel7.add(panel73);
+
+
+
+        JPanel panel80 = new JPanel();
+        panel80.setBackground(MainWindow.bg_color);
+
+        normalMap = new JCheckBox("Normal Map");
+        normalMap.setToolTipText("Enables the use of normal map.");
+        normalMap.setBackground(MainWindow.bg_color);
+        normalMap.setSelected(sts.useNormalMap);
+        normalMap.setFocusable(false);
+
+        JPanel panel83 = new JPanel();
+        panel83.setBackground(MainWindow.bg_color);
+        panel83.setPreferredSize(new Dimension((MainWindow.runsOnWindows ? 530 : 630) + 90, 150));
+
+        ComponentTitledBorder normalMap_border = new ComponentTitledBorder(normalMap, panel83, BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), this_frame);
+        normalMap_border.setChangeListener();
+
+        panel83.setBorder(normalMap_border);
+
+
+        JTextField nmHeight = new JTextField(10);
+        nmHeight.setText("" + sts.normalMapHeight);
+
+        JTextField nmAngle = new JTextField(10);
+        nmAngle.setText("" + sts.normalMapAngle);
+
+        nmLightFactor = new JSlider(JSlider.HORIZONTAL, 0, 100, 0);
+        nmLightFactor.setValue((int)(100 * sts.normalMapLightFactor));
+        nmLightFactor.setBackground(MainWindow.bg_color);
+        nmLightFactor.setMajorTickSpacing(25);
+        nmLightFactor.setMinorTickSpacing(1);
+        nmLightFactor.setToolTipText("Sets the light factor.");
+        nmLightFactor.setFocusable(false);
+        nmLightFactor.setPaintLabels(true);
+
+        panel80.add(new JLabel(" Height: "));
+        panel80.add(nmHeight);
+        panel80.add(new JLabel(" Angle: "));
+        panel80.add(nmAngle);
+        panel80.add(new JLabel(" Light: "));
+        panel80.add(nmLightFactor);
+
+
+        JPanel panel82 = new JPanel();
+        panel82.setBackground(MainWindow.bg_color);
+
+        color_method_combo = new JComboBox(Constants.colorMethod);
+        color_method_combo.setSelectedIndex(sts.normalMapColorMode);
+        color_method_combo.setFocusable(false);
+        color_method_combo.setToolTipText("Sets the normal map color mode.");
+
+        color_blend_opt = new JSlider(JSlider.HORIZONTAL, 0, 100, (int) (sts.normalMapBlending * 100));
+        color_blend_opt.setMajorTickSpacing(25);
+        color_blend_opt.setMinorTickSpacing(1);
+        color_blend_opt.setToolTipText("Sets the color blending percentage.");
+        color_blend_opt.setFocusable(false);
+        color_blend_opt.setPaintLabels(true);
+        color_blend_opt.setBackground(MainWindow.bg_color);
+
+        color_method_combo.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                color_blend_opt.setEnabled(color_method_combo.getSelectedIndex() == 3);
+            }
+        });
+
+        JCheckBox useSecondDer = new JCheckBox("Second Derivative");
+        useSecondDer.setToolTipText("Enables the use of second derivative in normal map.");
+        useSecondDer.setBackground(MainWindow.bg_color);
+        useSecondDer.setSelected(sts.normalMapUseSecondDerivative);
+        useSecondDer.setFocusable(false);
+
+        panel82.add(useSecondDer);
+        panel82.add(new JLabel(" Color Mode: "));
+        panel82.add(color_method_combo);
+        panel82.add(new JLabel(" Color Blending: "));
+        panel82.add(color_blend_opt);
+
+        panel83.add(panel80);
+        panel83.add(panel82);
+
+
+        JPanel panel81 = new JPanel();
+        panel81.setBackground(MainWindow.bg_color);
+        panel81.setPreferredSize(new Dimension((MainWindow.runsOnWindows ? 530 : 630) + 90, 75));
+
+        JCheckBox de = new JCheckBox("Distance Estimation");
+        de.setToolTipText("Enables the use of distance estimation.");
+        de.setBackground(MainWindow.bg_color);
+        de.setSelected(sts.normalMapUseDE);
+        de.setFocusable(false);
+
+        ComponentTitledBorder de_border = new ComponentTitledBorder(de, panel81, BorderFactory.createCompoundBorder(BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()), this_frame);
+        de_border.setChangeListener();
+
+        panel81.setBorder(de_border);
+
+
+        JCheckBox inverDe = new JCheckBox("Invert Coloring");
+        inverDe.setToolTipText("Inverts the application of distance estimation.");
+        inverDe.setBackground(MainWindow.bg_color);
+        inverDe.setSelected(sts.normalMapInvertDE);
+        inverDe.setFocusable(false);
+
+        JTextField deFactor = new JTextField(10);
+        deFactor.setText("" + sts.normalMapDEfactor);
+
+        panel81.add(new JLabel(" Distance Estimation Factor: "));
+        panel81.add(deFactor);
+        panel81.add(inverDe);
+
+        JPanel panel84 = new JPanel();
+        panel84.setBackground(MainWindow.bg_color);
+
+        normalMapOverrideColoring = new JCheckBox("Override Coloring");
+        normalMapOverrideColoring.setToolTipText("Overrides the normal coloring is order to use the normal map coloring.");
+        normalMapOverrideColoring.setBackground(MainWindow.bg_color);
+        normalMapOverrideColoring.setSelected(sts.normalMapOverrideColoring);
+        normalMapOverrideColoring.setFocusable(false);
+
+        JComboBox normal_map_color_method_combo = new JComboBox(Constants.normalMapColoringMethods);
+        normal_map_color_method_combo.setSelectedIndex(sts.normalMapColoring);
+        normal_map_color_method_combo.setFocusable(false);
+        normal_map_color_method_combo.setToolTipText("Sets the normal map palette mode.");
+
+        panel84.add(normalMapOverrideColoring);
+        panel84.add(new JLabel( " Coloring Algorithm: "));
+        panel84.add(normal_map_color_method_combo);
+
+        normal_map_color_method_combo.setEnabled(sts.normalMapOverrideColoring);
+
+
+
+        normalMapOverrideColoring.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                normal_map_color_method_combo.setEnabled(normalMapOverrideColoring.isSelected());
+                nmLightFactor.setEnabled(normalMapOverrideColoring.isSelected() && normalMap.isSelected());
+                color_method_combo.setEnabled(normalMapOverrideColoring.isSelected() && normalMap.isSelected());
+                color_blend_opt.setEnabled(normalMapOverrideColoring.isSelected() && normalMap.isSelected() && color_method_combo.getSelectedIndex() == 3);
+            }
+        });
+
+        panel8.add(panel84);
+        panel8.add(panel83);
+        panel8.add(panel81);
+
+        normalMap_border.setState(normalMap.isSelected());
+        de_border.setState(de.isSelected());
+
+        color_method_combo.setEnabled(normalMapOverrideColoring.isSelected() && normalMap.isSelected());
+        nmLightFactor.setEnabled(normalMapOverrideColoring.isSelected() && normalMap.isSelected());
+        color_blend_opt.setEnabled(normalMapOverrideColoring.isSelected() && normalMap.isSelected() && color_method_combo.getSelectedIndex() == 3);
 
         ButtonGroup button_group = new ButtonGroup();
 
@@ -708,7 +882,7 @@ public class StatisticsColoringFrame extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
 
-                double temp, temp2, temp3, temp4, temp5, temp6, temp7, temp8;
+                double temp, temp2, temp3, temp4, temp5, temp6, temp7, temp8, temp9, temp10, temp11;
                 try {
                     temp = Double.parseDouble(intensity.getText());
                     temp2 = Double.parseDouble(stripeDensity1.getText());
@@ -718,6 +892,9 @@ public class StatisticsColoringFrame extends JFrame {
                     temp6 = Double.parseDouble(lagrPower.getText());
                     temp7 = Double.parseDouble(equiDenominatorFactor.getText());
                     temp8 = Double.parseDouble(equiDelta.getText());
+                    temp9 = Double.parseDouble(deFactor.getText());
+                    temp10 = Double.parseDouble(nmHeight.getText());
+                    temp11 = Double.parseDouble(nmAngle.getText());
                 }
                 catch(Exception ex) {
                     JOptionPane.showMessageDialog(this_frame, "Illegal Argument!", "Error!", JOptionPane.ERROR_MESSAGE);
@@ -738,6 +915,17 @@ public class StatisticsColoringFrame extends JFrame {
                     JOptionPane.showMessageDialog(this_frame, "Equicontinuity denominator factor must be greater than -1.", "Error!", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
+
+                if (temp9 <= 0) {
+                    JOptionPane.showMessageDialog(this_frame, "The distance estimation factor must be greater than 0.", "Error!", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
+                if (temp10 < 1) {
+                    JOptionPane.showMessageDialog(this_frame, "The normal map height factor must be greater or equal to 1.", "Error!", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
 
                 try {
                     s.parser.parse(field_formula.getText());
@@ -791,6 +979,19 @@ public class StatisticsColoringFrame extends JFrame {
                 sts.equicontinuityInvertFactor = inverseFactor.isSelected();
                 sts.equicontinuityOverrideColoring = overrideColoring.isSelected();
                 sts.equicontinuityDelta = temp8;
+
+                sts.useNormalMap = normalMap.isSelected();
+                sts.normalMapAngle = temp11;
+                sts.normalMapHeight = temp10;
+                sts.normalMapOverrideColoring = normalMapOverrideColoring.isSelected();
+                sts.normalMapDEfactor = temp9;
+                sts.normalMapUseDE = de.isSelected();
+                sts.normalMapInvertDE = inverDe.isSelected();
+                sts.normalMapLightFactor = nmLightFactor.getValue() / 100.0;
+                sts.normalMapColorMode = color_method_combo.getSelectedIndex();
+                sts.normalMapBlending = color_blend_opt.getValue() / 100.0;
+                sts.normalMapUseSecondDerivative = useSecondDer.isSelected();
+                sts.normalMapColoring = normal_map_color_method_combo.getSelectedIndex();
 
                 if(stripe_average.isSelected()) {
                     sts.statistic_type = MainWindow.STRIPE_AVERAGE;
@@ -852,7 +1053,7 @@ public class StatisticsColoringFrame extends JFrame {
 
         RoundedPanel round_panel = new RoundedPanel(true, true, true, 15);
         round_panel.setBackground(MainWindow.bg_color);
-        round_panel.setPreferredSize(new Dimension((MainWindow.runsOnWindows ? 610 : 710) + 50, 650));
+        round_panel.setPreferredSize(new Dimension((MainWindow.runsOnWindows ? 610 : 710) + 90, 650));
         round_panel.setLayout(new GridBagLayout());
 
         GridBagConstraints con = new GridBagConstraints();
@@ -885,6 +1086,20 @@ public class StatisticsColoringFrame extends JFrame {
     private ImageIcon getIcon(String path) {
 
         return new ImageIcon(getClass().getResource(path));
+
+    }
+
+    public void toggled(boolean toggled) {
+
+        if (!toggled) {
+            return;
+        }
+
+        if(normalMap.isSelected()) {
+            nmLightFactor.setEnabled(normalMapOverrideColoring.isSelected());
+            color_method_combo.setEnabled(normalMapOverrideColoring.isSelected());
+            color_blend_opt.setEnabled(normalMapOverrideColoring.isSelected() && color_method_combo.getSelectedIndex() == 3);
+        }
 
     }
 

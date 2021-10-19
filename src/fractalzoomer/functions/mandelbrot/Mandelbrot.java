@@ -320,7 +320,7 @@ public class Mandelbrot extends Julia {
 
             zold2.assign(zold);
             zold.assign(complex[0]);
-            if(isJulia) {
+            if(isJulia || isJulia && juliter && iterations >= juliterIterations) {
                 dc.times_mutable(complex[0]).times_mutable(2);
             }
             else {
@@ -388,7 +388,7 @@ public class Mandelbrot extends Julia {
                 }
             }
 
-            if(isJulia) {
+            if(isJulia || isJulia && juliter && iterations >= juliterIterations) {
                 dc.times_mutable(complex[0]).times_mutable(2);
             }
             else {
@@ -505,7 +505,7 @@ public class Mandelbrot extends Julia {
             zold2.assign(zold);
             zold.assign(complex[0]);
 
-            if(isJulia) {
+            if(isJulia || isJulia && juliter && iterations >= juliterIterations) {
                 dc.times_mutable(complex[0]).times_mutable(2);
             }
             else {
@@ -595,7 +595,7 @@ public class Mandelbrot extends Julia {
             }
             zold2.assign(zold);
             zold.assign(complex[0]);
-            if(isJulia) {
+            if(isJulia || isJulia && juliter && iterations >= juliterIterations) {
                 dc.times_mutable(complex[0]).times_mutable(2);
             }
             else {
@@ -662,7 +662,7 @@ public class Mandelbrot extends Julia {
                 }
             }
 
-            if(isJulia) {
+            if(isJulia || isJulia && juliter && iterations >= juliterIterations) {
                 dc.times_mutable(complex[0]).times_mutable(2);
             }
             else {
@@ -775,7 +775,7 @@ public class Mandelbrot extends Julia {
 
             zold2.assign(zold);
             zold.assign(complex[0]);
-            if(isJulia) {
+            if(isJulia || isJulia && juliter && iterations >= juliterIterations) {
                 dc.times_mutable(complex[0]).times_mutable(2);
             }
             else {
@@ -827,10 +827,14 @@ public class Mandelbrot extends Julia {
             return;
         }
         else if(sts.statisticGroup == 2) {
-            if(ThreadDraw.PERTURBATION_THEORY && !isJulia() && supportsPerturbationTheory()) {
+            if(ThreadDraw.PERTURBATION_THEORY && !isJulia && supportsPerturbationTheory()) {
                 return;
             }
             statistic = new Equicontinuity(sts.statistic_intensity, sts.useSmoothing, sts.useAverage, log_bailout_squared, false, 0, sts.equicontinuityDenominatorFactor, sts.equicontinuityInvertFactor, sts.equicontinuityDelta);
+            return;
+        }
+        else if(sts.statisticGroup == 3) {
+            statistic = new NormalMap(sts.statistic_intensity, power, sts.normalMapHeight, sts.normalMapAngle, sts.normalMapUseSecondDerivative, size, sts.normalMapDEfactor, isJulia, sts.normalMapUseDE, sts.normalMapInvertDE, sts.normalMapColoring, sts.useNormalMap, juliter, juliterIterations);
             return;
         }
 
@@ -898,8 +902,7 @@ public class Mandelbrot extends Julia {
         BigComplex c0 = pixel;
 
         refPoint = pixel;
-        RefPower = power;
-        RefBurningShip = burning_ship;
+        RefType = getRefType();
 
         boolean isSeriesInUse = ThreadDraw.SERIES_APPROXIMATION && !burning_ship;
         boolean fullReference = ThreadDraw.CALCULATE_FULL_REFERENCE;
@@ -933,7 +936,7 @@ public class Mandelbrot extends Julia {
                 }*/
             }
 
-            if (!fullReference && iterations > 0 && bailout_algorithm.escaped(z, zold, zold2, iterations, c, start, c0, null)) {
+            if (!fullReference && iterations > 0 && bailout_algorithm.escaped(z, zold, zold2, iterations, c, start, c0, Apfloat.ZERO)) {
                 break;
             }
 
@@ -941,7 +944,7 @@ public class Mandelbrot extends Julia {
             zold = z;
 
             if (burning_ship) {
-                z = z.abs().square().plus(c);
+                z = z.abs().square_plus_c(c);
             } else {
                 z = z.square_plus_c(c);
             }
@@ -966,8 +969,9 @@ public class Mandelbrot extends Julia {
 
         if(burning_ship) {
 
-            double r = Reference[RefIteration].getRe();
-            double i = Reference[RefIteration].getIm();
+            Complex X = Reference[RefIteration];
+            double r = X.getRe();
+            double i = X.getIm();
             double a = DeltaSubN.getRe();
             double b = DeltaSubN.getIm();
             double a2 = a * a;
@@ -983,8 +987,9 @@ public class Mandelbrot extends Julia {
     public MantExpComplex perturbationFunction(MantExpComplex DeltaSubN, MantExpComplex DeltaSub0, int RefIteration) {
 
         if(burning_ship) {
-            MantExp r = ReferenceDeep[RefIteration].getRe();
-            MantExp i = ReferenceDeep[RefIteration].getIm();
+            MantExpComplex X = ReferenceDeep[RefIteration];
+            MantExp r = X.getRe();
+            MantExp i = X.getIm();
             MantExp a = DeltaSubN.getRe();
             MantExp b = DeltaSubN.getIm();
             MantExp a2 = a.multiply(a);
@@ -1002,8 +1007,9 @@ public class Mandelbrot extends Julia {
 
         if(burning_ship) {
 
-            double r = Reference[RefIteration].getRe();
-            double i = Reference[RefIteration].getIm();
+            Complex X = Reference[RefIteration];
+            double r = X.getRe();
+            double i = X.getIm();
             double a = DeltaSubN.getRe();
             double b = DeltaSubN.getIm();
             double a2 = a * a;
@@ -1255,6 +1261,11 @@ public class Mandelbrot extends Julia {
      double norm2 = (dcdz.plus(dzdz.times(dc))).divide(dz.r_sub(1)).norm();//cabs(dcdz + dzdz * dc / (1 - dz)
      return (1 - norm_dz * norm_dz) / norm2;//(1 - cabs(dz) * cabs(dz)) / cabs(dcdz + dzdz * dc / (1 - dz));
      }*/
+
+    @Override
+    public String getRefType() {
+        return super.getRefType() + (burning_ship ? "-Burning Ship" : "");
+    }
 
     public static void main(String[] args) {
         int numCoefficients = 8;

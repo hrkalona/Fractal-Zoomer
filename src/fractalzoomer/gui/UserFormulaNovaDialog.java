@@ -215,7 +215,16 @@ public class UserFormulaNovaDialog extends JDialog {
                 pack();
             }
 
-        });    
+        });
+
+        JPanel defaultInitPanel = new JPanel();
+
+        JCheckBox defaultInit = new JCheckBox("Default Nova Initial Value");
+        defaultInit.setSelected(s.fns.defaultNovaInitialValue);
+        defaultInit.setToolTipText("Uses 1 + 0i for Nova initialization.");
+        defaultInit.setFocusable(false);
+
+        defaultInitPanel.add(defaultInit);
         
         Object[] labels3 = ptr.createUserFormulaLabels("z, c, s, c0, p, pp, n, maxn, center, size, sizei, v1 - v30, point");
 
@@ -251,6 +260,7 @@ public class UserFormulaNovaDialog extends JDialog {
             formula_ddfz_panel9,
             formula_dddfz_panel9,
             p1,
+            defaultInitPanel,
             degree_panel,
             k_panel};
 
@@ -391,6 +401,8 @@ public class UserFormulaNovaDialog extends JDialog {
                         
                         s.fns.derivative_method = derivative_choice.getSelectedIndex();
                         Derivative.DERIVATIVE_METHOD = s.fns.derivative_method;
+
+                        s.fns.defaultNovaInitialValue = defaultInit.isSelected();
 
                         ptra.setUserFormulaOptions(true);
                     } catch (ParserException ex) {
